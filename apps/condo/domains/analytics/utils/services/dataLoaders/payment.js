@@ -41,20 +41,15 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
                 ))
             )
         })
-        this.whereIn = {}
 
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
-            const [groupName, groupCondition] = Object.entries(currentFilter)[0]
-            const groupIdArray = get(groupCondition, 'id_in')
-            const [filterEntities, filterValues] = filter
+            const [groupName] = Object.entries(currentFilter)[0]
+            const [filterEntities] = filter
 
             if (!this.aggregateBy.includes(groupName)) {
                 this.aggregateBy.push(groupName)
             }
-
-            this.whereIn[groupName] = groupIdArray.map(id => [id])
             filterEntities.push(groupName)
-            filterValues.push(...groupIdArray.map(id => [id]))
         }, [[], []])
 
         const query = knex(this.domainName).count('id').sum('amount').select(this.groups)
@@ -63,6 +58,7 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
 
         this.result = await query.groupBy(this.aggregateBy)
             .where(knexWhere)
+            .whereIn(...this.whereIn)
             .whereBetween('period', [this.dateRange.from, this.dateRange.to])
             .orderBy('dayGroup', 'asc')
     }
@@ -83,12 +79,13 @@ class PaymentDataLoader extends AbstractDataLoader {
         const paymentIds = await paymentMonthSumLoader.load()
         const sumAggregate = await paymentMonthSumLoader.loadAggregate('SUM(amount) as "amountSum"', paymentIds.map(({ id })=> id))
 
-        const sum = Big(sumAggregate.amountSum || 0).toFixed(2)
+        const sum = new Big(sumAggregate.amountSum || 0).toFixed(2)
 
         const paymentGqlKnexLoader = new PaymentGqlKnexLoader(where, groupBy)
         await paymentGqlKnexLoader.loadData()
-        const payments = paymentGqlKnexLoader.getResult(({ dayGroup, ...searchResult }) => ({
+        const payments = paymentGqlKnexLoader.getResult(({ dayGroup, sum, ...searchResult }) => ({
             dayGroup: dayjs(dayGroup).format('DD.MM.YYYY'),
+            sum: new Big(sum || 0).toFixed(2),
             ...searchResult,
         }))
 
@@ -108,8 +105,6 @@ class PaymentDataLoader extends AbstractDataLoader {
                     break
             }
         }
-
-
 
         return { sum, payments }
     }

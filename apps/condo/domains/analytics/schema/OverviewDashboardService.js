@@ -4,7 +4,7 @@
 
 const dayjs = require('dayjs')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -15,15 +15,16 @@ const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/d
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
 const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
 const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
+const {  OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
+const { ANALYTICS_V3 } = require('@condo/domains/organization/constants/features')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
 const ERRORS = {
-    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: { mutation: 'overviewDashboard',
-        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@open-condo/keystone/errors'
-        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
-        message: 'Describe what happened for developer',
-        messageForUser: 'api.user.overviewDashboard.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
+    FEATURE_IS_DISABLED: {
+        code: FORBIDDEN,
+        type: OPERATION_FORBIDDEN,
+        message: 'Your organization do not have access to this feature',
+        messageForUser: 'api.user.overviewDashboard.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY',
     },
 }
 
@@ -89,6 +90,15 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where, groupBy } } = args
 
+                const organization = await Organization.getOne(context, {
+                    id: where.organization,
+                    features_in: [ANALYTICS_V3],
+                })
+
+                if (!organization) {
+                    throw new GQLError(ERRORS.FEATURE_IS_DISABLED, context)
+                }
+
                 const ticketNullReplaces = {
                     categoryClassifier: i18n('pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier'),
                     executor: i18n('pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor'),
@@ -147,16 +157,11 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
                                 where: {
                                     organization: { id: where.organization },
                                     deletedAt: null,
-                                    // status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+                                    status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
                                     AND: [
                                         { period_gte: dayjs(where.dateFrom).startOf('month').toISOString() },
                                         { period_lte: dayjs(where.dateTo).endOf('month').toISOString() },
-                                        { status: PAYMENT_DONE_STATUS },
                                     ],
-                                    // OR: [
-                                    //     { status: PAYMENT_DONE_STATUS },
-                                    //     { status: PAYMENT_WITHDRAWN_STATUS },
-                                    // ],
                                 },
                                 groupBy: ['month', 'createdBy'],
                             },
@@ -190,8 +195,6 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
 
                 const overview = await dataProvider.loadAll()
 
-                // TODO: throw ERRORS in a following way
-                // throw new GQLError(ERRORS.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
                 return { overview }
             },
         },

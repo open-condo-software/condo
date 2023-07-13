@@ -82,7 +82,7 @@ class ReceiptDataLoader extends AbstractDataLoader {
 
         const receiptIds = await receiptMonthSumLoader.load()
         const sumAggregate = await receiptMonthSumLoader.loadAggregate('SUM(charge) as "chargeSum"', receiptIds.map(({ id }) => id))
-        const sum = Big(sumAggregate.chargeSum || 0).toFixed(2)
+        const sum = new Big(sumAggregate.chargeSum || 0).toFixed(2)
 
         const receiptsLoader = new ReceiptGqlKnexLoader({
             ...omit(where, ['organization']),
@@ -90,8 +90,9 @@ class ReceiptDataLoader extends AbstractDataLoader {
         }, groupBy)
 
         await receiptsLoader.loadData()
-        const receipts = receiptsLoader.getResult(({ dayGroup, ...searchResult }) => ({
+        const receipts = receiptsLoader.getResult(({ dayGroup, sum, ...searchResult }) => ({
             dayGroup: dayjs(dayGroup).format('DD.MM.YYYY'),
+            sum: new Big(sum || 0).toFixed(2),
             ...searchResult,
         }))
 

@@ -6,6 +6,7 @@ class GqlToKnexBaseAdapter {
     dayGroups = ['day', 'month', 'week', 'quarter', 'year']
     dayGroup = 'day'
     dateRange = { from: null, to: null }
+    whereIn = []
     groups = []
     result = null
 
@@ -33,6 +34,8 @@ class GqlToKnexBaseAdapter {
                     this.dateRange.from = query
                 } else if (field.match(/_lte?$/)) {
                     this.dateRange.to = query
+                } else if (field.match(/_in$/)) {
+                    this.whereIn.push(field.replace('_in', ''), query)
                 } else {
                     this.where.push({ [field]: query })
                 }
