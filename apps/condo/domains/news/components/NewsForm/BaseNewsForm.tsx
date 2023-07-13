@@ -109,10 +109,19 @@ export const StyledTabs = styled(Tabs)`
         }
     }
 `
-const COUNTER_COL_STYLE: React.CSSProperties = {
+const COUNTER_TITLE_STYLE: React.CSSProperties = {
+    top: '123px',
     position: 'absolute',
     right: 0,
-    bottom: 0,
+    margin: '12px',
+    padding: '2px 10px',
+    backgroundColor: 'black',
+    borderRadius: '100px',
+}
+const COUNTER_BODY_STYLE: React.CSSProperties = {
+    top: '198px',
+    position: 'absolute',
+    right: 0,
     margin: '12px',
     padding: '2px 10px',
     backgroundColor: 'black',
@@ -938,7 +947,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleTitleChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={COUNTER_COL_STYLE}>
+                                                        <Col style={COUNTER_TITLE_STYLE}>
                                                             <Title.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
@@ -957,7 +966,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 onChange={handleBodyChange}
                                                             />
                                                         </Form.Item>
-                                                        <Col style={COUNTER_COL_STYLE}>
+                                                        <Col style={COUNTER_BODY_STYLE}>
                                                             <Body.Counter type='inverted'/>
                                                         </Col>
                                                     </Col>
