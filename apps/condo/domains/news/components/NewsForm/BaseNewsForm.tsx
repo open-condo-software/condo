@@ -17,6 +17,7 @@ import dayjs from 'dayjs'
 import difference from 'lodash/difference'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
+import has from 'lodash/has'
 import includes from 'lodash/includes'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
@@ -25,7 +26,7 @@ import transform from 'lodash/transform'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
-import React, { ComponentProps, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ComponentProps, useCallback, useEffect, useMemo, useState, useRef } from 'react'
 import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
@@ -405,6 +406,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const [isAllPropertiesChecked, setIsAllPropertiesChecked] = useState(initialHasAllProperties)
     const [selectedSectionKeys, setSelectedSectionKeys] = useState(initialSectionIds)
 
+    const countPropertiesAvaliableToSelect = useRef(null)
+
     const { loading: selectedPropertiesLoading, objs: selectedProperties } = Property.useAllObjects({
         where: { id_in: selectedPropertiesId },
     })
@@ -480,6 +483,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         }
     }, [])
 
+    const handleAllPropertiesDataLoading = useCallback((data) => {
+        countPropertiesAvaliableToSelect.current = data.length
+    }, [])
+
     const Title = useInputWithCounter(Input.TextArea, 150)
     const Body = useInputWithCounter(Input.TextArea, 800)
 
@@ -505,7 +512,14 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }, [Body, Title, templates])
     const propertyCheckboxChange = (form) => {
         return (value) => {
-            if (value) setSelectedPropertiesId([])
+            if (value) setSelectedPropertiesId(selectedPropertiesId => {
+                if (countPropertiesAvaliableToSelect.current === 1 && selectedPropertiesId.length === 1) 
+                    return selectedPropertiesId
+                return []
+            })
+            if (countPropertiesAvaliableToSelect.current === 1 && !value) {
+                setSelectedPropertiesId([])
+            }
             setIsAllPropertiesChecked(value)
             form.setFieldsValue({ 'unitNames': [] })
             form.setFieldsValue({ 'sectionIds': [] })
@@ -523,9 +537,9 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             required: true,
             placeholder: SelectAddressPlaceholder,
             onChange: (propIds: string[]) => {
+                setSelectedPropertiesId(propIds)
                 form.setFieldsValue({ 'unitNames': [] })
                 form.setFieldsValue({ 'sectionIds': [] })
-                setSelectedPropertiesId(propIds)
                 setSelectedUnitNameKeys([])
                 setSelectedSectionKeys([])
             },
@@ -801,6 +815,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     formValuesToMutationDataPreprocessor={(values) => {
                         values.property = selectedProperties[0]
 
+                        if (get(values, 'hasAllProperties', null) && get(values, 'property', null)) {
+                            values.properties = has(values.property, 'id') ? [values.property.id] : []
+                        }
+
                         return values
                     }}
                     children={({ handleSave, isLoading, form }) => (
@@ -972,6 +990,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                         selectProps={propertySelectProps(form)}
                                                         onCheckBoxChange={propertyCheckboxChange(form)}
                                                         CheckAllMessage={CheckAllLabel}
+                                                        onDataLoaded={handleAllPropertiesDataLoading}
                                                         form={form}
                                                     />
                                                 </Col>
