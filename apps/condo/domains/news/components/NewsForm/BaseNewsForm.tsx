@@ -21,6 +21,7 @@ import includes from 'lodash/includes'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
 import isNull from 'lodash/isNull'
+import transform from 'lodash/transform'
 import uniq from 'lodash/uniq'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -76,7 +77,7 @@ export type BaseNewsFormProps = {
         sendPeriod: SendPeriodType,
         properties?: IProperty[],
     },
-    templates: { [key: string]: Pick<INewsItemTemplate, 'title' | 'body'> }
+    templates: { [key: string]: Pick<INewsItemTemplate, 'title' | 'body' | 'type'> }
     afterAction?: () => void,
     newsItem?: INewsItem,
     OnCompletedMsg: (INewsItem) => ArgsProps | null,
@@ -375,6 +376,21 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (unitType) return unitType
         }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length, initialSectionKeys])
+    const commonTemplates = useMemo(() => {
+        return transform(templates, (result, value, key) => {
+            if (value.type === NEWS_TYPE_COMMON || isNull(value.type)) {
+                result[key] = value
+            }
+        }, {})
+    }, [templates])
+
+    const emergencyTemplates = useMemo(() => {
+        return transform(templates, (result, value, key) => {
+            if (value.type === NEWS_TYPE_EMERGENCY || isNull(value.type)) {
+                result[key] = value
+            }
+        }, {})
+    }, [templates])
 
     const [sendPeriod, setSendPeriod] = useState<string>(get(initialValues, 'sendPeriod', 'now'))
 
@@ -860,15 +876,28 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             <Form.Item
                                                                 name='template'
                                                             >
-                                                                <StyledTabs
-                                                                    onChange={handleTemplateChange(form, 'template')}
-                                                                    items={
-                                                                        Object.keys(templates).map(id => ({
-                                                                            key: id,
-                                                                            label: templates[id].title,
-                                                                        }))
-                                                                    }
-                                                                />
+                                                                {selectedType === NEWS_TYPE_COMMON && (
+                                                                    <StyledTabs
+                                                                        onChange={handleTemplateChange(form, 'template')}
+                                                                        items={
+                                                                            Object.keys(commonTemplates).map(id => ({
+                                                                                key: id,
+                                                                                label: commonTemplates[id].title,
+                                                                            }))
+                                                                        }
+                                                                    />
+                                                                )}
+                                                                {selectedType === NEWS_TYPE_EMERGENCY && (
+                                                                    <StyledTabs
+                                                                        onChange={handleTemplateChange(form, 'template')}
+                                                                        items={
+                                                                            Object.keys(emergencyTemplates).map(id => ({
+                                                                                key: id,
+                                                                                label: emergencyTemplates[id].title,
+                                                                            }))
+                                                                        }
+                                                                    />
+                                                                )}
                                                             </Form.Item>
                                                         </Col>
                                                     </Row>

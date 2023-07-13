@@ -106,9 +106,10 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
             acc[template.id] = {
                 title: template.title,
                 body: template.body,
+                type: template.type,
             }
             return acc
-        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '' } })
+        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
 
     const softDeleteNewsItem = NewsItem.useSoftDelete()
     const OnCompletedMsg = useCallback((newsItem) => {

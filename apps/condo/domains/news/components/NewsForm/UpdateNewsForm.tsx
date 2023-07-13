@@ -132,9 +132,10 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
             acc[template.id] = {
                 title: template.title,
                 body: template.body,
+                type: template.type,
             }
             return acc
-        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '' } })
+        }, { emptyTemplate: { title: EmptyTemplateTitle, body: '', type: null } })
 
     const error = useMemo(
         () => newsItemError || newsItemScopeError || allNewsError || newsItemTemplatesError,

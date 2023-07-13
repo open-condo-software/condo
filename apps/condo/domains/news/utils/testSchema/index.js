@@ -159,12 +159,14 @@ async function createTestNewsItemTemplate (client, extraAttrs = {}) {
 
     const title = faker.lorem.words(3)
     const body = faker.lorem.words(19)
+    const type = NEWS_TYPE_COMMON
 
     const attrs = {
         dv: 1,
         sender,
         title,
         body,
+        type,
         ...extraAttrs,
     }
     const obj = await NewsItemTemplate.create(client, attrs)
