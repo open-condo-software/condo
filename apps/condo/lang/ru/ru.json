@@ -889,6 +889,7 @@
   "pages.condo.meter.reportingPeriod.create.organizationTooltip": "Этот период будет действовать для всех домов, у которых нет периода с определенным адресом",
   "pages.condo.meter.reportingPeriod.create.descriptionMessage": "Выберите все дома или конкретный дом. Укажите числа месяца, в которые вы принимаете показания ИПУ в счет текущего периода.",
   "pages.condo.meter.reportingPeriod.create.inputPostfix": "числа каждого месяца включительно",
+  "pages.condo.meter.reportingPeriod.EmptyList.header": "Период подачи показаний пока не добавлен",
   "pages.condo.settings.hint.organization": "УК",
   "pages.condo.settings.hint.ticketPropertyHint": "Справка по дому",
   "pages.condo.settings.hint.createTicketPropertyHint": "Создать справку",
