@@ -11,10 +11,10 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography  } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
-import { useLayoutContext } from '../../common/components/LayoutContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '../constants/common'
 
 import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
