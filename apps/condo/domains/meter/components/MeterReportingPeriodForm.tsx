@@ -66,6 +66,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const StartLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.start' })
     const FinishLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.finish' })
+    const AddressPlaceholderLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.addressPlaceholder' })
+    const AddressPlaceholderDefaultPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.addressPlaceholderIfDefaultPeriod' })
     const IncorrectPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.incorrectPeriod' })
     const OrganizationLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationPeriod' })
     const OrganizationTooltipMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationTooltip' })
@@ -228,6 +230,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                 <GraphQlSearchInput
                                                     label={AddressPlaceholderMessage}
                                                     showArrow={false}
+                                                    placeholder={isOrganizationPeriod ? AddressPlaceholderDefaultPeriodLabel : AddressPlaceholderLabel}
                                                     disabled={isOrganizationPeriod}
                                                     onChange={handelGQLInputChange}
                                                     initialValue={isCreateMode ? undefined : selectedPropertyId}
@@ -261,7 +264,6 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
                                             required
-                                            shouldUpdate
                                             validateFirst
                                         >
                                             <Select
