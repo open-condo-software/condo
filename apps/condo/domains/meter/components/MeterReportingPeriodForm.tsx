@@ -92,6 +92,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
     const finishNumberRef = useRef<number>(formInitialValues.notifyEndDay)
+    const [selectRerender, execSelectRerender] = useState()
     const selectedPropertyIdRef = useRef(selectedPropertyId)
 
     useEffect(() => {
@@ -136,11 +137,13 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const handleStartChange = useCallback((value) => {
         startNumberRef.current = value
+        execSelectRerender(value)
         handleDayChange()
     }, [])
 
     const handleFinishChange = useCallback((value) => {
         finishNumberRef.current = value
+        execSelectRerender(value)
         handleDayChange()
     }, [])
 
