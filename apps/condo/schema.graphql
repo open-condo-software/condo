@@ -63595,8 +63595,13 @@ type GetExternalReportIframeUrlOutput {
   iframeUrl: String
 }
 
+enum OverviewDashboardAggregatePeriod {
+  day
+  week
+}
+
 input OverviewDashboardGroupByInput {
-  aggregatePeriod: String!
+  aggregatePeriod: OverviewDashboardAggregatePeriod!
 }
 
 input OverviewDashboardWhereInput {

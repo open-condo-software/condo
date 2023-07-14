@@ -47916,8 +47916,13 @@ export type OrganizationsUpdateInput = {
   data?: Maybe<OrganizationUpdateInput>;
 };
 
+export enum OverviewDashboardAggregatePeriod {
+  Day = 'day',
+  Week = 'week'
+}
+
 export type OverviewDashboardGroupByInput = {
-  aggregatePeriod: Scalars['String'];
+  aggregatePeriod: OverviewDashboardAggregatePeriod;
 };
 
 export type OverviewDashboardInput = {

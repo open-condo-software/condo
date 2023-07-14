@@ -15,7 +15,7 @@ const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/d
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
 const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
 const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
-const {  OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
+const { OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
 const { ANALYTICS_V3 } = require('@condo/domains/organization/constants/features')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 
@@ -24,7 +24,7 @@ const ERRORS = {
         code: FORBIDDEN,
         type: OPERATION_FORBIDDEN,
         message: 'Your organization do not have access to this feature',
-        messageForUser: 'api.user.overviewDashboard.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY',
+        messageForUser: 'api.analytics.overviewDashboard.FEATURE_IS_DISABLED',
     },
 }
 
@@ -35,7 +35,11 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
     types: [
         {
             access: true,
-            type: 'input OverviewDashboardGroupByInput { aggregatePeriod: String! }',
+            type: 'enum OverviewDashboardAggregatePeriod { day week }',
+        },
+        {
+            access: true,
+            type: 'input OverviewDashboardGroupByInput { aggregatePeriod: OverviewDashboardAggregatePeriod! }',
         },
         {
             access: true,
@@ -203,4 +207,5 @@ const OverviewDashboardService = new GQLCustomSchema('OverviewDashboardService',
 
 module.exports = {
     OverviewDashboardService,
+    ERRORS,
 }

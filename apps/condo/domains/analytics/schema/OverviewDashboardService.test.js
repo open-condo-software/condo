@@ -4,7 +4,13 @@
 const Big = require('big.js')
 const dayjs = require('dayjs')
 
-const { makeClient, expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult, expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
+const {
+    makeClient,
+    expectToThrowAuthenticationErrorToResult,
+    expectToThrowAccessDeniedErrorToResult,
+    expectToThrowGQLError,
+    expectToThrowGraphQLRequestError,
+} = require('@open-condo/keystone/test.utils')
 
 const {
     PAYMENT_DONE_STATUS,
@@ -19,6 +25,7 @@ const {
     createTestMultiPayment,
     updateTestMultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { ERRORS } = require('@condo/domains/analytics/schema/OverviewDashboardService')
 const { overviewDashboardByTestClient } = require('@condo/domains/analytics/utils/testSchema')
 const { updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
@@ -106,7 +113,7 @@ describe('OverviewDashboardService', () => {
             })
             const [data] = await overviewDashboardByTestClient(admin, {
                 where: { organization: organization.id, dateFrom, dateTo },
-                groupBy: { aggregatePeriod: 'month' },
+                groupBy: { aggregatePeriod: 'day' },
             })
 
             expect(data).toHaveProperty('overview')
@@ -127,6 +134,23 @@ describe('OverviewDashboardService', () => {
 
             expect(data.overview).toHaveProperty(['payment', 'payments', '0', 'count'], '2')
             expect(data.overview).toHaveProperty(['payment', 'sum'])
+        })
+
+        it('can\'t query if it has no canManageOrganization organization access', async () => {
+            const organizationEmployee = await makeClientWithNewRegisteredAndLoggedInUser()
+            organizationEmployee.organization = organization
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                canManageOrganization: false,
+            })
+            await createTestOrganizationEmployee(admin, organization, organizationEmployee.user, role, {
+                isAccepted: true, name: organizationEmployee.user.name,
+            })
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await overviewDashboardByTestClient(organizationEmployee, {
+                    where: { organization: organization.id, dateFrom, dateTo }, groupBy: { aggregatePeriod: 'day' },
+                })
+            })
         })
 
         it('can\'t query from another organization', async () => {
@@ -305,14 +329,24 @@ describe('OverviewDashboardService', () => {
     })
 
     describe('Validations', () => {
-        it.skip('cannot query OverviewDashboard without organization feature provided', async () => {
+        it('cannot query OverviewDashboard without organization feature provided', async () => {
             const [organization] = await createTestOrganization(admin)
+
+            await expectToThrowGQLError(async () => {
+                await overviewDashboardByTestClient(admin, {
+                    where: { organization: organization.id, dateFrom, dateTo },
+                    groupBy: { aggregatePeriod: 'day' },
+                })
+            }, ERRORS.FEATURE_IS_DISABLED, 'result')
+        })
+
+        it('cannot query OverviewDashboard with unsupported period type', async () => {
             await expectToThrowGraphQLRequestError(async () => {
                 await overviewDashboardByTestClient(admin, {
                     where: { organization: organization.id, dateFrom, dateTo },
-                    groupBy: { aggregatePeriod: 'month' },
+                    groupBy: { aggregatePeriod: 'year' },
                 })
-            }, 'Your organization do not have access to this feature')
+            }, 'got invalid value')
         })
     })
 })
