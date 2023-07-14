@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { PaymentChartView } from '@condo/domains/analytics/components/PaymentChartView'
+import { CustomChartView } from '@condo/domains/analytics/components/CustomChartView'
 
 import { PaymentReceiptDataMapper } from './dataMappers'
 
@@ -19,12 +19,12 @@ const PaymentReceiptChart: IPaymentChartCard = ({ data }) => {
     const dataMapper = useMemo(() => PaymentReceiptDataMapper(ChargedTitle, PaidTitle), [ChargedTitle, PaidTitle])
 
     return (
-        <Row gutter={[0, 12]}>
+        <Row gutter={[0, 16]}>
             <Col span={24}>
                 <Typography.Title level={3}>{ChargedTitle} / {PaidTitle}</Typography.Title>
             </Col>
             <Col span={24}>
-                <PaymentChartView
+                <CustomChartView
                     viewMode='bar'
                     data={data}
                     mapperInstance={dataMapper}

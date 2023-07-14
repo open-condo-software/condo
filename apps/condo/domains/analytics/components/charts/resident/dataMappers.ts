@@ -1,13 +1,16 @@
-import PaymentChart, { PaymentDataType } from '@condo/domains/analytics/components/PaymentChart'
 import { EchartsSeries } from '@condo/domains/analytics/components/TicketChart'
+
+import ResidentChart from './ResidentChart'
+
+import type { ResidentDataType } from './ResidentChart'
 
 const TOP_VALUES = 9
 
 interface IResidentChartCard {
-    ({ data }: { data: PaymentDataType }): React.ReactElement
+    ({ data }: { data: ResidentDataType }): React.ReactElement
 }
 
-const ResidentByPropertyDataMapper = (residentsTitle: string): PaymentChart => new PaymentChart({
+const ResidentByPropertyDataMapper = (residentsTitle: string): ResidentChart => new ResidentChart({
     pie: {
         chart: (viewMode, data) => {
             const series: Array<EchartsSeries> = [{

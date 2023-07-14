@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { PaymentChartView } from '@condo/domains/analytics/components/PaymentChartView'
+import { CustomChartView } from '@condo/domains/analytics/components/CustomChartView'
 
 import { PaymentByPropertyDataMapper } from './dataMappers'
 
@@ -23,7 +23,7 @@ const PaymentByPropertyChart: IPaymentChartCard = ({ data }) => {
                 <Typography.Title level={3}>{ChartTitle}</Typography.Title>
             </Col>
             <Col span={24}>
-                <PaymentChartView
+                <CustomChartView
                     viewMode='pie'
                     mapperInstance={dataMapper}
                     chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}

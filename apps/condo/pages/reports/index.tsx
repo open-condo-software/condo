@@ -40,8 +40,7 @@ const IndexPage = () => {
     const pageContent = useMemo(() => {
         const organizationFeatures = get(organization, 'features')
 
-        // FIXME: remove unary operator after tests!!!
-        if (!organizationFeatures.includes(ANALYTICS_V3)) {
+        if (organizationFeatures.includes(ANALYTICS_V3)) {
             return <Dashboard organizationId={organization.id} />
         }
 

@@ -3,8 +3,10 @@ import groupBy from 'lodash/groupBy'
 
 import { colors } from '@open-condo/ui/dist/colors'
 
-import PaymentChart, { PaymentDataType } from '@condo/domains/analytics/components/PaymentChart'
-import { EchartsSeries } from '@condo/domains/analytics/components/TicketChart'
+import PaymentChart from './PaymentChart'
+
+import type { PaymentDataType } from './PaymentChart'
+import type { EchartsSeries } from '@condo/domains/analytics/components/TicketChart'
 
 const TOP_VALUES = 9
 
