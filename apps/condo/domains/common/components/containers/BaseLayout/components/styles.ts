@@ -1,6 +1,6 @@
 import { css } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Layout, Menu } from 'antd'
+import { Layout } from 'antd'
 
 import { colors, MAX_CONTENT_WIDTH } from '@condo/domains/common/constants/style'
 
@@ -59,64 +59,8 @@ export const MobileSideNavHeader = styled.div`
   padding: 0 22px 40px;
 `
 
-export const OrganizationSelectWrapper = styled.div`
-  flex: 1 1 auto;
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-`
-
 export const MobileMenuItemsContainer = styled.div`
   padding: 0 22px 100px;
-`
-
-export const TopMenuItem = styled.div`
-  display: inline-block;
-  height: 100%;
-  padding: 0 24px;
-  cursor: pointer;
-  transition: all 0.3s;
-
-  > i {
-    vertical-align: middle;
-  }
-
-  &:hover {
-    background: rgba(0, 0, 0, 0.025);
-  }
-
-  .avatar {
-    margin-right: 8px;
-  }
-`
-
-export const MENU_ICON_STYLES = {
-    color: colors.black,
-    fontSize: '24px',
-}
-
-export const StyledMenuItem = styled(Menu.Item)`
-  border-bottom: 1px solid ${colors.defaultWhite[6]};
-  padding: 14px 0;
-  font-size: 14px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  align-items: center;
-
-  &:first-of-type {
-    padding: 0 0 14px;
-  }
-
-  &:last-of-type {
-    border-bottom: none;
-    padding: 14px 0 0;
-  }
-
-  &:hover {
-    background-color: ${colors.defaultWhite[5]};
-    font-weight: 700;
-  }
 `
 
 export const LAYOUT_CSS = css`

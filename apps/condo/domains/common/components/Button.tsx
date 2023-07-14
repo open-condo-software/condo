@@ -337,6 +337,7 @@ export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string
             icon={<SberIconWithoutLabel/>}
             href={authUrl}
             block={block}
+            className='sbbol-button'
         >
             {LoginLabel}
         </Button>
