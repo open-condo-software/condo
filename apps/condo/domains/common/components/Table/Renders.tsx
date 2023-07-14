@@ -264,7 +264,7 @@ export const getDateRender = (intl, search?: FilterValue | string, prefix = '\n'
         const text = `${date.format(DATE_FORMAT)}`
         const postfix = `${prefix}${date.format(TIME_FORMAT)}`
 
-        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(text)
+        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: { ...POSTFIX_PROPS, ...NEW_LINE_POSTFIX_STYLE } })(text)
     }
 }
 
