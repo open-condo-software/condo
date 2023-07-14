@@ -157,6 +157,8 @@ export function useTableColumns<T> (
         )
     }, [])
 
+    const ellipsis = !breakpoints.DESKTOP_LARGE
+
     return useMemo(() => ({
         columns: [
             {
@@ -188,6 +190,7 @@ export function useTableColumns<T> (
                 render: getTicketNumberRender(intl, search),
                 align: 'left',
                 className: 'number-column',
+                ellipsis,
             },
             {
                 title: DateMessage,
@@ -200,6 +203,7 @@ export function useTableColumns<T> (
                 render: getDateRender(intl, String(search)),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'createdAt'),
                 filterIcon: getFilterIcon,
+                ellipsis,
             },
             {
                 title: StatusMessage,
@@ -212,6 +216,7 @@ export function useTableColumns<T> (
                 width: COLUMNS_WIDTH.status,
                 filterDropdown: renderStatusFilterDropdown,
                 filterIcon: getFilterIcon,
+                ellipsis,
             },
             {
                 title: AddressMessage,
@@ -224,6 +229,7 @@ export function useTableColumns<T> (
                 render: renderAddress,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'property'),
                 filterIcon: getFilterIcon,
+                ellipsis,
             },
             {
                 title: UnitMessage,
@@ -236,7 +242,7 @@ export function useTableColumns<T> (
                 render: getUnitRender(intl, search),
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'unitName'),
                 filterIcon: getFilterIcon,
-                ellipsis: true,
+                ellipsis,
             },
             {
                 title: DescriptionMessage,
@@ -247,6 +253,7 @@ export function useTableColumns<T> (
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'details'),
                 filterIcon: getFilterIcon,
                 render: getTicketDetailsRender(search),
+                ellipsis,
             },
             {
                 title: ClassifierTitle,
@@ -257,7 +264,7 @@ export function useTableColumns<T> (
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'categoryClassifier'),
                 filterIcon: getFilterIcon,
                 render: getClassifierRender(intl, search),
-                ellipsis: true,
+                ellipsis,
             },
             {
                 title: ClientNameMessage,
