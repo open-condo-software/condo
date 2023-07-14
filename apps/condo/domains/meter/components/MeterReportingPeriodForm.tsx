@@ -60,7 +60,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const OrMessage = intl.formatMessage({ id: 'Or' })
     const DeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const SubmitButtonLabel = intl.formatMessage({ id: 'ApplyChanges' })
+    const SubmitButtonApplyLabel = intl.formatMessage({ id: 'ApplyChanges' })
+    const SubmitButtonCreateLabel = intl.formatMessage({ id: 'Create' })
     const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const StartLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.start' })
@@ -326,7 +327,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                                     onClick={handleSave}
                                                                     loading={isLoading}
                                                                 >
-                                                                    {SubmitButtonLabel}
+                                                                    {isCreateMode ? SubmitButtonCreateLabel : SubmitButtonApplyLabel}
                                                                 </ButtonWithDisabledTooltip>,
                                                                 isCreateMode ? <></> : <DeleteButtonWithConfirmModal
                                                                     key='delete'
