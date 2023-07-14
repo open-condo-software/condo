@@ -176,6 +176,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
                         href={`/api/sbbol/auth?redirectUrl=${asPath}?${SBBOL_SYNC_CALLBACK_QUERY}`}
                         block
                         disabled={fileImportLoading}
+                        className='sbbol-button'
                     >
                         {LoginBySBBOLTitle}
                     </DeprecatedButton>
@@ -188,6 +189,7 @@ const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankA
                         onClick={handleOpenSbbolModal}
                         block
                         disabled={fileImportLoading}
+                        className='sbbol-button'
                     >
                         {ImportSBBOLTitle}
                     </DeprecatedButton>

@@ -994,6 +994,8 @@
   "pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle": "Загрузить больше {entity}",
   "pages.condo.phone.table.lastComment": "Последний комментарий",
   "pages.organizations.CreateOrganizationButtonLabel": "Добавить организацию",
+  "pages.organizations.ChooseOrganizationLabel": "Выберите организацию",
+  "pages.organizations.NoAvailableOrganizations": "Нет доступных организаций",
   "pages.organizations.CreateOrganizationModalTitle": "Создание организации",
   "pages.organizations.CreateOrganizationPlaceholder": "Например, ООО «УК №1»",
   "pages.organizations.EditOrganizationModalTitle": "Редактирование организации",

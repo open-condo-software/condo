@@ -994,6 +994,8 @@
   "pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle": "Load more {entity}",
   "pages.condo.phone.table.lastComment": "Last comment",
   "pages.organizations.CreateOrganizationButtonLabel": "Add organization",
+  "pages.organizations.ChooseOrganizationLabel": "Chose organization",
+  "pages.organizations.NoAvailableOrganizations": "No available organizations",
   "pages.organizations.CreateOrganizationModalTitle": "New organization",
   "pages.organizations.CreateOrganizationPlaceholder": "For example, IDACORP, Inc.",
   "pages.organizations.EditOrganizationModalTitle": "Edit organization",
