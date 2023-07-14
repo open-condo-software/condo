@@ -20,7 +20,7 @@ import { PosterLayout } from './PosterLayout'
 const { publicRuntimeConfig: { googleCaptcha } } = getConfig()
 
 export interface AuthPage extends React.FC {
-    headerAction: React.ReactElement
+    headerAction?: React.ReactElement
     container: React.FC
 }
 

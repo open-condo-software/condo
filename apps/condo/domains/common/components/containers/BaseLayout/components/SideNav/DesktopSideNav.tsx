@@ -46,7 +46,7 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
             <Layout.Sider
                 collapsed={isCollapsed}
                 theme='light'
-                className='menu desktop-menu'
+                className='menu desktop-menu desktop-sider'
                 width={SIDE_MENU_WIDTH}
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
             >
@@ -67,6 +67,7 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
                 <ServiceSubscriptionIndicator/>
             </Layout.Sider>
             <Layout.Sider
+                className='desktop-sider'
                 collapsed={isCollapsed}
                 width={SIDE_MENU_WIDTH}
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}

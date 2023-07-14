@@ -80,6 +80,90 @@
   color: var(--condo-global-color-black);
 }
 
+/* Header */
+.desktop-header {
+  z-index: 9;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1600px;
+  height: 96px;
+  padding: 24px 40px;
+  line-height: 1.5;
+  background: var(--condo-global-color-white);
+}
+
+.desktop-header .top-menu-items {
+  margin-left: auto;
+}
+
+.mobile-header {
+  width: 100%;
+  height: 104px;
+  padding: 0;
+}
+
+.mobile-header .appeals-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 8px 16px;
+  background: var(--condo-global-color-white);
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}
+
+.mobile-header .appeals-bar .logo {
+  /* Note: to align center position with space between */
+  transform: translateX(12px);
+}
+
+.mobile-header .context-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 10px 16px;
+  background: var(--condo-global-color-gray-1);
+}
+
+.organization-dropdown.ant-dropdown-open .arrow-icon {
+  transform: rotate(180deg);
+}
+
+.organization-dropdown-overlay {
+  z-index: 100;
+}
+
+.organization-selector .condo-typography {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
+.user-dropdown {
+  cursor: pointer;
+}
+
+.user-dropdown .expand-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.organization-dropdown-overlay .ant-dropdown-menu-item-active,
+.user-dropdown-overlay .ant-dropdown-menu-item-active {
+  background: var(--condo-global-color-gray-1);
+}
+
+/* Appeals special button */
+
 .appeals-dropdown-menu .condo-typography,
 .menu .menu-item .condo-typography {
   color: inherit;
@@ -87,6 +171,7 @@
 
 .appeals-button {
   min-width: 48px;
+  padding: 11px;
   border-color: var(--condo-global-color-white);
   cursor: initial;
   transition: background 0.3s ease;
