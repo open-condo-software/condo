@@ -18,7 +18,7 @@ const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
-const { registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     Organization,
     createTestOrganization,
@@ -345,6 +345,20 @@ describe('Organization', () => {
         test('employee from "to" related organization: cannot read organization from "from"', async () => {
             const { organizationFrom, clientTo } = await createTestOrganizationWithAccessToAnotherOrganization()
             const organizations = await Organization.getAll(clientTo, { id: organizationFrom.id })
+
+            expect(organizations).toHaveLength(0)
+        })
+        test('blocked employee from related organization cannot read', async () => {
+            const { clientFrom, employeeFrom, organizationTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+            await updateTestOrganizationEmployee(admin, employeeFrom.id, { isBlocked: true })
+            const organizations = await Organization.getAll(clientFrom, { id: organizationTo.id })
+
+            expect(organizations).toHaveLength(0)
+        })
+        test('deleted employee from related organization cannot read', async () => {
+            const { clientFrom, employeeFrom, organizationTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+            await OrganizationEmployee.softDelete(admin, employeeFrom.id)
+            const organizations = await Organization.getAll(clientFrom, { id: organizationTo.id })
 
             expect(organizations).toHaveLength(0)
         })

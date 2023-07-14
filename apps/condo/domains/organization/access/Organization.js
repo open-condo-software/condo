@@ -7,6 +7,7 @@ const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
 async function canReadOrganizations ({ authentication: { item: user } }) {
@@ -34,8 +35,8 @@ async function canReadOrganizations ({ authentication: { item: user } }) {
         return false
     }
     const accessConditions =  [
-        { employees_some: { user: { id: user.id } } },
-        { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id } } } } },
+        { ...queryOrganizationEmployeeFor(user.id) },
+        { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
     ]
     if (user.type === SERVICE) {
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
