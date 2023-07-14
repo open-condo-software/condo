@@ -12,7 +12,6 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import {
     MobileMenuItemsContainer,
     MobileSideNavHeader,
-    OrganizationSelectWrapper,
 } from '../styles'
 
 interface ISideNavProps {
@@ -54,9 +53,6 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
         >
             <MobileSideNavHeader>
                 <Close size='medium' onClick={toggleCollapsed}/>
-                <OrganizationSelectWrapper>
-                    {/*<OrganizationSelect/>*/}
-                </OrganizationSelectWrapper>
             </MobileSideNavHeader>
             <MobileMenuItemsContainer>
                 {menuData}

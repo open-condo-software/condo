@@ -8,11 +8,13 @@ import { ChevronDown, PlusCircle } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Space, Typography } from '@open-condo/ui'
+import { Space, Typography  } from '@open-condo/ui'
+import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
+import { useLayoutContext } from '../../common/components/LayoutContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '../constants/common'
 
 import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
@@ -27,11 +29,14 @@ function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmplo
         )
 }
 
-const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 300 }
+const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 300, width: '100%' }
 
 export const InlineOrganizationSelect: React.FC = () => {
     const intl = useIntl()
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
+
+    const { breakpoints } = useLayoutContext()
+    const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
 
     const router = useRouter()
 
@@ -129,7 +134,7 @@ export const InlineOrganizationSelect: React.FC = () => {
     return (
         <>
             {!link && !filteredEmployees.length ? (
-                <Typography.Link onClick={showCreateModal}>
+                <Typography.Link onClick={showCreateModal} size={textSize}>
                     <Space size={4} direction='horizontal'>
                         <PlusCircle size='small'/>
                         {AddOrganizationTitle}
@@ -144,7 +149,7 @@ export const InlineOrganizationSelect: React.FC = () => {
                     overlayClassName='organization-dropdown-overlay'
                 >
                     <Space size={8} direction='horizontal' className='organization-selector'>
-                        <Typography.Text size='medium'>
+                        <Typography.Text size={textSize}>
                             {currentOrgName}
                         </Typography.Text>
                         <ChevronDown size='small' className='arrow-icon'/>
