@@ -5,7 +5,9 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadBillingReceipts ({ authentication: { item: user } }) {
@@ -14,20 +16,77 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
     if (user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-
-        // We don't want to make honest GQL request, as it is too expensive
+        // 1. Receipts are available for organizations that have AcquiringContext in status 'Finished' (have a Contract for receiving payments)
+        // 2. Only when an organization registered Property
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        console.log('1. residents: ', residents)
         if (!residents || residents.length === 0) {
             return false
         }
-        const serviceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(r => r.id) }, deletedAt: null })
+        let serviceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(r => r.id) }, deletedAt: null })
+        console.log('2. serviceConsumers: ', serviceConsumers)
         if (!serviceConsumers || serviceConsumers.length === 0) {
             return false
         }
+        // Exclude all serviceConsumers for organizations without Contract
+        const organizationsWithContract = (await find('AcquiringIntegrationContext', {
+            organization: { id_in: serviceConsumers.map(({ organization }) => organization ), deletedAt: null },
+            integration: { deletedAt: null },
+            status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+            deletedAt: null,
+        })).map(({ organization }) => organization)
+        console.log('3. organizationsWithContract: ', organizationsWithContract)
 
+        serviceConsumers = serviceConsumers.filter(({ organization }) => organizationsWithContract.includes(organization))
+        console.log('4. filtered serviceConsumers: ', serviceConsumers)
+
+        if (!serviceConsumers.length) {
+            return null
+        }
+        // Only for properties
+        const propertiesForOrganizations = Object.fromEntries(await Promise.all(organizationsWithContract.map(async organizationId => {
+            return [organizationId,  (await find('Property', { organization: { id: organizationId }, deletedAt: null })).map(({ addressKey }) => addressKey)]
+        })))
+        console.log('5. Organizations with properties', propertiesForOrganizations)
+
+        console.log('6. Query DEBUG: ', {
+            OR: serviceConsumers.map(
+                serviceConsumer => ({
+                    AND: [
+                        {
+                            account: {
+                                number: serviceConsumer.accountNumber,
+                                property: { addressKey_in: propertiesForOrganizations[serviceConsumer.organization] },
+                                deletedAt: null,
+                            },
+                            context: {
+                                organization: serviceConsumer.organization,
+                                deletedAt: null,
+                                status: BILLING_CONTEXT_FINISHED_STATUS,
+                            },
+                            deletedAt: null,
+                        }],
+                }),
+            ),
+        })
         return {
             OR: serviceConsumers.map(
-                s => ({ AND: [{ account: { number: s.accountNumber, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext, deletedAt: null } }] } )
+                serviceConsumer => ({
+                    AND: [
+                        {
+                            account: {
+                                number: serviceConsumer.accountNumber,
+                                property: { addressKey_in: propertiesForOrganizations[serviceConsumer.organization] },
+                                deletedAt: null,
+                            },
+                            context: {
+                                organization: serviceConsumer.organization,
+                                status: BILLING_CONTEXT_FINISHED_STATUS,
+                                deletedAt: null,
+                            },
+                            deletedAt: null,
+                        }],
+                }),
             ),
         }
     } else {

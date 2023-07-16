@@ -37,6 +37,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             schemaDoc: 'Wrapper to return file version of the receipt (usually PDF) with personal information or without',
             type: Virtual,
             graphQLReturnType: 'File',
+            graphQLReturnFragment: '{ id originalFilename publicUrl mimetype }',
             resolver: async (item, _, { authedItem }) => {
                 // We are changing link to publicData only for not verified residents. In other cases we return sensitive data files
                 let file = item.publicDataFile

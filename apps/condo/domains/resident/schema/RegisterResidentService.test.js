@@ -40,6 +40,15 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
             expect(resident.property.id).toEqual(property.id)
         })
     })
+    it('Resident can soft-delete resident', async () => {
+        const residentUser = await makeClientWithResidentUser()
+        const [newResident] = await registerResidentByTestClient(residentUser, { address: residentAddress, addressMeta: residentAddressMeta })
+        const deletedAt = new Date().toISOString()
+        const deletedResident = await Resident.softDelete(residentUser, newResident.id, { deletedAt })
+        console.log(deletedResident)
+        const resident = await Resident.getOne(residentUser, { id: newResident.id })
+        console.log(resident)
+    })
     it(`Must connect resident to the oldest existing property from organization with type "${MANAGING_COMPANY_TYPE}"`, async () => {
         const residentUser = await makeClientWithResidentUser()
 

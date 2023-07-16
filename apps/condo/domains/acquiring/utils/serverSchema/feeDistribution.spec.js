@@ -89,6 +89,17 @@ const TEST_CASES = [
             { amount: -200.15, expected: { type: 'service', summa: -200.15, recipientSum: -200.15, explicitFee: 0 } },
         ],
     },
+    {
+        title: 'Check 1 percent case',
+        settings: [
+            { recipient: 'acquiring', percent: '0.8', minAmount: '200' },
+            { recipient: 'service', percent: '0.4', minAmount: '100' },
+        ],
+        cases: [
+            { amount: 0, expected: { type: 'service', summa: 0, recipientSum: 0, explicitFee: 0 } },
+            { amount: -200.15, expected: { type: 'service', summa: -200.15, recipientSum: -200.15, explicitFee: 0 } },
+        ],
+    },
 ]
 
 describe('Commission and serviceFee calculation', () => {
