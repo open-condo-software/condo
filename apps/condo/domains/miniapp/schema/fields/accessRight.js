@@ -11,7 +11,7 @@ const SERVICE_USER_FIELD = {
     ref: 'User',
     isRequired: true,
     knexOptions: { isNotNullable: true }, // Required relationship only!
-    kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
     hooks: {
         validateInput: async ({ resolvedData, fieldPath, addFieldValidationError }) => {
             if (resolvedData[fieldPath]) {

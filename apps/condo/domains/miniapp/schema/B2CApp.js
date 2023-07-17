@@ -42,7 +42,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: Relationship,
             ref: 'B2CAppBuild',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             hooks: {
                 validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, operation, existingItem }) => {
                     const appId = operation === 'create' ? resolvedData.id : existingItem.id

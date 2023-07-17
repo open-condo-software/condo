@@ -80,6 +80,7 @@ const RESIDENT_OR_PROPERTY_ID_MISSING_ERROR = 'RESIDENT_OR_PROPERTY_ID_MISSING'
 const USER_NOT_FOUND_ERROR = 'USER_NOT_FOUND'
 const APP_NOT_FOUND_ERROR = 'APP_NOT_FOUND'
 const APP_BLACK_LIST_ERROR = 'APP_BLACK_LIST_ERROR'
+const PERMISSION_KEY_WRONG_FORMAT_ERROR = 'Incorrect key format. The key must start with the prefix "can", have lowerCamelCase and answer the question: "what is allowed to the user with this key?". Example: canManagePasses, canReadConfig, etc.'
 
 const PROMO_BLOCK_DARK_TEXT_VARIANT = 'BLACK'
 const PROMO_BLOCK_LIGHT_TEXT_VARIANT = 'WHITE'
@@ -136,5 +137,6 @@ module.exports = {
     RESIDENT_OR_PROPERTY_ID_MISSING_ERROR,
     APP_NOT_FOUND_ERROR,
     APP_BLACK_LIST_ERROR,
+    PERMISSION_KEY_WRONG_FORMAT_ERROR,
     DEBUG_APP_ID,
 }

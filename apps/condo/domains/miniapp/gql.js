@@ -51,6 +51,9 @@ const B2BAppPromoBlock = generateGqlQueries('B2BAppPromoBlock', B2B_APP_PROMO_BL
 const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`
 const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_APP_BLACK_LIST_FIELDS)
 
+const B2B_APP_PERMISSION_FIELDS = `{ app { id } key ${COMMON_FIELDS} }`
+const B2BAppPermission = generateGqlQueries('B2BAppPermission', B2B_APP_PERMISSION_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -65,5 +68,6 @@ module.exports = {
     B2CAppProperty,
     B2BAppPromoBlock,
     MessageAppBlackList,
+    B2BAppPermission,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

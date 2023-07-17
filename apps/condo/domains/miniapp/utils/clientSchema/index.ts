@@ -12,4 +12,5 @@ export * as B2CAppBuild from './B2CAppBuild'
 export * as B2CAppProperty from './B2CAppProperty'
 export * as B2BAppPromoBlock from './B2BAppPromoBlock'
 export * as MessageAppBlackList from './MessageAppBlackList'
+export * as B2BAppPermission from './B2BAppPermission'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

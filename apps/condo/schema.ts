@@ -3195,6 +3195,343 @@ export type B2BAppHistoryRecordsUpdateInput = {
   data?: Maybe<B2BAppHistoryRecordUpdateInput>;
 };
 
+/**  B2BApp permissions that describe additional capabilities within the mini-application and allow the organization administration to manage accesses within the miniapp depending on the employee's role by toggling the B2BAppPermissions of a particular application for each role. By default, for all employees with "canManageIntegrations" in their role, all permissions will be set to True. For all other roles with access to the application the default value is False.  */
+export type B2BAppPermission = {
+  __typename?: 'B2BAppPermission';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2BAppPermission List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2BAppPermission List config, or
+   *  3. As an alias to a 'name' field on the B2BAppPermission List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2BAppPermission List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Link to the application to which the permission belongs  */
+  app?: Maybe<B2BApp>;
+  /**  The permission key. Must be written in lowerCamelCase, start with the prefix "can", and answer the question, "What can a user with this permission do?". Examples: "canManagePasses", "canReadPrivateData", etc.  */
+  key?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type B2BAppPermissionCreateInput = {
+  app?: Maybe<B2BAppRelateToOneInput>;
+  key?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type B2BAppPermissionHistoryRecord = {
+  __typename?: 'B2BAppPermissionHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2BAppPermissionHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2BAppPermissionHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the B2BAppPermissionHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2BAppPermissionHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  app?: Maybe<Scalars['String']>;
+  key?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppPermissionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2BAppPermissionHistoryRecordCreateInput = {
+  app?: Maybe<Scalars['String']>;
+  key?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppPermissionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum B2BAppPermissionHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type B2BAppPermissionHistoryRecordUpdateInput = {
+  app?: Maybe<Scalars['String']>;
+  key?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppPermissionHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2BAppPermissionHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecordWhereInput>>>;
+  app?: Maybe<Scalars['String']>;
+  app_not?: Maybe<Scalars['String']>;
+  app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  key?: Maybe<Scalars['String']>;
+  key_not?: Maybe<Scalars['String']>;
+  key_contains?: Maybe<Scalars['String']>;
+  key_not_contains?: Maybe<Scalars['String']>;
+  key_starts_with?: Maybe<Scalars['String']>;
+  key_not_starts_with?: Maybe<Scalars['String']>;
+  key_ends_with?: Maybe<Scalars['String']>;
+  key_not_ends_with?: Maybe<Scalars['String']>;
+  key_i?: Maybe<Scalars['String']>;
+  key_not_i?: Maybe<Scalars['String']>;
+  key_contains_i?: Maybe<Scalars['String']>;
+  key_not_contains_i?: Maybe<Scalars['String']>;
+  key_starts_with_i?: Maybe<Scalars['String']>;
+  key_not_starts_with_i?: Maybe<Scalars['String']>;
+  key_ends_with_i?: Maybe<Scalars['String']>;
+  key_not_ends_with_i?: Maybe<Scalars['String']>;
+  key_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  key_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<B2BAppPermissionHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<B2BAppPermissionHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type B2BAppPermissionHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2BAppPermissionHistoryRecordsCreateInput = {
+  data?: Maybe<B2BAppPermissionHistoryRecordCreateInput>;
+};
+
+export type B2BAppPermissionHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppPermissionHistoryRecordUpdateInput>;
+};
+
+export type B2BAppPermissionUpdateInput = {
+  app?: Maybe<B2BAppRelateToOneInput>;
+  key?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type B2BAppPermissionWhereInput = {
+  AND?: Maybe<Array<Maybe<B2BAppPermissionWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2BAppPermissionWhereInput>>>;
+  app?: Maybe<B2BAppWhereInput>;
+  app_is_null?: Maybe<Scalars['Boolean']>;
+  key?: Maybe<Scalars['String']>;
+  key_not?: Maybe<Scalars['String']>;
+  key_contains?: Maybe<Scalars['String']>;
+  key_not_contains?: Maybe<Scalars['String']>;
+  key_starts_with?: Maybe<Scalars['String']>;
+  key_not_starts_with?: Maybe<Scalars['String']>;
+  key_ends_with?: Maybe<Scalars['String']>;
+  key_not_ends_with?: Maybe<Scalars['String']>;
+  key_i?: Maybe<Scalars['String']>;
+  key_not_i?: Maybe<Scalars['String']>;
+  key_contains_i?: Maybe<Scalars['String']>;
+  key_not_contains_i?: Maybe<Scalars['String']>;
+  key_starts_with_i?: Maybe<Scalars['String']>;
+  key_not_starts_with_i?: Maybe<Scalars['String']>;
+  key_ends_with_i?: Maybe<Scalars['String']>;
+  key_not_ends_with_i?: Maybe<Scalars['String']>;
+  key_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  key_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type B2BAppPermissionWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2BAppPermissionsCreateInput = {
+  data?: Maybe<B2BAppPermissionCreateInput>;
+};
+
+export type B2BAppPermissionsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppPermissionUpdateInput>;
+};
+
 /**  Promotion banner which appears in "Miniapps" section of CRM. Used to promote B2BApps, discounts, collaborations and so on  */
 export type B2BAppPromoBlock = {
   __typename?: 'B2BAppPromoBlock';
@@ -31806,6 +32143,30 @@ export type Mutation = {
   deleteMessageAppBlackList?: Maybe<MessageAppBlackList>;
   /**  Delete multiple MessageAppBlackList items by ID.  */
   deleteMessageAppBlackLists?: Maybe<Array<Maybe<MessageAppBlackList>>>;
+  /**  Create a single B2BAppPermissionHistoryRecord item.  */
+  createB2BAppPermissionHistoryRecord?: Maybe<B2BAppPermissionHistoryRecord>;
+  /**  Create multiple B2BAppPermissionHistoryRecord items.  */
+  createB2BAppPermissionHistoryRecords?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecord>>>;
+  /**  Update a single B2BAppPermissionHistoryRecord item by ID.  */
+  updateB2BAppPermissionHistoryRecord?: Maybe<B2BAppPermissionHistoryRecord>;
+  /**  Update multiple B2BAppPermissionHistoryRecord items by ID.  */
+  updateB2BAppPermissionHistoryRecords?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecord>>>;
+  /**  Delete a single B2BAppPermissionHistoryRecord item by ID.  */
+  deleteB2BAppPermissionHistoryRecord?: Maybe<B2BAppPermissionHistoryRecord>;
+  /**  Delete multiple B2BAppPermissionHistoryRecord items by ID.  */
+  deleteB2BAppPermissionHistoryRecords?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecord>>>;
+  /**  Create a single B2BAppPermission item.  */
+  createB2BAppPermission?: Maybe<B2BAppPermission>;
+  /**  Create multiple B2BAppPermission items.  */
+  createB2BAppPermissions?: Maybe<Array<Maybe<B2BAppPermission>>>;
+  /**  Update a single B2BAppPermission item by ID.  */
+  updateB2BAppPermission?: Maybe<B2BAppPermission>;
+  /**  Update multiple B2BAppPermission items by ID.  */
+  updateB2BAppPermissions?: Maybe<Array<Maybe<B2BAppPermission>>>;
+  /**  Delete a single B2BAppPermission item by ID.  */
+  deleteB2BAppPermission?: Maybe<B2BAppPermission>;
+  /**  Delete multiple B2BAppPermission items by ID.  */
+  deleteB2BAppPermissions?: Maybe<Array<Maybe<B2BAppPermission>>>;
   /**  Create a single ExternalReportHistoryRecord item.  */
   createExternalReportHistoryRecord?: Maybe<ExternalReportHistoryRecord>;
   /**  Create multiple ExternalReportHistoryRecord items.  */
@@ -40448,6 +40809,68 @@ export type MutationDeleteMessageAppBlackListArgs = {
 
 
 export type MutationDeleteMessageAppBlackListsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2BAppPermissionHistoryRecordArgs = {
+  data?: Maybe<B2BAppPermissionHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateB2BAppPermissionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2BAppPermissionHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppPermissionHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateB2BAppPermissionHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2BAppPermissionHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2BAppPermissionHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2BAppPermissionArgs = {
+  data?: Maybe<B2BAppPermissionCreateInput>;
+};
+
+
+export type MutationCreateB2BAppPermissionsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppPermissionsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2BAppPermissionArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppPermissionUpdateInput>;
+};
+
+
+export type MutationUpdateB2BAppPermissionsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppPermissionsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2BAppPermissionArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2BAppPermissionsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -53436,6 +53859,22 @@ export type Query = {
   _allMessageAppBlackListsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MessageAppBlackList list.  */
   _MessageAppBlackListsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2BAppPermissionHistoryRecord items which match the where clause.  */
+  allB2BAppPermissionHistoryRecords?: Maybe<Array<Maybe<B2BAppPermissionHistoryRecord>>>;
+  /**  Search for the B2BAppPermissionHistoryRecord item with the matching ID.  */
+  B2BAppPermissionHistoryRecord?: Maybe<B2BAppPermissionHistoryRecord>;
+  /**  Perform a meta-query on all B2BAppPermissionHistoryRecord items which match the where clause.  */
+  _allB2BAppPermissionHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2BAppPermissionHistoryRecord list.  */
+  _B2BAppPermissionHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2BAppPermission items which match the where clause.  */
+  allB2BAppPermissions?: Maybe<Array<Maybe<B2BAppPermission>>>;
+  /**  Search for the B2BAppPermission item with the matching ID.  */
+  B2BAppPermission?: Maybe<B2BAppPermission>;
+  /**  Perform a meta-query on all B2BAppPermission items which match the where clause.  */
+  _allB2BAppPermissionsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2BAppPermission list.  */
+  _B2BAppPermissionsMeta?: Maybe<_ListMeta>;
   /**  Search for all ExternalReportHistoryRecord items which match the where clause.  */
   allExternalReportHistoryRecords?: Maybe<Array<Maybe<ExternalReportHistoryRecord>>>;
   /**  Search for the ExternalReportHistoryRecord item with the matching ID.  */
@@ -58673,6 +59112,56 @@ export type Query_AllMessageAppBlackListsMetaArgs = {
 };
 
 
+export type QueryAllB2BAppPermissionHistoryRecordsArgs = {
+  where?: Maybe<B2BAppPermissionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppPermissionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2BAppPermissionHistoryRecordArgs = {
+  where: B2BAppPermissionHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllB2BAppPermissionHistoryRecordsMetaArgs = {
+  where?: Maybe<B2BAppPermissionHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppPermissionHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllB2BAppPermissionsArgs = {
+  where?: Maybe<B2BAppPermissionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppPermissionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2BAppPermissionArgs = {
+  where: B2BAppPermissionWhereUniqueInput;
+};
+
+
+export type Query_AllB2BAppPermissionsMetaArgs = {
+  where?: Maybe<B2BAppPermissionWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppPermissionsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryAllExternalReportHistoryRecordsArgs = {
   where?: Maybe<ExternalReportHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -63296,6 +63785,50 @@ export enum SortB2BAppHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortB2BAppPermissionHistoryRecordsBy {
+  KeyAsc = 'key_ASC',
+  KeyDesc = 'key_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortB2BAppPermissionsBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  KeyAsc = 'key_ASC',
+  KeyDesc = 'key_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortB2BAppPromoBlockHistoryRecordsBy {

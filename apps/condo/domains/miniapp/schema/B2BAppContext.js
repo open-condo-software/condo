@@ -23,7 +23,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             ref: 'B2BApp',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             access: {
                 create: true,
                 read: true,
@@ -36,7 +36,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             ref: 'Organization',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             access: {
                 create: true,
                 read: true,
