@@ -7,9 +7,11 @@ const ADDRESS_SEARCH_STOP_WORDS = [
 ]
 
 const SUCCESS_STATUS = 'ok'
+const FAILURE_STATUS = 'failed'
 
 
 module.exports = {
     ADDRESS_SEARCH_STOP_WORDS,
     SUCCESS_STATUS,
+    FAILURE_STATUS,
 }
