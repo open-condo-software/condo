@@ -26,7 +26,7 @@ import {
     TicketByCategoryChart,
     PaymentTotalChart,
 } from '@condo/domains/analytics/components/charts'
-import { OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
+import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -39,6 +39,7 @@ import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchem
 import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
+const TICKET_TABLE_PAGE_SIZE = 5
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
 const CARD_STYLE: React.CSSProperties = { height: '200px' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
@@ -285,8 +286,7 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
                                 </Typography.Title>
                             </Space>
                         </Col>
-                        {/* @ts-ignore */}
-                        <Col span={24} align='center'>
+                        <Col span={24} style={TEXT_CENTER_STYLE}>
                             <Typography.Text type='secondary' size='medium'>
                                 {TicketFeedbackTitle} {goodCount + badCount}&nbsp;(
                                 <Typography.Text type='success' size='medium'>{goodCount}</Typography.Text>
@@ -331,8 +331,8 @@ const TicketTableView = ({ organizationId, dateRange }) => {
                 { createdAt_lte: dateRange[1] },
             ],
         },
-        first: 5,
-        skip: (currentPageIndex - 1) * 5,
+        first: TICKET_TABLE_PAGE_SIZE,
+        skip: (currentPageIndex - 1) * TICKET_TABLE_PAGE_SIZE,
     })
 
     const handleRowAction = useCallback((record) => {
@@ -373,7 +373,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
     const [aggregatePeriod, setAggregatePeriod] = useState<'day' | 'week' | 'month'>('day')
 
-    const [loadDashboardData, { loading }] = useLazyQuery(OVERVIEW_DASHBOARD_MUTATION, {
+    const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
             const { result } = response
             setOverview(result.overview)
@@ -398,6 +398,9 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
 
     const onAggregatePeriodChange = useCallback((aggregatePeriod) => {
         setAggregatePeriod(aggregatePeriod.target.value)
+    }, [])
+    const disabledDate = useCallback((currentDate) => {
+        return currentDate && currentDate < dayjs().startOf('year')
     }, [])
 
     const newTickets = get(overview, 'ticketByDay.tickets', [])
@@ -436,9 +439,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             onChange={setDateRange}
                             allowClear={false}
                             disabled={loading}
-                            disabledDate={(current) => {
-                                return current && current < dayjs().startOf('year')
-                            }}
+                            disabledDate={disabledDate}
                         />
                         <RadioGroup value={aggregatePeriod} onChange={onAggregatePeriodChange} disabled={loading}>
                             <Space direction='horizontal' size={24}>

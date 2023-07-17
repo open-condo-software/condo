@@ -53739,7 +53739,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   getExternalReportIframeUrl?: Maybe<GetExternalReportIframeUrlOutput>;
-  overviewDashboard?: Maybe<OverviewDashboardOutput>;
+  getOverviewDashboard?: Maybe<OverviewDashboardOutput>;
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   /** The version of the Keystone application serving this API. */
@@ -59361,7 +59361,7 @@ export type QueryGetExternalReportIframeUrlArgs = {
 };
 
 
-export type QueryOverviewDashboardArgs = {
+export type QueryGetOverviewDashboardArgs = {
   data: OverviewDashboardInput;
 };
 

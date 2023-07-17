@@ -66977,7 +66977,7 @@ type Query {
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
   getExternalReportIframeUrl(data: GetExternalReportIframeUrlInput!): GetExternalReportIframeUrlOutput
-  overviewDashboard(data: OverviewDashboardInput!): OverviewDashboardOutput
+  getOverviewDashboard(data: OverviewDashboardInput!): OverviewDashboardOutput
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
 

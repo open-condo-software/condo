@@ -8,7 +8,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 
 const { ExternalReport: ExternalReportGQL } = require('@condo/domains/analytics/gql')
 const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')
-const { OVERVIEW_DASHBOARD_MUTATION } = require('@condo/domains/analytics/gql')
+const { GET_OVERVIEW_DASHBOARD_MUTATION } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ExternalReport = generateServerUtils(ExternalReportGQL)
@@ -26,16 +26,15 @@ async function getExternalReportIframeUrl (context, data) {
     })
 }
 
-async function overviewDashboard (context, data) {
+async function getOverviewDashboard (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write overviewDashboard serverSchema guards
 
     return await execGqlWithoutAccess(context, {
-        query: OVERVIEW_DASHBOARD_MUTATION,
+        query: GET_OVERVIEW_DASHBOARD_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to overviewDashboard',
+        errorMessage: '[error] Unable to getOverviewDashboard',
         dataPath: 'obj',
     })
 }
@@ -45,6 +44,6 @@ async function overviewDashboard (context, data) {
 module.exports = {
     ExternalReport,
     getExternalReportIframeUrl,
-    overviewDashboard,
+    getOverviewDashboard,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

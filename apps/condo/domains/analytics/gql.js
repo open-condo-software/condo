@@ -20,9 +20,9 @@ const GET_EXTERNAL_REPORT_IFRAME_URL_QUERY = gql`
     }
 `
 
-const OVERVIEW_DASHBOARD_MUTATION = gql`
-    query overviewDashboard ($data: OverviewDashboardInput!) {
-        result: overviewDashboard(data: $data) { 
+const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
+    query getOverviewDashboard ($data: OverviewDashboardInput!) {
+        result: getOverviewDashboard(data: $data) { 
             overview { 
                 ticketByDay {
                     tickets {
@@ -105,6 +105,6 @@ module.exports = {
     TICKET_ANALYTICS_REPORT_QUERY,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     GET_EXTERNAL_REPORT_IFRAME_URL_QUERY,
-    OVERVIEW_DASHBOARD_MUTATION,
+    GET_OVERVIEW_DASHBOARD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
