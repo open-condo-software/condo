@@ -64,6 +64,7 @@ import type { RowProps } from 'antd'
 const PROPERTY_REPORT_PAGE_ROW_GUTTER: RowProps['gutter'] = [24, 20]
 const PROPERTY_REPORT_PAGE_ROW_TABLE_GUTTER: RowProps['gutter'] = [0, 40]
 const EMPTY_ROW_STYLE: React.CSSProperties = { height: 'calc(100% - 90px)' }
+const DATE_RANGE_PICKER_STYLE: React.CSSProperties = { width: '100%' }
 const DATE_DISPLAY_FORMAT = {
     day: 'numeric',
     month: 'numeric',
@@ -372,19 +373,21 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
                 <Col span={24}>
                     <TableFiltersContainer>
                         <Row gutter={PROPERTY_REPORT_PAGE_ROW_GUTTER} align='middle'>
-                            <Col span={6}>
+                            <Col xl={8} md={12} sm={24} xs={24}>
                                 <Input
                                     placeholder={SearchPlaceholderTitle}
                                     value={search}
                                     onChange={handleSearchChange}
                                     allowClear
+                                    width='100%'
                                 />
                             </Col>
                             {tab !== 'contractor' && (
-                                <Col span={6}>
+                                <Col xl={8} md={12} sm={24} xs={24}>
                                     <DateRangePicker
                                         value={dateRange}
                                         onChange={setDateRange}
+                                        style={DATE_RANGE_PICKER_STYLE}
                                     />
                                 </Col>
                             )}
