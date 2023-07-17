@@ -9,8 +9,8 @@ export type { AlertProps } from './components/Alert'
 export { Banner } from './components/Banner'
 export type { BannerProps } from './components/Banner'
 
-export { Button } from './components/Button'
-export type { ButtonProps } from './components/Button'
+export { Button, DropdownButton } from './components/Button'
+export type { ButtonProps, DropdownButtonProps } from './components/Button'
 
 export { Card } from './components/Card'
 export type { CardProps } from './components/Card'

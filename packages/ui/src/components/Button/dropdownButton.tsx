@@ -1,0 +1,112 @@
+import { Dropdown, Button as DefaultButton } from 'antd'
+import { MenuItemType  } from 'antd/lib/menu/hooks/useItems'
+import classNames from 'classnames'
+import React from 'react'
+
+import { ButtonProps } from './button'
+import { useItems } from './hooks/useItems'
+
+import { Either } from '../_utils/types'
+
+
+const DROPDOWN_CLASS_PREFIX = 'condo-dropdown'
+const BUTTON_CLASS_PREFIX = 'condo-btn'
+
+
+export interface IDropdownButtonItem {
+    disabled?: boolean,
+    label: string
+    onClick?: MenuItemType['onClick']
+    key?: React.Key
+    id?: string
+}
+
+export interface IDropdownButtonItemWithDescription extends IDropdownButtonItem {
+    description: string
+}
+
+export interface IDropdownButtonItemWithIcon extends IDropdownButtonItem {
+    icon: React.ReactNode
+}
+
+export type ItemType = Either<Either<IDropdownButtonItem, IDropdownButtonItemWithDescription>, IDropdownButtonItemWithIcon>
+
+export type DropdownButtonProps = Omit<ButtonProps, 'icon' | 'children' | 'href'> & {
+    children: string
+    items: Array<ItemType>
+}
+
+const EllipsisIconSvg = () => {
+    return (
+        <svg className={`${BUTTON_CLASS_PREFIX}-ellipsis`} xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
+            <circle cx='6' cy='16' r='2' fill='currentColor'/>
+            <circle cx='12' cy='16' r='2' fill='currentColor'/>
+            <circle cx='18' cy='16' r='2' fill='currentColor'/>
+        </svg>
+    )
+}
+
+const VerticalDividerSvg: React.FC = () => {
+    return (
+        <svg className={`${BUTTON_CLASS_PREFIX}-vertical-divider`} xmlns='http://www.w3.org/2000/svg' width='1' height='48' viewBox='0 0 1 48' fill='none'>
+            <rect width='1' height='48' fill='currentColor' />
+        </svg>
+    )
+}
+
+const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef((props, ref) => {
+    const { children, items = [], type, stateless, className, id, block, disabled, ...rest } = props
+
+    const buttonClasses = classNames(
+        {
+            [`${BUTTON_CLASS_PREFIX}-${type}`]: type,
+            [`${BUTTON_CLASS_PREFIX}-stateless`]: stateless,
+        },
+        className,
+    )
+
+    const dropdownWrapperClasses = classNames({
+        [`${BUTTON_CLASS_PREFIX}-dropdown-wrapper`]: true,
+        [`${BUTTON_CLASS_PREFIX}-dropdown-block`]: block,
+    })
+
+    const menuItems = useItems(items, type)
+
+    return (
+        <Dropdown
+            disabled={disabled}
+            prefixCls={DROPDOWN_CLASS_PREFIX}
+            className={`${BUTTON_CLASS_PREFIX}-dropdown`}
+            menu={{ items: menuItems }}
+            dropdownRender={(menu) => (
+                <div className={dropdownWrapperClasses}>
+                    {
+                        React.cloneElement(menu as React.ReactElement, {
+                            className: `${BUTTON_CLASS_PREFIX}-dropdown-menu`,
+                        })
+                    }
+                </div>
+            )}
+        >
+            <DefaultButton
+                {...rest}
+                id={id}
+                prefixCls={BUTTON_CLASS_PREFIX}
+                className={buttonClasses}
+                ref={ref}
+                block={block}
+                disabled={disabled}
+            >
+                {children}
+                <VerticalDividerSvg />
+                <EllipsisIconSvg />
+            </DefaultButton>
+        </Dropdown>
+    )
+})
+
+DropdownButton.displayName = 'DropdownButton'
+
+export {
+    DropdownButton,
+}

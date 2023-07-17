@@ -1,4 +1,5 @@
 @import "antd/lib/button/style/index.less";
+@import "antd/lib/dropdown/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 @import "./mixins";
@@ -320,5 +321,123 @@ a.condo-btn {
   &-secondary {
     .condo-btn-href(@condo-button-line-height, @condo-button-padding-vert, @condo-button-padding-hor,
     @condo-button-border-width);
+  }
+}
+
+.condo-btn-dropdown {
+  cursor: default;
+
+  &.condo-btn > span {
+    margin-right: auto;
+  }
+
+  .condo-btn-vertical-divider {
+    z-index: 1;
+    margin-right: 16px;
+    margin-left: 20px;
+    opacity: 0.3;
+  }
+
+  &.condo-btn-block {
+    .condo-btn-vertical-divider {
+      margin-left: auto;
+    }
+  }
+
+  .condo-btn-ellipsis {
+    z-index: 1;
+  }
+
+  &.condo-btn-secondary {
+    &:disabled {
+      .condo-btn-ellipsis {
+        color: @condo-global-color-black;
+      }
+
+      .condo-btn-vertical-divider {
+        color: @condo-global-color-black;
+      }
+    }
+
+    &.condo-btn-dangerous {
+      color: @condo-global-color-red-5;
+    }
+  }
+
+  &:not(:disabled):hover {
+    &.condo-btn-secondary .condo-btn-ellipsis {
+      color: @condo-global-color-green-5;
+      transition: color @condo-global-transition-duration-default ease-out;
+    }
+
+    &.condo-btn-secondary.condo-btn-dangerous {
+      .condo-btn-ellipsis {
+        color: @condo-global-color-red-7;
+      }
+    }
+  }
+}
+
+.condo-btn-dropdown-wrapper {
+  .condo-btn-dropdown-menu {
+    max-width: 300px;
+    max-height: min(100vh, 360px);
+    padding: 0;
+    overflow: auto;
+    border-radius: @condo-button-border-radius;
+
+    .condo-dropdown-menu-item-divider {
+      margin: 0;
+    }
+
+    .condo-dropdown-menu-item {
+      padding: 20px;
+
+      .condo-typography {
+        /* stylelint-disable-next-line value-no-vendor-prefix */
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        -moz-box-orient: vertical;
+      }
+
+      &.condo-dropdown-menu-item-disabled .condo-typography {
+        color: @condo-global-color-gray-7;
+      }
+
+      &:not(.condo-dropdown-menu-item-disabled):hover {
+        color: @condo-global-color-green-5;
+        background: @condo-global-color-brand-gradient-5;
+        -webkit-background-clip: text;
+        background-clip: text;
+        transition: none;
+        -webkit-text-fill-color: transparent;
+
+        svg {
+          fill: @condo-global-color-green-5;
+        }
+      }
+
+      &:not(.condo-dropdown-menu-item-disabled):active {
+        color: @condo-global-color-green-7;
+        background: @condo-global-color-brand-gradient-7;
+        -webkit-background-clip: text;
+        background-clip: text;
+        transition: none;
+        -webkit-text-fill-color: transparent;
+
+        svg {
+          fill: @condo-global-color-green-7;
+        }
+      }
+    }
+  }
+
+  &.condo-btn-dropdown-block {
+    .condo-btn-dropdown-menu {
+      max-width: 100%;
+    }
   }
 }
