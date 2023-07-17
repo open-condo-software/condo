@@ -8,7 +8,7 @@ import { colors } from '@open-condo/ui/src/colors'
 const TAG_CLASS_PREFIX = 'condo-tag'
 
 export type TagProps = React.HTMLAttributes<HTMLSpanElement> & {
-    children: string
+    children: React.ReactNode
     textColor?: CSSProperties['color']
     bgColor?: CSSProperties['backgroundColor']
 }
