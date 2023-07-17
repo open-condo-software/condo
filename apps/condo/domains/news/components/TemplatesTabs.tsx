@@ -50,6 +50,7 @@ interface INewsFormProps {
 
 const TABS_CLASS_PREFIX = 'condo-tabs'
 const CONTROL_PREFIX = 'condo-control'
+const PIXEL_SPEED = 40
 
 function getTabsPane (): HTMLElement {
     return document.querySelector('.condo-tabs-nav-list')
@@ -91,20 +92,18 @@ export const TemplatesTabs: React.FC<INewsFormProps> = ({ items, onChange }) => 
         let intervalId
 
         const incrementTabs = () => {
-            const increment = 40
             setTranslateTabs(prevTranslateTabs => {
-                if (prevTranslateTabs + increment > maxPxTranform.current)
+                if (prevTranslateTabs + PIXEL_SPEED > maxPxTranform.current)
                     return maxPxTranform.current
-                return prevTranslateTabs + increment
+                return prevTranslateTabs + PIXEL_SPEED
             })
         }
 
         const decrementTabs = () => {
-            const decrement = 40
             setTranslateTabs(prevTranslateTabs => {
-                if (prevTranslateTabs - decrement < 0)
+                if (prevTranslateTabs - PIXEL_SPEED < 0)
                     return 0
-                return prevTranslateTabs - decrement
+                return prevTranslateTabs - PIXEL_SPEED
             })
         }
 
