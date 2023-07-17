@@ -134,8 +134,9 @@
   transform: rotate(180deg);
 }
 
-.organization-dropdown-overlay {
-  z-index: 100;
+.organization-dropdown-overlay .ant-dropdown-menu {
+  max-height: 360px;
+  overflow-y: auto;
 }
 
 .organization-selector .condo-typography {
