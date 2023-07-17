@@ -197,7 +197,7 @@ const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
                 isButtonsHidden={isButtonsHidden}
             >
                 <Space direction='vertical' size={12} hidden={isButtonsHidden}>
-                    <Button type='primary' onClick={setupButtonClick}>
+                    <Button type='primary' onClick={setupButtonClick} id='setup-report-button'>
                         {SetupReportTitle}
                     </Button>
                     <Button

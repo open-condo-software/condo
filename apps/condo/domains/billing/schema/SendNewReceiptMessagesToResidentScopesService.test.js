@@ -494,11 +494,6 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
                 const [resident] = await registerResidentByTestClient(residentUser, residentPayload)
                 const [resident2] = await registerResidentByTestClient(residentUser2, residentPayload)
                 const [billingAccount] = await createTestBillingAccount(adminClient, integrationContext, billingProperty)
-                const serviceConsumerPayload = {
-                    residentId: resident.id,
-                    accountNumber: billingAccount.number,
-                    organizationId: organization.id,
-                }
 
                 await createTestServiceConsumer(adminClient, resident2, organization, { billingAccount: { connect: { id: billingAccount.id } } })
                 await syncRemoteClientWithPushTokenByTestClient(residentUser, remoteClientPayload)

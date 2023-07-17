@@ -115,7 +115,7 @@ export const StyledTabs = styled(Tabs)`
         }
     }
 `
-
+const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
@@ -962,6 +962,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             rules={titleRules}
                                                         >
                                                             <Title.InputWithCounter
+                                                                style={NO_RESIZE_STYLE}
                                                                 rows={4}
                                                                 placeholder={TitlePlaceholderMessage}
                                                                 onChange={handleTitleChange}
@@ -981,6 +982,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                             validateFirst={true}
                                                         >
                                                             <Body.InputWithCounter
+                                                                style={NO_RESIZE_STYLE}
                                                                 rows={7}
                                                                 placeholder={BodyPlaceholderMessage}
                                                                 onChange={handleBodyChange}

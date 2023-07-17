@@ -9,6 +9,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/SendNewReceiptMessagesToResidentScopesService')
 const { BillingCategory, BillingProperty, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
+const { FAILURE_STATUS } = require('@condo/domains/common/constants')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { getStartDates, DATE_FORMAT } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -152,8 +153,6 @@ const validateAndNormalizeData = async (context, data) => {
         return scopeItem
     })
 
-    // TODO: validate non empty scopes
-
     return { categoryData, period: period.format(DATE_FORMAT), scopesData: compact(scopesData) }
 }
 
@@ -210,6 +209,14 @@ const SendNewReceiptMessagesToResidentScopesService = new GQLCustomSchema('SendN
                  */
                 const paymentCategoryData = PAYMENT_CATEGORIES_META.find(item => item.uuid === category.id)
                 const paymentCategoryId = get(paymentCategoryData, 'id', null)
+
+                /**
+                 * if scopesData is empty at this point, it means that either
+                 * - there was no matching Property item found for corresponding BillingProperty item of the scope item
+                 * - or there was no Resident items found for that matched Property item,
+                 * for every scope item
+                 * */
+                if (isEmpty(scopesData)) return { status: FAILURE_STATUS }
 
                 const payload = {
                     sender,
