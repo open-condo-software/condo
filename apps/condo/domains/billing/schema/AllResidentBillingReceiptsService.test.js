@@ -18,28 +18,43 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
     generateServicesData,
 } = require('../utils/testSchema')
+
+async function makeClientWithPropertyAndIntegrations () {
+    const userClient = await makeClientWithProperty()
+    const support = await makeClientWithSupportUser()
+    const [integration] = await createTestBillingIntegration(support)
+    const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration, {
+        status: BILLING_CONTEXT_FINISHED_STATUS,
+    })
+    const [acquiringIntegration] = await createTestAcquiringIntegration(support, {
+        canGroupReceipts: true,
+    })
+    await createTestAcquiringIntegrationContext(userClient, userClient.organization, acquiringIntegration, {
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+    })
+    const integrationClient = await makeClientWithServiceUser()
+    await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
+    userClient.billingContext = billingContext
+    userClient.integrationClient = integrationClient
+    return userClient
+}
 
 
 describe('AllResidentBillingReceiptsService', () => {
 
     describe('fields for resident',  () => {
         it('returns all required fields', async () => {
-            const userClient = await makeClientWithProperty()
-            const support = await makeClientWithSupportUser()
-
-            const [integration] = await createTestBillingIntegration(support)
-            const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
-
-            const integrationClient = await makeClientWithServiceUser()
-            await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
-            const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
+            const userClient = await makeClientWithPropertyAndIntegrations()
+            const [billingProperty] = await createTestBillingProperty(userClient.integrationClient, userClient.billingContext, {
                 address: userClient.property.address,
             })
-            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
+            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(userClient.integrationClient, userClient.billingContext, billingProperty)
 
             const residentUser = await makeClientWithResidentUser()
             const [resident] = await registerResidentByTestClient(residentUser, {
@@ -52,7 +67,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 accountNumber: billingAccountAttrs.number,
                 organizationId: userClient.organization.id,
             })
-            await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
+            await createTestBillingReceipt(userClient.integrationClient, userClient.billingContext, billingProperty, billingAccount)
             const residentBillingReceipts = await ResidentBillingReceipt.getAll(residentUser)
 
             expect(residentBillingReceipts).toBeDefined()

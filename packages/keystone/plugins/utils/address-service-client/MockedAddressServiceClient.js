@@ -1,5 +1,5 @@
-const { faker } = require('@faker-js/faker')
 const get = require('lodash/get')
+const { createHash } = require('crypto')
 
 class MockedAddressServiceClient {
     DEFAULT_META_DATA = {
@@ -109,11 +109,12 @@ class MockedAddressServiceClient {
      */
     async search (s, params = {}) {
         const item = this.existingItem
+        const address = get(item, 'address', s)
 
         return {
             addressSources: [s],
-            address: get(item, 'address', s),
-            addressKey: get(item, 'addressKey', faker.random.alphaNumeric(32)),
+            address,
+            addressKey: get(item, 'addressKey', createHash('md5').update(address).digest('hex')),
             addressMeta: {
                 data: get(item, ['addressMeta', 'data'], this.DEFAULT_META_DATA),
                 provider: {
