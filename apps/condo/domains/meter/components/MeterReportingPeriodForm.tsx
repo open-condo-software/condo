@@ -2,6 +2,7 @@
 import { MeterReportingPeriod as MeterReportingPeriodType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Form, Row, Typography } from 'antd'
+import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
@@ -159,7 +160,6 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         error: periodsLoadingError,
     } = MeterReportingPeriod.useObjects({
         where: {
-            property_is_null: false,
             organization: { id: organizationId },
         },
     },
@@ -167,7 +167,11 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         fetchPolicy: 'network-only',
     })
 
-    const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, reportingPeriods.map(period => period.property.id)),
+    const hasOrganizationPeriod = Boolean(reportingPeriods.find(period => period.property === null && period.organization !== null))
+
+    const periodsWithProperty = compact(reportingPeriods.map(period => period.property && period))
+
+    const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, periodsWithProperty.map(period => period.property.id)),
         [organization, isPeriodsLoading])
 
     const handelGQLInputChange = () => {
@@ -250,6 +254,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                         >
                                             <Checkbox
                                                 checked={isOrganizationPeriod}
+                                                disabled={hasOrganizationPeriod}
                                                 eventName='OrganizationReportingPeriodCheckbox'
                                                 style={CHECKBOX_STYLE}
                                                 onChange={handleCheckboxChange}
