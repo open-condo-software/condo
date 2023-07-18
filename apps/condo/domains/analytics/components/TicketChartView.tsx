@@ -4,7 +4,7 @@ import styled from '@emotion/styled'
 import { Skeleton, Typography, List } from 'antd'
 import ReactECharts from 'echarts-for-react'
 import get from 'lodash/get'
-import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react'
+import React, { useRef, useEffect, useState, useCallback } from 'react'
 import InfiniteScroll from 'react-infinite-scroller'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -119,7 +119,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
     }, [data, viewMode])
 
     // Way to await moment when all pie chart instance were rendered (needed for client side pdf generation)
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (viewMode === 'pie' && onChartReady !== undefined) {
             if (seriesRef.current.length !== 0 && seriesCacheRef.current.length !== 0 && seriesRef.current.length === seriesCacheRef.current.length) {
                 onChartReady()
@@ -137,7 +137,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                 return () => cancelAnimationFrame(animationFrameId)
             }
         }
-    }, [chartReadyCounter])
+    }, [chartReadyCounter, viewMode, onChartReady])
 
     const loadMore = useCallback(() => { setChartPage(chartPage + 1) }, [chartPage])
 

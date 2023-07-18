@@ -278,21 +278,21 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
         return (
             <Row style={CARD_STYLE} align='middle'>
                 <Col span={24}>
-                    <Row justify='space-evenly' gutter={[0, 12]}>
-                        <Col>
-                            <Space size={8} direction='horizontal'>
-                                <Smile />
-                                <Typography.Title level={3} type='success'>
-                                    {goodPercent}%
-                                </Typography.Title>
-                            </Space>
-                        </Col>
-                        <Col>
-                            <Space size={8} direction='horizontal'>
-                                <Frown />
-                                <Typography.Title level={3} type='danger'>
-                                    {badPercent}%
-                                </Typography.Title>
+                    <Row gutter={[0, 12]}>
+                        <Col span={24} style={TEXT_CENTER_STYLE}>
+                            <Space direction='horizontal' size={24} align='center'>
+                                <Space size={8} direction='horizontal'>
+                                    <Smile />
+                                    <Typography.Title level={3} type='success'>
+                                        {goodPercent}%
+                                    </Typography.Title>
+                                </Space>
+                                <Space size={8} direction='horizontal'>
+                                    <Frown />
+                                    <Typography.Title level={3} type='danger'>
+                                        {badPercent}%
+                                    </Typography.Title>
+                                </Space>
                             </Space>
                         </Col>
                         <Col span={24} style={TEXT_CENTER_STYLE}>
@@ -413,7 +413,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     }, [])
 
     const newTickets = get(overview, 'ticketByDay.tickets', [])
-    const propertyTickets = get(overview, 'ticketByProperty.tickets')
+    const propertyTickets = get(overview, 'ticketByProperty.tickets', [])
     const categoryTickets = get(overview, 'ticketByCategory.tickets', [])
     const executorTickets = get(overview, 'ticketByExecutor.tickets', [])
     const paymentsData = get(overview, 'payment.payments', [])
