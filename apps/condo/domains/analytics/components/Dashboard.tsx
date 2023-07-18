@@ -216,7 +216,7 @@ const IncidentDashboard = ({ organizationId }) => {
 
     const incidentCardContent = useMemo(() => (
         <Row style={CARD_STYLE} align='middle'>
-            <Col span={24}>
+            <Col span={24} style={TEXT_CENTER_STYLE}>
                 <Space direction='vertical' size={12} align='center'>
                     <Typography.Title level={1} type={count > 0 ? 'danger' : 'success'}>{count}</Typography.Title>
                     <div style={TEXT_CENTER_STYLE}>
@@ -432,10 +432,10 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     paymentLoading={false}
                 />
             </Col>
-            <Col xl={6} lg={12}>
+            <Col xl={6} lg={12} xs={24}>
                 <IncidentDashboard organizationId={organizationId} />
             </Col>
-            <Col xl={6} lg={12}>
+            <Col xl={6} lg={12} xs={24}>
                 <TicketQualityControlDashboard organizationId={organizationId} />
             </Col>
             <Col span={24}>
@@ -467,31 +467,31 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
             ) : (
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <AllTicketsChart data={newTickets} />
                         </Col>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <TicketByCategoryChart data={categoryTickets} />
                         </Col>
                         <Col span={24}>
                             <TicketTableView organizationId={organizationId} dateRange={dateRange} />
                         </Col>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <PaymentTotalChart data={paymentsData} />
                         </Col>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <PaymentReceiptChart data={chargedToPaidData} />
                         </Col>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <PaymentByPropertyChart data={paymentsData} />
                         </Col>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <ResidentByPropertyChart data={residentsData} />
                         </Col>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <TicketByExecutorChart data={executorTickets} />
                         </Col>
-                        <Col lg={12} md={24}>
+                        <Col lg={12} md={24} xs={24}>
                             <TicketByPropertyChart data={propertyTickets} />
                         </Col>
                     </Row>
