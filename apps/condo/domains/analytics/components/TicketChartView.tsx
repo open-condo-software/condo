@@ -21,9 +21,6 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
 import { colors } from '@condo/domains/common/constants/style'
 
-
-
-
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketGroupedCounter[]
     viewMode: ViewModeTypes
@@ -67,7 +64,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
         onChartReady,
         chartConfig,
         mapperInstance,
-        mainGroup = 'ticket',
+        mainGroup = 'status',
     } = props
 
     const intl = useIntl()
