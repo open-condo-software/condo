@@ -3,6 +3,7 @@ const { isSoftDelete } = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadServiceConsumers ({ authentication: { item: user } }) {
@@ -12,6 +13,7 @@ async function canReadServiceConsumers ({ authentication: { item: user } }) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
+        //acquiringIntegrationContext: { status: ACQUIRING_CONTEXT_FINISHED_STATUS },
         return { resident: { user: { id: user.id }, deletedAt: null } }
     }
 

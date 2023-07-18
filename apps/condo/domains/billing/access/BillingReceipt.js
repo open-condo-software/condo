@@ -5,8 +5,72 @@
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { canManageBillingEntityWithContext } = require('@condo/domains/billing/utils/accessSchema')
+const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+
+async function buildResidentAccessToReceiptsQuery (userId) {
+    const residents = await find('Resident', { user: { id: userId }, deletedAt: null })
+    //console.log('1. residents: ', residents)
+    if (!residents || residents.length === 0) {
+        return false
+    }
+    let serviceConsumers = await find('ServiceConsumer', {
+        resident: { id_in: residents.map(({ id }) => id) },
+        deletedAt: null,
+    })
+    //console.log('2. serviceConsumers: ', serviceConsumers)
+    if (!serviceConsumers || serviceConsumers.length === 0) {
+        return false
+    }
+    //console.log('2.5 All service consumers', serviceConsumers)
+    const organizationIds = serviceConsumers.map(({ organization }) => organization )
+    //console.log('3. All organizations', organizationIds)
+    // Exclude all serviceConsumers for organizations without Contract
+    const organizationsWithContract = (await find('AcquiringIntegrationContext', {
+        organization: { id_in: organizationIds, deletedAt: null },
+        integration: { deletedAt: null },
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+    })).map(({ organization }) => organization)
+    //console.log('4. organizationsWithContract: ', organizationsWithContract)
+    serviceConsumers = serviceConsumers.filter(({ organization }) => organizationsWithContract.includes(organization))
+    //console.log('5. filtered serviceConsumers: ', serviceConsumers)
+
+    if (!serviceConsumers.length) {
+        return null
+    }
+    // Properties created by organizations
+    const propertiesForOrganizations = Object.fromEntries(await Promise.all(organizationsWithContract.map(async organizationId => {
+        return [organizationId,  (await find('Property', { organization: { id: organizationId }, deletedAt: null })).map(({ addressKey }) => addressKey)]
+    })))
+    //console.log('5. Organizations with properties', propertiesForOrganizations)
+    const access = {
+        OR: serviceConsumers.map(
+            serviceConsumer => ({
+                AND: [
+                    {
+                        account: {
+                            number: serviceConsumer.accountNumber,
+                            property: { addressKey_in: propertiesForOrganizations[serviceConsumer.organization] },
+                            deletedAt: null,
+                        },
+                        context: {
+                            organization: { id: serviceConsumer.organization },
+                            deletedAt: null,
+                            status: BILLING_CONTEXT_FINISHED_STATUS,
+                        },
+                        deletedAt: null,
+                    }],
+            }),
+        ),
+    }
+    console.log('-----------------')
+    console.log('6. access', JSON.stringify(access, null, 2))
+    console.log('-----------------')
+    return access
+}
 
 async function canReadBillingReceipts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -14,22 +78,7 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
     if (user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-
-        // We don't want to make honest GQL request, as it is too expensive
-        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
-        if (!residents || residents.length === 0) {
-            return false
-        }
-        const serviceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(r => r.id) }, deletedAt: null })
-        if (!serviceConsumers || serviceConsumers.length === 0) {
-            return false
-        }
-
-        return {
-            OR: serviceConsumers.map(
-                s => ({ AND: [{ account: { number: s.accountNumber, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext, deletedAt: null } }] } )
-            ),
-        }
+        return await buildResidentAccessToReceiptsQuery()
     } else {
         return {
             OR: [
@@ -59,5 +108,6 @@ module.exports = {
     canReadBillingReceipts,
     canManageBillingReceipts,
     canReadSensitiveBillingReceiptData,
+    buildResidentAccessToReceiptsQuery,
     readOnlyAccess,
 }

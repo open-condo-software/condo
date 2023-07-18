@@ -62,16 +62,14 @@ async function registerBillingReceipts (context, data) {
  * @param period {string}
  * @return {Promise<*>}
  */
-const getPaymentsSum = async (context, organizationId, accountNumber, period, bic, bankAccount) => {
+const getPaymentsSum = async (context, organizationId, accountNumber, period, bankAccount) => {
     const payments = await  find('Payment', {
         organization: { id: organizationId },
         accountNumber: accountNumber,
         period: period,
         status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-        recipientBic: bic,
-        recipientBankAccount: bankAccount,
     })
-    return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(8).toString()
+    return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(2)
 }
 
 /**

@@ -13,6 +13,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
+const { buildResidentAccessToReceiptsQuery } = require('@condo/domains/billing/access/BillingReceipt')
 const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 
 const {
@@ -54,11 +55,12 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
             schema: 'allResidentBillingReceipts (where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]',
             resolver: async (parent, args, context = {}) => {
                 const { where, first, skip, sortBy } = args
-
+                console.log({ where, first, skip, sortBy })
                 const serviceConsumerWhere = get(where, 'serviceConsumer', {})
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 
                 const userId = get(context, ['authedItem', 'id'])
+                const limitationQuery = await buildResidentAccessToReceiptsQuery(userId)
 
                 // We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
                 const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
@@ -100,7 +102,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
 
                 const receiptsForConsumer = await BillingReceipt.getAll(
                     context,
-                    joinedReceiptsQuery,
+                    { AND: [joinedReceiptsQuery, limitationQuery] },
                     {
                         sortBy, first, skip,
                     }
@@ -118,7 +120,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     toPayDetails: receipt.toPayDetails,
                     services: receipt.services,
                     printableNumber: receipt.printableNumber,
-                    serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber),
+                    serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber && get(receipt, ['context', 'organization', 'id']) === x.organization ),
                     currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                 }))
 
@@ -137,9 +139,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const receiptsByAccountAndRecipient = {}
                 for (const receipt of processedReceipts) {
                     const accountNumber = get(receipt, ['account', 'number'])
-                    const recipientId = get(receipt, ['receiver', 'id'])
                     const categoryId = get(receipt, ['category', 'id'])
-                    const key = accountNumber + '-' + recipientId + '-' + categoryId
+                    const key = accountNumber + '-' + categoryId
 
                     const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
 
@@ -173,8 +174,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         organizationId,
                         accountNumber,
                         get(receipt, 'period', null),
-                        get(receipt, ['recipient', 'bic'], null),
-                        get(receipt, ['recipient', 'bankAccount'], null)
+                        // rs,
                     )
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)
