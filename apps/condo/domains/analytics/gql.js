@@ -21,7 +21,7 @@ const GET_EXTERNAL_REPORT_IFRAME_URL_QUERY = gql`
 `
 
 const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
-    query getOverviewDashboard ($data: OverviewDashboardInput!) {
+    query getOverviewDashboard ($data: GetOverviewDashboardInput!) {
         result: getOverviewDashboard(data: $data) { 
             overview { 
                 ticketByDay {

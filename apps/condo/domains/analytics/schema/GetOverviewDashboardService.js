@@ -9,7 +9,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
-const access = require('@condo/domains/analytics/access/OverviewDashboardService')
+const access = require('@condo/domains/analytics/access/GetOverviewDashboardService')
 const { AnalyticsDataProvider } = require('@condo/domains/analytics/utils/services/AnalyticsDataProvider')
 const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/payment')
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
@@ -35,19 +35,19 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
     types: [
         {
             access: true,
-            type: 'enum OverviewDashboardAggregatePeriod { day week }',
+            type: 'enum GetOverviewDashboardAggregatePeriod { day week }',
         },
         {
             access: true,
-            type: 'input OverviewDashboardGroupByInput { aggregatePeriod: OverviewDashboardAggregatePeriod! }',
+            type: 'input GetOverviewDashboardGroupByInput { aggregatePeriod: GetOverviewDashboardAggregatePeriod! }',
         },
         {
             access: true,
-            type: 'input OverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String! }',
+            type: 'input GetOverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String! }',
         },
         {
             access: true,
-            type: 'input OverviewDashboardInput { dv: Int!, sender: JSON!, where: OverviewDashboardWhereInput!, groupBy: OverviewDashboardGroupByInput! }',
+            type: 'input GetOverviewDashboardInput { dv: Int!, sender: JSON!, where: GetOverviewDashboardWhereInput!, groupBy: GetOverviewDashboardGroupByInput! }',
         },
         {
             access: true,
@@ -83,14 +83,14 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'type OverviewDashboardOutput { overview: OverviewData! }',
+            type: 'type GetOverviewDashboardOutput { overview: OverviewData! }',
         },
     ],
 
     queries: [
         {
-            access: access.canOverviewDashboard,
-            schema: 'getOverviewDashboard(data: OverviewDashboardInput!): OverviewDashboardOutput',
+            access: access.canGetOverviewDashboard,
+            schema: 'getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
                 const { data: { where, groupBy } } = args
 

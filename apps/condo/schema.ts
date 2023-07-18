@@ -20870,6 +20870,33 @@ export type GetNewsItemsRecipientsCountersOutput = {
   receiversCount: Scalars['Int'];
 };
 
+export enum GetOverviewDashboardAggregatePeriod {
+  Day = 'day',
+  Week = 'week'
+}
+
+export type GetOverviewDashboardGroupByInput = {
+  aggregatePeriod: GetOverviewDashboardAggregatePeriod;
+};
+
+export type GetOverviewDashboardInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  where: GetOverviewDashboardWhereInput;
+  groupBy: GetOverviewDashboardGroupByInput;
+};
+
+export type GetOverviewDashboardOutput = {
+  __typename?: 'GetOverviewDashboardOutput';
+  overview: OverviewData;
+};
+
+export type GetOverviewDashboardWhereInput = {
+  organization: Scalars['String'];
+  dateFrom: Scalars['String'];
+  dateTo: Scalars['String'];
+};
+
 export type GetPhoneByConfirmPhoneActionTokenInput = {
   token: Scalars['String'];
   captcha: Scalars['String'];
@@ -47916,33 +47943,6 @@ export type OrganizationsUpdateInput = {
   data?: Maybe<OrganizationUpdateInput>;
 };
 
-export enum OverviewDashboardAggregatePeriod {
-  Day = 'day',
-  Week = 'week'
-}
-
-export type OverviewDashboardGroupByInput = {
-  aggregatePeriod: OverviewDashboardAggregatePeriod;
-};
-
-export type OverviewDashboardInput = {
-  dv: Scalars['Int'];
-  sender: Scalars['JSON'];
-  where: OverviewDashboardWhereInput;
-  groupBy: OverviewDashboardGroupByInput;
-};
-
-export type OverviewDashboardOutput = {
-  __typename?: 'OverviewDashboardOutput';
-  overview: OverviewData;
-};
-
-export type OverviewDashboardWhereInput = {
-  organization: Scalars['String'];
-  dateFrom: Scalars['String'];
-  dateTo: Scalars['String'];
-};
-
 export type OverviewData = {
   __typename?: 'OverviewData';
   ticketByProperty?: Maybe<TicketOverviewResult>;
@@ -53739,7 +53739,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   getExternalReportIframeUrl?: Maybe<GetExternalReportIframeUrlOutput>;
-  getOverviewDashboard?: Maybe<OverviewDashboardOutput>;
+  getOverviewDashboard?: Maybe<GetOverviewDashboardOutput>;
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   /** The version of the Keystone application serving this API. */
@@ -59362,7 +59362,7 @@ export type QueryGetExternalReportIframeUrlArgs = {
 
 
 export type QueryGetOverviewDashboardArgs = {
-  data: OverviewDashboardInput;
+  data: GetOverviewDashboardInput;
 };
 
 

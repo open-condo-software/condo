@@ -51,9 +51,9 @@ const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
     justifyContent: 'center',
 }
 
-type DataCardProps = { label: string, value: string | number, secondaryLabel?: string }
+type StatisticCardProps = { label: string, value: string | number, secondaryLabel?: string }
 
-const DataCard: React.FC<DataCardProps> = ({ label, value, secondaryLabel }) => (
+const StatisticCard: React.FC<StatisticCardProps> = ({ label, value, secondaryLabel }) => (
     <Col>
         <Space direction='vertical' align='center' size={8}>
             <Typography.Title level={3} type='primary'>{value}</Typography.Title>
@@ -149,22 +149,22 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                             <Col style={iconStyle}>
                                 <LayoutList />
                             </Col>
-                            <DataCard
+                            <StatisticCard
                                 label={DoneLabel}
                                 secondaryLabel={MonthTitle}
                                 value={completionPercent}
                             />
-                            <DataCard
+                            <StatisticCard
                                 label={NewTicketsLabel}
                                 secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.new_or_reopened.count}
                             />
-                            <DataCard
+                            <StatisticCard
                                 label={InWorkLabel}
                                 secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.processing.count}
                             />
-                            <DataCard
+                            <StatisticCard
                                 label={ClosedTicketsLabel}
                                 secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.closed.count}
@@ -176,17 +176,17 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                             <Col style={iconStyle}>
                                 <Wallet />
                             </Col>
-                            <DataCard
+                            <StatisticCard
                                 label={PaymentsAmountPercent}
                                 secondaryLabel={MonthTitle}
                                 value={paymentsAmountPercent}
                             />
-                            <DataCard
+                            <StatisticCard
                                 label={PaymentsAmount}
                                 secondaryLabel={MonthTitle}
                                 value={intl.formatNumber(paymentSum, { style: 'currency', currency: 'Rub' })}
                             />
-                            <DataCard
+                            <StatisticCard
                                 label={ResidentsInApp}
                                 secondaryLabel={TotalTitle}
                                 value={residentsCount}

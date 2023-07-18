@@ -5,7 +5,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkUserBelongsToOrganization, checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
 
-async function canOverviewDashboard ({ authentication: { item: user }, args: { data: { where: { organization } } } }) {
+async function canGetOverviewDashboard ({ authentication: { item: user }, args: { data: { where: { organization } } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -23,5 +23,5 @@ async function canOverviewDashboard ({ authentication: { item: user }, args: { d
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canOverviewDashboard,
+    canGetOverviewDashboard,
 }

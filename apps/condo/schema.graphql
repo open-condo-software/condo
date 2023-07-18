@@ -63595,26 +63595,26 @@ type GetExternalReportIframeUrlOutput {
   iframeUrl: String
 }
 
-enum OverviewDashboardAggregatePeriod {
+enum GetOverviewDashboardAggregatePeriod {
   day
   week
 }
 
-input OverviewDashboardGroupByInput {
-  aggregatePeriod: OverviewDashboardAggregatePeriod!
+input GetOverviewDashboardGroupByInput {
+  aggregatePeriod: GetOverviewDashboardAggregatePeriod!
 }
 
-input OverviewDashboardWhereInput {
+input GetOverviewDashboardWhereInput {
   organization: String!
   dateFrom: String!
   dateTo: String!
 }
 
-input OverviewDashboardInput {
+input GetOverviewDashboardInput {
   dv: Int!
   sender: JSON!
-  where: OverviewDashboardWhereInput!
-  groupBy: OverviewDashboardGroupByInput!
+  where: GetOverviewDashboardWhereInput!
+  groupBy: GetOverviewDashboardGroupByInput!
 }
 
 type TicketOverviewResult {
@@ -63663,7 +63663,7 @@ type OverviewData {
   resident: ResidentOverviewResult
 }
 
-type OverviewDashboardOutput {
+type GetOverviewDashboardOutput {
   overview: OverviewData!
 }
 
@@ -66977,7 +66977,7 @@ type Query {
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
   getExternalReportIframeUrl(data: GetExternalReportIframeUrlInput!): GetExternalReportIframeUrlOutput
-  getOverviewDashboard(data: OverviewDashboardInput!): OverviewDashboardOutput
+  getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
 
