@@ -1,4 +1,5 @@
 import { TicketAnalyticsGroupBy as TicketGroupBy, TicketGroupedCounter } from '@app/condo/schema'
+import dayjs from 'dayjs'
 
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -6,7 +7,6 @@ import TicketChart from '@condo/domains/analytics/components/TicketChart'
 import { getAggregatedData } from '@condo/domains/analytics/utils/helpers'
 
 const TOP_VALUES = 5
-
 const COLOR_SET = [
     colors.pink['5'],
     colors.orange['5'],
@@ -15,6 +15,7 @@ const COLOR_SET = [
     colors.blue['5'],
     colors.teal['5'],
 ]
+const DATE_FORMAT = 'DD.MM.YYYY'
 
 interface ITicketChartCard {
     ({ data }: { data: Array<TicketGroupedCounter> }): React.ReactElement
@@ -24,7 +25,11 @@ const AllTicketChartDataMapper = new TicketChart({
     line: {
         chart: (viewMode, data) => {
             const series = []
+
             const aggregatedData = getAggregatedData(data, [TicketGroupBy.Status, TicketGroupBy.Day])
+            const axisLabels = Array
+                .from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
+                .sort((a, b) => dayjs(a, DATE_FORMAT).unix() - dayjs(b, DATE_FORMAT).unix())
 
             Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
                 series.push({
@@ -45,7 +50,7 @@ const AllTicketChartDataMapper = new TicketChart({
             return {
                 legend: [],
                 axisData: {
-                    xAxis: { type: 'category', data: null },
+                    xAxis: { type: 'category', data: axisLabels },
                     yAxis: { type: 'value', data: null },
                 },
                 tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
