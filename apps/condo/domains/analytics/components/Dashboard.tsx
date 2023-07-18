@@ -270,8 +270,8 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
 
     const ticketCardContent = useMemo(() => {
         const totalCount = goodCount + badCount
-        const goodPercent = totalCount  > 0 ? goodCount / totalCount * 100 : 0
-        const badPercent = totalCount > 0 ? badCount / totalCount * 100 : 0
+        const goodPercent = totalCount  > 0 ? (goodCount / totalCount * 100).toFixed(0) : 0
+        const badPercent = totalCount > 0 ? (badCount / totalCount * 100).toFixed(0) : 0
 
         return (
             <Row style={CARD_STYLE} align='middle'>
