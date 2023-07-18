@@ -10,9 +10,15 @@ const { canManageBillingEntityWithContext } = require('@condo/domains/billing/ut
 const { CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+// We allow only receipts:
+//    1. With matching Property (compare by addressKey)
+//    2. For organizations with Finished AcquiringContext
+//    3. With Finished BillingContext
 async function buildResidentAccessToReceiptsQuery (userId) {
+    if (!userId) {
+        return false
+    }
     const residents = await find('Resident', { user: { id: userId }, deletedAt: null })
-    //console.log('1. residents: ', residents)
     if (!residents || residents.length === 0) {
         return false
     }
@@ -20,33 +26,33 @@ async function buildResidentAccessToReceiptsQuery (userId) {
         resident: { id_in: residents.map(({ id }) => id) },
         deletedAt: null,
     })
-    //console.log('2. serviceConsumers: ', serviceConsumers)
     if (!serviceConsumers || serviceConsumers.length === 0) {
         return false
     }
-    //console.log('2.5 All service consumers', serviceConsumers)
     const organizationIds = serviceConsumers.map(({ organization }) => organization )
-    //console.log('3. All organizations', organizationIds)
-    // Exclude all serviceConsumers for organizations without Contract
+    // Exclude all serviceConsumers for organizations without AcquiringContext in Finished status
     const organizationsWithContract = (await find('AcquiringIntegrationContext', {
         organization: { id_in: organizationIds, deletedAt: null },
         integration: { deletedAt: null },
         status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     })).map(({ organization }) => organization)
-    //console.log('4. organizationsWithContract: ', organizationsWithContract)
     serviceConsumers = serviceConsumers.filter(({ organization }) => organizationsWithContract.includes(organization))
-    //console.log('5. filtered serviceConsumers: ', serviceConsumers)
-
     if (!serviceConsumers.length) {
         return null
     }
     // Properties created by organizations
-    const propertiesForOrganizations = Object.fromEntries(await Promise.all(organizationsWithContract.map(async organizationId => {
-        return [organizationId,  (await find('Property', { organization: { id: organizationId }, deletedAt: null })).map(({ addressKey }) => addressKey)]
-    })))
-    //console.log('5. Organizations with properties', propertiesForOrganizations)
-    const access = {
+    const propertiesForOrganizations = Object.fromEntries(
+        await Promise.all(
+            organizationsWithContract.map(
+                async organizationId => [organizationId,  (
+                    await find('Property', {
+                        organization: { id: organizationId }, deletedAt: null,
+                    })).map(({ addressKey }) => addressKey)]
+            )
+        )
+    )
+    return {
         OR: serviceConsumers.map(
             serviceConsumer => ({
                 AND: [
@@ -66,10 +72,6 @@ async function buildResidentAccessToReceiptsQuery (userId) {
             }),
         ),
     }
-    console.log('-----------------')
-    console.log('6. access', JSON.stringify(access, null, 2))
-    console.log('-----------------')
-    return access
 }
 
 async function canReadBillingReceipts ({ authentication: { item: user } }) {
@@ -78,7 +80,7 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
     if (user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        return await buildResidentAccessToReceiptsQuery()
+        return await buildResidentAccessToReceiptsQuery(user.id)
     } else {
         return {
             OR: [

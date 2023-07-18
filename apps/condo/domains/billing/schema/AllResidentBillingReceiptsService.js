@@ -120,7 +120,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     toPayDetails: receipt.toPayDetails,
                     services: receipt.services,
                     printableNumber: receipt.printableNumber,
-                    serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber && get(receipt, ['context', 'organization', 'id']) === x.organization ),
+                    serviceConsumer: serviceConsumers.find(({ accountNumber, organization }) => get(receipt, ['account', 'number']) === accountNumber && get(receipt, ['context', 'organization', 'id']) === organization ),
                     currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                 }))
 
@@ -140,7 +140,9 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 for (const receipt of processedReceipts) {
                     const accountNumber = get(receipt, ['account', 'number'])
                     const categoryId = get(receipt, ['category', 'id'])
-                    const key = accountNumber + '-' + categoryId
+                    const organizationId = get(receipt, ['context', 'organization', 'id'])
+                    // 1 receipt is allowed to pay for account within organization based on category
+                    const key = [accountNumber, categoryId, organizationId].join('-')
 
                     const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
 
@@ -174,7 +176,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         organizationId,
                         accountNumber,
                         get(receipt, 'period', null),
-                        // rs,
+                        get(receipt, ['recipient', 'bankAccount'], null)
                     )
                     const acquiringContextId = get(receipt, ['serviceConsumer', 'acquiringIntegrationContext'], null)
                     const toPay = get(receipt, ['toPay'], 0)

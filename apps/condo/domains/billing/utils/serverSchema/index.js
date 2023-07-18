@@ -68,6 +68,7 @@ const getPaymentsSum = async (context, organizationId, accountNumber, period, ba
         accountNumber: accountNumber,
         period: period,
         status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+        recipientBankAccount: bankAccount,
     })
     return payments.reduce((total, current) => (Big(total).plus(current.amount)), 0).toFixed(2)
 }
