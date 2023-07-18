@@ -42,6 +42,7 @@ import type { RowProps } from 'antd'
 
 const TICKET_TABLE_PAGE_SIZE = 5
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
+const CARD_ROW_GUTTER: RowProps['gutter'] = [24, 24]
 const CARD_STYLE: React.CSSProperties = { height: '200px' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
@@ -49,6 +50,7 @@ const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center',
 }
 
 type StatisticCardProps = { label: string, value: string | number, secondaryLabel?: string }
@@ -81,7 +83,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const MonthTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.month' })
     const TotalTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.total' })
 
-    const { breakpoints: { TABLET_LARGE: isSmall } } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const [completionPercent, setCompletionPercent] = useState('—')
     const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
@@ -133,8 +135,8 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
             setResidentsCount(residentsData.reduce((p, c) => p + Number(c.count), 0))
         }
     }, [residentsData])
-
-    const iconStyle = useMemo(() => ({ display: !isSmall ? 'none' : 'block' }), [isSmall])
+    const iconStyle = useMemo(() => ({ display: !breakpoints.TABLET_LARGE ? 'none' : 'block' }), [breakpoints.TABLET_LARGE])
+    const cardRowJustify = useMemo(() => breakpoints.TABLET_LARGE ? 'space-between' : 'space-around', [breakpoints.TABLET_LARGE])
 
     const loading = monthTicketLoading || ticketCountLoading || isNull(ticketCounts.current)
 
@@ -145,7 +147,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
                     <Col span={24}>
-                        <Row align='middle' justify='space-between'>
+                        <Row align='middle' justify={cardRowJustify} gutter={CARD_ROW_GUTTER}>
                             <Col style={iconStyle}>
                                 <LayoutList />
                             </Col>
@@ -172,7 +174,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                         </Row>
                     </Col>
                     <Col span={24}>
-                        <Row align='middle' justify='space-between'>
+                        <Row align='middle' justify={cardRowJustify} gutter={CARD_ROW_GUTTER}>
                             <Col style={iconStyle}>
                                 <Wallet />
                             </Col>
@@ -462,7 +464,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
 
                 </TableFiltersContainer>
             </Col>
-            {loading || overview === null ? (
+            {loading && overview === null ? (
                 <Skeleton paragraph={{ rows: 62 }} />
             ) : (
                 <Col span={24}>
