@@ -335,12 +335,24 @@ a.condo-btn {
     z-index: 1;
     margin-right: 16px;
     margin-left: 20px;
-    opacity: 0.3;
+    opacity: 0.1;
   }
 
   &.condo-btn-block {
     .condo-btn-vertical-divider {
       margin-left: auto;
+    }
+  }
+
+  &.condo-btn-secondary.condo-btn-dangerous {
+    .condo-btn-vertical-divider {
+      color: @condo-global-color-red-5;
+    }
+
+    &:hover {
+      .condo-btn-vertical-divider {
+        color: @condo-global-color-red-7;
+      }
     }
   }
 
@@ -357,6 +369,7 @@ a.condo-btn {
     padding: 0;
     overflow: auto;
     border-radius: @condo-button-border-radius;
+    box-shadow: @condo-global-box-shadow-default;
 
     .condo-dropdown-menu-item-divider {
       margin: 0;
