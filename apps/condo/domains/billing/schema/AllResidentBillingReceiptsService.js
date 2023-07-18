@@ -55,7 +55,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
             schema: 'allResidentBillingReceipts (where: ResidentBillingReceiptWhereInput, first: Int, skip: Int, sortBy: [SortResidentBillingReceiptsBy!]): [ResidentBillingReceiptOutput]',
             resolver: async (parent, args, context = {}) => {
                 const { where, first, skip, sortBy } = args
-                console.log({ where, first, skip, sortBy })
+
                 const serviceConsumerWhere = get(where, 'serviceConsumer', {})
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 

@@ -13,7 +13,6 @@ async function canReadServiceConsumers ({ authentication: { item: user } }) {
     if (user.isSupport || user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        //acquiringIntegrationContext: { status: ACQUIRING_CONTEXT_FINISHED_STATUS },
         return { resident: { user: { id: user.id }, deletedAt: null } }
     }
 
