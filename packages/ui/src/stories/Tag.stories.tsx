@@ -36,3 +36,9 @@ export default {
 const Template: ComponentStory<typeof Component> = (args) => <Component {...args}/>
 
 export const Tag = Template.bind({})
+
+export const TagWithIcon = Template.bind({})
+TagWithIcon.args = {
+    icon: icons['ChevronDown-small'],
+    iconPosition: 'end',
+}
