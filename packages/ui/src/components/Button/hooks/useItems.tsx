@@ -7,6 +7,9 @@ import { Typography } from '../../Typography'
 import { DropdownButtonProps, ItemType } from '../dropdownButton'
 
 
+const DROPDOWN_CLASS_PREFIX = 'condo-dropdown'
+
+
 type UseItems = (items: Array<ItemType>, type: DropdownButtonProps['type']) => Array<MenuItemType>
 
 const convertItems = (items: Array<ItemType>, type: DropdownButtonProps['type']): Array<MenuItemType> => {
@@ -45,8 +48,8 @@ const convertItems = (items: Array<ItemType>, type: DropdownButtonProps['type'])
 
         if (isItemWithIcon) {
             mergedItem.label = (
-                <Space size={12} direction='horizontal'>
-                    {icon}
+                <Space size={12} direction='horizontal' align='start'>
+                    <span className={`${DROPDOWN_CLASS_PREFIX}-item-icon`}>{icon}</span>
                     <Typography.Title level={5}>
                         {label}
                     </Typography.Title>

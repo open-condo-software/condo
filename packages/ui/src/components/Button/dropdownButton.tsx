@@ -3,6 +3,8 @@ import { MenuItemType  } from 'antd/lib/menu/hooks/useItems'
 import classNames from 'classnames'
 import React from 'react'
 
+import { MoreHorizontal } from '@open-condo/icons'
+
 import { ButtonProps } from './button'
 import { useItems } from './hooks/useItems'
 
@@ -34,16 +36,6 @@ export type ItemType = Either<Either<IDropdownButtonItem, IDropdownButtonItemWit
 export type DropdownButtonProps = Omit<ButtonProps, 'icon' | 'children' | 'href'> & {
     children: string
     items: Array<ItemType>
-}
-
-const EllipsisIconSvg = () => {
-    return (
-        <svg className={`${BUTTON_CLASS_PREFIX}-ellipsis`} xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none'>
-            <circle cx='6' cy='16' r='2' fill='currentColor'/>
-            <circle cx='12' cy='16' r='2' fill='currentColor'/>
-            <circle cx='18' cy='16' r='2' fill='currentColor'/>
-        </svg>
-    )
 }
 
 const VerticalDividerSvg: React.FC = () => {
@@ -99,7 +91,9 @@ const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & Reac
             >
                 {children}
                 <VerticalDividerSvg />
-                <EllipsisIconSvg />
+                <span className={`${BUTTON_CLASS_PREFIX}-ellipsis`}>
+                    <MoreHorizontal />
+                </span>
             </DefaultButton>
         </Dropdown>
     )
