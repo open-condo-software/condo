@@ -12,7 +12,7 @@ import type { ITicketChartCard } from './dataMappers'
 
 const AllTicketsChart: ITicketChartCard = ({ data }) => {
     const intl = useIntl()
-    const ChartTitle = intl.formatMessage({ id: 'pages.reports.newTicketsTitle' })
+    const ChartTitle = intl.formatMessage({ id: 'global.section.tickets' })
 
     return (
         <Row gutter={[0, 16]}>

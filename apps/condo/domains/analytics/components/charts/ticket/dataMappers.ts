@@ -25,7 +25,6 @@ const AllTicketChartDataMapper = new TicketChart({
         chart: (viewMode, data) => {
             const series = []
             const aggregatedData = getAggregatedData(data, [TicketGroupBy.Status, TicketGroupBy.Day])
-            const axisLabels = Array.from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
 
             Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
                 series.push({
@@ -33,7 +32,7 @@ const AllTicketChartDataMapper = new TicketChart({
                     type: viewMode,
                     symbol: 'none',
                     stack: 'total',
-                    data: Object.values(dataObj),
+                    data: Object.entries(dataObj),
                     smooth: true,
                     lineStyle: { color: 'transparent' },
                     areaStyle: { color: COLOR_SET[index] },
@@ -46,11 +45,12 @@ const AllTicketChartDataMapper = new TicketChart({
             return {
                 legend: [],
                 axisData: {
-                    xAxis: { type: 'category', data: axisLabels },
+                    xAxis: { type: 'category', data: null },
                     yAxis: { type: 'value', data: null },
                 },
                 tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                 series,
+                color: COLOR_SET,
             }
         },
         table: () => null,

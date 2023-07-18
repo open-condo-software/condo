@@ -27,6 +27,7 @@ import {
     PaymentTotalChart,
 } from '@condo/domains/analytics/components/charts'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
@@ -73,13 +74,14 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
     const NewTicketsLabel = intl.formatMessage({ id: 'ticket.status.OPEN.many' })
     const ClosedTicketsLabel = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
-
     const PaymentsAmountPercent = intl.formatMessage({ id: 'pages.reports.paymentsAmountPercent' })
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
     const TodayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.today' })
     const MonthTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.month' })
     const TotalTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.total' })
+
+    const { breakpoints: { TABLET_LARGE: isSmall } } = useLayoutContext()
 
     const [completionPercent, setCompletionPercent] = useState('—')
     const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
@@ -132,6 +134,8 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
         }
     }, [residentsData])
 
+    const iconStyle = useMemo(() => ({ display: !isSmall ? 'none' : 'block' }), [isSmall])
+
     const loading = monthTicketLoading || ticketCountLoading || isNull(ticketCounts.current)
 
     return (
@@ -141,8 +145,10 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
                     <Col span={24}>
-                        <Row align='middle' justify='space-around'>
-                            <LayoutList />
+                        <Row align='middle' justify='space-between'>
+                            <Col style={iconStyle}>
+                                <LayoutList />
+                            </Col>
                             <DataCard
                                 label={DoneLabel}
                                 secondaryLabel={MonthTitle}
@@ -167,7 +173,9 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                     </Col>
                     <Col span={24}>
                         <Row align='middle' justify='space-between'>
-                            <Wallet />
+                            <Col style={iconStyle}>
+                                <Wallet />
+                            </Col>
                             <DataCard
                                 label={PaymentsAmountPercent}
                                 secondaryLabel={MonthTitle}
@@ -415,7 +423,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
 
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
-            <Col lg={12} md={24}>
+            <Col xl={12} lg={24}>
                 <PerformanceCard
                     organizationId={organizationId}
                     paymentSum={paymentSum}
@@ -424,33 +432,38 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     paymentLoading={false}
                 />
             </Col>
-            <Col lg={6} md={12}>
+            <Col xl={6} lg={12}>
                 <IncidentDashboard organizationId={organizationId} />
             </Col>
-            <Col lg={6} md={12}>
+            <Col xl={6} lg={12}>
                 <TicketQualityControlDashboard organizationId={organizationId} />
             </Col>
             <Col span={24}>
                 <TableFiltersContainer>
-                    <Space direction='horizontal' size={24}>
-                        <DateRangePicker
-                            value={dateRange}
-                            onChange={setDateRange}
-                            allowClear={false}
-                            disabled={loading}
-                            disabledDate={disabledDate}
-                        />
-                        <RadioGroup value={aggregatePeriod} onChange={onAggregatePeriodChange} disabled={loading}>
-                            <Space direction='horizontal' size={24}>
-                                <Radio value='day' label={PerDayTitle} />
-                                <Radio value='week' label={PerWeekTitle} />
-                            </Space>
-                        </RadioGroup>
-                    </Space>
+                    <Row gutter={[24, 24]} align='middle' justify='start'>
+                        <Col>
+                            <DateRangePicker
+                                value={dateRange}
+                                onChange={setDateRange}
+                                allowClear={false}
+                                disabled={loading}
+                                disabledDate={disabledDate}
+                            />
+                        </Col>
+                        <Col>
+                            <RadioGroup value={aggregatePeriod} onChange={onAggregatePeriodChange} disabled={loading}>
+                                <Space direction='horizontal' size={24}>
+                                    <Radio value='day' label={PerDayTitle} />
+                                    <Radio value='week' label={PerWeekTitle} />
+                                </Space>
+                            </RadioGroup>
+                        </Col>
+                    </Row>
+
                 </TableFiltersContainer>
             </Col>
             {loading || overview === null ? (
-                <Skeleton paragraph={{ rows: 10 }} />
+                <Skeleton paragraph={{ rows: 62 }} />
             ) : (
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>
