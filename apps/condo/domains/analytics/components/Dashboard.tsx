@@ -143,7 +143,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     return (
         <Card title={<Typography.Title level={3}>{SummaryTitle}</Typography.Title>}>
             {loading || paymentLoading ? (
-                <Skeleton loading paragraph={{ rows: 3 }} />
+                <Skeleton loading paragraph={{ rows: 5 }} />
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
                     <Col span={24}>
@@ -464,7 +464,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
 
                 </TableFiltersContainer>
             </Col>
-            {loading && overview === null ? (
+            {overview === null ? (
                 <Skeleton paragraph={{ rows: 62 }} />
             ) : (
                 <Col span={24}>

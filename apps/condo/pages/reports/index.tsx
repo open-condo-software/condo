@@ -23,7 +23,7 @@ const IndexPage = () => {
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.analytics.index.PageTitle' })
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
-    const { organization } = useOrganization()
+    const { organization, link } = useOrganization()
 
     const {
         objs: externalReports, loading,
@@ -39,8 +39,9 @@ const IndexPage = () => {
 
     const pageContent = useMemo(() => {
         const organizationFeatures = get(organization, 'features')
+        const canReadAnalytics = get(link, [ 'role', 'canManageOrganization'], false)
 
-        if (organizationFeatures.includes(ANALYTICS_V3)) {
+        if (organizationFeatures.includes(ANALYTICS_V3) && canReadAnalytics) {
             return <Dashboard organizationId={organization.id} />
         }
 
@@ -67,7 +68,7 @@ const IndexPage = () => {
                 )}
             </Row>
         )
-    }, [NoDataTitle, externalReports, organization])
+    }, [NoDataTitle, externalReports, organization, link])
 
     return (
         <>
