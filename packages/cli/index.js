@@ -175,6 +175,7 @@ async function prepareMinimalAppEnv (appName, dbName, redisName, port, sport, se
     await updateAppEnvFile(appName, 'PORT', String(port))
     await updateAppEnvFile(appName, 'SPORT', String(sport))
     await updateAppEnvFile(appName, 'SERVER_URL', serverUrl)
+    await updateAppEnvFile(appName, 'COOKIE_SECRET', `${appName}-secret`)
 }
 
 async function prepareAppEnvLocalAdminUsers (appName) {
