@@ -57,11 +57,11 @@ async function registerBillingReceipts (context, data) {
  * @param context {Object}
  * @param organizationId {string}
  * @param accountNumber {string}
- * @param bic {string}
  * @param bankAccount {string}
  * @param period {string}
  * @return {Promise<*>}
  */
+// exclude routingNumber check, as it can be changed (it's only identify bank office location)
 const getPaymentsSum = async (context, organizationId, accountNumber, period, bankAccount) => {
     const payments = await  find('Payment', {
         organization: { id: organizationId },
