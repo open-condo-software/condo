@@ -1,6 +1,7 @@
 import { Dropdown, Button as DefaultButton } from 'antd'
 import { MenuItemType  } from 'antd/lib/menu/hooks/useItems'
 import classNames from 'classnames'
+import get from 'lodash/get'
 import React from 'react'
 
 import { MoreHorizontal } from '@open-condo/icons'
@@ -72,7 +73,9 @@ const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & Reac
                 className={`${BUTTON_CLASS_PREFIX}-dropdown`}
                 menu={{ items: menuItems }}
                 overlayClassName={dropdownWrapperClasses}
-                getPopupContainer={(target) => target.parentElement || document.body}
+                getPopupContainer={(target) => {
+                    return get(target, 'parentElement') || get(document, 'body') || undefined
+                }}
             >
                 <DefaultButton
                     {...rest}
