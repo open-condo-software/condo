@@ -4,10 +4,7 @@ import React, { useMemo } from 'react'
 import { sendAnalyticsClickEvent } from '../../_utils/analytics'
 import { Space } from '../../Space'
 import { Typography } from '../../Typography'
-import { DropdownButtonProps, ItemType } from '../dropdownButton'
-
-
-const DROPDOWN_CLASS_PREFIX = 'condo-dropdown'
+import { DropdownButtonProps, ItemType, DROPDOWN_CLASS_PREFIX } from '../dropdownButton'
 
 
 type UseItems = (items: Array<ItemType>, type: DropdownButtonProps['type']) => Array<MenuItemType>
@@ -25,8 +22,8 @@ const convertItems = (items: Array<ItemType>, type: DropdownButtonProps['type'])
         const { key, description, disabled, onClick, label, icon, id } = item
         const mergedKey = key || index
 
-        const isItemWithIcon = item.icon
-        const isItemWithDescription = item.description
+        const isItemWithIcon = Boolean(item.icon)
+        const isItemWithDescription = Boolean(item.description)
 
         const withDividerAfterItem = index + 1 < items.length
 

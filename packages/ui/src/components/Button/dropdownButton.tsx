@@ -11,7 +11,7 @@ import { useItems } from './hooks/useItems'
 import { Either } from '../_utils/types'
 
 
-const DROPDOWN_CLASS_PREFIX = 'condo-dropdown'
+export const DROPDOWN_CLASS_PREFIX = 'condo-dropdown'
 const BUTTON_CLASS_PREFIX = 'condo-btn'
 
 
@@ -65,37 +65,34 @@ const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & Reac
     const menuItems = useItems(items, type)
 
     return (
-        <Dropdown
-            disabled={disabled}
-            prefixCls={DROPDOWN_CLASS_PREFIX}
-            className={`${BUTTON_CLASS_PREFIX}-dropdown`}
-            menu={{ items: menuItems }}
-            dropdownRender={(menu) => (
-                <div className={dropdownWrapperClasses}>
-                    {
-                        React.cloneElement(menu as React.ReactElement, {
-                            className: `${BUTTON_CLASS_PREFIX}-dropdown-menu`,
-                        })
-                    }
-                </div>
-            )}
-        >
-            <DefaultButton
-                {...rest}
-                id={id}
-                prefixCls={BUTTON_CLASS_PREFIX}
-                className={buttonClasses}
-                ref={ref}
-                block={block}
+        <div className={`${BUTTON_CLASS_PREFIX}-container`}>
+            <Dropdown
                 disabled={disabled}
+                prefixCls={DROPDOWN_CLASS_PREFIX}
+                className={`${BUTTON_CLASS_PREFIX}-dropdown`}
+                menu={{ items: menuItems }}
+                overlayClassName={dropdownWrapperClasses}
+                getPopupContainer={(target) => target.parentElement || document.body}
             >
-                {children}
-                <VerticalDividerSvg />
-                <span className={`${BUTTON_CLASS_PREFIX}-ellipsis`}>
-                    <MoreHorizontal />
-                </span>
-            </DefaultButton>
-        </Dropdown>
+                <DefaultButton
+                    {...rest}
+                    id={id}
+                    prefixCls={BUTTON_CLASS_PREFIX}
+                    className={buttonClasses}
+                    ref={ref}
+                    block={block}
+                    disabled={disabled}
+                >
+                    <span className={`${BUTTON_CLASS_PREFIX}-label`}>
+                        {children}
+                    </span>
+                    <VerticalDividerSvg />
+                    <span className={`${BUTTON_CLASS_PREFIX}-ellipsis`}>
+                        <MoreHorizontal />
+                    </span>
+                </DefaultButton>
+            </Dropdown>
+        </div>
     )
 })
 
