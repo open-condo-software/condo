@@ -4,12 +4,12 @@ import React, { useMemo } from 'react'
 import { sendAnalyticsClickEvent } from '../../_utils/analytics'
 import { Space } from '../../Space'
 import { Typography } from '../../Typography'
-import { DropdownButtonProps, ItemType, DROPDOWN_CLASS_PREFIX } from '../dropdownButton'
+import { ItemType, DROPDOWN_CLASS_PREFIX } from '../dropdownButton'
 
 
-type UseItems = (items: Array<ItemType>, type: DropdownButtonProps['type']) => Array<MenuItemType>
+type UseItems = (items: Array<ItemType>, triggerId?: string) => Array<MenuItemType>
 
-const convertItems = (items: Array<ItemType>, type: DropdownButtonProps['type']): Array<MenuItemType> => {
+const convertItems = (items: Array<ItemType>, triggerId?: string): Array<MenuItemType> => {
     if (items.length < 1) return []
 
     const resultItems: Array<MenuItemType> = []
@@ -34,7 +34,9 @@ const convertItems = (items: Array<ItemType>, type: DropdownButtonProps['type'])
                 const stringContent = label
 
                 if (stringContent) {
-                    sendAnalyticsClickEvent('Button', { value: stringContent, type, id })
+                    sendAnalyticsClickEvent('Dropdown', {
+                        optionValue: stringContent, id: triggerId, optionId: id,
+                    })
                 }
 
                 if (onClick) {
@@ -79,10 +81,10 @@ const convertItems = (items: Array<ItemType>, type: DropdownButtonProps['type'])
     return resultItems
 }
 
-export const useItems: UseItems = (items, type) => {
+export const useItems: UseItems = (items, triggerId) => {
     return useMemo(() => {
         if (!items || items.length < 1) return []
 
-        return convertItems(items, type)
-    }, [items, type])
+        return convertItems(items, triggerId)
+    }, [items, triggerId])
 }

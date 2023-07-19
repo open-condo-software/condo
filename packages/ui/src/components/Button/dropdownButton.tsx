@@ -47,7 +47,7 @@ const VerticalDividerSvg: React.FC = () => {
 }
 
 const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & React.RefAttributes<HTMLButtonElement>> = React.forwardRef((props, ref) => {
-    const { children, items = [], type, stateless, className, id, block, disabled, ...rest } = props
+    const { children, items = [], type, stateless, className, id: triggerId, block, disabled, ...rest } = props
 
     const buttonClasses = classNames(
         {
@@ -62,7 +62,7 @@ const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & Reac
         [`${BUTTON_CLASS_PREFIX}-dropdown-block`]: block,
     })
 
-    const menuItems = useItems(items, type)
+    const menuItems = useItems(items, triggerId)
 
     return (
         <div className={`${BUTTON_CLASS_PREFIX}-container`}>
@@ -76,7 +76,7 @@ const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & Reac
             >
                 <DefaultButton
                     {...rest}
-                    id={id}
+                    id={triggerId}
                     prefixCls={BUTTON_CLASS_PREFIX}
                     className={buttonClasses}
                     ref={ref}
