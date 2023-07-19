@@ -145,23 +145,24 @@ export const AudioPlayer: React.FC<IAudioPlayerProps> = ({ trackId, src, autoPla
 
     useEffect(() => {
         (async () => {
-            const firstResponse = await fetch(src, {
-                credentials: 'include',
-                headers: {
-                    'shallow-redirect': 'true',
-                },
-            })
-            if (!firstResponse.ok) throw new Error('Failed to download file')
+            try {
+                const firstResponse = await fetch(src, {
+                    credentials: 'include',
+                    headers: {
+                        'shallow-redirect': 'true',
+                    },
+                })
+                if (!firstResponse.ok) throw new Error('Failed to download file')
 
-            const redirectUrl = await getRedirectUrl(firstResponse)
-            const secondResponse = await fetch(redirectUrl, {
-                credentials: 'include',
-            })
+                const redirectUrl = await getRedirectUrl(firstResponse)
+                await fetch(redirectUrl, {
+                    credentials: 'include',
+                })
 
-            if (secondResponse.status !== 200) {
-                setUrl(src)
-            } else {
                 setUrl(redirectUrl)
+            } catch (e) {
+                console.error(e)
+                setUrl(src)
             }
         })()
     }, [src])
