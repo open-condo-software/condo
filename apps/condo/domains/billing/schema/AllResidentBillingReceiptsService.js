@@ -61,7 +61,9 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
 
                 const userId = get(context, ['authedItem', 'id'])
                 const limitationQuery = await buildResidentAccessToReceiptsQuery(userId)
-
+                if (!limitationQuery) {
+                    return []
+                }
                 // We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
                 const GET_ONLY_OWN_SERVICE_CONSUMER_WHERE = { user: { id: userId } }
                 if (!serviceConsumerWhere.resident) {
@@ -99,7 +101,6 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const joinedReceiptsQuery = {
                     'OR': receiptsQuery,
                 }
-
                 const receiptsForConsumer = await BillingReceipt.getAll(
                     context,
                     { AND: [joinedReceiptsQuery, limitationQuery] },
@@ -107,7 +108,6 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         sortBy, first, skip,
                     }
                 )
-
                 receiptsForConsumer.forEach(receipt => processedReceipts.push({
                     id: receipt.id,
                     dv: receipt.dv,
@@ -162,10 +162,9 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 processedReceipts.forEach(receipt => {
                     receipt.isPayable = payableReceipts.includes(receipt.id)
                 })
-
                 //
                 // Set receipt.paid field and calculate fees
-                //
+                // TODO(zuch): DOMA-6709 Calculate paid field only for payable receipts
                 const receiptsWithPayments = []
                 for (const receipt of processedReceipts) {
                     const organizationId = get(receipt.serviceConsumer, ['organization'])

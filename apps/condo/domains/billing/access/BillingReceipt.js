@@ -39,7 +39,7 @@ async function buildResidentAccessToReceiptsQuery (userId) {
     })).map(({ organization }) => organization)
     serviceConsumers = serviceConsumers.filter(({ organization }) => organizationsWithContract.includes(organization))
     if (!serviceConsumers.length) {
-        return null
+        return false
     }
     // Properties created by organizations
     const propertiesForOrganizations = Object.fromEntries(

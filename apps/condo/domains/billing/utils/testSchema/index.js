@@ -51,6 +51,16 @@ const BillingReceiptFile = generateGQLTestUtils(BillingReceiptFileGQL)
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const {
+    CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS,
+} = require('@condo/domains/miniapp/constants')
+const {
+    CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
+} = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestAcquiringIntegrationContext,
+    createTestAcquiringIntegration,
+} = require('@condo/domains/acquiring/utils/testSchema')
 
 const bannerVariants = [
     { bannerColor: "#9b9dfa", bannerTextColor: "WHITE" },
@@ -742,7 +752,15 @@ async function makeResidentClientWithOwnReceipt(existingResidentClient) {
     }
 
     const adminClient = await makeLoggedInAdminClient()
-    const { context, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+    const { context, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin({}, {}, {
+        status: BILLING_CONTEXT_FINISHED_STATUS,
+    })
+    const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
+        canGroupReceipts: true,
+    })
+    await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, {
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+    })
 
     const [property] = await createTestProperty(adminClient, organization)
 
