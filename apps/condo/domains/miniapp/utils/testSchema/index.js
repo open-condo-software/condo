@@ -30,6 +30,7 @@ const {
 const { MessageAppBlackList: MessageAppBlackListGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -59,6 +60,7 @@ const B2BAppPromoBlock = generateGQLTestUtils(B2BAppPromoBlockGQL)
 const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
 const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
 const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
+const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -142,10 +144,11 @@ async function updateTestB2BAppContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2BAppAccessRight (client, user, app, extraAttrs = {}) {
+async function createTestB2BAppAccessRight (client, user, app, accessRightSet = null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     if (!app || !app.id) throw new Error('no user.id')
+    if (accessRightSet && !accessRightSet.id) throw new Error('no accessRightSet.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
@@ -153,6 +156,7 @@ async function createTestB2BAppAccessRight (client, user, app, extraAttrs = {}) 
         sender,
         user: { connect: { id: user.id } },
         app: { connect: { id: app.id } },
+        ...(accessRightSet ? { accessRightSet: { connect: { id: accessRightSet.id } } } : null),
         ...extraAttrs,
     }
     const obj = await B2BAppAccessRight.create(client, attrs)
@@ -459,6 +463,35 @@ async function updateTestB2BAppRole (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppAccessRightSet (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRightSet.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppAccessRightSet (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRightSet.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
     const cityPart = `город ${faker.name.firstName()}`
@@ -484,6 +517,7 @@ module.exports = {
     sendB2CAppPushMessageByTestClient,
     MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
     B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
+    B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }
