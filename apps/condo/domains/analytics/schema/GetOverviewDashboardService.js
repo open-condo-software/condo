@@ -29,6 +29,7 @@ const ERRORS = {
 }
 
 const TICKET_REMAPPING_OPTIONS = { ticketCounts: 'tickets' }
+const PERIOD_FIELD_DATE_FORMAT = 'YYYY-MM-DD'
 
 
 const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardService', {
@@ -160,8 +161,8 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                     deletedAt: null,
                                     status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
                                     AND: [
-                                        { period_gte: dayjs(where.dateFrom).startOf('month').toISOString() },
-                                        { period_lte: dayjs(where.dateTo).endOf('month').toISOString() },
+                                        { period_gte: dayjs(where.dateFrom).startOf('month').format(PERIOD_FIELD_DATE_FORMAT) },
+                                        { period_lte: dayjs(where.dateTo).endOf('month').format(PERIOD_FIELD_DATE_FORMAT) },
                                     ],
                                 },
                                 groupBy: ['month', 'createdBy'],
@@ -174,8 +175,8 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                     organization: { id: where.organization },
                                     deletedAt: null,
                                     AND: [
-                                        { period_gte: dayjs(where.dateFrom).startOf('month').toISOString() },
-                                        { period_lte: dayjs(where.dateTo).endOf('month').toISOString() },
+                                        { period_gte: dayjs(where.dateFrom).startOf('month').format(PERIOD_FIELD_DATE_FORMAT) },
+                                        { period_lte: dayjs(where.dateTo).endOf('month').format(PERIOD_FIELD_DATE_FORMAT) },
                                     ],
                                 },
                                 groupBy: ['month'],
