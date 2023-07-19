@@ -21,6 +21,7 @@ const {
 const {
     makePayerAndPayments,
     updateTestPayment,
+    createTestPayment,
     Payment,
     createTestMultiPayment,
     updateTestMultiPayment,
@@ -48,6 +49,7 @@ describe('GetOverviewDashboardService', () => {
     let organization
     let property
     let organizationAdminUser
+    let acquiringContext
     let payments
     let receipts
     let resident
@@ -57,6 +59,7 @@ describe('GetOverviewDashboardService', () => {
     beforeAll(async () => {
         const payerAndPayments = await makePayerAndPayments(3)
         admin = payerAndPayments.admin
+        acquiringContext = payerAndPayments.acquiringContext
         organization = payerAndPayments.organization
         property = payerAndPayments.property
         payments = payerAndPayments.payments
@@ -275,6 +278,23 @@ describe('GetOverviewDashboardService', () => {
                     .reduce((prev, curr) => new Big(prev).plus(curr.amount), 0)
 
                 expect(payments).toHaveLength(2)
+                expect(data.overview).toHaveProperty(['payment', 'sum'], completedPaymentsSum.toFixed(2))
+            })
+
+            it('should return sum for last month included other periods', async () => {
+                const [previousMonthPayment] = await createTestPayment(admin, organization, null, acquiringContext, {
+                    status: PAYMENT_DONE_STATUS,
+                    period: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+                    advancedAt: dayjs().toISOString(),
+                })
+
+                const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
+                    where: { organization: organization.id, dateFrom, dateTo }, groupBy: { aggregatePeriod: 'day' },
+                })
+
+                const completedPaymentsSum = [...payments, previousMonthPayment]
+                    .reduce((prev, curr) => new Big(prev).plus(curr.amount), 0)
+
                 expect(data.overview).toHaveProperty(['payment', 'sum'], completedPaymentsSum.toFixed(2))
             })
 
