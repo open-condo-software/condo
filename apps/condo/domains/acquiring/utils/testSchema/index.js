@@ -509,7 +509,7 @@ async function makePayer (receiptsAmount = 1) {
     const [billingAccount] = await createTestBillingAccount(admin, billingContext, billingProperty)
     const billingReceipts = []
     for (let i = 0; i < receiptsAmount; i++) {
-        const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount)
+        const [receipt] = await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount, { period: dayjs().format('YYYY-MM-01') })
         billingReceipts.push(receipt)
     }
 

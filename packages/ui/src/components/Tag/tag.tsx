@@ -11,6 +11,8 @@ export type TagProps = React.HTMLAttributes<HTMLSpanElement> & {
     children: string
     textColor?: CSSProperties['color']
     bgColor?: CSSProperties['backgroundColor']
+    icon?: React.ReactNode
+    iconPosition?: 'start' | 'end'
 }
 
 const Tag = React.forwardRef<HTMLSpanElement, TagProps>((props, ref) => {
@@ -18,11 +20,27 @@ const Tag = React.forwardRef<HTMLSpanElement, TagProps>((props, ref) => {
         children,
         textColor = colors.gray['7'],
         bgColor = colors.gray['1'],
+        iconPosition = 'start',
+        icon,
     } = props
 
     return (
         <DefaultTag
-            children={children}
+            children={!icon ? children : (
+                <div className={`${TAG_CLASS_PREFIX}-content`}>
+                    {iconPosition === 'start' && (
+                        <span className={`${TAG_CLASS_PREFIX}-icon-start`}>
+                            {icon}
+                        </span>
+                    )}
+                    {children}
+                    {iconPosition === 'end' && (
+                        <span className={`${TAG_CLASS_PREFIX}-icon-end`}>
+                            {icon}
+                        </span>
+                    )}
+                </div>
+            )}
             prefixCls={TAG_CLASS_PREFIX}
             ref={ref}
             style={{

@@ -3501,6 +3501,7 @@ input OrganizationLinkRelateToManyInput {
 
 enum OrganizationFeature {
   SPP
+  ANALYTICS_V3
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
@@ -63594,6 +63595,78 @@ type GetExternalReportIframeUrlOutput {
   iframeUrl: String
 }
 
+enum GetOverviewDashboardAggregatePeriod {
+  day
+  week
+}
+
+input GetOverviewDashboardGroupByInput {
+  aggregatePeriod: GetOverviewDashboardAggregatePeriod!
+}
+
+input GetOverviewDashboardWhereInput {
+  organization: String!
+  dateFrom: String!
+  dateTo: String!
+}
+
+input GetOverviewDashboardInput {
+  dv: Int!
+  sender: JSON!
+  where: GetOverviewDashboardWhereInput!
+  groupBy: GetOverviewDashboardGroupByInput!
+}
+
+type TicketOverviewResult {
+  tickets: [TicketGroupedCounter!]
+}
+
+type PaymentGroupedCounter {
+  count: String!
+  sum: String!
+  createdBy: ID!
+  dayGroup: String!
+}
+
+type PaymentOverviewResult {
+  payments: [PaymentGroupedCounter!]
+  sum: String!
+}
+
+type ReceiptGroupedCounter {
+  count: String!
+  sum: String!
+  dayGroup: String!
+}
+
+type ReceiptOverviewResult {
+  receipts: [ReceiptGroupedCounter!]
+  sum: String!
+}
+
+type ResidentGroupedCounter {
+  count: String!
+  address: String!
+}
+
+type ResidentOverviewResult {
+  residents: [ResidentGroupedCounter!]
+}
+
+type OverviewData {
+  ticketByProperty: TicketOverviewResult
+  ticketByDay: TicketOverviewResult
+  ticketByCategory: TicketOverviewResult
+  ticketByExecutor: TicketOverviewResult
+  payment: PaymentOverviewResult
+  receipt: ReceiptOverviewResult
+  resident: ResidentOverviewResult
+}
+
+type GetOverviewDashboardOutput {
+  overview: OverviewData!
+}
+
 input ExportPropertyScopeToExcelInput {
   dv: Int!
   sender: SenderFieldInput!
@@ -66904,6 +66977,7 @@ type Query {
   ticketAnalyticsReport(data: TicketAnalyticsReportInput): TicketAnalyticsReportOutput
   exportTicketAnalyticsToExcel(data: ExportTicketAnalyticsToExcelInput): ExportTicketAnalyticsToExcelOutput
   getExternalReportIframeUrl(data: GetExternalReportIframeUrlInput!): GetExternalReportIframeUrlOutput
+  getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
 

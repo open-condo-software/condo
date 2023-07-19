@@ -199,3 +199,10 @@
   background: var(--condo-global-color-brand-gradient-5) border-box;
   opacity: 1;
 }
+
+/* Notifications */
+
+/* Note: all notifications must be below modal */
+.ant-notification {
+  z-index: 999;
+}

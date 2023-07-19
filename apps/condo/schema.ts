@@ -20870,6 +20870,33 @@ export type GetNewsItemsRecipientsCountersOutput = {
   receiversCount: Scalars['Int'];
 };
 
+export enum GetOverviewDashboardAggregatePeriod {
+  Day = 'day',
+  Week = 'week'
+}
+
+export type GetOverviewDashboardGroupByInput = {
+  aggregatePeriod: GetOverviewDashboardAggregatePeriod;
+};
+
+export type GetOverviewDashboardInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  where: GetOverviewDashboardWhereInput;
+  groupBy: GetOverviewDashboardGroupByInput;
+};
+
+export type GetOverviewDashboardOutput = {
+  __typename?: 'GetOverviewDashboardOutput';
+  overview: OverviewData;
+};
+
+export type GetOverviewDashboardWhereInput = {
+  organization: Scalars['String'];
+  dateFrom: Scalars['String'];
+  dateTo: Scalars['String'];
+};
+
 export type GetPhoneByConfirmPhoneActionTokenInput = {
   token: Scalars['String'];
   captcha: Scalars['String'];
@@ -46955,7 +46982,8 @@ export type OrganizationEmployeesUpdateInput = {
 };
 
 export enum OrganizationFeature {
-  Spp = 'SPP'
+  Spp = 'SPP',
+  AnalyticsV3 = 'ANALYTICS_V3'
 }
 
 export type OrganizationFeatures = {
@@ -47915,6 +47943,17 @@ export type OrganizationsUpdateInput = {
   data?: Maybe<OrganizationUpdateInput>;
 };
 
+export type OverviewData = {
+  __typename?: 'OverviewData';
+  ticketByProperty?: Maybe<TicketOverviewResult>;
+  ticketByDay?: Maybe<TicketOverviewResult>;
+  ticketByCategory?: Maybe<TicketOverviewResult>;
+  ticketByExecutor?: Maybe<TicketOverviewResult>;
+  payment?: Maybe<PaymentOverviewResult>;
+  receipt?: Maybe<ReceiptOverviewResult>;
+  resident?: Maybe<ResidentOverviewResult>;
+};
+
 /**  Information about completed transaction from user to a specific organization  */
 export type Payment = {
   __typename?: 'Payment';
@@ -48020,6 +48059,14 @@ export type PaymentCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+};
+
+export type PaymentGroupedCounter = {
+  __typename?: 'PaymentGroupedCounter';
+  count: Scalars['String'];
+  sum: Scalars['String'];
+  createdBy: Scalars['ID'];
+  dayGroup: Scalars['String'];
 };
 
 /**  A keystone list  */
@@ -48456,6 +48503,12 @@ export type PaymentHistoryRecordsCreateInput = {
 export type PaymentHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PaymentHistoryRecordUpdateInput>;
+};
+
+export type PaymentOverviewResult = {
+  __typename?: 'PaymentOverviewResult';
+  payments?: Maybe<Array<PaymentGroupedCounter>>;
+  sum: Scalars['String'];
 };
 
 export type PaymentRelateToManyInput = {
@@ -53686,6 +53739,7 @@ export type Query = {
   ticketAnalyticsReport?: Maybe<TicketAnalyticsReportOutput>;
   exportTicketAnalyticsToExcel?: Maybe<ExportTicketAnalyticsToExcelOutput>;
   getExternalReportIframeUrl?: Maybe<GetExternalReportIframeUrlOutput>;
+  getOverviewDashboard?: Maybe<GetOverviewDashboardOutput>;
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   /** The version of the Keystone application serving this API. */
@@ -59307,6 +59361,11 @@ export type QueryGetExternalReportIframeUrlArgs = {
 };
 
 
+export type QueryGetOverviewDashboardArgs = {
+  data: GetOverviewDashboardInput;
+};
+
+
 export type QueryExportPropertyScopesToExcelArgs = {
   data: ExportPropertyScopeToExcelInput;
 };
@@ -59322,6 +59381,19 @@ export type ReInviteOrganizationEmployeeInput = {
   organization: OrganizationWhereUniqueInput;
   email?: Maybe<Scalars['String']>;
   phone: Scalars['String'];
+};
+
+export type ReceiptGroupedCounter = {
+  __typename?: 'ReceiptGroupedCounter';
+  count: Scalars['String'];
+  sum: Scalars['String'];
+  dayGroup: Scalars['String'];
+};
+
+export type ReceiptOverviewResult = {
+  __typename?: 'ReceiptOverviewResult';
+  receipts?: Maybe<Array<ReceiptGroupedCounter>>;
+  sum: Scalars['String'];
 };
 
 export type RecipientField = {
@@ -61180,6 +61252,12 @@ export type ResidentCreateInput = {
   sender?: Maybe<SenderFieldInput>;
 };
 
+export type ResidentGroupedCounter = {
+  __typename?: 'ResidentGroupedCounter';
+  count: Scalars['String'];
+  address: Scalars['String'];
+};
+
 /**  A keystone list  */
 export type ResidentHistoryRecord = {
   __typename?: 'ResidentHistoryRecord';
@@ -61481,6 +61559,11 @@ export type ResidentHistoryRecordsCreateInput = {
 export type ResidentHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ResidentHistoryRecordUpdateInput>;
+};
+
+export type ResidentOverviewResult = {
+  __typename?: 'ResidentOverviewResult';
+  residents?: Maybe<Array<ResidentGroupedCounter>>;
 };
 
 export type ResidentProperty = {
@@ -75810,6 +75893,11 @@ export type TicketOrganizationSettingsCreateInput = {
 export type TicketOrganizationSettingsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<TicketOrganizationSettingUpdateInput>;
+};
+
+export type TicketOverviewResult = {
+  __typename?: 'TicketOverviewResult';
+  tickets?: Maybe<Array<TicketGroupedCounter>>;
 };
 
 /**  Describes where the incident occurred  */

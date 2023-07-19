@@ -212,7 +212,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
         setSelectedPeriod(period)
 
         if (!isEmpty(bankAccountReports)) {
-            await router.push({
+            await router.replace({
                 pathname: router.pathname,
                 query: { ...router.query, period },
             })
@@ -281,7 +281,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
 
     useEffect(() => {
         if (!router.query.period && !isEmpty(bankAccountReports)) {
-            router.push({
+            router.replace({
                 pathname: router.pathname,
                 query: { ...router.query, period: selectedPeriod },
             })

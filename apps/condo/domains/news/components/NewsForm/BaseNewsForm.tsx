@@ -9,7 +9,6 @@ import {
     Property as IProperty,
     QueryAllNewsItemsArgs as IQueryAllNewsItemsArgs,
 } from '@app/condo/schema'
-import styled from '@emotion/styled'
 import { Col, Form, FormInstance, notification, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { ArgsProps } from 'antd/lib/notification'
@@ -47,6 +46,7 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import MemoizedNewsPreview from '@condo/domains/news/components/NewsPreview'
 import { detectTargetedSections, RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
+import { TemplatesTabs } from '@condo/domains/news/components/TemplatesTabs'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { PROFANITY_TITLE_DETECTED_MOT_ERF_KER, PROFANITY_BODY_DETECTED_MOT_ERF_KER } from '@condo/domains/news/constants/errors'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
@@ -86,35 +86,6 @@ export type BaseNewsFormProps = {
     actionName: ActionNameProps,
 }
 
-export const StyledTabs = styled(Tabs)`
-    > .condo-tabs-nav {
-        margin: 0;
-
-        .condo-tabs-ink-bar {
-          display: none;
-        }
-
-        .condo-tabs-tab {
-          padding: 12px;
-          border: 1px solid ${colors.gray[3]};
-          border-radius: 1000px;
-  
-          &.condo-tabs-tab-active {
-            background-color: ${colors.gray[3]};
-            transition: background-color 0.3s ease-out;
-          }
-
-          & + .condo-tabs-tab {
-            margin-left: 8px;
-          }
-
-          & .condo-tabs-tab-label {
-            font-size: 14px;
-            line-height: 22px;
-          }
-        }
-    }
-`
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
@@ -924,7 +895,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 name='template'
                                                             >
                                                                 {selectedType === NEWS_TYPE_COMMON && (
-                                                                    <StyledTabs
+                                                                    <TemplatesTabs
                                                                         onChange={handleTemplateChange(form, 'template')}
                                                                         items={
                                                                             Object.keys(commonTemplates).map(id => ({
@@ -935,7 +906,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                     />
                                                                 )}
                                                                 {selectedType === NEWS_TYPE_EMERGENCY && (
-                                                                    <StyledTabs
+                                                                    <TemplatesTabs
                                                                         onChange={handleTemplateChange(form, 'template')}
                                                                         items={
                                                                             Object.keys(emergencyTemplates).map(id => ({
