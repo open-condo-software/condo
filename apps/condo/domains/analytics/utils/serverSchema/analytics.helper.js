@@ -150,7 +150,7 @@ const getCombinations = ({ options = {}, optionIndex = 0, results = [], current 
 
 const enumerateDaysBetweenDates = function (startDate, endDate, step = 'day') {
     const dateStringFormat = DATE_FORMATS[step]
-    let currentDate = dayjs(startDate).startOf(step).isoWeekday(1)
+    let currentDate = dayjs(startDate)
     const lastDate = dayjs(endDate).startOf(step)
     const dates = [currentDate.format(dateStringFormat)]
 

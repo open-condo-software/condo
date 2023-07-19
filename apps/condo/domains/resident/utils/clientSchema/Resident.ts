@@ -20,6 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<Resident, ResidentCreateInput, ResidentUpdateInput, QueryAllResidentsArgs>(ResidentGQL)
 
 export {
@@ -29,4 +30,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 }
