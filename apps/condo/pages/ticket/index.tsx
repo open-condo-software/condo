@@ -34,7 +34,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
-import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -1032,6 +1032,7 @@ const TicketsPage: ITicketIndexPage = () => {
     const filterMetas = useTicketTableFilters()
 
     const { GlobalHints } = useGlobalHints()
+    const { breakpoints } = useLayoutContext()
 
     const {
         count: ticketsWithoutFiltersCount,
@@ -1076,7 +1077,7 @@ const TicketsPage: ITicketIndexPage = () => {
                                             />
                                         </Col>
                                         <Col>
-                                            <Space size={40}>
+                                            <Space size={20} direction={breakpoints.TABLET_SMALL ? 'horizontal' : 'vertical'}>
                                                 {
                                                     callRecordsCount > 0 && (
                                                         <Link href='/callRecord'>
