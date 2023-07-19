@@ -1,5 +1,6 @@
-const get = require('lodash/get')
 const { createHash } = require('crypto')
+
+const get = require('lodash/get')
 
 class MockedAddressServiceClient {
     DEFAULT_META_DATA = {
