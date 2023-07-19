@@ -10,6 +10,7 @@ const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchem
 const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
+const PERIOD_DATE_FORMAT = 'YYYY-MM-DD'
 
 class ReceiptGqlKnexLoader extends GqlToKnexBaseAdapter {
     aggregateBy = []
@@ -74,7 +75,10 @@ class ReceiptDataLoader extends AbstractDataLoader {
             listKey: 'BillingReceipt',
             fields: 'id',
             where: {
-                AND: [{ period_gte: dayjs().startOf('month').toISOString() }, { period_lte: dayjs().endOf('month').toISOString() }],
+                AND: [
+                    { period_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) },
+                    { period_lte: dayjs().endOf('month').format(PERIOD_DATE_FORMAT) },
+                ],
                 charge_not: null,
                 ...billingReceiptContextWhereFilter,
             },

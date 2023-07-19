@@ -72,7 +72,10 @@ class PaymentDataLoader extends AbstractDataLoader {
             where: {
                 ...pick(where, ['organization']),
                 status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
-                AND: [{ period_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) }, { period_lte: dayjs().endOf('month').format(PERIOD_DATE_FORMAT) }],
+                AND: [
+                    { advancedAt_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) },
+                    { advancedAt_lte: dayjs().endOf('month').format(PERIOD_DATE_FORMAT) },
+                ],
             },
         })
 
