@@ -49,7 +49,7 @@ class ReceiptGqlKnexLoader extends GqlToKnexBaseAdapter {
         }, [[], []])
 
         const query = knex(this.domainName).count('id').sum('charge').select(this.groups)
-        query.select(knex.raw(`date_trunc('${this.dayGroup}', "period") as "dayGroup"`))
+        query.select(knex.raw('to_char("period", \'01.MM.YYYY\') as "dayGroup"'))
         const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
         this.result = await query.groupBy(this.aggregateBy)
@@ -94,8 +94,7 @@ class ReceiptDataLoader extends AbstractDataLoader {
         }, groupBy)
 
         await receiptsLoader.loadData()
-        const receipts = receiptsLoader.getResult(({ dayGroup, sum, ...searchResult }) => ({
-            dayGroup: dayjs(dayGroup).format('DD.MM.YYYY'),
+        const receipts = receiptsLoader.getResult(({ sum, ...searchResult }) => ({
             sum: new Big(sum || 0).toFixed(2),
             ...searchResult,
         }))
