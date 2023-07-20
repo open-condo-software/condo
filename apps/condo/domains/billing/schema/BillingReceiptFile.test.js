@@ -12,6 +12,13 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const {
+    CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
+} = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestAcquiringIntegrationContext,
+    createTestAcquiringIntegration,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE } = require('@condo/domains/billing/utils/testSchema')
 const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
@@ -38,7 +45,6 @@ const {
     makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
 
 async function makeClientWithResidentVerificationAndReceiptFile ({
     admin,
@@ -96,6 +102,10 @@ describe('BillingReceiptFile', () => {
 
     beforeAll(async () => {
         const { admin: adminClient, context: billingContext, integration, organization: adminOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+        await createTestAcquiringIntegrationContext(adminClient, adminOrganization, acquiringIntegration, {
+            status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+        })
         admin = adminClient
         context = billingContext
         organization = adminOrganization

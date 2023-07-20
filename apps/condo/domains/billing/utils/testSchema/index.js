@@ -665,11 +665,7 @@ async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttr
         status: BILLING_CONTEXT_FINISHED_STATUS,
         ...contextAttrs,
     })
-    const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
-    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
-        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
-    })
-    return { context, acquiringContext, acquiringIntegration, integration, organization, admin }
+    return { context, integration, organization, admin }
 }
 
 async function makeServiceUserForIntegration(integration) {
