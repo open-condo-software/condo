@@ -661,9 +661,15 @@ async function makeContextWithOrganizationAndIntegrationAsAdmin( integrationAttr
     const admin = await makeLoggedInAdminClient()
     const [integration] = await createTestBillingIntegration(admin, integrationAttrs)
     const [organization] = await registerNewOrganization(admin, organizationAttrs)
-    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, contextAttrs)
-
-    return { context, integration, organization, admin }
+    const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+        status: BILLING_CONTEXT_FINISHED_STATUS,
+        ...contextAttrs,
+    })
+    const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+    const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+    })
+    return { context, acquiringContext, acquiringIntegration, integration, organization, admin }
 }
 
 async function makeServiceUserForIntegration(integration) {

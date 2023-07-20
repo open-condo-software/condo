@@ -94,11 +94,6 @@ describe('BillingReceiptFile', () => {
     let organization
     let organizationProperty
 
-    const residentWithVerificationClients = {
-        verified: null,
-        notVerified: null,
-    }
-
     beforeAll(async () => {
         const { admin: adminClient, context: billingContext, integration, organization: adminOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         admin = adminClient
