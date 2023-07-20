@@ -63,11 +63,9 @@ export const useTableColumns = (
         )
     }, [intl, organizationEmployeeSpecializations])
 
-    const renderPhone = useCallback((phone, employee) => {
-        const phonePrefix = get(employee, 'organization.phoneNumberPrefix')
-
+    const renderPhone = useCallback((phone) => {
         return getTableCellRenderer(
-            { search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` }
+            { search, href: `tel:${phone}` }
         )(phone)
     }, [search])
 

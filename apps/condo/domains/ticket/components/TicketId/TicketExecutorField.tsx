@@ -8,15 +8,15 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
 
 import { TicketUserInfoField } from './TicketUserInfoField'
 
 type TicketExecutorFieldProps = {
     ticket: Ticket
+    phonePrefix?: string
 }
 
-export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket }) => {
+export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
@@ -49,7 +49,7 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
                         <TicketUserInfoField
                             user={executorUser}
                             nameLink={`/employee/${get(executor, 'id')}`}
-                            ticket={ticket}
+                            phonePrefix={phonePrefix}
                         />
                     </Typography.Text>
                     : <Typography.Text type='secondary'>

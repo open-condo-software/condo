@@ -63,10 +63,8 @@ export const useTableColumns: UseTableColumns = (filterMetas) => {
 
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
-    const renderPhone = useCallback((phone, contact) => {
-        const phonePrefix = get(contact, 'organization.phoneNumberPrefix')
-
-        return getTableCellRenderer({ search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(phone)
+    const renderPhone = useCallback((phone) => {
+        return getTableCellRenderer({ search, href: `tel:${phone}` })(phone)
     }, [search])
 
     const renderEmail = useCallback((email) => {

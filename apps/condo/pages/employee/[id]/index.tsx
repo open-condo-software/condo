@@ -71,6 +71,7 @@ export const EmployeePageContent = ({
     isEmployeeReinvitable,
     updateEmployeeAction,
     softDeleteAction,
+    phonePrefix = '',
 }) => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
@@ -97,7 +98,6 @@ export const EmployeePageContent = ({
 
     const name = get(employee, 'name')
     const phone = get(employee, 'phone')
-    const phonePrefix = get(employee, 'organization.phoneNumberPrefix')
     const email = get(employee, 'email')
     const hasAllSpecializations = get(employee, 'hasAllSpecializations')
 
