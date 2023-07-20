@@ -171,13 +171,13 @@ class TicketDataLoader extends AbstractDataLoader {
                     })
                     return {
                         ...searchResult,
-                        dayGroup: dayjs(dayGroup).format(DATE_DISPLAY_FORMAT),
+                        dayGroup: dayGroup ? dayGroup : dayjs().format(DATE_DISPLAY_FORMAT),
                         count: parseInt(count),
                     }
                 }
                 return {
                     ...searchResult,
-                    dayGroup: dayjs(dayGroup).format(DATE_DISPLAY_FORMAT),
+                    dayGroup: dayGroup ? dayGroup : dayjs().format(DATE_DISPLAY_FORMAT),
                     count: parseInt(count),
                 }
             })

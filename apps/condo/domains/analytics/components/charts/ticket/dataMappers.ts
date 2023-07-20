@@ -184,7 +184,6 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
                 }
             }
 
-
             return {
                 series,
                 legend: [],

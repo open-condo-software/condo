@@ -75,7 +75,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
             .count('id')
             .select(this.groups)
         if (this.aggregateBy.includes('dayGroup')) {
-            query.select(knex.raw(`date_trunc('${this.dayGroup}',  "createdAt") as "dayGroup"`))
+            query.select(knex.raw(`to_char(date_trunc('${this.dayGroup}',  "createdAt"), 'DD.MM.YYYY') as "dayGroup"`))
         }
 
         switch (Object.keys(this.whereIn).length) {

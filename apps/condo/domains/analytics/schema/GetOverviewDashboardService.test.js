@@ -218,6 +218,23 @@ describe('GetOverviewDashboardService', () => {
                     expect(data.overview.ticketByDay.tickets.every(e => e.dayGroup === dayjs(dateFrom).format('DD.MM.YYYY'))).toBeTruthy()
                 })
 
+                it('should return each day for provided filter', async () => {
+                    const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
+                        where: {
+                            organization: organization.id,
+                            dateFrom: dayjs().subtract(7, 'days').toISOString(),
+                            dateTo,
+                        },
+                        groupBy: { aggregatePeriod: 'day' },
+                    })
+
+                    const dataWithTicket = data.overview.ticketByDay.tickets.find(e => e.count === 1)
+
+                    expect(dataWithTicket).toBeDefined()
+                    expect(data.overview.ticketByDay.tickets).toHaveLength(TICKET_STATUS_TYPES.length * 8)
+                    expect(dataWithTicket.dayGroup).toMatch(dayjs().format('DD.MM.YYYY'))
+                })
+
                 it('should return tickets aggregated by week', async () => {
                     const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
                         where: {
