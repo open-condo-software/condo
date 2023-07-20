@@ -94,6 +94,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
         onCompleted: (result) => {
             ticketCounts.current = result
         },
+        fetchPolicy: 'network-only',
     })
     const [loadMonthTicketCounts, { loading: monthTicketLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
         onCompleted: (result) => {
@@ -102,6 +103,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                 setCompletionPercent((doneTickets / result.all.count * 100).toFixed(0) + '%')
             }
         },
+        fetchPolicy: 'network-only',
     })
 
     useEffect(() => {
