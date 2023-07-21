@@ -1094,7 +1094,7 @@
   "pages.reports.aggregatePeriod.total": "total",
   "pages.reports.aggregatePeriod.day": "per day",
   "pages.reports.aggregatePeriod.week": "per week",
-  "pages.reports.aggregatePeriod.month": "per month",
+  "pages.reports.aggregatePeriod.month": "per {month}",
   "pages.reports.summary": "Summary",
   "news.fields.units.label": "Flat",
   "news.fields.units.message": "To select flats, delete the selected entrances",
