@@ -199,8 +199,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                     values.property = { connect: { id: selectedPropertyIdRef.current } }
                 }
                 values.isOrganizationPeriod = undefined
-                values.notifyStartDay = parseInt(values.notifyStartDay)
-                values.notifyEndDay = parseInt(values.notifyEndDay)
+                values.notifyStartDay = startNumberRef.current
+                values.notifyEndDay = finishNumberRef.current
 
                 if (isCreateMode) {
                     values.organization = { connect: { id: organizationId } }
