@@ -1094,7 +1094,7 @@
   "pages.reports.aggregatePeriod.total": "всего",
   "pages.reports.aggregatePeriod.day": "за день",
   "pages.reports.aggregatePeriod.week": "за неделю",
-  "pages.reports.aggregatePeriod.month": "за месяц",
+  "pages.reports.aggregatePeriod.month": "за {month}",
   "pages.reports.summary": "Сводка",
   "news.fields.units.label": "Помещение",
   "news.fields.units.message": "Чтобы выбрать помещения, удалите выбранные подъезды",
