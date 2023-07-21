@@ -41,17 +41,14 @@ async function buildResidentAccessToReceiptsQuery (userId) {
     if (!serviceConsumers.length) {
         return false
     }
-    // Properties created by organizations
-    const propertiesForOrganizations = Object.fromEntries(
-        await Promise.all(
-            organizationsWithContract.map(
-                async organizationId => [organizationId,  (
-                    await find('Property', {
-                        organization: { id: organizationId }, deletedAt: null,
-                    })).map(({ addressKey }) => addressKey)]
-            )
-        )
-    )
+    const properties = await find('Property', {
+        organization: { id_in: organizationsWithContract }, deletedAt: null,
+    })
+    const propertiesForOrganizations = {}
+    properties.forEach(({ organization, addressKey }) => {
+        propertiesForOrganizations[organization] ||= []
+        propertiesForOrganizations[organization].push(addressKey)
+    })
     return {
         OR: serviceConsumers.map(
             serviceConsumer => ({
@@ -68,7 +65,8 @@ async function buildResidentAccessToReceiptsQuery (userId) {
                             status: BILLING_CONTEXT_FINISHED_STATUS,
                         },
                         deletedAt: null,
-                    }],
+                    },
+                ],
             }),
         ),
     }

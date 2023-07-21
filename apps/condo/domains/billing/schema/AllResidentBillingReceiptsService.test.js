@@ -16,13 +16,18 @@ const {
     updateTestAcquiringIntegrationContext,
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestBillingAccount,
     createTestBillingProperty,
     createTestBillingIntegrationOrganizationContext,
-    updateTestBillingIntegrationOrganizationContext,
     createTestBillingIntegrationAccessRight,
+    createTestBillingIntegration,
+    createTestBillingReceipt,
+    createTestRecipient,
+    updateTestBillingIntegrationOrganizationContext,
+    updateTestBillingReceipt,
+    ResidentBillingReceipt,
+    makeClientWithResidentAndServiceConsumer,
 } = require('@condo/domains/billing/utils/testSchema')
 const {
     CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS,
@@ -30,29 +35,11 @@ const {
 } = require('@condo/domains/miniapp/constants')
 const { makeClientWithProperty, createTestProperty, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
-const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt } = require('../utils/testSchema')
 
 const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
 const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
-
-async function makeClientWithResidentAndServiceConsumer (property, billingAccount, organization = null) {
-    const residentUser = await makeClientWithResidentUser()
-    const [resident] = await registerResidentByTestClient(residentUser, {
-        address: property.address,
-        addressMeta: property.addressMeta,
-        unitName: billingAccount.unitName,
-    })
-    residentUser.resident = resident
-    const [serviceConsumer] = await registerServiceConsumerByTestClient(residentUser, {
-        residentId: resident.id,
-        accountNumber: billingAccount.number,
-        organizationId: organization.id,
-    })
-    residentUser.serviceConsumer = serviceConsumer
-    return residentUser
-}
 
 describe('AllResidentBillingReceiptsService', () => {
     const data = {
@@ -90,7 +77,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
     describe('Resident access and filters', () => {
 
-        it('should contain fields for resident', async () => {
+        test('contain fields for resident', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -115,7 +102,7 @@ describe('AllResidentBillingReceiptsService', () => {
             })
         })
 
-        it('should have the same receipt for different residents with the same unit', async () => {
+        test('should have the same receipt for different residents with the same unit', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -136,7 +123,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(wifeReceipts.some(({ id }) => id === receipt.id)).toBe(true)
         })
 
-        it('can filter residentBillingReceipts by serviceConsumer', async () => {
+        test('can filter residentBillingReceipts by serviceConsumer', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -175,7 +162,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(anotherPropertyReceipts.some(({ id }) => id === anotherReceipt.id)).toBe(true)
         })
 
-        it('should return the same receipt, after serviceConsumer was recreated', async () => {
+        test('should return the same receipt, after serviceConsumer was recreated', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -199,7 +186,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(restoredConsumersReceipts.some(({ id }) => id === receipt.id)).toBeTruthy()
         })
 
-        it('should return all receipts for the consumer', async () => {
+        test('should return all receipts for the consumer', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -221,7 +208,7 @@ describe('AllResidentBillingReceiptsService', () => {
         })
 
         // Housing from organization and overhaul from eps bug fix
-        it('should correctly set serviceConsumer to output result for several organizations on the same address', async () => {
+        test('should correctly set serviceConsumer to output result for several organizations on the same address', async () => {
             const [dataProperty] = await createTestProperty(data.userClient, data.organization)
             const [dataBillingProperty] = await createTestBillingProperty(data.integrationClient, data.billingContext, {
                 address: dataProperty.address,
@@ -275,7 +262,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
     describe('Payable receipts', () => {
 
-        it('should select only one latest receipt from each category + accountNumber by period and mark it as payable', async () => {
+        test('should select only one latest receipt from each category + accountNumber by period and mark it as payable', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -305,7 +292,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receipts.some(({ id, isPayable }) => id === oldHousingReceipt.id && isPayable === true)).toBeTruthy()
         })
         // change requisites bug fix
-        it('should not mark 2 receipts as payable with a same category on organization bankAccount change', async () => {
+        test('should not mark 2 receipts as payable with a same category on organization bankAccount change', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -338,7 +325,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
     describe('Paid field', () => {
 
-        it('should return correct paid amount after receipt was paid', async () => {
+        test('should return correct paid amount after receipt was paid', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -358,7 +345,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(Big(afterPaymentReceipt.paid).toFixed(2)).toEqual(INITIAL_AMOUNT)
         })
 
-        it('should return correct paid after receipt was paid, and then recreated', async () => {
+        test('should return correct paid after receipt was paid, and then recreated', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -383,7 +370,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(Big(afterPaymentReceipt.paid).toFixed(2)).toEqual(INITIAL_AMOUNT)
         })
 
-        it('should subtract amount if receipt was paid, by another person', async () => {
+        test('should subtract amount if receipt was paid, by another person', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -419,7 +406,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
     describe('Restrictions for Resident', () => {
 
-        it('should not get receipt for deleted property', async () => {
+        test('should not get receipt for deleted property', async () => {
             const { integrationClient, billingContext, organization, userClient } = data
             const [property] = await createTestProperty(userClient, organization)
             const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
@@ -435,7 +422,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receiptsAfterPropertyIsDeleted.some(({ id }) => id === receipt.id)).toBeFalsy()
         })
 
-        it('should not get receipt when billing context is disabled', async () => {
+        test('should not get receipt when billing context is disabled', async () => {
             const { organization, ...userClient } =  await makeClientWithProperty()
             const [integration] = await createTestBillingIntegration(data.supportClient, { isTrustedBankAccountSource: true })
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, organization, integration, {
@@ -462,7 +449,7 @@ describe('AllResidentBillingReceiptsService', () => {
             expect(receiptsAfterBillingContextDisable.some(({ id }) => id === receipt.id)).toBeFalsy()
         })
 
-        it('should not get receipt when acquiring context is disabled', async () => {
+        test('should not get receipt when acquiring context is disabled', async () => {
             const { organization, ...userClient } =  await makeClientWithProperty()
             const [integration] = await createTestBillingIntegration(data.supportClient, { isTrustedBankAccountSource: true })
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, organization, integration, {

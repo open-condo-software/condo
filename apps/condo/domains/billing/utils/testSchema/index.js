@@ -746,6 +746,25 @@ function createTestRecipient (extra = {}) {
     }
 }
 
+
+async function makeClientWithResidentAndServiceConsumer (property, billingAccount, organization = null) {
+    const residentUser = await makeClientWithResidentUser()
+    const [resident] = await registerResidentByTestClient(residentUser, {
+        address: property.address,
+        addressMeta: property.addressMeta,
+        unitName: billingAccount.unitName,
+    })
+    residentUser.resident = resident
+    const [serviceConsumer] = await registerServiceConsumerByTestClient(residentUser, {
+        residentId: resident.id,
+        accountNumber: billingAccount.number,
+        organizationId: organization.id,
+    })
+    residentUser.serviceConsumer = serviceConsumer
+    return residentUser
+}
+
+
 async function makeResidentClientWithOwnReceipt(existingResidentClient) {
 
     let residentClient = existingResidentClient
@@ -869,6 +888,7 @@ module.exports = {
     createTestRecipient,
     BillingCategory, createTestBillingCategory, updateTestBillingCategory,
     makeResidentClientWithOwnReceipt,
+    makeClientWithResidentAndServiceConsumer,
     makeServiceUserForIntegration,
     registerBillingReceiptsByTestClient,
     createRegisterBillingReceiptsPayload,
