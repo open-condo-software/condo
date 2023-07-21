@@ -342,6 +342,9 @@ export default function GlobalStyle () {
                 letter-spacing: -0.01em;
                 line-height: 22px;
               }
+              .ant-table-tbody > tr > td * {
+                word-break: initial;
+              }
               
               .ant-table-tbody > tr:last-child > td:first-child {
                 border-bottom-left-radius: 12px;
