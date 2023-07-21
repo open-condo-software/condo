@@ -80,7 +80,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
     const TodayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.today' })
-    const MonthTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.month' })
+    const MonthTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.month' }, { month: dayjs().format('MMM') })
     const TotalTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.total' })
 
     const { breakpoints } = useLayoutContext()
