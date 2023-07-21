@@ -180,7 +180,7 @@ export const getTicketNumberRender = (intl, search: FilterValue) => {
     }
 }
 
-const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre' } }
+const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
 const getUnitPostfix = (unit, sectionNameMessage, floorNameMessage) => {
     let postfixMessage = unit ? '\n' : ''
