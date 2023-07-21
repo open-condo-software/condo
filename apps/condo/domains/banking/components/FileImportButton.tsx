@@ -24,8 +24,8 @@ const FileImportButton: IFileImportButtonProps = (props) => {
     const { children, handleUpload, ...restProps } = props
 
     return (
-        <Upload {...UPLOAD_OPTIONS} customRequest={handleUpload}>
-            <Button stateless {...restProps}>
+        <Upload {...UPLOAD_OPTIONS} customRequest={handleUpload} className='ant-upload-select-block'>
+            <Button stateless {...restProps} block>
                 {children}
             </Button>
         </Upload>

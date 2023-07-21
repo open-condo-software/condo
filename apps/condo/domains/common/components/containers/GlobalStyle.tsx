@@ -500,6 +500,13 @@ const uploadControlCss = css`
     order:1;
     margin-top:5px;
   }
+  .ant-upload-select-block {
+    width: 100%;
+    
+    .ant-upload {
+      width: 100%;
+    }
+  }
   .upload-control-wrapper .ant-upload-list-item-card-actions .anticon.anticon-delete {
     font-size:18px;
   }
