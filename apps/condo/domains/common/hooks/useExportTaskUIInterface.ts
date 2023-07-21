@@ -80,7 +80,7 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
                 const exportedRecordsCount = get(taskRecord, 'exportedRecordsCount')
 
                 return taskStatus === TASK_COMPLETED_STATUS
-                    ? ExportTaskProgressDescriptionCompleted
+                    ? ExportTaskProgressDescriptionCompleted.replace('{url}', get(taskRecord, 'file.publicUrl'))
                     : !totalRecordsCount || !exportedRecordsCount
                         ? ExportTaskProgressDescriptionPreparing
                         : ExportTaskProgressDescriptionProcessing

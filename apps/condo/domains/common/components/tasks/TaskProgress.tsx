@@ -3,7 +3,6 @@ import { InfoCircleOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
 import { Col, List, notification, Progress, Row, Typography } from 'antd'
-import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
@@ -112,7 +111,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask }: ITask
                     {translations.title(task)}
                 </Typography.Text>
             }
-            description={translations.description(task)}
+            description={<div dangerouslySetInnerHTML={{ __html: translations.description(task) }}></div>}
         />
         <TaskIconsHoverSwitcher
             progress={progress}
