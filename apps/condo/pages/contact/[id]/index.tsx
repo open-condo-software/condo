@@ -38,7 +38,7 @@ const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
 
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
-export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction }) => {
+export const ContactPageContent = ({ contact, isContactEditable, softDeleteAction, phonePrefix = '' }) => {
     const intl = useIntl()
     const ContactLabel = intl.formatMessage({ id:'Contact' }).toLowerCase()
     const PhoneLabel = intl.formatMessage({ id: 'Phone' })
@@ -57,7 +57,6 @@ export const ContactPageContent = ({ contact, isContactEditable, softDeleteActio
     const contactName = get(contact, 'name')
     const contactEmail = get(contact, 'email', '')
     const contactPhone = get(contact, 'phone', '')
-    const phonePrefix = get(contact, 'organization.phoneNumberPrefix', '')
     const contactUnitName = get(contact, 'unitName')
     const contactUnitType = get(contact, 'unitType', BuildingUnitSubType.Flat)
     const unitSuffix = contactUnitName

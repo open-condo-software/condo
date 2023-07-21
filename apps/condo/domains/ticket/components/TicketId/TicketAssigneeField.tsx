@@ -1,17 +1,22 @@
+import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
-import Link from 'next/link'
-import { useMemo } from 'react'
+import { FC, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
 
 import { TicketUserInfoField } from './TicketUserInfoField'
 
-export const TicketAssigneeField = ({ ticket }) => {
+
+type TicketAssigneeFieldProps = {
+    ticket: Ticket
+    phonePrefix?: string
+}
+
+export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
@@ -45,7 +50,7 @@ export const TicketAssigneeField = ({ ticket }) => {
                         <TicketUserInfoField
                             user={assigneeUser}
                             nameLink={`/employee/${get(assignee, 'id')}`}
-                            ticket={ticket}
+                            phonePrefix={phonePrefix}
                         />
                     </Typography.Text>
                     : <Typography.Text type='secondary'>

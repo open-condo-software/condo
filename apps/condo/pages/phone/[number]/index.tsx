@@ -33,7 +33,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { Tag } from '@condo/domains/common/components/Tag'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
-import { colors, fontSizes, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
+import { colors, gradients, shadows, transitions } from '@condo/domains/common/constants/style'
 import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
@@ -857,6 +857,7 @@ export const ClientCardPageContentWrapper = ({
     ticketsQuery,
     canManageContacts,
     showOrganizationMessage = false,
+    usePhonePrefix = false,
 }) => {
     const router = useRouter()
     const phoneNumber = get(router, ['query', 'number']) as string
@@ -923,7 +924,10 @@ export const ClientCardPageContentWrapper = ({
     const phoneNumberPrefixFromEmployees = get(employees, ['0', 'organization', 'phoneNumberPrefix'])
     const phoneNumberPrefixFromTickets = get(tickets, ['0', 'organization', 'phoneNumberPrefix'])
 
-    const phoneNumberPrefix = phoneNumberPrefixFromContacts || phoneNumberPrefixFromEmployees || phoneNumberPrefixFromTickets
+    let phoneNumberPrefix
+    if (usePhonePrefix) {
+        phoneNumberPrefix = phoneNumberPrefixFromContacts || phoneNumberPrefixFromEmployees || phoneNumberPrefixFromTickets
+    }
 
     return (
         <ClientCardPageContent

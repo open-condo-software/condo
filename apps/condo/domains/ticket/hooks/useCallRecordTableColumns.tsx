@@ -54,10 +54,9 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
     const canDownloadCallRecords = useMemo(() => get(userOrganization, ['link', 'role', 'canDownloadCallRecords']), [userOrganization])
 
     const phoneRender = useCallback(({ callRecord }) => {
-        const phonePrefix = get(callRecord, 'organization.phoneNumberPrefix')
         const phone = callRecord.isIncomingCall ? callRecord.callerPhone : callRecord.destCallerPhone
 
-        return getTableCellRenderer({ search, href: `tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}` })(formatPhone(phone))
+        return getTableCellRenderer({ search, href: `tel:${phone}` })(formatPhone(phone))
     },
     [search])
 

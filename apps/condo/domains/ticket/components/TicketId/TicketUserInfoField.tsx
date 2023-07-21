@@ -28,7 +28,7 @@ const UserInfoLink: React.FC<IUserInfoLink> = ({ href, children }) => {
 interface ITicketUserInfoFieldProps {
     user?: Partial<User>
     nameLink?: string
-    ticket?: Ticket
+    phonePrefix?: string
 }
 
 export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) => {
@@ -57,10 +57,8 @@ export const TicketUserInfoField: React.FC<ITicketUserInfoFieldProps> = (props) 
     }
 
     if (phone) {
-        const phonePrefix = get(props, 'ticket.organization.phoneNumberPrefix')
-
         userInfo.push(
-            <UserInfoLink href={`tel:${phonePrefix ? `${phonePrefix}${phone}` : `${phone}`}`}>
+            <UserInfoLink href={`tel:${props.phonePrefix ? `${props.phonePrefix}${phone}` : `${phone}`}`}>
                 {formatPhone(phone)}
             </UserInfoLink>
         )
