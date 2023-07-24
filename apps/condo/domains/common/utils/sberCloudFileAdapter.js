@@ -1,4 +1,5 @@
 const path = require('path')
+const { promisify } = require('util')
 
 const { getItem } = require('@keystonejs/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
@@ -6,6 +7,8 @@ const express = require('express')
 const { isEmpty } = require('lodash')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
+
+const { UUID_REGEXP } = require('../constants/regexps')
 
 
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
@@ -70,6 +73,7 @@ class SberCloudFileAdapter {
         this.server = config.s3Options.server
         this.folder = config.folder
         this.shouldResolveDirectUrl = config.isPublic
+        this.saveFileName = config.saveFileName
         this.acl = new SberCloudObsAcl(config)
     }
 
@@ -81,21 +85,52 @@ class SberCloudFileAdapter {
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
-        return new Promise((resolve, reject) => {
-            const fileData = {
-                id,
-                originalFilename: filename,
-                filename: this.getFilename({ id, originalFilename: filename }),
-                mimetype,
-                encoding,
-            }
+        // return new Promise((resolve, reject) => {
+        //     const fileData = {
+        //         id,
+        //         originalFilename: filename,
+        //         filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
+        //         mimetype,
+        //         encoding,
+        //     }
+        //     const key = `${this.folder}/${fileData.filename}`
+        //     const uploadParams = this.uploadParams({ ...fileData, meta })
+        //     this.s3.putObject(
+        //         {
+        //             Body: stream,
+        //             ContentType: mimetype,
+        //             Bucket: this.bucket,
+        //             Key: key,
+        //             ...uploadParams,
+        //         },
+        //         (error, data) => {
+        //             error = error || this.errorFromCommonMsg(data)
+        //             if (error) {
+        //                 reject(error)
+        //             } else {
+        //                 resolve({ ...fileData, _meta: data })
+        //             }
+        //             stream.destroy()
+        //         }
+        //     )
+        // })
+
+        const fileData = {
+            id,
+            originalFilename: filename,
+            filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
+            mimetype,
+            encoding,
+        }
+        const key = `${this.folder}/${fileData.filename}`
+        const saveFile = (resolve, reject) => {
             const uploadParams = this.uploadParams({ ...fileData, meta })
             this.s3.putObject(
                 {
                     Body: stream,
                     ContentType: mimetype,
                     Bucket: this.bucket,
-                    Key: `${this.folder}/${fileData.filename}`,
+                    Key: key,
                     ...uploadParams,
                 },
                 (error, data) => {
@@ -108,7 +143,64 @@ class SberCloudFileAdapter {
                     stream.destroy()
                 }
             )
-        })
+        }
+
+        if (this.saveFileName) {
+            return this.acl.getMeta(key)
+                .then((existedMeta) => {
+                    console.log('existedMeta', existedMeta)
+
+                    if (!isEmpty(existedMeta)) {
+                        return { ...fileData, _meta: existedMeta }
+                    }
+
+                    return new Promise(saveFile)
+                })
+        }
+
+        return new Promise(saveFile)
+
+        // try {
+        //     const fileData = {
+        //         id,
+        //         originalFilename: filename,
+        //         filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
+        //         mimetype,
+        //         encoding,
+        //     }
+        //     const key = `${this.folder}/${fileData.filename}`
+        //
+        //     if (this.saveFileName) {
+        //         const existedMeta = await this.acl.getMeta(key)
+        //
+        //         console.log('save existedMeta, fileData', existedMeta, fileData)
+        //
+        //         if (!isEmpty(existedMeta)) {
+        //             return { ...fileData, _meta: existedMeta }
+        //         }
+        //     }
+        //
+        //     const uploadParams = this.uploadParams({ ...fileData, meta })
+        //     const putObjectAsync = promisify(this.s3.putObject).bind(this.s3)
+        //     const data = await putObjectAsync({
+        //         Body: stream,
+        //         ContentType: mimetype,
+        //         Bucket: this.bucket,
+        //         Key: key,
+        //         ...uploadParams,
+        //     })
+        //
+        //     const error = this.errorFromCommonMsg(data)
+        //     if (error) {
+        //         throw error
+        //     }
+        //
+        //     return { ...fileData, _meta: data }
+        // } catch (e) {
+        //     console.log('error', e)
+        // } finally {
+        //     stream.destroy()
+        // }
     }
 
     delete (file, options = {}) {
@@ -166,24 +258,55 @@ const obsRouterHandler = ({ keystone }) => {
             return res.end()
         }
         const meta = await Acl.getMeta(req.params.file)
+        console.log('obsRouterHandler meta', req.params.file, meta)
         if (isEmpty(meta)) {
+            console.log('return 404 1')
             res.status(404)
             return next()
         }
-        const { id: itemId, listkey: listKey } = meta
-        if (isEmpty(itemId) || isEmpty(listKey)) {
+        const { id: itemId, ids: stringItemIds, listkey: listKey } = meta
+        console.log('itemId, stringItemsId, listKey', itemId, stringItemIds, listKey)
+
+        if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
+            console.log('return 404 2')
             res.status(404)
             return next()
         }
+
         const { id, isAdmin, isSupport, type } = req.user
         const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
-        const fileAfterAccessCheck = await getItem({
-            keystone,
-            listKey,
-            itemId,
-            context,
-            returnFields: 'id',
-        })
+
+        let fileAfterAccessCheck
+
+        // Есть доступ хотя бы к одному объекту
+        if (!isEmpty(stringItemIds)) {
+            const itemIds = stringItemIds.split(',')
+
+            for (const itemId of itemIds) {
+                if (!UUID_REGEXP.test(itemId)) continue
+
+                fileAfterAccessCheck = await getItem({
+                    keystone,
+                    listKey,
+                    itemId,
+                    context,
+                    returnFields: 'id',
+                })
+
+                if (fileAfterAccessCheck) break
+            }
+        }
+
+        if (itemId && !fileAfterAccessCheck) {
+            fileAfterAccessCheck = await getItem({
+                keystone,
+                listKey,
+                itemId,
+                context,
+                returnFields: 'id',
+            })
+        }
+
         if (!fileAfterAccessCheck) {
             res.sendStatus(403)
             return res.end()
