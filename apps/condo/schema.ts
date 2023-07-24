@@ -34005,6 +34005,7 @@ export type Mutation = {
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
+  ticketMultipleUpdate: Ticket;
   /**
    * Sends message of specified type to specified contact
    *
@@ -42613,6 +42614,11 @@ export type MutationCreateBankAccountRequestArgs = {
 
 export type MutationShareTicketArgs = {
   data: ShareTicketInput;
+};
+
+
+export type MutationTicketMultipleUpdateArgs = {
+  data: TicketMultipleUpdateInput;
 };
 
 
@@ -77148,6 +77154,13 @@ export type TicketLabel = {
   label: Scalars['String'];
   color: Scalars['String'];
   value: Scalars['String'];
+};
+
+export type TicketMultipleUpdateInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  id: Scalars['ID'];
+  data: Array<Maybe<TicketUpdateInput>>;
 };
 
 /**  Ticket settings rules for each organization. (Setting the "deadline" fields for each ticket type)  */

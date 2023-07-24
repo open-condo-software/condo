@@ -64297,6 +64297,13 @@ input PredictTicketClassificationInput {
   details: String!
 }
 
+input TicketMultipleUpdateInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  id: ID!
+  data: [TicketUpdateInput]!
+}
+
 enum SendMessageLang {
   ru
   en
@@ -73254,6 +73261,7 @@ type Mutation {
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
+  ticketMultipleUpdate(data: TicketMultipleUpdateInput!): Ticket!
 
   """
   Sends message of specified type to specified contact

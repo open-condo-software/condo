@@ -163,7 +163,6 @@ const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt organization numb
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
 
-
 const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
     query predictTicketClassification ($data: PredictTicketClassificationInput!) {
         obj: predictTicketClassification(data: $data) { id place { id name } category { id name }  }
@@ -243,6 +242,14 @@ const CallRecord = generateGqlQueries('CallRecord', CALL_RECORD_FIELDS)
 const CALL_RECORD_FRAGMENT_FIELDS = `{ ticket { id number clientName property { ${TICKET_PROPERTY_FIELDS} } } callRecord ${CALL_RECORD_FIELDS} organization { id name } startedAt ${COMMON_FIELDS} }`
 const CallRecordFragment = generateGqlQueries('CallRecordFragment', CALL_RECORD_FRAGMENT_FIELDS)
 
+// TODO(codegen): write return type result!
+
+const TICKET_MULTIPLE_UPDATE_MUTATION = gql`
+    mutation ticketMultipleUpdate ($data: TicketMultipleUpdateInput!) {
+        result: ticketMultipleUpdate(data: $data) ${TICKET_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -279,5 +286,6 @@ module.exports = {
     IncidentExportTask,
     CallRecord,
     CallRecordFragment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    TICKET_MULTIPLE_UPDATE_MUTATION,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

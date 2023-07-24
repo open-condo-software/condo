@@ -24,6 +24,7 @@ const { TicketCommentsTime } = require('./TicketCommentsTime')
 const { TicketExportTask } = require('./TicketExportTask')
 const { TicketFile } = require('./TicketFile')
 const { TicketFilterTemplate } = require('./TicketFilterTemplate')
+const { TicketMultipleUpdateService } = require('./TicketMultipleUpdateService')
 const { TicketOrganizationSetting } = require('./TicketOrganizationSetting')
 const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
 const { TicketProblemClassifier } = require('./TicketProblemClassifier')
@@ -65,5 +66,6 @@ module.exports = {
     IncidentExportTask,
     CallRecord,
     CallRecordFragment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    TicketMultipleUpdateService,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

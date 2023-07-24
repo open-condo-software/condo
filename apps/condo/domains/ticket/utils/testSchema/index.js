@@ -45,6 +45,7 @@ const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ti
 const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
 const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
 const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -952,6 +953,20 @@ async function updateTestCallRecordFragment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function ticketMultipleUpdateByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(TICKET_MULTIPLE_UPDATE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -1005,5 +1020,6 @@ module.exports = {
     IncidentExportTask, createTestIncidentExportTask, updateTestIncidentExportTask,
     CallRecord, createTestCallRecord, updateTestCallRecord,
     CallRecordFragment, createTestCallRecordFragment, updateTestCallRecordFragment,
+    ticketMultipleUpdateByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
