@@ -37,13 +37,14 @@ async function getResidentReceiptAccessQuery (userId) {
         status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
     })).map(({ organization }) => organization))
+
     serviceConsumers = serviceConsumers.filter(({ organization }) => organizationsWithContract.has(organization))
 
     if (!serviceConsumers.length) {
         return false
     }
     const properties = await find('Property', {
-        organization: { id_in: organizationsWithContract }, deletedAt: null,
+        organization: { id_in: [...organizationsWithContract] }, deletedAt: null,
     })
     const propertiesForOrganizations = {}
     properties.forEach(({ organization, addressKey }) => {
