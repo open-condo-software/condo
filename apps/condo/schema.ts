@@ -62928,6 +62928,8 @@ export type ServiceConsumer = {
   organization?: Maybe<Organization>;
   /**  Organization data, that is returned for current resident in mobile client  */
   residentOrganization?: Maybe<ResidentOrganization>;
+  /**  Determines if the resident created this service consumer providing the account number, or it was created automatically based on the house address and unit name with unit type  */
+  isDiscovered?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -62952,6 +62954,7 @@ export type ServiceConsumerCreateInput = {
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  isDiscovered?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -62984,6 +62987,7 @@ export type ServiceConsumerHistoryRecord = {
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
+  isDiscovered?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -63010,6 +63014,7 @@ export type ServiceConsumerHistoryRecordCreateInput = {
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
+  isDiscovered?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -63041,6 +63046,7 @@ export type ServiceConsumerHistoryRecordUpdateInput = {
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   residentOrganization?: Maybe<Scalars['JSON']>;
+  isDiscovered?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -63126,6 +63132,8 @@ export type ServiceConsumerHistoryRecordWhereInput = {
   residentOrganization_not?: Maybe<Scalars['JSON']>;
   residentOrganization_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   residentOrganization_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isDiscovered?: Maybe<Scalars['Boolean']>;
+  isDiscovered_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -63232,6 +63240,7 @@ export type ServiceConsumerUpdateInput = {
   acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   accountNumber?: Maybe<Scalars['String']>;
   organization?: Maybe<OrganizationRelateToOneInput>;
+  isDiscovered?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -63292,6 +63301,8 @@ export type ServiceConsumerWhereInput = {
   accountNumber_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
+  isDiscovered?: Maybe<Scalars['Boolean']>;
+  isDiscovered_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -69246,6 +69257,8 @@ export enum SortServiceConsumerHistoryRecordsBy {
   PaymentCategoryDesc = 'paymentCategory_DESC',
   AccountNumberAsc = 'accountNumber_ASC',
   AccountNumberDesc = 'accountNumber_DESC',
+  IsDiscoveredAsc = 'isDiscovered_ASC',
+  IsDiscoveredDesc = 'isDiscovered_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -69279,6 +69292,8 @@ export enum SortServiceConsumersBy {
   AccountNumberDesc = 'accountNumber_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
+  IsDiscoveredAsc = 'isDiscovered_ASC',
+  IsDiscoveredDesc = 'isDiscovered_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

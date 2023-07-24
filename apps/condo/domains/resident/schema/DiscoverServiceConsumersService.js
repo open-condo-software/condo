@@ -80,6 +80,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     resident: { connect: { id: resident.id } },
                     organization: { connect: { id: get(resident, ['organization', 'id']) } },
                     accountNumber: accountNumber,
+                    isDiscovered: true,
                 })
 
                 const combinations = _.flatMap(residents, (resident) =>  billingAccounts.map((account) => [resident, account]))
