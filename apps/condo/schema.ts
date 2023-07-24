@@ -4075,6 +4075,328 @@ export type B2BAppRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
+/**  This model links the role of the organization and mini-apps, allowing mini-apps to extend the main role template. Having this mapping between role A and mini-app B means that all employees in the organization with role A can access mini-app B. In addition, a mini-app may want to differentiate access within itself. To do this, it can create B2BAppPermissions via service user, the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  By default, all existing and new permissions will be set to "true" for all roles in the organization that have "canManageIntegrations" checked, false for other employees. When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageIntegrations" checkbox. B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, and when adding it - it is added to all roles, and the value is set according to the rules described above.  */
+export type B2BAppRole = {
+  __typename?: 'B2BAppRole';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2BAppRole List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2BAppRole List config, or
+   *  3. As an alias to a 'name' field on the B2BAppRole List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2BAppRole List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Link to the application to which the role belongs  */
+  app?: Maybe<B2BApp>;
+  /**  Link to the role of the organization that B2BAppRole extends  */
+  role?: Maybe<OrganizationEmployeeRole>;
+  /**  A set of specific permissions within a mini-app for a specific role. Is a Json object where the key is the "key" field from B2BAppPermission and the value is Boolean. Example: "{"canManagePasses": true, "canReadConfig": false}"  */
+  permissions?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type B2BAppRoleCreateInput = {
+  app?: Maybe<B2BAppRelateToOneInput>;
+  role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
+  permissions?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type B2BAppRoleHistoryRecord = {
+  __typename?: 'B2BAppRoleHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2BAppRoleHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2BAppRoleHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the B2BAppRoleHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2BAppRoleHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  app?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
+  permissions?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppRoleHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2BAppRoleHistoryRecordCreateInput = {
+  app?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
+  permissions?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppRoleHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum B2BAppRoleHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type B2BAppRoleHistoryRecordUpdateInput = {
+  app?: Maybe<Scalars['String']>;
+  role?: Maybe<Scalars['String']>;
+  permissions?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<B2BAppRoleHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type B2BAppRoleHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<B2BAppRoleHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2BAppRoleHistoryRecordWhereInput>>>;
+  app?: Maybe<Scalars['String']>;
+  app_not?: Maybe<Scalars['String']>;
+  app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  role?: Maybe<Scalars['String']>;
+  role_not?: Maybe<Scalars['String']>;
+  role_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  role_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  permissions?: Maybe<Scalars['JSON']>;
+  permissions_not?: Maybe<Scalars['JSON']>;
+  permissions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  permissions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<B2BAppRoleHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<B2BAppRoleHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<B2BAppRoleHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<B2BAppRoleHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type B2BAppRoleHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2BAppRoleHistoryRecordsCreateInput = {
+  data?: Maybe<B2BAppRoleHistoryRecordCreateInput>;
+};
+
+export type B2BAppRoleHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppRoleHistoryRecordUpdateInput>;
+};
+
+export type B2BAppRoleUpdateInput = {
+  app?: Maybe<B2BAppRelateToOneInput>;
+  role?: Maybe<OrganizationEmployeeRoleRelateToOneInput>;
+  permissions?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type B2BAppRoleWhereInput = {
+  AND?: Maybe<Array<Maybe<B2BAppRoleWhereInput>>>;
+  OR?: Maybe<Array<Maybe<B2BAppRoleWhereInput>>>;
+  app?: Maybe<B2BAppWhereInput>;
+  app_is_null?: Maybe<Scalars['Boolean']>;
+  role?: Maybe<OrganizationEmployeeRoleWhereInput>;
+  role_is_null?: Maybe<Scalars['Boolean']>;
+  permissions?: Maybe<Scalars['JSON']>;
+  permissions_not?: Maybe<Scalars['JSON']>;
+  permissions_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  permissions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type B2BAppRoleWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type B2BAppRolesCreateInput = {
+  data?: Maybe<B2BAppRoleCreateInput>;
+};
+
+export type B2BAppRolesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppRoleUpdateInput>;
+};
+
 export type B2BAppUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
@@ -32167,6 +32489,30 @@ export type Mutation = {
   deleteB2BAppPermission?: Maybe<B2BAppPermission>;
   /**  Delete multiple B2BAppPermission items by ID.  */
   deleteB2BAppPermissions?: Maybe<Array<Maybe<B2BAppPermission>>>;
+  /**  Create a single B2BAppRoleHistoryRecord item.  */
+  createB2BAppRoleHistoryRecord?: Maybe<B2BAppRoleHistoryRecord>;
+  /**  Create multiple B2BAppRoleHistoryRecord items.  */
+  createB2BAppRoleHistoryRecords?: Maybe<Array<Maybe<B2BAppRoleHistoryRecord>>>;
+  /**  Update a single B2BAppRoleHistoryRecord item by ID.  */
+  updateB2BAppRoleHistoryRecord?: Maybe<B2BAppRoleHistoryRecord>;
+  /**  Update multiple B2BAppRoleHistoryRecord items by ID.  */
+  updateB2BAppRoleHistoryRecords?: Maybe<Array<Maybe<B2BAppRoleHistoryRecord>>>;
+  /**  Delete a single B2BAppRoleHistoryRecord item by ID.  */
+  deleteB2BAppRoleHistoryRecord?: Maybe<B2BAppRoleHistoryRecord>;
+  /**  Delete multiple B2BAppRoleHistoryRecord items by ID.  */
+  deleteB2BAppRoleHistoryRecords?: Maybe<Array<Maybe<B2BAppRoleHistoryRecord>>>;
+  /**  Create a single B2BAppRole item.  */
+  createB2BAppRole?: Maybe<B2BAppRole>;
+  /**  Create multiple B2BAppRole items.  */
+  createB2BAppRoles?: Maybe<Array<Maybe<B2BAppRole>>>;
+  /**  Update a single B2BAppRole item by ID.  */
+  updateB2BAppRole?: Maybe<B2BAppRole>;
+  /**  Update multiple B2BAppRole items by ID.  */
+  updateB2BAppRoles?: Maybe<Array<Maybe<B2BAppRole>>>;
+  /**  Delete a single B2BAppRole item by ID.  */
+  deleteB2BAppRole?: Maybe<B2BAppRole>;
+  /**  Delete multiple B2BAppRole items by ID.  */
+  deleteB2BAppRoles?: Maybe<Array<Maybe<B2BAppRole>>>;
   /**  Create a single ExternalReportHistoryRecord item.  */
   createExternalReportHistoryRecord?: Maybe<ExternalReportHistoryRecord>;
   /**  Create multiple ExternalReportHistoryRecord items.  */
@@ -40871,6 +41217,68 @@ export type MutationDeleteB2BAppPermissionArgs = {
 
 
 export type MutationDeleteB2BAppPermissionsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2BAppRoleHistoryRecordArgs = {
+  data?: Maybe<B2BAppRoleHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateB2BAppRoleHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppRoleHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateB2BAppRoleHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppRoleHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateB2BAppRoleHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<B2BAppRoleHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2BAppRoleHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2BAppRoleHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateB2BAppRoleArgs = {
+  data?: Maybe<B2BAppRoleCreateInput>;
+};
+
+
+export type MutationCreateB2BAppRolesArgs = {
+  data?: Maybe<Array<Maybe<B2BAppRolesCreateInput>>>;
+};
+
+
+export type MutationUpdateB2BAppRoleArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<B2BAppRoleUpdateInput>;
+};
+
+
+export type MutationUpdateB2BAppRolesArgs = {
+  data?: Maybe<Array<Maybe<B2BAppRolesUpdateInput>>>;
+};
+
+
+export type MutationDeleteB2BAppRoleArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteB2BAppRolesArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -53875,6 +54283,22 @@ export type Query = {
   _allB2BAppPermissionsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the B2BAppPermission list.  */
   _B2BAppPermissionsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2BAppRoleHistoryRecord items which match the where clause.  */
+  allB2BAppRoleHistoryRecords?: Maybe<Array<Maybe<B2BAppRoleHistoryRecord>>>;
+  /**  Search for the B2BAppRoleHistoryRecord item with the matching ID.  */
+  B2BAppRoleHistoryRecord?: Maybe<B2BAppRoleHistoryRecord>;
+  /**  Perform a meta-query on all B2BAppRoleHistoryRecord items which match the where clause.  */
+  _allB2BAppRoleHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2BAppRoleHistoryRecord list.  */
+  _B2BAppRoleHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all B2BAppRole items which match the where clause.  */
+  allB2BAppRoles?: Maybe<Array<Maybe<B2BAppRole>>>;
+  /**  Search for the B2BAppRole item with the matching ID.  */
+  B2BAppRole?: Maybe<B2BAppRole>;
+  /**  Perform a meta-query on all B2BAppRole items which match the where clause.  */
+  _allB2BAppRolesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the B2BAppRole list.  */
+  _B2BAppRolesMeta?: Maybe<_ListMeta>;
   /**  Search for all ExternalReportHistoryRecord items which match the where clause.  */
   allExternalReportHistoryRecords?: Maybe<Array<Maybe<ExternalReportHistoryRecord>>>;
   /**  Search for the ExternalReportHistoryRecord item with the matching ID.  */
@@ -59162,6 +59586,56 @@ export type Query_AllB2BAppPermissionsMetaArgs = {
 };
 
 
+export type QueryAllB2BAppRoleHistoryRecordsArgs = {
+  where?: Maybe<B2BAppRoleHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppRoleHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2BAppRoleHistoryRecordArgs = {
+  where: B2BAppRoleHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllB2BAppRoleHistoryRecordsMetaArgs = {
+  where?: Maybe<B2BAppRoleHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppRoleHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllB2BAppRolesArgs = {
+  where?: Maybe<B2BAppRoleWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppRolesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryB2BAppRoleArgs = {
+  where: B2BAppRoleWhereUniqueInput;
+};
+
+
+export type Query_AllB2BAppRolesMetaArgs = {
+  where?: Maybe<B2BAppRoleWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortB2BAppRolesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryAllExternalReportHistoryRecordsArgs = {
   where?: Maybe<ExternalReportHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -63879,6 +64353,48 @@ export enum SortB2BAppPromoBlocksBy {
   ExternalDesc = 'external_DESC',
   PriorityAsc = 'priority_ASC',
   PriorityDesc = 'priority_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortB2BAppRoleHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortB2BAppRolesBy {
+  AppAsc = 'app_ASC',
+  AppDesc = 'app_DESC',
+  RoleAsc = 'role_ASC',
+  RoleDesc = 'role_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

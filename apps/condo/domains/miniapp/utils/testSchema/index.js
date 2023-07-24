@@ -29,6 +29,7 @@ const {
 } = require('@condo/domains/miniapp/gql')
 const { MessageAppBlackList: MessageAppBlackListGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -57,6 +58,7 @@ const B2CAppProperty = generateGQLTestUtils(B2CAppPropertyGQL)
 const B2BAppPromoBlock = generateGQLTestUtils(B2BAppPromoBlockGQL)
 const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
 const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
+const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -425,6 +427,38 @@ async function updateTestB2BAppPermission (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppRole (client, app, role, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!role || !role.id) throw new Error('no role.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        role: { connect: { id: role.id } },
+        permissions: {},
+        ...extraAttrs,
+    }
+    const obj = await B2BAppRole.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppRole (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppRole.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
     const cityPart = `город ${faker.name.firstName()}`
@@ -449,6 +483,7 @@ module.exports = {
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
     sendB2CAppPushMessageByTestClient,
     MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
+    B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }

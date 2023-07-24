@@ -27,7 +27,7 @@ async function canReadB2BAppPermissions ({ authentication: { item: user } }) {
 }
 
 /**
- * B2B App context may only be created or modified by:
+ * B2B App permissions may only be created or modified by:
  * 1. Admin / support
  * 2. Integration service account
  */

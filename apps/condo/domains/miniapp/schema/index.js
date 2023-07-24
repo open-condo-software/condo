@@ -9,6 +9,7 @@ const { B2BAppAccessRight } = require('./B2BAppAccessRight')
 const { B2BAppContext } = require('./B2BAppContext')
 const { B2BAppPermission } = require('./B2BAppPermission') 
 const { B2BAppPromoBlock } = require('./B2BAppPromoBlock')
+const { B2BAppRole } = require('./B2BAppRole')
 const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppBuild } = require('./B2CAppBuild')
@@ -30,5 +31,6 @@ module.exports = {
     SendB2CAppPushMessageService,
     MessageAppBlackList,
     B2BAppPermission,
+    B2BAppRole,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
