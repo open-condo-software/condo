@@ -31,13 +31,14 @@ async function getResidentReceiptAccessQuery (userId) {
     }
     const organizationIds = serviceConsumers.map(({ organization }) => organization )
     // Exclude all serviceConsumers for organizations without AcquiringContext in Finished status
-    const organizationsWithContract = (await find('AcquiringIntegrationContext', {
+    const organizationsWithContract = new Set((await find('AcquiringIntegrationContext', {
         organization: { id_in: organizationIds, deletedAt: null },
         integration: { deletedAt: null },
         status: ACQUIRING_CONTEXT_FINISHED_STATUS,
         deletedAt: null,
-    })).map(({ organization }) => organization)
-    serviceConsumers = serviceConsumers.filter(({ organization }) => organizationsWithContract.includes(organization))
+    })).map(({ organization }) => organization))
+    serviceConsumers = serviceConsumers.filter(({ organization }) => organizationsWithContract.has(organization))
+
     if (!serviceConsumers.length) {
         return false
     }
