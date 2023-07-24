@@ -22,6 +22,7 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -244,6 +245,8 @@ const NewsPage: INewsIndexPage = () => {
     const { organization } = useOrganization()
     const { canRead, isLoading: isAccessLoading } = useNewsItemsAccess()
 
+    const { GlobalHints } = useGlobalHints()
+
     const baseNewsQuery = {
         organization: { id: organization.id },
     }
@@ -264,6 +267,7 @@ const NewsPage: INewsIndexPage = () => {
                 <title>{PageTitleMessage}</title>
             </Head>
             <PageWrapper>
+                {GlobalHints}
                 <TablePageContent>
                     <Row gutter={PAGE_ROW_GUTTER} justify='space-between'>
                         <Col md={12} xs={24}>
