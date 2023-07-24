@@ -34,6 +34,7 @@ class OIDCMiddleware {
         }
 
         app.get('/oidc/interaction/:uid', setNoCache, async (req, res) => {
+            console.log('/oidc/interaction/')
             /*
                 This code is based on: https://github.com/panva/node-oidc-provider/blob/main/example/routes/express.js
 
@@ -126,9 +127,13 @@ class OIDCMiddleware {
                     }
                 }
 
+                console.log('OIDCInteraction interactionFinished', interactionDetails, result)
+
                 logger.info({ msg: 'OIDCInteraction interactionFinished', data: interactionDetails, result })
                 await provider.interactionFinished(req, res, result, { mergeWithLastSubmission: false })
             } catch (error) {
+                console.log('OIDCInteraction error', error)
+
                 logger.error({ msg: 'OIDCInteraction error', error })
                 return res.status(400).json({
                     error: 'invalid_request',
@@ -136,7 +141,9 @@ class OIDCMiddleware {
                 })
             }
         })
+
         app.use('/oidc', provider.callback())
+
         return app
     }
 }
