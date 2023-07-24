@@ -469,20 +469,6 @@ describe('BillingReceipt', () => {
 
                             expect(receipts).toHaveLength(0)
                         })
-                        // billingIntegrationContext is deprecated as it is not take part in business logic
-                        // also there is no legal way for resident to change billing or acquiring context in service consumer
-                        test.skip('If serviceConsumer context is wrong', async () => {
-                            const { residentClient, serviceConsumer, receipt: residentReceipt } = residentWithReceipt
-                            const { context: secondContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                            await updateTestServiceConsumer(admin, serviceConsumer.id, {
-                                billingIntegrationContext: { connect: { id: secondContext.id } },
-                            })
-                            const { data: { objs: receipts } } = await BillingReceipt.getAll(residentClient, {
-                                id: residentReceipt.id,
-                            }, { raw: true })
-
-                            expect(receipts).toHaveLength(0)
-                        })
                     })
                 })
                 test('Other users cannot', async () => {

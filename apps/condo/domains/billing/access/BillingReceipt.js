@@ -14,7 +14,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 //    1. With matching Property (compare by addressKey)
 //    2. For organizations with Finished AcquiringContext
 //    3. With Finished BillingContext
-async function buildResidentAccessToReceiptsQuery (userId) {
+async function getResidentReceiptAccessQuery (userId) {
     if (!userId) {
         return false
     }
@@ -78,7 +78,7 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
     if (user.isAdmin) return {}
 
     if (user.type === RESIDENT) {
-        return await buildResidentAccessToReceiptsQuery(user.id)
+        return await getResidentReceiptAccessQuery(user.id)
     } else {
         return {
             OR: [
@@ -108,6 +108,6 @@ module.exports = {
     canReadBillingReceipts,
     canManageBillingReceipts,
     canReadSensitiveBillingReceiptData,
-    buildResidentAccessToReceiptsQuery,
+    getResidentReceiptAccessQuery,
     readOnlyAccess,
 }

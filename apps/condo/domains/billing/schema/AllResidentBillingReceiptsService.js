@@ -12,7 +12,7 @@ const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
-const { buildResidentAccessToReceiptsQuery } = require('@condo/domains/billing/access/BillingReceipt')
+const { getResidentReceiptAccessQuery } = require('@condo/domains/billing/access/BillingReceipt')
 const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 
 const {
@@ -59,8 +59,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const receiptsWhere = pick(where, ['id', 'period', 'toPay', 'printableNumber'])
 
                 const userId = get(context, ['authedItem', 'id'])
-                const limitationQuery = await buildResidentAccessToReceiptsQuery(userId)
-                if (!limitationQuery) {
+                const residentReceiptAccessQuery = await getResidentReceiptAccessQuery(userId)
+                if (!residentReceiptAccessQuery) {
                     return []
                 }
                 // We can't really use getting service consumer with all access here, since we do not show billingAccount to our user
@@ -102,7 +102,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 }
                 const receiptsForConsumer = await BillingReceipt.getAll(
                     context,
-                    { AND: [joinedReceiptsQuery, limitationQuery] },
+                    { AND: [joinedReceiptsQuery, residentReceiptAccessQuery] },
                     {
                         sortBy, first, skip,
                     }
