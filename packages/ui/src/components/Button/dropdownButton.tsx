@@ -58,7 +58,7 @@ const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & Reac
         className,
     )
 
-    const dropdownWrapperClasses = classNames({
+    const dropdownOverlayClasses = classNames({
         [`${BUTTON_CLASS_PREFIX}-dropdown-wrapper`]: true,
         [`${BUTTON_CLASS_PREFIX}-dropdown-block`]: block,
     })
@@ -72,7 +72,7 @@ const DropdownButton: React.ForwardRefExoticComponent<DropdownButtonProps & Reac
                 prefixCls={DROPDOWN_CLASS_PREFIX}
                 className={`${BUTTON_CLASS_PREFIX}-dropdown`}
                 menu={{ items: menuItems }}
-                overlayClassName={dropdownWrapperClasses}
+                overlayClassName={dropdownOverlayClasses}
                 getPopupContainer={(target) => {
                     return get(target, 'parentElement') || get(document, 'body') || undefined
                 }}
