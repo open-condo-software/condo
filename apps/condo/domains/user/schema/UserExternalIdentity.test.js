@@ -9,10 +9,12 @@ const {
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToObj,
+    catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
 const {
+    UserAdmin,
     UserExternalIdentity,
     createTestUserExternalIdentity,
     makeClientWithResidentUser,
@@ -80,6 +82,31 @@ describe('UserExternalIdentity', () => {
             const [identity] = await createTestUserExternalIdentity(admin, identityRequest)
 
             assertIdentity(identity, identityRequest)
+        })
+
+        test('Validate: deleted user', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const anotherClient = await makeClientWithServiceUser()
+            const identityRequest = getRegisterRequest(anotherClient)
+
+            // soft delete user
+            await UserAdmin.update(admin, anotherClient.user.id, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.datatype.uuid() },
+                deletedAt: 'true',
+            })
+
+            await catchErrorFrom(async () => {
+                await createTestUserExternalIdentity(admin, identityRequest)
+            }, ({ errors }) => {
+                expect(errors).toMatchObject([{
+                    message: 'Unable to connect a UserExternalIdentity.user<User>',
+                    name: 'GraphQLError',
+                    extensions: {
+                        code: 'INTERNAL_SERVER_ERROR',
+                    },
+                }])
+            })
         })
     })
 
