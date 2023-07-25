@@ -81,6 +81,7 @@ const {
     sendNoReceiptsToProceedNotificationSafely,
     getNotificationMetaByErrorCode,
     isLimitExceedForBillingReceipts,
+    RETRY_COUNT,
 } = require('./index')
 
 const offset = 0
@@ -1790,6 +1791,57 @@ describe('task schema queries', () => {
             expect(notifications).toHaveLength(0)
         })
 
+        it('should set error status and send different notification message', async () => {
+            const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE
+            const notificationMeta = getNotificationMetaByErrorCode(errorCode, recurrentPaymentContext.id)
+            const errorMessage = 'An error message'
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                { ...getPaymentRequest(serviceConsumerBatch, recurrentPaymentContext), tryCount: RETRY_COUNT - 1 },
+            )
+
+            // set status
+            await setRecurrentPaymentAsFailed(adminContext, recurrentPayment, errorMessage, errorCode)
+
+            // retrieve updated recurrent payment
+            const result = await RecurrentPayment.getOne(admin, { id: recurrentPayment.id })
+
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('status')
+            expect(result).toHaveProperty('tryCount')
+            expect(result).toHaveProperty('state')
+
+            expect(result.status).toEqual(RECURRENT_PAYMENT_ERROR_STATUS)
+            expect(result.tryCount).toEqual(RETRY_COUNT)
+            expect(result.state).toMatchObject({
+                errorCode,
+                errorMessage,
+            })
+
+            const notification = await Message.getOne(adminContext, {
+                type: notificationMeta.type,
+                uniqKey: `rp_${recurrentPayment.id}_${RETRY_COUNT}_false`,
+            })
+            expect(notification).toBeDefined()
+            expect(notification).toHaveProperty('user')
+            expect(notification.user).toHaveProperty('id')
+            expect(notification.user.id).toEqual(serviceConsumerBatch.resident.user.id)
+            expect(notification).toHaveProperty('meta')
+            expect(notification.meta).toHaveProperty('data')
+
+            expect(notification.meta.data).toMatchObject({
+                recurrentPaymentContextId: recurrentPaymentContext.id,
+                recurrentPaymentId: recurrentPayment.id,
+                serviceConsumerId: serviceConsumerBatch.serviceConsumer.id,
+                residentId: serviceConsumerBatch.resident.id,
+                userId: serviceConsumerBatch.resident.user.id,
+                errorCode,
+                url: notificationMeta.url,
+                lastTry: true,
+            })
+        })
 
         it('should validate inputs', async () => {
             const errorCode = RECURRENT_PAYMENT_PROCESS_ERROR_LIMIT_EXCEEDED_CODE

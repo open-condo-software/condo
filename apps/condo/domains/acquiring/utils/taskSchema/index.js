@@ -421,12 +421,13 @@ async function sendResultMessageSafely (context, recurrentPayment, success, erro
         tryCount,
         recurrentPaymentContext: { id: recurrentContextId },
     } = recurrentPayment
-    const uniqKey = `rp_${id}_${tryCount + 1}_${success}`
+    const currentTryCount = tryCount + 1
+    const uniqKey = `rp_${id}_${currentTryCount}_${success}`
     const failedMessageMeta = getNotificationMetaByErrorCode(errorCode, recurrentContextId)
     const type = success ? RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE_TYPE
         : failedMessageMeta.type
     const url = success ? `${conf.SERVER_URL}/payments/` : failedMessageMeta.url
-    const additionalData = success ? {} : { errorCode, lastTry: tryCount >= RETRY_COUNT }
+    const additionalData = success ? {} : { errorCode, lastTry: currentTryCount >= RETRY_COUNT }
 
     // in case if error happens
     // and error meta signals to us - do not send notification to end user
