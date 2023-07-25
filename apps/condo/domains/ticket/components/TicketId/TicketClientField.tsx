@@ -47,6 +47,7 @@ export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket, ph
                     : <Typography.Text>
                         <TicketUserInfoField
                             user={clientUser}
+                            phonePrefix={phonePrefix}
                         />
                     </Typography.Text>
             }
