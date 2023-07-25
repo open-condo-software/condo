@@ -3,6 +3,7 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
+const get = require('lodash/get')
 
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -10,7 +11,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { ROLE_PERMISSION_REGEX } = require('@condo/domains/common/constants/regexps')
 const access = require('@condo/domains/miniapp/access/B2BAppPermission')
 const { PERMISSION_KEY_WRONG_FORMAT_ERROR } = require('@condo/domains/miniapp/constants')
-
+const { updateB2BAppRolesPermissions } = require('@condo/domains/miniapp/tasks')
 
 const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
     schemaDoc: 'B2BApp permissions that describe additional capabilities within the mini-application ' +
@@ -50,6 +51,24 @@ const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
             },
         },
 
+    },
+    hooks: {
+        afterChange: async ({ existingItem, updatedItem }) => {
+            const oldDeletedAt = get(existingItem, 'deletedAt')
+            const newDeletedAt = get(updatedItem, 'deletedAt')
+            const oldKey = get(existingItem, 'key', null)
+            const newKey = get(updatedItem, 'key', null)
+            const appId = get(updatedItem, 'app', null)
+
+            const isSoftDeletedHappened = newDeletedAt && !oldDeletedAt
+
+            if (isSoftDeletedHappened) {
+                await updateB2BAppRolesPermissions.delay(appId, oldKey, null)
+            } else if (newKey !== oldKey) {
+                await updateB2BAppRolesPermissions.delay(appId, oldKey, newKey)
+            }
+
+        },
     },
     kmigratorOptions: {
         constraints: [

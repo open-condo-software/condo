@@ -13,7 +13,7 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const access = require('@condo/domains/miniapp/access/B2BAppContext')
 const { NO_CONTEXT_STATUS_ERROR, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
-const { createDefaultB2BAppRole, deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
+const { createDefaultB2BAppRoles, deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
 
 const B2BAppContext = new GQLListSchema('B2BAppContext', {
     schemaDoc: 'Object which connects B2B App and Organization. Used to determine if app is connected or not, and store settings / state of app for specific organization',
@@ -102,7 +102,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             if (isSoftDeletedHappened) {
                 await deleteB2BAppRoles.delay(appId, organizationId)
             } else if (isConnectionHappened) {
-                await createDefaultB2BAppRole.delay(appId, organizationId)
+                await createDefaultB2BAppRoles.delay(appId, organizationId)
             }
         },
     },

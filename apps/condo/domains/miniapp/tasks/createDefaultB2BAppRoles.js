@@ -5,7 +5,11 @@ const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 
 const SENDER = { dv: 1, fingerprint: 'create-default-b2b-app-role-task' }
 
-async function createDefaultB2BAppRole (appId, organizationId) {
+async function createDefaultB2BAppRoles (appId, organizationId) {
+    if (!appId || !organizationId) {
+        return
+    }
+
     const { keystone: context } = await getSchemaCtx('B2BAppRole')
 
     const permissions = await find('B2BAppPermission', {
@@ -46,5 +50,5 @@ async function createDefaultB2BAppRole (appId, organizationId) {
 }
 
 module.exports = {
-    createDefaultB2BAppRole: createTask('createDefaultB2BAppRole', createDefaultB2BAppRole),
+    createDefaultB2BAppRoles: createTask('createDefaultB2BAppRoles', createDefaultB2BAppRoles),
 }

@@ -13,6 +13,10 @@ const CHUNK_SIZE = 100
 const SENDER = { dv: 1, fingerprint: 'delete-b2b-app-roles-task' }
 
 async function deleteB2BAppRoles (appId, organizationId) {
+    if (!appId || !organizationId) {
+        return
+    }
+
     const { keystone: context } = await getSchemaCtx('B2BAppRole')
 
     const existingRoles = await find('B2BAppRole', {

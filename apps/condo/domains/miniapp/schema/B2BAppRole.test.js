@@ -441,7 +441,7 @@ describe('B2BAppRole', () => {
         })
     })
     describe('Tasks', () => {
-        describe('createDefaultB2BAppRole', () => {
+        describe('createDefaultB2BAppRoles', () => {
             let user
             let managerRole
             let anotherManagerRole
@@ -622,6 +622,119 @@ describe('B2BAppRole', () => {
                 await waitFor(async () => {
                     const roles = await B2BAppRole.getAll(user, { app: { id: app.id } })
                     expect(roles).toHaveLength(0)
+                })
+            })
+        })
+        describe('updateB2BAppRolesPermissions', () => {
+            test('Must update app-related B2BAppRoles when B2BAppPermission is created, updated or soft-deleted', async () => {
+                const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
+                await createTestB2BAppAccessRight(support, serviceUser.user, app)
+                await createTestB2BAppContext(manager, app, manager.organization)
+                const [employeeRole] = await createTestB2BAppRole(manager, app, employee.role)
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(manager, {
+                        app: { id: app.id },
+                        role: { id_in: [employee.role.id, manager.role.id] },
+                    })
+                    expect(roles).toHaveLength(2)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: manager.role.id },
+                            permissions: {},
+                        }),
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: employee.role.id },
+                            permissions: {},
+                        }),
+                    ]))
+                })
+
+                // Permission created -> manager receive access, employee - not
+                const firstKey = generatePermissionKey()
+                const secondKey = generatePermissionKey()
+                const [firstPermission] = await createTestB2BAppPermission(serviceUser, app, { key: firstKey })
+                await createTestB2BAppPermission(serviceUser, app, { key: secondKey })
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(manager, {
+                        app: { id: app.id },
+                        role: { id_in: [employee.role.id, manager.role.id] },
+                    })
+                    expect(roles).toHaveLength(2)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: manager.role.id },
+                            permissions: { [firstKey]: true, [secondKey]: true },
+                        }),
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: employee.role.id },
+                            permissions: { [firstKey]: false, [secondKey]: false },
+                        }),
+                    ]))
+                })
+
+                // Manager granted access to some features
+                const [updatedRole] = await updateTestB2BAppRole(manager, employeeRole.id, {
+                    permissions: { [firstKey]: true, [secondKey]: false },
+                })
+                expect(updatedRole).toHaveProperty('permissions', { [firstKey]: true, [secondKey]: false })
+
+                // Miniapp decided to expand feature functionality, so it rename key to be more verbose
+                // Expected keys to be renamed, but values to be the same as before
+                const newKey = generatePermissionKey()
+                await updateTestB2BAppPermission(serviceUser, firstPermission.id, {
+                    key: newKey,
+                })
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(manager, {
+                        app: { id: app.id },
+                        role: { id_in: [employee.role.id, manager.role.id] },
+                    })
+                    expect(roles).toHaveLength(2)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: manager.role.id },
+                            permissions: { [newKey]: true, [secondKey]: true },
+                        }),
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: employee.role.id },
+                            permissions: { [newKey]: true, [secondKey]: false },
+                        }),
+                    ]))
+                })
+
+                // Miniapp decided to cut off feature, since it has no usage, so it deletes related permission
+                // Expected deleted permission to be deleted from roles as well
+                await updateTestB2BAppPermission(serviceUser, firstPermission.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(manager, {
+                        app: { id: app.id },
+                        role: { id_in: [employee.role.id, manager.role.id] },
+                    })
+                    expect(roles).toHaveLength(2)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: manager.role.id },
+                            permissions: { [secondKey]: true },
+                        }),
+                        expect.objectContaining({
+                            app: { id: app.id },
+                            role: { id: employee.role.id },
+                            permissions: { [secondKey]: false },
+                        }),
+                    ]))
                 })
             })
         })
