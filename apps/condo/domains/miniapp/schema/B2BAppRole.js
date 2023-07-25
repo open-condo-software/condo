@@ -81,7 +81,7 @@ const B2BAppRole = new GQLListSchema('B2BAppRole', {
                     const { resolvedData, existingItem, operation } = args
 
                     const appId = operation === 'create' ? resolvedData['app'] : existingItem['app']
-                    const permissions = await find('B2BAppPermission', { app: { id: appId } })
+                    const permissions = await find('B2BAppPermission', { app: { id: appId }, deletedAt: null })
                     const keys = permissions.map(permission => permission.key)
 
                     const schema = {

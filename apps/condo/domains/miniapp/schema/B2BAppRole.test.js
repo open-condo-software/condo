@@ -14,6 +14,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
     expectToThrowValidationFailureError,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -25,12 +26,14 @@ const {
     createTestB2BAppAccessRight,
     createTestB2BAppPermission,
     updateTestB2BAppContext,
+    updateTestB2BAppPermission,
     generatePermissionKey,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
     makeEmployeeUserClientWithAbilities,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
+    registerNewOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
@@ -362,6 +365,10 @@ describe('B2BAppRole', () => {
                     await createTestB2BAppContext(manager, app, manager.organization)
                     await createTestB2BAppPermission(admin, app, { key: firstPermissionKey })
                     await createTestB2BAppPermission(admin, app, { key: secondPermissionKey })
+                    const [permissionToDelete] = await createTestB2BAppPermission(admin, app)
+                    await updateTestB2BAppPermission(admin, permissionToDelete.id, {
+                        deletedAt: dayjs().toISOString(),
+                    })
                 })
 
                 const invalidCases = [
@@ -430,6 +437,192 @@ describe('B2BAppRole', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: APP_NOT_CONNECTED_ERROR,
+            })
+        })
+    })
+    describe('Tasks', () => {
+        describe('createDefaultB2BAppRole', () => {
+            let user
+            let managerRole
+            let anotherManagerRole
+            let nonManagerRole
+            let organization
+            beforeAll(async () => {
+                user = await makeClientWithNewRegisteredAndLoggedInUser();
+                [organization] = await registerNewOrganization(user);
+                [managerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageIntegrations: true,
+                });
+                [anotherManagerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageIntegrations: true,
+                });
+                [nonManagerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageIntegrations: false,
+                })
+            })
+            describe('Must create default B2BAppRole for all roles with "canManageIntegrations" flag', () => {
+                test('Self-connection', async () => {
+                    const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
+                    const [ctx] = await createTestB2BAppContext(user, app, organization)
+                    expect(ctx).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
+
+                    await waitFor(async () => {
+                        const roles = await B2BAppRole.getAll(user, {
+                            app: { id: app.id },
+                            role: { id_in: [managerRole.id, anotherManagerRole.id, nonManagerRole.id] },
+                        })
+                        expect(roles).toHaveLength(2)
+                        expect(roles).toEqual(expect.arrayContaining([
+                            expect.objectContaining({ role: { id: managerRole.id }, app: { id: app.id } }),
+                            expect.objectContaining({ role: { id: anotherManagerRole.id }, app: { id: app.id } }),
+                        ]))
+                    })
+                })
+                test('Connection with support', async () => {
+                    const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_IN_PROGRESS_STATUS })
+                    const [ctx] = await createTestB2BAppContext(user, app, organization)
+                    expect(ctx).toHaveProperty('status', CONTEXT_IN_PROGRESS_STATUS)
+
+                    // Creating role after connection is requested, but before its finished
+                    const [newRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                        canManageIntegrations: true,
+                    })
+
+                    await waitFor(async () => {
+                        const roles = await B2BAppRole.getAll(user, {
+                            app: { id: app.id },
+                            role: { id_in: [managerRole.id, anotherManagerRole.id, nonManagerRole.id, newRole.id] },
+                        })
+                        expect(roles).toHaveLength(0)
+                    })
+
+                    await updateTestB2BAppContext(support, ctx.id, {
+                        status: CONTEXT_FINISHED_STATUS,
+                    })
+
+                    await waitFor(async () => {
+                        const roles = await B2BAppRole.getAll(user, {
+                            app: { id: app.id },
+                            role: { id_in: [managerRole.id, anotherManagerRole.id, nonManagerRole.id, newRole.id] },
+                        })
+                        expect(roles).toHaveLength(3)
+                        expect(roles).toEqual(expect.arrayContaining([
+                            expect.objectContaining({ role: { id: managerRole.id }, app: { id: app.id } }),
+                            expect.objectContaining({ role: { id: anotherManagerRole.id }, app: { id: app.id } }),
+                            expect.objectContaining({ role: { id: newRole.id }, app: { id: app.id } }),
+                        ]))
+                    })
+                })
+            })
+            test('Must not re-create roles if some exist', async () => {
+                const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
+                const [ctx] = await createTestB2BAppContext(user, app, organization)
+                expect(ctx).toHaveProperty('status', CONTEXT_FINISHED_STATUS)
+
+                let rolesInitialIds = []
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(user, {
+                        app: { id: app.id },
+                        role: { id_in: [managerRole.id, anotherManagerRole.id, nonManagerRole.id] },
+                    })
+                    expect(roles).toHaveLength(2)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ role: { id: managerRole.id }, app: { id: app.id } }),
+                        expect.objectContaining({ role: { id: anotherManagerRole.id }, app: { id: app.id } }),
+                    ]))
+                    rolesInitialIds = roles.map(role => role.id)
+                })
+
+                expect(rolesInitialIds).toHaveLength(2)
+                // Support temporally disconnect app (for example for debts)
+                await updateTestB2BAppContext(support, ctx.id, {
+                    status: CONTEXT_IN_PROGRESS_STATUS,
+                })
+                // Meanwhile new role was created
+                const [newRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageIntegrations: true,
+                })
+                // Support resume app usage by setting status
+                await updateTestB2BAppContext(support, ctx.id, {
+                    status: CONTEXT_FINISHED_STATUS,
+                })
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(user, {
+                        app: { id: app.id },
+                        role: { id_in: [managerRole.id, anotherManagerRole.id, nonManagerRole.id, newRole.id] },
+                    })
+                    expect(roles).toHaveLength(3)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        ...rolesInitialIds.map(id => expect.objectContaining({ id })),
+                        expect.objectContaining({ role: { id: newRole.id }, app: { id: app.id } }),
+                    ]))
+                })
+            })
+            test('All created roles should have all permissions to apps', async () => {
+                const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
+                const firstKey = generatePermissionKey()
+                const secondKey = generatePermissionKey()
+                await createTestB2BAppPermission(support, app, {
+                    key: firstKey,
+                })
+                await createTestB2BAppPermission(support, app, {
+                    key: secondKey,
+                })
+                const [permissionToDelete] = await createTestB2BAppPermission(support, app)
+                await updateTestB2BAppPermission(support, permissionToDelete.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+
+                const expectedRolePermissions = {
+                    [firstKey]: true,
+                    [secondKey]: true,
+                }
+
+                await createTestB2BAppContext(user, app, organization)
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(user, {
+                        app: { id: app.id },
+                        role: { id_in: [managerRole.id, anotherManagerRole.id] },
+                    })
+                    expect(roles).toHaveLength(2)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ role: { id: managerRole.id }, app: { id: app.id }, permissions: expectedRolePermissions }),
+                        expect.objectContaining({ role: { id: anotherManagerRole.id }, app: { id: app.id }, permissions: expectedRolePermissions }),
+                    ]))
+                })
+            })
+        })
+        describe('deleteB2BAppRoles', () => {
+            test('Must delete all relative B2BAppRoles when B2BAppContext is deleted', async () => {
+                const user = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await registerNewOrganization(user)
+                const  [managerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canManageIntegrations: true,
+                })
+                const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
+                const [context] = await createTestB2BAppContext(user, app, organization)
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(user, { app: { id: app.id }, role: { id: managerRole.id } })
+                    expect(roles).toHaveLength(1)
+                    expect(roles).toEqual(expect.arrayContaining([
+                        expect.objectContaining({ app: { id: app.id }, role: { id: managerRole.id } }),
+                    ]))
+                })
+
+                const [deletedCtx] = await updateTestB2BAppContext(support, context.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                expect(deletedCtx).toHaveProperty('deletedAt')
+                expect(deletedCtx.deletedAt).not.toBeNull()
+
+                await waitFor(async () => {
+                    const roles = await B2BAppRole.getAll(user, { app: { id: app.id } })
+                    expect(roles).toHaveLength(0)
+                })
             })
         })
     })
