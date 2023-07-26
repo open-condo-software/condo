@@ -11,7 +11,7 @@ const { queryOrganizationEmployeeFor, checkOrganizationPermission } = require('@
 const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
 
 /**
- * B2B App permissions may only be read:
+ * B2B App roles may only be read:
  * 1. Admin / support
  * 2. Integration service account
  * 3. Organization employees
