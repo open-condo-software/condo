@@ -21,6 +21,7 @@
 }
 
 .desktop-menu .logo-container {
+  height: 36px;
   margin-bottom: 40px;
 
   /* -9px = Sun logo part */
@@ -88,8 +89,8 @@
   justify-content: flex-end;
   width: 100%;
   max-width: 1600px;
-  height: 96px;
-  padding: 24px 40px;
+  height: 84px;
+  padding: 24px 40px 12px;
   line-height: 1.5;
   background: var(--condo-global-color-white);
 }
