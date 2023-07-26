@@ -184,4 +184,4 @@ Controlled.args = {
 
 export const DifferentSizeOfTriggers = Template2.bind({})
 
-export const WithButton3 = DropdownButtonTemplate.bind({})
+export const WithButton = DropdownButtonTemplate.bind({})
