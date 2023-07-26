@@ -92,13 +92,12 @@ async function ticketMultipleUpdate (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write ticketMultipleUpdate serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: TICKET_MULTIPLE_UPDATE_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to ticketMultipleUpdate',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 

@@ -502,7 +502,8 @@ describe('TicketChange', () => {
                 await createTestOrganizationEmployee(admin, organization, client.user, role)
 
                 const [ticket] = await createTestTicket(client, organization, property)
-                const statusUpdatedAt = dayjs().subtract('11', 'second').toISOString()
+                const statusUpdatedAt = dayjs().subtract('20', 'second').toISOString()
+
 
                 const payload = {
                     status: { connect: { id: STATUS_IDS.IN_PROGRESS } },

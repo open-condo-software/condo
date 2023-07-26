@@ -30,7 +30,6 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
         }
     }
 
-
     await TicketChange.create(
         context.createContext({ skipAccessControl: true }),
         payload,
