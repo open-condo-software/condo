@@ -108,6 +108,7 @@ const schemas = () => [
     // NOTE: miniapps must be placed after all other schemas.
     //       "B2BAppAccess" preprocessor needs to know about all registered accesses to other schemas
     require('@condo/domains/miniapp/schema'),
+    require('@condo/domains/settings/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
 ]
 
