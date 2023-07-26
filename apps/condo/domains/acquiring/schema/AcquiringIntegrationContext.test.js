@@ -279,7 +279,6 @@ describe('AcquiringIntegrationContext', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'createAcquiringIntegrationContext',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             });
             [context] = await createTestAcquiringIntegrationContext(admin, organization, integration)
@@ -291,7 +290,6 @@ describe('AcquiringIntegrationContext', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'updateAcquiringIntegrationContext',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
         })

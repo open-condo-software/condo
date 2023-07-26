@@ -160,7 +160,6 @@ describe('BankCostItem', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'createBankCostItem',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
         })

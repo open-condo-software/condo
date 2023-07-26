@@ -288,7 +288,6 @@ describe('User utils', () => {
             'type': 'DV_VERSION_MISMATCH',
             'message': 'Wrong value for data version number',
             'mutation': 'createUser',
-            'messageForUser': '',
             'variable': ['data', 'dv'],
         })
     })

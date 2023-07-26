@@ -170,7 +170,6 @@ describe('AcquiringIntegration', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'createAcquiringIntegration',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
             const [integration] = await createTestAcquiringIntegration(admin)
@@ -181,7 +180,6 @@ describe('AcquiringIntegration', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'updateAcquiringIntegration',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
         })

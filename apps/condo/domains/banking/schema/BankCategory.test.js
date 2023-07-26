@@ -137,7 +137,6 @@ describe('BankCategory', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'createBankCategory',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
         })

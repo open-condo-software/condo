@@ -18,9 +18,6 @@ const {
     updateTestAcquiringIntegrationAccessRight,
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -235,7 +232,6 @@ describe('AcquiringIntegrationAccessRight', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'createAcquiringIntegrationAccessRight',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
             const [rights] = await createTestAcquiringIntegrationAccessRight(admin, integration, serviceUserClient.user)
@@ -246,7 +242,6 @@ describe('AcquiringIntegrationAccessRight', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'updateAcquiringIntegrationAccessRight',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
         })
