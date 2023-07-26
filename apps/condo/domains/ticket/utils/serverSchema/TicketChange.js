@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const { get, map, cloneDeep, uniq, difference } = require('lodash')
 
 const { getById } = require('@open-condo/keystone/schema')
@@ -12,12 +13,24 @@ const { TicketChange } = require('./index')
 // )
 
 const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, context }) => {
+    const newItem = { ...existingItem, ...updatedItem }
     const payload = {
         dv: 1,
         sender: updatedItem.sender,
         ticket: { connect: { id: existingItem.id } },
         ...fieldsChanges,
     }
+
+    if (newItem.statusUpdatedAt) {
+        const statusUpdatedAtDateTime = dayjs(newItem.statusUpdatedAt)
+        const statusUpdatedAtDiffFromNow = Math.abs(dayjs().diff(dayjs(statusUpdatedAtDateTime), 'second'))
+
+        if (statusUpdatedAtDiffFromNow > 10) {
+            payload.actualCreationDate = statusUpdatedAtDateTime.toISOString()
+        }
+    }
+
+
     await TicketChange.create(
         context.createContext({ skipAccessControl: true }),
         payload,
