@@ -2,9 +2,14 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Col, Row } from 'antd'
 import React from 'react'
 
-import { ActionBar as Component, Button, Typography } from '@open-condo/ui/src'
+import { ActionBar as Component, Button, Typography, Dropdown } from '@open-condo/ui/src'
 
 import { colors } from '../colors'
+
+
+const LOREM_TEXT = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus aliquid amet dolores eligendi' +
+    ' est ex, facilis, iure magnam molestias neque, possimus praesentium quidem repellat saepe similique vero vitae' +
+    ' voluptatem voluptates?'
 
 export default {
     title: 'Components/ActionBar',
@@ -45,5 +50,27 @@ WithMessage.args = {
     actions: [
         <Button type='primary' key='1'>Save</Button>,
         <Button type='secondary' key='2'>Cancel</Button>,
+    ],
+}
+
+export const WithDropdownButton = Template.bind({})
+WithDropdownButton.args = {
+    actions: [
+        <Dropdown.Button
+            items={[{ label: 'Short label' }]}
+            key='1'
+            type='primary'
+            dropdownProps={{ getPopupContainer: (target) => target.parentElement || target }}
+        >
+            Hover me 1
+        </Dropdown.Button>,
+        <Dropdown.Button
+            items={[{ label: LOREM_TEXT }]}
+            key='2'
+            type='secondary'
+            dropdownProps={{ getPopupContainer: (target) => target.parentElement || target }}
+        >
+            Hover me 2
+        </Dropdown.Button>,
     ],
 }

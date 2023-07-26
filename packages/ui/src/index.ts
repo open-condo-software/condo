@@ -9,8 +9,8 @@ export type { AlertProps } from './components/Alert'
 export { Banner } from './components/Banner'
 export type { BannerProps } from './components/Banner'
 
-export { Button, DropdownButton } from './components/Button'
-export type { ButtonProps, DropdownButtonProps } from './components/Button'
+export { Button } from './components/Button'
+export type { ButtonProps } from './components/Button'
 
 export { Card } from './components/Card'
 export type { CardProps } from './components/Card'
@@ -20,6 +20,9 @@ export type { CarouselProps, CarouselRef } from './components/Carousel'
 
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps } from './components/Checkbox'
+
+export { Dropdown } from './components/Dropdown'
+export type { DropdownProps } from './components/Dropdown'
 
 export { List } from './components/List'
 export type { ListProps } from './components/List'

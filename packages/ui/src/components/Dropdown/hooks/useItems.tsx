@@ -4,7 +4,7 @@ import React, { useMemo } from 'react'
 import { sendAnalyticsClickEvent } from '../../_utils/analytics'
 import { Space } from '../../Space'
 import { Typography } from '../../Typography'
-import { ItemType, DROPDOWN_CLASS_PREFIX } from '../dropdownButton'
+import { ItemType, DROPDOWN_CLASS_PREFIX } from '../dropdown'
 
 
 type UseItems = (items: Array<ItemType>, triggerId?: string) => Array<MenuItemType>
