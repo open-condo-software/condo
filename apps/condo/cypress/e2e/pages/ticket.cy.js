@@ -42,7 +42,7 @@ describe('Ticket',  function () {
             cy.task('keystone:createUserWithProperty').then((response) => {
                 authUserWithCookies(response)
 
-                cy.task('keystone:createTickets', { ticketAttrs: response, emergency: 10, regular: 10, paid: 10, warranty: 10 }).then(() => {
+                cy.task('keystone:createTickets', { ticketAttrs: response, emergency: 1, regular: 1, paid: 1, warranty: 1 }).then(() => {
                     const { address: propertyAddress } = response.property
 
                     const ticketView = new TicketView()
