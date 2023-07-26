@@ -178,7 +178,7 @@ function getSchemaCtx (schemaObjOrName) {
 /**
  * Outputs gql schema
  */
-function getSchema () {
+function getSchemaContexts () {
     if (SCHEMAS.size === 0) throw new Error('Schemas are not registered yet')
     const result = new Map()
     for (const [name] of SCHEMAS) {
@@ -196,7 +196,7 @@ module.exports = {
     find,
     getById,
     getByCondition,
-    getSchema,
+    getSchemaContexts,
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
