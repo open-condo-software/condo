@@ -161,6 +161,7 @@
 
     color: @condo-global-color-black;
     border: @condo-button-border-width solid @condo-global-color-gray-7;
+    transition: background-color @condo-global-transition-duration-default ease-in-out;
     .condo-btn-content-color(@condo-global-color-black);
 
     & > .condo-btn-text {
@@ -174,12 +175,12 @@
     }
 
     &:hover {
-      background: transparent;
+      background: @condo-global-color-brand-gradient-1;
       .condo-btn-content-color(@condo-global-color-green-5);
     }
 
     &:active {
-      background: transparent;
+      background: @condo-global-color-brand-gradient-1;
       .condo-btn-content-color(@condo-global-color-green-7);
     }
 
@@ -190,11 +191,13 @@
       border: @condo-button-border-width solid @condo-global-color-red-5;
 
       &:hover {
+        background: @condo-global-color-red-1;
         .condo-btn-content-color(@condo-global-color-red-7);
         .condo-btn-static-text-color(@condo-global-color-red-7);
       }
 
       &:active {
+        background: @condo-global-color-red-1;
         .condo-btn-content-color(@condo-global-color-red-5);
         .condo-btn-static-text-color(@condo-global-color-red-5);
       }
@@ -274,6 +277,11 @@
     &.condo-btn-stateless {
       &:not(.condo-btn-dangerous) {
         .condo-btn-content-color(@condo-global-color-black);
+      }
+
+      &:hover,
+      &:active {
+        background: transparent;
       }
 
       &:not(.condo-btn-dangerous):hover {
