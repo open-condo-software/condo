@@ -149,6 +149,37 @@ describe('syncUser from AppleId', () => {
         expect(identities).toHaveLength(1)
     })
 
+    it('should return nothing: have deleted user with no linked identity', async () => {
+        const identityId = faker.datatype.uuid()
+        const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()
+        const userInfo = mockUserInfo(identityId, existingUserPhone)
+
+        // soft delete user
+        await UserAdmin.softDelete(context, existingUser.id, {
+            dv: 1,
+            sender: { dv: 1, fingerprint: faker.datatype.uuid() },
+        })
+
+        // act
+        const result = await syncUser({
+            context,
+            userInfo,
+            userType: existingUser.type,
+            authedUserId: existingUser.id,
+        })
+
+        // assertions
+        expect(result).not.toBeTruthy()
+
+        // assert count of external identities
+        const identities = await UserExternalIdentityApi.getAll(context, {
+            user: { id: existingUser.id },
+            identityType: APPLE_ID_IDP_TYPE,
+        })
+
+        expect(identities).toHaveLength(0)
+    })
+
     it('should return nothing: user is not registered', async () => {
         const identityId = faker.datatype.uuid()
         const { userAttrs: { phone: existingUserPhone }, user: existingUser } = await makeClientWithRegisteredOrganization()

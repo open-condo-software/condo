@@ -53,7 +53,7 @@ const syncUser = async ({ context, userInfo, userType, authedUserId }) => {
     // case 2: user already registered and have no linked identity
     if (!isNil(authedUserId)) {
         const existed = await User.getOne(context, {
-            id: authedUserId, type: userType,
+            id: authedUserId, type: userType, deletedAt: null,
         })
         if (!isNil(existed)) {
             // proceed link & auth
