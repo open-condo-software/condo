@@ -187,6 +187,14 @@ function getSchemaContexts () {
     return result
 }
 
+/**
+ * Gets all lists that depend on list
+ */
+function getListDependencies (list) {
+    const schemas = getSchemaContexts()
+
+}
+
 module.exports = {
     GQLListSchema,
     GQLCustomSchema,
