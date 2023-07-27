@@ -69,14 +69,14 @@ const TicketChange = new GQLListSchema('TicketChange', {
 
                 const ticket = await getById('Ticket', item.ticket)
                 const userId = get(item, 'createdBy')
-                if (!ticket || !userId) return getTranslation(translations, 'ticket.TicketChanges.notice.DeletedCreatedAt.title')
+                if (!ticket || !userId) return getTranslation(translations, 'ticket.ticketChanges.notice.deletedCreatedAt.title')
 
                 const user = await getById('User', userId)
-                if (!user) return getTranslation(translations, 'ticket.TicketChanges.notice.DeletedCreatedAt.title')
-                if (user.type === RESIDENT) return getTranslation(translations, 'Contact')
+                if (!user) return getTranslation(translations, 'ticket.ticketChanges.notice.deletedCreatedAt.title')
+                if (user.type === RESIDENT) return getTranslation(translations, 'contact')
 
                 const orgId = get(ticket, 'organization', null)
-                if (!orgId) return getTranslation(translations, 'DeletedEmployee')
+                if (!orgId) return getTranslation(translations, 'deletedEmployee')
 
                 const orgEmployees = await find('OrganizationEmployee', {
                     organization: { id: orgId },
