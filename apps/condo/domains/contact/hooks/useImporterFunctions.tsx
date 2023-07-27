@@ -38,22 +38,22 @@ let rolesNameToIdMapping = {}
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
-    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
-    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
-    const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
-    const IncorrectContactNameMessage = intl.formatMessage({ id: 'errors.import.IncorrectContactName' })
-    const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitName' })
-    const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
-    const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.IncorrectEmailFormat' })
-    const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhonesFormat' })
-    const AlreadyCreatedContactMessage = intl.formatMessage({ id: 'errors.import.AlreadyCreatedContact' })
-    const AddressTitle = intl.formatMessage({ id: 'contact.import.column.Address' })
-    const UnitTitle = intl.formatMessage({ id: 'contact.import.column.Unit' })
-    const PhoneTitle = intl.formatMessage({ id: 'contact.import.column.Phone' })
-    const NameTitle = intl.formatMessage({ id: 'contact.import.column.Name' })
-    const EmailTitle = intl.formatMessage({ id: 'contact.import.column.Email' })
-    const RoleTitle = intl.formatMessage({ id: 'contact.import.column.Role' })
-    const UnitTypeTitle = intl.formatMessage({ id: 'contact.import.column.UnitType' })
+    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.incorrectRowFormat' })
+    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.addressNotFound' })
+    const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.propertyNotFound' })
+    const IncorrectContactNameMessage = intl.formatMessage({ id: 'errors.import.incorrectContactName' })
+    const IncorrectUnitNameMessage = intl.formatMessage({ id: 'errors.import.emptyUnitName' })
+    const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.emptyUnitType' })
+    const IncorrectEmailMessage = intl.formatMessage({ id: 'errors.import.incorrectEmailFormat' })
+    const IncorrectPhonesMessage = intl.formatMessage({ id: 'errors.import.incorrectPhonesFormat' })
+    const AlreadyCreatedContactMessage = intl.formatMessage({ id: 'errors.import.alreadyCreatedContact' })
+    const AddressTitle = intl.formatMessage({ id: 'contact.import.column.address' })
+    const UnitTitle = intl.formatMessage({ id: 'contact.import.column.unit' })
+    const PhoneTitle = intl.formatMessage({ id: 'contact.import.column.phone' })
+    const NameTitle = intl.formatMessage({ id: 'contact.import.column.name' })
+    const EmailTitle = intl.formatMessage({ id: 'contact.import.column.email' })
+    const RoleTitle = intl.formatMessage({ id: 'contact.import.column.role' })
+    const UnitTypeTitle = intl.formatMessage({ id: 'contact.import.column.unitType' })
     const FlatUnitTypeValue = intl.formatMessage({ id: 'ticket.field.unitType.flat' })
     const ParkingUnitTypeValue = intl.formatMessage({ id: 'ticket.field.unitType.parking' })
     const ApartmentUnitTypeValue = intl.formatMessage({ id: 'ticket.field.unitType.apartment' })
@@ -181,7 +181,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             const contactRoleId = get(rolesNameToIdMapping, String(contactRoleName).trim().toLowerCase())
             if (!contactRoleId) {
                 // The roles list loading asynchronously, so this message should build dynamically
-                errors.push(intl.formatMessage({ id: 'errors.import.IncorrectContactRole' }, { rolesList: Object.keys(rolesNameToIdMapping).join(', ') }))
+                errors.push(intl.formatMessage({ id: 'errors.import.incorrectContactRole' }, { rolesList: Object.keys(rolesNameToIdMapping).join(', ') }))
             }
         }
 

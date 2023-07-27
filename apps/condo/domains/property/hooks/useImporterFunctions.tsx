@@ -45,13 +45,13 @@ const createPropertyUnitsMap = (units, sections, floors) => {
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
-    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
-    const AddressValidationErrorMessage = intl.formatMessage({ id: 'property.warning.modal.AddressValidationErrorMsg' })
-    const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.PropertyDuplicate' })
-    const AddressLabel = intl.formatMessage({ id: 'property.import.column.Address' })
-    const UnitLabel = intl.formatMessage({ id: 'property.import.column.Units' })
-    const SectionLabel = intl.formatMessage({ id: 'property.import.column.Sections' })
-    const FloorLabel = intl.formatMessage({ id: 'property.import.column.Floors' })
+    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.addressNotFound' })
+    const AddressValidationErrorMessage = intl.formatMessage({ id: 'property.warning.modal.addressValidationErrorMsg' })
+    const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.propertyDuplicate' })
+    const AddressLabel = intl.formatMessage({ id: 'property.import.column.address' })
+    const UnitLabel = intl.formatMessage({ id: 'property.import.column.units' })
+    const SectionLabel = intl.formatMessage({ id: 'property.import.column.sections' })
+    const FloorLabel = intl.formatMessage({ id: 'property.import.column.floors' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()

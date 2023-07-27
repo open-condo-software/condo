@@ -21,7 +21,8 @@
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
     "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
-    "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js"
+    "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js",
+    "fix-i18n-translations": "node ./../../bin/fix-i18n-translations.js"
   },
   "dependencies": {
     "@2gis/mapgl": "1.28.0",

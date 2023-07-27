@@ -468,8 +468,8 @@ describe('exportTickets', () => {
 
         const empty = '—'
         const formatDate = (date) => dayjs(date).tz(timeZone).format('DD.MM.YYYY HH:mm')
-        const YesMessage = i18n('Yes', { locale })
-        const NoMessage = i18n('No', { locale })
+        const YesMessage = i18n('yes', { locale })
+        const NoMessage = i18n('no', { locale })
         const statuses = await TicketStatus.getAll(userClient, {})
         const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 

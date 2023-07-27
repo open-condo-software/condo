@@ -22,17 +22,17 @@ const COLUMNS_WIDTH = {
 
 export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
     const intl = useIntl()
-    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
+    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.number' })
     const TypeMessage = intl.formatMessage({ id: 'global.type' })
-    const TitleMessage = intl.formatMessage({ id: 'Title' })
-    const BodyMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.body' })
-    const AddressesMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.addresses' })
-    const DateMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.date' })
+    const TitleMessage = intl.formatMessage({ id: 'title' })
+    const BodyMessage = intl.formatMessage({ id: 'news.index.tableField.body' })
+    const AddressesMessage = intl.formatMessage({ id: 'news.index.tableField.addresses' })
+    const DateMessage = intl.formatMessage({ id: 'news.index.tableField.date' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
-    
+
     const renderResendNews = useCallback((_, newsItem) => {
         const isSentAt = get(newsItem, 'sentAt', null)
         if (!isSentAt) return

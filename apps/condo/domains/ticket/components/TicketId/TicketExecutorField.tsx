@@ -18,8 +18,8 @@ type TicketExecutorFieldProps = {
 
 export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
-    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
-    const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'ticket.field.EmployeeIsNullOrWasDeleted' })
+    const ExecutorMessage = intl.formatMessage({ id: 'field.executor' })
+    const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'ticket.field.employeeIsNullOrWasDeleted' })
 
     const ticketExecutorUserId = useMemo(() => get(ticket, ['executor', 'id'], null), [ticket])
     const ticketOrganizationId = useMemo(() => get(ticket, ['organization', 'id'], null), [ticket])

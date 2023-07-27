@@ -57,12 +57,12 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const IsResidentTicketValueYesMessage = intl.formatMessage({ id: 'ticket.import.value.isResidentTicket.yes' })
     const IsResidentTicketValueNoMessage = intl.formatMessage({ id: 'ticket.import.value.isResidentTicket.no' })
 
-    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
-    const IncorrectPhoneNumberFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhoneNumberFormat' })
-    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
-    const IncorrectIsResidentTicketFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectIsResidentTicketFormat' })
-    const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
-    const IncorrectPhoneAndFullNameForResidentTicketMessage = intl.formatMessage({ id: 'errors.import.IncorrectPhoneAndFullNameForResidentTicket' })
+    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.incorrectRowFormat' })
+    const IncorrectPhoneNumberFormatMessage = intl.formatMessage({ id: 'errors.import.incorrectPhoneNumberFormat' })
+    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.addressNotFound' })
+    const IncorrectIsResidentTicketFormatMessage = intl.formatMessage({ id: 'errors.import.incorrectIsResidentTicketFormat' })
+    const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.propertyNotFound' })
+    const IncorrectPhoneAndFullNameForResidentTicketMessage = intl.formatMessage({ id: 'errors.import.incorrectPhoneAndFullNameForResidentTicket' })
     const IsEmptyDetailsMessage = intl.formatMessage({ id: 'errors.import.isEmptyDetails' })
 
     const AddressLabel = intl.formatMessage({ id: 'ticket.import.column.address' })

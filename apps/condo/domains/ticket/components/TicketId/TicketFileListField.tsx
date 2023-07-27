@@ -16,7 +16,7 @@ type TicketFileListFieldProps = {
 
 export const TicketFileListField: React.FC<TicketFileListFieldProps> = ({ ticket }) => {
     const intl = useIntl()
-    const FilesFieldLabel = intl.formatMessage({ id: 'ticket.field.Files' })
+    const FilesFieldLabel = intl.formatMessage({ id: 'ticket.field.files' })
 
     const { objs: files } = TicketFile.useObjects({
         where: { ticket: { id: ticket ? ticket.id : null } },

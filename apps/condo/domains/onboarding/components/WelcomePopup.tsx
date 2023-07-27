@@ -58,7 +58,7 @@ const crossIconStyles = css`
 
 const ModalHeader = ({ handleModalClose }) => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'WelcomePopup.title' })
+    const TitleMessage = intl.formatMessage({ id: 'welcomePopup.title' })
 
     return (
         <Row justify='space-between'>

@@ -36,13 +36,13 @@ const FORM_PHONE_STYLES: React.CSSProperties = {
 function ResetPageView () {
     const intl = useIntl()
     const router = useRouter()
-    const RestorePasswordMsg = intl.formatMessage({ id: 'auth.reset.ResetPasswordTitle' })
-    const ResetTitleMsg = intl.formatMessage({ id: 'auth.ResetTitle' })
-    const InstructionsMsg = intl.formatMessage({ id: 'auth.reset.ResetHelp' })
-    const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'auth.PhoneIsNotRegistered' })
-    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.Phone' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const TooManyRequestsMsg = intl.formatMessage({ id: 'TooManyRequests' })
+    const RestorePasswordMsg = intl.formatMessage({ id: 'auth.reset.resetPasswordTitle' })
+    const ResetTitleMsg = intl.formatMessage({ id: 'auth.resetTitle' })
+    const InstructionsMsg = intl.formatMessage({ id: 'auth.reset.resetHelp' })
+    const PhoneIsNotRegisteredMsg = intl.formatMessage({ id: 'auth.phoneIsNotRegistered' })
+    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.phone' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.phone' })
+    const TooManyRequestsMsg = intl.formatMessage({ id: 'tooManyRequests' })
 
     const REGISTER_PHONE_LABEL = <label style={ { alignSelf:'end' } }>{PhoneMsg}</label>
 

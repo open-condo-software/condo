@@ -133,7 +133,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
     const ChooseReportTitle = intl.formatMessage({ id: 'property.id.propertyReport.chooseReportTitle' })
     const ReportCardWithdrawalTitle = intl.formatMessage({ id: 'property.id.propertyReport.reportCardTitle.withdrawal' })
     const ReportCardIncomeTitle = intl.formatMessage({ id: 'property.id.propertyReport.reportCardTitle.income' })
-    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const NoDataTitle = intl.formatMessage({ id: 'noData' })
 
     const { breakpoints, isMobile } = useLayoutContext()
     const router = useRouter()
@@ -401,7 +401,7 @@ interface IBankAccountReport {
 
 const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports, role }) => {
     const intl = useIntl()
-    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const NoDataTitle = intl.formatMessage({ id: 'noData' })
 
     const { user } = useAuth()
 

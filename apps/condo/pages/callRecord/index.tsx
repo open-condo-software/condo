@@ -78,7 +78,7 @@ const StartedAtFilter = ({ placeholder, field }) => {
 
 const FilterContainer = () => {
     const intl = useIntl()
-    const SearchPlaceholderMessage = intl.formatMessage({ id: 'filters.FullSearch' })
+    const SearchPlaceholderMessage = intl.formatMessage({ id: 'filters.fullSearch' })
     const StartDateMessage = intl.formatMessage({ id: 'callRecord.filters.startDate' })
     const EndDateMessage = intl.formatMessage({ id: 'callRecord.filters.endDate' })
 

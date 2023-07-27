@@ -30,10 +30,10 @@ const HeaderAction = () => {
 
 const RegisterPage: AuthPage = () => {
     const intl = useIntl()
-    const RegistrationTitleMsg = intl.formatMessage({ id: 'auth.RegistrationTitle' })
-    const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'auth.register.PhoneConfirmTokenErrorLabel' })
-    const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'auth.register.PhoneConfirmTokenErrorMessage' })
-    const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'auth.register.RestartPhoneConfirmLabel' })
+    const RegistrationTitleMsg = intl.formatMessage({ id: 'auth.registrationTitle' })
+    const PhoneConfirmTokenErrorLabel = intl.formatMessage({ id: 'auth.register.phoneConfirmTokenErrorLabel' })
+    const PhoneConfirmTokenErrorMessage = intl.formatMessage({ id: 'auth.register.phoneConfirmTokenErrorMessage' })
+    const RestartPhoneConfirmLabel = intl.formatMessage({ id: 'auth.register.restartPhoneConfirmLabel' })
     const router = useRouter()
 
     const { token, isConfirmed, tokenError, setToken, setTokenError } = useContext(RegisterContext)

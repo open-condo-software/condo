@@ -20,7 +20,7 @@ export const NotDefinedField: React.FC<INotDefinedFieldProps> = (props) => {
     } = props
 
     const intl = useIntl()
-    const NotDefinedMessage = intl.formatMessage({ id: 'errors.NotDefined' })
+    const NotDefinedMessage = intl.formatMessage({ id: 'errors.notDefined' })
 
     if (!value || Array.isArray(value) && value.length === 0) {
         return showMessage ? NotDefinedMessage : null

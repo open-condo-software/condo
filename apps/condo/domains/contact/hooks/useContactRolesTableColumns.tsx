@@ -14,8 +14,8 @@ const getTypeRenderer = (intl: IntlShape) => (organization) => intl.formatMessag
 
 export function useContactRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T>>): Array<Record<string, unknown>> {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
-    const TypeMessage = intl.formatMessage({ id: 'ContactRoles.type' })
+    const NameMessage = intl.formatMessage({ id: 'contactRoles.name' })
+    const TypeMessage = intl.formatMessage({ id: 'contactRoles.type' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)

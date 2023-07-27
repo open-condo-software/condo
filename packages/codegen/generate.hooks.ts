@@ -185,8 +185,8 @@ export function generateReactHooks<
 
     function useCount (variables: QueryVariables, options?: QueryHookOptions<IUseCountQueryReturnType, QueryVariables>) {
         const intl = useIntl()
-        const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
-        const ServerError = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+        const AccessDeniedError = intl.formatMessage({ id: 'accessError' })
+        const ServerError = intl.formatMessage({ id: 'serverErrorPleaseTryAgainLater' })
 
         const { data, error, loading, refetch, fetchMore, stopPolling } = useQuery<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>(gql.GET_COUNT_OBJS_QUERY, {
             variables,
@@ -218,8 +218,8 @@ export function generateReactHooks<
 
     function useObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const intl = useIntl()
-        const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
-        const ServerError = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
+        const AccessDeniedError = intl.formatMessage({ id: 'accessError' })
+        const ServerError = intl.formatMessage({ id: 'serverErrorPleaseTryAgainLater' })
 
         const { data, error, loading, refetch, fetchMore, stopPolling } = useQuery<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>(gql.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,

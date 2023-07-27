@@ -19,12 +19,12 @@ import {
 
 export function useEmployeeRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T>>): Array<Record<string, unknown>> {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'field.Role' })
-    const AvailableTicketsMessage = intl.formatMessage({ id: 'EmployeeRoles.availableTickets' })
-    const AllTicketsMessage = intl.formatMessage({ id: 'EmployeeRoles.availableTickets.allTickets' })
-    const TicketsBySelectedPropertiesMessage = intl.formatMessage({ id: 'EmployeeRoles.availableTickets.bySelectedProperties' })
-    const TicketsBySelectedPropertiesAndSpecializationsMessage = intl.formatMessage({ id: 'EmployeeRoles.availableTickets.bySelectedPropertiesAndSpecializations' })
-    const AssignedTicketsMessage = intl.formatMessage({ id: 'EmployeeRoles.availableTickets.assignedTickets' })
+    const NameMessage = intl.formatMessage({ id: 'field.role' })
+    const AvailableTicketsMessage = intl.formatMessage({ id: 'employeeRoles.availableTickets' })
+    const AllTicketsMessage = intl.formatMessage({ id: 'employeeRoles.availableTickets.allTickets' })
+    const TicketsBySelectedPropertiesMessage = intl.formatMessage({ id: 'employeeRoles.availableTickets.bySelectedProperties' })
+    const TicketsBySelectedPropertiesAndSpecializationsMessage = intl.formatMessage({ id: 'employeeRoles.availableTickets.bySelectedPropertiesAndSpecializations' })
+    const AssignedTicketsMessage = intl.formatMessage({ id: 'employeeRoles.availableTickets.assignedTickets' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)

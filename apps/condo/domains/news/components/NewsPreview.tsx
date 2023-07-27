@@ -85,8 +85,8 @@ const NewsPushPreviewContainer = styled.div`
 
 const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
     const intl = useIntl()
-    const CompanyNameTitle = intl.formatMessage({ id: 'MobileAppName' })
-    const NowTitle = intl.formatMessage({ id: 'Now' })
+    const CompanyNameTitle = intl.formatMessage({ id: 'mobileAppName' })
+    const NowTitle = intl.formatMessage({ id: 'now' })
 
     return (
         <NewsPushPreviewContainer>
@@ -121,9 +121,9 @@ const NewsPushPreview: INewsPushPreview = ({ title, body }) => {
 
 const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
     const intl = useIntl()
-    const NotificationFromOrganizationTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.notificationFromOrganization' })
-    const ReceivedAtTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.receivedAt' })
-    const ValidUntilTitle = intl.formatMessage({ id: 'pages.news.create.preview.app.validUntil' }, { validBefore })
+    const NotificationFromOrganizationTitle = intl.formatMessage({ id: 'news.create.preview.app.notificationFromOrganization' })
+    const ReceivedAtTitle = intl.formatMessage({ id: 'news.create.preview.app.receivedAt' })
+    const ValidUntilTitle = intl.formatMessage({ id: 'news.create.preview.app.validUntil' }, { validBefore })
 
     return (
         <AppPreviewContainer>
@@ -162,8 +162,8 @@ const NewsAppPreview: INewsPreview = ({ title, body, validBefore }) => {
 
 const NewsPreview: INewsPreview = ({ title, body, validBefore }) => {
     const intl = useIntl()
-    const PushNotificationTitle = intl.formatMessage({ id: 'PushNotification' })
-    const MobileAppTitle = intl.formatMessage({ id: 'MobileAppResident' })
+    const PushNotificationTitle = intl.formatMessage({ id: 'pushNotification' })
+    const MobileAppTitle = intl.formatMessage({ id: 'mobileAppResident' })
 
     const [activeKey, setActiveKey] = useState<NewsPreviewTabTypes>(NewsPreviewTabTypes.Push)
 

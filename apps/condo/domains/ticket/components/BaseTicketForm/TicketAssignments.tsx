@@ -55,11 +55,11 @@ const TicketAssignments = ({
     autoAssign,
 }: TicketAssignmentsProps) => {
     const intl = useIntl()
-    const TicketAssignmentTitle = intl.formatMessage({ id: 'TicketAssignment' })
-    const ExecutorLabel = intl.formatMessage({ id: 'field.Executor' })
-    const ResponsibleLabel = intl.formatMessage({ id: 'field.Responsible' })
-    const ExecutorExtra = intl.formatMessage({ id: 'field.Executor.description' })
-    const ResponsibleExtra = intl.formatMessage({ id: 'field.Responsible.description' })
+    const TicketAssignmentTitle = intl.formatMessage({ id: 'ticketAssignment' })
+    const ExecutorLabel = intl.formatMessage({ id: 'field.executor' })
+    const ResponsibleLabel = intl.formatMessage({ id: 'field.responsible' })
+    const ExecutorExtra = intl.formatMessage({ id: 'field.executor.description' })
+    const ResponsibleExtra = intl.formatMessage({ id: 'field.responsible.description' })
     const EmployeesOnPropertyMessage = intl.formatMessage({ id: 'ticket.select.group.employeesOnProperty' })
     const OtherMessage = intl.formatMessage({ id: 'ticket.select.group.other' })
     const DeletedEmployeeMessage = intl.formatMessage({ id: 'global.select.deletedEmployee' })

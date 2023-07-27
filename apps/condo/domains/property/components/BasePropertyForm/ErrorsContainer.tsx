@@ -11,7 +11,7 @@ interface IErrorsContainerProps {
 export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ address }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
     const disableUserInteraction = !address
 
     return (

@@ -22,7 +22,7 @@ const FORM_DEPENDENCIES = ['address']
 
 export const CreatePropertyForm: React.FC = () => {
     const intl = useIntl()
-    const CreatePropertyMessage = intl.formatMessage({ id: 'property.index.CreatePropertyButtonLabel' })
+    const CreatePropertyMessage = intl.formatMessage({ id: 'property.index.createPropertyButtonLabel' })
     const router = useRouter()
     const { organization, link } = useOrganization()
     const action = Property.useCreate({

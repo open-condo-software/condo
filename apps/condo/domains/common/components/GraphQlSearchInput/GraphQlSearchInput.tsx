@@ -95,8 +95,8 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     } = props
 
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'LoadingInProgress' })
-    const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })
+    const LoadingMessage = intl.formatMessage({ id: 'loadingInProgress' })
+    const NotFoundMessage = intl.formatMessage({ id: 'notFound' })
 
     const client = useApolloClient()
     const [isSearchLoading, setSearchLoading] = useState(false)

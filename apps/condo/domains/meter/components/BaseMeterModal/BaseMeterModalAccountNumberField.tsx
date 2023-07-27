@@ -16,7 +16,7 @@ import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
 
 const AccountNumberFormItem = ({ children, initialValues, rules, validateFirst = false }) => {
     const intl = useIntl()
-    const AccountNumberMessage = intl.formatMessage({ id: 'meter.AccountNumber' })
+    const AccountNumberMessage = intl.formatMessage({ id: 'meter.accountNumber' })
 
     return (
         <BaseMeterModalFormItem
@@ -40,8 +40,8 @@ const RADIO_GROUP_STYLE = { width: '100%' }
 
 const AccountNumberSelect = ({ accountNumbers, rules, disabled, validateFirst = false }) => {
     const intl = useIntl()
-    const ChooseAccountNumberMessage = intl.formatMessage({ id: 'meter.modal.ChooseAccountNumber' })
-    const CreateAccountNumber = intl.formatMessage({ id: 'meter.modal.CreateAccountNumber' })
+    const ChooseAccountNumberMessage = intl.formatMessage({ id: 'meter.modal.chooseAccountNumber' })
+    const CreateAccountNumber = intl.formatMessage({ id: 'meter.modal.createAccountNumber' })
 
     const [value, setValue] = useState(CHOOSE_ACCOUNT_RADIO_VALUE)
     const handleChange = useCallback((e) => {

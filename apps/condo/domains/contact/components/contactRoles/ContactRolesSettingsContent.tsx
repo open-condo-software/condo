@@ -32,8 +32,8 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const ContactRolesSettingsContent = () => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'ContactRoles' })
-    const AddMessage = intl.formatMessage({ id: 'ContactRoles.add' })
+    const TitleMessage = intl.formatMessage({ id: 'contactRoles' })
+    const AddMessage = intl.formatMessage({ id: 'contactRoles.add' })
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)

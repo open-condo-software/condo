@@ -47,14 +47,14 @@ export const ContactsPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'contact.PageTitle' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const EmptyListLabel = intl.formatMessage({ id: 'contact.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'contact.EmptyList.title' })
-    const CreateContact = intl.formatMessage({ id: 'AddContact' })
+    const PageTitleMessage = intl.formatMessage({ id: 'contact.pageTitle' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const EmptyListLabel = intl.formatMessage({ id: 'contact.emptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'contact.emptyList.title' })
+    const CreateContact = intl.formatMessage({ id: 'addContact' })
     const ContactsMessage = intl.formatMessage({ id: 'global.section.contacts' })
-    const ContactTitle = intl.formatMessage({ id: 'contact.ImportTitle' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
+    const ContactTitle = intl.formatMessage({ id: 'contact.importTitle' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.clickOrDragImportFileHint' })
 
     const { user } = useAuth() as { user: { id: string } }
     const router = useRouter()

@@ -21,12 +21,12 @@ export const CreateMeterReadingsActionBar = ({
     meterType,
 }) => {
     const intl = useIntl()
-    const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
-    const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
-    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const SendMetersReadingMessage = intl.formatMessage({ id: 'meter.sendMetersReading' })
+    const AddMeterMessage = intl.formatMessage({ id: 'meter.addMeter' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'fieldIsRequired' })
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
+    const UnitMessage = intl.formatMessage({ id: 'field.unitName' })
 
     return (
         <Form.Item

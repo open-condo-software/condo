@@ -163,8 +163,8 @@ const TicketTable = ({
     TicketImportButton,
 }) => {
     const intl = useIntl()
-    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'ticket.index.CancelSelectedTicket' })
-    const CountSelectedTicketLabel = intl.formatMessage({ id: 'ticket.index.CountSelectedTicket' })
+    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'ticket.index.cancelSelectedTicket' })
+    const CountSelectedTicketLabel = intl.formatMessage({ id: 'ticket.index.countSelectedTicket' })
 
     const { getTrackingWrappedCallback } = useTracking()
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
@@ -385,8 +385,8 @@ const TicketsTableContainer = ({
                     ? '/favicons/infinity.svg'
                     : `/favicons/${totalNewTicketsCount}.svg`
                 const newTitle = totalNewTicketsCount > 9
-                    ? intl.formatMessage({ id: 'pages.condo.ticket.index.manyNewTicketsTitle' })
-                    : intl.formatMessage({ id: 'pages.condo.ticket.index.fewNewTicketsTitle' }, { count: totalNewTicketsCount })
+                    ? intl.formatMessage({ id: 'ticket.index.manyNewTicketsTitle' })
+                    : intl.formatMessage({ id: 'ticket.index.fewNewTicketsTitle' }, { count: totalNewTicketsCount })
 
                 setTitleConfig({ label: newTitle, iconPath, count: totalNewTicketsCount })
                 audio.playNewItemsFetchedSound()
@@ -499,7 +499,7 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
             <Col style={ALL_TICKETS_COUNT_CONTAINER_STYLES}>
                 <Typography.Text size='large' strong>
                     {
-                        intl.formatMessage({ id: 'TicketsCount' }, {
+                        intl.formatMessage({ id: 'ticketsCount' }, {
                             ticketsCount: count.all.count,
                         })
                     }
@@ -569,7 +569,7 @@ const AppliedFiltersCounter = styled.div`
 `
 const FiltersButton = ({ appliedFiltersCount, setIsMultipleFiltersModalVisible }) => {
     const intl = useIntl()
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'filtersLabel' })
 
     const handleOpenMultipleFilter = useCallback(() => {
         setIsMultipleFiltersModalVisible(true)
@@ -604,12 +604,12 @@ const RESET_FILTERS_BUTTON_STYLES: CSSProperties = { padding: 0 }
 
 const FiltersContainer = ({ filterMetas }) => {
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const EmergenciesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.EmergenciesLabel' })
-    const RegularLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.RegularLabel' })
-    const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
-    const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
-    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const EmergenciesLabel = intl.formatMessage({ id: 'ticket.index.emergenciesLabel' })
+    const RegularLabel = intl.formatMessage({ id: 'ticket.index.regularLabel' })
+    const WarrantiesLabel = intl.formatMessage({ id: 'ticket.index.warrantiesLabel' })
+    const ReturnedLabel = intl.formatMessage({ id: 'ticket.index.returnedLabel' })
+    const PaidLabel = intl.formatMessage({ id: 'ticket.index.paidLabel' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -792,13 +792,13 @@ export const TicketsPageContent = ({
     error,
 }): JSX.Element => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'ticket.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'ticket.EmptyList.title' })
-    const CreateTicket = intl.formatMessage({ id: 'CreateTicket' })
+    const EmptyListLabel = intl.formatMessage({ id: 'ticket.emptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'ticket.emptyList.title' })
+    const CreateTicket = intl.formatMessage({ id: 'createTicket' })
     const TicketsMessage = intl.formatMessage({ id: 'global.section.tickets' })
-    const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'pages.condo.ticket.import.TicketReading.objectsName.many.genitive' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
+    const TicketReadingObjectsNameManyGenitiveMessage = intl.formatMessage({ id: 'ticket.import.ticketReading.objectsName.many.genitive' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.clickOrDragImportFileHint' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -900,9 +900,9 @@ export const TicketsPageContent = ({
 
 export const TicketTypeFilterSwitch = ({ ticketFilterQuery }) => {
     const intl = useIntl()
-    const AllTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.all' })
-    const OwnTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
-    const FavoriteTicketsMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
+    const AllTicketsMessage = intl.formatMessage({ id: 'ticket.filters.ticketType.all' })
+    const OwnTicketsMessage = intl.formatMessage({ id: 'ticket.filters.ticketType.own' })
+    const FavoriteTicketsMessage = intl.formatMessage({ id: 'ticket.filters.ticketType.favorite' })
 
     const { user } = useAuth()
     const { userFavoriteTicketsCount } = useFavoriteTickets()
@@ -1021,7 +1021,7 @@ const EMPTY_TICKETS_ROW_STYLE: CSSProperties = { height: '100%' }
 
 const TicketsPage: ITicketIndexPage = () => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.index.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'ticket.index.pageTitle' })
     const CallRecordsLogMessage = intl.formatMessage({ id: 'callRecord.index.title' })
 
     const { ticketFilterQuery, ticketFilterQueryLoading } = useTicketVisibility()

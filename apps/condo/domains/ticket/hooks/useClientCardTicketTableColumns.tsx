@@ -22,12 +22,12 @@ const renderTicketDetails = getTicketDetailsRender()
 
 export function useClientCardTicketTableColumns (tickets) {
     const intl = useIntl()
-    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
-    const DateMessage = intl.formatMessage({ id: 'Date' })
-    const StatusMessage = intl.formatMessage({ id: 'Status' })
-    const DescriptionMessage = intl.formatMessage({ id: 'Description' })
-    const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.number' })
+    const DateMessage = intl.formatMessage({ id: 'date' })
+    const StatusMessage = intl.formatMessage({ id: 'status' })
+    const DescriptionMessage = intl.formatMessage({ id: 'description' })
+    const ClassifierTitle = intl.formatMessage({ id: 'classifier' })
+    const AddressMessage = intl.formatMessage({ id: 'field.address' })
     const LastCommentMessage = intl.formatMessage({ id: 'phone.table.lastComment' })
 
     const router = useRouter()

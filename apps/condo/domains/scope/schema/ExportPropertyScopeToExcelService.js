@@ -32,10 +32,10 @@ const ERRORS = {
 }
 
 const mapEmployeesToExcelRow = (employees, employeesSpecializations, locale) => {
-    const SpecializationsCountMessage = i18n('employee.SpecializationsCount', { locale })
-    const AllSpecializationsMessage = i18n('employee.AllSpecializations', { locale })
+    const SpecializationsCountMessage = i18n('employee.specializationsCount', { locale })
+    const AllSpecializationsMessage = i18n('employee.allSpecializations', { locale })
     const BlockedMessage = i18n('employee.isBlocked', { locale })
-    const AndMessage = i18n('And', { locale })
+    const AndMessage = i18n('and', { locale })
 
     return employees
         .map(employee => {

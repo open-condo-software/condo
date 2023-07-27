@@ -28,13 +28,13 @@ const PARAGRAPH_STYLES: CSSProperties = { margin: 0 }
 
 const TicketPropertyHintIdPage = () => {
     const intl = useIntl()
-    const TicketPropertyHintTitleMessage = intl.formatMessage({ id: 'Hint' })
+    const TicketPropertyHintTitleMessage = intl.formatMessage({ id: 'hint' })
     const NameMessage  = intl.formatMessage({ id: 'property.section.form.name' })
-    const BuildingsMessage = intl.formatMessage({ id: 'property.index.TableField.Buildings' })
-    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
-    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'settings.hint.form.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'property.form.ConfirmDeleteMessage' })
+    const BuildingsMessage = intl.formatMessage({ id: 'property.index.tableField.buildings' })
+    const UpdateMessage = intl.formatMessage({ id: 'edit' })
+    const DeleteMessage = intl.formatMessage({ id: 'delete' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'settings.hint.form.confirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'property.form.confirmDeleteMessage' })
 
     const router = useRouter()
     const { link } = useOrganization()

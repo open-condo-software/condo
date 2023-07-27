@@ -26,8 +26,8 @@ const MULTIPLE_SELECT_STYLE: CSSProperties = { width: '100%' }
 
 function FilterModalBaseClassifierSelect ({ form, type }) {
     const intl = useIntl()
-    const SelectMessage = intl.formatMessage({ id: 'Select' })
-    const LoadingMessage = intl.formatMessage({ id: 'LoadingInProgress' })
+    const SelectMessage = intl.formatMessage({ id: 'select' })
+    const LoadingMessage = intl.formatMessage({ id: 'loadingInProgress' })
 
     const client = useApolloClient()
     const ClassifierLoader = useMemo(() => new ClassifiersQueryLocal(client), [client])

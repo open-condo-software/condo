@@ -10,10 +10,10 @@ import { Meter } from '@condo/domains/meter/utils/clientSchema'
 
 export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null ) => {
     const intl = useIntl()
-    const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'meter.MeterWithSameNumberIsExist' })
-    const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'meter.MeterWithSameAccountNumberIsExist' })
-    const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'meter.СanNotBeEarlierThanInstallation' })
-    const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'meter.CanNotBeEarlierThanFirstVerification' })
+    const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'meter.meterWithSameNumberIsExist' })
+    const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'meter.meterWithSameAccountNumberIsExist' })
+    const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'meter.сanNotBeEarlierThanInstallation' })
+    const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'meter.canNotBeEarlierThanFirstVerification' })
 
     const { refetch } = Meter.useObjects({
         where: {

@@ -107,7 +107,7 @@ export const MetersForm = ({
     setNewMeterReadings,
 }) => {
     const intl = useIntl()
-    const MetersAndReadingsMessage = intl.formatMessage({ id: 'meter.create.MetersAndReadings' })
+    const MetersAndReadingsMessage = intl.formatMessage({ id: 'meter.create.metersAndReadings' })
 
     const { breakpoints } = useLayoutContext()
     const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
@@ -196,13 +196,13 @@ const FORM_ITEM_WRAPPER_COLUMN_STYLE: ColProps = { style: { width: '100%', paddi
 
 export const CreateMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
-    const PromptTitle = intl.formatMessage({ id: 'meter.warning.modal.Title' })
-    const PromptHelpMessage = intl.formatMessage({ id: 'meter.warning.modal.HelpMessage' })
-    const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
-    const MeterReadingsFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.MeterReadingsFromResident' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
+    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.address' })
+    const AddressNotFoundContent = intl.formatMessage({ id: 'field.address.notFound' })
+    const PromptTitle = intl.formatMessage({ id: 'meter.warning.modal.title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'meter.warning.modal.helpMessage' })
+    const ClientInfoMessage = intl.formatMessage({ id: 'clientInfo' })
+    const MeterReadingsFromResidentMessage = intl.formatMessage({ id: 'ticket.title.meterReadingsFromResident' })
 
     const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
@@ -386,7 +386,7 @@ export const PropertyMetersForm = ({
     setNewMeterReadings,
 }) => {
     const intl = useIntl()
-    const MetersAndReadingsMessage = intl.formatMessage({ id: 'pages.condo.meter.create.MetersAndReadings' })
+    const MetersAndReadingsMessage = intl.formatMessage({ id: 'meter.create.metersAndReadings' })
 
     const { breakpoints } = useLayoutContext()
     const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
@@ -468,11 +468,11 @@ export const PropertyMetersForm = ({
 
 export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const intl = useIntl()
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
-    const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
-    const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
+    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.address' })
+    const AddressNotFoundContent = intl.formatMessage({ id: 'field.address.notFound' })
+    const PromptTitle = intl.formatMessage({ id: 'meter.warning.modal.title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'meter.warning.modal.helpMessage' })
 
     const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter)
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)

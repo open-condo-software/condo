@@ -14,7 +14,7 @@ const CONTENT_GUTTER: RowProps['gutter'] = [0, 14]
 
 export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps) => {
     const intl = useIntl()
-    const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.ExtraTitle' })
+    const ExtraTitleMessage = intl.formatMessage({ id: 'component.statscard.extraTitle' })
 
     const ref = React.createRef<HTMLDivElement>()
     const [isContentOverflow, setIsContentOverflow] = React.useState(false)

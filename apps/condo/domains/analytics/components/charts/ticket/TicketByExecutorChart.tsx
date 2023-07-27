@@ -16,7 +16,7 @@ const mapperInstance = TicketHorizontalBarDataMapper([TicketGroupBy.Status, Tick
 const TicketByExecutorChart: ITicketChartCard = ({ data }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
-    const TicketsByExecutor = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
+    const TicketsByExecutor = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.groupByFilter.user' })
 
     return (
         <Row gutter={[0, 16]}>

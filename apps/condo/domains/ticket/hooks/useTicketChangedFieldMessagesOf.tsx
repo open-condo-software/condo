@@ -113,29 +113,29 @@ const addLink = (ticketChange, fieldId, value, type: TicketChangeFieldMessageTyp
 
 export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfType = (ticketChange) => {
     const intl = useIntl()
-    const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
-    const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
-    const ClientNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName' })
-    const StatusDisplayNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.statusDisplayName' })
-    const AssigneeMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.assignee' })
-    const ExecutorMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.executor' })
-    const ClassifierMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.classifier' })
-    const AddressMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.address' })
-    const DeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deadline' })
-    const DeferredUntilMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.deferredUntil' })
-    const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.source' })
-    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident' })
-    const DeclineTicketByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.declineTicketByResident.status' })
-    const FeedbackValueMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackValue' })
-    const FeedbackCommentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackComment' })
-    const FeedbackAdditionalOptionsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.feedbackAdditionalOptions' })
-    const QualityControlValueMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlValue' })
-    const QualityControlCommentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlComment' })
-    const QualityControlAdditionalOptionsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlAdditionalOptions' })
+    const ClientPhoneMessage = intl.formatMessage({ id: 'ticket.ticketChanges.clientPhone' })
+    const DetailsMessage = intl.formatMessage({ id: 'ticket.ticketChanges.details' })
+    const ClientNameMessage = intl.formatMessage({ id: 'ticket.ticketChanges.clientName' })
+    const StatusDisplayNameMessage = intl.formatMessage({ id: 'ticket.ticketChanges.statusDisplayName' })
+    const AssigneeMessage = intl.formatMessage({ id: 'ticket.ticketChanges.assignee' })
+    const ExecutorMessage = intl.formatMessage({ id: 'ticket.ticketChanges.executor' })
+    const ClassifierMessage = intl.formatMessage({ id: 'ticket.ticketChanges.classifier' })
+    const AddressMessage = intl.formatMessage({ id: 'ticket.ticketChanges.address' })
+    const DeadlineMessage = intl.formatMessage({ id: 'ticket.ticketChanges.deadline' })
+    const DeferredUntilMessage = intl.formatMessage({ id: 'ticket.ticketChanges.deferredUntil' })
+    const SourceMessage = intl.formatMessage({ id: 'ticket.ticketChanges.source' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'ticket.ticketChanges.canReadByResident' })
+    const DeclineTicketByResidentMessage = intl.formatMessage({ id: 'ticket.ticketChanges.declineTicketByResident.status' })
+    const FeedbackValueMessage = intl.formatMessage({ id: 'ticket.ticketChanges.feedbackValue' })
+    const FeedbackCommentMessage = intl.formatMessage({ id: 'ticket.ticketChanges.feedbackComment' })
+    const FeedbackAdditionalOptionsMessage = intl.formatMessage({ id: 'ticket.ticketChanges.feedbackAdditionalOptions' })
+    const QualityControlValueMessage = intl.formatMessage({ id: 'ticket.ticketChanges.qualityControlValue' })
+    const QualityControlCommentMessage = intl.formatMessage({ id: 'ticket.ticketChanges.qualityControlComment' })
+    const QualityControlAdditionalOptionsMessage = intl.formatMessage({ id: 'ticket.ticketChanges.qualityControlAdditionalOptions' })
 
-    const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
-    const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
-    const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
+    const IsPaidMessage = intl.formatMessage({ id: 'ticket.ticketChanges.ticketType' })
+    const IsEmergencyMessage = intl.formatMessage({ id: 'ticket.ticketChanges.ticketType' })
+    const IsWarrantyMessage = intl.formatMessage({ id: 'ticket.ticketChanges.ticketType' })
 
     const FeedbackBadMessage = intl.formatMessage({ id: 'ticket.feedback.bad' })
     const FeedbackGoodMessage = intl.formatMessage({ id: 'ticket.feedback.good' })
@@ -168,7 +168,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     const { objs: ticketStatuses } = TicketStatus.useObjects({})
 
     const fields = [
-        ['canReadByResident', CanReadByResidentMessage, { change: 'pages.condo.ticket.TicketChanges.canReadByResident.change' }],
+        ['canReadByResident', CanReadByResidentMessage, { change: 'ticket.TicketChanges.canReadByResident.change' }],
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage],
         ['clientName', ClientNameMessage],
@@ -177,37 +177,37 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
         ['isWarranty', IsWarrantyMessage],
         ['statusDisplayName', StatusDisplayNameMessage],
         ['propertyDisplayName', AddressMessage],
-        ['assigneeDisplayName', AssigneeMessage, { add: 'pages.condo.ticket.TicketChanges.assignee.add' }],
-        ['executorDisplayName', ExecutorMessage, { add: 'pages.condo.ticket.TicketChanges.executor.add', remove: 'pages.condo.ticket.TicketChanges.executor.remove' }],
+        ['assigneeDisplayName', AssigneeMessage, { add: 'ticket.TicketChanges.assignee.add' }],
+        ['executorDisplayName', ExecutorMessage, { add: 'ticket.TicketChanges.executor.add', remove: 'ticket.TicketChanges.executor.remove' }],
         ['classifierDisplayName', ClassifierMessage],
         ['deadline', DeadlineMessage],
         ['deferredUntil', DeferredUntilMessage],
-        ['statusReopenedCounter', '', { change: 'pages.condo.ticket.TicketChanges.statusReopenedCounter.change' }],
+        ['statusReopenedCounter', '', { change: 'ticket.TicketChanges.statusReopenedCounter.change' }],
         ['sourceDisplayName', SourceMessage],
         ['feedbackValue', FeedbackValueMessage],
         ['feedbackAdditionalOptions', FeedbackAdditionalOptionsMessage], // NOTE: may display options that are not available in the CRM, but are available in the API
         ['feedbackComment', FeedbackCommentMessage],
         ['qualityControlValue', QualityControlValueMessage],
         ['qualityControlAdditionalOptions', QualityControlAdditionalOptionsMessage], // NOTE: may display options that are not available in the CRM, but are available in the API
-        ['qualityControlComment', QualityControlCommentMessage, { add: 'pages.condo.ticket.TicketChanges.qualityControlComment.add' }],
+        ['qualityControlComment', QualityControlCommentMessage, { add: 'ticket.TicketChanges.qualityControlComment.add' }],
     ]
 
     const BooleanToString = {
         canReadByResident: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.false' }),
+            'true': intl.formatMessage({ id: 'ticket.ticketChanges.canReadByResident.true' }),
+            'false': intl.formatMessage({ id: 'ticket.ticketChanges.canReadByResident.false' }),
         },
         isPaid: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+            'true': intl.formatMessage({ id: 'ticket.ticketChanges.isPaid.true' }),
+            'false': intl.formatMessage({ id: 'ticket.ticketChanges.isPaid.false' }),
         },
         isEmergency: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.false' }),
+            'true': intl.formatMessage({ id: 'ticket.ticketChanges.isEmergency.true' }),
+            'false': intl.formatMessage({ id: 'ticket.ticketChanges.isEmergency.false' }),
         },
         isWarranty: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isWarranty.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isWarranty.false' }),
+            'true': intl.formatMessage({ id: 'ticket.ticketChanges.isWarranty.true' }),
+            'false': intl.formatMessage({ id: 'ticket.ticketChanges.isWarranty.false' }),
         },
     }
 
@@ -334,7 +334,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 <>
                     <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.boolean.change' }, values)}
+                    {intl.formatMessage({ id: customMessages.change || 'ticket.TicketChanges.boolean.change' }, values)}
                 </>
             )
         }
@@ -352,7 +352,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
         }
 
         if (isAutoCloseTicketChanges(ticketChange)) {
-            return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoCloseTicket' }, { status: formattedValueTo })
+            return intl.formatMessage({ id: 'ticket.ticketChanges.autoCloseTicket' }, { status: formattedValueTo })
         }
 
         if (isValueFromNotEmpty && isValueToNotEmpty) {
@@ -360,7 +360,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 <>
                     <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.change' }, values)}
+                    {intl.formatMessage({ id: customMessages.change || 'ticket.TicketChanges.change' }, values)}
                 </>
             )
         } else if (isValueToNotEmpty) { // only "to" part
@@ -368,7 +368,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 <>
                     <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.add || 'pages.condo.ticket.TicketChanges.add' }, values)}
+                    {intl.formatMessage({ id: customMessages.add || 'ticket.TicketChanges.add' }, values)}
                 </>
             )
         } else if (isValueFromNotEmpty) {
@@ -376,7 +376,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 <>
                     <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
-                    {intl.formatMessage({ id: customMessages.remove || 'pages.condo.ticket.TicketChanges.remove' }, values)}
+                    {intl.formatMessage({ id: customMessages.remove || 'ticket.TicketChanges.remove' }, values)}
                 </>
             )
         }
@@ -386,21 +386,21 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
         const formatterFor = {
             deferredUntil: (field, ticketChange) => {
                 const valueDeferredUntilFrom = formatField(field, ticketChange['deferredUntilFrom'], TicketChangeFieldMessageType.From)
-                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.deferredUntil' }, { deferredUntil: valueDeferredUntilFrom })
+                return intl.formatMessage({ id: 'ticket.ticketChanges.autoReopenTicket.deferredUntil' }, { deferredUntil: valueDeferredUntilFrom })
             },
             statusDisplayName: (field, ticketChange) => {
                 const valueStatusTo = formatField(field, ticketChange['statusDisplayNameTo'], TicketChangeFieldMessageType.To)
-                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.status' }, { status: valueStatusTo })
+                return intl.formatMessage({ id: 'ticket.ticketChanges.autoReopenTicket.status' }, { status: valueStatusTo })
             },
             assigneeDisplayName: (field, ticketChange) => {
                 const valueAssigneeFrom = { name: ticketChange['assigneeDisplayNameFrom'], id: ticketChange['assigneeIdFrom'] }
-                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.resetAssignee' }, {
+                return intl.formatMessage({ id: 'ticket.ticketChanges.autoReopenTicket.resetAssignee' }, {
                     assignee: <Link href={`/employee/${valueAssigneeFrom.id}`}>{valueAssigneeFrom.name}</Link>,
                 })
             },
             executorDisplayName: (field, ticketChange) => {
                 const valueExecutorFrom = { name: ticketChange['executorDisplayNameFrom'], id: ticketChange['executorIdFrom'] }
-                return intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.autoReopenTicket.resetExecutor' }, {
+                return intl.formatMessage({ id: 'ticket.ticketChanges.autoReopenTicket.resetExecutor' }, {
                     executor: <Link href={`/employee/${valueExecutorFrom.id}`}>{valueExecutorFrom.name}</Link>,
                 })
             },

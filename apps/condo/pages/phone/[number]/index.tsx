@@ -194,12 +194,12 @@ const AddAddressCard = ({ onClick }) => {
 
 const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType, isEmployee }) => {
     const intl = useIntl()
-    const ContactMessage = intl.formatMessage({ id: 'Contact' })
+    const ContactMessage = intl.formatMessage({ id: 'contact' })
     const NotResidentMessage = intl.formatMessage({ id: 'ticket.filters.isResidentContact.false' })
-    const EmployeeMessage = intl.formatMessage({ id: 'Employee' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const FlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
+    const EmployeeMessage = intl.formatMessage({ id: 'employee' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' })
+    const FlatMessage = intl.formatMessage({ id: 'field.shortFlatNumber' })
+    const ParkingMessage = intl.formatMessage({ id: 'field.unitType.prefix.parking' })
 
     const addressStreetRef = useRef<HTMLDivElement>()
     const addressPostfixRef = useRef<HTMLDivElement>()
@@ -265,7 +265,7 @@ const ClientAddressCard = ({ onClick, active, type, property, unitName, unitType
 //#region Contact and Not resident client Tab content
 const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, showOrganizationMessage, phone }) => {
     const intl = useIntl()
-    const CallRecordsLogMessage = intl.formatMessage({ id: 'pages.clientCard.callRecordsLog' })
+    const CallRecordsLogMessage = intl.formatMessage({ id: 'clientCard.callRecordsLog' })
 
     const name = get(contact, 'name', get(lastTicket, 'clientName'))
     const email = get(contact, 'email', get(lastTicket, 'clientEmail'))
@@ -371,7 +371,7 @@ const ClientCardTabContent = ({
     const intl = useIntl()
     const ShowAllPropertyTicketsMessage = intl.formatMessage({ id: 'clientCard.showAllPropertyTickets' })
     const ContactTicketsMessage = intl.formatMessage({ id: 'clientCard.contactTickets' })
-    const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
+    const CreateTicketMessage = intl.formatMessage({ id: 'createTicket' })
     const EditContactMessage = intl.formatMessage({ id: 'clientCard.editContact' })
 
     const router = useRouter()
@@ -677,11 +677,11 @@ const ClientCardPageContent = ({
     showOrganizationMessage = false,
 }) => {
     const intl = useIntl()
-    const ClientCardTitle = intl.formatMessage({ id: 'clientCard.Title' }, {
+    const ClientCardTitle = intl.formatMessage({ id: 'clientCard.title' }, {
         phone: renderPhone(phoneNumber),
     })
     const phoneLink = phoneNumberPrefix ? `tel:${phoneNumberPrefix}${phoneNumber}` : `tel:${phoneNumber}`
-    const ClientCardHeader = intl.formatMessage({ id: 'pages.clientCard.Title' }, {
+    const ClientCardHeader = intl.formatMessage({ id: 'clientCard.title' }, {
         phone: (
             <Typography.Link href={phoneLink}>
                 {renderPhone(phoneNumber)}

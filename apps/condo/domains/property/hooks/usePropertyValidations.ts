@@ -12,8 +12,8 @@ const MIN_YEAR_OF_CONSTRUCTION = 1500
 
 export const usePropertyValidations = ({ organizationId, addressValidatorError, address }) => {
     const intl = useIntl()
-    const SamePropertyErrorMsg = intl.formatMessage({ id: 'property.warning.modal.SamePropertyErrorMsg' })
-    const WrongYearErrorMsg = intl.formatMessage({ id: 'property.form.YearValidationError' })
+    const SamePropertyErrorMsg = intl.formatMessage({ id: 'property.warning.modal.samePropertyErrorMsg' })
+    const WrongYearErrorMsg = intl.formatMessage({ id: 'property.form.yearValidationError' })
 
     const { refetch } = Property.useObjects({
         where: {

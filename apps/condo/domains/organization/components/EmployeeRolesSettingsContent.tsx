@@ -30,8 +30,8 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const EmployeeRolesSettingsContent = () => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
-    const EditProhibitedMessage = intl.formatMessage({ id: 'EditProhibited' })
+    const TitleMessage = intl.formatMessage({ id: 'employeeRoles' })
+    const EditProhibitedMessage = intl.formatMessage({ id: 'editProhibited' })
 
     const router = useRouter()
     const { offset } = parseQuery(router.query)

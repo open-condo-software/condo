@@ -36,7 +36,7 @@ interface IUseContactExportToExcelTask {
 
 export const useContactExportToExcelTask: IUseContactExportToExcelTask = (props) => {
     const intl = useIntl()
-    const ExportAsExcelTitle = intl.formatMessage({ id: 'ExportAsExcel' })
+    const ExportAsExcelTitle = intl.formatMessage({ id: 'exportAsExcel' })
 
     const { ContactExportTask: TaskUIInterface } = useContactExportTaskUIInterface()
 

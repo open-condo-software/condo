@@ -23,7 +23,7 @@ export const getAddressCellRender = (property: Property, DeletedMessage?: string
 
 export const getManyPropertiesAddressRender = (search: FilterValue) => {
     return function render (intl, properties) {
-        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+        const DeletedMessage = intl.formatMessage({ id: 'deleted' })
 
         if (isEmpty(properties)) {
             return '—'
@@ -35,9 +35,9 @@ export const getManyPropertiesAddressRender = (search: FilterValue) => {
 
 export const getOneAddressAndPropertiesCountRender = (search: FilterValue) => {
     return function render (intl, properties) {
-        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+        const DeletedMessage = intl.formatMessage({ id: 'deleted' })
         const MoreAddressesMessage = intl.formatMessage({ id: 'settings.propertyScope.propertiesCount' })
-        const AndMessage = intl.formatMessage({ id: 'And' })
+        const AndMessage = intl.formatMessage({ id: 'and' })
 
         if (isEmpty(properties)) {
             return '—'

@@ -12,7 +12,7 @@ const TITLE_STYLES: CSSProperties = { margin: 0, fontWeight: 'bold' }
 
 export const EmployeeUpdatePage = () => {
     const intl = useIntl()
-    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
+    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.updateTitle' })
 
     return (
         <>

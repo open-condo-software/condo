@@ -48,9 +48,9 @@ const NotResidentFields: React.FC<INotResidentFieldsFieldsProps> = ({
     activeTab,
 }) => {
     const intl = useIntl()
-    const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
-    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
-    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const NamePlaceholder = intl.formatMessage({ id: 'contact.contact.contactsEditor.name.placeholder' })
+    const FullNameLabel = intl.formatMessage({ id: 'contact.contact.contactsEditor.name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.contact.contactsEditor.phone' })
 
     const [value, setValue] = useState(initialValue)
 

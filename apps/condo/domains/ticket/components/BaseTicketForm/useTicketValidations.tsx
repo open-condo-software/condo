@@ -21,14 +21,14 @@ export function useTicketValidations (): IFormFieldsRuleMap {
         property: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Property.requiredError' }),
+                message: intl.formatMessage({ id: 'field.property.requiredError' }),
             },
         ],
         unitName: [],
         source: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'SelectIsRequired' }),
+                message: intl.formatMessage({ id: 'selectIsRequired' }),
             },
         ],
         clientName: [
@@ -36,20 +36,20 @@ export function useTicketValidations (): IFormFieldsRuleMap {
                 required: true,
                 min: 2,
                 type: 'string',
-                message: intl.formatMessage({ id: 'field.ClientName.minLengthError' }),
+                message: intl.formatMessage({ id: 'field.clientName.minLengthError' }),
             },
         ],
         clientPhone: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Phone.requiredError' }),
+                message: intl.formatMessage({ id: 'field.phone.requiredError' }),
             },
             {
                 validator: (_, value) => {
                     const phone = value.replace(NON_DIGITS_REGEXP, '')
 
                     if (phone.length > MAX_PHONE_LENGTH || phone.length < MIN_PHONE_LENGTH) {
-                        return Promise.reject(new Error(intl.formatMessage({ id: 'field.Phone.lengthError' })))
+                        return Promise.reject(new Error(intl.formatMessage({ id: 'field.phone.lengthError' })))
                     }
 
                     return Promise.resolve()
@@ -59,25 +59,25 @@ export function useTicketValidations (): IFormFieldsRuleMap {
         clientEmail: [
             {
                 type: 'email',
-                message: intl.formatMessage({ id: 'auth.EmailIsNotValid' }),
+                message: intl.formatMessage({ id: 'auth.emailIsNotValid' }),
             },
         ],
         placeClassifier: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
+                message: intl.formatMessage({ id: 'field.classifier.requiredError' }),
             },
         ],
         classifierRule: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
+                message: intl.formatMessage({ id: 'field.classifier.requiredError' }),
             },
         ],
         categoryClassifier: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Classifier.requiredError' }),
+                message: intl.formatMessage({ id: 'field.classifier.requiredError' }),
             },
         ],
         details: [
@@ -85,14 +85,14 @@ export function useTicketValidations (): IFormFieldsRuleMap {
                 whitespace: true,
                 required: true,
                 min: MIN_DESCRIPTION_LENGTH,
-                message: intl.formatMessage({ id: 'field.Description.lengthError' }),
+                message: intl.formatMessage({ id: 'field.description.lengthError' }),
             },
         ],
         executor: [],
         assignee: [
             {
                 required: true,
-                message: intl.formatMessage({ id: 'field.Assignee.requiredError' }),
+                message: intl.formatMessage({ id: 'field.assignee.requiredError' }),
             },
         ],
     }

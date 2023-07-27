@@ -16,7 +16,7 @@ const mapperInstance = TicketHorizontalBarDataMapper([TicketGroupBy.Status, Tick
 const TicketByPropertyChart: ITicketChartCard = ({ data }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
-    const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
+    const TicketsByPropertyTitle = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.groupByFilter.property' })
 
     return (
         <Row gutter={[0, 16]}>

@@ -30,7 +30,7 @@ type TicketClassifierFieldProps = {
 
 export const TicketClassifierField: React.FC<TicketClassifierFieldProps> = ({ ticket }) => {
     const intl = useIntl()
-    const ClassifierMessage = intl.formatMessage({ id: 'Classifier' })
+    const ClassifierMessage = intl.formatMessage({ id: 'classifier' })
 
     const ticketClassifierNames = useMemo(() => compact([
         get(ticket, ['classifier', 'place', 'name']),

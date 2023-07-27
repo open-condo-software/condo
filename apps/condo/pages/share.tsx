@@ -21,7 +21,7 @@ import {
 
 function RedirectToTicket ({ ticketId }) {
     const intl = useIntl()
-    const RedirectingMessage = intl.formatMessage({ id: 'Redirecting' })
+    const RedirectingMessage = intl.formatMessage({ id: 'redirecting' })
 
     useEffect(() => {
         const clearHandle = setTimeout(() => {

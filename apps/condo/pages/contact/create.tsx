@@ -15,7 +15,7 @@ interface ICreateContactPage extends React.FC {
 
 const CreateContactPage: ICreateContactPage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'contact.AddContact' })
+    const PageTitle = intl.formatMessage({ id: 'contact.addContact' })
 
     return (
         <>

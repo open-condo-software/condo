@@ -34,7 +34,7 @@ const CHANGE_HISTORY_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 
 export const ChangeHistory = <ChangesType extends BaseChangesType> (props: ChangeHistoryInputType<ChangesType>): ChangeHistoryReturnType => {
     const intl = useIntl()
-    const FetchMoreTemplate = intl.formatMessage({ id: 'ticket.TicketChanges.fetchMore' })
+    const FetchMoreTemplate = intl.formatMessage({ id: 'ticket.ticketChanges.fetchMore' })
 
     const { items, total, loading, title, useChangedFieldMessagesOf, Diff, labelSpan } = props
 

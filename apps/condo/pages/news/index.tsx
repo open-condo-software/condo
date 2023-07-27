@@ -174,11 +174,11 @@ const NewsPageContent = ({
     sortableProperties,
 }) => {
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.news.index.emptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.news.index.emptyList.title' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const EmptyListLabel = intl.formatMessage({ id: 'news.index.emptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'news.index.emptyList.title' })
     const CreateNews = intl.formatMessage({ id: 'news.createNews' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
 
     const [search, changeSearch] = useSearch<IFilters>()
     const handleSearchChange = useCallback((e) => {
@@ -240,7 +240,7 @@ const NewsPageContent = ({
 
 const NewsPage: INewsIndexPage = () => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'news.index.pageTitle' })
 
     const { organization } = useOrganization()
     const { canRead, isLoading: isAccessLoading } = useNewsItemsAccess()

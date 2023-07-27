@@ -26,10 +26,10 @@ export interface ITableColumn {
 
 export const useTableColumns = (filterMetas: FiltersMeta<PropertyWhereInput>[]) => {
     const intl = useIntl()
-    const AddressMessage = intl.formatMessage({ id: 'property.index.TableField.Address' })
-    const UnitsCountMessage = intl.formatMessage({ id: 'property.index.TableField.UnitsCount' })
-    const UninhabitedUnitsCountMessage = intl.formatMessage({ id: 'property.index.TableField.UninhabitedUnitsCount' })
-    const TasksInWorkMessage = intl.formatMessage({ id: 'property.index.TableField.TasksInWorkCount' })
+    const AddressMessage = intl.formatMessage({ id: 'property.index.tableField.address' })
+    const UnitsCountMessage = intl.formatMessage({ id: 'property.index.tableField.unitsCount' })
+    const UninhabitedUnitsCountMessage = intl.formatMessage({ id: 'property.index.tableField.uninhabitedUnitsCount' })
+    const TasksInWorkMessage = intl.formatMessage({ id: 'property.index.tableField.tasksInWorkCount' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)

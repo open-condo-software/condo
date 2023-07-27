@@ -81,19 +81,19 @@ const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
 
 const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization, employee }) => {
     const intl = useIntl()
-    const SourceMessage = intl.formatMessage({ id: 'ticket.field.Source' })
-    const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
-    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' })
-    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
-    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
-    const ChangedMessage = intl.formatMessage({ id: 'Changed' })
-    const TimeHasPassedMessage = intl.formatMessage({ id: 'TimeHasPassed' })
-    const DaysShortMessage = intl.formatMessage({ id: 'DaysShort' })
-    const HoursShortMessage = intl.formatMessage({ id: 'HoursShort' })
-    const MinutesShortMessage = intl.formatMessage({ id: 'MinutesShort' })
-    const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
-    const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'ticket.title.ResidentCannotReadTicket' })
+    const SourceMessage = intl.formatMessage({ id: 'ticket.field.source' })
+    const TicketAuthorMessage = intl.formatMessage({ id: 'author' })
+    const EmergencyMessage = intl.formatMessage({ id: 'emergency' })
+    const PaidMessage = intl.formatMessage({ id: 'paid' })
+    const WarrantyMessage = intl.formatMessage({ id: 'warranty' })
+    const ReturnedMessage = intl.formatMessage({ id: 'returned' })
+    const ChangedMessage = intl.formatMessage({ id: 'changed' })
+    const TimeHasPassedMessage = intl.formatMessage({ id: 'timeHasPassed' })
+    const DaysShortMessage = intl.formatMessage({ id: 'daysShort' })
+    const HoursShortMessage = intl.formatMessage({ id: 'hoursShort' })
+    const MinutesShortMessage = intl.formatMessage({ id: 'minutesShort' })
+    const LessThanMinuteMessage = intl.formatMessage({ id: 'lessThanMinute' })
+    const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'ticket.title.residentCannotReadTicket' })
 
     const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
@@ -342,7 +342,7 @@ const TicketActionBar = ({
     employee,
 }) => {
     const intl = useIntl()
-    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const UpdateMessage = intl.formatMessage({ id: 'edit' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
@@ -422,9 +422,9 @@ const HINTS_COL_PROPS: ColProps = { span: 24 }
 
 export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
-    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'ticket.alert.BlockedEditing.title' })
-    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'ticket.alert.BlockedEditing.description' })
-    const TicketChangesMessage = intl.formatMessage({ id: 'ticket.title.TicketChanges' })
+    const BlockedEditingTitleMessage = intl.formatMessage({ id: 'ticket.alert.blockedEditing.title' })
+    const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'ticket.alert.blockedEditing.description' })
+    const TicketChangesMessage = intl.formatMessage({ id: 'ticket.title.ticketChanges' })
 
     const auth = useAuth() as { user: { id: string } }
     const user = get(auth, 'user')
@@ -620,7 +620,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
 
 const TicketIdPage = () => {
     const intl = useIntl()
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'serverError' })
 
     const { user } = useAuth()
     const { link, organization, selectLink } = useOrganization()

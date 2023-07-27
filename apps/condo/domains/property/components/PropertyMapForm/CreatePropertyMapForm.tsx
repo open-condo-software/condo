@@ -20,8 +20,8 @@ const PROPERTY_FORM_DEPENDENCIES = ['address']
 
 const CreatePropertyMapForm: React.FC<ICreatePropertyForm> = ({ id }) => {
     const intl = useIntl()
-    const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
-    const CancelChangesLabel = intl.formatMessage({ id: 'Cancel' })
+    const ApplyChangesLabel = intl.formatMessage({ id: 'applyChanges' })
+    const CancelChangesLabel = intl.formatMessage({ id: 'cancel' })
 
     const { push } = useRouter()
     const { organization, link } = useOrganization()

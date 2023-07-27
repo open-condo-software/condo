@@ -47,7 +47,7 @@ export const useCategoryModal: IUseCategoryModal = ({
     const TransactionsWarningTitle = intl.formatMessage({ id: 'banking.categoryModal.transactionsWarning.title' })
     const PaymentPurposeTitle = intl.formatMessage({ id: 'global.paymentPurpose' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
-    const SaveTitle = intl.formatMessage({ id: 'Save' })
+    const SaveTitle = intl.formatMessage({ id: 'save' })
 
     const { loading, bankCostItemGroups, selectedItem, incomeCostItems, setSelectedItem } = useBankCostItemContext()
     const [open, setOpen] = useState(false)

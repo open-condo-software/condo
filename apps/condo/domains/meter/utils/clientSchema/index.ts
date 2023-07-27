@@ -42,11 +42,11 @@ export const resourceIdIconMap = {
 }
 
 export const resourceIdToCreateMeterTitleIdMap = {
-    [COLD_WATER_METER_RESOURCE_ID]: 'pages.condo.meter.AddColdWaterMeterModalTitle',
-    [HOT_WATER_METER_RESOURCE_ID]: 'pages.condo.meter.AddHotWaterMeterModalTitle',
-    [GAS_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddGasSupplyMeterModalTitle',
-    [ELECTRICITY_METER_RESOURCE_ID]: 'pages.condo.meter.AddElectricityMeterModalTitle',
-    [HEAT_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddHeatSupplyMeterModalTitle',
+    [COLD_WATER_METER_RESOURCE_ID]: 'meter.AddColdWaterMeterModalTitle',
+    [HOT_WATER_METER_RESOURCE_ID]: 'meter.AddHotWaterMeterModalTitle',
+    [GAS_SUPPLY_METER_RESOURCE_ID]: 'meter.AddGasSupplyMeterModalTitle',
+    [ELECTRICITY_METER_RESOURCE_ID]: 'meter.AddElectricityMeterModalTitle',
+    [HEAT_SUPPLY_METER_RESOURCE_ID]: 'meter.AddHeatSupplyMeterModalTitle',
 }
 
 export type MeterPageTypes = 'property-meter' | 'meter' | 'meter-reporting-period'

@@ -109,8 +109,8 @@ type BaseTicketPropertyHintFormProps = {
 export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProps> = ({ hintFilters, children, action, organizationId, initialValues, mode }) => {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'property.section.form.name' })
-    const HintMessage = intl.formatMessage({ id: 'Hint' })
-    const BuildingsMessage = intl.formatMessage({ id: 'property.index.TableField.Buildings' })
+    const HintMessage = intl.formatMessage({ id: 'hint' })
+    const BuildingsMessage = intl.formatMessage({ id: 'property.index.tableField.buildings' })
 
     const router = useRouter()
 

@@ -96,14 +96,14 @@ function usePaymentsSum (whereQuery) {
 
 const PaymentsTableContent: React.FC = (): JSX.Element => {
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const StartDateMessage = intl.formatMessage({ id: 'meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'meter.EndDate' })
-    const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
-    const TotalsSumTitle = intl.formatMessage({ id: 'payments.TotalSum' })
-    const DoneSumTitle = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
-    const WithdrawnSumTitle = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'filtersLabel' })
+    const StartDateMessage = intl.formatMessage({ id: 'meter.startDate' })
+    const EndDateMessage = intl.formatMessage({ id: 'meter.endDate' })
+    const ConfirmTitle = intl.formatMessage({ id: 'component.ticketWarningModal.confirmTitle' })
+    const TotalsSumTitle = intl.formatMessage({ id: 'payments.totalSum' })
+    const DoneSumTitle = intl.formatMessage({ id: 'multiPayment.status.DONE' })
+    const WithdrawnSumTitle = intl.formatMessage({ id: 'multiPayment.status.PROCESSING' })
 
     const { billingContext } = useBillingAndAcquiringContexts()
 

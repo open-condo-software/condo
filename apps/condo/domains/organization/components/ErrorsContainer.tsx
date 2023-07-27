@@ -12,7 +12,7 @@ interface IErrorsContainerProps {
 export const ErrorsContainer: React.FC<IErrorsContainerProps> = ({ phone }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
-    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
+    const PhoneLabel = intl.formatMessage({ id: 'phone' })
     const disableUserInteraction = !phone
 
     const getEmptyRequiredFields = () => {

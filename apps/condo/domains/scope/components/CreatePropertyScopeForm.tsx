@@ -12,7 +12,7 @@ import { BasePropertyScopeForm } from './BasePropertyScopeForm'
 
 export const CreatePropertyScopeForm = () => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
 
     const { organization } = useOrganization()
     const action = PropertyScope.useCreate({ organization: { connect: { id: organization.id } } })

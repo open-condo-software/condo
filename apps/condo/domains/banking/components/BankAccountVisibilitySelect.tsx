@@ -32,7 +32,7 @@ const BankAccountVisibilitySelect: IBankAccountVisibilitySelect = ({ bankAccount
     const ReportHiddenTitle = intl.formatMessage({ id: 'property.report.visibility.hidden' })
     const ReportVisibleDescription = intl.formatMessage({ id: 'property.report.visibility.visible.description' })
     const ReportHiddenDescription = intl.formatMessage({ id: 'property.report.visibility.hidden.description' })
-    const OperationCompletedTitle = intl.formatMessage({ id: 'OperationCompleted' })
+    const OperationCompletedTitle = intl.formatMessage({ id: 'operationCompleted' })
 
     const { query } = useRouter()
 

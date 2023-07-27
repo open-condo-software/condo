@@ -29,7 +29,7 @@ const FOCUS_CONTAINER_STYLE: React.CSSProperties = {
 
 export const PropertyPanels: React.FC<IPropertyPanels> = (props) => {
     const intl = useIntl()
-    const BuildingTitle = intl.formatMessage({ id: 'property.form.BuildingTabTitle' })
+    const BuildingTitle = intl.formatMessage({ id: 'property.form.buildingTabTitle' })
 
     const { map, canManageProperties = false } = props
 

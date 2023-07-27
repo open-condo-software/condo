@@ -36,7 +36,7 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     messageType = 'primary',
 }) => {
     const intl = useIntl()
-    const CancelMessage = cancelMessage || intl.formatMessage({ id: 'Cancel' })
+    const CancelMessage = cancelMessage || intl.formatMessage({ id: 'cancel' })
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)

@@ -22,13 +22,13 @@ const { Option } = Select
 
 const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Add' })
+    const SaveLabel = intl.formatMessage({ id: 'add' })
     const UnitTypeAtFloorLabel = intl.formatMessage({ id: 'property.modal.title.unitTypeAtFloor' })
     const UnitsOnFloorLabel = intl.formatMessage({ id: 'property.section.form.unitsOnFloor' })
     const SectionLabel = intl.formatMessage({ id: 'property.parkingSection.name' })
-    const FloorLabel = intl.formatMessage({ id: 'property.floor.Name' })
+    const FloorLabel = intl.formatMessage({ id: 'property.floor.name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'property.select.option.section' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'property.modal.RenameNextUnits' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'property.modal.renameNextUnits' })
 
     const [sections, setSections] = useState([])
     const [section, setSection] = useState<number | null>(null)

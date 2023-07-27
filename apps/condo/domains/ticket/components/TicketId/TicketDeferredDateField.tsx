@@ -13,7 +13,7 @@ type TicketDeferredDateFieldProps = {
 
 export const TicketDeferredDateField: React.FC<TicketDeferredDateFieldProps> = ({ ticket }) => {
     const intl = useIntl()
-    const DeferredDateMessage = intl.formatMessage({ id: 'ticket.id.TicketDefer.DeferredDate.field' })
+    const DeferredDateMessage = intl.formatMessage({ id: 'ticket.id.ticketDefer.deferredDate.field' })
 
     const ticketDeferredDate = ticket.deferredUntil ? dayjs(ticket.deferredUntil).format('DD MMMM YYYY') : null
     const isDeferredTicket = ticket.status.type === TicketStatusTypeType.Deferred

@@ -25,9 +25,9 @@ const CREATE_METER_PAGE_GUTTER: [Gutter, Gutter] = [12, 40]
 
 const CreateMeterPage: ICreateMeterPage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'meter.AddMeterReadings' })
-    const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })
-    const PropertyMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.propertyMeterTab' })
+    const PageTitle = intl.formatMessage({ id: 'meter.addMeterReadings' })
+    const MeterMessage = intl.formatMessage({ id: 'meter.index.meterTab' })
+    const PropertyMeterMessage = intl.formatMessage({ id: 'meter.index.propertyMeterTab' })
 
     const { link: { role = {} }, organization } = useOrganization()
 

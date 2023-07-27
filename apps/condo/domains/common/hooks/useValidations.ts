@@ -35,14 +35,14 @@ type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
 // TODO(DOMA-1588): Add memoization for hook members to prevent unnecessary rerenders
 export const useValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
-    const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'fieldIsRequired' })
     const MobilePhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongMobilePhone' })
     const PhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongPhone' })
-    const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
-    const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
-    const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
-    const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const EmailErrorMessage = intl.formatMessage({ id: 'auth.emailIsNotValid' })
+    const FieldIsTooShortMessage = intl.formatMessage({ id: 'valueIsTooShort' })
+    const FieldIsTooLongMessage = intl.formatMessage({ id: 'valueIsTooLong' })
+    const NumberIsNotValidMessage = intl.formatMessage({ id: 'numberIsNotValid' })
+    const TinValueIsInvalidMessage = intl.formatMessage({ id: 'organizations.tin.invalidValue' })
     const EmailsAreInvalidMessage = intl.formatMessage({ id: 'global.input.error.wrongEmails' })
 
     const { allowLandLine } = settings

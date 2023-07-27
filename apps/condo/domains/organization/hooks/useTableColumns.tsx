@@ -28,11 +28,11 @@ export const useTableColumns = (
     employees
 ) => {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'auth.register.field.Name' })
-    const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
-    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
-    const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
+    const NameMessage = intl.formatMessage({ id: 'auth.register.field.name' })
+    const RoleMessage = intl.formatMessage({ id: 'employee.role' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.position' })
+    const PhoneMessage =  intl.formatMessage({ id: 'phone' })
+    const SpecializationsMessage = intl.formatMessage({ id: 'employee.specializations' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)

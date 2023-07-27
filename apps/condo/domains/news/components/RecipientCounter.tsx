@@ -95,17 +95,17 @@ const areTargetedToOneProperty = (newsItemScopes: TNewsItemScopeNoInstance[]): b
 
 const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
     if (isAllOrganization(newsItemScopes)) {
-        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInAllProperties' })
+        return intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInAllProperties' })
     } else if (newsItemScopes.length === 1 && isTargetedToEntireProperty(newsItemScopes[0])) {
-        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperty' }, {
+        return intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInProperty' }, {
             address: newsItemScopes[0].property.address,
         })
     } else if (every(newsItemScopes, isTargetedToEntireProperty)) {
         const displayCount = 3
         const addressList = slice(newsItemScopes.map(({ property }) => property.address), 0, displayCount).join(', ')
         const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
-        const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties.andMore' }, { count: andMoreCount })
-        return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInProperties' }, {
+        const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInProperties.andMore' }, { count: andMoreCount })
+        return intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInProperties' }, {
             addressList,
             andMore,
         })
@@ -116,15 +116,15 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
         // Here we can split sections by location: house or parking
         const targetedSections = [...sections, ...parking]
         if (targetedSections.length === 1) {
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySection' }, {
+            return intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInPropertySection' }, {
                 section: targetedSections[0].name,
                 address: newsItemScopes[0].property.address,
             })
         } else if (targetedSections.length > 1) {
             const targetedSectionsList = slice(map(targetedSections, 'name'), 0, displayCount).join(', ')
             const andMoreCount = targetedSections.length <= displayCount ? null : targetedSections.length - displayCount
-            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections.andMore' }, { count: andMoreCount })
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertySections' }, {
+            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInPropertySections.andMore' }, { count: andMoreCount })
+            return intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInPropertySections' }, {
                 sections: targetedSectionsList,
                 andMore: andMore,
                 address: newsItemScopes[0].property.address,
@@ -132,8 +132,8 @@ const buildMessageFromNewsItemScopes = (newsItemScopes, intl): string => {
         } else {
             const unitNamesList = slice(map(newsItemScopes, 'unitName').sort(), 0, displayCount).join(', ')
             const andMoreCount = newsItemScopes.length <= displayCount ? null : newsItemScopes.length - displayCount
-            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits.andMore' }, { count: andMoreCount })
-            return intl.formatMessage({ id: 'news.component.RecipientCounter.toResidentsInPropertyUnits' }, {
+            const andMore = !andMoreCount ? '' : intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInPropertyUnits.andMore' }, { count: andMoreCount })
+            return intl.formatMessage({ id: 'news.component.recipientCounter.toResidentsInPropertyUnits' }, {
                 unitNames: unitNamesList,
                 andMore: andMore,
                 address: newsItemScopes[0].property.address,
@@ -148,14 +148,14 @@ interface RecipientCounterProps {
 
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
     const intl = useIntl()
-    const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
-    const PropertiesLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' })
-    const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
-    const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.label' })
-    const formatWillNotReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hint' }, { count })
-    const WillZeroNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.hintZero' })
-    const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hint' }, { count })
-    const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.hintZero' })
+    const MailingMessage = intl.formatMessage({ id: 'news.component.recipientCounter.mailing' })
+    const PropertiesLabelMessage = intl.formatMessage({ id: 'news.component.recipientCounter.label.properties' })
+    const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.recipientCounter.willReceive.label' })
+    const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.recipientCounter.willNotReceive.label' })
+    const formatWillNotReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.recipientCounter.willNotReceive.hint' }, { count })
+    const WillZeroNotReceiveHintMessage = intl.formatMessage({ id: 'news.component.recipientCounter.willNotReceive.hintZero' })
+    const formatWillReceiveHintMessage = (count) => intl.formatMessage({ id: 'news.component.recipientCounter.willReceive.hint' }, { count })
+    const WillZeroReceiveHintMessage = intl.formatMessage({ id: 'news.component.recipientCounter.willReceive.hintZero' })
 
     const [counters, setCounters] = useState<{
         propertiesCount: number,

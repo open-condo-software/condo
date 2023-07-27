@@ -44,16 +44,16 @@ const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
 export default function BuildingsTable (props: BuildingTableProps) {
     const intl = useIntl()
 
-    const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const CreateLabel = intl.formatMessage({ id: 'property.index.CreatePropertyButtonLabel' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const ExportAsExcel = intl.formatMessage({ id: 'exportAsExcel' })
+    const CreateLabel = intl.formatMessage({ id: 'property.index.createPropertyButtonLabel' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
     const PropertiesMessage = intl.formatMessage({ id: 'global.section.properties' })
-    const DownloadExcelLabel = intl.formatMessage({ id: 'property.id.DownloadExcelLabel' })
-    const PropertyTitle = intl.formatMessage({ id: 'property.ImportTitle' })
-    const EmptyListLabel = intl.formatMessage({ id: 'property.index.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'property.index.EmptyList.text' })
-    const CreateProperty = intl.formatMessage({ id: 'property.index.CreatePropertyButtonLabel' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
+    const DownloadExcelLabel = intl.formatMessage({ id: 'property.id.downloadExcelLabel' })
+    const PropertyTitle = intl.formatMessage({ id: 'property.importTitle' })
+    const EmptyListLabel = intl.formatMessage({ id: 'property.index.emptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'property.index.emptyList.text' })
+    const CreateProperty = intl.formatMessage({ id: 'property.index.createPropertyButtonLabel' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.clickOrDragImportFileHint' })
 
     const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
 

@@ -145,14 +145,14 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
 
 export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
-    const TicketDeadlineLabel = intl.formatMessage({ id: 'TicketDeadline' })
-    const TicketDeferredDeadlineLabel = intl.formatMessage({ id: 'TicketDeferredDeadline' })
-    const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
-    const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
-    const WarrantyLabel = intl.formatMessage({ id: 'Warranty' })
-    const PaidLabel = intl.formatMessage({ id: 'Paid' })
-    const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
-    const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
+    const TicketDeadlineLabel = intl.formatMessage({ id: 'ticketDeadline' })
+    const TicketDeferredDeadlineLabel = intl.formatMessage({ id: 'ticketDeferredDeadline' })
+    const DescriptionLabel = intl.formatMessage({ id: 'ticket.field.description' })
+    const EmergencyLabel = intl.formatMessage({ id: 'emergency' })
+    const WarrantyLabel = intl.formatMessage({ id: 'warranty' })
+    const PaidLabel = intl.formatMessage({ id: 'paid' })
+    const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.description' })
+    const ClassifierLabel = intl.formatMessage({ id: 'classifier' })
 
     const { breakpoints } = useLayoutContext()
     const { setIsAutoDetectedDeadlineValue, ticketSetting, setClassifier } = useTicketFormContext()
@@ -315,8 +315,8 @@ const DEFAULT_TICKET_SOURCE_CALL_ID = '779d7bb6-b194-4d2c-a967-1f7321b2787f'
 
 export const TicketSourceSelect: React.FC = () => {
     const intl = useIntl()
-    const TicketSourceLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Source.label' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const TicketSourceLabel = intl.formatMessage({ id: 'ticket.field.source.label' })
+    const LoadingMessage = intl.formatMessage({ id: 'loading' })
 
     const { objs: sources, loading } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES_IN_TICKET_FORM },
@@ -374,16 +374,16 @@ export interface ITicketFormProps {
 
 export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const intl = useIntl()
-    const AddMessage = intl.formatMessage({ id: 'Add' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
-    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
-    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
-    const PromptTitle = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.Title' })
-    const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.ticket.warning.modal.HelpMessage' })
-    const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
-    const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
-    const AttachCallRecordMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.AttachCallRecord' })
+    const AddMessage = intl.formatMessage({ id: 'add' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
+    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.address' })
+    const AddressNotFoundContent = intl.formatMessage({ id: 'field.address.notFound' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.property.nonSelectedError' })
+    const PromptTitle = intl.formatMessage({ id: 'ticket.warning.modal.title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'ticket.warning.modal.helpMessage' })
+    const NoPropertiesMessage = intl.formatMessage({ id: 'ticket.alert.noProperties' })
+    const CanReadByResidentMessage = intl.formatMessage({ id: 'ticket.field.canReadByResident' })
+    const AttachCallRecordMessage = intl.formatMessage({ id: 'ticket.field.attachCallRecord' })
 
     const { breakpoints } = useLayoutContext()
     const { isCallActive } = useActiveCall()

@@ -32,8 +32,8 @@ import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
-    const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.EmployeeDidntEntered' })
-    const EmployeeRejectedMessage = intl.formatMessage({ id: 'users.status.Rejected' })
+    const EmployeeDidntEnteredMessage = intl.formatMessage({ id: 'employee.employeeDidntEntered' })
+    const EmployeeRejectedMessage = intl.formatMessage({ id: 'users.status.rejected' })
 
     const isEmployeeRejected = get(employee, 'isRejected')
 
@@ -74,19 +74,19 @@ export const EmployeePageContent = ({
     phonePrefix = '',
 }) => {
     const intl = useIntl()
-    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
-    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
-    const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
-    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const SpecializationsMessage = intl.formatMessage({ id: 'employee.Specializations' })
-    const BlockUserMessage = intl.formatMessage({ id: 'employee.BlockUser' })
-    const CanNotBlockYourselfMessage = intl.formatMessage({ id: 'employee.CanNotBlockYourself' })
-    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
-    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
-    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
+    const PhoneMessage = intl.formatMessage({ id: 'phone' })
+    const EmailMessage = intl.formatMessage({ id: 'field.eMail' })
+    const UpdateMessage = intl.formatMessage({ id: 'edit' })
+    const RoleMessage = intl.formatMessage({ id: 'employee.role' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.position' })
+    const SpecializationsMessage = intl.formatMessage({ id: 'employee.specializations' })
+    const BlockUserMessage = intl.formatMessage({ id: 'employee.blockUser' })
+    const CanNotBlockYourselfMessage = intl.formatMessage({ id: 'employee.canNotBlockYourself' })
+    const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'delete' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.confirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.confirmDeleteMessage' })
+    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.allSpecializations' })
+    const DeleteMessage = intl.formatMessage({ id: 'delete' })
 
     const { user } = useAuth()
     const { breakpoints } = useLayoutContext()
@@ -281,8 +281,8 @@ export const EmployeeInfoPage = () => {
     const { query } = useRouter()
     const { link } = useOrganization()
     const intl = useIntl()
-    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
-    const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
+    const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.updateTitle' })
+    const ErrorMessage = intl.formatMessage({ id: 'errors.loadingError' })
 
     const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(

@@ -25,7 +25,7 @@ const Src500 = { poster: '/500Poster.png', placeholder: '/500PosterPlaceholder.p
 export default function Custom500 (): React.ReactElement {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'error.PageTitle' })
-    const DescriptionMessage = intl.formatMessage({ id: 'error.Description' })
+    const DescriptionMessage = intl.formatMessage({ id: 'error.description' })
 
     return (
         <Row justify='space-between'>

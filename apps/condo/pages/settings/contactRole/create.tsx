@@ -14,7 +14,7 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
 const CreateContactRolePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'ContactRoles.createRoleTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'contactRoles.createRoleTitle' })
 
     return (
         <>

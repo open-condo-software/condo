@@ -11,14 +11,14 @@ type ValidatorsMap = {
 
 export const useRegisterFormValidators = () => {
     const intl = useIntl()
-    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourPassword' })
-    const PleaseInputYourNameMsg = intl.formatMessage({ id: 'pages.auth.PleaseInputYourName' })
-    const EmailIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
-    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
-    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
-    const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
-    const NameMustContainMsg = intl.formatMessage({ id: 'pages.auth.NameMustContain' })
-    const NameMustNotStartOrAndMsg = intl.formatMessage({ id: 'pages.auth.NameMustNotStartOrAnd' })
+    const PleaseInputYourPasswordMsg = intl.formatMessage({ id: 'auth.pleaseInputYourPassword' })
+    const PleaseInputYourNameMsg = intl.formatMessage({ id: 'auth.pleaseInputYourName' })
+    const EmailIsNotValidMsg = intl.formatMessage({ id: 'auth.emailIsNotValid' })
+    const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'auth.pleaseConfirmYourPassword' })
+    const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'auth.twoPasswordDontMatch' })
+    const PasswordIsTooShortMsg = intl.formatMessage({ id: 'auth.passwordIsTooShort' })
+    const NameMustContainMsg = intl.formatMessage({ id: 'auth.nameMustContain' })
+    const NameMustNotStartOrAndMsg = intl.formatMessage({ id: 'auth.nameMustNotStartOrAnd' })
     const NameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     return useMemo<ValidatorsMap>(() => {

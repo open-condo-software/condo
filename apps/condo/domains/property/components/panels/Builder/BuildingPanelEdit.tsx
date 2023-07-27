@@ -172,8 +172,8 @@ const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 
 const useHotkeyToSaveProperty = ({ map, mapEdit, property, canManageProperties }) => {
     const intl = useIntl()
-    const ChangesSaved = intl.formatMessage({ id: 'ChangesSaved' })
-    const MapValidationError = intl.formatMessage({ id: 'property.warning.modal.SameUnitNamesErrorMsg' })
+    const ChangesSaved = intl.formatMessage({ id: 'changesSaved' })
+    const MapValidationError = intl.formatMessage({ id: 'property.warning.modal.sameUnitNamesErrorMsg' })
 
     const quickSave = Property.useUpdate({}, () => notification.success({
         message: ChangesSaved,
@@ -204,13 +204,13 @@ const BUILDING_PANEL_EDIT_ERROR_STYLE: React.CSSProperties = { width: '100%', te
 
 export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
-    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
-    const AllSectionsTitle = intl.formatMessage({ id: 'property.SectionSelect.AllTitle' })
-    const AllParkingSectionsTitle = intl.formatMessage({ id: 'property.ParkingSectionSelect.AllTitle' })
-    const SectionPrefixTitle = intl.formatMessage({ id: 'property.SectionSelect.OptionPrefix' })
-    const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'property.ParkingSectionSelect.OptionPrefix' })
-    const MapValidationError = intl.formatMessage({ id: 'property.warning.modal.SameUnitNamesErrorMsg' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
+    const CancelLabel = intl.formatMessage({ id: 'cancel' })
+    const AllSectionsTitle = intl.formatMessage({ id: 'property.sectionSelect.allTitle' })
+    const AllParkingSectionsTitle = intl.formatMessage({ id: 'property.parkingSectionSelect.allTitle' })
+    const SectionPrefixTitle = intl.formatMessage({ id: 'property.sectionSelect.optionPrefix' })
+    const ParkingSectionPrefixTitle = intl.formatMessage({ id: 'property.parkingSectionSelect.optionPrefix' })
+    const MapValidationError = intl.formatMessage({ id: 'property.warning.modal.sameUnitNamesErrorMsg' })
 
     const { mapValidationError, map, updateMap: updateFormField, handleSave, property, canManageProperties = false } = props
 
@@ -602,7 +602,7 @@ const PropertyMapSection: React.FC<IPropertyMapSectionProps> = (props) => {
     const intl = useIntl()
     const SectionTitle = isParkingSection
         ? `${intl.formatMessage({ id: 'property.select.option.parking' })} ${section.name}`
-        : `${intl.formatMessage({ id: 'property.section.Name' })} ${section.name}`
+        : `${intl.formatMessage({ id: 'property.section.name' })} ${section.name}`
 
     const chooseSection = useCallback(() => {
         if (isParkingSection) {

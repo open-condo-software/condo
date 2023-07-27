@@ -19,13 +19,13 @@ type TicketDeadlineFieldProps = {
 
 export const TicketDeadlineField: React.FC<TicketDeadlineFieldProps> = ({ ticket }) => {
     const intl = useIntl()
-    const Deadline = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
-    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.ToComplete' }).toLowerCase()
-    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' }).toLowerCase()
-    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' }).toLowerCase()
-    const CompletedEarlierMessage = intl.formatMessage({ id: 'ticket.deadline.CompletedEarlier' }).toLowerCase()
-    const CompletedLessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.CompletedLessThenDay' }).toLowerCase()
-    const CompletedLateMessage = intl.formatMessage({ id: 'ticket.deadline.CompletedLate' }).toLowerCase()
+    const Deadline = intl.formatMessage({ id: 'ticket.deadline.completeBefore' })
+    const ToCompleteMessage = intl.formatMessage({ id: 'ticket.deadline.toComplete' }).toLowerCase()
+    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.lessThenDay' }).toLowerCase()
+    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.overdue' }).toLowerCase()
+    const CompletedEarlierMessage = intl.formatMessage({ id: 'ticket.deadline.completedEarlier' }).toLowerCase()
+    const CompletedLessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.completedLessThenDay' }).toLowerCase()
+    const CompletedLateMessage = intl.formatMessage({ id: 'ticket.deadline.completedLate' }).toLowerCase()
 
     const ticketDeadline = ticket.deadline ? dayjs(ticket.deadline) : null
     const getTicketDeadlineMessage = useCallback(() => {

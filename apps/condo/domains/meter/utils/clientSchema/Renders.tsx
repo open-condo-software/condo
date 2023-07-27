@@ -28,7 +28,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
 
 export const getResourceRender = (intl, search?: FilterValue | string) => {
     return function render (text, meterReading): RenderReturnType {
-        const AutoMessage = intl.formatMessage({ id: 'meter.AutoPrefix' })
+        const AutoMessage = intl.formatMessage({ id: 'meter.autoPrefix' })
         const value = get(meterReading, ['meter', 'resource', 'name'])
         const isAutomatic = get(meterReading, ['meter', 'isAutomatic'], false)
         const isExternalSource = Boolean(get(meterReading, ['source', 'type']) === METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE)

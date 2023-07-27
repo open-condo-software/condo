@@ -43,7 +43,7 @@ export const CallRecordModal = ({ selectedCallRecordFragment, setSelectedCallRec
     const DownloadCallRecordMessage = intl.formatMessage({ id: 'callRecord.downloadRecord' })
     const AttachTicketsMessage = intl.formatMessage({ id: 'callRecord.modal.attachTicketsToCall' })
     const AttachTicketsPlaceholder = intl.formatMessage({ id: 'callRecord.modal.attachTicketsToCall.placeholder' })
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
 
     const userOrganization = useOrganization()
     const canDownloadCallRecords = useMemo(() => get(userOrganization, ['link', 'role', 'canDownloadCallRecords']), [userOrganization])

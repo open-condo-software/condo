@@ -14,23 +14,23 @@ import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.uti
 
 export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
-    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const UnitNameTitle = intl.formatMessage({ id: 'field.UnitName' })
-    const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const FullNameTitle = intl.formatMessage({ id: 'field.Holder' })
-    const CategoryTitle = intl.formatMessage({ id: 'field.Category' })
-    const DebtTitle = intl.formatMessage({ id: 'DebtOverpayment' })
-    const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
-    const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
-    const ChargeTitle = intl.formatMessage({ id: 'Charged' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
-    const TooltipPDF = intl.formatMessage({ id: 'pages.billing.ReceiptsTable.PDFTooltip' })
+    const AddressTitle = intl.formatMessage({ id: 'field.address' })
+    const UnitNameTitle = intl.formatMessage({ id: 'field.unitName' })
+    const AccountTitle = intl.formatMessage({ id: 'field.accountNumberShort' })
+    const FullNameTitle = intl.formatMessage({ id: 'field.holder' })
+    const CategoryTitle = intl.formatMessage({ id: 'field.category' })
+    const DebtTitle = intl.formatMessage({ id: 'debtOverpayment' })
+    const ToPayTitle = intl.formatMessage({ id: 'field.totalPayment' })
+    const PenaltyTitle = intl.formatMessage({ id: 'paymentPenalty' })
+    const ChargeTitle = intl.formatMessage({ id: 'charged' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.shortFlatNumber' })
+    const PaidTitle = intl.formatMessage({ id: 'paymentPaid' })
+    const TooltipPDF = intl.formatMessage({ id: 'billing.receiptsTable.pdfTooltip' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
-    
+
     return useMemo(() => {
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search

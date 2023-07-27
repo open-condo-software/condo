@@ -22,7 +22,7 @@ const FORM_DEPENDENCIES = ['address']
 
 export const UpdatePropertyForm: React.FC<IUpdatePropertyForm> = ({ id }) => {
     const intl = useIntl()
-    const ApplyChangesLabel = intl.formatMessage({ id: 'ApplyChanges' })
+    const ApplyChangesLabel = intl.formatMessage({ id: 'applyChanges' })
     const { push } = useRouter()
     const { organization } = useOrganization()
     const { refetch, obj: property, loading, error } = Property.useObject({ where: { id } })

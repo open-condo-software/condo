@@ -322,12 +322,12 @@ describe('NewsItemRecipientsExportTask', () => {
                 ...(residentsData.map(residentData => [
                     property.address,
                     residentData.resident.unitName,
-                    i18n('Yes', { locale }),
+                    i18n('yes', { locale }),
                 ])),
                 ...Array(36 - residentsData.length).fill(null).map((v, i) => [
                     property.address,
                     String(residentsData.length + i + 1),
-                    i18n('No', { locale }),
+                    i18n('no', { locale }),
                 ]),
             ])
         })

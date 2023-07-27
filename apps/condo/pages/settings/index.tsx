@@ -40,13 +40,13 @@ const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
-    const HintTitle = intl.formatMessage({ id: 'Hint' })
-    const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
-    const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
-    const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
-    const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
+    const HintTitle = intl.formatMessage({ id: 'hint' })
+    const SubscriptionTitle = intl.formatMessage({ id: 'subscription' })
+    const RolesTitle = intl.formatMessage({ id: 'contactRoles' })
+    const DetailsTitle = intl.formatMessage({ id: 'paymentDetails' })
+    const ControlRoomTitle = intl.formatMessage({ id: 'controlRoom' })
     const PropertyScopeTitle = intl.formatMessage({ id: 'settings.propertyScope.title' })
-    const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
+    const EmployeeRolesTitle = intl.formatMessage({ id: 'employeeRoles' })
 
     const hasSubscriptionFeature = hasFeature('subscription')
 

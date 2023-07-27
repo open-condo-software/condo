@@ -18,7 +18,7 @@ interface IUserNameFieldProps {
 
 export const UserNameField: React.FC<IUserNameFieldProps> = ({ user, children }) => {
     const intl = useIntl()
-    const YouMessage = intl.formatMessage({ id: 'You' })
+    const YouMessage = intl.formatMessage({ id: 'you' })
 
     const auth = useAuth()
     const id = get(auth, ['user', 'id'])

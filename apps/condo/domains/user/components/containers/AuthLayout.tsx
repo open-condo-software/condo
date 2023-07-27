@@ -70,8 +70,8 @@ const {
 
 const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
     const intl = useIntl()
-    const PrivacyPolicy = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
-    const TermsOfService = intl.formatMessage({ id: 'pages.auth.register.info.termsOfService' })
+    const PrivacyPolicy = intl.formatMessage({ id: 'auth.register.info.privacyPolicyContent' })
+    const TermsOfService = intl.formatMessage({ id: 'auth.register.info.termsOfService' })
 
     const { children, ...otherProps } = props
 
@@ -125,7 +125,7 @@ const AuthLayout: React.FC<IAuthLayoutProps> = (props) => {
             }
             <Typography.Paragraph type='secondary' style={SUPPORT_TEXT_STYLE}>
                 <FormattedMessage
-                    id='pages.auth.register.info.RecaptchaPrivacyPolicyContent'
+                    id='auth.register.info.RecaptchaPrivacyPolicyContent'
                     values={{
                         PrivacyPolicy: (
                             <Typography.Link

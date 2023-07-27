@@ -33,13 +33,13 @@ const FORM_BUTTONS_GUTTER: RowProps['gutter'] = [0, 20]
 
 export const SignInForm = (): React.ReactElement => {
     const intl = useIntl()
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SignInMsg = intl.formatMessage({ id: 'SignIn' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const PasswordMsg = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
-    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
-    const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
-    const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'fieldIsRequired' })
+    const SignInMsg = intl.formatMessage({ id: 'signIn' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.phone' })
+    const PasswordMsg = intl.formatMessage({ id: 'auth.signin.field.password' })
+    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.phone' })
+    const ResetMsg = intl.formatMessage({ id: 'auth.signin.resetPasswordLinkTitle' })
+    const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'auth.wrongPhoneOrPassword' })
 
     const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
     const PASSWORD_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PasswordMsg}</label>
@@ -133,7 +133,7 @@ export const SignInForm = (): React.ReactElement => {
                         <Col span={24}>
                             <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
                                 <FormattedMessage
-                                    id='pages.auth.signin.ResetPasswordLink'
+                                    id='auth.signin.ResetPasswordLink'
                                     values={{
                                         link: (
                                             <Typography.Link

@@ -42,10 +42,10 @@ const MIN_CONTENT_WIDTH_FOR_DESKTOP_MODE = 990
 
 export const CookieAgreement: React.FC = () => {
     const intl = useIntl()
-    const CookieAgreementTitleMsg = intl.formatMessage({ id: 'component.CookieAgreement.title' })
-    const CookieAgreementDescriptionMsg = intl.formatMessage({ id: 'component.CookieAgreement.description' })
-    const CookieExpandActionMsg = intl.formatMessage({ id: 'component.CookieAgreement.action.expand' })
-    const CookieAcceptActionMsg = intl.formatMessage({ id: 'component.CookieAgreement.action.accept' })
+    const CookieAgreementTitleMsg = intl.formatMessage({ id: 'component.cookieAgreement.title' })
+    const CookieAgreementDescriptionMsg = intl.formatMessage({ id: 'component.cookieAgreement.description' })
+    const CookieExpandActionMsg = intl.formatMessage({ id: 'component.cookieAgreement.action.expand' })
+    const CookieAcceptActionMsg = intl.formatMessage({ id: 'component.cookieAgreement.action.accept' })
 
     const [displayMore, setDisplayMore] = useState(false)
     const [accepted, setAccepted] = useState(cookie.get(COOKIE_AGREEMENT_KEY) || false)

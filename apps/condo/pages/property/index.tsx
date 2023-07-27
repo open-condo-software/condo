@@ -45,7 +45,7 @@ const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 
 export const PropertiesContent: React.FC<PropertiesContentProps> = (props) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.property.index.PageTitle' })
+    const PageTitleMessage = intl.formatMessage({ id: 'property.index.pageTitle' })
 
     const { role, searchPropertiesQuery, propertiesTableColumns, sortPropertiesBy, loading, canDownloadProperties } = props
 

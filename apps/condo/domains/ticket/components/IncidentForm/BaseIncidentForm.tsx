@@ -124,10 +124,10 @@ const DISPLAY_NONE_STYLE: React.CSSProperties = { display: 'none' }
 
 export const Classifiers: React.FC<ClassifiersProps> = (props) => {
     const intl = useIntl()
-    const SelectMessage = intl.formatMessage({ id: 'Select' })
+    const SelectMessage = intl.formatMessage({ id: 'select' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'incident.fields.categoryClassifier.label' })
     const ProblemClassifierLabel = intl.formatMessage({ id: 'incident.fields.problemClassifier.label' })
-    const LoadingLabel = intl.formatMessage({ id: 'Loading' })
+    const LoadingLabel = intl.formatMessage({ id: 'loading' })
     const SelectCategoryMessage = intl.formatMessage({ id: 'incident.fields.categoryClassifier.placeholder' })
 
     const { form, initialClassifierIds, rules } = props
@@ -303,7 +303,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'incident.form.prompt.exit.title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'incident.form.prompt.exit.message' })
     const notAvailableMessage = intl.formatMessage({ id: 'global.notAvailable' })
-    const SelectPlaceholder = intl.formatMessage({ id: 'Select' })
+    const SelectPlaceholder = intl.formatMessage({ id: 'select' })
 
     const {
         action: createOrUpdateIncident,

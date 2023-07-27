@@ -25,11 +25,11 @@ const INITIAL_PROPERTY_METER_VALUES_KEYS = [
 
 export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_PAGE_TYPES.meter) => {
     const intl = useIntl()
-    const MeterNumberMessage = intl.formatMessage({ id: 'meter.NumberOfMeter' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'meter.form.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'meter.form.ConfirmDeleteMessage' })
-    const DeleteMessage = intl.formatMessage({ id: 'meter.DeleteMeterAndReadings' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' }).toUpperCase()
+    const MeterNumberMessage = intl.formatMessage({ id: 'meter.numberOfMeter' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'meter.form.confirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'meter.form.confirmDeleteMessage' })
+    const DeleteMessage = intl.formatMessage({ id: 'meter.deleteMeterAndReadings' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' }).toUpperCase()
 
     const [selectedMeter, setSelectedMeter] = useState()
     const meterNumber = get(selectedMeter, 'number')

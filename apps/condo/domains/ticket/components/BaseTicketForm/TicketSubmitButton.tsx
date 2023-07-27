@@ -36,11 +36,11 @@ export const TicketSubmitButton: React.FC<IErrorsContainerProps> = ({
 }) => {
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const DetailsLabel = intl.formatMessage({ id: 'ticket.field.Description' })
-    const PlaceLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
-    const CategoryLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
-    const DeadlineLabel = intl.formatMessage({ id: 'TicketDeadline' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
+    const DetailsLabel = intl.formatMessage({ id: 'ticket.field.description' })
+    const PlaceLabel = intl.formatMessage({ id: 'component.ticketclassifier.placeLabel' })
+    const CategoryLabel = intl.formatMessage({ id: 'component.ticketclassifier.categoryLabel' })
+    const DeadlineLabel = intl.formatMessage({ id: 'ticketDeadline' })
 
     const emptyFieldMessages = [
         !property && AddressLabel,

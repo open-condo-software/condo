@@ -31,8 +31,8 @@ const PROPERTY_FORM_VALIDATION_TRIGGER = ['onBlur', 'onSubmit']
 
 const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
     const intl = useIntl()
-    const PromptTitle = intl.formatMessage({ id: 'property.warning.modal.Title' })
-    const PromptHelpMessage = intl.formatMessage({ id: 'property.warning.modal.HelpMessage' })
+    const PromptTitle = intl.formatMessage({ id: 'property.warning.modal.title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'property.warning.modal.helpMessage' })
     const UnsavedChangesError = intl.formatMessage({ id: 'property.warning.modal.unsavedChanges' })
 
     const { action, initialValues, property, children, canManageProperties = false } = props

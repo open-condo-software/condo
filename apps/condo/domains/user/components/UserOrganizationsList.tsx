@@ -19,7 +19,7 @@ interface IOrganizationName {
 
 const OrganizationName: React.FC<IOrganizationName> = (props) => {
     const intl = useIntl()
-    const EnterMessage = intl.formatMessage({ id: 'SignIn' })
+    const EnterMessage = intl.formatMessage({ id: 'signIn' })
 
     const {
         name,
@@ -46,9 +46,9 @@ interface IOrganizationEmployeeItem {
 
 const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) => {
     const intl = useIntl()
-    const OrganizationMessage = intl.formatMessage({ id: 'property.field.Organization' })
-    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const OrganizationMessage = intl.formatMessage({ id: 'property.field.organization' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.position' })
+    const RoleMessage = intl.formatMessage({ id: 'employee.role' })
 
     const { employee, userOrganization } = props
 

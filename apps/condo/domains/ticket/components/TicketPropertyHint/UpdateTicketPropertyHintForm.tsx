@@ -11,7 +11,7 @@ import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
 
 export const UpdateTicketPropertyHintForm = ({ id }) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
 
     const { obj: ticketPropertyHint, loading } = TicketPropertyHint.useObject({ where: { id } })
     const action = TicketPropertyHint.useUpdate({})

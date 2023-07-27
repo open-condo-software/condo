@@ -18,11 +18,11 @@ type UseContactsTableFilters = () => Array<FiltersMeta<ContactWhereInput>>
 
 export const useContactsTableFilters: UseContactsTableFilters = () => {
     const intl = useIntl()
-    const UserNameMessage = intl.formatMessage({ id: 'field.FullName.short' })
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
-    const EnterUnitNameLabel = intl.formatMessage({ id: 'ticket.filters.EnterUnitName' })
+    const UserNameMessage = intl.formatMessage({ id: 'field.fullName.short' })
+    const AddressMessage = intl.formatMessage({ id: 'field.address' })
+    const PhoneMessage = intl.formatMessage({ id: 'phone' })
+    const EmailMessage = intl.formatMessage({ id: 'field.eMail' })
+    const EnterUnitNameLabel = intl.formatMessage({ id: 'ticket.filters.enterUnitName' })
 
     return useMemo(() => {
         return [

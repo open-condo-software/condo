@@ -126,10 +126,10 @@ const OPTION_STYLES = { padding: '5px 12px 5px 24px' }
 
 const SearchByPhoneSelectOption = ({ phone, property, unitName, unitType, type, number }) => {
     const intl = useIntl()
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const ShortFlatMessage = intl.formatMessage({ id: 'field.ShortFlatNumber' })
-    const ParkingMessage = intl.formatMessage({ id: 'field.UnitType.prefix.parking' })
-    const TicketMessage = intl.formatMessage({ id: 'Ticket' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' })
+    const ShortFlatMessage = intl.formatMessage({ id: 'field.shortFlatNumber' })
+    const ParkingMessage = intl.formatMessage({ id: 'field.unitType.prefix.parking' })
+    const TicketMessage = intl.formatMessage({ id: 'ticket' })
 
     const prefix = unitType === BuildingUnitSubType.Parking ? ParkingMessage : ShortFlatMessage
     const unitNameMessage = unitName && ` ${prefix} ${unitName}`

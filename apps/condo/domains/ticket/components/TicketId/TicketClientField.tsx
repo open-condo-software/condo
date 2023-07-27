@@ -18,8 +18,8 @@ const ELLIPSIS_CONFIG = { rows: 2 }
 
 export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
-    const ResidentClientMessage = intl.formatMessage({ id: 'ticket.field.ResidentClient' })
-    const NotResidentClientMessage = intl.formatMessage({ id: 'ticket.field.NotResidentClient' })
+    const ResidentClientMessage = intl.formatMessage({ id: 'ticket.field.residentClient' })
+    const NotResidentClientMessage = intl.formatMessage({ id: 'ticket.field.notResidentClient' })
 
     const contactId = get(ticket, ['contact', 'id'])
     const ClientMessage = useMemo(() => contactId ? ResidentClientMessage : NotResidentClientMessage,

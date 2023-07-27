@@ -22,10 +22,10 @@ interface IOrganizationInvitesHookResult {
 
 export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
     const intl = useIntl()
-    const AcceptMessage = intl.formatMessage({ id: 'Accept' })
-    const RejectMessage = intl.formatMessage({ id: 'Reject' })
-    const DoneMessage = intl.formatMessage({ id: 'OperationCompleted' })
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const AcceptMessage = intl.formatMessage({ id: 'accept' })
+    const RejectMessage = intl.formatMessage({ id: 'reject' })
+    const DoneMessage = intl.formatMessage({ id: 'operationCompleted' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'serverError' })
     const { user, isAuthenticated } = useAuth()
     const userId = get(user, 'id', null)
     const { selectLink } = useOrganization()

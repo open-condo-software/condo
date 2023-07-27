@@ -16,7 +16,7 @@ type TicketPropertyFieldProps = {
 }
 
 export const getTicketSectionAndFloorMessage = (ticket: Ticket, ticketUnitMessage: string, intl) => {
-    const FloorName = intl.formatMessage({ id: 'property.floor.Name' })
+    const FloorName = intl.formatMessage({ id: 'property.floor.name' })
 
     const sectionName = get(ticket, 'sectionName')
     const sectionType = get(ticket, 'sectionType')
@@ -37,8 +37,8 @@ export const getTicketSectionAndFloorMessage = (ticket: Ticket, ticketUnitMessag
 
 export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket }) => {
     const intl = useIntl()
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const AddressMessage = intl.formatMessage({ id: 'field.address' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' })
     const UnitTypePrefix = intl.formatMessage({ id: `ticket.field.unitType.${ticket.unitType}` })
 
     const propertyWasDeleted = !ticket.property

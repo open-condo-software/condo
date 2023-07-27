@@ -24,13 +24,13 @@ import { IFilters } from '@condo/domains/contact/utils/helpers'
 type UseTableColumns = (filterMetas: Array<FiltersMeta<ContactWhereInput>>) => ColumnsType<Contact>
 export const useTableColumns: UseTableColumns = (filterMetas) => {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
-    const PhoneMessage =  intl.formatMessage({ id: 'Phone' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
-    const AddressMessage = intl.formatMessage({ id: 'property.field.Address' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
-    const RoleMessage = intl.formatMessage({ id: 'ContactRole' })
+    const NameMessage = intl.formatMessage({ id: 'field.fullName.short' })
+    const PhoneMessage =  intl.formatMessage({ id: 'phone' })
+    const EmailMessage = intl.formatMessage({ id: 'field.eMail' })
+    const AddressMessage = intl.formatMessage({ id: 'property.field.address' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' })
+    const UnitMessage = intl.formatMessage({ id: 'field.unitName' })
+    const RoleMessage = intl.formatMessage({ id: 'contactRole' })
 
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id', null)

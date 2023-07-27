@@ -21,8 +21,8 @@ const HINT_STYLES: CSSProperties = { maxHeight: '6.5em', maxWidth: '300px', over
 export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, ticketPropertyHints: TicketPropertyHint[]) {
     const intl = useIntl()
     const NameMessage  = intl.formatMessage({ id: 'property.section.form.name' })
-    const HintMessage = intl.formatMessage({ id: 'Hint' })
-    const BuildingsMessage = intl.formatMessage({ id: 'property.index.TableField.Buildings' })
+    const HintMessage = intl.formatMessage({ id: 'hint' })
+    const BuildingsMessage = intl.formatMessage({ id: 'property.index.tableField.buildings' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)

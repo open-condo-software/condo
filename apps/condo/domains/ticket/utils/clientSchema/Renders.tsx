@@ -145,8 +145,8 @@ export const FavoriteTicketIndicator = ({ ticketId }) => {
 }
 
 export const getTicketNumberRender = (intl, search: FilterValue) => {
-    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.LessThenDay' })
-    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.Overdue' })
+    const LessThenDayMessage = intl.formatMessage({ id: 'ticket.deadline.lessThenDay' })
+    const OverdueMessage = intl.formatMessage({ id: 'ticket.deadline.overdue' })
 
     return function render (number: string, ticket: Ticket) {
         const deadline = dayjs(get(ticket, 'deadline'))
@@ -229,8 +229,8 @@ const getUnitExtraTitle = (unit, unitType, sectionName, sectionType, floorName, 
 }
 
 export const getUnitRender = (intl, search: FilterValue) => {
-    const ShortSectionNameMessage = intl.formatMessage({ id: 'field.ShortSectionName' })
-    const ShortFloorNameMessage = intl.formatMessage({ id: 'field.ShortFloorName' })
+    const ShortSectionNameMessage = intl.formatMessage({ id: 'field.shortSectionName' })
+    const ShortFloorNameMessage = intl.formatMessage({ id: 'field.shortFloorName' })
 
     return function render (unit, ticket) {
         const sectionName = get(ticket, 'sectionName')
@@ -276,10 +276,10 @@ export const getTicketDetailsRender = (search?: FilterValue) => {
 }
 
 export const getStatusRender = (intl, search?: FilterValue) => {
-    const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
-    const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' })
+    const EmergencyMessage = intl.formatMessage({ id: 'emergency' })
+    const WarrantyMessage = intl.formatMessage({ id: 'warranty' })
+    const ReturnedMessage = intl.formatMessage({ id: 'returned' })
+    const PaidMessage = intl.formatMessage({ id: 'paid' })
 
     return function render (status, record) {
         const { primary: backgroundColor, secondary: color } = status.colors
@@ -361,14 +361,14 @@ export const getMeterReportingPeriodRender = (search: FilterValue, intl) => {
     return function render (periodRecord: MeterReportingPeriod) {
         const startAt = get(periodRecord, 'notifyStartDay')
         const finishAt = get(periodRecord, 'notifyEndDay')
-        const ReportingPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.reportingPeriod' }, { startAt, finishAt })
+        const ReportingPeriodMessage = intl.formatMessage({ id: 'meter.index.reportingPeriod.table.reportingPeriod' }, { startAt, finishAt })
         return getTableCellRenderer({ search })(ReportingPeriodMessage)
     }
 }
 
 export const getTicketPropertyHintAddressesRender = (search: FilterValue) => {
     return function render (intl, properties) {
-        const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+        const DeletedMessage = intl.formatMessage({ id: 'deleted' })
 
         if (isEmpty(properties)) {
             return '—'

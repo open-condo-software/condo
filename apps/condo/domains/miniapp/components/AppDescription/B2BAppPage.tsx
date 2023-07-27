@@ -22,7 +22,7 @@ type B2BPageProps = {
 export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     const intl = useIntl()
     const { refetch: refetchMenu } = useConnectedAppsWithIconsContext()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const LoadingMessage = intl.formatMessage({ id: 'loading' })
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)

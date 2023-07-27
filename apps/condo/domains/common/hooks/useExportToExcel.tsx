@@ -30,7 +30,7 @@ type UseExportToExcelReturnType = {
 
 export const useExportToExcel = (props: UseExportToExcelInputType): UseExportToExcelReturnType => {
     const intl = useIntl()
-    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const ExportAsExcelLabel = intl.formatMessage({ id: 'exportAsExcel' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 

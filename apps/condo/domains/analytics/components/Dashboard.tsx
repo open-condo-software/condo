@@ -71,8 +71,8 @@ const StatisticCard: React.FC<StatisticCardProps> = ({ label, value, secondaryLa
 
 const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData, paymentLoading, dateRange }) => {
     const intl = useIntl()
-    const SummaryTitle = intl.formatMessage({ id: 'pages.reports.summary' })
-    const DoneLabel = intl.formatMessage({ id: 'Done' })
+    const SummaryTitle = intl.formatMessage({ id: 'reports.summary' })
+    const DoneLabel = intl.formatMessage({ id: 'done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
     const NewTicketsLabel = intl.formatMessage({ id: 'ticket.status.OPEN.many' })
     const ClosedTicketsLabel = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
@@ -188,8 +188,8 @@ interface IDashboardCard {
 
 const IncidentDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
     const intl = useIntl()
-    const IncidentsTitle = intl.formatMessage({ id: 'pages.reports.incidentsTitle' })
-    const IncidentDescription = intl.formatMessage({ id: 'pages.reports.incidentsDescription' })
+    const IncidentsTitle = intl.formatMessage({ id: 'reports.incidentsTitle' })
+    const IncidentDescription = intl.formatMessage({ id: 'reports.incidentsDescription' })
 
     const { push } = useRouter()
 
@@ -235,7 +235,7 @@ const IncidentDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
 const TicketQualityControlDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
     const intl = useIntl()
     const QualityControlTitle = intl.formatMessage({ id: 'ticket.qualityControl' })
-    const TicketFeedbackTitle = intl.formatMessage({ id: 'pages.reports.ticketFeedbackCount' })
+    const TicketFeedbackTitle = intl.formatMessage({ id: 'reports.ticketFeedbackCount' })
 
     const { count: goodCount, loading: goodLoading } = Ticket.useCount({
         where: {

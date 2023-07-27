@@ -32,7 +32,7 @@ type UseIncidentExportToExcelReturnType = {
 
 export const useIncidentExportToExcelTask = (props: UseIncidentExportToExcelInputType): UseIncidentExportToExcelReturnType => {
     const intl = useIntl()
-    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const ExportAsExcelLabel = intl.formatMessage({ id: 'exportAsExcel' })
 
     const { label, where, sortBy, user } = props
 

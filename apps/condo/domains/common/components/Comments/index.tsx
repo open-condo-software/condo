@@ -241,14 +241,14 @@ const Comments: React.FC<ICommentsListProps> = ({
     loadingUserTicketCommentReadTime,
 }) => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'Comments.title' })
-    const CannotCreateCommentsMessage = intl.formatMessage({ id: 'Comments.cannotCreateComments' })
-    const InternalCommentsMessage = intl.formatMessage({ id: 'Comments.tab.organization' })
-    const PromptInternalCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.organization.prompt.title' })
-    const PromptInternalCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.organization.prompt.description' })
-    const ResidentCommentsMessage = intl.formatMessage({ id: 'Comments.tab.resident' })
-    const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
-    const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
+    const TitleMessage = intl.formatMessage({ id: 'comments.title' })
+    const CannotCreateCommentsMessage = intl.formatMessage({ id: 'comments.cannotCreateComments' })
+    const InternalCommentsMessage = intl.formatMessage({ id: 'comments.tab.organization' })
+    const PromptInternalCommentsTitleMessage = intl.formatMessage({ id: 'comments.tab.organization.prompt.title' })
+    const PromptInternalCommentsDescriptionMessage = intl.formatMessage({ id: 'comments.tab.organization.prompt.description' })
+    const ResidentCommentsMessage = intl.formatMessage({ id: 'comments.tab.resident' })
+    const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'comments.tab.resident.prompt.title' })
+    const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'comments.tab.resident.prompt.description' })
 
     const { breakpoints } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)

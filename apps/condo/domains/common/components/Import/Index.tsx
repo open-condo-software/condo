@@ -53,11 +53,11 @@ interface IImportWrapperProps {
 
 const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTranslate, exampleTemplateLink }) => {
     const intl = useIntl()
-    const ColumnsFormatMessage = intl.formatMessage({ id: 'ImportRequiredColumnsFormat' }, {
+    const ColumnsFormatMessage = intl.formatMessage({ id: 'importRequiredColumnsFormat' }, {
         domain: domainTranslate,
     })
-    const RequiredFieldsMessage = intl.formatMessage({ id: 'ImportRequiredFields' })
-    const DownloadExampleTitle = intl.formatMessage({ id: 'ImportDownloadExampleTitle' })
+    const RequiredFieldsMessage = intl.formatMessage({ id: 'importRequiredFields' })
+    const DownloadExampleTitle = intl.formatMessage({ id: 'importDownloadExampleTitle' })
 
     const downloadExample = useCallback(
         (event) => {
@@ -110,14 +110,14 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
     } = props
     const intl = useIntl()
     const ImportTitle = intl.formatMessage({ id:'Import' })
-    const ImportSuccessMessage = intl.formatMessage({ id: 'ImportSuccess' },  { objects: objectsName })
-    const ImportOKMessage = intl.formatMessage({ id: 'Continue' })
-    const ImportDefaultErrorMessage = intl.formatMessage({ id: 'ImportError' })
+    const ImportSuccessMessage = intl.formatMessage({ id: 'importSuccess' },  { objects: objectsName })
+    const ImportOKMessage = intl.formatMessage({ id: 'continue' })
+    const ImportDefaultErrorMessage = intl.formatMessage({ id: 'importError' })
     const ImportProcessingMessage = intl.formatMessage({ id:'ImportProcessing' })
     const ImportBreakButtonMessage = intl.formatMessage({ id:'Break' })
-    const ImportPopoverTitle = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
-    const GetFailedDataMessage = intl.formatMessage({ id: 'GetFailedData' })
-    const CloseMessage = intl.formatMessage({ id: 'Close' })
+    const ImportPopoverTitle = intl.formatMessage({ id: 'containers.formTableExcelImport.clickOrDragImportFileHint' })
+    const GetFailedDataMessage = intl.formatMessage({ id: 'getFailedData' })
+    const CloseMessage = intl.formatMessage({ id: 'close' })
 
     const { logEvent, getEventName } = useTracking()
 

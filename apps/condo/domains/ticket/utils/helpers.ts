@@ -33,7 +33,7 @@ export const getTicketCreateMessage = (intl, ticket) => {
         hour: '2-digit',
         minute: '2-digit',
     })
-    return `${intl.formatMessage({ id: 'CreatedDate' })} ${formattedDate}`
+    return `${intl.formatMessage({ id: 'createdDate' })} ${formattedDate}`
 }
 
 export const getTicketTitleMessage = (intl, ticket) => {
@@ -41,11 +41,11 @@ export const getTicketTitleMessage = (intl, ticket) => {
         return
     }
 
-    return `${intl.formatMessage({ id: 'ticket.id.PageTitle' })} № ${ticket.number}`
+    return `${intl.formatMessage({ id: 'ticket.id.pageTitle' })} № ${ticket.number}`
 }
 
 export const getTicketPdfName = (intl, ticket) => {
-    return `${intl.formatMessage({ id: 'ticket.id.PageTitle' })}_${ticket.number}.pdf`
+    return `${intl.formatMessage({ id: 'ticket.id.pageTitle' })}_${ticket.number}.pdf`
 }
 
 export const getTicketLabel = (intl, ticket) => {

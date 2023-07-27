@@ -69,7 +69,7 @@ export const getRenderBody: GetRenderBodyType = (search) => (body) => {
 }
 
 export const getRenderNewsDate: GetRenderNewsDateType = (intl, search) => (stringDate, news) => {
-    const NotSentNews = intl.formatMessage({ id: 'pages.condo.news.index.field.notSentYet' })
+    const NotSentNews = intl.formatMessage({ id: 'news.index.field.notSentYet' })
 
     if (!stringDate) return '—'
 
@@ -91,7 +91,7 @@ const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-
 
 
 export const ResendNewsButton = ({ intl, newsItem }) => {
-    const ResendMessage = intl.formatMessage({ id: 'pages.condo.news.resend' })
+    const ResendMessage = intl.formatMessage({ id: 'news.resend' })
 
     const handleClick = useCallback((e) => {
         e.stopPropagation()
@@ -122,7 +122,7 @@ export const getTypeRender: GetTypeRenderType = (intl, search) => (text, newsIte
     if (newsType !== NEWS_TYPE_EMERGENCY || !validBefore || timeLeft.asMilliseconds() < 0) return getTableCellRenderer({ search, ellipsis: true })(localeText)
 
     const postfix = `\n${intl.formatMessage(
-        { id: 'pages.condo.news.validBefore' }, 
+        { id: 'news.validBefore' }, 
         { validBefore: getNewsDate(intl, validBefore, DATE_FORMAT) }
     )}`
 
@@ -131,7 +131,7 @@ export const getTypeRender: GetTypeRenderType = (intl, search) => (text, newsIte
 
 export const getRenderProperties: GetRenderPropertiesType = (intl, search) => (properties, newsItem) => {
     const AllPropertiesMessage = intl.formatMessage({ id: 'news.fields.properties.allSelected' })
-    const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const ShortFlatNumber = intl.formatMessage({ id: 'field.shortFlatNumber' })
 
     if (get(newsItem, 'hasAllProperties')) {
         return AllPropertiesMessage

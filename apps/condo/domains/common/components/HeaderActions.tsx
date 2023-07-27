@@ -13,8 +13,8 @@ interface ITabsActionsProps {
 export const TabsAuthAction: React.FC<ITabsActionsProps> = (props) => {
     const { currentActiveKey } = props
     const intl = useIntl()
-    const registerTab = intl.formatMessage({ id: 'auth.RegistrationTitle' })
-    const signInTab = intl.formatMessage({ id: 'auth.SignInTitle' })
+    const registerTab = intl.formatMessage({ id: 'auth.registrationTitle' })
+    const signInTab = intl.formatMessage({ id: 'auth.signInTitle' })
 
     return (
         <RemoveTabsLineWrapper>

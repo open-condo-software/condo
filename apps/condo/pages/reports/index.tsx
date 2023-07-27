@@ -20,8 +20,8 @@ const EXTERNAL_REPORT_ROW_GUTTER: RowProps['gutter'] = [32, 40]
 
 const IndexPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'analytics.index.PageTitle' })
-    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const PageTitleMsg = intl.formatMessage({ id: 'analytics.index.pageTitle' })
+    const NoDataTitle = intl.formatMessage({ id: 'noData' })
 
     const { organization, link } = useOrganization()
 

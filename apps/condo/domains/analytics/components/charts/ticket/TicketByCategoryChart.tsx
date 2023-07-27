@@ -13,7 +13,7 @@ import type { ITicketChartCard } from './dataMappers'
 const TicketByCategoryChart: ITicketChartCard = ({ data }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
-    const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
+    const TicketsByCategory = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.groupByFilter.category' })
 
     return (
         <Row gutter={[0, 16]}>

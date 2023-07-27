@@ -40,7 +40,7 @@ export const TicketDeadlineSettingCard: React.FC<TicketDeadlineSettingCardProps>
                 deadlineText = TicketWithoutDefaultDeadlineLabel
             } else {
                 const deadline = convertDurationToDays(deadlineDuration)
-                deadlineText = `+${intl.formatMessage({ id: 'DaysShort' }, { days: deadline })}`
+                deadlineText = `+${intl.formatMessage({ id: 'daysShort' }, { days: deadline })}`
             }
             return {
                 label: `${intl.formatMessage({ id: `settings.callCenter.card.ticketDeadlines.type.${fieldName}` })}: ${deadlineText}`,

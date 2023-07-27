@@ -10,10 +10,10 @@ import { fontSizes } from '@condo/domains/common/constants/style'
 
 const EmptyResidentBlock: React.FC = () => {
     const intl = useIntl()
-    const EmptyResidentsTitle = intl.formatMessage({ id: 'property.form.EmptyResidents.header' })
-    const EmptyResidentsMessage = intl.formatMessage({ id: 'property.form.EmptyResidents.text' })
-    const UploadFile = intl.formatMessage({ id: 'UploadFile' })
-    const NotImplementedYetMessage = intl.formatMessage({ id: 'NotImplementedYet' })
+    const EmptyResidentsTitle = intl.formatMessage({ id: 'property.form.emptyResidents.header' })
+    const EmptyResidentsMessage = intl.formatMessage({ id: 'property.form.emptyResidents.text' })
+    const UploadFile = intl.formatMessage({ id: 'uploadFile' })
+    const NotImplementedYetMessage = intl.formatMessage({ id: 'notImplementedYet' })
     
     return (
         <BasicEmptyListView>

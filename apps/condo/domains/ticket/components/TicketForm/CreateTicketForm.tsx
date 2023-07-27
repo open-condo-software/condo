@@ -31,8 +31,8 @@ const OPEN_STATUS = '6ef3abc4-022f-481b-90fb-8430345ebfc2'
 
 export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
-    const CreateTicketMessage = intl.formatMessage({ id: 'CreateTicket' })
-    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+    const CreateTicketMessage = intl.formatMessage({ id: 'createTicket' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.property.nonSelectedError' })
 
     const { ticketSetting, ticketSettingLoading } = useTicketFormContext()
 

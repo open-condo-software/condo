@@ -14,7 +14,7 @@ const LINK_STYLE = { color: colors.black }
 
 export const TicketDeadlineSettingsAbout: React.FC = () => {
     const intl = useIntl()
-    const DescriptionLabel = intl.formatMessage({ id: 'Description' })
+    const DescriptionLabel = intl.formatMessage({ id: 'description' })
     const LinkMessage = intl.formatMessage({ id: 'settings.ticketDeadlines.about.description.link.message' })
     const DescriptionMessage = intl.formatMessage(
         { id: 'settings.ticketDeadlines.about.description.message' },

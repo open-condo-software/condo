@@ -23,8 +23,8 @@ const Src404 = { poster: '/404Poster.png', placeholder: '/404PosterPlaceholder.p
 export default function Custom404 (): React.ReactElement {
     const intl = useIntl()
     const PageTitle = intl.formatMessage( { id: 'error.NotFoundTitle' })
-    const DescriptionMessage = intl.formatMessage({ id: 'error.NotFoundDescription' })
-    const MainPagesMessageButton = intl.formatMessage({ id: 'auth.MainPage' })
+    const DescriptionMessage = intl.formatMessage({ id: 'error.notFoundDescription' })
+    const MainPagesMessageButton = intl.formatMessage({ id: 'auth.mainPage' })
 
     return (
         <Row justify='center'>

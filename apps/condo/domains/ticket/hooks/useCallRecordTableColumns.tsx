@@ -49,8 +49,8 @@ export const useCallRecordTableColumns = ({ filterMetas, setSelectedCallRecordFr
     const IncomingMessage = intl.formatMessage({ id: 'callRecord.callType.incoming' })
     const OutgoingMessage = intl.formatMessage({ id: 'callRecord.callType.outgoing' })
     const SecondsMessage = intl.formatMessage({ id: 'global.duration.seconds.short' })
-    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const AddressMessage = intl.formatMessage({ id: 'field.address' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' })
     const PlayMessage = intl.formatMessage({ id: 'callRecord.playRecord' })
     const DownloadMessage = intl.formatMessage({ id: 'callRecord.downloadRecord' })
 

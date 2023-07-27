@@ -71,9 +71,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const intl = useIntl()
 
     // TODO: change to 'common.import' namespace
-    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.IncorrectRowFormat' })
-    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
-    const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.PropertyNotFound' })
+    const IncorrectRowFormatMessage = intl.formatMessage({ id: 'errors.import.incorrectRowFormat' })
+    const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.addressNotFound' })
+    const PropertyNotFoundMessage = intl.formatMessage({ id: 'errors.import.propertyNotFound' })
 
     // A separate translation namespace is used to make import feature independent on other
     // to avoid sudden regressed changes of column names when many clients will already use provided spreadsheet
@@ -89,13 +89,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const Value3ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value3' })
     const Value4ColumnMessage = intl.formatMessage({ id: 'meter.import.column.value4' })
     const ReadingSubmissionDateMessage = intl.formatMessage({ id: 'meter.import.column.meterReadingSubmissionDate' })
-    const VerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.VerificationDate' })
-    const NextVerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.NextVerificationDate' })
-    const InstallationDateMessage = intl.formatMessage({ id: 'meter.import.column.InstallationDate' })
-    const CommissioningDateMessage = intl.formatMessage({ id: 'meter.import.column.CommissioningDate' })
-    const SealingDateMessage = intl.formatMessage({ id: 'meter.import.column.SealingDate' })
-    const ControlReadingsDate = intl.formatMessage({ id: 'meter.import.column.ControlReadingsDate' })
-    const PlaceColumnMessage = intl.formatMessage({ id: 'meter.import.column.MeterPlace' })
+    const VerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.verificationDate' })
+    const NextVerificationDateMessage = intl.formatMessage({ id: 'meter.import.column.nextVerificationDate' })
+    const InstallationDateMessage = intl.formatMessage({ id: 'meter.import.column.installationDate' })
+    const CommissioningDateMessage = intl.formatMessage({ id: 'meter.import.column.commissioningDate' })
+    const SealingDateMessage = intl.formatMessage({ id: 'meter.import.column.sealingDate' })
+    const ControlReadingsDate = intl.formatMessage({ id: 'meter.import.column.controlReadingsDate' })
+    const PlaceColumnMessage = intl.formatMessage({ id: 'meter.import.column.meterPlace' })
     const HotWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.hotWater' })
     const ColdWaterResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.coldWater' })
     const ElectricityResourceTypeValue = intl.formatMessage({ id: 'meter.import.value.meterResourceType.electricity' })
@@ -106,15 +106,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const ApartmentUnitTypeValue = intl.formatMessage({ id: 'ticket.field.unitType.apartment' })
     const WarehouseUnitTypeValue = intl.formatMessage({ id: 'ticket.field.unitType.warehouse' })
     const CommercialUnitTypeValue = intl.formatMessage({ id: 'ticket.field.unitType.commercial' })
-    const MeterResourceNotFoundMessage = intl.formatMessage({ id: 'meter.import.error.MeterResourceNotFound' })
-    const NoValuesErrorMessage = intl.formatMessage({ id: 'meter.import.error.ZeroValuesSpecified' })
-    const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.EmptyUnitType' })
-    const AccountNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.AccountNumberInvalidValue' })
-    const MeterNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberInvalidValue' })
-    const MeterValue1InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value1ColumnMessage })
-    const MeterValue2InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value2ColumnMessage })
-    const MeterValue3InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value3ColumnMessage })
-    const MeterValue4InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value4ColumnMessage })
+    const MeterResourceNotFoundMessage = intl.formatMessage({ id: 'meter.import.error.meterResourceNotFound' })
+    const NoValuesErrorMessage = intl.formatMessage({ id: 'meter.import.error.zeroValuesSpecified' })
+    const IncorrectUnitTypeMessage = intl.formatMessage({ id: 'errors.import.emptyUnitType' })
+    const AccountNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.accountNumberInvalidValue' })
+    const MeterNumberInvalidValueMessage = intl.formatMessage({ id: 'meter.import.error.meterNumberInvalidValue' })
+    const MeterValue1InvalidMessage = intl.formatMessage({ id: 'meter.import.error.meterValueInvalid' }, { columnName: Value1ColumnMessage })
+    const MeterValue2InvalidMessage = intl.formatMessage({ id: 'meter.import.error.meterValueInvalid' }, { columnName: Value2ColumnMessage })
+    const MeterValue3InvalidMessage = intl.formatMessage({ id: 'meter.import.error.meterValueInvalid' }, { columnName: Value3ColumnMessage })
+    const MeterValue4InvalidMessage = intl.formatMessage({ id: 'meter.import.error.meterValueInvalid' }, { columnName: Value4ColumnMessage })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -296,7 +296,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             switch (columns[i].name) {
                 case ReadingSubmissionDateMessage:
                     if (get(processedRow, ['addons', 'invalidReadingSubmissionDate'])) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateOrMonthFormatMessage' }, { columnName: columns[i].name, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.wrongDateOrMonthFormatMessage' }, { columnName: columns[i].name, format1: DATE_PARSING_FORMAT, format2: MONTH_PARSING_FORMAT }))
                     }
                     break
                 case VerificationDateMessage:
@@ -305,14 +305,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case CommissioningDateMessage: 
                 case SealingDateMessage:
                     if (cell.value && !dayjs(cell.value).isValid()) {
-                        errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].name, format: DATE_PARSING_FORMAT }))
+                        errors.push(intl.formatMessage({ id: 'meter.import.error.wrongDateFormatMessage' }, { columnName: columns[i].name, format: DATE_PARSING_FORMAT }))
                     }
                     break
                 case UnitNameColumnMessage:
                     if (unitType === PARKING_UNIT_TYPE && parkingUnitLabels.includes(cell.value)) break
                     if (unitType !== PARKING_UNIT_TYPE && sectionsUnitLabels.includes(cell.value)) break
 
-                    errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].name }))
+                    errors.push(intl.formatMessage({ id: 'meter.import.error.unitNameNotFound' }, { columnName: columns[i].name }))
                     break
                 default: 
                     break

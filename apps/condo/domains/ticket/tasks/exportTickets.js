@@ -70,7 +70,7 @@ const buildQualityControlAdditionalOptionsTranslationsFrom = (locale) => ({
 const renderComment = (comment, locale, timeZone) => {
     const createdAt = dayjs(comment.createdAt).tz(timeZone).format(COMMENT_DATE_FORMAT)
     const createdBy = comment.userName
-    const userType = comment.userType === RESIDENT ? i18n('Contact', { locale }) : i18n('Employee', { locale })
+    const userType = comment.userType === RESIDENT ? i18n('contact', { locale }) : i18n('employee', { locale })
     const content = comment.content
     const filesCount = comment.TicketCommentFiles
     const filesCountToRender = filesCount > 0 ? `(${i18n('excelExport.tickets.ticketCommentFilesCount', { locale })}: ${filesCount})` : ''
@@ -134,14 +134,14 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
 
     const formatDate = (date) => dayjs(date).tz(timeZone).format(DATE_FORMAT)
 
-    const YesMessage = i18n('Yes', { locale })
-    const NoMessage = i18n('No', { locale })
+    const YesMessage = i18n('yes', { locale })
+    const NoMessage = i18n('no', { locale })
 
     return {
         number: ticket.number,
         source: i18n(ticket.source, { locale }) || EMPTY_VALUE,
         organization: ticket.organization,
-        property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('ticket.field.PropertyWasDeleted', { locale })}`,
+        property: isNull(ticket.property) ? ticket.propertyAddress : `${ticket.propertyAddress} - ${i18n('ticket.field.propertyWasDeleted', { locale })}`,
         unitName: ticket.unitName,
         unitType: ticket.unitType ? i18n(`ticket.field.unitType.${ticket.unitType}`, { locale }) : '',
         entranceName: (ticket.sectionType && ticket.sectionName) ? `${i18n(`field.sectionType.${ticket.sectionType}`, { locale })} ${ticket.sectionName}` : '',
@@ -209,7 +209,7 @@ const buildExportFile = async ({ rows, task }) => {
                 // These statuses are needed to set cell color using conditional formatting by status name.
                 statusNames: ticketStatusesTranslations(locale),
 
-                yes: i18n('Yes', { locale }),
+                yes: i18n('yes', { locale }),
                 feedbackValues: feedbackValuesTranslations,
                 qualityControlValues: qualityControlValuesTranslations,
             },

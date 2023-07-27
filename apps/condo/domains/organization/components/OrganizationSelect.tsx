@@ -33,7 +33,7 @@ const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 300, width: '100%' }
 
 export const InlineOrganizationSelect: React.FC = () => {
     const intl = useIntl()
-    const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
+    const AddOrganizationTitle = intl.formatMessage({ id: 'organizations.createOrganizationButtonLabel' })
 
     const { breakpoints } = useLayoutContext()
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'

@@ -88,16 +88,16 @@ const prepareValidators = ({ requiredValidator, tinValidator, trimValidator, loc
 export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizationModalFormProps): ICreateOrganizationModalFormResult => {
     const intl = useIntl()
 
-    const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
-    const CreateOrganizationModalTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
-    const CreateOrganizationPlaceholder = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationPlaceholder' })
-    const ManagingCompanyMessage = intl.formatMessage({ id: 'pages.organizations.managingCompany' })
-    const ServiceProviderMessage = intl.formatMessage({ id: 'pages.organizations.serviceProvider' })
+    const ValueIsTooShortMsg = intl.formatMessage({ id: 'valueIsTooShort' })
+    const CreateOrganizationModalTitle = intl.formatMessage({ id: 'organizations.createOrganizationModalTitle' })
+    const CreateOrganizationPlaceholder = intl.formatMessage({ id: 'organizations.createOrganizationPlaceholder' })
+    const ManagingCompanyMessage = intl.formatMessage({ id: 'organizations.managingCompany' })
+    const ServiceProviderMessage = intl.formatMessage({ id: 'organizations.serviceProvider' })
 
-    const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
-    const InnMessage = intl.formatMessage({ id: 'pages.organizations.tin' })
-    const TinTooShortMsg = intl.formatMessage({ id: 'pages.organizations.tin.TooShortMessage' })
-    const TinValueIsInvalid = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const NameMsg = intl.formatMessage({ id: 'organizations.organizationName' })
+    const InnMessage = intl.formatMessage({ id: 'organizations.tin' })
+    const TinTooShortMsg = intl.formatMessage({ id: 'organizations.tin.tooShortMessage' })
+    const TinValueIsInvalid = intl.formatMessage({ id: 'organizations.tin.invalidValue' })
 
     const ErrorToFormFieldMsgMapping = React.useMemo(
         () => prepareValidationErrorsMapping({ ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid }),

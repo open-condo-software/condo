@@ -31,9 +31,9 @@ const PayConfirmScreen: React.FC<PayConfirmScreenProps> = ({
     parts,
 }) => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'paymentConfirm.PageTitle' })
+    const PageTitle = intl.formatMessage({ id: 'paymentConfirm.pageTitle' })
     const PayLabel = intl.formatMessage({ id: 'pay' })
-    const VerifyAmountMessage = intl.formatMessage({ id: 'paymentConfirm.VerifyPaymentAmount' })
+    const VerifyAmountMessage = intl.formatMessage({ id: 'paymentConfirm.verifyPaymentAmount' })
 
     const totalAmount = parts
         .reduce((acc, cur) => acc.plus(cur.amount), Big(0))

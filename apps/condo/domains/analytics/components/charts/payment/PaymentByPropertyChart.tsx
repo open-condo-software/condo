@@ -12,8 +12,8 @@ import type { IPaymentChartCard } from './dataMappers'
 
 const PaymentByPropertyChart: IPaymentChartCard = ({ data }) => {
     const intl = useIntl()
-    const ChartTitle = intl.formatMessage({ id: 'pages.reports.paymentsByProperty' })
-    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
+    const ChartTitle = intl.formatMessage({ id: 'reports.paymentsByProperty' })
+    const PaidTitle = intl.formatMessage({ id: 'paymentPaid' })
 
     const dataMapper = useMemo(() => PaymentByPropertyDataMapper(PaidTitle), [PaidTitle])
 

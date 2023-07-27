@@ -24,10 +24,10 @@ const AUTO_COMPLETE_MESSAGE_STYLE: CSSProperties = { whiteSpace:'nowrap' }
 
 export const TicketDeadlineField = ({ initialValues, form }) => {
     const intl = useIntl()
-    const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
-    const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion' })
-    const AutoCompletionTodayMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion.today' })
-    const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'ticket.WithoutDeadline' })
+    const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.completeBefore' })
+    const AutoCompletionMessage = intl.formatMessage({ id: 'ticket.deadline.autoCompletion' })
+    const AutoCompletionTodayMessage = intl.formatMessage({ id: 'ticket.deadline.autoCompletion.today' })
+    const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'ticket.withoutDeadline' })
 
     const { breakpoints } = useLayoutContext()
     const COL_SPAN = useMemo(() => !breakpoints.TABLET_LARGE ? 24 : 11, [breakpoints.TABLET_LARGE])
@@ -64,7 +64,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const autoDetectedLabel = useMemo(() => {
         if (!isAutoDetectedDeadlineValue || isNull(autoAddDays)) return null
 
-        const DaysMessage = intl.formatMessage({ id: 'DaysShort' }, { days: autoAddDays })
+        const DaysMessage = intl.formatMessage({ id: 'daysShort' }, { days: autoAddDays })
 
         return (
             <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={!breakpoints.TABLET_LARGE ? 24 : 11}>

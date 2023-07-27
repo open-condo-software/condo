@@ -41,11 +41,11 @@ export const EmployeesPageContent = ({
     total,
 }) => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'employee.PageTitle' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const EmptyListLabel = intl.formatMessage({ id: 'employee.EmptyList.header' })
-    const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })
-    const CreateEmployee = intl.formatMessage({ id: 'AddEmployee' })
+    const PageTitleMessage = intl.formatMessage({ id: 'employee.pageTitle' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const EmptyListLabel = intl.formatMessage({ id: 'employee.emptyList.header' })
+    const EmptyListMessage = intl.formatMessage({ id: 'employee.emptyList.title' })
+    const CreateEmployee = intl.formatMessage({ id: 'addEmployee' })
 
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)

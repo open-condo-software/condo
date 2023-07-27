@@ -29,15 +29,15 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = (props) => {
     const { loading = false, data, viewMode, mapperInstance, filters } = props
 
     const intl = useIntl()
-    const DateTitle = intl.formatMessage({ id: 'Date' })
-    const AddressTitle = intl.formatMessage({ id: 'field.Address' })
-    const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
-    const AssigneeTitle = intl.formatMessage({ id: 'field.Responsible' })
-    const AllAddressTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllAddresses' })
-    const CategoryClassifierTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.Classifier' })
-    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
-    const AllExecutorsTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
-    const AllAssigneesTitle = intl.formatMessage({ id: 'analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
+    const DateTitle = intl.formatMessage({ id: 'date' })
+    const AddressTitle = intl.formatMessage({ id: 'field.address' })
+    const ExecutorTitle = intl.formatMessage({ id: 'field.executor' })
+    const AssigneeTitle = intl.formatMessage({ id: 'field.responsible' })
+    const AllAddressTitle = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.tableColumns.allAddresses' })
+    const CategoryClassifierTitle = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.tableColumns.classifier' })
+    const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.tableColumns.allClassifiers' })
+    const AllExecutorsTitle = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.tableColumns.allExecutors' })
+    const AllAssigneesTitle = intl.formatMessage({ id: 'analytics.ticketAnalyticsPage.tableColumns.allAssignees' })
     const { breakpoints } = useLayoutContext()
 
     if (data === null || filters === null || loading) {

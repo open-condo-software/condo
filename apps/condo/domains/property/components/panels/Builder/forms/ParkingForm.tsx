@@ -31,7 +31,7 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
     const ParkingOnFloorLabel = intl.formatMessage({ id: 'property.parking.form.parkingOnFloor' })
     const ShowMinFloor = intl.formatMessage({ id: 'property.parking.form.showMinFloor' })
     const HideMinFloor = intl.formatMessage({ id: 'property.parking.form.hideMinFloor' })
-    const AddLabel = intl.formatMessage({ id: 'Add' })
+    const AddLabel = intl.formatMessage({ id: 'add' })
     const CreateNewLabel = intl.formatMessage({ id: 'property.section.form.mode.create' })
     const CopyLabel = intl.formatMessage({ id: 'property.parking.form.mode.copy' })
 
@@ -184,9 +184,9 @@ const AddParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) =
 const EditParkingForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
     const intl = useIntl()
     const NameLabel = intl.formatMessage({ id: 'property.parking.form.numberOfParkingSection' })
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
-    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'property.modal.RenameNextParking' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
+    const DeleteLabel = intl.formatMessage({ id: 'delete' })
+    const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'property.modal.renameNextParking' })
 
     const [parkingName, setParkingName] = useState<string>('')
     const renameNextUnits = useRef(true)

@@ -47,15 +47,15 @@ interface IInputPhoneFormProps {
 export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
     const [form] = Form.useForm()
     const intl = useIntl()
-    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.Phone' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'auth.TooManyRequests' })
+    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.phone' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.phone' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'fieldIsRequired' })
+    const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'auth.tooManyRequests' })
     const WrongPhoneFormatErrorMsg = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
-    const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
-    const ConsentContent = intl.formatMessage({ id: 'auth.register.info.ConsentContent' })
-    const PrivacyPolicyContent = intl.formatMessage({ id: 'auth.register.info.PrivacyPolicyContent' })
+    const RegisterMsg = intl.formatMessage({ id: 'register' })
+    const LoginBySBBOLMsg = intl.formatMessage({ id: 'loginBySbbol' })
+    const ConsentContent = intl.formatMessage({ id: 'auth.register.info.consentContent' })
+    const PrivacyPolicyContent = intl.formatMessage({ id: 'auth.register.info.privacyPolicyContent' })
 
     const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
 

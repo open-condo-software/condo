@@ -100,10 +100,10 @@ export enum CONTACT_TYPE {
 
 export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const intl = useIntl()
-    const AddNewContactLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.AddNewContact' })
-    const TicketFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketFromResident' })
-    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.TicketNotFromResident' })
-    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const AddNewContactLabel = intl.formatMessage({ id: 'contact.contact.contactsEditor.addNewContact' })
+    const TicketFromResidentMessage = intl.formatMessage({ id: 'condo.ticket.title.ticketFromResident' })
+    const TicketNotFromResidentMessage = intl.formatMessage({ id: 'ticket.title.ticketNotFromResident' })
+    const CancelMessage = intl.formatMessage({ id: 'cancel' })
 
     const {
         form,

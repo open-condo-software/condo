@@ -98,13 +98,13 @@ interface IPropertyReport {
 
 const PropertyImportBankTransactions: IPropertyImportBankTransactions = ({ bankAccount, organizationId, refetchBankAccount }) => {
     const intl = useIntl()
-    const ImportBankAccountTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.title' })
-    const ImportBankAccountDescription = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.description' })
-    const ProcessingTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.processing.title' })
-    const ProcessingDescription = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.processing.description' })
-    const LoginBySBBOLTitle = intl.formatMessage({ id: 'LoginBySBBOL' })
-    const ImportSBBOLTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.importSbbolTitle' })
-    const ImportFileTitle = intl.formatMessage({ id: 'pages.condo.property.report.importBankTransaction.importFileTitle' })
+    const ImportBankAccountTitle = intl.formatMessage({ id: 'property.report.importBankTransaction.title' })
+    const ImportBankAccountDescription = intl.formatMessage({ id: 'property.report.importBankTransaction.description' })
+    const ProcessingTitle = intl.formatMessage({ id: 'property.report.importBankTransaction.processing.title' })
+    const ProcessingDescription = intl.formatMessage({ id: 'property.report.importBankTransaction.processing.description' })
+    const LoginBySBBOLTitle = intl.formatMessage({ id: 'loginBySbbol' })
+    const ImportSBBOLTitle = intl.formatMessage({ id: 'property.report.importBankTransaction.importSbbolTitle' })
+    const ImportFileTitle = intl.formatMessage({ id: 'property.report.importBankTransaction.importFileTitle' })
 
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -234,13 +234,13 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const IncomeTitle = intl.formatMessage({ id: 'global.income' }, { isSingular: false })
     const WithdrawalTitle = intl.formatMessage({ id: 'global.withdrawal' }, { isSingular: false })
     const ContractorTitle = intl.formatMessage({ id: 'global.contractor' }, { isSingular: false })
-    const SearchPlaceholderTitle = intl.formatMessage({ id: 'filters.FullSearch' })
-    const CategoryCheckboxTitle = intl.formatMessage({ id: 'pages.banking.categoryNotSet' })
-    const UploadFileTitle = intl.formatMessage({ id: 'pages.banking.uploadTransactionsFile' })
-    const EditTitle = intl.formatMessage({ id: 'Edit' })
-    const CancelSelectionTitle = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
-    const DeleteTitle = intl.formatMessage({ id: 'Delete' })
-    const SyncSbbolTransactions = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncTitle' })
+    const SearchPlaceholderTitle = intl.formatMessage({ id: 'filters.fullSearch' })
+    const CategoryCheckboxTitle = intl.formatMessage({ id: 'banking.categoryNotSet' })
+    const UploadFileTitle = intl.formatMessage({ id: 'banking.uploadTransactionsFile' })
+    const EditTitle = intl.formatMessage({ id: 'edit' })
+    const CancelSelectionTitle = intl.formatMessage({ id: 'ticket.index.cancelSelectedTicket' })
+    const DeleteTitle = intl.formatMessage({ id: 'delete' })
+    const SyncSbbolTransactions = intl.formatMessage({ id: 'banking.report.sbbolSyncTitle' })
 
     // Local state
     const [tab, setTab] = useState<PropertyReportTypes>('income')
@@ -349,12 +349,12 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
 
     const totalSelectedItems = selectedBankTransactions.length || selectedContractorAccounts.length
     const deleteModalTitle = selectedBankTransactions.length
-        ? intl.formatMessage({ id: 'pages.banking.removeModal.transaction.title' }, { count: selectedBankTransactions.length })
-        : intl.formatMessage({ id: 'pages.banking.removeModal.contractor.title' }, { count: selectedContractorAccounts.length })
+        ? intl.formatMessage({ id: 'banking.removeModal.transaction.title' }, { count: selectedBankTransactions.length })
+        : intl.formatMessage({ id: 'banking.removeModal.contractor.title' }, { count: selectedContractorAccounts.length })
     const deleteModalDescription = selectedBankTransactions.length
-        ? intl.formatMessage({ id: 'pages.banking.removeModal.transaction.description' }, { count: selectedBankTransactions.length })
-        : intl.formatMessage({ id: 'pages.banking.removeModal.contractor.description' }, { count: selectedContractorAccounts.length })
-    const itemsSelectedTitle = intl.formatMessage({ id: 'pages.banking.report.itemsSelected' }, { count: totalSelectedItems })
+        ? intl.formatMessage({ id: 'banking.removeModal.transaction.description' }, { count: selectedBankTransactions.length })
+        : intl.formatMessage({ id: 'banking.removeModal.contractor.description' }, { count: selectedContractorAccounts.length })
+    const itemsSelectedTitle = intl.formatMessage({ id: 'banking.report.itemsSelected' }, { count: totalSelectedItems })
     const fileImportIntegration = get(bankAccount, ['integrationContext', 'integration', 'id']) === BANK_INTEGRATION_IDS['1CClientBankExchange']
     const reportDeleteEntities = useFlag(PROPERTY_REPORT_DELETE_ENTITIES)
     const canManageBankAccountReportTasks = get(role, 'canManageBankAccountReportTasks', false)
@@ -459,8 +459,8 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
 
 const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => {
     const intl = useIntl()
-    const PageImportTitle = intl.formatMessage({ id: 'pages.condo.property.report.pageImportTitle' })
-    const PageReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.pageReportTitle' })
+    const PageImportTitle = intl.formatMessage({ id: 'property.report.pageImportTitle' })
+    const PageReportTitle = intl.formatMessage({ id: 'property.report.pageReportTitle' })
 
     const { link } = useOrganization()
     const { loading, obj: bankAccount, refetch } = BankAccount.useObject({
@@ -508,14 +508,14 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
                                 &nbsp;
                                             <Typography.Text type='secondary'>
                                                 {intl.formatMessage(
-                                                    { id: 'pages.condo.property.report.pageReportDescription' },
+                                                    { id: 'property.report.pageReportDescription' },
                                                     { bankAccountNumber: bankAccount.number }
                                                 )}
                                             </Typography.Text>
                                             <Typography.Paragraph type='warning'>
                                                 {
                                                     intl.formatMessage(
-                                                        { id: 'pages.condo.property.report.dataUpdatedTitle' },
+                                                        { id: 'property.report.dataUpdatedTitle' },
                                                         { updatedAt: intl.formatDate(get(bankAccount, 'integrationContext.meta.amountAt', bankAccount.updatedAt), DATE_DISPLAY_FORMAT) }
                                                     )
                                                 }
@@ -564,8 +564,8 @@ const PropertyReportPageContent: IPropertyReportPageContent = ({ property }) => 
 
 const PropertyReportPage = (): React.ReactElement => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'pages.condo.property.report.pageImportTitle' })
-    const ServerErrorTitle = intl.formatMessage({ id: 'ServerError' })
+    const PageTitle = intl.formatMessage({ id: 'property.report.pageImportTitle' })
+    const ServerErrorTitle = intl.formatMessage({ id: 'serverError' })
 
     const { query: { id }, push, asPath } = useRouter()
 

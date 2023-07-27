@@ -19,8 +19,8 @@ interface MobileAppInstalledIndicatorProps {
 
 const MobileAppInstalledIndicator: React.FC<MobileAppInstalledIndicatorProps> = ({ isContactHasMobileApp }) => {
     const intl = useIntl()
-    const MobileAppInstalledMessage = intl.formatMessage({ id: 'ticket.MobileAppInstalled' })
-    const MobileAppNotInstalledMessage = intl.formatMessage({ id: 'ticket.MobileAppNotInstalled' })
+    const MobileAppInstalledMessage = intl.formatMessage({ id: 'ticket.mobileAppInstalled' })
+    const MobileAppNotInstalledMessage = intl.formatMessage({ id: 'ticket.mobileAppNotInstalled' })
 
     return (
         <Tooltip title={isContactHasMobileApp ? MobileAppInstalledMessage : MobileAppNotInstalledMessage}>
@@ -38,8 +38,8 @@ const LAST_MONTH_BEGINNING = dayjs().subtract(1, 'months').startOf('month').form
 
 const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({ ticketOrganizationId, propertyAddress }) => {
     const intl = useIntl()
-    const PaymentsAvailableMessage = intl.formatMessage({ id: 'ticket.PaymentsAvailable' })
-    const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'ticket.PaymentsNotAvailable' })
+    const PaymentsAvailableMessage = intl.formatMessage({ id: 'ticket.paymentsAvailable' })
+    const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'ticket.paymentsNotAvailable' })
 
     const { count: receiptsByProperty, loading: receiptsByPropertyLoading } = BillingReceipt.useCount({
         where: {

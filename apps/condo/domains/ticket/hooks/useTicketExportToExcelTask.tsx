@@ -13,7 +13,7 @@ import { useTicketExportTaskUIInterface } from './useTicketExportTaskUIInterface
 
 export const useTicketExportToExcelTask = ({ where, sortBy, format, locale, timeZone, user }) => {
     const intl = useIntl()
-    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
+    const ExportAsExcelLabel = intl.formatMessage({ id: 'exportAsExcel' })
 
     const { TicketExportTask: TaskUIInterface } = useTicketExportTaskUIInterface()
 

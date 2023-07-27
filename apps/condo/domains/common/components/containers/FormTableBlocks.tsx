@@ -134,9 +134,9 @@ function _useTableRowForm () {
 
 function RenderActionsColumn (text, item) {
     const intl = useIntl()
-    const AreYouSureMessage = intl.formatMessage({ id: 'AreYouSure' })
-    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
-    const EditMessage = intl.formatMessage({ id: 'Edit' })
+    const AreYouSureMessage = intl.formatMessage({ id: 'areYouSure' })
+    const DeleteMessage = intl.formatMessage({ id: 'delete' })
+    const EditMessage = intl.formatMessage({ id: 'edit' })
 
     const { user } = useAuth()
 
@@ -222,7 +222,7 @@ function toGQLWhere (filters) {
 
 function TableCellInner ({ children, record, rowIndex, column }) {
     const intl = useIntl()
-    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'fieldIsRequired' })
 
     const { editable, dataIndex, rules, normalize, editableInput } = column
     const { form, editing } = _useTableRowForm()
@@ -255,7 +255,7 @@ function TableCellInner ({ children, record, rowIndex, column }) {
 
 function NewOrExportTableBlock ({ columns, table }) {
     const intl = useIntl()
-    const CreateMessage = intl.formatMessage({ id: 'Create' })
+    const CreateMessage = intl.formatMessage({ id: 'create' })
 
     const data = table.state.data
     const setData = table.setData

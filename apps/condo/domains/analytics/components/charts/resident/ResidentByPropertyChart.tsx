@@ -12,7 +12,7 @@ import type { IResidentChartCard } from './dataMappers'
 
 const ResidentByPropertyChart: IResidentChartCard = ({ data }) => {
     const intl = useIntl()
-    const ChartTitle = intl.formatMessage({ id: 'pages.reports.residentsTitle' })
+    const ChartTitle = intl.formatMessage({ id: 'reports.residentsTitle' })
     const ResidentTitle = intl.formatMessage({ id: 'global.section.contacts' })
 
     const dataMapper = useMemo(() => ResidentByPropertyDataMapper(ResidentTitle), [ResidentTitle])

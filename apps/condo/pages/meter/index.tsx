@@ -431,9 +431,9 @@ export const MeterReportingPeriodPageContent = ({
     }, {
         fetchPolicy: 'network-only',
     })
-    
+
     const defaultPeriod = useRef<MeterReportingPeriodType>()
-    
+
     const reportingPeriodsProcessedForTable = useMemo(() => {
         return compact(reportingPeriods.map(period => {
             if (period.organization !== null) return period

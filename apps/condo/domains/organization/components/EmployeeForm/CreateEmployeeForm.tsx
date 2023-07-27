@@ -43,20 +43,20 @@ const INPUT_LAYOUT_PROPS = {
 export const CreateEmployeeForm: React.FC = () => {
     const intl = useIntl()
 
-    const InviteEmployeeLabel = intl.formatMessage({ id: 'employee.InviteEmployee' })
-    const FullNameLabel = intl.formatMessage({ id: 'pages.auth.register.field.Name' })
-    const FullNamePlaceholder = intl.formatMessage({ id: 'field.FullName' })
-    const FullNameRequiredMessage = intl.formatMessage({ id: 'employee.FullName.requiredError' })
+    const InviteEmployeeLabel = intl.formatMessage({ id: 'employee.inviteEmployee' })
+    const FullNameLabel = intl.formatMessage({ id: 'auth.register.field.name' })
+    const FullNamePlaceholder = intl.formatMessage({ id: 'field.fullName' })
+    const FullNameRequiredMessage = intl.formatMessage({ id: 'employee.fullName.requiredError' })
     const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
-    const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
-    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
-    const EmailLabel = intl.formatMessage({ id: 'Email' })
-    const SpecializationsLabel = intl.formatMessage({ id: 'employee.Specializations' })
-    const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
+    const PositionLabel = intl.formatMessage({ id: 'employee.position' })
+    const PhoneLabel = intl.formatMessage({ id: 'phone' })
+    const EmailLabel = intl.formatMessage({ id: 'email' })
+    const SpecializationsLabel = intl.formatMessage({ id: 'employee.specializations' })
+    const RoleLabel = intl.formatMessage({ id: 'employee.role' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.phone' })
+    const ExampleEmailMsg = intl.formatMessage({ id: 'example.email' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
+    const CheckAllMessage = intl.formatMessage({ id: 'checkAll' })
 
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { organization } = useOrganization()
@@ -260,7 +260,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                     <Alert
                                                         type='info'
                                                         showIcon
-                                                        message={intl.formatMessage({ id: 'employee.Role.whoIs' }, { roleName: role.name.toLowerCase() })}
+                                                        message={intl.formatMessage({ id: 'employee.role.whoIs' }, { roleName: role.name.toLowerCase() })}
                                                         description={role.description}
                                                     />
                                                 )

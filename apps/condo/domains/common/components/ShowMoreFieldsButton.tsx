@@ -22,8 +22,8 @@ const SHOW_MORE_BUTTON_STYLE = { padding: 0, backgroundColor: 'transparent' }
 
 export const ShowMoreFieldsButton = ({ isAdditionalFieldsCollapsed, setIsAdditionalFieldsCollapsed }) => {
     const intl = useIntl()
-    const MoreParametersMessage = intl.formatMessage({ id: 'MoreParameters' })
-    const LessParametersMessage = intl.formatMessage({ id: 'LessParameters' })
+    const MoreParametersMessage = intl.formatMessage({ id: 'moreParameters' })
+    const LessParametersMessage = intl.formatMessage({ id: 'lessParameters' })
 
     const handleShowMoreButtonClick = useCallback(() => setIsAdditionalFieldsCollapsed(isCollapsed => !isCollapsed)
         , [setIsAdditionalFieldsCollapsed])

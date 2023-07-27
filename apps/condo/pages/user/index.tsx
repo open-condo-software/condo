@@ -32,15 +32,15 @@ interface IUserInfoPageContentProps {
 
 export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organizationEmployeesQuery }) => {
     const intl = useIntl()
-    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
-    const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
-    const PasswordMessage = intl.formatMessage({ id: 'auth.signin.field.Password' })
-    const UpdateMessage = intl.formatMessage({ id: 'Edit' })
-    const InterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.interfaceLanguage' })
-    const ChooseInterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.chooseInterfaceLanguage' })
-    const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
+    const PhoneMessage = intl.formatMessage({ id: 'phone' })
+    const EmailMessage = intl.formatMessage({ id: 'field.eMail' })
+    const PasswordMessage = intl.formatMessage({ id: 'auth.signin.field.password' })
+    const UpdateMessage = intl.formatMessage({ id: 'edit' })
+    const InterfaceLanguageTitle = intl.formatMessage({ id: 'profile.interfaceLanguage' })
+    const ChooseInterfaceLanguageTitle = intl.formatMessage({ id: 'profile.chooseInterfaceLanguage' })
+    const GlobalHintsTitle = intl.formatMessage({ id: 'profile.globalHints' })
     const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
-    const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
+    const EnTitle = intl.formatMessage({ id: 'language.englishUs.withFlag' })
 
     const locale = intl.locale
 

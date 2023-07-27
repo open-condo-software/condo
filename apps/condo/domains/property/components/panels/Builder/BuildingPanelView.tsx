@@ -75,7 +75,7 @@ const UNIT_TYPE_ROW_GUTTER: RowProps['gutter'] = [42, 0]
 export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refresh, canManageProperties = false }) => {
     const intl = useIntl()
     const ParkingTitlePrefix = intl.formatMessage({ id: 'property.select.option.parking' })
-    const SectionNamePrefixTitle = intl.formatMessage({ id: 'property.section.Name' })
+    const SectionNamePrefixTitle = intl.formatMessage({ id: 'property.section.name' })
 
     const { query: { id } } = useRouter()
     const { obj: property } = Property.useObject({ where: { id: id as string } })

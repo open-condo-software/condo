@@ -29,11 +29,11 @@ export const ErrorsContainer: React.FC<IErrorsContainerProps> = (props) => {
     } = props
     const intl = useIntl()
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
-    const PhoneLabel = intl.formatMessage({ id: 'Phone' })
-    const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
-    const contactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
+    const UnitLabel = intl.formatMessage({ id: 'field.unit' })
+    const PhoneLabel = intl.formatMessage({ id: 'phone' })
+    const NameLabel = intl.formatMessage({ id: 'field.fullName.short' })
+    const contactDuplicateMessage = intl.formatMessage({ id: 'contact.contactDuplicateError' })
     const FullNameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     const disabledUserInteractions = !address || !unit || !phone || !!propertyMismatchError || hasContactDuplicate || hasNameSpecCharError || hasNameTrimValidateError

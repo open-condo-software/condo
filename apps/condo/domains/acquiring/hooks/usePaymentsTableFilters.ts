@@ -31,16 +31,16 @@ export function usePaymentsTableFilters (
     organizationId: string,
 ): FiltersMeta<PaymentWhereInput>[] {
     const intl = useIntl()
-    const StartDateMessage = intl.formatMessage({ id: 'meter.StartDate' })
-    const EndDateMessage = intl.formatMessage({ id: 'meter.EndDate' })
-    const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
-    const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const StartDateMessage = intl.formatMessage({ id: 'meter.startDate' })
+    const EndDateMessage = intl.formatMessage({ id: 'meter.endDate' })
+    const DateMessage = intl.formatMessage({ id: 'createdDate' })
+    const AccountTitle = intl.formatMessage({ id: 'field.accountNumberShort' })
     const AddressMessage = intl.formatMessage({ id: 'payments.billingAddress' })
     const EnterAddressMessage = intl.formatMessage({ id: 'payments.enterBillingAddress' })
     const TypeMessage = intl.formatMessage({ id: 'payments.type' })
     const EnterTypeMessage = intl.formatMessage({ id: 'payments.enterType' })
-    const StatusTitle = intl.formatMessage({ id: 'Status' })
-    const PaymentOrderTitle = intl.formatMessage({ id: 'PaymentOrder' })
+    const StatusTitle = intl.formatMessage({ id: 'status' })
+    const PaymentOrderTitle = intl.formatMessage({ id: 'paymentOrder' })
     const EnterStatusMessage = intl.formatMessage({ id: 'payments.enterStatus' })
 
     const statuses = statusType.map((item) => ({

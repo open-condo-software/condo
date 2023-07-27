@@ -102,9 +102,9 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                 }
 
                 const ticketNullReplaces = {
-                    categoryClassifier: i18n('pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier'),
-                    executor: i18n('pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Executor'),
-                    assignee: i18n('pages.condo.analytics.TicketAnalyticsPage.NullReplaces.Assignee'),
+                    categoryClassifier: i18n('analytics.ticketAnalyticsPage.nullReplaces.categoryClassifier'),
+                    executor: i18n('analytics.ticketAnalyticsPage.nullReplaces.executor'),
+                    assignee: i18n('analytics.ticketAnalyticsPage.nullReplaces.assignee'),
                 }
 
                 const dateFilter = {

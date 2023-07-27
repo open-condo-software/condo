@@ -74,7 +74,7 @@ interface IBuildingTopModalProps {
 
 const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapEdit }) => {
     const intl = useIntl()
-    const AddElementTitle = intl.formatMessage({ id: 'property.menu.MenuPlaceholder' })
+    const AddElementTitle = intl.formatMessage({ id: 'property.menu.menuPlaceholder' })
     const AddSection = intl.formatMessage({ id: 'property.select.option.section' })
     const AddUnit = intl.formatMessage({ id: 'property.select.option.unit' })
     const AddFloor = intl.formatMessage({ id: 'property.select.option.floor' })
