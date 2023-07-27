@@ -67,23 +67,15 @@ const CallRecord = new GQLListSchema('CallRecord', {
         },
     },
     hooks: {
-        // afterDelete: async ({ existingItem }) => {
-        //     if (existingItem.file) {
-        //         await Adapter.delete(existingItem.file)
-        //     }
-        // },
         afterChange: async ({ updatedItem, listKey, operation }) => {
             if (operation === 'create' && updatedItem && Adapter.acl && Adapter.acl.setMeta) {
                 const file = get(updatedItem, 'file')
 
                 if (file) {
-                    console.log('afterChange file', file)
                     const { filename, _meta } = file
                     const folder = get(Adapter, 'folder', '')
                     const key = `${folder}/${filename}`
-
                     const itemId = updatedItem.id
-
                     const stringIds = get(_meta, 'ids') || ''
                     const ids = stringIds.split(',').filter(Boolean)
 
@@ -91,9 +83,7 @@ const CallRecord = new GQLListSchema('CallRecord', {
                         ids.push(itemId)
                     }
 
-                    console.log('afterChange ids', ids)
-
-                    // OBS will lowercase all keys from meta
+                    // set CallRecord ids in file meta to check access rights
                     await Adapter.acl.setMeta(key, {
                         listkey: listKey,
                         ids: ids.join(','),

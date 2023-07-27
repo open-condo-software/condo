@@ -1,14 +1,13 @@
 const path = require('path')
-const { promisify } = require('util')
 
-const { getItem } = require('@keystonejs/server-side-graphql-client')
+const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
-const { isEmpty } = require('lodash')
+const { isEmpty, isString } = require('lodash')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
 
-const { UUID_REGEXP } = require('../constants/regexps')
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
@@ -66,7 +65,6 @@ class SberCloudObsAcl {
 }
 
 class SberCloudFileAdapter {
-
     constructor (config) {
         this.bucket = config.bucket
         this.s3 = new ObsClient(config.s3Options)
@@ -85,36 +83,6 @@ class SberCloudFileAdapter {
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
-        // return new Promise((resolve, reject) => {
-        //     const fileData = {
-        //         id,
-        //         originalFilename: filename,
-        //         filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
-        //         mimetype,
-        //         encoding,
-        //     }
-        //     const key = `${this.folder}/${fileData.filename}`
-        //     const uploadParams = this.uploadParams({ ...fileData, meta })
-        //     this.s3.putObject(
-        //         {
-        //             Body: stream,
-        //             ContentType: mimetype,
-        //             Bucket: this.bucket,
-        //             Key: key,
-        //             ...uploadParams,
-        //         },
-        //         (error, data) => {
-        //             error = error || this.errorFromCommonMsg(data)
-        //             if (error) {
-        //                 reject(error)
-        //             } else {
-        //                 resolve({ ...fileData, _meta: data })
-        //             }
-        //             stream.destroy()
-        //         }
-        //     )
-        // })
-
         const fileData = {
             id,
             originalFilename: filename,
@@ -148,8 +116,6 @@ class SberCloudFileAdapter {
         if (this.saveFileName) {
             return this.acl.getMeta(key)
                 .then((existedMeta) => {
-                    console.log('existedMeta', existedMeta)
-
                     if (!isEmpty(existedMeta)) {
                         return { ...fileData, _meta: existedMeta }
                     }
@@ -159,48 +125,6 @@ class SberCloudFileAdapter {
         }
 
         return new Promise(saveFile)
-
-        // try {
-        //     const fileData = {
-        //         id,
-        //         originalFilename: filename,
-        //         filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
-        //         mimetype,
-        //         encoding,
-        //     }
-        //     const key = `${this.folder}/${fileData.filename}`
-        //
-        //     if (this.saveFileName) {
-        //         const existedMeta = await this.acl.getMeta(key)
-        //
-        //         console.log('save existedMeta, fileData', existedMeta, fileData)
-        //
-        //         if (!isEmpty(existedMeta)) {
-        //             return { ...fileData, _meta: existedMeta }
-        //         }
-        //     }
-        //
-        //     const uploadParams = this.uploadParams({ ...fileData, meta })
-        //     const putObjectAsync = promisify(this.s3.putObject).bind(this.s3)
-        //     const data = await putObjectAsync({
-        //         Body: stream,
-        //         ContentType: mimetype,
-        //         Bucket: this.bucket,
-        //         Key: key,
-        //         ...uploadParams,
-        //     })
-        //
-        //     const error = this.errorFromCommonMsg(data)
-        //     if (error) {
-        //         throw error
-        //     }
-        //
-        //     return { ...fileData, _meta: data }
-        // } catch (e) {
-        //     console.log('error', e)
-        // } finally {
-        //     stream.destroy()
-        // }
     }
 
     delete (file, options = {}) {
@@ -258,17 +182,14 @@ const obsRouterHandler = ({ keystone }) => {
             return res.end()
         }
         const meta = await Acl.getMeta(req.params.file)
-        console.log('obsRouterHandler meta', req.params.file, meta)
+
         if (isEmpty(meta)) {
-            console.log('return 404 1')
             res.status(404)
             return next()
         }
         const { id: itemId, ids: stringItemIds, listkey: listKey } = meta
-        console.log('itemId, stringItemsId, listKey', itemId, stringItemIds, listKey)
 
         if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
-            console.log('return 404 2')
             res.status(404)
             return next()
         }
@@ -276,29 +197,24 @@ const obsRouterHandler = ({ keystone }) => {
         const { id, isAdmin, isSupport, type } = req.user
         const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
 
-        let fileAfterAccessCheck
+        let hasAccessToReadFile
 
-        // Есть доступ хотя бы к одному объекту
-        if (!isEmpty(stringItemIds)) {
-            const itemIds = stringItemIds.split(',')
+        // If user has access to at least one of the objects with this file => user has access to read file
+        if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
+            const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
+            const items = await getItems({
+                keystone,
+                listKey,
+                itemId,
+                context,
+                where: { id_in: itemIds, deletedAt: null },
+            })
 
-            for (const itemId of itemIds) {
-                if (!UUID_REGEXP.test(itemId)) continue
-
-                fileAfterAccessCheck = await getItem({
-                    keystone,
-                    listKey,
-                    itemId,
-                    context,
-                    returnFields: 'id',
-                })
-
-                if (fileAfterAccessCheck) break
-            }
+            hasAccessToReadFile = items.length > 0
         }
 
-        if (itemId && !fileAfterAccessCheck) {
-            fileAfterAccessCheck = await getItem({
+        if (itemId && !hasAccessToReadFile) {
+            hasAccessToReadFile = await getItem({
                 keystone,
                 listKey,
                 itemId,
@@ -307,7 +223,7 @@ const obsRouterHandler = ({ keystone }) => {
             })
         }
 
-        if (!fileAfterAccessCheck) {
+        if (!hasAccessToReadFile) {
             res.sendStatus(403)
             return res.end()
         }
