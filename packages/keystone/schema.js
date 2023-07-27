@@ -2,6 +2,7 @@
 const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
 const { pickBy, identity, isFunction, isArray } = require('lodash')
+const get = require('lodash/get')
 const ow = require('ow')
 
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
@@ -154,7 +155,7 @@ async function getById (schemaName, id) {
     return await getByCondition(schemaName, { id })
 }
 
-async function getSchemaCtx (schemaObjOrName) {
+function getSchemaCtx (schemaObjOrName) {
     let name
     if (typeof schemaObjOrName === 'object' && GQL_SCHEMA_TYPES.includes(schemaObjOrName._type) && schemaObjOrName.name) {
         name = schemaObjOrName.name
@@ -167,9 +168,23 @@ async function getSchemaCtx (schemaObjOrName) {
     if (!SCHEMAS.has(name)) throw new Error(`Schema ${name} is not registered yet`)
     const schema = SCHEMAS.get(name)
     return {
+        type: schema._type,
         name: schema.name,
+        list: get(schema, ['_keystone', 'lists', schema.name], null),
         keystone: schema._keystone,
     }
+}
+
+/**
+ * Outputs gql schema
+ */
+function getSchemaContexts () {
+    if (SCHEMAS.size === 0) throw new Error('Schemas are not registered yet')
+    const result = new Map()
+    for (const [name] of SCHEMAS) {
+        result[name] = getSchemaCtx(name)
+    }
+    return result
 }
 
 module.exports = {
@@ -181,6 +196,7 @@ module.exports = {
     find,
     getById,
     getByCondition,
+    getSchemaContexts,
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
