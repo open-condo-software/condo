@@ -10,7 +10,7 @@ const {
 
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { MobileFeatureConfig, createTestMobileFeatureConfig, updateTestMobileFeatureConfig } = require('@condo/domains/settings/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser,  } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('MobileFeatureConfig', () => {
