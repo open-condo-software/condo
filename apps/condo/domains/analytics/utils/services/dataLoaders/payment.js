@@ -11,15 +11,27 @@ const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSche
 
 const PERIOD_DATE_FORMAT = 'YYYY-MM-DD'
 
+class BillingResidentKnexLoader extends GqlToKnexBaseAdapter {
+    constructor (where, groupBy = []) {
+        super('Resident', where, groupBy)
+        this.where = where
+    }
+
+    async loadData () {
+        const { keystone } = await getSchemaCtx(this.domainName)
+        const knex = keystone.adapter.knex
+
+
+        this.result = await knex(this.domainName).select(['id', 'address', 'user']).where(this.where)
+    }
+}
+
 const createBillingPropertyRange = async (organizationWhereInput) => {
-    const billingResidentLoader = new GqlWithKnexLoadList({
-        listKey: 'Resident',
-        fields: 'id address user',
-        singleRelations: [['User', 'user', 'id']],
-        where: { ...organizationWhereInput },
-    })
-    const billingResidents = await billingResidentLoader.load()
-    return billingResidents.map(billingResident => ({ label: billingResident.address, value: billingResident.user }))
+    const billingResidentLoader = new BillingResidentKnexLoader({ organization: get(organizationWhereInput, 'organization.id'), deletedAt: null })
+    await billingResidentLoader.loadData()
+
+    return billingResidentLoader
+        .getResult((billingResident) => ({ label: billingResident.address, value: billingResident.user }))
 }
 
 class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
@@ -72,6 +84,7 @@ class PaymentDataLoader extends AbstractDataLoader {
             where: {
                 ...pick(where, ['organization']),
                 status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+                deletedAt: null,
                 AND: [
                     { advancedAt_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) },
                     { advancedAt_lte: dayjs().endOf('month').format(PERIOD_DATE_FORMAT) },
