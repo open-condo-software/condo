@@ -1,6 +1,7 @@
 const chunk = require('lodash/chunk')
 const omit = require('lodash/omit')
 
+const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
@@ -11,6 +12,8 @@ const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 // So the upper limit is 333, but we'll use the number 100 as a reserve
 const CHUNK_SIZE = 100
 const SENDER = { dv: 1, fingerprint: 'update-b2b-app-roles-permissions-task' }
+
+const logger = getLogger('miniapp/tasks/updateB2BAppRolesPermissions')
 
 async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
     if (!appId || (!oldKey && !newKey)) {
@@ -31,8 +34,10 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
     })
 
     let payload
+
     // Soft-deletion case
     if (!newKey) {
+        logger.info({ msg: 'Deleting permission from existing B2BAppRoles', appId, key: oldKey })
         payload = existingManagingRoles
             .concat(existingNonManagingRoles)
             .map(role => ({
@@ -45,6 +50,7 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
             }))
     // Adding new permission
     } else if (!oldKey) {
+        logger.info({ msg: 'Adding new permission to existing B2BAppRoles', appId, key: newKey })
         const managingPayload = existingManagingRoles.map(role => ({
             id: role.id,
             data: {
@@ -64,6 +70,7 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
         payload = managingPayload.concat(nonManagingPayload)
     // Key rename
     } else {
+        logger.info({ msg: 'Rename permission key in existing B2BAppRoles', appId, oldKey, newKey })
         payload = existingManagingRoles
             .concat(existingNonManagingRoles)
             .map(role => ({
@@ -76,10 +83,14 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
             }))
     }
 
+    const totalItems = payload.length
+    let modifiedItems = 0
     const chunks = chunk(payload, CHUNK_SIZE)
 
     for (const chunkData of chunks) {
-        await B2BAppRole.updateMany(context, chunkData)
+        const modified = await B2BAppRole.updateMany(context, chunkData)
+        modifiedItems += modified.length
+        logger.info({ msg: `${modifiedItems}/${totalItems} roles updated`, appId })
     }
 }
 

@@ -1,3 +1,4 @@
+const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
@@ -5,10 +6,14 @@ const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 
 const SENDER = { dv: 1, fingerprint: 'create-default-b2b-app-role-task' }
 
+const logger = getLogger('miniapp/tasks/createDefaultB2BAppRoles')
+
 async function createDefaultB2BAppRoles (appId, organizationId) {
     if (!appId || !organizationId) {
         return
     }
+
+    logger.info({ msg: 'Creating default B2BAppRoles for organization', organizationId, appId })
 
     const { keystone: context } = await getSchemaCtx('B2BAppRole')
 
@@ -28,6 +33,8 @@ async function createDefaultB2BAppRoles (appId, organizationId) {
     })
     const organizationRolesIds = organizationRoles.map(role => role.id)
 
+    logger.info({ msg: `Found ${organizationRolesIds.length} organization roles with "canManageIntegrations" flag`, organizationId, appId, organizationRolesIds })
+
     const existingAppRoles = await find('B2BAppRole', {
         role: { id_in: organizationRolesIds },
         deletedAt: null,
@@ -39,6 +46,7 @@ async function createDefaultB2BAppRoles (appId, organizationId) {
         if (rolesToSkip.has(roleId)) {
             continue
         }
+        logger.info({ msg: `Creating default B2BAppRole for role ${roleId}`, organizationId, roleId, appId })
         await B2BAppRole.create(context, {
             dv: 1,
             sender: SENDER,
