@@ -26,6 +26,7 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) 
                 organization: { id_in: organizations },
             }
         }
+        return false
     }
 
     return {
@@ -42,7 +43,7 @@ async function canManageMobileFeatureConfigs (attrs) {
     const { authentication: { item: user }, originalInput, operation, itemId } = attrs
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
+    if (user.type === RESIDENT) return false
     if (user.isAdmin || user.isSupport) return true
 
     let organizationId
@@ -53,7 +54,7 @@ async function canManageMobileFeatureConfigs (attrs) {
         if (!itemId) throw new Error('no itemId')
 
         const foundConfig = await getById('MobileFeatureConfig', itemId)
-        if (!foundConfig) throw new Error(`cannot find instance of MobileFeatureConfig with id: ${itemId}`)
+        if (!foundConfig) return false
 
         organizationId = get(foundConfig, 'organization')
     }

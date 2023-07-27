@@ -8,10 +8,10 @@ import {
     MobileFeatureConfigUpdateInput,
     QueryAllMobileFeatureConfigsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
-import { MobileFeatureConfig as MobileFeatureConfigGQL } from '@condo/domains/settings/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
+import { MobileFeatureConfig as MobileFeatureConfigGQL } from '@condo/domains/settings/gql'
 
 const {
     useObject,
