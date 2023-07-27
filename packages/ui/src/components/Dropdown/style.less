@@ -1,14 +1,25 @@
 @import "antd/lib/dropdown/style/index.less";
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import "../style/mixins/typography";
 
 .condo-dropdown {
+  .condo-typography-h5();
+
   .condo-dropdown-menu {
     max-height: min(100vh, 360px);
-    padding: 0;
+    padding: @condo-global-spacing-4 0;
     overflow: auto;
     border-radius: @condo-global-border-radius-medium;
     box-shadow: @condo-global-box-shadow-default;
 
+    .condo-dropdown-menu-item {
+      padding: @condo-global-spacing-8 @condo-global-spacing-16;
+    }
+  }
+}
+
+.condo-dropdown.condo-dropdown-wrapper {
+  .condo-dropdown-menu {
     .condo-dropdown-menu-item-divider {
       margin: 0;
     }

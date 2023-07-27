@@ -21,79 +21,77 @@ const Template2: ComponentStory<typeof Dropdown> = () => {
             <Space size={24} direction='vertical'>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>10px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 10, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>50px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 50, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>100px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 100, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>150px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 150, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>200px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 200, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>300px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 300, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>500px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 500, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>700px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 700, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>1000px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 1000, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
                 <Space size={4} direction='vertical'>
                     <Typography.Text>Oversize - 2000px</Typography.Text>
-                    <Dropdown items={[{ label: '1' }]}>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
                         <div style={{ height: 50, width: 2000, backgroundColor: 'red' }} />
                     </Dropdown>
                 </Space>
             </Space>
+            <div style={{ marginTop: 24 }}>
+                <Typography.Text>100%</Typography.Text>
+                <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
+                    <div style={{ height: 50, width: '100%', backgroundColor: 'red' }} />
+                </Dropdown>
+            </div>
             <div style={{ marginTop: 24, marginBottom: 200 }}>
-                <Space size={24} direction='vertical'>
-                    <Space size={4} direction='vertical'>
-                        <Typography.Text>100%</Typography.Text>
-                        <Dropdown items={[{ label: '1' }]}>
-                            <div style={{ height: 50, width: '100%', backgroundColor: 'red' }} />
-                        </Dropdown>
-                    </Space>
-                    <Space size={4} direction='vertical'>
-                        <Typography.Text>300px x 300px</Typography.Text>
-                        <Dropdown items={[{ label: '1' }]}>
-                            <div style={{ height: 300, width: 300, backgroundColor: 'red' }} />
-                        </Dropdown>
-                    </Space>
+                <Space size={4} direction='vertical'>
+                    <Typography.Text>300px x 300px</Typography.Text>
+                    <Dropdown menu={{ items: [{ label: '1', key: '1' }] }}>
+                        <div style={{ height: 300, width: 300, backgroundColor: 'red' }} />
+                    </Dropdown>
                 </Space>
             </div>
         </>
@@ -177,7 +175,7 @@ const DropdownButtonTemplate: ComponentStory<typeof Dropdown.Button> = () => {
 
 export const Controlled = Template.bind({})
 Controlled.args = {
-    items: [{ label: 'first', description: 'asdasd' }, { label: 'second' }],
+    menu: { items: [{ label: 'first', key: '1' }, { label: 'second', key: '2' }] },
     children: <div style={{ height: 50, width: 200, backgroundColor: 'red' }} />,
     open: true,
 }

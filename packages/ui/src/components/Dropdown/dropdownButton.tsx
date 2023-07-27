@@ -1,9 +1,33 @@
+import { MenuItemType } from 'antd/lib/menu/hooks/useItems'
+import classNames from 'classnames'
+import get from 'lodash/get'
 import React from 'react'
 
-import { Dropdown, DropdownProps, ItemType } from './dropdown'
+import { Dropdown, DropdownProps } from './dropdown'
+import { DROPDOWN_CLASS_PREFIX } from './dropdown'
+import { useItems } from './hooks/useItems'
 
+import { Either } from '../_utils/types'
 import { ExtendedButton, ExtendedButtonProps } from '../Button/extendedButton'
 
+
+export interface IDropdownItem {
+    disabled?: boolean,
+    label: string
+    onClick?: MenuItemType['onClick']
+    key?: React.Key
+    id?: string
+}
+
+export interface IDropdownItemWithDescription extends IDropdownItem {
+    description: string
+}
+
+export interface IDropdownItemWithIcon extends IDropdownItem {
+    icon: React.ReactNode
+}
+
+export type ItemType = Either<Either<IDropdownItem, IDropdownItemWithDescription>, IDropdownItemWithIcon>
 
 export type DropdownButtonProps = {
     children: string
@@ -12,15 +36,35 @@ export type DropdownButtonProps = {
     disabled?: boolean
     type: ExtendedButtonProps['type']
     buttonProps?: Omit<ExtendedButtonProps, 'type'>,
-    dropdownProps?: Omit<DropdownProps, 'items' | 'children' | 'triggerId' | 'disabled'>,
+    dropdownProps?: Omit<DropdownProps, 'children' | 'disabled' | 'menu'>,
 }
 
 const DropdownButton: React.FC<DropdownButtonProps> = (props) => {
     const { children, items = [], buttonProps, dropdownProps, id: triggerId, disabled, type } = props
 
+    const dropdownOverlayClasses = classNames(
+        {
+            [`${DROPDOWN_CLASS_PREFIX}-wrapper`]: true,
+        },
+        get(dropdownProps, 'className')
+    )
+
+    const menuItems = useItems(items, triggerId)
+
     return (
-        <Dropdown overlayStyle={{ maxWidth: '100%' }} {...dropdownProps} triggerId={triggerId} disabled={disabled} items={items}>
-            <ExtendedButton {...buttonProps} type={type} disabled={disabled} id={triggerId} children={children} />
+        <Dropdown
+            {...dropdownProps}
+            disabled={disabled}
+            overlayClassName={dropdownOverlayClasses}
+            menu={{ items: menuItems }}
+        >
+            <ExtendedButton
+                {...buttonProps}
+                type={type}
+                disabled={disabled}
+                id={triggerId}
+                children={children}
+            />
         </Dropdown>
     )
 }
