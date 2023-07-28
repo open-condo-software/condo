@@ -79,10 +79,16 @@ class FileAdapter {
         if (!this.isConfigValid(conf, ['MEDIA_ROOT', 'MEDIA_URL', 'SERVER_URL'])) {
             return null
         }
-        return new LocalFileAdapter({
+        const config = {
             src: `${conf.MEDIA_ROOT}/${this.folder}`,
             path: `${conf.SERVER_URL}${conf.MEDIA_URL}/${this.folder}`,
-        })
+        }
+
+        if (this.saveFileName) {
+            config.getFilename = ({ originalFilename }) => originalFilename
+        }
+
+        return new LocalFileAdapter(config)
     }
 
     getEnvConfig (name, required) {
