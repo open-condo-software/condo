@@ -7,7 +7,9 @@ const get = require('lodash/get')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/ticket/access/TicketMultipleUpdateService')
+const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
 
+const { Organization } = require('../../organization/utils/serverSchema')
 const { Ticket } = require('../utils/serverSchema')
 
 
@@ -30,8 +32,24 @@ const TicketMultipleUpdateService = new GQLCustomSchema('TicketMultipleUpdateSer
 
                 if (!ticketId) return
 
+                const existedTicket = await getById('Ticket', ticketId)
+                const organizationId = get(existedTicket, 'organization', null)
+                const ticketOrganization = await Organization.getOne(context, { id: organizationId })
+                const organizationStatusTransitions = get(ticketOrganization, 'statusTransitions', DEFAULT_STATUS_TRANSITIONS)
+
+                let existedTicketStatusId = get(existedTicket, 'status', null)
+                
                 for (const ticketUpdateData of updateData) {
-                    await Ticket.update(context, ticketId, ticketUpdateData)
+                    const ticketStatusToUpdate = get(ticketUpdateData, 'status.connect.id', null)
+
+                    if (ticketStatusToUpdate) {
+                        if (organizationStatusTransitions[existedTicketStatusId].includes(ticketStatusToUpdate)) {
+                            const updatedTicket = await Ticket.update(context, ticketId, ticketUpdateData)
+                            existedTicketStatusId = get(updatedTicket, 'status.id', null)
+                        }
+                    } else {
+                        await Ticket.update(context, ticketId, ticketUpdateData)
+                    }
                 }
 
                 return getById('Ticket', ticketId)

@@ -8,14 +8,14 @@ const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/te
 
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { CLOSED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { CLOSED_STATUS_TYPE, PROCESSING_STATUS_TYPE, COMPLETED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, ticketMultipleUpdateByTestClient } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { catchErrorFrom } = require('@miniapp/domains/common/utils/testSchema')
 
 const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-const ticketStatusUpdateData = [
+const validTicketStatusUpdateData = [
     {
         status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
         dv: 1,
@@ -107,7 +107,7 @@ describe('TicketMultipleUpdateService', () => {
             it('can execute', async () => {
                 const [data] = await ticketMultipleUpdateByTestClient(admin, {
                     id: ticket.id,
-                    data: ticketStatusUpdateData,
+                    data: validTicketStatusUpdateData,
                 })
 
                 expect(data.status.type).toEqual(CLOSED_STATUS_TYPE)
@@ -118,7 +118,7 @@ describe('TicketMultipleUpdateService', () => {
             it('can execute', async () => {
                 const [data] = await ticketMultipleUpdateByTestClient(support, {
                     id: ticket.id,
-                    data: ticketStatusUpdateData,
+                    data: validTicketStatusUpdateData,
                 })
 
                 expect(data.status.type).toEqual(CLOSED_STATUS_TYPE)
@@ -130,7 +130,7 @@ describe('TicketMultipleUpdateService', () => {
                 it('can execute', async () => {
                     const [data] = await ticketMultipleUpdateByTestClient(employeeUser, {
                         id: ticket.id,
-                        data: ticketStatusUpdateData,
+                        data: validTicketStatusUpdateData,
                     })
 
                     expect(data.status.type).toEqual(CLOSED_STATUS_TYPE)
@@ -142,7 +142,7 @@ describe('TicketMultipleUpdateService', () => {
                     await expectToThrowAccessDeniedErrorWithNullData(async () => {
                         await ticketMultipleUpdateByTestClient(notEmployeeUser, {
                             id: ticket.id,
-                            data: ticketStatusUpdateData,
+                            data: validTicketStatusUpdateData,
                         })
                     })
                 })
@@ -154,9 +154,60 @@ describe('TicketMultipleUpdateService', () => {
                 await expectToThrowAuthenticationErrorWithNullData(async () => {
                     await ticketMultipleUpdateByTestClient(anonymous, {
                         id: ticket.id,
-                        data: ticketStatusUpdateData,
+                        data: validTicketStatusUpdateData,
                     })
                 })
+            })
+        })
+    })
+
+    describe('Validations',  () => {
+        describe('Update status', () => {
+            it('should update ticket if status transition is valid', async () => {
+                const [data] = await ticketMultipleUpdateByTestClient(employeeUser, {
+                    id: ticket.id,
+                    data: validTicketStatusUpdateData,
+                })
+
+                expect(data.status.type).toEqual(CLOSED_STATUS_TYPE)
+            })
+
+            it('should discard update ticket if status transition is not valid', async () => {
+                const [data] = await ticketMultipleUpdateByTestClient(employeeUser, {
+                    id: ticket.id,
+                    data: [
+                        {
+                            status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+                            dv: 1,
+                            sender,
+                        },
+                        {
+                            status: { connect: { id: STATUS_IDS.CLOSED } },
+                            dv: 1,
+                            sender,
+                        },
+                    ],
+                })
+
+                expect(data.status.type).toEqual(PROCESSING_STATUS_TYPE)
+
+                const [data2] = await ticketMultipleUpdateByTestClient(employeeUser, {
+                    id: ticket.id,
+                    data: [
+                        {
+                            status: { connect: { id: STATUS_IDS.CLOSED } },
+                            dv: 1,
+                            sender,
+                        },
+                        {
+                            status: { connect: { id: STATUS_IDS.COMPLETED } },
+                            dv: 1,
+                            sender,
+                        },
+                    ],
+                })
+
+                expect(data2.status.type).toEqual(COMPLETED_STATUS_TYPE)
             })
         })
     })
