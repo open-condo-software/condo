@@ -96,7 +96,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 }
 
                 try {
-                    // Call the mutation directly, without task
+                    // Call the mutation directly (without task) to make the resident see receipts immediately
                     const discoveringResult = await discoverServiceConsumers(context, {
                         dv,
                         sender,
@@ -107,7 +107,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     })
                     logger.info({ message: 'discoverServiceConsumers done', discoveringResult, reqId })
                 } catch (err) {
-                    logger.error({ message: err.message, err, reqId })
+                    logger.error({ message: 'discoverServiceConsumers fail', err, reqId })
                 }
 
                 // Hack that helps to resolve all subfields in result of this mutation
