@@ -1,7 +1,7 @@
 /** @type {import('ow').default} */
 const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
-const { pickBy, identity, isFunction, isArray } = require('lodash')
+const { pickBy, identity, isFunction, isArray, memoize} = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
@@ -188,7 +188,10 @@ function getSchemaContexts () {
 }
 
 
-function getAllRelations () {
+/**
+ * Gets all relations in the schema
+ */
+const getAllRelations = memoize(() => {
     const schemas = getSchemaContexts()
     const listSchemas = Object.values(schemas).filter(x => x.type === GQL_LIST_SCHEMA_TYPE)
     const relations = []
@@ -207,22 +210,21 @@ function getAllRelations () {
     })
 
     return relations
-}
+})
+
 
 /**
  * Gets all relations that depend on provided list
  * Note: this function is computationally complex, but exported as cached function with finite number of arguments.
  */
-function getListDependentRelations (list) {
+const getListDependentRelations = memoize((list) => {
     if (!SCHEMAS.has(list)) throw new Error(`Schema ${list} is not registered yet`)
     if (SCHEMAS.get(list)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${list} type != ${GQL_LIST_SCHEMA_TYPE}`)
 
     const allRelations = getAllRelations()
 
-    const relations = allRelations.filter(x => x.to === list)
-
-    return relations
-}
+    return allRelations.filter(x => x.to === list)
+})
 
 module.exports = {
     GQLListSchema,
