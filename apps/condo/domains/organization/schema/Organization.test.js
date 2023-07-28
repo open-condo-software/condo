@@ -64,8 +64,6 @@ describe('Organization', () => {
             test('Support can create organization directly', async () => {
                 const [obj, attrs] = await createTestOrganization(support)
 
-                const x = getListDependentRelations('BillingIntegrationOrganizationContext')
-
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
                 expect(obj.sender).toEqual(attrs.sender)
