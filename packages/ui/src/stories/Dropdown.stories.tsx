@@ -104,23 +104,29 @@ const DropdownButtonTemplate: ComponentStory<typeof Dropdown.Button> = () => {
                 <Dropdown.Button
                     items={[{
                         label: 'Short label',
+                        key: '1',
                     }, {
                         label: 'Label with description',
                         description: 'Short description',
+                        key: '2',
                     }, {
                         label: 'Label with icon',
                         icon: <Play size='medium' />,
+                        key: '3',
                     }, {
                         label: 'Disabled',
                         disabled: true,
+                        key: '4',
                     }, {
                         label: 'Disabled',
                         description: 'Short description',
                         disabled: true,
+                        key: '5',
                     }, {
                         label: 'Disabled',
                         icon: <Play size='medium' />,
                         disabled: true,
+                        key: '6',
                     }]}
                     children='With small dropdown content'
                     type='primary'
@@ -128,24 +134,30 @@ const DropdownButtonTemplate: ComponentStory<typeof Dropdown.Button> = () => {
                 <Dropdown.Button
                     items={[{
                         label: LOREM_TEXT,
+                        key: '7',
                     }, {
                         label: 'Label with long description',
                         description: LOREM_TEXT,
+                        key: '8',
                     }, {
                         label: LOREM_TEXT,
                         icon: <Play size='medium' />,
+                        key: '9',
                     }]}
                     children='With big dropdown content'
                     type='secondary'
+                    id='btn1'
                 />
             </Space>
             <div style={{ marginTop: 24 }}>
                 <Dropdown.Button
                     items={[{
                         label: 'Short label',
+                        key: '10',
                     }, {
                         label: 'Label with description',
                         description: 'Short description',
+                        key: '11',
                     }]}
                     children='Block button'
                     type='primary'
@@ -156,12 +168,15 @@ const DropdownButtonTemplate: ComponentStory<typeof Dropdown.Button> = () => {
                 <Dropdown.Button
                     items={[{
                         label: LOREM_TEXT,
+                        key: '12',
                     }, {
                         label: 'Label with long description',
                         description: LOREM_TEXT,
+                        key: '13',
                     }, {
                         label: LOREM_TEXT,
                         icon: <Play size='medium' />,
+                        key: '14',
                     }]}
                     children='Block button with big dropdown content'
                     type='secondary'

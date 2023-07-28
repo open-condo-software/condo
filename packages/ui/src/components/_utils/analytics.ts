@@ -16,7 +16,7 @@ type ComponentSpecificClickEventProps = {
     Banner: { title: string }
     Button: { value: string, type: string }
     'Typography.Link': { value: string, href?: string }
-    Dropdown: { optionValue: string, optionId?: string }
+    Dropdown: { optionValue: string, optionKey?: string, optionKeyPath?: Array<string>, triggerValue?: string }
 }
 
 type ComponentSpecificCheckEventProps = {

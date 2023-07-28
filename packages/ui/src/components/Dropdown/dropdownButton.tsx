@@ -15,8 +15,7 @@ export interface IDropdownItem {
     disabled?: boolean,
     label: string
     onClick?: MenuItemType['onClick']
-    key?: React.Key
-    id?: string
+    key: React.Key
 }
 
 export interface IDropdownItemWithDescription extends IDropdownItem {
@@ -49,7 +48,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = (props) => {
         get(dropdownProps, 'className')
     )
 
-    const menuItems = useItems(items, triggerId)
+    const menuItems = useItems(items)
 
     return (
         <Dropdown

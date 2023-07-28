@@ -1,7 +1,6 @@
 import { ItemType as MenuItemType } from 'antd/lib/menu/hooks/useItems'
 import React, { useMemo } from 'react'
 
-import { sendAnalyticsClickEvent } from '../../_utils/analytics'
 import { Space } from '../../Space'
 import { Typography } from '../../Typography'
 import { DROPDOWN_CLASS_PREFIX } from '../dropdown'
@@ -10,7 +9,7 @@ import { ItemType } from '../dropdownButton'
 
 type UseItems = (items: Array<ItemType>, triggerId?: string) => Array<MenuItemType>
 
-const convertItems = (items: Array<ItemType>, triggerId?: string): Array<MenuItemType> => {
+const convertItems = (items: Array<ItemType>): Array<MenuItemType> => {
     if (items.length < 1) return []
 
     const resultItems: Array<MenuItemType> = []
@@ -20,7 +19,7 @@ const convertItems = (items: Array<ItemType>, triggerId?: string): Array<MenuIte
 
         if (!item) continue
 
-        const { key, description, disabled, onClick, label, icon, id } = item
+        const { key, description, disabled, onClick, label, icon } = item
         const mergedKey = key || index
 
         const isItemWithIcon = Boolean(item.icon)
@@ -31,19 +30,7 @@ const convertItems = (items: Array<ItemType>, triggerId?: string): Array<MenuIte
         const mergedItem: MenuItemType = {
             key: mergedKey,
             disabled,
-            onClick: (...args) => {
-                const stringContent = label
-
-                if (stringContent) {
-                    sendAnalyticsClickEvent('Dropdown', {
-                        optionValue: stringContent, id: triggerId, optionId: id,
-                    })
-                }
-
-                if (onClick) {
-                    onClick(...args)
-                }
-            },
+            onClick,
         }
 
         if (isItemWithIcon) {
@@ -82,10 +69,10 @@ const convertItems = (items: Array<ItemType>, triggerId?: string): Array<MenuIte
     return resultItems
 }
 
-export const useItems: UseItems = (items, triggerId) => {
+export const useItems: UseItems = (items) => {
     return useMemo(() => {
         if (!items || items.length < 1) return []
 
-        return convertItems(items, triggerId)
-    }, [items, triggerId])
+        return convertItems(items)
+    }, [items])
 }
