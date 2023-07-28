@@ -3,6 +3,7 @@
  */
 
 const { Text, Integer, Checkbox, DateTimeUtc, File } = require('@keystonejs/fields')
+const { get } = require('lodash')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -10,14 +11,12 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/ticket/access/CallRecord')
 const { CALL_RECORD_ERRORS } = require('@condo/domains/ticket/constants/errors')
 
-const TICKET_FILE_FOLDER_NAME = 'ticket-call-record'
-const Adapter = new FileAdapter(TICKET_FILE_FOLDER_NAME)
-const fileMetaAfterChange = getFileMetaAfterChange(Adapter)
+const CALL_RECORDS_FOLDER_NAME = 'ticket-call-record'
+const Adapter = new FileAdapter(CALL_RECORDS_FOLDER_NAME, false, true)
 
 const CallRecord = new GQLListSchema('CallRecord', {
     schemaDoc: 'Conversation record between operator and client',
@@ -68,10 +67,28 @@ const CallRecord = new GQLListSchema('CallRecord', {
         },
     },
     hooks: {
-        afterChange: fileMetaAfterChange,
-        afterDelete: async ({ existingItem }) => {
-            if (existingItem.file) {
-                await Adapter.delete(existingItem.file)
+        afterChange: async ({ updatedItem, listKey, operation }) => {
+            if (operation === 'create' && updatedItem && Adapter.acl && Adapter.acl.setMeta) {
+                const file = get(updatedItem, 'file')
+
+                if (file) {
+                    const { filename, _meta } = file
+                    const folder = get(Adapter, 'folder', '')
+                    const key = `${folder}/${filename}`
+                    const itemId = updatedItem.id
+                    const stringIds = get(_meta, 'ids') || ''
+                    const ids = stringIds.split(',').filter(Boolean)
+
+                    if (!ids.includes(itemId)) {
+                        ids.push(itemId)
+                    }
+
+                    // set CallRecord ids in file meta to check access rights
+                    await Adapter.acl.setMeta(key, {
+                        listkey: listKey,
+                        ids: ids.join(','),
+                    })
+                }
             }
         },
     },

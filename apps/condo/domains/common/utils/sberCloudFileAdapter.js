@@ -1,11 +1,13 @@
 const path = require('path')
 
-const { getItem } = require('@keystonejs/server-side-graphql-client')
+const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
-const { isEmpty } = require('lodash')
+const { isEmpty, isString } = require('lodash')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
+
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
@@ -63,13 +65,13 @@ class SberCloudObsAcl {
 }
 
 class SberCloudFileAdapter {
-
     constructor (config) {
         this.bucket = config.bucket
         this.s3 = new ObsClient(config.s3Options)
         this.server = config.s3Options.server
         this.folder = config.folder
         this.shouldResolveDirectUrl = config.isPublic
+        this.saveFileName = config.saveFileName
         this.acl = new SberCloudObsAcl(config)
     }
 
@@ -81,21 +83,22 @@ class SberCloudFileAdapter {
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
-        return new Promise((resolve, reject) => {
-            const fileData = {
-                id,
-                originalFilename: filename,
-                filename: this.getFilename({ id, originalFilename: filename }),
-                mimetype,
-                encoding,
-            }
+        const fileData = {
+            id,
+            originalFilename: filename,
+            filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
+            mimetype,
+            encoding,
+        }
+        const key = `${this.folder}/${fileData.filename}`
+        const saveFile = (resolve, reject) => {
             const uploadParams = this.uploadParams({ ...fileData, meta })
             this.s3.putObject(
                 {
                     Body: stream,
                     ContentType: mimetype,
                     Bucket: this.bucket,
-                    Key: `${this.folder}/${fileData.filename}`,
+                    Key: key,
                     ...uploadParams,
                 },
                 (error, data) => {
@@ -108,7 +111,20 @@ class SberCloudFileAdapter {
                     stream.destroy()
                 }
             )
-        })
+        }
+
+        if (this.saveFileName) {
+            return this.acl.getMeta(key)
+                .then((existedMeta) => {
+                    if (!isEmpty(existedMeta)) {
+                        return { ...fileData, _meta: existedMeta }
+                    }
+
+                    return new Promise(saveFile)
+                })
+        }
+
+        return new Promise(saveFile)
     }
 
     delete (file, options = {}) {
@@ -166,25 +182,48 @@ const obsRouterHandler = ({ keystone }) => {
             return res.end()
         }
         const meta = await Acl.getMeta(req.params.file)
+
         if (isEmpty(meta)) {
             res.status(404)
             return next()
         }
-        const { id: itemId, listkey: listKey } = meta
-        if (isEmpty(itemId) || isEmpty(listKey)) {
+        const { id: itemId, ids: stringItemIds, listkey: listKey } = meta
+
+        if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
             res.status(404)
             return next()
         }
+
         const { id, isAdmin, isSupport, type } = req.user
         const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
-        const fileAfterAccessCheck = await getItem({
-            keystone,
-            listKey,
-            itemId,
-            context,
-            returnFields: 'id',
-        })
-        if (!fileAfterAccessCheck) {
+
+        let hasAccessToReadFile
+
+        // If user has access to at least one of the objects with this file => user has access to read file
+        if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
+            const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
+            const items = await getItems({
+                keystone,
+                listKey,
+                itemId,
+                context,
+                where: { id_in: itemIds, deletedAt: null },
+            })
+
+            hasAccessToReadFile = items.length > 0
+        }
+
+        if (itemId && !hasAccessToReadFile) {
+            hasAccessToReadFile = await getItem({
+                keystone,
+                listKey,
+                itemId,
+                context,
+                returnFields: 'id',
+            })
+        }
+
+        if (!hasAccessToReadFile) {
             res.sendStatus(403)
             return res.end()
         }
