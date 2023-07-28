@@ -27,6 +27,8 @@ async function main () {
         const orgId = get(b2bContext, 'organization')
         const appId = get(b2bContext, 'app')
         if (!orgId || !appId) {
+            console.log(`[${processed + 1}/${activeContexts.length}] No org or app. Context ${b2bContext.id} is skipped`)
+            processed++
             continue
         }
         console.log(`[${processed + 1}/${activeContexts.length}] Processing...Organization: ${orgId}, App: ${appId}`)
