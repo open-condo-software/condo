@@ -3,7 +3,7 @@ import React from 'react'
 
 export const DROPDOWN_CLASS_PREFIX = 'condo-dropdown'
 
-export type DropdownProps = Omit<DefaultDropdownProps, 'visible' | 'prefixCls'>
+export type DropdownProps = Omit<DefaultDropdownProps, 'visible' | 'prefixCls' | 'overlayStyle'>
 
 
 const Dropdown: React.FC<DropdownProps> = (props) => {
