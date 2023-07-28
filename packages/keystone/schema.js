@@ -219,7 +219,9 @@ function getListDependentRelations (list) {
 
     const allRelations = getAllRelations()
 
-    return allRelations.filter(x => x.to === list)
+    const relations = allRelations.filter(x => x.to === list)
+
+    return relations
 }
 
 module.exports = {
