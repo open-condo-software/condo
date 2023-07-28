@@ -13,7 +13,6 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
-    expectToThrowValidationFailureError,
     waitFor,
 } = require('@open-condo/keystone/test.utils')
 
@@ -44,6 +43,7 @@ const {
 const {
     CONTEXT_FINISHED_STATUS,
     APP_NOT_CONNECTED_ERROR,
+    INVALID_PERMISSIONS_ERROR,
     CONTEXT_IN_PROGRESS_STATUS,
 } = require('../constants')
 
@@ -380,11 +380,14 @@ describe('B2BAppRole', () => {
                 ]
 
                 test.each(invalidCases)('%p', async (_, payload) => {
-                    await expectToThrowValidationFailureError(async () => {
+                    await expectToThrowGQLError(async () => {
                         await createTestB2BAppRole(manager, connectedApp, employee.role, {
                             permissions: payload,
                         })
-                    }, 'permissions field validation error. JSON not in the correct format')
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: INVALID_PERMISSIONS_ERROR,
+                    })
 
                     const correctPayload = {
                         [firstPermissionKey]: faker.datatype.boolean(),
@@ -395,11 +398,14 @@ describe('B2BAppRole', () => {
                     })
                     expect(role).toHaveProperty('permissions', correctPayload)
 
-                    await expectToThrowValidationFailureError(async () => {
+                    await expectToThrowGQLError(async () => {
                         await updateTestB2BAppRole(manager, role.id, {
                             permissions: payload,
                         })
-                    }, 'permissions field validation error. JSON not in the correct format')
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: INVALID_PERMISSIONS_ERROR,
+                    })
 
                     const [deleted] = await updateTestB2BAppRole(manager, role.id, {
                         deletedAt: dayjs().toISOString(),

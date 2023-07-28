@@ -10,9 +10,9 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { getById, getByCondition, find } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { getValidator } = require('@condo/domains/common/schema/json.utils')
+const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/miniapp/access/B2BAppRole')
-const { APP_NOT_CONNECTED_ERROR, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { APP_NOT_CONNECTED_ERROR, INVALID_PERMISSIONS_ERROR, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 
 const ERRORS = {
     APP_NOT_CONNECTED: {
@@ -92,7 +92,8 @@ const B2BAppRole = new GQLListSchema('B2BAppRole', {
                     }
 
                     const validate = ajv.compile(schema)
-                    const validateHook = getValidator(validate)
+
+                    const validateHook = getGQLErrorValidator(validate, INVALID_PERMISSIONS_ERROR)
                     validateHook(args)
                 },
             },
