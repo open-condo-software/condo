@@ -1,7 +1,7 @@
 /** @type {import('ow').default} */
 const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
-const { pickBy, identity, isFunction, isArray, memoize} = require('lodash')
+const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
