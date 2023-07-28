@@ -59,12 +59,18 @@ describe('DiscoverServiceConsumersService', () => {
                 unitType: resident.unitType,
             }
 
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 resident: { id: resident.id },
                 deletedAt: null,
             })
-            expect(createdServiceConsumersTotal).toBe(1)
+
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 1,
+                residentsFound: 1,
+                residentsFilteredByFeatureFlag: 1,
+                billingAccountsFound: 1,
+            }))
             expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
             expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
         })
@@ -98,7 +104,7 @@ describe('DiscoverServiceConsumersService', () => {
                 unitType: resident1.unitType,
             }
 
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 OR: [
                     { resident: { id: resident1.id } },
@@ -109,9 +115,14 @@ describe('DiscoverServiceConsumersService', () => {
             const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
             const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
-            expect(createdServiceConsumersTotal).toBe(4)
-            expect(residentIds).toContain(resident1.id, resident2.id)
-            expect(accountNumbers).toContain(billingAccount1.number, billingAccount2.number)
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 4,
+                residentsFound: 2,
+                residentsFilteredByFeatureFlag: 2,
+                billingAccountsFound: 2,
+            }))
+            expect(residentIds).toEqual(expect.arrayContaining([resident1.id, resident2.id]))
+            expect(accountNumbers).toEqual(expect.arrayContaining([billingAccount1.number, billingAccount2.number]))
         })
 
         test('discover one service consumer for specific resident', async () => {
@@ -135,12 +146,18 @@ describe('DiscoverServiceConsumersService', () => {
                 resident: { id: resident.id },
             }
 
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 resident: { id: resident.id },
                 deletedAt: null,
             })
-            expect(createdServiceConsumersTotal).toBe(1)
+
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 1,
+                residentsFound: 1,
+                residentsFilteredByFeatureFlag: 1,
+                billingAccountsFound: 1,
+            }))
             expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
             expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
         })
@@ -170,7 +187,7 @@ describe('DiscoverServiceConsumersService', () => {
                 resident: { id: resident.id },
             }
 
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 OR: [
                     { accountNumber: billingAccount1.number },
@@ -180,7 +197,12 @@ describe('DiscoverServiceConsumersService', () => {
             })
             const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
 
-            expect(createdServiceConsumersTotal).toBe(2)
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 2,
+                residentsFound: 1,
+                residentsFilteredByFeatureFlag: 1,
+                billingAccountsFound: 2,
+            }))
             expect(residentIds).toContain(resident.id)
         })
 
@@ -208,12 +230,18 @@ describe('DiscoverServiceConsumersService', () => {
                 billingAccount: { id: billingAccount.id },
             }
 
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 resident: { id: resident.id },
                 deletedAt: null,
             })
-            expect(createdServiceConsumersTotal).toBe(1)
+
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 1,
+                residentsFound: 1,
+                residentsFilteredByFeatureFlag: 1,
+                billingAccountsFound: 1,
+            }))
             expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
             expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
             expect(createdServiceConsumers[0].resident.id).toEqual(resident.id)
@@ -244,7 +272,7 @@ describe('DiscoverServiceConsumersService', () => {
                 billingAccount: { id: billingAccount.id },
             }
 
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 OR: [
                     { resident: { id: resident.id } },
@@ -255,8 +283,13 @@ describe('DiscoverServiceConsumersService', () => {
             const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
             const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
-            expect(createdServiceConsumersTotal).toBe(2)
-            expect(residentIds).toContain(resident.id, resident2.id)
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 2,
+                residentsFound: 2,
+                residentsFilteredByFeatureFlag: 2,
+                billingAccountsFound: 1,
+            }))
+            expect(residentIds).toEqual(expect.arrayContaining([resident.id, resident2.id]))
             expect(accountNumbers).toContain(billingAccount.number)
         })
 
@@ -304,8 +337,14 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         test('discover no service consumers if there are none', async () => {
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, randomPayload)
-            expect(createdServiceConsumersTotal).toBe(0)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, randomPayload)
+
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 0,
+                residentsFound: 0,
+                residentsFilteredByFeatureFlag: 0,
+                billingAccountsFound: 0,
+            }))
         })
 
         test('discover no service consumers if the feature flag was disabled', async () => {
@@ -323,7 +362,7 @@ describe('DiscoverServiceConsumersService', () => {
             const [resident] = await createTestResident(adminFeatureFlagsDisabled, user.user, user.property,
                 { address: billingProperty.address },
             )
-            const [billingAccount] = await createTestBillingAccount(adminFeatureFlagsDisabled, context, billingProperty,
+            await createTestBillingAccount(adminFeatureFlagsDisabled, context, billingProperty,
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
 
@@ -333,12 +372,17 @@ describe('DiscoverServiceConsumersService', () => {
                 unitType: resident.unitType,
             }
 
-            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(adminFeatureFlagsDisabled, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(adminFeatureFlagsDisabled, payload)
             const createdServiceConsumers = await ServiceConsumer.getAll(adminFeatureFlagsDisabled, {
                 resident: { id: resident.id },
                 deletedAt: null,
             })
-            expect(createdServiceConsumersTotal).toBe(0)
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 0,
+                residentsFound: 1,
+                residentsFilteredByFeatureFlag: 0,
+                billingAccountsFound: 1,
+            }))
             expect(createdServiceConsumers).toHaveLength(0)
         })
     })

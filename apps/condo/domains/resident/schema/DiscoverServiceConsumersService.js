@@ -37,7 +37,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
         },
         {
             access: true,
-            type: 'type DiscoverServiceConsumersOutput { status: String!, createdServiceConsumersTotal: Int! }',
+            type: 'type DiscoverServiceConsumersOutputStatistics { created: Int!, residentsFound: Int!, residentsFilteredByFeatureFlag: Int!, billingAccountsFound: Int! }',
+        },
+        {
+            access: true,
+            type: 'type DiscoverServiceConsumersOutput { status: String!, statistics: DiscoverServiceConsumersOutputStatistics! }',
         },
     ],
 
@@ -119,23 +123,21 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const combinations = flatMap(residentsFilteredByFeatureFlag, (resident) => billingAccounts.map((account) => [resident, account]))
                 const createdServiceConsumers = await Promise.all(combinations.map(([resident, account]) => ServiceConsumer.create(context, getPayload(account.number, resident))))
 
+                const statistics = {
+                    created: createdServiceConsumers.length,
+                    residentsFound: residents.length,
+                    residentsFilteredByFeatureFlag: residentsFilteredByFeatureFlag.length,
+                    billingAccountsFound: billingAccounts.length,
+                }
+
                 logger.info({
                     msg: 'Created ServiceConsumers for input data: ',
-                    payload: {
-                        created: createdServiceConsumers.length,
-                        residentsFound: residents.length,
-                        residentsFilteredByFeatureFlag: residentsFilteredByFeatureFlag.length,
-                        billingAccountsFound: billingAccounts.length,
-                        address,
-                        unitName,
-                        unitType,
-                        billingAccount,
-                        resident,
-                    },
+                    payload: { address, unitName, unitType, billingAccount, resident },
+                    statistics,
                     reqId,
                 })
 
-                return { status: 'success', createdServiceConsumersTotal: createdServiceConsumers.length }
+                return { status: 'success', statistics }
             },
         },
     ],

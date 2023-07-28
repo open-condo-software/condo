@@ -64061,9 +64061,16 @@ input DiscoverServiceConsumersInput {
   resident: ResidentWhereUniqueInput
 }
 
+type DiscoverServiceConsumersOutputStatistics {
+  created: Int!
+  residentsFound: Int!
+  residentsFilteredByFeatureFlag: Int!
+  billingAccountsFound: Int!
+}
+
 type DiscoverServiceConsumersOutput {
   status: String!
-  createdServiceConsumersTotal: Int!
+  statistics: DiscoverServiceConsumersOutputStatistics!
 }
 
 enum OnBoardingType {

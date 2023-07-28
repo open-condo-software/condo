@@ -20182,7 +20182,15 @@ export type DiscoverServiceConsumersInput = {
 export type DiscoverServiceConsumersOutput = {
   __typename?: 'DiscoverServiceConsumersOutput';
   status: Scalars['String'];
-  createdServiceConsumersTotal: Scalars['Int'];
+  statistics: DiscoverServiceConsumersOutputStatistics;
+};
+
+export type DiscoverServiceConsumersOutputStatistics = {
+  __typename?: 'DiscoverServiceConsumersOutputStatistics';
+  created: Scalars['Int'];
+  residentsFound: Scalars['Int'];
+  residentsFilteredByFeatureFlag: Scalars['Int'];
+  billingAccountsFound: Scalars['Int'];
 };
 
 export type ExportMeterReadingsInput = {
