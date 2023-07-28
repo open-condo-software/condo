@@ -9,7 +9,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError,
+    expectToThrowGQLError,
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
@@ -352,17 +352,23 @@ describe('B2BAppPermission', () => {
                         ['Not in lowerCamelCase (all lower)', 'canreadbooks'],
                     ]
                     test.each(invalidCases)('%p', async (_, key) => {
-                        await expectToThrowValidationFailureError(async () => {
+                        await expectToThrowGQLError(async () => {
                             await createTestB2BAppPermission(admin, app, {
                                 key,
                             })
-                        }, PERMISSION_KEY_WRONG_FORMAT_ERROR);
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: PERMISSION_KEY_WRONG_FORMAT_ERROR,
+                        });
                         [permission] = await createTestB2BAppPermission(admin, app)
-                        await expectToThrowValidationFailureError(async () => {
+                        await expectToThrowGQLError(async () => {
                             await updateTestB2BAppPermission(admin, permission.id, {
                                 key,
                             })
-                        }, PERMISSION_KEY_WRONG_FORMAT_ERROR)
+                        }, {
+                            code: 'BAD_USER_INPUT',
+                            type: PERMISSION_KEY_WRONG_FORMAT_ERROR,
+                        })
                     })
                 })
             })

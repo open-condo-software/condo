@@ -4,6 +4,7 @@
 
 const get = require('lodash/get')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -11,6 +12,14 @@ const { ROLE_PERMISSION_REGEX } = require('@condo/domains/common/constants/regex
 const access = require('@condo/domains/miniapp/access/B2BAppPermission')
 const { PERMISSION_KEY_WRONG_FORMAT_ERROR } = require('@condo/domains/miniapp/constants')
 const { updateB2BAppRolesPermissions } = require('@condo/domains/miniapp/tasks')
+
+const ERRORS = {
+    PERMISSION_KEY_WRONG_FORMAT: {
+        code: BAD_USER_INPUT,
+        type: PERMISSION_KEY_WRONG_FORMAT_ERROR,
+        message: 'Incorrect key format. The key must start with the prefix "can", have lowerCamelCase and answer the question: "what is allowed to the user with this key?". Example: canManagePasses, canReadConfig, etc.',
+    },
+}
 
 const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
     schemaDoc: 'B2BApp permissions that describe additional capabilities within the mini-application ' +
@@ -41,10 +50,10 @@ const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
             type: 'Text',
             isRequired: true,
             hooks: {
-                validateInput:  async ({ resolvedData, addFieldValidationError, fieldPath }) => {
+                validateInput: ({ resolvedData, fieldPath, context }) => {
                     const key = resolvedData[fieldPath]
                     if (!ROLE_PERMISSION_REGEX.test(key)) {
-                        addFieldValidationError(PERMISSION_KEY_WRONG_FORMAT_ERROR)
+                        throw new GQLError(ERRORS.PERMISSION_KEY_WRONG_FORMAT, context)
                     }
                 },
             },
