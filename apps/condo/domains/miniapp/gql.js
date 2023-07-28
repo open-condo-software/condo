@@ -45,12 +45,17 @@ const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 const B2C_APP_PROPERTY_FIELDS = `{ app { id } address ${COMMON_FIELDS} }`
 const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
 
+const B2B_APP_PERMISSION_FIELDS = `{ app { id } key ${COMMON_FIELDS} }`
+const B2BAppPermission = generateGqlQueries('B2BAppPermission', B2B_APP_PERMISSION_FIELDS)
+
 const B2B_APP_PROMO_BLOCK_FIELDS = `{ title subtitle textVariant backgroundColor backgroundImage { publicUrl } targetUrl external priority ${COMMON_FIELDS} }`
 const B2BAppPromoBlock = generateGqlQueries('B2BAppPromoBlock', B2B_APP_PROMO_BLOCK_FIELDS)
 
+const B2B_APP_ROLE_FIELDS = `{ app { id } role { id } permissions ${COMMON_FIELDS} }`
+const B2BAppRole = generateGqlQueries('B2BAppRole', B2B_APP_ROLE_FIELDS)
+
 const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`
 const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_APP_BLACK_LIST_FIELDS)
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -59,11 +64,13 @@ module.exports = {
     B2BApp,
     B2BAppContext,
     B2BAppAccessRight,
+    B2BAppPermission,
+    B2BAppPromoBlock,
+    B2BAppRole,
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
     B2CAppProperty,
-    B2BAppPromoBlock,
     MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

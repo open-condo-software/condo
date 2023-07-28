@@ -12,7 +12,9 @@ const {
     B2BApp: B2BAppGQL,
     B2BAppContext: B2BAppContextGQL,
     B2BAppAccessRight: B2BAppAccessRightGQL,
+    B2BAppPermission: B2BAppPermissionGQL,
     B2BAppPromoBlock: B2BAppPromoBlockGQL,
+    B2BAppRole: B2BAppRoleGQL,
     B2CApp: B2CAppGQL,
     B2CAppProperty: B2CAppPropertyGQL,
     B2CAppAccessRight: B2CAppAccessRightGQL,
@@ -56,6 +58,8 @@ const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
 const B2CAppProperty = generateServerUtils(B2CAppPropertyGQL)
 const B2BAppPromoBlock = generateServerUtils(B2BAppPromoBlockGQL)
 const MessageAppBlackList = generateServerUtils(MessageAppBlackListGQL)
+const B2BAppPermission = generateServerUtils(B2BAppPermissionGQL)
+const B2BAppRole = generateServerUtils(B2BAppRoleGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -63,11 +67,13 @@ module.exports = {
     B2BApp,
     B2BAppContext,
     B2BAppAccessRight,
+    B2BAppPermission,
+    B2BAppPromoBlock,
+    B2BAppRole,
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
     B2CAppProperty,
-    B2BAppPromoBlock,
     sendB2CAppPushMessage,
     MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */

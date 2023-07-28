@@ -4,7 +4,8 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
-const { get } = require('lodash')
+const get = require('lodash/get')
+const capitalize = require('lodash/capitalize')
 const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
@@ -27,6 +28,8 @@ const {
     B2CAppBuild: B2CAppBuildGQL,
 } = require('@condo/domains/miniapp/gql')
 const { MessageAppBlackList: MessageAppBlackListGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -38,6 +41,13 @@ function randomHex() {
     return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`
 }
 
+function generatePermissionKey() {
+    const action = capitalize(faker.word.verb()).replace('-', '')
+    const subject = capitalize(faker.word.noun()).replace('-', '')
+
+    return `can${action}${subject}`
+}
+
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
 const B2BAppContext = generateGQLTestUtils(B2BAppContextGQL)
 const B2BAppAccessRight = generateGQLTestUtils(B2BAppAccessRightGQL)
@@ -47,6 +57,8 @@ const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 const B2CAppProperty = generateGQLTestUtils(B2CAppPropertyGQL)
 const B2BAppPromoBlock = generateGQLTestUtils(B2BAppPromoBlockGQL)
 const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
+const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
+const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -383,6 +395,69 @@ async function updateTestMessageAppBlackList (client, id, extraAttrs = {}) {
     const obj = await MessageAppBlackList.update(client, id, attrs)
     return [obj, attrs]
 }
+async function createTestB2BAppPermission (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const key = generatePermissionKey()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        key,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPermission.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppPermission (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPermission.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2BAppRole (client, app, role, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!role || !role.id) throw new Error('no role.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        role: { connect: { id: role.id } },
+        permissions: {},
+        ...extraAttrs,
+    }
+    const obj = await B2BAppRole.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppRole (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppRole.update(client, id, attrs)
+    return [obj, attrs]
+}
 
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
@@ -400,13 +475,15 @@ module.exports = {
     B2BApp, createTestB2BApp, updateTestB2BApp,
     B2BAppContext, createTestB2BAppContext, updateTestB2BAppContext,
     B2BAppAccessRight, createTestB2BAppAccessRight, updateTestB2BAppAccessRight,
+    B2BAppPermission, createTestB2BAppPermission, updateTestB2BAppPermission, generatePermissionKey,
+    B2BAppPromoBlock, createTestB2BAppPromoBlock, updateTestB2BAppPromoBlock,
     B2CApp, createTestB2CApp, updateTestB2CApp,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
-    B2BAppPromoBlock, createTestB2BAppPromoBlock, updateTestB2BAppPromoBlock,
     sendB2CAppPushMessageByTestClient,
     MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
+    B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }

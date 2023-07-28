@@ -365,7 +365,6 @@ describe('Payment', () => {
                     'type': 'DV_VERSION_MISMATCH',
                     'message': 'Wrong value for data version number',
                     'mutation': 'createPayment',
-                    'messageForUser': '',
                     'variable': ['data', 'dv'],
                 })
                 const [payment] = await createTestPayment(admin, organization, null, null)
@@ -376,7 +375,6 @@ describe('Payment', () => {
                     'type': 'DV_VERSION_MISMATCH',
                     'message': 'Wrong value for data version number',
                     'mutation': 'updatePayment',
-                    'messageForUser': '',
                     'variable': ['data', 'dv'],
                 })
             })
@@ -467,7 +465,7 @@ describe('Payment', () => {
             test('Receipt\'s billing should be supported by acquiring', async () => {
                 const { admin, organization, billingReceipts, acquiringContext } = await makePayer()
                 const testBillingGroup = faker.random.alpha().toLowerCase()
-                const [billing] = await createTestBillingIntegration(admin, { group: testBillingGroup } )
+                await createTestBillingIntegration(admin, { group: testBillingGroup } )
                 const [acquiring] = await createTestAcquiringIntegration(admin, { supportedBillingIntegrationsGroup: testBillingGroup })
                 await updateTestAcquiringIntegrationContext(admin, acquiringContext.id, {
                     deletedAt: dayjs().toString(),

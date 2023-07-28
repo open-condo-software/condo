@@ -628,23 +628,28 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
         if (!interpolatedMessageForUser) throw new Error(`expectToThrowGQLError(): you need to set ${errorFields.messageForUser} for locale=${locale}`)
     }
     const message = template(errorFields.message)(errorFields.messageInterpolation)
+    // NOTE: In case where only type and code provided message should not be checked
+    const messageFields = message ? { message } : {}
+    // NOTE: In case where is no errorFields.messageForUser interpolatedMessageForUser becomes undefined,
+    // so we should not check it
+    const messageForUserFields = interpolatedMessageForUser ? { messageForUser: interpolatedMessageForUser } : {}
 
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
-                'message': message,
+                ...messageFields,
                 'name': 'GQLError',
                 'path': [path],
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),
                 })],
-                'extensions': {
+                'extensions': expect.objectContaining({
                     ...errorFields,
-                    messageForUser: interpolatedMessageForUser,
-                },
+                    ...messageForUserFields,
+                }),
             })],
         })
     })

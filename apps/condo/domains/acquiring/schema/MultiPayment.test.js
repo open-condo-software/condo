@@ -138,7 +138,7 @@ describe('MultiPayment', () => {
                     expect(secondMultiPayments).toHaveProperty(['0', 'id'], secondMultiPayment.id)
                 })
                 test('integration account can see only multipayments linked to it\'s integration', async () => {
-                    const { admin, payments, acquiringIntegration: firstIntegration, client, billingIntegration } = await makePayerAndPayments()
+                    const { admin, payments, acquiringIntegration: firstIntegration, client } = await makePayerAndPayments()
                     const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, firstIntegration)
                     const [secondIntegration] = await createTestAcquiringIntegration(admin)
 
@@ -269,7 +269,6 @@ describe('MultiPayment', () => {
                     'type': 'DV_VERSION_MISMATCH',
                     'message': 'Wrong value for data version number',
                     'mutation': 'createMultiPayment',
-                    'messageForUser': '',
                     'variable': ['data', 'dv'],
                 })
                 const [multiPayment] = await createTestMultiPayment(admin, payments, client.user, acquiringIntegration)
@@ -280,7 +279,6 @@ describe('MultiPayment', () => {
                     'type': 'DV_VERSION_MISMATCH',
                     'message': 'Wrong value for data version number',
                     'mutation': 'updateMultiPayment',
-                    'messageForUser': '',
                     'variable': ['data', 'dv'],
                 })
 

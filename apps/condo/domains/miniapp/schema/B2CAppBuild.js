@@ -34,7 +34,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
             ref: 'B2CApp',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             access: {
                 update: false,
             },

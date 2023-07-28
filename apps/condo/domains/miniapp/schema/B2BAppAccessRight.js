@@ -21,7 +21,7 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
             ref: 'B2BApp.accessRights',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

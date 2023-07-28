@@ -3,6 +3,7 @@
  */
 
 const { Relationship } = require('@keystonejs/fields')
+const get = require('lodash/get')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -10,9 +11,9 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/miniapp/access/B2BAppContext')
-const { NO_CONTEXT_STATUS_ERROR } = require('@condo/domains/miniapp/constants')
+const { NO_CONTEXT_STATUS_ERROR, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
-
+const { createDefaultB2BAppRoles, deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
 
 const B2BAppContext = new GQLListSchema('B2BAppContext', {
     schemaDoc: 'Object which connects B2B App and Organization. Used to determine if app is connected or not, and store settings / state of app for specific organization',
@@ -23,7 +24,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             ref: 'B2BApp',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             access: {
                 create: true,
                 read: true,
@@ -36,7 +37,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             ref: 'Organization',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
             access: {
                 create: true,
                 read: true,
@@ -84,6 +85,24 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
             const newItem = { ...existingItem, ...resolvedData }
             if (!newItem || !newItem.status) {
                 return addValidationError(NO_CONTEXT_STATUS_ERROR)
+            }
+        },
+        afterChange: async ({ existingItem, updatedItem }) => {
+            const oldStatus = get(existingItem, 'status')
+            const newStatus = get(updatedItem, 'status')
+            const oldDeletedAt = get(existingItem, 'deletedAt')
+            const newDeletedAt = get(updatedItem, 'deletedAt')
+
+            const isConnectionHappened = newStatus === CONTEXT_FINISHED_STATUS && oldStatus !== newStatus
+            const isSoftDeletedHappened = newDeletedAt && !oldDeletedAt
+
+            const organizationId = updatedItem.organization
+            const appId = updatedItem.app
+
+            if (isSoftDeletedHappened) {
+                await deleteB2BAppRoles.delay(appId, organizationId)
+            } else if (isConnectionHappened) {
+                await createDefaultB2BAppRoles.delay(appId, organizationId)
             }
         },
     },

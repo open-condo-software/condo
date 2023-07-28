@@ -248,7 +248,6 @@ describe('AddressSource', () => {
                 'type': 'DV_VERSION_MISMATCH',
                 'message': 'Wrong value for data version number',
                 'mutation': 'createAddressSource',
-                'messageForUser': '',
                 'variable': ['data', 'dv'],
             })
         })
