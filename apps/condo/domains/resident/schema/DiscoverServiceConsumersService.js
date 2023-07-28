@@ -71,18 +71,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 const residents = await Resident.getAll(
                     context,
-                    {
-                        deletedAt: null,
-                        ...(
-                            resident
-                                ? { id: resident.id }
-                                : {
-                                    address: address,
-                                    unitName: unitName,
-                                    unitType: unitType,
-                                }
-                        ),
-                    },
+                    { deletedAt: null, ...resident ? { id: resident.id } : { address, unitName, unitType } },
                 )
 
                 // Keep only residents of organizations the feature flag enabled for
@@ -92,24 +81,21 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         context,
                         ENABLE_DISCOVER_SERVICE_CONSUMERS,
                         { organization: resident.organization.id },
-                    )
+                    ),
                 )
 
                 const billingAccounts = await BillingAccount.getAll(
                     context,
-                    billingAccount ? {
-                        id: billingAccount.id,
+                    {
                         deletedAt: null,
                         context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
-                    } : {
-                        context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
-                        property: { address: address, deletedAt: null },
-                        unitName: unitName,
-                        unitType: unitType,
-                        deletedAt: null,
+                        ...billingAccount ? {
+                            id: billingAccount.id,
+                        } : {
+                            property: { address, deletedAt: null }, unitName, unitType,
+                        },
                     },
                 )
-
 
                 const getPayload = (accountNumber, resident) => ({
                     dv,
