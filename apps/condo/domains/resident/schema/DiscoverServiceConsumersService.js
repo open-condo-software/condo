@@ -11,6 +11,7 @@ const { getById } = require('@open-condo/keystone/schema')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ENABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const {
     RESIDENT_DISCOVER_CONSUMERS_WINDOW,

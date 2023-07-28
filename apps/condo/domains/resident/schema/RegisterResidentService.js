@@ -105,7 +105,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                         unitType,
                         resident: { id },
                     })
-                    logger.info({ message: 'discoverServiceConsumers done', discoveringResult, reqId })
+                    logger.info({ message: 'discoverServiceConsumers done', result: discoveringResult, reqId })
                 } catch (err) {
                     logger.error({ message: 'discoverServiceConsumers fail', err, reqId })
                 }

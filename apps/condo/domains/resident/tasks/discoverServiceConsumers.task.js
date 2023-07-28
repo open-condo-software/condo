@@ -12,11 +12,14 @@ const logger = getLogger('notifyResidentsAboutNewsItem')
  * @returns {Promise<void>}
  */
 async function discoverServiceConsumersTask (data) {
-    const { keystone: context } = await getSchemaCtx('Resident')
-    await discoverServiceConsumers(context, { ...data, ...DV_SENDER })
+    const { keystone: context } = getSchemaCtx('Resident')
 
-    // TODO(DOMA-6556): TESTS
-    // TODO(DOMA-6556): PREVENT QUEUE OVERLOADING
+    try {
+        const result = await discoverServiceConsumers(context, { ...data, ...DV_SENDER })
+        logger.info({ message: 'discoverServiceConsumers done', result })
+    } catch (err) {
+        logger.error({ message: 'discoverServiceConsumers fail', err })
+    }
 }
 
 module.exports = createTask('discoverServiceConsumers', discoverServiceConsumersTask, { priority: 2 })
