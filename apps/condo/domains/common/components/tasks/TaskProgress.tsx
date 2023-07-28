@@ -111,7 +111,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask }: ITask
                     {translations.title(task)}
                 </Typography.Text>
             }
-            description={<div dangerouslySetInnerHTML={{ __html: translations.description(task) }}></div>}
+            description={translations.description(task)}
         />
         <TaskIconsHoverSwitcher
             progress={progress}
@@ -120,6 +120,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask }: ITask
         />
     </List.Item>
 )
+
 
 
 interface ITaskProgressTrackerProps {

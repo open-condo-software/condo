@@ -74,6 +74,7 @@ export const useBankSyncTaskUIInterface = () => {
                 const message = get(taskRecord, 'options.type') === SBBOL
                     ? BankSyncTaskExternalSystemProgressDescriptionCompleted
                     : BankSyncTaskProgressDescriptionCompleted
+                // TODO(antonal): move it to translations, since now it is possible to return ReactNode as a value of `translations.description`
                 notification.success({
                     message,
                     btn: <Button onClick={getCompleteButtonClickHandler(taskRecord)} type='primary'>{UpdateTitle}</Button>,

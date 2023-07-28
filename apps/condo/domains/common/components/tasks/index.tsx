@@ -55,7 +55,7 @@ export type TaskRecord = {
  */
 export type TaskProgressTranslations = {
     title: (task: TaskRecord) => string
-    description: (task: TaskRecord) => string
+    description: (task: TaskRecord) => string | React.ReactNode
 }
 
 // Meaning of task progress is domain specific
