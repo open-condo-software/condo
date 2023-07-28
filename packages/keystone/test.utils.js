@@ -86,8 +86,19 @@ let __keystone = null
 let __isAwaiting = false
 let __isFeatureFlagsEnabled = true
 
+/**
+ * This function needs to be called BEFORE the test client creation
+ * @param {boolean} isFeatureFlagsEnabled
+ */
 function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
     __isFeatureFlagsEnabled = isFeatureFlagsEnabled
+}
+
+/**
+ * @returns {boolean}
+ */
+function getIsFeatureFlagsEnabled () {
+    return __isFeatureFlagsEnabled
 }
 
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
@@ -767,6 +778,7 @@ module.exports = {
     NUMBER_RE,
     UploadingFile,
     setIsFeatureFlagsEnabled,
+    getIsFeatureFlagsEnabled,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,

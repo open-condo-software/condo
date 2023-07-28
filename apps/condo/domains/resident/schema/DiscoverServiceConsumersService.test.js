@@ -3,8 +3,10 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
+const {
+    makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult, catchErrorFrom,
+    setIsFeatureFlagsEnabled, getIsFeatureFlagsEnabled,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -35,19 +37,20 @@ describe('DiscoverServiceConsumersService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
     })
+
     describe('admin can:', () => {
         test('discover one service consumer (case without accountNumber or resident passed)', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' }
+                {}, {}, { status: 'Finished' },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address }
+                { address: billingProperty.address },
             )
             const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
 
             const payload = {
@@ -70,23 +73,23 @@ describe('DiscoverServiceConsumersService', () => {
             const user = await makeClientWithProperty()
             const user2 = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' }
+                {}, {}, { status: 'Finished' },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident1] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address }
+                { address: billingProperty.address },
             )
             const [resident2] = await createTestResident(admin, user2.user, user.property,
-                { address: billingProperty.address, unitName: resident1.unitName, unitType: resident1.unitType }
+                { address: billingProperty.address, unitName: resident1.unitName, unitType: resident1.unitType },
             )
             await updateTestResident(admin, resident2.id, { address: resident1.address })
             const [billingAccount1] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident1.unitName, unitType: resident1.unitType }
+                { unitName: resident1.unitName, unitType: resident1.unitType },
             )
 
             const [billingAccount2] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident1.unitName, unitType: resident1.unitType }
+                { unitName: resident1.unitName, unitType: resident1.unitType },
             )
 
             const payload = {
@@ -114,15 +117,15 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover one service consumer for specific resident', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: CONTEXT_FINISHED_STATUS }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address }
+                { address: billingProperty.address },
             )
             const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
 
             const payload = {
@@ -145,19 +148,19 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover multiple service consumers for specific resident', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: CONTEXT_FINISHED_STATUS }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address }
+                { address: billingProperty.address },
             )
             const [billingAccount1] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
 
             const [billingAccount2] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
 
             const payload = {
@@ -184,18 +187,18 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover one service consumer for specific accountNumber', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: CONTEXT_FINISHED_STATUS }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address }
+                { address: billingProperty.address },
             )
             const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
             await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
 
             const payload = {
@@ -220,18 +223,18 @@ describe('DiscoverServiceConsumersService', () => {
             const user = await makeClientWithProperty()
             const user2 = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: CONTEXT_FINISHED_STATUS }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address }
+                { address: billingProperty.address },
             )
             const [resident2] = await createTestResident(admin, user2.user, user.property,
-                { address: billingProperty.address, unitName: resident.unitName, unitType: resident.unitType  }
+                { address: billingProperty.address, unitName: resident.unitName, unitType: resident.unitType },
             )
             const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
 
             const payload = {
@@ -261,15 +264,15 @@ describe('DiscoverServiceConsumersService', () => {
             const user = await makeClientWithProperty()
             const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: CONTEXT_FINISHED_STATUS }
+                {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address }
+                { address: billingProperty.address },
             )
             await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType }
+                { unitName: resident.unitName, unitType: resident.unitType },
             )
 
             const payload = {
@@ -303,6 +306,40 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover no service consumers if there are none', async () => {
             const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(admin, randomPayload)
             expect(createdServiceConsumersTotal).toBe(0)
+        })
+
+        test('discover no service consumers if the feature flag was disabled', async () => {
+            const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
+            setIsFeatureFlagsEnabled(false) // Disable feature flags
+            const adminFeatureFlagsDisabled = await makeLoggedInAdminClient() // Create client with disabled feature flags
+            setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
+
+            const user = await makeClientWithProperty()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {}, {}, { status: 'Finished' },
+            )
+
+            const [billingProperty] = await createTestBillingProperty(adminFeatureFlagsDisabled, context, { address: user.property.address })
+            const [resident] = await createTestResident(adminFeatureFlagsDisabled, user.user, user.property,
+                { address: billingProperty.address },
+            )
+            const [billingAccount] = await createTestBillingAccount(adminFeatureFlagsDisabled, context, billingProperty,
+                { unitName: resident.unitName, unitType: resident.unitType },
+            )
+
+            const payload = {
+                address: resident.address,
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+
+            const [{ createdServiceConsumersTotal }] = await discoverServiceConsumersByTestClient(adminFeatureFlagsDisabled, payload)
+            const createdServiceConsumers = await ServiceConsumer.getAll(adminFeatureFlagsDisabled, {
+                resident: { id: resident.id },
+                deletedAt: null,
+            })
+            expect(createdServiceConsumersTotal).toBe(0)
+            expect(createdServiceConsumers).toHaveLength(0)
         })
     })
 

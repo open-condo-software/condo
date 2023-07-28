@@ -11,6 +11,7 @@ const PROPERTY_BANK_ACCOUNT = 'property-bank-account'
 const PROPERTY_REPORT_DELETE_ENTITIES = 'property-report-delete-entities'
 const SERVICE_PROVIDER_PROFILE = 'service-provider-profile'
 const SHOW_ORGANIZATION_TYPES = 'show-organization-types'
+const ENABLE_DISCOVER_SERVICE_CONSUMERS = 'enable-discover-service-consumers'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -26,4 +27,5 @@ module.exports = {
     PROPERTY_REPORT_DELETE_ENTITIES,
     SERVICE_PROVIDER_PROFILE,
     SHOW_ORGANIZATION_TYPES,
+    ENABLE_DISCOVER_SERVICE_CONSUMERS,
 }

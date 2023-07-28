@@ -80,7 +80,7 @@ class FeatureToggleManager {
     }
 
     async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
-        // Note: if you want to override the flag value by tests you cen set the `feature-flags` header! (TESTS ONLY)
+        // Note: if you want to override the flag value by tests you can set the `feature-flags` header! (TESTS ONLY)
         if (conf.NODE_ENV === 'test') {
             const headersFeatureFlags = get(keystoneContext, ['req', 'headers', 'feature-flags'])
             return headersFeatureFlags === 'true'
