@@ -4,6 +4,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { getListDependentRelations } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
@@ -62,6 +63,8 @@ describe('Organization', () => {
             })
             test('Support can create organization directly', async () => {
                 const [obj, attrs] = await createTestOrganization(support)
+
+                const x = getListDependentRelations('BillingIntegrationOrganizationContext')
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
