@@ -17,7 +17,7 @@ const {
 } = require('@condo/domains/common/constants/errors')
 const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { discoverServiceConsumers } = require('@condo/domains/resident/tasks')
+const { discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
@@ -109,9 +109,8 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                 const { id, unitType, unitName, property, dv, sender } = updatedItem
 
                 const billingProperty = await BillingProperty.getOne(context, { id: property })
-                // TODO(DOMA-6556): prevent redis queue overloading
-                // TODO(DOMA_6556): !!! TESTS !!!
-                await discoverServiceConsumers.delay({
+                // TODO(DOMA-6556): maybe prevent redis queue overloading
+                await discoverServiceConsumersTask.delay({
                     dv,
                     sender,
                     address: billingProperty.address,

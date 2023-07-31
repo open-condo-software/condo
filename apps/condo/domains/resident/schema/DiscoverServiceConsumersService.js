@@ -6,23 +6,15 @@ const { get, flatMap } = require('lodash')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { getById } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ENABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
-const {
-    RESIDENT_DISCOVER_CONSUMERS_WINDOW,
-    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
-} = require('@condo/domains/resident/constants/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+
 const logger = getLogger('DiscoverServiceConsumersMutation')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
-
-const redisGuard = new RedisGuard()
 
 const asyncFilter = async (arr, predicate) => Promise.all(arr.map(predicate)).then((results) => arr.filter((_v, index) => results[index]))
 
@@ -38,7 +30,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
         },
         {
             access: true,
-            type: 'type DiscoverServiceConsumersOutputStatistics { created: Int!, residentsFound: Int!, residentsFilteredByFeatureFlag: Int!, billingAccountsFound: Int! }',
+            type: 'type DiscoverServiceConsumersOutputStatistics { created: Int!, residentsFound: Int!, billingAccountsFound: Int! }',
         },
         {
             access: true,
@@ -56,19 +48,18 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 const reqId = get(context, ['req', 'id'])
 
-                const checkLimits = async (phone) => {
-                    await redisGuard.checkCustomLimitCounters(
-                        `discover-service-consumers-${phone}`,
-                        RESIDENT_DISCOVER_CONSUMERS_WINDOW,
-                        MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
-                    )
-                }
-
-                if (resident) {
-                    const residentObj = await Resident.getOne(context, { id: resident.id })
-                    const user = await getById('User', residentObj.user.id)
-                    await checkLimits(user.phone)
-                }
+                const billingAccounts = await BillingAccount.getAll(
+                    context,
+                    {
+                        deletedAt: null,
+                        context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
+                        ...billingAccount ? {
+                            id: billingAccount.id,
+                        } : {
+                            property: { address, deletedAt: null }, unitName, unitType,
+                        },
+                    },
+                )
 
                 const residents = await Resident.getAll(
                     context,
@@ -85,35 +76,39 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     ),
                 )
 
-                const billingAccounts = await BillingAccount.getAll(
-                    context,
-                    {
-                        deletedAt: null,
-                        context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
-                        ...billingAccount ? {
-                            id: billingAccount.id,
-                        } : {
-                            property: { address, deletedAt: null }, unitName, unitType,
-                        },
+                // Keep only residents the properties of which are exist in the organization
+                const residentsFilteredByProperty = await asyncFilter(
+                    residentsFilteredByFeatureFlag,
+                    async (resident) => {
+                        return await Property.count(
+                            context,
+                            {
+                                deletedAt: null,
+                                organization: { id: get(resident, ['organization', 'id']) },
+                                OR: [
+                                    { addressKey: get(resident, ['property', 'addressKey']) },
+                                    { address_i: get(resident, ['property', 'address']) },
+                                ],
+                            },
+                        ) > 0
                     },
                 )
 
-                const getPayload = (accountNumber, resident) => ({
-                    dv,
-                    sender,
-                    resident: { connect: { id: resident.id } },
-                    organization: { connect: { id: get(resident, ['organization', 'id']) } },
-                    accountNumber: accountNumber,
-                    isDiscovered: true,
-                })
-
-                const combinations = flatMap(residentsFilteredByFeatureFlag, (resident) => billingAccounts.map((account) => [resident, account]))
-                const createdServiceConsumers = await Promise.all(combinations.map(([resident, account]) => ServiceConsumer.create(context, getPayload(account.number, resident))))
+                const combinations = flatMap(residentsFilteredByProperty, (resident) => billingAccounts.map((account) => [resident, account]))
+                const createdServiceConsumers = await Promise.all(
+                    combinations.map(([resident, account]) => ServiceConsumer.create(context, {
+                        dv,
+                        sender,
+                        resident: { connect: { id: resident.id } },
+                        organization: { connect: { id: get(resident, ['organization', 'id']) } },
+                        accountNumber: account.number,
+                        isDiscovered: true,
+                    })),
+                )
 
                 const statistics = {
                     created: createdServiceConsumers.length,
-                    residentsFound: residents.length,
-                    residentsFilteredByFeatureFlag: residentsFilteredByFeatureFlag.length,
+                    residentsFound: residentsFilteredByProperty.length,
                     billingAccountsFound: billingAccounts.length,
                 }
 

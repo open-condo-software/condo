@@ -94,13 +94,6 @@ function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
     __isFeatureFlagsEnabled = isFeatureFlagsEnabled
 }
 
-/**
- * @returns {boolean}
- */
-function getIsFeatureFlagsEnabled () {
-    return __isFeatureFlagsEnabled
-}
-
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (__expressApp !== null) return
     if (__isAwaiting) return
@@ -778,7 +771,6 @@ module.exports = {
     NUMBER_RE,
     UploadingFile,
     setIsFeatureFlagsEnabled,
-    getIsFeatureFlagsEnabled,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,

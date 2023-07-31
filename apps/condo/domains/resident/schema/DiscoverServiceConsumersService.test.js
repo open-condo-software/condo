@@ -5,8 +5,7 @@ const { faker } = require('@faker-js/faker')
 
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult, catchErrorFrom,
-    setIsFeatureFlagsEnabled, getIsFeatureFlagsEnabled,
+    expectToThrowAuthenticationErrorToResult, waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -16,10 +15,11 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW } = require('@condo/domains/resident/constants/constants')
 const { discoverServiceConsumersByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestResident, updateTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+
+const { getFeatureFlag, setFeatureFlag } = require('../tasks/discoverServiceConsumers.task')
 
 describe('DiscoverServiceConsumersService', () => {
     let admin
@@ -38,7 +38,54 @@ describe('DiscoverServiceConsumersService', () => {
         anonymous = await makeClient()
     })
 
-    describe('admin can:', () => {
+    describe('access', () => {
+        test('admin can discover service consumers', async () => {
+            const user = await makeClientWithProperty()
+            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {}, {}, { status: 'Finished' },
+            )
+
+            const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
+            const [resident] = await createTestResident(admin, user.user, user.property,
+                { address: billingProperty.address },
+            )
+
+            const payload = {
+                address: resident.address,
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            }
+
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
+
+            expect(statistics).toEqual(expect.objectContaining({
+                created: 0,
+                residentsFound: 1,
+                billingAccountsFound: 0,
+            }))
+        })
+
+        test('user cannot discover service consumers', async () => {
+            const user = await makeClientWithProperty()
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await discoverServiceConsumersByTestClient(user, randomPayload)
+            })
+        })
+
+        test('support cannot discover service consumers', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await discoverServiceConsumersByTestClient(support, randomPayload)
+            })
+        })
+
+        test('anonymous cannot discover service consumers', async () => {
+            await expectToThrowAuthenticationErrorToResult(async () => {
+                await discoverServiceConsumersByTestClient(anonymous, randomPayload)
+            })
+        })
+    })
+
+    describe('live cases', () => {
         test('discover one service consumer (case without accountNumber or resident passed)', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
@@ -49,30 +96,20 @@ describe('DiscoverServiceConsumersService', () => {
             const [resident] = await createTestResident(admin, user.user, user.property,
                 { address: billingProperty.address },
             )
+
             const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
 
-            const payload = {
-                address: resident.address,
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            }
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident.id },
+                    deletedAt: null,
+                })
 
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                resident: { id: resident.id },
-                deletedAt: null,
+                expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
+                expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
             })
-
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 1,
-                residentsFound: 1,
-                residentsFilteredByFeatureFlag: 1,
-                billingAccountsFound: 1,
-            }))
-            expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
         })
 
         test('discover multiple service consumers (case without accountNumber or resident passed)', async () => {
@@ -98,31 +135,20 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident1.unitName, unitType: resident1.unitType },
             )
 
-            const payload = {
-                address: resident1.address,
-                unitName: resident1.unitName,
-                unitType: resident1.unitType,
-            }
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    OR: [
+                        { resident: { id: resident1.id } },
+                        { resident: { id: resident2.id } },
+                    ],
+                    deletedAt: null,
+                })
+                const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
+                const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                OR: [
-                    { resident: { id: resident1.id } },
-                    { resident: { id: resident2.id } },
-                ],
-                deletedAt: null,
+                expect(residentIds).toEqual(expect.arrayContaining([resident1.id, resident2.id]))
+                expect(accountNumbers).toEqual(expect.arrayContaining([billingAccount1.number, billingAccount2.number]))
             })
-            const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
-            const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
-
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 4,
-                residentsFound: 2,
-                residentsFilteredByFeatureFlag: 2,
-                billingAccountsFound: 2,
-            }))
-            expect(residentIds).toEqual(expect.arrayContaining([resident1.id, resident2.id]))
-            expect(accountNumbers).toEqual(expect.arrayContaining([billingAccount1.number, billingAccount2.number]))
         })
 
         test('discover one service consumer for specific resident', async () => {
@@ -139,27 +165,14 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
 
-            const payload = {
-                address: resident.address,
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-                resident: { id: resident.id },
-            }
-
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                resident: { id: resident.id },
-                deletedAt: null,
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident.id },
+                    deletedAt: null,
+                })
+                expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
+                expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
             })
-
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 1,
-                residentsFound: 1,
-                residentsFilteredByFeatureFlag: 1,
-                billingAccountsFound: 1,
-            }))
-            expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
         })
 
         test('discover multiple service consumers for specific resident', async () => {
@@ -180,30 +193,18 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
 
-            const payload = {
-                address: resident.address,
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-                resident: { id: resident.id },
-            }
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    OR: [
+                        { accountNumber: billingAccount1.number },
+                        { accountNumber: billingAccount2.number },
+                    ],
+                    deletedAt: null,
+                })
+                const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
 
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                OR: [
-                    { accountNumber: billingAccount1.number },
-                    { accountNumber: billingAccount2.number },
-                ],
-                deletedAt: null,
+                expect(residentIds).toContain(resident.id)
             })
-            const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
-
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 2,
-                residentsFound: 1,
-                residentsFilteredByFeatureFlag: 1,
-                billingAccountsFound: 2,
-            }))
-            expect(residentIds).toContain(resident.id)
         })
 
         test('discover one service consumer for specific accountNumber', async () => {
@@ -223,28 +224,16 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
 
-            const payload = {
-                address: resident.address,
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-                billingAccount: { id: billingAccount.id },
-            }
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident.id },
+                    deletedAt: null,
+                })
 
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                resident: { id: resident.id },
-                deletedAt: null,
+                expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
+                expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
+                expect(createdServiceConsumers[0].resident.id).toEqual(resident.id)
             })
-
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 1,
-                residentsFound: 1,
-                residentsFilteredByFeatureFlag: 1,
-                billingAccountsFound: 1,
-            }))
-            expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
-            expect(createdServiceConsumers[0].resident.id).toEqual(resident.id)
         })
 
         test('discover multiple service consumers for specific accountNumber', async () => {
@@ -265,39 +254,29 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
 
-            const payload = {
-                address: resident.address,
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-                billingAccount: { id: billingAccount.id },
-            }
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    OR: [
+                        { resident: { id: resident.id } },
+                        { resident: { id: resident2.id } },
+                    ],
+                    deletedAt: null,
+                })
+                const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
+                const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                OR: [
-                    { resident: { id: resident.id } },
-                    { resident: { id: resident2.id } },
-                ],
-                deletedAt: null,
+                expect(residentIds).toEqual(expect.arrayContaining([resident.id, resident2.id]))
+                expect(accountNumbers).toContain(billingAccount.number)
             })
-            const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
-            const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
-
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 2,
-                residentsFound: 2,
-                residentsFilteredByFeatureFlag: 2,
-                billingAccountsFound: 1,
-            }))
-            expect(residentIds).toEqual(expect.arrayContaining([resident.id, resident2.id]))
-            expect(accountNumbers).toContain(billingAccount.number)
         })
 
-        test('should throw if limit of calls is exceeded for resident', async () => {
+        test('discover no service consumers if the feature flag was disabled', async () => {
+            const prevIsFeatureFlagsEnabled = getFeatureFlag()
+            setFeatureFlag(false) // Disable feature flags
+
             const user = await makeClientWithProperty()
-            const admin = await makeLoggedInAdminClient()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: CONTEXT_FINISHED_STATUS },
+                {}, {}, { status: 'Finished' },
             )
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
@@ -308,101 +287,15 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
 
-            const payload = {
-                address: resident.address,
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-                resident: { id: resident.id },
-            }
-
-            for await (const i of Array.from(Array(MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW + 1).keys())) {
-                if (i === MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW) {
-                    await catchErrorFrom(async () => {
-                        await discoverServiceConsumersByTestClient(admin, payload)
-                    }, ({ errors }) => {
-
-                        expect(errors).toMatchObject([{
-                            path: ['result'],
-                            extensions: {
-                                code: 'BAD_USER_INPUT',
-                                type: 'TOO_MANY_REQUESTS',
-                                message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
-                            },
-                        }])
-                    })
-                } else {
-                    await discoverServiceConsumersByTestClient(admin, payload)
-                }
-            }
-        })
-
-        test('discover no service consumers if there are none', async () => {
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, randomPayload)
-
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 0,
-                residentsFound: 0,
-                residentsFilteredByFeatureFlag: 0,
-                billingAccountsFound: 0,
-            }))
-        })
-
-        test('discover no service consumers if the feature flag was disabled', async () => {
-            const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
-            setIsFeatureFlagsEnabled(false) // Disable feature flags
-            const adminFeatureFlagsDisabled = await makeLoggedInAdminClient() // Create client with disabled feature flags
-            setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
-
-            const user = await makeClientWithProperty()
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' },
-            )
-
-            const [billingProperty] = await createTestBillingProperty(adminFeatureFlagsDisabled, context, { address: user.property.address })
-            const [resident] = await createTestResident(adminFeatureFlagsDisabled, user.user, user.property,
-                { address: billingProperty.address },
-            )
-            await createTestBillingAccount(adminFeatureFlagsDisabled, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType },
-            )
-
-            const payload = {
-                address: resident.address,
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            }
-
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(adminFeatureFlagsDisabled, payload)
-            const createdServiceConsumers = await ServiceConsumer.getAll(adminFeatureFlagsDisabled, {
-                resident: { id: resident.id },
-                deletedAt: null,
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident.id },
+                    deletedAt: null,
+                })
+                expect(createdServiceConsumers).toHaveLength(0)
             })
-            expect(statistics).toEqual(expect.objectContaining({
-                created: 0,
-                residentsFound: 1,
-                residentsFilteredByFeatureFlag: 0,
-                billingAccountsFound: 1,
-            }))
-            expect(createdServiceConsumers).toHaveLength(0)
-        })
-    })
 
-    test('user cannot discover service consumers', async () => {
-        const user = await makeClientWithProperty()
-        await expectToThrowAccessDeniedErrorToResult(async () => {
-            await discoverServiceConsumersByTestClient(user, randomPayload)
-        })
-    })
-
-    test('support cannot discover service consumers', async () => {
-        await expectToThrowAccessDeniedErrorToResult(async () => {
-            await discoverServiceConsumersByTestClient(support, randomPayload)
-        })
-    })
-
-    test('anonymous cannot discover service consumers', async () => {
-        await expectToThrowAuthenticationErrorToResult(async () => {
-            await discoverServiceConsumersByTestClient(anonymous, randomPayload)
+            setFeatureFlag(prevIsFeatureFlagsEnabled) // put the previous value back
         })
     })
 })

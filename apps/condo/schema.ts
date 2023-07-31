@@ -20189,7 +20189,6 @@ export type DiscoverServiceConsumersOutputStatistics = {
   __typename?: 'DiscoverServiceConsumersOutputStatistics';
   created: Scalars['Int'];
   residentsFound: Scalars['Int'];
-  residentsFilteredByFeatureFlag: Scalars['Int'];
   billingAccountsFound: Scalars['Int'];
 };
 

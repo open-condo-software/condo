@@ -64064,7 +64064,6 @@ input DiscoverServiceConsumersInput {
 type DiscoverServiceConsumersOutputStatistics {
   created: Int!
   residentsFound: Int!
-  residentsFilteredByFeatureFlag: Int!
   billingAccountsFound: Int!
 }
 
