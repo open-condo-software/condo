@@ -114,8 +114,8 @@ describe('NewsItemRecipientsExportTask', () => {
                 const [objCreated] = await createTestNewsItemRecipientsExportTask(adminClient, adminClient.user, dummyO10n)
 
                 await waitFor(async () => {
-                    expect(obj.v).toEqual(2)
-                    expect(obj.sender).toEqual('worker')
+                    expect(objCreated.v).toEqual(2)
+                    expect(objCreated.sender).toEqual('worker')
                 })
 
                 const [obj, attrs] = await updateTestNewsItemRecipientsExportTask(adminClient, objCreated.id)
