@@ -29,6 +29,7 @@ export const getTicketCreateMessage = (intl, ticket) => {
     const formattedDate = intl.formatDate(dt.valueOf(), {
         month: 'long',
         day: 'numeric',
+        year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
     })
