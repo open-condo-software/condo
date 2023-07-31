@@ -3,6 +3,7 @@
  */
 
 const get = require('lodash/get')
+const isArray = require('lodash/isArray')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getByCondition, getById } = require('@open-condo/keystone/schema')
@@ -51,11 +52,7 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTicketCommentFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return true
-
+const checkManageCommentFileAccess = async ({ user, operation, originalInput, itemId }) => {
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -97,6 +94,29 @@ async function canManageTicketCommentFiles ({ authentication: { item: user }, or
 
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageTicketComments')
     }
+
+    return false
+}
+
+async function canManageTicketCommentFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+
+    if (operation === 'create' && isArray(originalInput)) {
+        for (const ticketCommentFileInputData of originalInput) {
+            const ticketCommentFileInput = get(ticketCommentFileInputData, 'data')
+            const accessToCreateCommentFile = await checkManageCommentFileAccess({ user, operation, originalInput: ticketCommentFileInput, itemId })
+
+            if (!accessToCreateCommentFile) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    return await checkManageCommentFileAccess({ user, operation, originalInput, itemId })
 }
 
 /*
