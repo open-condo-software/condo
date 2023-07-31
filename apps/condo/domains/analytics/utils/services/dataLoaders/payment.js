@@ -9,8 +9,6 @@ const { AbstractDataLoader } = require('@condo/domains/analytics/utils/services/
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
 
-const PERIOD_DATE_FORMAT = 'YYYY-MM-DD'
-
 class BillingResidentKnexLoader extends GqlToKnexBaseAdapter {
     constructor (where, groupBy = []) {
         super('Resident', where, groupBy)
@@ -86,8 +84,8 @@ class PaymentDataLoader extends AbstractDataLoader {
                 status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
                 deletedAt: null,
                 AND: [
-                    { advancedAt_gte: dayjs().startOf('month').format(PERIOD_DATE_FORMAT) },
-                    { advancedAt_lte: dayjs().endOf('month').format(PERIOD_DATE_FORMAT) },
+                    { advancedAt_gte: dayjs().startOf('month').toISOString() },
+                    { advancedAt_lte: dayjs().endOf('month').toISOString() },
                 ],
             },
         })
