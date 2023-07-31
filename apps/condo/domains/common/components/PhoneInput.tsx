@@ -96,7 +96,6 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
                     value: formattedValue,
                 },
             }
-            // @ts-ignore
             props.onChange(event)
         } else {
             props.onChange(formattedValue)

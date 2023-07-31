@@ -23,7 +23,6 @@ async function createTestMobileFeatureConfig (client, organization, extraAttrs =
     const attrs = {
         dv: 1,
         sender,
-        emergencyPhone: faker.phone.number('+7922#######'),
         commonPhone: faker.phone.number('+7922#######'),
         ticketSubmittingIsEnabled: false,
         onlyProgressionMeterReadingsIsEnabled: false,

@@ -170,24 +170,11 @@ describe('MobileFeatureConfig', () => {
             test('TICKET_SUBMITTING_PHONES_NOT_CONFIGURED', async () => {
                 await catchErrorFrom(async () => {
                     await createTestMobileFeatureConfig(admin, commonOrganization, {
-                        emergencyPhone: undefined,
                         commonPhone: undefined,
                         ticketSubmittingIsEnabled: true,
                     })
                 }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('emergencyPhone or commonPhone field not specified')
-                    expect(data).toEqual({ 'obj': null })
-                })
-            })
-
-            test('EMERGENCY_PHONE_INVALID', async () => {
-                await catchErrorFrom(async () => {
-                    await createTestMobileFeatureConfig(admin, commonOrganization, {
-                        emergencyPhone: 'undefined',
-                        ticketSubmittingIsEnabled: true,
-                    })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('emergencyPhone is invalid')
+                    expect(errors[0].message).toMatch('commonPhone field not specified')
                     expect(data).toEqual({ 'obj': null })
                 })
             })

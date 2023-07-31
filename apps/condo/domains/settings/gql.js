@@ -11,7 +11,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const MOBILE_FEATURE_CONFIG_FIELDS = `{ organization { id } emergencyPhone commonPhone onlyProgressionMeterReadingsIsEnabled ticketSubmittingIsEnabled meta ${COMMON_FIELDS} }`
+const MOBILE_FEATURE_CONFIG_FIELDS = `{ organization { id } commonPhone onlyProgressionMeterReadingsIsEnabled ticketSubmittingIsDisabled meta ${COMMON_FIELDS} }`
 const MobileFeatureConfig = generateGqlQueries('MobileFeatureConfig', MOBILE_FEATURE_CONFIG_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
