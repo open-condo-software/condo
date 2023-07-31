@@ -69,7 +69,13 @@ const TicketAssignments = ({
     const { assignee: initialAssignee, executor: initialExecutor } = form.getFieldsValue(['assignee', 'executor'])
 
     const { objs: employees, allDataLoaded: allEmployeesLoaded } = OrganizationEmployee.useAllObjects({
-        where: { organization: { id: organizationId }, isBlocked: false, isRejected: false },
+        where: {
+            organization: { id: organizationId },
+            user: { deletedAt: null },
+            deletedAt: null,
+            isBlocked: false,
+            isRejected: false,
+        },
     })
 
     const { objs: propertyScopeProperties, loading: propertiesLoading } = PropertyScopeProperty.useAllObjects({
