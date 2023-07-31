@@ -118,7 +118,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }
 
                 logger.info({
-                    msg: 'Created ServiceConsumers for input data: ',
+                    msg: 'Created ServiceConsumers',
                     payload: { address, unitName, unitType, billingAccount, resident },
                     statistics,
                     reqId,
