@@ -4,6 +4,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { getListDependentRelations } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,

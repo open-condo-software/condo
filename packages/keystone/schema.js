@@ -1,7 +1,7 @@
 /** @type {import('ow').default} */
 const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
-const { pickBy, identity, isFunction, isArray } = require('lodash')
+const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
 const get = require('lodash/get')
 const ow = require('ow')
 
@@ -187,6 +187,45 @@ function getSchemaContexts () {
     return result
 }
 
+
+/**
+ * Gets all relations in the schema
+ */
+const getAllRelations = memoize(() => {
+    const schemas = getSchemaContexts()
+    const listSchemas = Object.values(schemas).filter(x => x.type === GQL_LIST_SCHEMA_TYPE)
+    const relations = []
+    listSchemas.forEach(listSchema => {
+        const listFields = get(listSchema, ['list', 'fields'], [])
+        const listRelations = listFields.filter(x => x.isRelationship === true)
+        listRelations.forEach(listRelation => {
+            relations.push({
+                label: listRelation.label,
+                from: listRelation.listKey,
+                to: listRelation.refListKey,
+                path: listRelation.path,
+                config: listRelation.config,
+            })
+        })
+    })
+
+    return relations
+})
+
+
+/**
+ * Gets all relations that depend on provided list
+ * Note: this function is computationally complex, but exported as cached function with finite number of arguments.
+ */
+const getListDependentRelations = memoize((list) => {
+    if (!SCHEMAS.has(list)) throw new Error(`Schema ${list} is not registered yet`)
+    if (SCHEMAS.get(list)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${list} type != ${GQL_LIST_SCHEMA_TYPE}`)
+
+    const allRelations = getAllRelations()
+
+    return allRelations.filter(x => x.to === list)
+})
+
 module.exports = {
     GQLListSchema,
     GQLCustomSchema,
@@ -197,6 +236,7 @@ module.exports = {
     getById,
     getByCondition,
     getSchemaContexts,
+    getListDependentRelations,
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,
