@@ -3,8 +3,8 @@ import React, { useMemo } from 'react'
 
 import { Space } from '../../Space'
 import { Typography } from '../../Typography'
+import { ItemType } from '../button'
 import { DROPDOWN_CLASS_PREFIX } from '../dropdown'
-import { ItemType } from '../dropdownButton'
 
 
 type UseItems = (items: Array<ItemType>, triggerId?: string) => Array<MenuItemType>

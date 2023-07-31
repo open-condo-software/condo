@@ -41,9 +41,7 @@ const DropdownButton: React.FC<DropdownButtonProps> = (props) => {
     const { children, items = [], buttonProps, dropdownProps, id: triggerId, disabled, type } = props
 
     const dropdownOverlayClasses = classNames(
-        {
-            [`${DROPDOWN_CLASS_PREFIX}-wrapper`]: true,
-        },
+        `${DROPDOWN_CLASS_PREFIX}-wrapper`,
         get(dropdownProps, 'className')
     )
 

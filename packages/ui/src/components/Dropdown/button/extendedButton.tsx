@@ -1,3 +1,5 @@
+import './style.less'
+
 import classNames from 'classnames'
 import React from 'react'
 
@@ -13,14 +15,10 @@ export type ExtendedButtonProps = Omit<ButtonProps, 'icon' | 'href'>
  * For internal use only
  */
 const ExtendedButton: React.FC<ExtendedButtonProps> = (props) => {
-    const { children, type, stateless, className, ...rest } = props
+    const { children, className, ...rest } = props
 
     const buttonClasses = classNames(
-        {
-            [`${BUTTON_CLASS_PREFIX}-extended`]: true,
-            [`${BUTTON_CLASS_PREFIX}-${type}`]: type,
-            [`${BUTTON_CLASS_PREFIX}-stateless`]: stateless,
-        },
+        `${BUTTON_CLASS_PREFIX}-extended`,
         className,
     )
 
@@ -30,7 +28,9 @@ const ExtendedButton: React.FC<ExtendedButtonProps> = (props) => {
             prefixCls={BUTTON_CLASS_PREFIX}
             className={buttonClasses}
         >
-            {/*@ts-ignore*/}
+            {/* NOTE: We ignore typing errors to put custom content in the CondoButton. */}
+            {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+            {/* @ts-ignore */}
             <>
                 <span className={`${BUTTON_CLASS_PREFIX}-label`}>
                     {children}
