@@ -12,6 +12,7 @@ const {
     expectToThrowInternalError,
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
+    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 
@@ -544,17 +545,18 @@ describe('BillingAccount', () => {
                 { unitName, unitType: FLAT_UNIT_TYPE }
             )
 
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                resident: { id: resident.id, deletedAt: null },
-                accountNumber: billingAccount.number,
-                deletedAt: null,
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident.id, deletedAt: null },
+                    accountNumber: billingAccount.number,
+                    deletedAt: null,
+                })
+
+                expect(createdServiceConsumers).toHaveLength(1)
+                expect(createdServiceConsumers[0].organization.id).toEqual(organization.id)
+                expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.accountNumber).toString()).toContain(billingAccount.number)
+                expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
             })
-
-            expect(createdServiceConsumers).toHaveLength(1)
-            expect(createdServiceConsumers[0].organization.id).toEqual(organization.id)
-            expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.accountNumber).toString()).toContain(billingAccount.number)
-            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
-
         })
 
         test('should create multiple ServiceConsumers when BillingAccount is created', async () => {
@@ -580,19 +582,20 @@ describe('BillingAccount', () => {
                 { unitName, unitType: FLAT_UNIT_TYPE }
             )
 
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                accountNumber: billingAccount.number,
-                deletedAt: null,
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    accountNumber: billingAccount.number,
+                    deletedAt: null,
+                })
+
+                expect(createdServiceConsumers).toHaveLength(2)
+                expect(createdServiceConsumers[0].organization.id).toEqual(organization.id)
+                expect(createdServiceConsumers[1].organization.id).toEqual(organization.id)
+                expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.resident.id).toString()).toContain(resident.id)
+                expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.resident.id).toString()).toContain(resident2.id)
+                expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
+                expect(createdServiceConsumers[1].accountNumber).toEqual(billingAccount.number)
             })
-
-            expect(createdServiceConsumers).toHaveLength(2)
-            expect(createdServiceConsumers[0].organization.id).toEqual(organization.id)
-            expect(createdServiceConsumers[1].organization.id).toEqual(organization.id)
-            expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.resident.id).toString()).toContain(resident.id)
-            expect(createdServiceConsumers.map((serviceConsumer) => serviceConsumer.resident.id).toString()).toContain(resident2.id)
-            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
-            expect(createdServiceConsumers[1].accountNumber).toEqual(billingAccount.number)
-
         })
 
         test('should not create ServiceConsumer when BillingAccount is created if no resident exists for that property', async () => {
@@ -609,12 +612,14 @@ describe('BillingAccount', () => {
                 { unitName, unitType: FLAT_UNIT_TYPE }
             )
 
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                accountNumber: billingAccount.number,
-                deletedAt: null,
-            })
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    accountNumber: billingAccount.number,
+                    deletedAt: null,
+                })
 
-            expect(createdServiceConsumers).toHaveLength(0)
+                expect(createdServiceConsumers).toHaveLength(0)
+            })
         })
 
         test('should create ServiceConsumer only for passed BillingAccount', async () => {
@@ -641,21 +646,23 @@ describe('BillingAccount', () => {
                 { unitName, unitType: FLAT_UNIT_TYPE }
             )
 
-            const createdServiceConsumer1 = await ServiceConsumer.getAll(admin, {
-                accountNumber: billingAccount.number,
-                deletedAt: null,
-            })
+            await waitFor(async () => {
+                const createdServiceConsumer1 = await ServiceConsumer.getAll(admin, {
+                    accountNumber: billingAccount.number,
+                    deletedAt: null,
+                })
 
-            const createdServiceConsumer2 = await ServiceConsumer.getAll(admin, {
-                accountNumber: billingAccount2.number,
-                deletedAt: null,
-            })
+                const createdServiceConsumer2 = await ServiceConsumer.getAll(admin, {
+                    accountNumber: billingAccount2.number,
+                    deletedAt: null,
+                })
 
-            expect(createdServiceConsumer1).toHaveLength(1)
-            expect(createdServiceConsumer2).toHaveLength(0)
-            expect(createdServiceConsumer1[0].organization.id).toEqual(organization.id)
-            expect(createdServiceConsumer1[0].accountNumber).toEqual(billingAccount.number)
-            expect(createdServiceConsumer1[0].resident.id).toEqual(resident.id)
+                expect(createdServiceConsumer1).toHaveLength(1)
+                expect(createdServiceConsumer2).toHaveLength(0)
+                expect(createdServiceConsumer1[0].organization.id).toEqual(organization.id)
+                expect(createdServiceConsumer1[0].accountNumber).toEqual(billingAccount.number)
+                expect(createdServiceConsumer1[0].resident.id).toEqual(resident.id)
+            })
         })
     })
 })
