@@ -6,14 +6,14 @@ const get = require('lodash/get')
 
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/ticket/access/TicketMultipleUpdateService')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-
-const { Organization } = require('../../organization/utils/serverSchema')
-const { Ticket } = require('../utils/serverSchema')
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 
 const TicketMultipleUpdateService = new GQLCustomSchema('TicketMultipleUpdateService', {
+    schemaDoc: 'This mutation is used to update ticket sequentially from the technic mobile application (when user enter in online)',
     types: [
         {
             access: true,
@@ -43,7 +43,10 @@ const TicketMultipleUpdateService = new GQLCustomSchema('TicketMultipleUpdateSer
                     const ticketStatusToUpdate = get(ticketUpdateData, 'status.connect.id', null)
 
                     if (ticketStatusToUpdate) {
-                        if (organizationStatusTransitions[existedTicketStatusId].includes(ticketStatusToUpdate)) {
+                        if (
+                            organizationStatusTransitions[existedTicketStatusId] &&
+                            organizationStatusTransitions[existedTicketStatusId].includes(ticketStatusToUpdate)
+                        ) {
                             const updatedTicket = await Ticket.update(context, ticketId, ticketUpdateData)
                             existedTicketStatusId = get(updatedTicket, 'status.id', null)
                         }

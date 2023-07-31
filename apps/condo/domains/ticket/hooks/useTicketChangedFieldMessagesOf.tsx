@@ -113,7 +113,6 @@ const addLink = (ticketChange, fieldId, value, type: TicketChangeFieldMessageTyp
 
 export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfType = (ticketChange) => {
     const intl = useIntl()
-    const ActualCreationDateMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.actualCreationDate' })
     const ClientPhoneMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientPhone' })
     const DetailsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.details' })
     const ClientNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.clientName' })
@@ -362,15 +361,6 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                     <SafeUserMention changeValue={ticketChange}/>
                     &nbsp;
                     {intl.formatMessage({ id: customMessages.change || 'pages.condo.ticket.TicketChanges.change' }, values)}
-                    {ticketChange.actualCreationDate && (
-                        <Typography.Paragraph>
-                            ({
-                                ActualCreationDateMessage
-                                    .replace('{date}', dayjs(ticketChange.actualCreationDate).format('DD.MM.YY'))
-                                    .replace('{time}', dayjs(ticketChange.actualCreationDate).format('HH:mm'))
-                            })
-                        </Typography.Paragraph>
-                    )}
                 </>
             )
         } else if (isValueToNotEmpty) { // only "to" part

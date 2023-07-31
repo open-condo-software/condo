@@ -114,6 +114,15 @@ const TicketChange = new GQLListSchema('TicketChange', {
             },
         },
     },
+    hooks: {
+        resolveInput: ({ resolvedData }) => {
+            if (!resolvedData.actualCreationDate) {
+                resolvedData.actualCreationDate = new Date().toISOString()
+            }
+
+            return resolvedData
+        },
+    },
     plugins: [uuided(), versioned(), tracked(), dvAndSender()],
     access: {
         read: access.canReadTicketChanges,

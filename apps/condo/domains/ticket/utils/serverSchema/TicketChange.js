@@ -22,12 +22,7 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
     }
 
     if (newItem.statusUpdatedAt) {
-        const statusUpdatedAtDateTime = dayjs(newItem.statusUpdatedAt)
-        const statusUpdatedAtDiffFromNow = Math.abs(dayjs().diff(dayjs(statusUpdatedAtDateTime), 'second'))
-
-        if (statusUpdatedAtDiffFromNow > 10) {
-            payload.actualCreationDate = statusUpdatedAtDateTime.toISOString()
-        }
+        payload.actualCreationDate = dayjs(newItem.statusUpdatedAt).toISOString()
     }
 
     await TicketChange.create(

@@ -776,7 +776,6 @@
   "pages.condo.ticket.title.MeterReadingsFromResident": "Meter readings from resident",
   "pages.condo.ticket.alert.BlockedEditing.title": "Ticket editing is not available",
   "pages.condo.ticket.alert.BlockedEditing.description": "You cannot change ticket because the selected address is no longer in service",
-  "pages.condo.ticket.TicketChanges.actualCreationDate": "Change was made on {date} in {time} without internet connection",
   "pages.condo.ticket.TicketChanges.add": "added {field}. Now it is {to}",
   "pages.condo.ticket.TicketChanges.change": "changed {field}. It was {from}, and got {to}",
   "pages.condo.ticket.TicketChanges.boolean.change": "changed {field}. Now it is {to}",

@@ -435,7 +435,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
     const ticketChangesResult = TicketChange.useObjects({
         where: { ticket: { id } },
-        sortBy: [SortTicketChangesBy.CreatedAtDesc],
+        sortBy: [SortTicketChangesBy.ActualCreationDateDesc],
     }, {
         fetchPolicy: 'network-only',
     })

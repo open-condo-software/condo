@@ -776,7 +776,6 @@
   "pages.condo.ticket.title.MeterReadingsFromResident": "Показания от жителя",
   "pages.condo.ticket.alert.BlockedEditing.title": "Редактирование заявки недоступно",
   "pages.condo.ticket.alert.BlockedEditing.description": "Вы не можете изменить заявку, потому что указанный адрес больше не обслуживается",
-  "pages.condo.ticket.TicketChanges.actualCreationDate": "Изменение было сделано {date} в {time} без подключения к интернету",
   "pages.condo.ticket.TicketChanges.add": "добавил {field} {to}",
   "pages.condo.ticket.TicketChanges.change": "изменил {field} с {from} на {to}",
   "pages.condo.ticket.TicketChanges.boolean.change": "изменил {field} на {to}",

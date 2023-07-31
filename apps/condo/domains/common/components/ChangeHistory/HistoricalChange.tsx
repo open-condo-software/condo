@@ -10,6 +10,7 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 
 export type BaseChangesType = {
     createdAt?: Maybe<string>
+    actualCreationDate?: Maybe<string>
     id: string
 }
 
@@ -35,8 +36,9 @@ export const HistoricalChange = <ChangesType extends BaseChangesType> (props: Hi
     const changedFieldMessages = useChangedFieldMessagesOf(changesValue)
     const { breakpoints } = useLayoutContext()
 
-    const formattedDate = useMemo(() => dayjs(changesValue.createdAt).format('DD.MM.YYYY'), [changesValue.createdAt])
-    const formattedTime = useMemo(() => dayjs(changesValue.createdAt).format('HH:mm'), [changesValue.createdAt])
+    const dateToShow = changesValue.actualCreationDate || changesValue.createdAt
+    const formattedDate = useMemo(() => dayjs(dateToShow).format('DD.MM.YYYY'), [dateToShow])
+    const formattedTime = useMemo(() => dayjs(dateToShow).format('HH:mm'), [dateToShow])
 
     return (
         <Row gutter={HISTORICAL_CHANGE_GUTTER}>
