@@ -110,7 +110,7 @@ const TicketChange = new GQLListSchema('TicketChange', {
                     return getTranslation(translations, role.name)
                 }
 
-                return getTranslation(translations, 'DeletedEmployee')
+                return getTranslation(translations, 'deletedEmployee')
             },
         },
     },
