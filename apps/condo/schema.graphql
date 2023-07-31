@@ -61459,6 +61459,7 @@ type B2BAppPermissionHistoryRecord {
   _label_: String
   app: String
   key: String
+  name: String
   id: ID!
   v: Int
   createdAt: String
@@ -61499,6 +61500,24 @@ input B2BAppPermissionHistoryRecordWhereInput {
   key_not_ends_with_i: String
   key_in: [String]
   key_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -61584,6 +61603,8 @@ input B2BAppPermissionHistoryRecordWhereUniqueInput {
 enum SortB2BAppPermissionHistoryRecordsBy {
   key_ASC
   key_DESC
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -61605,6 +61626,7 @@ enum SortB2BAppPermissionHistoryRecordsBy {
 input B2BAppPermissionHistoryRecordUpdateInput {
   app: String
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61627,6 +61649,7 @@ input B2BAppPermissionHistoryRecordsUpdateInput {
 input B2BAppPermissionHistoryRecordCreateInput {
   app: String
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61663,6 +61686,10 @@ type B2BAppPermission {
   """ The permission key. Must be written in lowerCamelCase, start with the prefix "can", and answer the question, "What can a user with this permission do?". Examples: "canManagePasses", "canReadPrivateData", etc. 
   """
   key: String
+
+  """ Name of permission. Must be very brief (from 1 to 50 characters) and describe the capabilities that the employee will get with this permission. Must use nouns that indicate actions with objects or sections of the mini-application. Examples: "Passes management", "Access to settings", "Contacts viewing". 
+  """
+  name: String
   id: ID!
   v: Int
   createdAt: String
@@ -61709,6 +61736,24 @@ input B2BAppPermissionWhereInput {
   key_not_ends_with_i: String
   key_in: [String]
   key_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -61776,6 +61821,8 @@ enum SortB2BAppPermissionsBy {
   app_DESC
   key_ASC
   key_DESC
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -61797,6 +61844,7 @@ enum SortB2BAppPermissionsBy {
 input B2BAppPermissionUpdateInput {
   app: B2BAppRelateToOneInput
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61816,6 +61864,7 @@ input B2BAppPermissionsUpdateInput {
 input B2BAppPermissionCreateInput {
   app: B2BAppRelateToOneInput
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
