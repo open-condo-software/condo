@@ -15,11 +15,10 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { getFeatureFlag, setFeatureFlag } = require('@condo/domains/resident/tasks/discoverServiceConsumers.task')
 const { discoverServiceConsumersByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestResident, updateTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { getFeatureFlag, setFeatureFlag } = require('../tasks/discoverServiceConsumers.task')
 
 describe('DiscoverServiceConsumersService', () => {
     let admin

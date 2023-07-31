@@ -88,8 +88,8 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingAccounts,
-        create: userIsAdmin,
-        update: userIsAdmin,
+        create: access.canManageBillingAccounts,
+        update: access.canManageBillingAccounts,
         delete: false,
         auth: true,
     },
