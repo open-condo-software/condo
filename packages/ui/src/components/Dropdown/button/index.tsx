@@ -3,12 +3,11 @@ import classNames from 'classnames'
 import get from 'lodash/get'
 import React from 'react'
 
-import { Dropdown, DropdownProps } from './dropdown'
-import { DROPDOWN_CLASS_PREFIX } from './dropdown'
-import { useItems } from './hooks/useItems'
+import { ExtendedButton, ExtendedButtonProps } from './extendedButton'
 
-import { Either } from '../_utils/types'
-import { ExtendedButton, ExtendedButtonProps } from '../Button/extendedButton'
+import { Either } from '../../_utils/types'
+import { Dropdown, DropdownProps, DROPDOWN_CLASS_PREFIX } from '../dropdown'
+import { useItems } from '../hooks/useItems'
 
 
 export interface IDropdownItem {

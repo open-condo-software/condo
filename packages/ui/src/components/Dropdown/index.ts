@@ -1,10 +1,10 @@
 import './style.less'
 
+import { DropdownButton } from './button'
 import { Dropdown as InternalDropdown } from './dropdown'
-import { DropdownButton } from './dropdownButton'
 
 export type { DropdownProps } from './dropdown'
-export type { DropdownButtonProps, ItemType } from './dropdownButton'
+export type { DropdownButtonProps, ItemType } from './button'
 
 
 type CombinedDropdownType = typeof InternalDropdown & {
