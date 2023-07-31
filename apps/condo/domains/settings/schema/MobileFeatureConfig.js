@@ -38,8 +38,8 @@ const ERRORS = {
 }
 
 const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
-    schemaDoc: 'The entity helps to manage the enabling/disabling of some features in the mobile application,' +
-        ' as well as to store the data required in the disabled state of the feature.',
+    schemaDoc: 'Manages availability of some features in mobile application,' +
+        ' stores data required in disabled state of a feature.',
     fields: {
 
         organization: {
@@ -52,7 +52,7 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
         },
 
         commonPhone: {
-            schemaDoc: 'The phone number where the organization wants to receive common calls',
+            schemaDoc: 'Phone number where the organization wants to receive common calls',
             type: Text,
         },
 
@@ -75,7 +75,7 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
         },
 
         onlyProgressionMeterReadingsIsEnabled: {
-            schemaDoc: 'If enabled, the resident can only submit meter readings if they are greater than the previous ones. ' +
+            schemaDoc: 'Restricts residents to submit only meter readings, that are greater than previous. ' +
                 'Restrictions apply to mobile phones only.',
             type: Checkbox,
         },

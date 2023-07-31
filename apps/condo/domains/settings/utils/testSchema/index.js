@@ -24,7 +24,7 @@ async function createTestMobileFeatureConfig (client, organization, extraAttrs =
         dv: 1,
         sender,
         commonPhone: faker.phone.number('+7922#######'),
-        ticketSubmittingIsEnabled: false,
+        ticketSubmittingIsDisabled: false,
         onlyProgressionMeterReadingsIsEnabled: false,
         organization: { connect: { id: organization.id } },
         ...extraAttrs,

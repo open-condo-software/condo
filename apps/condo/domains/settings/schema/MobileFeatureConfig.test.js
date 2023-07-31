@@ -171,7 +171,7 @@ describe('MobileFeatureConfig', () => {
                 await catchErrorFrom(async () => {
                     await createTestMobileFeatureConfig(admin, commonOrganization, {
                         commonPhone: undefined,
-                        ticketSubmittingIsEnabled: true,
+                        ticketSubmittingIsDisabled: true,
                     })
                 }, ({ errors, data }) => {
                     expect(errors[0].message).toMatch('commonPhone field not specified')
@@ -183,7 +183,7 @@ describe('MobileFeatureConfig', () => {
                 await catchErrorFrom(async () => {
                     await createTestMobileFeatureConfig(admin, commonOrganization, {
                         commonPhone: 'undefined',
-                        ticketSubmittingIsEnabled: true,
+                        ticketSubmittingIsDisabled: true,
                     })
                 }, ({ errors, data }) => {
                     expect(errors[0].message).toMatch('commonPhone is invalid')
