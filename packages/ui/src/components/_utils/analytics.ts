@@ -59,7 +59,7 @@ export type AnalyticsParams = AnalyticsClickEventParams<ComponentNames['click']>
 
 const ANALYTICS_HANDLER_NAME = 'CondoWebSendAnalyticsEvent'
 
-export function extractChildrenContent (children: React.ReactNode): string | null {
+export function extractChildrenContent (children: React.ReactNode | React.ReactInstance): string | null {
     if (isString(children)) {
         return children
     } else if (Array.isArray(children)) {
