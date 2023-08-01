@@ -43,8 +43,6 @@ export const RecipientSettingsContent = () => {
         { where: { organization: { id: userOrganizationId }, deletedAt: null } }
     )
 
-    console.debug('bankAccounts', bankAccounts)
-
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
