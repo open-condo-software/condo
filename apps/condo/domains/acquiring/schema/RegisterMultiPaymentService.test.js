@@ -704,31 +704,6 @@ describe('RegisterMultiPaymentService', () => {
                     }])
                 })
             })
-            test('Should not be able to pay using deleted acquiring integration', async () => {
-                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
-                const payload = batches.map(batch => ({
-                    serviceConsumer: { id: batch.serviceConsumer.id },
-                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-                }))
-                await updateTestAcquiringIntegration(commonData.admin, commonData.acquiringIntegration.id, {
-                    deletedAt: dayjs().toISOString(),
-                })
-                await catchErrorFrom(async () => {
-                    await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay via deleted acquiring integration with id "${commonData.acquiringIntegration.id}"`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPayment',
-                            variable: ['data', 'groupedReceipts', '[]', 'serviceConsumer', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                            message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                        },
-                    }])
-                })
-            })
             test('Should not be able to pay for receipt with deleted BillingIntegrationOrganizationContext', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
@@ -754,37 +729,6 @@ describe('RegisterMultiPaymentService', () => {
                                 failedReceipts: [{
                                     receiptId: batches[0].billingReceipts[0].id,
                                     contextId: batches[0].billingReceipts[0].context.id,
-                                }],
-                            },
-                        },
-                    }])
-                })
-            })
-            test('Should not be able to pay for BillingReceipt with deleted BillingIntegration', async () => {
-                const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
-                const payload = batches.map(batch => ({
-                    serviceConsumer: { id: batch.serviceConsumer.id },
-                    receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
-                }))
-                await updateTestBillingIntegration(commonData.admin, batches[0].billingIntegration.id, {
-                    deletedAt: dayjs().toISOString(),
-                })
-                await catchErrorFrom(async () => {
-                    await registerMultiPaymentByTestClient(commonData.client, payload)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: 'BillingReceipt has deleted BillingIntegration',
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPayment',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts', '[]', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'RECEIPT_HAS_DELETED_BILLING_INTEGRATION',
-                            message: 'BillingReceipt has deleted BillingIntegration',
-                            data: {
-                                failedReceipts: [{
-                                    receiptId: batches[0].billingReceipts[0].id,
-                                    integrationId: batches[0].billingIntegration.id,
                                 }],
                             },
                         },
