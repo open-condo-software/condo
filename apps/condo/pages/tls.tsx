@@ -22,9 +22,9 @@ import { Markdown, Typography } from '@open-condo/ui'
 import { Button, Card, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { LoginWithSBBOLButton } from '@condo/domains/common/components/Button'
 import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
@@ -155,10 +155,12 @@ const PosterHeader: React.FC = (): JSX.Element => {
     )
 }
 
-// NOTE(antonal): non-standard gap is a requirement from design team
-const PosterFooterSpace = styled(Space)`
-  column-gap: 100px !important;
-  row-gap: 100px !important;
+// NOTE(antonal): non-standard gap is a requirement from design team. `Space` cannot be used, because it requires `size` property to be set
+const PosterFooterSpace = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 100px;
+  align-items: center;
 `
 
 const PosterFooter: React.FC = (): JSX.Element => {
@@ -174,7 +176,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
     const { breakpoints } = useLayoutContext()
 
     return (
-        <PosterFooterSpace direction='vertical' align='center'>
+        <PosterFooterSpace>
             <Space direction='vertical' align='center' size={24} width={480}>
                 <CenteredText>
                     <Space direction='vertical' align='center' size={16}>

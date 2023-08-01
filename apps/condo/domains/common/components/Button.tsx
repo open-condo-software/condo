@@ -4,15 +4,9 @@ import { css, jsx } from '@emotion/react'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import isArray from 'lodash/isArray'
 import isString from 'lodash/isString'
-import { useRouter } from 'next/router'
 import React from 'react'
 
-import { useIntl } from '@open-condo/next/intl'
-
-import { ITrackingComponent, useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
-import { useCheckTLSClientCert } from '@condo/domains/common/hooks/useCheckTLSClientCert'
-
-import { SberIconWithoutLabel } from './icons/SberIcon'
+import { ITrackingComponent, TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
 
 import { colors, gradients, transitions } from '../constants/style'
 
@@ -322,40 +316,4 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
     }
 
     return <DefaultButton css={buttonStyles} {...restProps} onClick={onClickCallback}/>
-}
-
-// TODO: Restyle and refactor this button someday later
-export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, redirect?: string, checkTlsCert: boolean }> = ({ label, block, redirect, checkTlsCert = true }) => {
-    const intl = useIntl()
-    const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
-    const router = useRouter()
-
-    const redirectToAuth = async () => {
-        const queryParams = redirect ? `?redirectUrl=${encodeURIComponent(redirect)}` : ''
-        const authUrl = `/api/sbbol/auth${queryParams}`
-        await router.push(authUrl)
-    }
-
-    const redirectToTlsPage = async () => {
-        await router.push('/tls')
-    }
-
-    const { loading, checkSSLClientCert } = useCheckTLSClientCert({
-        onSuccess: redirectToAuth,
-        onFail: redirectToTlsPage,
-    })
-
-    return (
-        <Button
-            key='submit'
-            type='sberAction'
-            secondary
-            icon={<SberIconWithoutLabel/>}
-            onClick={() => checkTlsCert ? checkSSLClientCert() : redirectToAuth()}
-            loading={loading}
-            block={block}
-        >
-            {label || LoginLabel}
-        </Button>
-    )
 }
