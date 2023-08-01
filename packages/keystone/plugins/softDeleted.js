@@ -30,7 +30,7 @@ const canDelete = async (listName, obj) => {
         if (onDelete === PROTECT) {
             const existingDependants = await hasObjs(rel.from, rel.path, objId)
             if (existingDependants.length > 0) {
-                throw new Error(`You can not delete ${rel.to}:${objId}, dependant: ${rel.from} exists: ${existingDependants.map(x => x.id).join(',')}, and on_delete rule on ${rel.from} set to ${rel.onDelete}`)
+                throw new Error(`You can not delete ${rel.to}:${objId}, dependant: ${rel.from} exists: ${existingDependants.map(x => x.id).join(',')}, and on_delete rule on ${rel.from} set to ${onDelete}`)
             }
         }
         if (onDelete === CASCADE) {
