@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const locale_ru = require('dayjs/locale/ru')
 const isBetween = require('dayjs/plugin/isBetween')
-const { get, uniq, isNull, isEmpty, compact } = require('lodash')
+const { get, uniq, isNull, isEmpty, compact, isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -157,19 +157,24 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
                 periodsByOrganization.find(({ organization }) => organization.id === meter.organization.id) ??
                 defaultPeriod
 
+            if (isNil(period)) continue
+
+            const notifyStartDay = get(period, 'notifyStartDay')
+            const notifyEndDay = get(period, 'notifyEndDay')
+
             const readingsOfCurrentMeter = compact(meterReadings.map(reading => {
                 if (
                     reading.meter.id === meter.id &&
-                    (period !== null && checkIsDateInPeriod(reading.date, state.startTime, period.notifyStartDay, period.notifyEndDay))
+                    (period !== null && checkIsDateInPeriod(reading.date, state.startTime, notifyStartDay, notifyEndDay))
                 ) {
                     return reading
                 }
             }
             ))
 
-            const isTodayInPeriod = period !== null && checkIsDateInPeriod(state.startTime, state.startTime, period.notifyStartDay, period.notifyEndDay)
-            const isEndPeriodNotification = period !== null && state.startTime.format('YYYY-MM-DD') === state.startTime.format('YYYY-MM-DD').slice(0, -2) + period.notifyStartDay
-            const periodKey = `${state.startTime.format('YYYY-MM-DD').slice(0, -2) + period.notifyStartDay}-${state.startTime.format('YYYY-MM-DD').slice(0, -2) + period.notifyEndDay}`
+            const isTodayInPeriod = period !== null && checkIsDateInPeriod(state.startTime, state.startTime, notifyStartDay, notifyEndDay)
+            const isEndPeriodNotification = period !== null && state.startTime.format('YYYY-MM-DD') === state.startTime.format('YYYY-MM-DD').slice(0, -2) + notifyStartDay
+            const periodKey = `${state.startTime.format('YYYY-MM-DD').slice(0, -2) + notifyStartDay}-${state.startTime.format('YYYY-MM-DD').slice(0, -2) + notifyEndDay}`
 
             if (isTodayInPeriod) metersWithoutReadings.push({ meter, periodKey, isEndPeriodNotification, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
         }
