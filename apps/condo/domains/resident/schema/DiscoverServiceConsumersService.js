@@ -8,6 +8,7 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ENABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
@@ -76,9 +77,22 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     ),
                 )
 
+                // Keep only residents of organizations the acquiring context is existing for
+                const residentsFilteredByOrganizationAcquiringContext = await asyncFilter(
+                    residentsFilteredByFeatureFlag,
+                    async (resident) => await AcquiringIntegrationContext.count(
+                        context,
+                        {
+                            deletedAt: null,
+                            organization: { id: get(resident, ['organization', 'id']) },
+                            status: CONTEXT_FINISHED_STATUS,
+                        }
+                    ),
+                )
+
                 // Keep only residents the properties of which are exist in the organization
                 const residentsFilteredByProperty = await asyncFilter(
-                    residentsFilteredByFeatureFlag,
+                    residentsFilteredByOrganizationAcquiringContext,
                     async (resident) => {
                         return await Property.count(
                             context,

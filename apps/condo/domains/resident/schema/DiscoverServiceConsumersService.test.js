@@ -218,9 +218,6 @@ describe('DiscoverServiceConsumersService', () => {
             const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty,
                 { unitName: resident.unitName, unitType: resident.unitType },
             )
-            await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType },
-            )
 
             await waitFor(async () => {
                 const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
