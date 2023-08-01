@@ -86,7 +86,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             deletedAt: null,
                             organization: { id: get(resident, ['organization', 'id']) },
                             status: CONTEXT_FINISHED_STATUS,
-                        }
+                        },
                     ),
                 )
 
@@ -115,8 +115,13 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         sender,
                         resident: { connect: { id: resident.id } },
                         organization: { connect: { id: get(resident, ['organization', 'id']) } },
+                        billingIntegrationContext: { connect: { id: get(account, ['context', 'id']) } },
                         accountNumber: account.number,
                         isDiscovered: true,
+
+                        // fill the deprecated field for backward compatibility
+                        // See apps/condo/domains/billing/schema/AllResidentBillingReceiptsService.js:74)
+                        billingAccount: { connect: { id: account.id } },
                     })),
                 )
 

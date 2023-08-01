@@ -9,14 +9,32 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const {
+    createTestAcquiringIntegrationContext,
+    createTestAcquiringIntegration,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingProperty,
     createTestBillingAccount,
+    ResidentBillingReceipt,
+    createTestBillingIntegration,
+    createTestBillingIntegrationOrganizationContext,
+    createRegisterBillingReceiptsPayload,
+    registerBillingReceiptsByTestClient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { discoverServiceConsumersByTestClient } = require('@condo/domains/resident/utils/testSchema')
-const { createTestResident, updateTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const {
+    makeClientWithResidentAccessAndProperty,
+    makeClientWithProperty,
+} = require('@condo/domains/property/utils/testSchema')
+const {
+    createTestResident,
+    updateTestResident,
+    ServiceConsumer,
+    discoverServiceConsumersByTestClient,
+    registerResidentByTestClient,
+} = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('DiscoverServiceConsumersService', () => {
@@ -40,13 +58,16 @@ describe('DiscoverServiceConsumersService', () => {
         test('admin can discover service consumers', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' },
+                {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, user.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
-            const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address },
-            )
+            const [resident] = await createTestResident(admin, user.user, user.property, {
+                address: billingProperty.address,
+            })
 
             const payload = {
                 address: resident.address,
@@ -83,12 +104,15 @@ describe('DiscoverServiceConsumersService', () => {
         })
     })
 
-    describe('live cases', () => {
+    describe('logic tests', () => {
         test('discover one service consumer (case without accountNumber or resident passed)', async () => {
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' },
+                {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
+
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, user.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
@@ -105,6 +129,7 @@ describe('DiscoverServiceConsumersService', () => {
                     deletedAt: null,
                 })
 
+                expect(createdServiceConsumers).toHaveLength(1)
                 expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
                 expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
             })
@@ -116,6 +141,9 @@ describe('DiscoverServiceConsumersService', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: 'Finished' },
             )
+
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, user.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident1] = await createTestResident(admin, user.user, user.property,
@@ -155,6 +183,9 @@ describe('DiscoverServiceConsumersService', () => {
                 {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, user.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
                 { address: billingProperty.address },
@@ -168,6 +199,8 @@ describe('DiscoverServiceConsumersService', () => {
                     resident: { id: resident.id },
                     deletedAt: null,
                 })
+
+                expect(createdServiceConsumers).toHaveLength(1)
                 expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
                 expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
             })
@@ -178,6 +211,9 @@ describe('DiscoverServiceConsumersService', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
+
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, user.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
@@ -211,6 +247,9 @@ describe('DiscoverServiceConsumersService', () => {
                 {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
 
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, user.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
                 { address: billingProperty.address },
@@ -225,6 +264,7 @@ describe('DiscoverServiceConsumersService', () => {
                     deletedAt: null,
                 })
 
+                expect(createdServiceConsumers).toHaveLength(1)
                 expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
                 expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
                 expect(createdServiceConsumers[0].resident.id).toEqual(resident.id)
@@ -237,6 +277,9 @@ describe('DiscoverServiceConsumersService', () => {
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
                 {}, {}, { status: CONTEXT_FINISHED_STATUS },
             )
+
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, user.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
 
             const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
             const [resident] = await createTestResident(admin, user.user, user.property,
@@ -291,6 +334,106 @@ describe('DiscoverServiceConsumersService', () => {
             })
 
             setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
+        })
+    })
+
+    describe('real life cases', () => {
+        test('Upload receipts => register resident => resident can see the receipts list', async () => {
+            const residentClient1 = await makeClientWithResidentAccessAndProperty()
+
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, residentClient1.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, residentClient1.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            // 1/3 upload receipts
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+            const [registeredReceipts] = await registerBillingReceiptsByTestClient(admin, payload)
+
+            // 2/3 register resident
+            await registerResidentByTestClient(
+                residentClient1,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            // 3/3 check that resident can see the receipts list
+            const receipts = await ResidentBillingReceipt.getAll(
+                residentClient1,
+                {},
+            )
+
+            expect(receipts).toHaveLength(1)
+            expect(registeredReceipts).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: receipts[0].id }),
+            ]))
+        })
+
+        test('Register resident => upload receipts => resident can see the receipts list', async () => {
+            const residentClient1 = await makeClientWithResidentAccessAndProperty()
+
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, residentClient1.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, residentClient1.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            // 1/3 register resident
+            await registerResidentByTestClient(
+                residentClient1,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            // 2/3 upload receipts
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+            const [registeredReceipts] = await registerBillingReceiptsByTestClient(admin, payload)
+
+            // 3/3 check that resident can see the receipts list
+            await waitFor(async () => {
+                const receipts = await ResidentBillingReceipt.getAll(
+                    residentClient1,
+                    {},
+                    // { context: { id: billingContext.id } },
+                    // { serviceConsumer: { resident: { id: resident.id } } },
+                )
+
+                expect(receipts).toHaveLength(1)
+                expect(registeredReceipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts[0].id }),
+                ]))
+            })
         })
     })
 })
