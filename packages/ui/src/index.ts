@@ -21,6 +21,9 @@ export type { CarouselProps, CarouselRef } from './components/Carousel'
 export { Checkbox } from './components/Checkbox'
 export type { CheckboxProps } from './components/Checkbox'
 
+export { Dropdown } from './components/Dropdown'
+export type { DropdownProps } from './components/Dropdown'
+
 export { List } from './components/List'
 export type { ListProps } from './components/List'
 

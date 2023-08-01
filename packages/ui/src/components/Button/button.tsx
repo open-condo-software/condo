@@ -7,7 +7,7 @@ import React, { useCallback } from 'react'
 
 import { sendAnalyticsClickEvent, extractChildrenContent } from '../_utils/analytics'
 
-const BUTTON_CLASS_PREFIX = 'condo-btn'
+export const BUTTON_CLASS_PREFIX = 'condo-btn'
 
 type CondoButtonProps = {
     type: 'primary' | 'secondary',
