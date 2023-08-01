@@ -158,8 +158,7 @@ const PosterHeader: React.FC = (): JSX.Element => {
 const PosterFooter: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.title' })
-    const DescriptionLine1Message = intl.formatMessage({ id: 'pages.condo.tls.description.line1' })
-    const DescriptionLine2Message = intl.formatMessage({ id: 'pages.condo.tls.description.line2' })
+    const DescriptionMessage = intl.formatMessage({ id: 'pages.condo.tls.description' })
     const AlreadyHaveCertMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.alreadyHaveCert' })
     const Card1DescriptionMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.card1.description' })
     const Card1CtaMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.card1.cta' })
@@ -176,9 +175,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
                 </Typography.Title>
                 <CenteredText>
                     <Typography.Paragraph type='secondary'>
-                        {DescriptionLine1Message}
-                        <br/>
-                        {DescriptionLine2Message}
+                        {DescriptionMessage}
                     </Typography.Paragraph>
                 </CenteredText>
                 <LoginWithSBBOLButton block checkTlsCert={false} label={AlreadyHaveCertMessage}/>
