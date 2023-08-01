@@ -3,9 +3,10 @@
  */
 
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
-const { find } = require('@open-condo/keystone/schema')
+const { find, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
 const {
@@ -39,7 +40,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'input AllMiniAppsWhereInput { connected: Boolean, id_not: String, category: String }',
+            type: 'input AllMiniAppsWhereInput { connected: Boolean, id_not: String, category: String, accessible: Boolean }',
         },
         {
             access: true,
@@ -47,7 +48,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'type MiniAppOutput { id: ID!, connected: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String }',
+            type: 'type MiniAppOutput { id: ID!, connected: Boolean!, accessible: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String }',
         },
     ],
     
@@ -55,13 +56,27 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         {
             access: access.canExecuteAllMiniApps,
             schema: 'allMiniApps (data: AllMiniAppsInput!): [MiniAppOutput!]',
-            resolver: async (parent, args) => {
-                const { data: { organization, search, where: { connected, category, ...restWhere } = {} } } = args
+            resolver: async (parent, args, context) => {
+                const { data: { organization, search, where: { connected, category, accessible, ...restWhere } = {} } } = args
+                const { authedItem: user } = context
+
                 let services = []
 
                 const searchFilters = search ? {
                     name_contains_i: search,
                 } : {}
+
+                const employee = await getByCondition('OrganizationEmployee', {
+                    organization,
+                    user: { id: user.id },
+                    deletedAt: null,
+                })
+                const employeeRoleId = get(employee, 'role', null)
+                const appRoles = await find('B2BAppRole', {
+                    role: { id: employeeRoleId },
+                    deletedAt: null,
+                })
+                const accessibleB2BApps = new Set(appRoles.map(role => role.app))
 
                 const B2BApps = await find('B2BApp', {
                     isHidden: false,
@@ -75,14 +90,15 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                     deletedAt: null,
                     status: CONTEXT_FINISHED_STATUS,
                 })
-                const connectedB2BApps = B2BAppContexts.map(context => context.app)
+                const connectedB2BApps = new Set(B2BAppContexts.map(context => context.app))
                 for (const app of B2BApps) {
                     const logoUrl = app.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: app.logo.filename }) : null
                     services.push({
                         id: app.id,
                         name: app.name,
                         shortDescription: app.shortDescription,
-                        connected: connectedB2BApps.includes(app.id),
+                        connected: connectedB2BApps.has(app.id),
+                        accessible: accessibleB2BApps.has(app.id),
                         category: app.category,
                         logo: logoUrl,
                         label: app.label,
@@ -96,6 +112,9 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 }
                 if (category !== undefined) {
                     services = services.filter(service => service.category === category)
+                }
+                if (accessible !== undefined) {
+                    services = services.filter(service => service.accessible === accessible)
                 }
                 services.sort(priorityCompare)
                 return services

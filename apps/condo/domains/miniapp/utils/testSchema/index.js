@@ -64,15 +64,15 @@ const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
-async function allMiniAppsByTestClient(client, organizationId, extraAttrs) {
+async function allMiniAppsByTestClient(client, organization, extraAttrs) {
     if (!client) throw new Error('no client')
-    if (!organizationId) throw new Error('no organization id')
+    if (!organization || !organization.id) throw new Error('no organization id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        organization: { id: organizationId },
+        organization: { id: organization.id },
         ...extraAttrs,
     }
     const { data, errors } = await client.query(ALL_MINI_APPS_QUERY, { data: attrs })
