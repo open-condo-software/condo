@@ -49,7 +49,7 @@
  *    We also do not cache lists that have many: true relations or are dependant of this relations.
  */
 
-const { get, cloneDeep, floor } = require('lodash')
+const { get, cloneDeep, floor, isEqual } = require('lodash')
 const LRUCache = require('lru-cache')
 
 const { getLogger } = require('./logging')
@@ -70,9 +70,14 @@ const logger = getLogger('adapterCache')
 
 class AdapterCache {
 
-    constructor ({ enabled, excludedLists, maxCacheKeys, logging, logStatsEachSecs }) {
+    constructor ({ enabled, debugMode, excludedLists, maxCacheKeys, logging, logStatsEachSecs }) {
         try {
             this.enabled = !!enabled
+
+            // If debug mode is turned on, then an additional request would be made to database on cached queries.
+            // If cached data differs from response, then an error is logged
+            // SHOULD NOT BE USED IN PRODUCTION MODE
+            this.debugMode = !!debugMode
 
             // Redis is used as State:
             // Note: Redis installation is modified with custom commands. Check getStateRedisClient for details
@@ -435,7 +440,22 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                     result: cachedItem,
                 })
 
-                return cloneDeep(cachedItem.response)
+                const cachedResponse = cloneDeep(cachedItem.response)
+
+                if (cacheAPI.debugMode) {
+                    response = await f.apply(listAdapter, args)
+                    if (!isEqual(response, cachedResponse)) {
+                        cacheAPI.logEvent({
+                            type: 'BAD_CACHE',
+                            functionName,
+                            key,
+                            listName,
+                            result: { cachedResponse, response },
+                        })
+                    }
+                }
+
+                return cachedResponse
             }
         }
 
