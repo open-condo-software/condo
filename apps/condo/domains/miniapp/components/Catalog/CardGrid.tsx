@@ -84,7 +84,7 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
     const [{ width }, refCallback] = useContainerSize<HTMLDivElement>()
     const cardsPerRow = getCardsAmount(width)
 
-    const handleCardClick = useCallback((id: string, type: string, connected: boolean) => {
+    const handleCardClick = useCallback((id: string, connected: boolean) => {
         return function redirect () {
             const url = connected
                 ? `/miniapps/${id}`
@@ -119,7 +119,7 @@ const TabPaneContent: React.FC<TabPaneContentProps> = ({ tab, fallback }) => {
                         description={app.shortDescription}
                         logoUrl={app.logo}
                         label={app.label}
-                        onClick={handleCardClick(app.id, app.type, app.connected)}
+                        onClick={handleCardClick(app.id, app.connected)}
                     />
                 </Col>
             ))}

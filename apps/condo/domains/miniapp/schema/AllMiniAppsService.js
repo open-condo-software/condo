@@ -9,9 +9,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/AllMiniAppsService')
 const {
-    APP_TYPES,
-    B2B_APP_TYPE,
-    ALL_APPS_CATEGORIES,
+    B2B_APP_CATEGORIES,
     CONTEXT_FINISHED_STATUS,
 } = require('@condo/domains/miniapp/constants')
 const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/schema/fields/integration')
@@ -37,11 +35,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
     types: [
         {
             access: true,
-            type: `enum AppType { ${APP_TYPES.join(' ')} }`,
-        },
-        {
-            access: true,
-            type: `enum AppCategory { ${ALL_APPS_CATEGORIES.join(' ')} }`,
+            type: `enum AppCategory { ${B2B_APP_CATEGORIES.join(' ')} }`,
         },
         {
             access: true,
@@ -53,7 +47,7 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'type MiniAppOutput { id: ID!, type: AppType!, connected: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String }',
+            type: 'type MiniAppOutput { id: ID!, connected: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String }',
         },
     ],
     
@@ -86,7 +80,6 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                     const logoUrl = app.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: app.logo.filename }) : null
                     services.push({
                         id: app.id,
-                        type: B2B_APP_TYPE,
                         name: app.name,
                         shortDescription: app.shortDescription,
                         connected: connectedB2BApps.includes(app.id),

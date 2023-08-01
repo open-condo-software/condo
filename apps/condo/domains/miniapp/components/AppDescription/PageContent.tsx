@@ -35,7 +35,6 @@ type QueryResult = {
 
 type PageContentProps = {
     id: string
-    type: string
     name: string
     category: string
     label?: string
@@ -62,7 +61,6 @@ const getCardsAmount = (width: number) => {
 
 const PageContent: React.FC<PageContentProps> = ({
     id,
-    type,
     name,
     category,
     label,
@@ -112,12 +110,11 @@ const PageContent: React.FC<PageContentProps> = ({
         }
     }, [userOrganizationId, fetchMiniapps, id, category])
 
-    const handleCardClick = useCallback((id: string, type: string, connected: boolean) => {
-        // TODO(DOMA-4830): Think about type query param (remove it or leave it), for now using only in SPP
+    const handleCardClick = useCallback((id: string, connected: boolean) => {
         return function redirect () {
             const url = connected
-                ? `/miniapps/${id}?type=${type}`
-                : `/miniapps/${id}/about?type=${type}`
+                ? `/miniapps/${id}`
+                : `/miniapps/${id}/about`
             router.push(url)
         }
     }, [router])
@@ -137,7 +134,6 @@ const PageContent: React.FC<PageContentProps> = ({
                     <Col span={FULL_COL_SPAN}>
                         <TopCard
                             id={id}
-                            type={type}
                             name={name}
                             category={category}
                             label={label}
@@ -181,13 +177,13 @@ const PageContent: React.FC<PageContentProps> = ({
                             >
                                 {moreApps.map(app => (
                                     <AppCard
-                                        key={`${app.type}:${app.id}`}
+                                        key={app.id}
                                         connected={app.connected}
                                         name={app.name}
                                         description={app.shortDescription}
                                         logoUrl={app.logo}
                                         label={app.label}
-                                        onClick={handleCardClick(app.id, app.type, app.connected)}
+                                        onClick={handleCardClick(app.id, app.connected)}
                                     />
                                 ))}
                             </Carousel>

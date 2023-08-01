@@ -11,7 +11,6 @@ import { Typography } from '@open-condo/ui'
 import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { B2B_APP_TYPE } from '@condo/domains/miniapp/constants'
 import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
 type B2BAppPageProps = {
@@ -44,7 +43,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     // NOTE 2: In case of invalid id it will redirect to about page, where appId is checked
     useEffect(() => {
         if (!loading && !error && (!context || !appUrl)) {
-            router.push(`/miniapps/${id}/about?type=${B2B_APP_TYPE}`)
+            router.push(`/miniapps/${id}/about`)
         }
     }, [id, loading, error, context, appUrl, router])
 

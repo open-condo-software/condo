@@ -9,7 +9,6 @@ const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/te
 const { expectToThrowAuthenticationErrorToObjects, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 
 const {
-    B2B_APP_TYPE,
     APP_NEW_LABEL,
     OTHER_CATEGORY,
     SMART_HOME_CATEGORY,
@@ -74,7 +73,6 @@ describe('AllMiniAppsService', () => {
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([expect.objectContaining({
                     id: app.id,
-                    type: B2B_APP_TYPE,
                     connected: false,
                     name: app.name,
                     shortDescription: app.shortDescription,
@@ -91,7 +89,6 @@ describe('AllMiniAppsService', () => {
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: app.id,
-                        type: B2B_APP_TYPE,
                         connected: false,
                     }),
                 ]))
@@ -103,7 +100,6 @@ describe('AllMiniAppsService', () => {
                 expect(newData).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: app.id,
-                        type: B2B_APP_TYPE,
                         connected: true,
                     }),
                 ]))
@@ -119,7 +115,6 @@ describe('AllMiniAppsService', () => {
                 expect(data).toEqual(expect.arrayContaining([
                     expect.objectContaining({
                         id: app.id,
-                        type: B2B_APP_TYPE,
                         connected: false,
                     }),
                 ]))
@@ -131,7 +126,6 @@ describe('AllMiniAppsService', () => {
                 expect(data).toBeDefined()
                 expect(data).not.toEqual(expect.arrayContaining([{
                     id: hiddenIntegration.id,
-                    type: B2B_APP_TYPE,
                 }]))
             })
             test('Doesn\'t shows if app is global', async () => {
@@ -145,7 +139,6 @@ describe('AllMiniAppsService', () => {
                 expect(data).toBeDefined()
                 expect(data).not.toEqual(expect.arrayContaining([{
                     id: globalIntegration.id,
-                    type: B2B_APP_TYPE,
                 }]))
             })
         })
@@ -161,10 +154,10 @@ describe('AllMiniAppsService', () => {
                 const [data] = await allMiniAppsByTestClient(admin, client.organization.id)
                 expect(data).toBeDefined()
                 expect(data).toEqual(expect.arrayContaining([
-                    expect.objectContaining({ id: firstApp.id, type: B2B_APP_TYPE, label: null }),
-                    expect.objectContaining({ id: secondApp.id, type: B2B_APP_TYPE, label: null }),
-                    expect.objectContaining({ id: thirdApp.id, type: B2B_APP_TYPE, label: null }),
-                    expect.objectContaining({ id: forthApp.id, type: B2B_APP_TYPE, label: APP_NEW_LABEL }),
+                    expect.objectContaining({ id: firstApp.id, label: null }),
+                    expect.objectContaining({ id: secondApp.id, label: null }),
+                    expect.objectContaining({ id: thirdApp.id, label: null }),
+                    expect.objectContaining({ id: forthApp.id, label: APP_NEW_LABEL }),
                 ]))
 
                 const expectedOrder = [firstApp.id, thirdApp.id, forthApp.id, secondApp.id]

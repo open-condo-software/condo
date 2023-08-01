@@ -1620,10 +1620,6 @@ export type AppColorSchemaFieldInput = {
   secondary: Scalars['String'];
 };
 
-export enum AppType {
-  B2B = 'B2B'
-}
-
 /**
  *  Ticket where user is assignee or executor.
  * Records are updated automatically: if the user has been assigned to the ticket, an entry appears.
@@ -29649,7 +29645,6 @@ export type MetersUpdateInput = {
 export type MiniAppOutput = {
   __typename?: 'MiniAppOutput';
   id: Scalars['ID'];
-  type: AppType;
   connected: Scalars['Boolean'];
   name: Scalars['String'];
   shortDescription: Scalars['String'];

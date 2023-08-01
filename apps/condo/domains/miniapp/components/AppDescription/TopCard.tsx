@@ -43,7 +43,6 @@ const ARROW_REVERSE_STYLES: CSSProperties = { transform: 'scaleX(-1)' }
 
 type TopCardProps = {
     id: string
-    type: string
     name: string
     category: string
     label?: string
@@ -104,7 +103,6 @@ const getImageSize = (width: number) => {
 
 const TopCard = React.memo<TopCardProps>(({
     id,
-    type,
     name,
     category,
     label,
@@ -135,7 +133,7 @@ const TopCard = React.memo<TopCardProps>(({
         } else if (appUrl) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.open' })
             btnProps.onClick = () => {
-                router.push(`/miniapps/${id}?type=${type}`)
+                router.push(`/miniapps/${id}`)
             }
         } else {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connected' })
@@ -144,7 +142,7 @@ const TopCard = React.memo<TopCardProps>(({
         }
 
         return btnProps
-    }, [id, type, appUrl, contextStatus, connectAction, intl, router])
+    }, [id, appUrl, contextStatus, connectAction, intl, router])
 
     const images = gallery || []
     const imagesAmount = images.length
