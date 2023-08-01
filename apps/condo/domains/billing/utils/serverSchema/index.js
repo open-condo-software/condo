@@ -102,7 +102,7 @@ async function validateQRCode (context, data) {
         query: VALIDATE_QRCODE_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to validateQRCode',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 

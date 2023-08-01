@@ -27,7 +27,7 @@ const ERRORS = {
         variable: ['data', 'qrCode'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Provided QR code doesn\'t have one of required fields: PersonalAcc, payerAddress, lastName, paymPeriod or Sum',
+        message: 'Provided QR code doesn\'t have one of required fields: BIC, payerAddress, lastName, paymPeriod or Sum',
     },
     NO_ORGANIZATION: {
         mutation: 'validateQRCode',
@@ -81,9 +81,9 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 await checkLimits(ip)
 
                 const qrCodeFields = Object.fromEntries(qrCode.split('|').map(part => part.split('=')))
-                const { PersonalAcc, payerAddress, lastName, paymPeriod, Sum, PayeeINN } = qrCodeFields
+                const { PersonalAcc, BIC, PayerAddress, lastName, paymPeriod, Sum, PayeeINN } = qrCodeFields
 
-                if (!PersonalAcc || !payerAddress || !lastName || !paymPeriod || !Sum) throw new GQLError(ERRORS.INVALID_QR_CODE)
+                if (!BIC || !PayerAddress || !lastName || !paymPeriod || !Sum) throw new GQLError(ERRORS.INVALID_QR_CODE)
                 
                 if (PayeeINN) {
                     const organizations = await Organization.getAll(context, {
@@ -94,7 +94,7 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                     if (isEmpty(organizations)) throw new GQLError(ERRORS.NO_ORGANIZATION)
                     
                     const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
-                        organization: { id: organizations[0].id, deletedAt: null },
+                        organization: { id_in: organizations.map((org) => org.id), deletedAt: null },
                         status: CONTEXT_FINISHED_STATUS,
                         deletedAt: null,
                     })
