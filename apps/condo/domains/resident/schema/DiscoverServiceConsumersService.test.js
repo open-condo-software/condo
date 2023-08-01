@@ -5,7 +5,7 @@ const { faker } = require('@faker-js/faker')
 
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult, waitFor,
+    expectToThrowAuthenticationErrorToResult, waitFor, getIsFeatureFlagsEnabled, setIsFeatureFlagsEnabled,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -15,7 +15,6 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { getFeatureFlag, setFeatureFlag } = require('@condo/domains/resident/tasks/discoverServiceConsumers.task')
 const { discoverServiceConsumersByTestClient } = require('@condo/domains/resident/utils/testSchema')
 const { createTestResident, updateTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -270,8 +269,8 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         test('discover no service consumers if the feature flag was disabled', async () => {
-            const prevIsFeatureFlagsEnabled = getFeatureFlag()
-            setFeatureFlag(false) // Disable feature flags
+            const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
+            setIsFeatureFlagsEnabled(false) // Disable feature flags
 
             const user = await makeClientWithProperty()
             const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
@@ -294,7 +293,7 @@ describe('DiscoverServiceConsumersService', () => {
                 expect(createdServiceConsumers).toHaveLength(0)
             })
 
-            setFeatureFlag(prevIsFeatureFlagsEnabled) // put the previous value back
+            setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
         })
     })
 })
