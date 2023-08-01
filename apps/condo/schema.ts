@@ -35905,6 +35905,7 @@ export type Mutation = {
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
+  paymentByLink?: Maybe<PaymentByLinkOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
@@ -43219,6 +43220,11 @@ export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
 };
 
 
+export type MutationPaymentByLinkArgs = {
+  data: PaymentByLinkInput;
+};
+
+
 export type MutationSendB2CAppPushMessageArgs = {
   data: SendB2CAppPushMessageInput;
 };
@@ -49857,6 +49863,20 @@ export type Payment = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+};
+
+export type PaymentByLinkInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  qrCode: Scalars['String'];
+};
+
+export type PaymentByLinkOutput = {
+  __typename?: 'PaymentByLinkOutput';
+  multiPaymentId: Scalars['ID'];
+  address: Scalars['String'];
+  unitName: Scalars['String'];
+  accountNumber: Scalars['String'];
 };
 
 export type PaymentCategory = {

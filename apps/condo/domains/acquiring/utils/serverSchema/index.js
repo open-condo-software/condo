@@ -20,6 +20,7 @@ const {
 const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -83,6 +84,21 @@ async function allPaymentsSum (context, data) {
 
 const RecurrentPaymentContext = generateServerUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateServerUtils(RecurrentPaymentGQL)
+
+async function paymentByLink (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write paymentByLink serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: PAYMENT_BY_LINK_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to paymentByLink',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -98,5 +114,6 @@ module.exports = {
     allPaymentsSum,
     RecurrentPaymentContext,
     RecurrentPayment,
+    paymentByLink,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

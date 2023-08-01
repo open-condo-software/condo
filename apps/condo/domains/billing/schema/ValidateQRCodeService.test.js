@@ -6,6 +6,7 @@ const { faker } = require('@faker-js/faker')
 const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
@@ -33,10 +34,11 @@ describe('ValidateQRCodeService', () => {
         qrCodeObj = {
             PersonalAcc: faker.random.numeric(20),
             PayeeINN: faker.random.numeric(8),
-            payerAddress: faker.address.streetAddress(true),
+            PayerAddress: faker.address.streetAddress(true),
             Sum: faker.random.numeric(6),
             lastName: faker.random.alpha(10),
             paymPeriod: faker.random.numeric(6),
+            BIC: faker.random.numeric(8),
         }
         const [testOrganization] = await createTestOrganization(adminClient, { tin: qrCodeObj.PayeeINN })
         organization = testOrganization
@@ -48,7 +50,7 @@ describe('ValidateQRCodeService', () => {
 
     test('should parse fields correctly', async () => {
         const [integration] = await createTestAcquiringIntegration(adminClient)
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: 'Finished' })
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
         const [{ qrCodeFields }] = await validateQRCodeByTestClient(adminClient, { qrCode: qrCodeString })
         await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
 
@@ -62,8 +64,8 @@ describe('ValidateQRCodeService', () => {
 
     describe('Field validations', () => {
         const cases = [
-            'PersonalAcc',
-            'payerAddress',
+            'BIC',
+            'PayerAddress',
             'Sum',
             'lastName',
             'paymPeriod',
@@ -76,13 +78,13 @@ describe('ValidateQRCodeService', () => {
             }, ({ errors }) => {
 
                 expect(errors).toMatchObject([{
-                    message: 'Provided QR code does\'nt have one of required fields: PersonalAcc, payerAddress, lastName, paymPeriod or Sum',
+                    message: 'Provided QR code doesn\'t have one of required fields: BIC, payerAddress, lastName, paymPeriod or Sum',
                     path: ['result'],
                     extensions: {
                         mutation: 'validateQRCode',
                         code: 'BAD_USER_INPUT',
                         type: 'WRONG_FORMAT',
-                        message: 'Provided QR code does\'nt have one of required fields: PersonalAcc, payerAddress, lastName, paymPeriod or Sum',
+                        message: 'Provided QR code doesn\'t have one of required fields: BIC, payerAddress, lastName, paymPeriod or Sum',
                     },
                 }])
             })
@@ -175,7 +177,7 @@ describe('ValidateQRCodeService', () => {
 
     test('should throw limit exceeded error on too many calls', async () => {
         const [integration] = await createTestAcquiringIntegration(adminClient)
-        await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: 'Finished' })
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
         
         for await (const i of Array.from(Array(MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1).keys())) {
             if (i === MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW) {
@@ -196,12 +198,14 @@ describe('ValidateQRCodeService', () => {
                 await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
             }
         }
+        await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
     })
 
 
     test('resident: can execute', async () => {
         const [integration] = await createTestAcquiringIntegration(adminClient)
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: 'Finished' })
+        const [organization] = await createTestOrganization(adminClient, { tin: qrCodeObj.PayeeINN })
+        const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
         const [{ qrCodeFields }] = await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
         await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
 

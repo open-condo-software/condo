@@ -49,6 +49,7 @@ const {
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY  } = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -493,6 +494,20 @@ async function updateTestRecurrentPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function paymentByLinkByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(PAYMENT_BY_LINK_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -720,5 +735,6 @@ module.exports = {
     sumPaymentsByTestClient,
     RecurrentPaymentContext, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
+    paymentByLinkByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
