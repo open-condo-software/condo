@@ -155,6 +155,12 @@ const PosterHeader: React.FC = (): JSX.Element => {
     )
 }
 
+// NOTE(antonal): non-standard gap is a requirement from design team
+const PosterFooterSpace = styled(Space)`
+  column-gap: 100px !important;
+  row-gap: 100px !important;
+`
+
 const PosterFooter: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.title' })
@@ -168,15 +174,17 @@ const PosterFooter: React.FC = (): JSX.Element => {
     const { breakpoints } = useLayoutContext()
 
     return (
-        <Space direction='vertical' align='center' size={100}>
-            <Space direction='vertical' align='center' size={20}>
-                <Typography.Title level={2}>
-                    {TitleMessage}
-                </Typography.Title>
+        <PosterFooterSpace direction='vertical' align='center'>
+            <Space direction='vertical' align='center' size={24} width={480}>
                 <CenteredText>
-                    <Typography.Paragraph type='secondary'>
-                        {DescriptionMessage}
-                    </Typography.Paragraph>
+                    <Space direction='vertical' align='center' size={16}>
+                        <Typography.Title level={2}>
+                            {TitleMessage}
+                        </Typography.Title>
+                        <Typography.Paragraph type='secondary'>
+                            {DescriptionMessage}
+                        </Typography.Paragraph>
+                    </Space>
                 </CenteredText>
                 <LoginWithSBBOLButton block checkTlsCert={false} label={AlreadyHaveCertMessage}/>
             </Space>
@@ -194,7 +202,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
                     href='#guide'
                 />
             </Space>
-        </Space>
+        </PosterFooterSpace>
     )
 }
 
