@@ -1025,6 +1025,7 @@
   "pages.condo.tls.title": "Сертификаты не найдены",
   "pages.condo.tls.description.line1": "Не найдены сертификаты на вашем устройстве.",
   "pages.condo.tls.description.line2": "Вы можете установить Яндекс Браузер или сертификаты на устройство.",
+  "pages.condo.tls.poster.alreadyHaveCert": "У меня есть сертификат, войти",
   "pages.condo.tls.back": "Назад на страницу входа",
   "pages.condo.tls.poster.more": "Подробнее о сертификате НУЦ Минцифры",
   "pages.condo.tls.poster.card1.description": "Скачайте и используйте Яндекс Браузер \u2028с поддержкой российских сертификатов",

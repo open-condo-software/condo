@@ -325,7 +325,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
 }
 
 // TODO: Restyle and refactor this button someday later
-export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string }> = ({ block, redirect }) => {
+export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, redirect?: string, checkTlsCert: boolean }> = ({ label, block, redirect, checkTlsCert = true }) => {
     const intl = useIntl()
     const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
     const router = useRouter()
@@ -351,11 +351,11 @@ export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string
             type='sberAction'
             secondary
             icon={<SberIconWithoutLabel/>}
-            onClick={checkSSLClientCert}
+            onClick={() => checkTlsCert ? checkSSLClientCert() : redirectToAuth()}
             loading={loading}
             block={block}
         >
-            {LoginLabel}
+            {label || LoginLabel}
         </Button>
     )
 }

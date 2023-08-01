@@ -22,6 +22,7 @@ import { Markdown, Typography } from '@open-condo/ui'
 import { Button, Card, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/Button'
 import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Logo } from '@condo/domains/common/components/Logo'
@@ -159,6 +160,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
     const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.title' })
     const DescriptionLine1Message = intl.formatMessage({ id: 'pages.condo.tls.description.line1' })
     const DescriptionLine2Message = intl.formatMessage({ id: 'pages.condo.tls.description.line2' })
+    const AlreadyHaveCertMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.alreadyHaveCert' })
     const Card1DescriptionMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.card1.description' })
     const Card1CtaMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.card1.cta' })
     const Card2DescriptionMessage = intl.formatMessage({ id: 'pages.condo.tls.poster.card2.description' })
@@ -179,6 +181,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
                         {DescriptionLine2Message}
                     </Typography.Paragraph>
                 </CenteredText>
+                <LoginWithSBBOLButton block checkTlsCert={false} label={AlreadyHaveCertMessage}/>
             </Space>
             <Space size={20} direction={breakpoints.DESKTOP_SMALL ? 'horizontal' : 'vertical'}>
                 <PosterFooterCard
