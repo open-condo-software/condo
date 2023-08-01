@@ -8,6 +8,7 @@ const {
     expectToThrowAuthenticationErrorToResult, waitFor, getIsFeatureFlagsEnabled, setIsFeatureFlagsEnabled,
 } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     createTestAcquiringIntegrationContext,
     createTestAcquiringIntegration,
@@ -22,7 +23,6 @@ const {
     createRegisterBillingReceiptsPayload,
     registerBillingReceiptsByTestClient,
 } = require('@condo/domains/billing/utils/testSchema')
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithResidentAccessAndProperty,

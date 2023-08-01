@@ -5,20 +5,42 @@
 const { faker } = require('@faker-js/faker')
 const sample = require('lodash/sample')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient, makeClient, UUID_RE, waitFor,
+    expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
+} = require('@open-condo/keystone/test.utils')
 
-const { createTestBillingAccount, makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingProperty } = require('@condo/domains/billing/utils/testSchema')
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
+const {
+    createTestAcquiringIntegration,
+    createTestAcquiringIntegrationContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestBillingAccount,
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    createTestBillingProperty,
+} = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
-const { registerNewOrganization, makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const {
+    registerNewOrganization,
+    makeClientWithRegisteredOrganization,
+} = require('@condo/domains/organization/utils/testSchema/Organization')
 const { FLAT_UNIT_TYPE, PARKING_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { createTestProperty, updateTestProperty, makeClientWithResidentAccessAndProperty, Property } = require('@condo/domains/property/utils/testSchema')
+const {
+    createTestProperty,
+    updateTestProperty,
+    makeClientWithResidentAccessAndProperty,
+    Property,
+} = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { registerResidentByTestClient, Resident } = require('@condo/domains/resident/utils/testSchema')
-const { ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithResidentUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+const { registerResidentByTestClient, Resident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
+const {
+    makeClientWithResidentUser,
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithStaffUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('manageResidentToPropertyAndOrganizationConnections worker task tests', () => {
     let propertyPayload
@@ -458,6 +480,8 @@ describe('RegisterResidentService', () => {
             const unitName = faker.random.alphaNumeric(8)
             const { address, addressMeta } = buildFakeAddressAndMeta(false)
             const [organization] = await registerNewOrganization(adminClient)
+            const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
             const [billingProperty] = await createTestBillingProperty(adminClient, context, { address })
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty,
                 { unitName, unitType: FLAT_UNIT_TYPE }
@@ -492,6 +516,8 @@ describe('RegisterResidentService', () => {
             const unitName = faker.random.alphaNumeric(8)
             const { address, addressMeta } = buildFakeAddressAndMeta(false)
             const [organization] = await registerNewOrganization(adminClient)
+            const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
             const [billingProperty] = await createTestBillingProperty(adminClient, context, { address })
             const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty,
                 { unitName, unitType: FLAT_UNIT_TYPE }
@@ -555,6 +581,8 @@ describe('RegisterResidentService', () => {
             const { address, addressMeta } = buildFakeAddressAndMeta(false)
             const { address: address2, addressMeta: addressMeta2 } = buildFakeAddressAndMeta(false)
             const [organization] = await registerNewOrganization(adminClient)
+            const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient)
+            await createTestAcquiringIntegrationContext(adminClient, organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
             const [billingProperty] = await createTestBillingProperty(adminClient, context, { address })
             await createTestBillingAccount(adminClient, context, billingProperty,
                 { unitName, unitType: FLAT_UNIT_TYPE }
@@ -564,6 +592,7 @@ describe('RegisterResidentService', () => {
                 address,
                 addressMeta,
             })
+
             const [resident] = await registerResidentByTestClient(user,
                 { address, addressMeta, unitName, unitType: FLAT_UNIT_TYPE }
             )
