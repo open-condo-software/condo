@@ -15,7 +15,7 @@ export const useNewsItemsAccess = (): TUseNewsItemsAccess => {
 
     const roleNameRaw = get(organizationLink, ['role', 'nameNonLocalized'])
     // The dispatcher is the only one role who can read and can't manage
-    const canRead = canManage || roleNameRaw === 'employee.role.Dispatcher.name'
+    const canRead = canManage || roleNameRaw === 'employee.role.dispatcher.name'
 
     return { canRead, canManage, isLoading }
 }

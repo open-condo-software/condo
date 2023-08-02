@@ -132,7 +132,7 @@ const syncOrganization = async ({ context, user, userData, organizationInfo, dvS
                 organization: {
                     id: importedOrganization.id,
                 },
-                name: 'employee.role.Administrator.name',
+                name: 'employee.role.administrator.name',
             })
 
             const employee = await createConfirmedEmployee(adminContext, importedOrganization, {
