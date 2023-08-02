@@ -35,6 +35,8 @@ const {
     updateTestBillingReceipt,
     updateTestBillingReceipts,
     generateServicesData,
+    createRegisterBillingReceiptsPayload,
+    registerBillingReceiptsByTestClient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
@@ -52,6 +54,7 @@ describe('BillingReceipt', () => {
     let anonymous
     let user
     let context
+    let organization
     let property
     let account
     let integrationUser
@@ -97,21 +100,13 @@ describe('BillingReceipt', () => {
                     })
                 })
                 describe('User', () => {
-                    describe('Integration account', () => {
-                        test('Can if linked to permitted integration, property, account via context', async () => {
-                            const [receipt] = await createTestBillingReceipt(integrationUser, context, property, account)
 
-                            expect(receipt).toBeDefined()
-                            expect(receipt).toHaveProperty(['context', 'id'], context.id)
-                            expect(receipt).toHaveProperty(['property', 'id'], property.id)
-                            expect(receipt).toHaveProperty(['account', 'id'], account.id)
-                        })
-                        test('Cannot otherwise', async () => {
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestBillingReceipt(integrationUser, anotherContext, anotherProperty, anotherAccount)
-                            })
+                    test('Integration account cannot otherwise', async () => {
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestBillingReceipt(integrationUser, anotherContext, anotherProperty, anotherAccount)
                         })
                     })
+
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
                             await createTestBillingReceipt(integrationManager, context, property, account)
@@ -158,36 +153,16 @@ describe('BillingReceipt', () => {
                     })
                 })
                 describe('User', () => {
-                    describe('Integration account can if linked to permitted integration, property and account via context', () => {
-                        test('All permitted contexts should pass', async () => {
-                            const [receipts] = await createTestBillingReceipts(integrationUser,
-                                [context, context],
+
+                    test('Integration account must fail', async () => {
+                        await expectToThrowAccessDeniedErrorToObjects(async () => {
+                            await createTestBillingReceipts(integrationUser,
+                                [context, anotherContext],
                                 [property, property],
-                                [account, account])
-
-                            expect(receipts).toBeDefined()
-                            expect(receipts).toHaveLength(2)
-                            expect(receipts[0]).toEqual(expect.objectContaining({
-                                context: expect.objectContaining({ id: context.id }),
-                                property: expect.objectContaining({ id: property.id }),
-                                account: expect.objectContaining({ id: account.id }),
-                            }))
-
-                            expect(receipts[1]).toEqual(expect.objectContaining({
-                                context: expect.objectContaining({ id: context.id }),
-                                property: expect.objectContaining({ id: property.id }),
-                                account: expect.objectContaining({ id: account.id }),
-                            }))
-                        })
-                        test('Partly permitted must fail', async () => {
-                            await expectToThrowAccessDeniedErrorToObjects(async () => {
-                                await createTestBillingReceipts(integrationUser,
-                                    [context, anotherContext],
-                                    [property, property],
-                                    [account, anotherAccount])
-                            })
+                                [account, anotherAccount])
                         })
                     })
+
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObjects(async () => {
                             await createTestBillingReceipts(integrationManager, [context], [property], [account])
@@ -230,20 +205,14 @@ describe('BillingReceipt', () => {
                     })
                 })
                 describe('User', () => {
-                    describe('Integration account', () => {
-                        test('Can if linked to permitted integration via context', async () => {
-                            const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
 
-                            expect(updatedReceipt).toBeDefined()
-                            expect(updatedReceipt).toEqual(expect.objectContaining(payload))
-                        })
-                        test('Cannot otherwise', async () => {
-                            const [anotherReceipt] = await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount)
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestBillingReceipt(integrationUser, anotherReceipt.id, payload)
-                            })
+                    test('Integration account cannot ', async () => {
+                        const [anotherReceipt] = await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount)
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestBillingReceipt(integrationUser, anotherReceipt.id, payload)
                         })
                     })
+
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
                             await updateTestBillingReceipt(integrationManager, receipt.id, payload)
@@ -298,25 +267,13 @@ describe('BillingReceipt', () => {
                     })
                 })
                 describe('User', () => {
-                    describe('Integration account can if linked to permitted integration via context', () => {
-                        test('All permitted must pass', async () => {
-                            const [secondReceipt] = await createTestBillingReceipt(admin, context, property, account)
-                            const secondPayload = { ...anotherPayload, id: secondReceipt.id }
-                            const [updatedReceipts] = await updateTestBillingReceipts(integrationUser, [payload, secondPayload])
 
-                            expect(updatedReceipts).toBeDefined()
-                            expect(updatedReceipts).toHaveLength(2)
-                            expect(updatedReceipts).toEqual(expect.arrayContaining([
-                                expect.objectContaining({ id: payload.id, ...payload.data }),
-                                expect.objectContaining({ id: secondReceipt.id, ...secondPayload.data }),
-                            ]))
-                        })
-                        test('Partly permitted must fail', async () => {
-                            await expectToThrowAccessDeniedErrorToObjects(async () => {
-                                await updateTestBillingReceipts(integrationUser, [payload, anotherPayload])
-                            })
+                    test('Integration account must fail', async () => {
+                        await expectToThrowAccessDeniedErrorToObjects(async () => {
+                            await updateTestBillingReceipts(integrationUser, [payload, anotherPayload])
                         })
                     })
+
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObjects(async () => {
                             await updateTestBillingReceipts(integrationManager, [payload])
@@ -563,21 +520,14 @@ describe('BillingReceipt', () => {
                     })
                 })
                 describe('User', () => {
-                    describe('Integration account', () => {
-                        test('Can if linked to permitted integration via context', async () => {
-                            const [updatedAccount] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
 
-                            expect(updatedAccount).toBeDefined()
-                            expect(updatedAccount).toHaveProperty('deletedAt')
-                            expect(updatedAccount.deletedAt).not.toBeNull()
-                        })
-                        test('Cannot otherwise', async () => {
-                            const [anotherReceipt] = await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount)
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestBillingReceipt(integrationUser, anotherReceipt.id, payload)
-                            })
+                    test('Integration account cannot', async () => {
+                        const [anotherReceipt] = await createTestBillingReceipt(admin, anotherContext, anotherProperty, anotherAccount)
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestBillingReceipt(integrationUser, anotherReceipt.id, payload)
                         })
                     })
+
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
                             await updateTestBillingReceipt(integrationManager, receipt.id, payload)
@@ -689,11 +639,12 @@ describe('BillingReceipt', () => {
         describe('toPay', () => {
             test('Must be Decimal', async () => {
                 const payload = {
-                    toPay: '22.92',
+                    context: { id: context.id },
+                    receipts: [createRegisterBillingReceiptsPayload({ toPay: '22.92' })],
                 }
-                const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
+                const [registeredReceipts] = await registerBillingReceiptsByTestClient(admin, payload)
 
-                expect(updatedReceipt).toHaveProperty('toPay', '22.92000000')
+                expect(registeredReceipts[0]).toHaveProperty('toPay', '22.92000000')
             })
         })
         describe('toPayDetails', () => {
@@ -756,67 +707,7 @@ describe('BillingReceipt', () => {
             }, `${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
         })
     })
-    describe('Integration user can perform all needed actions', () => {
-        let importId
-        let receipt
-        beforeEach(async () => {
-            importId = faker.datatype.uuid()
-            const [firstReceipt] = await createTestBillingReceipt(admin, context, property, account, { importId })
-            receipt = firstReceipt
-        })
-        test('Restore soft-deleted receipt', async () => {
-            expect(receipt).toHaveProperty('deletedAt')
-            expect(receipt.deletedAt).toBeNull()
 
-            const [deletedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, { deletedAt: dayjs().toISOString() })
-
-            expect(deletedReceipt).toHaveProperty('id', receipt.id)
-            expect(deletedReceipt).toHaveProperty('deletedAt')
-            expect(deletedReceipt.deletedAt).not.toBeNull()
-
-            const [restoredReceipt] = await updateTestBillingReceipt(integrationUser, deletedReceipt.id, { deletedAt: null })
-
-            expect(restoredReceipt).toHaveProperty('id', receipt.id)
-            expect(restoredReceipt).toHaveProperty('deletedAt')
-            expect(restoredReceipt.deletedAt).toBeNull()
-        })
-        test('Update toPayDetail field', async () => {
-            const payload = {
-                toPayDetails: {
-                    formula: 'charge+penalty',
-                    charge: '12341.21',
-                    penalty: '200.12',
-                    privilege: null,
-                },
-            }
-            const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
-
-            expect(updatedReceipt).toEqual(expect.objectContaining({
-                toPayDetails: expect.objectContaining(payload.toPayDetails),
-            }))
-        })
-        test('Update services field', async () => {
-            const payload = { services: generateServicesData() }
-            const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
-
-            expect(updatedReceipt).toEqual(expect.objectContaining({
-                services: expect.arrayContaining(
-                    payload.services.map(service => expect.objectContaining({
-                        ...service,
-                        toPayDetails: expect.objectContaining(service.toPayDetails),
-                    }))
-                ),
-            }))
-        })
-        test('Update period field', async () => {
-            const payload = {
-                period: '2011-12-01',
-            }
-            const [updatedReceipt] = await updateTestBillingReceipt(integrationUser, receipt.id, payload)
-
-            expect(updatedReceipt).toEqual(expect.objectContaining(payload))
-        })
-    })
     describe('Cache tests', () => {
         test('Time value is always ready to be parsed', async () => {
             const [billingReceipt] = await createTestBillingReceipt(admin, context, property, account)
