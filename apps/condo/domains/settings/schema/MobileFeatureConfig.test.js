@@ -18,7 +18,6 @@ describe('MobileFeatureConfig', () => {
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient();
         [commonOrganization] = await createTestOrganization(admin)
-
     })
     describe('CRUD tests', () => {
         describe('accesses', () => {
@@ -105,7 +104,7 @@ describe('MobileFeatureConfig', () => {
                     const [organization] = await createTestOrganization(admin)
 
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManageOrganization: true,
+                        canManageMobileFeatureConfigs: true,
                     })
                     await createTestOrganizationEmployee(admin, organization, client.user, role)
 
@@ -122,7 +121,7 @@ describe('MobileFeatureConfig', () => {
                     const [organization] = await createTestOrganization(admin)
 
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManageOrganization: true,
+                        canManageMobileFeatureConfigs: true,
                     })
                     await createTestOrganizationEmployee(admin, organization, client.user, role)
 
@@ -150,7 +149,7 @@ describe('MobileFeatureConfig', () => {
                     const [organization] = await createTestOrganization(admin)
 
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManageOrganization: true,
+                        canManageMobileFeatureConfigs: true,
                     })
                     await createTestOrganizationEmployee(admin, organization, client.user, role)
 

@@ -47202,6 +47202,7 @@ export type OrganizationEmployeeRole = {
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47252,6 +47253,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47308,6 +47310,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47358,6 +47361,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47413,6 +47417,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47552,6 +47557,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageCallRecords_not?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords_not?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -47674,6 +47681,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47790,6 +47798,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageCallRecords_not?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords_not?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -68846,6 +68856,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanDownloadCallRecordsAsc = 'canDownloadCallRecords_ASC',
   CanDownloadCallRecordsDesc = 'canDownloadCallRecords_DESC',
+  CanManageMobileFeatureConfigsAsc = 'canManageMobileFeatureConfigs_ASC',
+  CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -68933,6 +68945,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanDownloadCallRecordsAsc = 'canDownloadCallRecords_ASC',
   CanDownloadCallRecordsDesc = 'canDownloadCallRecords_DESC',
+  CanManageMobileFeatureConfigsAsc = 'canManageMobileFeatureConfigs_ASC',
+  CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

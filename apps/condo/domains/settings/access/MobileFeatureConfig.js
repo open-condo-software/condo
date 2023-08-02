@@ -59,8 +59,7 @@ async function canManageMobileFeatureConfigs (attrs) {
         organizationId = get(foundConfig, 'organization')
     }
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageOrganization')
-
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMobileFeatureConfigs')
 }
 
 /*

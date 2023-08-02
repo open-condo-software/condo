@@ -63,6 +63,7 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': ORGANIZATION_TICKET_VISIBILITY,
         'canManageNewsItems': true,
         'canManageNewsItemTemplates': true,
+        'canManageMobileFeatureConfigs': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',

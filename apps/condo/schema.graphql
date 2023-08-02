@@ -4632,6 +4632,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4772,6 +4773,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageCallRecords_not: Boolean
   canDownloadCallRecords: Boolean
   canDownloadCallRecords_not: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageMobileFeatureConfigs_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4911,6 +4914,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageCallRecords_DESC
   canDownloadCallRecords_ASC
   canDownloadCallRecords_DESC
+  canManageMobileFeatureConfigs_ASC
+  canManageMobileFeatureConfigs_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4964,6 +4969,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5018,6 +5024,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5101,6 +5108,7 @@ type OrganizationEmployeeRole {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5229,6 +5237,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageCallRecords_not: Boolean
   canDownloadCallRecords: Boolean
   canDownloadCallRecords_not: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageMobileFeatureConfigs_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5350,6 +5360,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageCallRecords_DESC
   canDownloadCallRecords_ASC
   canDownloadCallRecords_DESC
+  canManageMobileFeatureConfigs_ASC
+  canManageMobileFeatureConfigs_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5402,6 +5414,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5452,6 +5465,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String

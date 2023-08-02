@@ -58,11 +58,13 @@ const SettingsPage: React.FC = () => {
     
     const userOrganization = useOrganization()
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
+    const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
 
     const tabKeysToDisplay = useMemo(() => {
         const result = ALWAYS_AVAILABLE_TABS
         if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
         if (canManageContactRoles) result.push(SETTINGS_TAB_CONTACT_ROLES)
+        if (canManageMobileFeatureConfigsRoles) result.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
         return result
     }, [hasSubscriptionFeature, canManageContactRoles])
 
@@ -104,7 +106,7 @@ const SettingsPage: React.FC = () => {
                 title: ControlRoomTitle,
                 content: <ControlRoomSettingsContent/>,
             },
-            hasMobileFeatureConfigurationFeature && {
+            canManageMobileFeatureConfigsRoles && hasMobileFeatureConfigurationFeature && {
                 key: SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
                 title: MobileFeatureConfigTitle,
                 content: <MobileFeatureConfigContent/>,
