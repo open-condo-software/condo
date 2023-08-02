@@ -11,6 +11,8 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ENABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
@@ -27,7 +29,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
     types: [
         {
             access: true,
-            type: 'input DiscoverServiceConsumersInput { dv: Int!, sender: SenderFieldInput!, address: String!, unitName: String!, unitType: String!, billingAccount: BillingAccountWhereUniqueInput, resident: ResidentWhereUniqueInput }',
+            type: 'input DiscoverServiceConsumersInputFilters { residentsIds: [ID!] }',
+        },
+        {
+            access: true,
+            type: 'input DiscoverServiceConsumersInput { dv: Int!, sender: SenderFieldInput!, billingAccountsIds: [ID!]!, filters: DiscoverServiceConsumersInputFilters }',
         },
         {
             access: true,
@@ -45,7 +51,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
             schema: 'discoverServiceConsumers(data: DiscoverServiceConsumersInput!): DiscoverServiceConsumersOutput',
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { address, unitName, unitType, billingAccount, resident, dv, sender } = data
+                const { dv, sender, billingAccountsIds, filters } = data
 
                 const reqId = get(context, ['req', 'id'])
 
@@ -54,61 +60,97 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     {
                         deletedAt: null,
                         context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
-                        ...billingAccount ? {
-                            id: billingAccount.id,
-                        } : {
-                            property: { address, deletedAt: null }, unitName, unitType,
-                        },
+                        id_in: billingAccountsIds,
                     },
                 )
 
-                const residents = await Resident.getAll(
-                    context,
-                    { deletedAt: null, ...resident ? { id: resident.id } : { address, unitName, unitType } },
-                )
+                let items = []
+                for (const billingAccount of billingAccounts) {
+                    const organizationId = get(billingAccount, ['context', 'organization', 'id'], null)
+                    const organizationType = get(billingAccount, ['context', 'organization', 'type'], null)
+                    const address = get(billingAccount, ['property', 'address'], null)
+                    const addressKey = get(billingAccount, ['property', 'addressKey'], null)
+                    const unitType = get(billingAccount, 'unitType', null)
+                    const unitName = get(billingAccount, 'unitName', null)
 
-                // Keep only residents of organizations the feature flag enabled for
-                const residentsFilteredByFeatureFlag = await asyncFilter(
-                    residents,
-                    async (resident) => await featureToggleManager.isFeatureEnabled(
-                        context,
-                        ENABLE_DISCOVER_SERVICE_CONSUMERS,
-                        { organization: resident.organization.id },
-                    ),
-                )
+                    let goFurther = false
 
-                // Keep only residents of organizations the acquiring context is existing for
-                const residentsFilteredByOrganizationAcquiringContext = await asyncFilter(
-                    residentsFilteredByFeatureFlag,
-                    async (resident) => await AcquiringIntegrationContext.count(
-                        context,
-                        {
-                            deletedAt: null,
-                            organization: { id: get(resident, ['organization', 'id']) },
-                            status: CONTEXT_FINISHED_STATUS,
-                        },
-                    ),
-                )
-
-                // Keep only residents the properties of which are exist in the organization
-                const residentsFilteredByProperty = await asyncFilter(
-                    residentsFilteredByOrganizationAcquiringContext,
-                    async (resident) => {
-                        return await Property.count(
+                    if (organizationType === SERVICE_PROVIDER_TYPE) {
+                        goFurther = true
+                    } else {
+                        const isFeatureFlagEnabled = await featureToggleManager.isFeatureEnabled(
                             context,
-                            {
-                                deletedAt: null,
-                                organization: { id: get(resident, ['organization', 'id']) },
-                                OR: [
-                                    { addressKey: get(resident, ['property', 'addressKey']) },
-                                    { address_i: get(resident, ['property', 'address']) },
-                                ],
-                            },
-                        ) > 0
-                    },
-                )
+                            ENABLE_DISCOVER_SERVICE_CONSUMERS,
+                            { organization: organizationId },
+                        )
 
-                const combinations = flatMap(residentsFilteredByProperty, (resident) => billingAccounts.map((account) => [resident, account]))
+                        if (isFeatureFlagEnabled) {
+                            goFurther = true
+                        }
+                    }
+
+                    if (goFurther) {
+                        items.push({ organizationId, address, addressKey, unitType, unitName })
+                    }
+                }
+
+                // Filter by acquiring context
+                const organizationsIdsWithAcquiringContext = new Set() //acquiringContexts.map((c) => get(c, ['organization', 'id']))
+                await loadListByChunks({
+                    context,
+                    list: AcquiringIntegrationContext,
+                    chunkSize: 50,
+                    where: {
+                        deletedAt: null,
+                        organization: { id_in: items.map(({ organizationId }) => organizationId) },
+                        status: CONTEXT_FINISHED_STATUS,
+                    },
+                    chunkProcessor: (chunk) => {
+                        chunk.forEach((row) => {
+                            organizationsIdsWithAcquiringContext.add(get(row, ['organization', 'id']))
+                        })
+                        return []
+                    },
+                })
+
+                items = items.filter((item) => organizationsIdsWithAcquiringContext.has(item.organizationId))
+
+                // Filter by property
+                const organizationsIdsWithProperties = new Set()
+                await loadListByChunks({
+                    context,
+                    list: Property,
+                    chunkSize: 50,
+                    where: {
+                        deletedAt: null,
+                        organization: { id_in: items.map((item) => item.organizationId) },
+                        OR: items.map((item) => ({
+                            OR: [{ address_i: item.address }, { addressKey: item.addressKey }],
+                        })),
+                    },
+                    chunkProcessor: (chunk) => {
+                        chunk.forEach((row) => {
+                            organizationsIdsWithProperties.add(get(row, ['organization', 'id']))
+                        })
+                        return []
+                    },
+                })
+
+                items = items.filter((item) => organizationsIdsWithProperties.has(item.organizationId))
+
+                const residentsWhere = {
+                    deletedAt: null,
+                    OR: items.map(({ address, unitType, unitName }) => ({
+                        AND: [{ address }, { unitType }, { unitName }],
+                    })),
+                }
+                const residentsFilter = get(filters, 'residentsIds')
+                if (residentsFilter) {
+                    residentsWhere.id_in = residentsFilter
+                }
+                const residents = await Resident.getAll(context, residentsWhere)
+
+                const combinations = flatMap(residents, (resident) => billingAccounts.map((account) => [resident, account]))
                 const createdServiceConsumers = await Promise.all(
                     combinations.map(([resident, account]) => ServiceConsumer.create(context, {
                         dv,
@@ -127,13 +169,13 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 const statistics = {
                     created: createdServiceConsumers.length,
-                    residentsFound: residentsFilteredByProperty.length,
+                    residentsFound: residents.length,
                     billingAccountsFound: billingAccounts.length,
                 }
 
                 logger.info({
                     msg: 'Created ServiceConsumers',
-                    payload: { address, unitName, unitType, billingAccount, resident },
+                    payload: { billingAccountsIds },
                     statistics,
                     reqId,
                 })

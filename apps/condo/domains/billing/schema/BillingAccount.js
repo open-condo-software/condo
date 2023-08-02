@@ -113,10 +113,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
                 await discoverServiceConsumersTask.delay({
                     dv,
                     sender,
-                    address: billingProperty.address,
-                    unitName,
-                    unitType,
-                    billingAccount: { id },
+                    billingAccountsIds: [id],
                 })
             }
         },

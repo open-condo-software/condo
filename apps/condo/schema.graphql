@@ -64051,14 +64051,15 @@ type SendMessageToResidentScopesServiceOutput {
   status: String!
 }
 
+input DiscoverServiceConsumersInputFilters {
+  residentsIds: [ID!]
+}
+
 input DiscoverServiceConsumersInput {
   dv: Int!
   sender: SenderFieldInput!
-  address: String!
-  unitName: String!
-  unitType: String!
-  billingAccount: BillingAccountWhereUniqueInput
-  resident: ResidentWhereUniqueInput
+  billingAccountsIds: [ID!]!
+  filters: DiscoverServiceConsumersInputFilters
 }
 
 type DiscoverServiceConsumersOutputStatistics {

@@ -20172,11 +20172,12 @@ export type DisconnectUserFromRemoteClientOutput = {
 export type DiscoverServiceConsumersInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
-  address: Scalars['String'];
-  unitName: Scalars['String'];
-  unitType: Scalars['String'];
-  billingAccount?: Maybe<BillingAccountWhereUniqueInput>;
-  resident?: Maybe<ResidentWhereUniqueInput>;
+  billingAccountsIds: Array<Scalars['ID']>;
+  filters?: Maybe<DiscoverServiceConsumersInputFilters>;
+};
+
+export type DiscoverServiceConsumersInputFilters = {
+  residentsIds?: Maybe<Array<Scalars['ID']>>;
 };
 
 export type DiscoverServiceConsumersOutput = {

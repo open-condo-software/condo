@@ -9,12 +9,15 @@ const {
 } = require('@open-condo/keystone/plugins/utils/address-service-client')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
+const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 const access = require('@condo/domains/resident/access/RegisterResidentService')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
+
+const { CONTEXT_FINISHED_STATUS } = require('../../acquiring/constants/context')
 
 const logger = getLogger('registerResident')
 
@@ -96,14 +99,22 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                 }
 
                 try {
+                    const billingAccounts = await BillingAccount.getAll(
+                        context,
+                        {
+                            context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
+                            property: { address, deletedAt: null },
+                            unitType,
+                            unitName,
+                        },
+                    )
+
                     // Call the mutation directly (without task) to make the resident see receipts immediately
                     const discoveringResult = await discoverServiceConsumers(context, {
                         dv,
                         sender,
-                        address,
-                        unitName,
-                        unitType,
-                        resident: { id },
+                        billingAccountsIds: billingAccounts.map(({ id }) => id),
+                        filters: { residentsIds: [id] },
                     })
                     logger.info({ message: 'discoverServiceConsumers done', result: discoveringResult, reqId })
                 } catch (err) {
