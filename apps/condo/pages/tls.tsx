@@ -31,6 +31,7 @@ import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
+const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 
 const guidesContent = {
     ru: {
@@ -79,10 +80,6 @@ export const Header: React.FC = (): JSX.Element => {
         </Row>
     )
 }
-
-const CenteredText = styled.div`
-    text-align: center;
-`
 
 /**
  * Does not adds extra elements around anchor component
@@ -178,7 +175,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
     return (
         <PosterFooterSpace>
             <Space direction='vertical' align='center' size={24} width={480}>
-                <CenteredText>
+                <div style={TEXT_CENTER_STYLE}>
                     <Space direction='vertical' align='center' size={16}>
                         <Typography.Title level={2}>
                             {TitleMessage}
@@ -187,7 +184,7 @@ const PosterFooter: React.FC = (): JSX.Element => {
                             {DescriptionMessage}
                         </Typography.Paragraph>
                     </Space>
-                </CenteredText>
+                </div>
                 <LoginWithSBBOLButton block checkTlsCert={false} label={AlreadyHaveCertMessage}/>
             </Space>
             <Space size={20} direction={breakpoints.DESKTOP_SMALL ? 'horizontal' : 'vertical'}>
