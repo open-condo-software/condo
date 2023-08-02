@@ -3,7 +3,7 @@ import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Button, Checkbox, Typography } from '@open-condo/ui'
@@ -63,9 +63,6 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
             if (!mobileConfig) {
                 values.organization = { connect: { id: userOrganizationId } }
             }
-
-            values.onlyGreaterThanPreviousMeterReadingIsEnabled = onlyGreaterThanPreviousMeterReadingIsEnabled
-
             return values
         }}
     >

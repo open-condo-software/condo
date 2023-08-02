@@ -4,7 +4,7 @@ import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Checkbox, Typography } from '@open-condo/ui'
@@ -74,9 +74,6 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
             if (!mobileConfig) {
                 values.organization = { connect: { id: userOrganizationId } }
             }
-
-            values.ticketSubmittingIsDisabled = ticketSubmittingIsDisabled
-
             return values
         }}
     >
@@ -112,9 +109,10 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                         label={IsEnabledMessage}
                                         labelAlign='left'
                                         {...INPUT_LAYOUT_PROPS}
+                                        valuePropName='checked'
+                                        initialValue={ticketSubmittingIsDisabled}
                                     >
                                         <Checkbox
-                                            checked={ticketSubmittingIsDisabled}
                                             onChange={() => {
                                                 setTicketSubmittingIsDisabled(!ticketSubmittingIsDisabled)
                                             }}
