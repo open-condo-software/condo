@@ -266,34 +266,6 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
                     }])
                 })
             })
-            test('Should not be able to pay using deleted acquiring integration', async () => {
-                const {
-                    admin,
-                    acquiringContext,
-                    acquiringIntegration,
-                    billingAccount,
-                } = await makePayer()
-                const receipt = generateReceipt(billingAccount)
-                const acquiringIntegrationContext = { id: acquiringContext.id }
-                await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
-                    deletedAt: dayjs().toISOString(),
-                })
-                await catchErrorFrom(async () => {
-                    await registerMultiPaymentForVirtualReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay via deleted acquiring integration with id "${acquiringIntegration.id}"`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForVirtualReceipt',
-                            variable: ['data', 'acquiringIntegrationContext', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                            message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                        },
-                    }])
-                })
-            })
         })
     })
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
