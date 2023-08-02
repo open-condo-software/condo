@@ -4,7 +4,6 @@
 
 const { Text } = require('@keystonejs/fields')
 
-const { userIsAdmin } = require('@open-condo/keystone/access')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
