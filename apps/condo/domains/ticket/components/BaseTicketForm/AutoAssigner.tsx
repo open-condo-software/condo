@@ -1,4 +1,5 @@
 import { Alert, Col } from 'antd'
+import get from 'lodash/get'
 import React, { useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
@@ -54,7 +55,7 @@ export const AutoAssigner = ({
                     categoryClassifierId,
                 )
                 const firstEmployee = sortedEmployees.find(employee => !employee.isBlocked)
-                const firstEmployeeUserId = firstEmployee.user.id
+                const firstEmployeeUserId = get(firstEmployee, 'user.id')
 
                 form.setFieldsValue({
                     assignee: firstEmployeeUserId,
