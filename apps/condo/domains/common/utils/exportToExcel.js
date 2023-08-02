@@ -14,13 +14,13 @@ const EXPORT_TYPE_PROPERTY_SCOPES = 'propertyScopes'
 const EXPORT_TYPE_INCIDENTS = 'incidents'
 const EXPORT_TYPE_NEWS_RECIPIENTS = 'newsRecipients'
 
-const TICKETS_REPORTS_PREFIX = 'ticket_report_'
-const TICKET_REPORT_PROPERTY_STATUS = 'property_status'
-const TICKET_REPORT_STATUS_ASSIGNEE = 'status_assignee'
-const TICKET_REPORT_STATUS_CATEGORY_CLASSIFIER = 'status_categoryClassifier'
-const TICKET_REPORT_STATUS_DAY_GROUP = 'status_dayGroup'
-const TICKET_REPORT_STATUS_EXECUTOR = 'status_executor'
-const TICKET_REPORT_STATUS_PROPERTY = 'status_property'
+const TICKETS_REPORTS_PREFIX = 'ticketReport'
+const TICKET_REPORT_PROPERTY_STATUS = 'PropertyStatus'
+const TICKET_REPORT_STATUS_ASSIGNEE = 'StatusAssignee'
+const TICKET_REPORT_STATUS_CATEGORY_CLASSIFIER = 'StatusCategoryClassifier'
+const TICKET_REPORT_STATUS_DAY_GROUP = 'StatusDayGroup'
+const TICKET_REPORT_STATUS_EXECUTOR = 'StatusExecutor'
+const TICKET_REPORT_STATUS_PROPERTY = 'StatusProperty'
 
 const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_PAYMENTS]: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'order', 'status', 'amount'],
@@ -39,22 +39,22 @@ const EXCEL_TEMPLATES_HEADERS = {
         'qualityControlValue', 'qualityControlComment', 'qualityControlAdditionalOptions', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_PROPERTY_STATUS}`]: [
-        'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+        'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'newOrReopened',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_ASSIGNEE}`]: [
-        'assignee', 'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+        'assignee', 'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'newOrReopened',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_CATEGORY_CLASSIFIER}`]: [
-        'categoryClassifier', 'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+        'categoryClassifier', 'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'newOrReopened',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_DAY_GROUP}`]: [
-        'address', 'date', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+        'address', 'date', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'newOrReopened',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_EXECUTOR}`]: [
-        'executor', 'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+        'executor', 'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'newOrReopened',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_PROPERTY}`]: [
-        'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+        'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'newOrReopened',
     ],
     [EXPORT_TYPE_PROPERTY_SCOPES]: [
         'name', 'properties', 'employees',
