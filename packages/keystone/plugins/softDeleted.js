@@ -5,7 +5,7 @@ const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./uti
 const { plugin } = require('./utils/typing')
 
 const { queryHasField } = require('../queryHasField')
-const { find, getListDependentRelations, getSchemaCtx} = require('../schema')
+const { find, getListDependentRelations, getSchemaCtx } = require('../schema')
 
 const PROTECT = 'models.PROTECT'
 const SET_NULL = 'models.SET_NULL'
