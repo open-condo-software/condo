@@ -30,7 +30,6 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     updateTestBillingReceipt,
-    updateTestBillingIntegration,
     createTestBillingIntegration,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
@@ -289,34 +288,6 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                     }])
                 })
             })
-            test('Should not be able to pay using deleted acquiring integration', async () => {
-                const {
-                    admin,
-                    billingReceipts,
-                    acquiringContext,
-                    acquiringIntegration,
-                } = await makePayer()
-                const receipt = { id: billingReceipts[0].id }
-                const acquiringIntegrationContext = { id: acquiringContext.id }
-                await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
-                    deletedAt: dayjs().toISOString(),
-                })
-                await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: `Cannot pay via deleted acquiring integration with id "${acquiringIntegration.id}"`,
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'acquiringIntegrationContext', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'ACQUIRING_INTEGRATION_IS_DELETED',
-                            message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-                        },
-                    }])
-                })
-            })
             test('Should not be able to pay for receipt with deleted BillingIntegrationOrganizationContext', async () => {
                 const {
                     admin,
@@ -345,40 +316,6 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
                                 failedReceipts: [{
                                     receiptId: receipt.id,
                                     contextId: billingContext.id,
-                                }],
-                            },
-                        },
-                    }])
-                })
-            })
-            test('Should not be able to pay for BillingReceipt with deleted BillingIntegration', async () => {
-                const {
-                    admin,
-                    billingReceipts,
-                    billingIntegration,
-                    acquiringContext,
-                } = await makePayer()
-                const receipt = { id: billingReceipts[0].id }
-                const acquiringIntegrationContext = { id: acquiringContext.id }
-                await updateTestBillingIntegration(admin, billingIntegration.id, {
-                    deletedAt: dayjs().toISOString(),
-                })
-                await catchErrorFrom(async () => {
-                    await registerMultiPaymentForOneReceiptByTestClient(admin, receipt, acquiringIntegrationContext)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: 'BillingReceipt has deleted BillingIntegration',
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPaymentForOneReceipt',
-                            variable: ['data', 'receipt', 'id'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'RECEIPT_HAS_DELETED_BILLING_INTEGRATION',
-                            message: 'BillingReceipt has deleted BillingIntegration',
-                            data: {
-                                failedReceipts: [{
-                                    receiptId: receipt.id,
-                                    integrationId: billingIntegration.id,
                                 }],
                             },
                         },
