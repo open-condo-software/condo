@@ -56,6 +56,7 @@ const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
+const { asyncLocalStorage } = require('./threadLocal')
 
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const METRIC_PREFIX = 'adapterCache'
@@ -417,6 +418,9 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
 function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async (...args) => {
         cacheAPI.incrementTotal()
+
+        console.log('THREAD_LOCAL_VAR:')
+        console.log(asyncLocalStorage.getStore())
 
         let key = getKey(args)
         if (key) {

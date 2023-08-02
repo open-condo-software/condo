@@ -18,6 +18,7 @@ const { registerTasks } = require('@open-condo/keystone/tasks')
 const { parseCorsSettings } = require('../../cors.utils')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
+const { asyncLocalStorage } = require('../../threadLocal')
 
 
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -106,9 +107,11 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
                 // we are expecting to receive reqId from client in order to have fully traced logs end to end
                 // also, property name are constant name, not a dynamic user input
                 // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
-                req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
-                res.setHeader(requestIdHeaderName, reqId)
-                next()
+                asyncLocalStorage.run(reqId, () => {
+                    req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
+                    res.setHeader(requestIdHeaderName, reqId)
+                    next()
+                })
             })
 
             app.use('/admin/', (req, res, next) => {
