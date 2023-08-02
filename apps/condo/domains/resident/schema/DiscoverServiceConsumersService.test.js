@@ -422,12 +422,7 @@ describe('DiscoverServiceConsumersService', () => {
 
             // 3/3 check that resident can see the receipts list
             await waitFor(async () => {
-                const receipts = await ResidentBillingReceipt.getAll(
-                    residentClient1,
-                    {},
-                    // { context: { id: billingContext.id } },
-                    // { serviceConsumer: { resident: { id: resident.id } } },
-                )
+                const receipts = await ResidentBillingReceipt.getAll(residentClient1, {})
 
                 expect(receipts).toHaveLength(1)
                 expect(registeredReceipts).toEqual(expect.arrayContaining([
