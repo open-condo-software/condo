@@ -18,7 +18,7 @@ export const OnlyProgressionMeterReadingsSettingCard: React.FC<OnlyProgressionMe
     const intl = useIntl()
     const OnlyProgressionMeterReadingsTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig.OnlyProgressionMeterReadings.title' })
     const OnlyProgressionMeterReadingsIsDisabledLabel = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig.OnlyProgressionMeterReadings.isDisabled' })
-    const OnlyProgressionMeterReadingsIsEnabledLabel = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig.OnlyProgressionMeterReadings.isEnabled' })
+    const onlyGreaterThanPreviousMeterReadingIsEnabledLabel = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig.OnlyProgressionMeterReadings.isEnabled' })
 
     const router = useRouter()
 
@@ -26,12 +26,12 @@ export const OnlyProgressionMeterReadingsSettingCard: React.FC<OnlyProgressionMe
         router.push(TICKET_DISABLING_SETTINGS_URL)
     }, [router])
 
-    const isEnabled = get(mobileConfig, 'onlyProgressionMeterReadingsIsEnabled')
+    const isEnabled = get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled')
 
     return (
         <SettingCard title={OnlyProgressionMeterReadingsTitle} onClick={handleClickCard}>
             <Typography.Text type='secondary' >
-                {isEnabled ? OnlyProgressionMeterReadingsIsEnabledLabel : OnlyProgressionMeterReadingsIsDisabledLabel}
+                {isEnabled ? onlyGreaterThanPreviousMeterReadingIsEnabledLabel : OnlyProgressionMeterReadingsIsDisabledLabel}
             </Typography.Text>
         </SettingCard>
     )

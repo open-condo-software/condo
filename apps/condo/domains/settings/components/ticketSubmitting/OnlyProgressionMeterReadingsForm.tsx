@@ -41,10 +41,10 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
     const EnableMessage = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.OnlyProgressionMeterReadings.isEnabled' })
 
     const router = useRouter()
-    const [onlyProgressionMeterReadingsIsEnabled, setOnlyProgressionMeterReadingsIsEnabled] = useState<boolean>(get(mobileConfig, 'onlyProgressionMeterReadingsIsEnabled'))
+    const [onlyGreaterThanPreviousMeterReadingIsEnabled, setonlyGreaterThanPreviousMeterReadingIsEnabled] = useState<boolean>(get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled'))
 
     const initialValues = {
-        onlyProgressionMeterReadingsIsEnabled: get(mobileConfig, 'onlyProgressionMeterReadingsIsEnabled'),
+        onlyGreaterThanPreviousMeterReadingIsEnabled: get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled'),
     }
 
     const updateHook = MobileFeatureConfig.useUpdate({}, () => router.push('/settings?tab=mobileFeatureConfig'))
@@ -64,7 +64,7 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
                 values.organization = { connect: { id: userOrganizationId } }
             }
 
-            values.onlyProgressionMeterReadingsIsEnabled = onlyProgressionMeterReadingsIsEnabled
+            values.onlyGreaterThanPreviousMeterReadingIsEnabled = onlyGreaterThanPreviousMeterReadingIsEnabled
 
             return values
         }}
@@ -80,16 +80,16 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item
-                                        name='onlyProgressionMeterReadingsIsEnabled'
+                                        name='onlyGreaterThanPreviousMeterReadingIsEnabled'
                                         label={EnableMessage}
                                         labelAlign='left'
                                         {...INPUT_LAYOUT_PROPS}
                                         valuePropName='checked'
-                                        initialValue={onlyProgressionMeterReadingsIsEnabled}
+                                        initialValue={onlyGreaterThanPreviousMeterReadingIsEnabled}
                                     >
                                         <Checkbox
                                             onChange={() => {
-                                                setOnlyProgressionMeterReadingsIsEnabled(!onlyProgressionMeterReadingsIsEnabled)
+                                                setonlyGreaterThanPreviousMeterReadingIsEnabled(!onlyGreaterThanPreviousMeterReadingIsEnabled)
                                             }}
                                         />
                                     </Form.Item>
@@ -117,5 +117,5 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
             </Row>
         )}
     </FormWithAction>
-    ), [action, mobileConfig, onlyProgressionMeterReadingsIsEnabled])
+    ), [action, mobileConfig, onlyGreaterThanPreviousMeterReadingIsEnabled])
 }
