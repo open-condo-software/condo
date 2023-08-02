@@ -85,9 +85,6 @@ export const Header: React.FC = (): JSX.Element => {
  * Does not adds extra elements around anchor component
  */
 const BlankAnchor = styled(Anchor)`
-    .ant-anchor-ink {
-        display: none;
-    }
     .ant-anchor-link {
         padding: 0;
     }
@@ -96,6 +93,7 @@ const BlankAnchor = styled(Anchor)`
 type PosterFooterCardProps = {
     logoSrc: string
     description: string
+    // If value is an anchor, like "#guide", then Button on click should scroll to appropriate anchor
     href: string
     buttonLabel: string
 }
