@@ -566,7 +566,8 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'Property',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            // If property is deleted => delete all tickets connected with this property
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
         propertyAddress: {
             schemaDoc: 'Address of property, which synced with property and displayed, if property is deleted',

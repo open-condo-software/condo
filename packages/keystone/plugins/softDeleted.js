@@ -5,20 +5,90 @@ const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./uti
 const { plugin } = require('./utils/typing')
 
 const { queryHasField } = require('../queryHasField')
-const { find, getListDependentRelations } = require('../schema')
+const { find, getListDependentRelations, getSchemaCtx} = require('../schema')
 
 const PROTECT = 'models.PROTECT'
 const SET_NULL = 'models.SET_NULL'
 const CASCADE = 'models.CASCADE'
 
-const hasObjs = async (schemaName, path, objId) => {
-    // BillingReceipt { path: objId }
-    const where = { [path]: { id: objId }, deletedAt: null }
+const hasSoftDeletedField = (schemaName) => {
+    const schemaCtx = getSchemaCtx(schemaName)
+    return !!get(schemaCtx, ['list', 'fieldsByPath', 'deletedAt'], null)
+}
 
-    // If there are any objects that have this ID
+const hasObjs = async (schemaName, path, objId) => {
+    const where = { [path]: { id: objId } }
+
+    // Sometimes dependent schemas may not have deletedAt field. For those fields we must not add deletedAt to Where clause
+    if (hasSoftDeletedField(schemaName)) {
+        // BillingReceipt { path: objId }
+        where.deletedAt = null
+    }
+
+    // If there are any non deleted objects that have this ID
     return await find(schemaName, where)
 }
 
+/**
+ * Before we delete an object, we must make sure we actually can do it (Check PROTECT rules)
+ *
+ * Here is a quick example to get you the concept:
+ *
+ * Example 1:
+ *
+ * Book -> Author
+ * - typeof book.author == relation
+ * - on_delete = PROTECT (Before we drop Author => check if there are ANY Books, that are connected to this author)
+ *
+ * Setup:
+ * 1. Create Author id=1
+ * 2. Create Book id=1
+ * 3. Set book.author = 1
+ *
+ * Action:
+ * - Try to delete Author (id=1)
+ *
+ * Assert:
+ * Error
+ *
+ * Comment:
+ * To delete author we must check if there are ANY objects in schema Books that:
+ * 1. Are not deleted
+ * 2. Have book.author equal to deleted author (id=1)
+ * 3. Since these books exist ([Book<id=1>]) we raise an error
+ *
+ * --
+ *
+ * We also need to make sure that CASCADE option is respected. So check the following example:
+ *
+ * Example 2:
+ *
+ * User -> Author
+ * - typeof author.user == relation
+ * - on_delete = CASCADE (if User is dropped, then related Author is dropped)
+ * Book -> Author
+ * - typeof book.author == relation
+ * - on_delete = PROTECT (Before we drop Author => check if there are ANY Books, that are connected to this author)
+ *
+ * Setup:
+ * 1. Create User id=1
+ * 2. Create Author id=1
+ * 3. Set author.user = 1
+ * 4. Create Book id=1
+ * 5. Set book.author = 1
+ *
+ * Action:
+ * - Try to delete User (id=1)
+ *
+ * Assert:
+ * Error
+ *
+ * Comment:
+ * Since User -> Author is CASCADE relation, we must check if there are ANY objects in schema Books that:
+ * 1. Are not deleted
+ * 2. Have book.author equal to Author, that relates to deleted User
+ * 3. Since these books exist ([Book<id=1>]) we raise an error
+ */
 const canDelete = async (listName, obj) => {
     const relations = getListDependentRelations(listName)
 
