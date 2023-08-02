@@ -80,15 +80,20 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
                 const taskStatus = get(taskRecord, 'status')
                 const totalRecordsCount = get(taskRecord, 'totalRecordsCount')
                 const exportedRecordsCount = get(taskRecord, 'exportedRecordsCount')
+                const publicUrl = get(taskRecord, 'file.publicUrl')
 
                 return taskStatus === TASK_COMPLETED_STATUS
                     ? (
                         <>
                             <Typography.Text>{ExportTaskProgressDescriptionCompleted}</Typography.Text>
-                            <br/>
-                            <Typography.Link href={get(taskRecord, 'file.publicUrl')}>
-                                {ExportTaskProgressDescriptionCompletedLinkLabel}
-                            </Typography.Link>
+                            {publicUrl && (
+                                <>
+                                    <br/>
+                                    <Typography.Link href={publicUrl}>
+                                        {ExportTaskProgressDescriptionCompletedLinkLabel}
+                                    </Typography.Link>
+                                </>
+                            )}
                         </>
                     ) : !totalRecordsCount || !exportedRecordsCount
                         ? ExportTaskProgressDescriptionPreparing
