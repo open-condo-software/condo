@@ -99,7 +99,7 @@ describe('MobileFeatureConfig', () => {
             })
 
 
-            describe('user', () => {
+            describe('employee', () => {
                 test('can create', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [organization] = await createTestOrganization(admin)
@@ -167,6 +167,27 @@ describe('MobileFeatureConfig', () => {
         })
 
         describe('Validation tests', () => {
+
+            test('organization uniq constraint', async () => {
+                const [organization] = await createTestOrganization(admin)
+
+                await createTestMobileFeatureConfig(admin, organization, {
+                    commonPhone: undefined,
+                    ticketSubmittingIsDisabled: false,
+                })
+
+                await catchErrorFrom(async () => {
+                    await createTestMobileFeatureConfig(admin, organization, {
+                        ticketSubmittingIsDisabled: false,
+                    })
+                }, ({ errors, data }) => {
+                    expect(errors[0].message).toMatch('duplicate key value violates unique constraint "mobilefeatureconfig_unique_organization"')
+                    expect(data).toEqual({ 'obj': null })
+                })
+
+
+            })
+
             test('TICKET_SUBMITTING_PHONES_NOT_CONFIGURED', async () => {
                 await catchErrorFrom(async () => {
                     await createTestMobileFeatureConfig(admin, commonOrganization, {

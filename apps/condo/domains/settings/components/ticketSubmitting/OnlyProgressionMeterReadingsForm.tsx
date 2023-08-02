@@ -1,12 +1,12 @@
 import { MobileFeatureConfig as MobileFeatureConfigType } from '@app/condo/schema'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button, Checkbox } from '@open-condo/ui'
+import { ActionBar, Button, Checkbox, Typography } from '@open-condo/ui'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { MobileFeatureConfig } from '@condo/domains/settings/utils/clientSchema'
@@ -41,17 +41,11 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
     const EnableMessage = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.OnlyProgressionMeterReadings.isEnabled' })
 
     const router = useRouter()
-    const [onlyProgressionMeterReadingsIsEnabled, setOnlyProgressionMeterReadingsIsEnabled] = useState<boolean>()
+    const [onlyProgressionMeterReadingsIsEnabled, setOnlyProgressionMeterReadingsIsEnabled] = useState<boolean>(get(mobileConfig, 'onlyProgressionMeterReadingsIsEnabled'))
 
     const initialValues = {
         onlyProgressionMeterReadingsIsEnabled: get(mobileConfig, 'onlyProgressionMeterReadingsIsEnabled'),
     }
-
-    useEffect(() => {
-        if (mobileConfig) {
-            setOnlyProgressionMeterReadingsIsEnabled(mobileConfig.onlyProgressionMeterReadingsIsEnabled)
-        }
-    }, [])
 
     const updateHook = MobileFeatureConfig.useUpdate({}, () => router.push('/settings?tab=mobileFeatureConfig'))
     const updateAction = async (data) => {
@@ -90,9 +84,10 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
                                         label={EnableMessage}
                                         labelAlign='left'
                                         {...INPUT_LAYOUT_PROPS}
+                                        valuePropName='checked'
+                                        initialValue={onlyProgressionMeterReadingsIsEnabled}
                                     >
                                         <Checkbox
-                                            checked={onlyProgressionMeterReadingsIsEnabled}
                                             onChange={() => {
                                                 setOnlyProgressionMeterReadingsIsEnabled(!onlyProgressionMeterReadingsIsEnabled)
                                             }}

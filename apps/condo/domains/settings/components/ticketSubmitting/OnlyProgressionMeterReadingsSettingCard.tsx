@@ -1,10 +1,10 @@
 import { MobileFeatureConfig as MobileFeatureConfigType } from '@app/condo/schema'
-import { Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { SettingCard } from '@condo/domains/common/components/settings/SettingCard'
 
@@ -13,7 +13,6 @@ interface OnlyProgressionMeterReadingsSettingCardProps {
 }
 
 const TICKET_DISABLING_SETTINGS_URL = '/settings/mobileFeatureConfig/onlyProgressionMeterReadings'
-const TYPOGRAPHY_STYLE: React.CSSProperties = { width: '100%' }
 
 export const OnlyProgressionMeterReadingsSettingCard: React.FC<OnlyProgressionMeterReadingsSettingCardProps> = ({ mobileConfig }) => {
     const intl = useIntl()
@@ -31,7 +30,7 @@ export const OnlyProgressionMeterReadingsSettingCard: React.FC<OnlyProgressionMe
 
     return (
         <SettingCard title={OnlyProgressionMeterReadingsTitle} onClick={handleClickCard}>
-            <Typography.Text type='secondary' style={TYPOGRAPHY_STYLE}>
+            <Typography.Text type='secondary' >
                 {isEnabled ? OnlyProgressionMeterReadingsIsEnabledLabel : OnlyProgressionMeterReadingsIsDisabledLabel}
             </Typography.Text>
         </SettingCard>

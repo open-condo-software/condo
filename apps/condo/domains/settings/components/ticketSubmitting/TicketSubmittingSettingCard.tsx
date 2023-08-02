@@ -1,10 +1,10 @@
 import { MobileFeatureConfig as MobileFeatureConfigType } from '@app/condo/schema'
-import { Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { SettingCard } from '@condo/domains/common/components/settings/SettingCard'
 
@@ -13,7 +13,7 @@ interface TicketSubmittingSettingCardProps {
 }
 
 const TICKET_DISABLING_SETTINGS_URL = '/settings/mobileFeatureConfig/ticketSubmitting'
-const TYPOGRAPHY_STYLE: React.CSSProperties = { width: '100%' }
+const TEXT_ELLIPSIS_CONFIG = { rows: 2 }
 
 export const TicketSubmittingSettingCard: React.FC<TicketSubmittingSettingCardProps> = ({ mobileConfig }) => {
     const intl = useIntl()
@@ -33,12 +33,12 @@ export const TicketSubmittingSettingCard: React.FC<TicketSubmittingSettingCardPr
 
     return (
         <SettingCard title={TicketSubmittingTitle} onClick={handleClickCard}>
-            <Typography.Text type='secondary' style={TYPOGRAPHY_STYLE}>
+            <Typography.Paragraph type='secondary' >
                 {isDisabled ? TicketSubmittingIsDisabledLabel : TicketSubmittingIsEnabledLabel}
-            </Typography.Text>
-            <Typography.Text type='secondary' ellipsis style={TYPOGRAPHY_STYLE}>
+            </Typography.Paragraph>
+            <Typography.Paragraph type='secondary' ellipsis={TEXT_ELLIPSIS_CONFIG} >
                 {isDisabled ? `${TicketSubmittingCommonPhoneLabel}: ${commonPhone ? commonPhone : '-'}` : ''}
-            </Typography.Text>
+            </Typography.Paragraph>
         </SettingCard>
     )
 }

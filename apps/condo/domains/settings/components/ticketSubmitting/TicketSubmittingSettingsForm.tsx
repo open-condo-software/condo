@@ -1,5 +1,5 @@
 import { MobileFeatureConfig as MobileFeatureConfigType } from '@app/condo/schema'
-import { Col, Form, Row, Typography } from 'antd'
+import { Col, Form, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -7,7 +7,7 @@ import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Checkbox } from '@open-condo/ui'
+import { ActionBar, Checkbox, Typography } from '@open-condo/ui'
 
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -50,20 +50,13 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
     const MessageAboutFeat = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.submittingPeriod.messageAboutFeat' })
 
     const router = useRouter()
-    const [commonPhone, setCommonPhone] = useState<string>()
-    const [ticketSubmittingIsDisabled, setTicketSubmittingIsDisabled] = useState<boolean>()
+    const [commonPhone, setCommonPhone] = useState<string>(get(mobileConfig, 'commonPhone'))
+    const [ticketSubmittingIsDisabled, setTicketSubmittingIsDisabled] = useState<boolean>(get(mobileConfig, 'ticketSubmittingIsDisabled'))
 
     const initialValues = {
         commonPhone: get(mobileConfig, 'commonPhone'),
         ticketSubmittingIsDisabled: get(mobileConfig, 'ticketSubmittingIsDisabled'),
     }
-
-    useEffect(() => {
-        if (mobileConfig) {
-            setCommonPhone(mobileConfig.commonPhone)
-            setTicketSubmittingIsDisabled(mobileConfig.ticketSubmittingIsDisabled)
-        }
-    }, [])
 
     const updateHook = MobileFeatureConfig.useUpdate({}, () => router.push('/settings?tab=mobileFeatureConfig'))
     const updateAction = async (data) => {
