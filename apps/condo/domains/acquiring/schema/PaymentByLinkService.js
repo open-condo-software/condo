@@ -54,7 +54,7 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
             type: 'type PaymentByLinkOutput { multiPaymentId: ID!, address: String!, unitName: String!, accountNumber: String! }',
         },
     ],
-    
+
     mutations: [
         {
             access: access.canPaymentByLink,
@@ -66,8 +66,8 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
                 const { qrCodeFields: { PersonalAcc, BIC, PayerAddress, lastName, paymPeriod, Sum, PayeeINN, PersAcc } } = await validateQRCode(context, { dv, sender, qrCode })
                 const addressServiceClient = createInstance({ address: PayerAddress })
                 const normalizedAddress = await addressServiceClient.search(PayerAddress, { extractUnit: true })
-                
-                if (!normalizedAddress.addressKey) throw new GQLError(ERRORS.ADDRESS_IS_INVALID)
+
+                if (!normalizedAddress.addressKey) throw new GQLError(ERRORS.ADDRESS_IS_INVALID, context)
 
                 // Stage 1: find properties by addressKey
                 const properties = await Property.getAll(context, {
@@ -116,7 +116,7 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
                         deletedAt: null,
                     })
 
-                    if (billingRecipients.length < 1) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID)
+                    if (billingRecipients.length < 1) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
                 }
 
 
@@ -152,7 +152,7 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
                     })
 
                     // if no receipts -> no payment
-                    if (billingReceipt.length === 0) throw new GQLError(ERRORS.NO_BILLING_RECEIPTS_FOUND)
+                    if (billingReceipt.length === 0) throw new GQLError(ERRORS.NO_BILLING_RECEIPTS_FOUND, context)
 
                     // find acquiring context and routing number from older receipt
                     // TODO: check context status (can be invalid or old)
@@ -196,7 +196,6 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
             },
         },
     ],
-    
 })
 
 module.exports = {
