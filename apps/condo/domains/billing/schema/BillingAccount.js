@@ -106,13 +106,10 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         },
         afterChange: async ({ context, updatedItem, operation }) => {
             if (operation === 'create') {
-                const { id, unitType, unitName, property, dv, sender } = updatedItem
+                const { id } = updatedItem
 
-                const billingProperty = await BillingProperty.getOne(context, { id: property })
                 // TODO(AleX83Xpert): maybe prevent redis queue overloading
                 await discoverServiceConsumersTask.delay({
-                    dv,
-                    sender,
                     billingAccountsIds: [id],
                 })
             }

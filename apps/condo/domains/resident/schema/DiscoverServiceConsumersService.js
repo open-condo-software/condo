@@ -140,8 +140,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 const residentsWhere = {
                     deletedAt: null,
-                    OR: items.map(({ address, unitType, unitName }) => ({
-                        AND: [{ address }, { unitType }, { unitName }],
+                    OR: items.map(({ address, addressKey, unitType, unitName }) => ({
+                        AND: [{ OR: [{ address_i: address }, { addressKey }] }, { unitType }, { unitName }],
                     })),
                 }
                 const residentsFilter = get(filters, 'residentsIds')

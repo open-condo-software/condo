@@ -213,13 +213,13 @@ async function makeAcquiringContextAndIntegrationManager() {
     }
 }
 
-async function addAcquiringIntegrationAndContext(client, organization) {
+async function addAcquiringIntegrationAndContext(client, organization, integrationExtraAttrs = {}, contextExtraAttrs = {}) {
     if (!organization || !organization.id) {
         throw ('No organization')
     }
 
-    const [ acquiringIntegration ] = await createTestAcquiringIntegration(client)
-    const [ acquiringIntegrationContext ] = await createTestAcquiringIntegrationContext(client, organization, acquiringIntegration)
+    const [ acquiringIntegration ] = await createTestAcquiringIntegration(client, integrationExtraAttrs)
+    const [ acquiringIntegrationContext ] = await createTestAcquiringIntegrationContext(client, organization, acquiringIntegration, contextExtraAttrs)
 
     return {
         acquiringIntegration,
