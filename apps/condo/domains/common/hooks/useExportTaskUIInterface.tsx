@@ -8,6 +8,7 @@ import get from 'lodash/get'
 import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
@@ -52,6 +53,7 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
     const ExportTaskProgressDescriptionPreparing = intl.formatMessage({ id: `tasks.${schemaName}.progress.description.preparing` })
     const ExportTaskProgressDescriptionProcessing = intl.formatMessage({ id: `tasks.${schemaName}.progress.description.processing` })
     const ExportTaskProgressDescriptionCompleted = intl.formatMessage({ id: `tasks.${schemaName}.progress.description.completed` })
+    const ExportTaskProgressDescriptionCompletedLinkLabel = intl.formatMessage({ id: `tasks.${schemaName}.progress.description.completed.link.label` })
 
     const { downloadFile } = useDownloadFileFromServer()
 
@@ -78,14 +80,36 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
                 const taskStatus = get(taskRecord, 'status')
                 const totalRecordsCount = get(taskRecord, 'totalRecordsCount')
                 const exportedRecordsCount = get(taskRecord, 'exportedRecordsCount')
+                const publicUrl = get(taskRecord, 'file.publicUrl')
 
                 return taskStatus === TASK_COMPLETED_STATUS
-                    ? ExportTaskProgressDescriptionCompleted.replace('{url}', get(taskRecord, 'file.publicUrl'))
-                    : !totalRecordsCount || !exportedRecordsCount
+                    ? (
+                        <>
+                            <Typography.Text>{ExportTaskProgressDescriptionCompleted}</Typography.Text>
+                            {publicUrl && (
+                                <>
+                                    <br/>
+                                    <Typography.Link href={publicUrl}>
+                                        {ExportTaskProgressDescriptionCompletedLinkLabel}
+                                    </Typography.Link>
+                                </>
+                            )}
+                        </>
+                    ) : !totalRecordsCount || !exportedRecordsCount
                         ? ExportTaskProgressDescriptionPreparing
                         : ExportTaskProgressDescriptionProcessing
                             .replace('{exported}', exportedRecordsCount || 0)
                             .replace('{total}', totalRecordsCount || 0)
+            },
+            link: (taskRecord) => {
+                const taskStatus = get(taskRecord, 'status')
+                if (taskStatus === TASK_COMPLETED_STATUS) {
+                    return {
+                        label: ExportTaskProgressDescriptionCompletedLinkLabel,
+                        url: get(taskRecord, 'file.publicUrl'),
+                    }
+                }
+                return null
             },
         },
         calculateProgress: (totalRecordsCount: T) => {
@@ -93,7 +117,7 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
         },
         onComplete: tryToDownloadFile,
         onCancel: tryToDownloadFile,
-    }), [ExportTaskProgressDescriptionCompleted, ExportTaskProgressDescriptionPreparing, ExportTaskProgressDescriptionProcessing, ExportTaskProgressTitle, clientSchema, tryToDownloadFile])
+    }), [ExportTaskProgressDescriptionCompleted, ExportTaskProgressDescriptionPreparing, ExportTaskProgressDescriptionProcessing, ExportTaskProgressTitle, ExportTaskProgressDescriptionCompletedLinkLabel, clientSchema, tryToDownloadFile])
 
     return { TaskUIInterface }
 }
