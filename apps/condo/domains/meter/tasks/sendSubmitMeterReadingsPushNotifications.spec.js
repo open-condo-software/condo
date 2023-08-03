@@ -43,7 +43,7 @@ const prepareUserAndMeter = async ({ nextVerificationDate }) => {
     client.meter = meter
 
     client.reportingPeriod = await createTestMeterReportingPeriod(adminClient, client.meter.organization, {
-        notifyStartDay: 1,
+        notifyStartDay: Number(dayjs().format('DD')),
         notifyEndDay: 31,
     })
 

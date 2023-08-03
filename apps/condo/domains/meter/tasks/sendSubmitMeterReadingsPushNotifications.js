@@ -84,12 +84,8 @@ const readMeterReportingPeriods = async ({ context, organizations }) => {
 }
 
 const checkIsDateInPeriod = (date, today, start, end) => {
-    return dayjs(date).isBetween(
-        today.format('YYYY-MM-DD').slice(0, -2) + (start.toString().length === 1 ? '0' + start : start),
-        today.format('YYYY-MM-DD').slice(0, -2) + (end.toString().length === 1 ? '0' + end : end),
-        null,
-        '[]'
-    )
+    return dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-DD').slice(0, -2) + (start.toString().length === 1 ? '0' + start : start) ||
+        dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-DD').slice(0, -2) + (end.toString().length === 1 ? '0' + end : end)
 }
 
 const sendSubmitMeterReadingsPushNotifications = async () => {
