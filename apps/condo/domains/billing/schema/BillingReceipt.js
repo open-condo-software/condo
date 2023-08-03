@@ -6,7 +6,6 @@ const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { Big } = require('big.js')
 const { get } = require('lodash')
 
-const { userIsAdmin } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
@@ -179,8 +178,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingReceipts,
-        create: userIsAdmin,
-        update: userIsAdmin,
+        create: access.canManageBillingReceipts,
+        update: access.canManageBillingReceipts,
         delete: false,
         auth: true,
     },
