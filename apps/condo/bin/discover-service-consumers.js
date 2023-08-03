@@ -3,12 +3,12 @@
  * Use .env to detect particular provider.
  *
  * Usage:
- *      yarn workspace @app/condo node bin/discover-service-consumers [--dry-run] "some address" unitType unitName [billingAccountId [residentId]]
+ *      yarn workspace @app/condo node bin/discover-service-consumers [--dry-run] "billingAccountId1, billingAccountId2,..." ["residentId1, residentId2,..."]
  */
 
 const path = require('path')
 
-const get = require('lodash/get')
+const set = require('lodash/set')
 
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
@@ -25,29 +25,19 @@ async function main (args) {
         args.shift()
     }
 
-    if (args.length !== 3) {
-        throw new Error(`Wrong parameters "${args.join(',')}"! Usage: discover-service-consumers [--dry-run] "some address" unitType unitName [billingAccountId [residentId]]`)
+    if (args.length !== 2) {
+        throw new Error(`Wrong parameters "${args.join(',')}"! Usage: discover-service-consumers [--dry-run] "billingAccountId1, billingAccountId2,..." ["residentId1, residentId2,..."]`)
     }
 
-    const [address, unitType, unitName, billingAccountId, residentId] = args
+    const [billingAccountsIds, residentsIds] = args
 
     const { keystone: context } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
 
-    const data = {
-        dv,
-        sender,
-        address,
-        unitType,
-        unitName,
-    }
+    const data = { dv, sender, billingAccountsIds }
 
-    if (billingAccountId) {
-        data['billingAccount'] = { id: billingAccountId }
-    }
-
-    if (residentId) {
-        data['resident'] = { id: residentId }
+    if (residentsIds) {
+        set(data, ['filters', 'residentsIds'], residentsIds)
     }
 
     console.log(`discoverServiceConsumers data: ${JSON.stringify(data)}`)
