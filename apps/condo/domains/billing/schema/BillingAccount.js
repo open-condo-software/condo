@@ -107,7 +107,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             if (operation === 'create') {
                 const { id } = updatedItem
 
-                // TODO(AleX83Xpert): maybe prevent redis queue overloading
+                // TODO(DOMA-6813): maybe prevent redis queue overloading
                 await discoverServiceConsumersTask.delay({
                     billingAccountsIds: [id],
                 })

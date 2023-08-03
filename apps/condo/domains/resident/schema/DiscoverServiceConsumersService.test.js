@@ -29,7 +29,7 @@ const { createTestOrganization, registerNewOrganization } = require('@condo/doma
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithResidentAccessAndProperty,
-    makeClientWithProperty, createTestProperty,
+    makeClientWithProperty, createTestProperty, updateTestProperty,
 } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
@@ -461,24 +461,21 @@ describe('DiscoverServiceConsumersService', () => {
             const serviceUser1 = await makeClientWithServiceUser()
             const user2 = await makeClientWithNewRegisteredAndLoggedInUser()
             const serviceUser2 = await makeClientWithServiceUser()
-            const user3 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const user4 = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const residentClient1 = await makeClientWithResidentUser()
             const residentClient2 = await makeClientWithResidentUser()
             const residentClient3 = await makeClientWithResidentUser()
             const residentClient4 = await makeClientWithResidentUser()
+            const residentClient5 = await makeClientWithResidentUser()
 
             const [managingOrg1] = await registerNewOrganization(user1)
             const [serviceOrg1] = await registerNewOrganization(user2, { type: SERVICE_PROVIDER_TYPE })
-            const [managingOrg2] = await registerNewOrganization(user3)
-            const [serviceOrg2] = await registerNewOrganization(user4, { type: SERVICE_PROVIDER_TYPE })
 
             // register resident1 when other actors are not existing yet
             const unitType1 = FLAT_UNIT_TYPE
             const unitName1 = faker.lorem.word()
             const { address: address1, addressMeta: addressMeta1 } = buildFakeAddressAndMeta(true)
-            const [resident1] = await registerResidentByTestClient(
+            await registerResidentByTestClient(
                 residentClient1,
                 { address: address1, addressMeta: addressMeta1, unitType: unitType1, unitName: unitName1 },
             )
@@ -512,12 +509,12 @@ describe('DiscoverServiceConsumersService', () => {
             expect(receipts1a).toHaveLength(0)
 
             // Now, managingOrg1 adds property with resident1
-            const [property1] = await createTestProperty(user1, managingOrg1, {
+            await createTestProperty(user1, managingOrg1, {
                 address: address1,
                 addressMeta: addressMeta1,
             })
             // and some another property
-            const [property1a] = await createTestProperty(user1, managingOrg1)
+            await createTestProperty(user1, managingOrg1)
 
             // resident1 should see receipt
             await waitFor(async () => {
@@ -573,7 +570,7 @@ describe('DiscoverServiceConsumersService', () => {
             const { address: address2, addressMeta: addressMeta2 } = buildFakeAddressAndMeta(true)
             const unitType2 = FLAT_UNIT_TYPE
             const unitName2 = faker.lorem.word()
-            const [resident2] = await registerResidentByTestClient(
+            await registerResidentByTestClient(
                 residentClient2,
                 { address: address2, addressMeta: addressMeta2, unitType: unitType2, unitName: unitName2 },
             )
@@ -640,7 +637,7 @@ describe('DiscoverServiceConsumersService', () => {
             })
 
             // Now serviceOrg1 adds property of resident2
-            const [property2a] = await createTestProperty(user2, serviceOrg1, {
+            await createTestProperty(user2, serviceOrg1, {
                 address: address2, addressMeta: addressMeta2,
             })
 
@@ -663,7 +660,7 @@ describe('DiscoverServiceConsumersService', () => {
             })
 
             // The 3rd resident appears... in the 1st one's flat. OMG!
-            const [resident3] = await registerResidentByTestClient(
+            await registerResidentByTestClient(
                 residentClient3,
                 { address: address1, addressMeta: addressMeta1, unitType: unitType1, unitName: unitName1 },
             )
@@ -745,13 +742,13 @@ describe('DiscoverServiceConsumersService', () => {
             })
 
             // Add resident4 to resident2's flat
-            const [resident4] = await registerResidentByTestClient(
+            await registerResidentByTestClient(
                 residentClient4,
                 { address: address2, addressMeta: addressMeta2, unitType: unitType2, unitName: unitName2 },
             )
 
             // Let managingOrg1 add the property of the 2nd and 4th residents
-            const [property1b] = await createTestProperty(user1, managingOrg1, {
+            await createTestProperty(user1, managingOrg1, {
                 address: address2,
                 addressMeta: addressMeta2,
             })
@@ -791,6 +788,160 @@ describe('DiscoverServiceConsumersService', () => {
                     expect.objectContaining({ id: receipts4[0].id }),
                     expect.objectContaining({ id: receipts4[1].id }),
                     expect.objectContaining({ id: receipts4[2].id }),
+                ]))
+            }, { delay: 500 })
+
+            // Now serviceOrg1 add receipts for the flat where 2nd and 4th lives
+            // and one receipt for the 2nd
+            const payload2a = {
+                context: { id: billingContext2.id },
+                receipts: [
+                    // One of receipts is for resident2 and resident4
+                    createRegisterBillingReceiptsPayload({
+                        address: address2,
+                        unitType: unitType2,
+                        unitName: unitName2,
+                    }),
+                    // Another ones are for resident1
+                    createRegisterBillingReceiptsPayload({
+                        address: address1,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: address1,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                ],
+            }
+            const [registeredReceipts2a] = await registerBillingReceiptsByTestClient(serviceUser2, payload2a)
+
+            // The 2nd and 4th residents must see +1 receipt from serviceOrg1
+            // The 1st and 3rd residents must see +2 receipt from serviceOrg1
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(6)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                    expect.objectContaining({ id: receipts1[4].id }),
+                    expect.objectContaining({ id: receipts1[5].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(4)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                    expect.objectContaining({ id: receipts2[1].id }),
+                    expect.objectContaining({ id: receipts2[2].id }),
+                    expect.objectContaining({ id: receipts2[3].id }),
+                ]))
+
+                const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
+                expect(receipts3).toHaveLength(6)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts3[0].id }),
+                    expect.objectContaining({ id: receipts3[1].id }),
+                    expect.objectContaining({ id: receipts3[2].id }),
+                    expect.objectContaining({ id: receipts3[3].id }),
+                    expect.objectContaining({ id: receipts3[4].id }),
+                    expect.objectContaining({ id: receipts3[5].id }),
+                ]))
+
+                const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
+                expect(receipts4).toHaveLength(4)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts4[0].id }),
+                    expect.objectContaining({ id: receipts4[1].id }),
+                    expect.objectContaining({ id: receipts4[2].id }),
+                    expect.objectContaining({ id: receipts4[3].id }),
+                ]))
+            }, { delay: 500 })
+
+            // Now let's change property2 address
+            const { address: address2a, addressMeta: addressMeta2a } = buildFakeAddressAndMeta(true)
+            await updateTestProperty(user2, property2.id, {
+                address: address2a,
+                addressMeta: addressMeta2a,
+            })
+
+            // Residents must see the same receipts set
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(6)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                    expect.objectContaining({ id: receipts1[4].id }),
+                    expect.objectContaining({ id: receipts1[5].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(4)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                    expect.objectContaining({ id: receipts2[1].id }),
+                    expect.objectContaining({ id: receipts2[2].id }),
+                    expect.objectContaining({ id: receipts2[3].id }),
+                ]))
+
+                const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
+                expect(receipts3).toHaveLength(6)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts3[0].id }),
+                    expect.objectContaining({ id: receipts3[1].id }),
+                    expect.objectContaining({ id: receipts3[2].id }),
+                    expect.objectContaining({ id: receipts3[3].id }),
+                    expect.objectContaining({ id: receipts3[4].id }),
+                    expect.objectContaining({ id: receipts3[5].id }),
+                ]))
+
+                const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
+                expect(receipts4).toHaveLength(4)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts4[0].id }),
+                    expect.objectContaining({ id: receipts4[1].id }),
+                    expect.objectContaining({ id: receipts4[2].id }),
+                    expect.objectContaining({ id: receipts4[3].id }),
+                ]))
+            }, { delay: 500 })
+
+            // 5th resident registered to updated address
+            const unitType5 = FLAT_UNIT_TYPE
+            const unitName5 = faker.lorem.word()
+            await registerResidentByTestClient(
+                residentClient5,
+                { address: address2a, addressMeta: addressMeta2a, unitType: unitType5, unitName: unitName5 },
+            )
+
+            // No receipts for mr. 5th at the new address
+            const receipts5 = await ResidentBillingReceipt.getAll(residentClient5, {})
+            expect(receipts5).toHaveLength(0)
+
+            // add one receipt for the new 5th resident
+            const payload5 = {
+                context: { id: billingContext2.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: address2a,
+                        unitType: unitType5,
+                        unitName: unitName5,
+                    }),
+                ],
+            }
+            const [registeredReceipts5] = await registerBillingReceiptsByTestClient(serviceUser2, payload5)
+
+            // One receipt must appear
+            await waitFor(async () => {
+                const receipts5 = await ResidentBillingReceipt.getAll(residentClient5, {})
+                expect(receipts5).toHaveLength(1)
+                expect([...registeredReceipts5]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts5[0].id }),
                 ]))
             }, { delay: 500 })
         })

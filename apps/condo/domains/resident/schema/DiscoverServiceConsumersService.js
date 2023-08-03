@@ -71,21 +71,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     const unitType = get(billingAccount, 'unitType', null)
                     const unitName = get(billingAccount, 'unitName', null)
 
-                    let shouldDiscover = false
-
-                    if (organizationType === SERVICE_PROVIDER_TYPE) {
-                        shouldDiscover = true
-                    } else {
-                        const isFeatureFlagEnabled = await featureToggleManager.isFeatureEnabled(
-                            context,
-                            ENABLE_DISCOVER_SERVICE_CONSUMERS,
-                            { organization: organizationId },
-                        )
-
-                        if (isFeatureFlagEnabled) {
-                            shouldDiscover = true
-                        }
-                    }
+                    const shouldDiscover = organizationType === SERVICE_PROVIDER_TYPE ? true : await featureToggleManager.isFeatureEnabled(
+                        context,
+                        ENABLE_DISCOVER_SERVICE_CONSUMERS,
+                        { organization: organizationId },
+                    )
 
                     if (shouldDiscover) {
                         items.push({ organizationId, address, addressKey, unitType, unitName })

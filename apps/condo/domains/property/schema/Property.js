@@ -369,7 +369,7 @@ const Property = new GQLListSchema('Property', {
                 }
             }
 
-            if (isCreatedProperty) {
+            if (isCreatedProperty || isAddressUpdated) {
                 const billingAccounts = await find('BillingAccount', {
                     context: {
                         status: CONTEXT_FINISHED_STATUS,
@@ -379,7 +379,7 @@ const Property = new GQLListSchema('Property', {
                     property: { address: updatedItem.address, deletedAt: null },
                 })
 
-                // TODO(AleX83Xpert): maybe prevent redis queue overloading
+                // TODO(DOMA-6813): maybe prevent redis queue overloading
                 await discoverServiceConsumersTask.delay({
                     billingAccountsIds: billingAccounts.map(({ id }) => id),
                 })
