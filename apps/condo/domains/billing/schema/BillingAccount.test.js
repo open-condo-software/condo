@@ -88,13 +88,19 @@ describe('BillingAccount', () => {
                     })
                 })
                 describe('User', () => {
-
-                    test('Integration account cannot', async () => {
-                        await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await createTestBillingAccount(integrationUser, anotherContext, anotherProperty)
+                    describe('Integration account', () => {
+                        test('Can if linked to permitted integration and property via context', async () => {
+                            const [account] = await createTestBillingAccount(integrationUser, context, property)
+                            expect(account).toBeDefined()
+                            expect(account).toHaveProperty(['context', 'id'], context.id)
+                            expect(account).toHaveProperty(['property', 'id'], property.id)
+                        })
+                        test('Cannot otherwise', async () => {
+                            await expectToThrowAccessDeniedErrorToObj(async () => {
+                                await createTestBillingAccount(integrationUser, anotherContext, anotherProperty)
+                            })
                         })
                     })
-
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
                             await createTestBillingAccount(integrationManager, context, property)
@@ -136,9 +142,26 @@ describe('BillingAccount', () => {
                     })
                 })
                 describe('User', () => {
-                    test('Integration account can\'t', async () => {
-                        await expectToThrowAccessDeniedErrorToObjects(async () => {
-                            await createTestBillingAccounts(integrationUser, [context, anotherContext], [property, property])
+                    describe('Integration account can if linked to permitted integration and property via context', () => {
+                        test('All permitted contexts should pass', async () => {
+                            const [accounts] = await createTestBillingAccounts(integrationUser,
+                                [context, context],
+                                [property, property])
+                            expect(accounts).toBeDefined()
+                            expect(accounts).toHaveLength(2)
+                            expect(accounts[0]).toEqual(expect.objectContaining({
+                                context: expect.objectContaining({ id: context.id }),
+                                property: expect.objectContaining({ id: property.id }),
+                            }))
+                            expect(accounts[1]).toEqual(expect.objectContaining({
+                                context: expect.objectContaining({ id: context.id }),
+                                property: expect.objectContaining({ id: property.id }),
+                            }))
+                        })
+                        test('Partly permitted must fail', async () => {
+                            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                                await createTestBillingAccounts(integrationUser, [context, anotherContext], [property, property])
+                            })
                         })
                     })
                     test('Integration manager cannot', async () => {
@@ -183,14 +206,19 @@ describe('BillingAccount', () => {
                     })
                 })
                 describe('User', () => {
-
-                    test('Integration account can\'t', async () => {
-                        const [anotherAccount] = await createTestBillingAccount(admin, anotherContext, anotherProperty)
-                        await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await updateTestBillingAccount(integrationUser, anotherAccount.id, payload)
+                    describe('Integration account', () => {
+                        test('Can if linked to permitted integration via context', async () => {
+                            const [updatedAccount] = await updateTestBillingAccount(integrationUser, account.id, payload)
+                            expect(updatedAccount).toBeDefined()
+                            expect(updatedAccount).toEqual(expect.objectContaining(payload))
+                        })
+                        test('Cannot otherwise', async () => {
+                            const [anotherAccount] = await createTestBillingAccount(admin, anotherContext, anotherProperty)
+                            await expectToThrowAccessDeniedErrorToObj(async () => {
+                                await updateTestBillingAccount(integrationUser, anotherAccount.id, payload)
+                            })
                         })
                     })
-
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
                             await updateTestBillingAccount(integrationManager, account.id, payload)
@@ -246,13 +274,24 @@ describe('BillingAccount', () => {
                     })
                 })
                 describe('User', () => {
-
-                    test('Integration account can\'t', async () => {
-                        await expectToThrowAccessDeniedErrorToObjects(async () => {
-                            await updateTestBillingAccounts(integrationUser, [payload, anotherPayload])
+                    describe('Integration account can if linked to permitted integration via context', () => {
+                        test('All permitted must pass', async () => {
+                            const [secondAccount] = await createTestBillingAccount(admin, context, property)
+                            const secondPayload = { ...anotherPayload, id: secondAccount.id }
+                            const [updatedAccounts] = await updateTestBillingAccounts(integrationUser, [payload, secondPayload])
+                            expect(updatedAccounts).toBeDefined()
+                            expect(updatedAccounts).toHaveLength(2)
+                            expect(updatedAccounts).toEqual(expect.arrayContaining([
+                                expect.objectContaining({ id: payload.id, ...payload.data }),
+                                expect.objectContaining({ id: secondAccount.id, ...secondPayload.data }),
+                            ]))
+                        })
+                        test('Partly permitted must fail', async () => {
+                            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                                await updateTestBillingAccounts(integrationUser, [payload, anotherPayload])
+                            })
                         })
                     })
-
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObjects(async () => {
                             await updateTestBillingAccounts(integrationManager, [payload])
@@ -400,14 +439,20 @@ describe('BillingAccount', () => {
                     })
                 })
                 describe('User', () => {
-
-                    test('Integration account cannot', async () => {
-                        const [anotherAccount] = await createTestBillingAccount(admin, anotherContext, anotherProperty)
-                        await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await updateTestBillingAccount(integrationUser, anotherAccount.id, payload)
+                    describe('Integration account', () => {
+                        test('Can if linked to permitted integration via context', async () => {
+                            const [updatedAccount] = await updateTestBillingAccount(integrationUser, account.id, payload)
+                            expect(updatedAccount).toBeDefined()
+                            expect(updatedAccount).toHaveProperty('deletedAt')
+                            expect(updatedAccount.deletedAt).not.toBeNull()
+                        })
+                        test('Cannot otherwise', async () => {
+                            const [anotherAccount] = await createTestBillingAccount(admin, anotherContext, anotherProperty)
+                            await expectToThrowAccessDeniedErrorToObj(async () => {
+                                await updateTestBillingAccount(integrationUser, anotherAccount.id, payload)
+                            })
                         })
                     })
-
                     test('Integration manager cannot', async () => {
                         await expectToThrowAccessDeniedErrorToObj(async () => {
                             await updateTestBillingAccount(integrationManager, account.id, payload)

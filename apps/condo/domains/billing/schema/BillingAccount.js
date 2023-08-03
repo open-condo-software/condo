@@ -4,7 +4,6 @@
 
 const { Text } = require('@keystonejs/fields')
 
-const { userIsAdmin } = require('@open-condo/keystone/access')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
@@ -88,8 +87,8 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingAccounts,
-        create: userIsAdmin,
-        update: userIsAdmin,
+        create: access.canManageBillingAccounts,
+        update: access.canManageBillingAccounts,
         delete: false,
         auth: true,
     },
