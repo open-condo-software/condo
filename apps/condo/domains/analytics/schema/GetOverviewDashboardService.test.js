@@ -286,7 +286,13 @@ describe('GetOverviewDashboardService', () => {
             })
         })
         describe('Payment', () => {
-            it('should return sum for last month of completed payments', async () => {
+            it('should return sum for selected period of completed payments', async () => {
+                const [payment] = await createTestPayment(admin, organization, null, acquiringContext, {
+                    status: PAYMENT_DONE_STATUS,
+                    period: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+                    advancedAt: dayjs().subtract(1, 'day').endOf('day').toISOString(),
+                })
+
                 const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
                     where: { organization: organization.id, dateFrom, dateTo }, groupBy: { aggregatePeriod: 'day' },
                 })
@@ -296,9 +302,20 @@ describe('GetOverviewDashboardService', () => {
 
                 expect(payments).toHaveLength(2)
                 expect(data.overview).toHaveProperty(['payment', 'sum'], completedPaymentsSum.toFixed(2))
+
+                const [selectedPeriodData] = await getOverviewDashboardByTestClient(organizationAdminUser, {
+                    where: {
+                        organization: organization.id,
+                        dateFrom: dayjs().subtract(1, 'day').startOf('day').toISOString(),
+                        dateTo: dayjs().subtract(1, 'day').endOf('day').toISOString(),
+                    },
+                    groupBy: { aggregatePeriod: 'day' },
+                })
+
+                expect(selectedPeriodData.overview).toHaveProperty(['payment', 'sum'], Number(payment.amount).toFixed(2))
             })
 
-            it('should return sum for last month included other periods', async () => {
+            it('should return sum for selected period included other periods', async () => {
                 const [previousMonthPayment] = await createTestPayment(admin, organization, null, acquiringContext, {
                     status: PAYMENT_DONE_STATUS,
                     period: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),

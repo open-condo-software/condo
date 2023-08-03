@@ -166,6 +166,10 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                     ],
                                 },
                                 groupBy: ['month', 'createdBy'],
+                                totalFilter: [
+                                    { advancedAt_gte: dayjs(where.dateFrom).startOf('day').toISOString() },
+                                    { advancedAt_lte: dayjs(where.dateTo).endOf('day').toISOString() },
+                                ],
                             },
                         },
                         receipt: {

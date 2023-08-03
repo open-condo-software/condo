@@ -14,7 +14,7 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { Wallet, LayoutList, Smile, Frown } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Typography, Space, Radio, RadioGroup } from '@open-condo/ui'
+import { Card, Typography, Space } from '@open-condo/ui'
 
 import {
     TicketByPropertyChart,
@@ -43,7 +43,7 @@ import type { RowProps } from 'antd'
 const TICKET_TABLE_PAGE_SIZE = 5
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
 const CARD_ROW_GUTTER: RowProps['gutter'] = [24, 24]
-const CARD_STYLE: React.CSSProperties = { height: '200px' }
+const CARD_STYLE: React.CSSProperties = { height: '160px' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
     display: 'flex',
@@ -69,7 +69,7 @@ const StatisticCard: React.FC<StatisticCardProps> = ({ label, value, secondaryLa
     </Col>
 )
 
-const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData, paymentLoading }) => {
+const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData, paymentLoading, dateRange }) => {
     const intl = useIntl()
     const SummaryTitle = intl.formatMessage({ id: 'pages.reports.summary' })
     const DoneLabel = intl.formatMessage({ id: 'Done' })
@@ -79,9 +79,6 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const PaymentsAmountPercent = intl.formatMessage({ id: 'pages.reports.paymentsAmountPercent' })
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
-    const TodayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.today' })
-    const MonthTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.month' }, { month: dayjs().format('MMM') })
-    const TotalTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.total' })
 
     const { breakpoints } = useLayoutContext()
 
@@ -93,14 +90,11 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const [loadTicketCounts, { loading: ticketCountLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
         onCompleted: (result) => {
             ticketCounts.current = result
-        },
-        fetchPolicy: 'network-only',
-    })
-    const [loadMonthTicketCounts, { loading: monthTicketLoading }] = useLazyQuery(GET_TICKETS_COUNT_QUERY, {
-        onCompleted: (result) => {
             if (result.all.count > 0) {
                 const doneTickets = result.completed.count + result.closed.count
                 setCompletionPercent((doneTickets / result.all.count * 100).toFixed(0) + '%')
+            } else {
+                setCompletionPercent('—')
             }
         },
         fetchPolicy: 'network-only',
@@ -109,18 +103,12 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     useEffect(() => {
         const ticketWhere = {
             organization: { id: organizationId },
-            createdAt_gte: dayjs().startOf('day').toISOString(),
-            createdAt_lte: dayjs().endOf('day').toISOString(),
-        }
-        const ticketMonthWhere = {
-            ...ticketWhere,
-            createdAt_gte: dayjs().startOf('month'),
-            createdAt_lte: dayjs().endOf('month'),
+            createdAt_gte: dateRange[0].startOf('day').toISOString(),
+            createdAt_lte: dateRange[1].endOf('day').toISOString(),
         }
 
         loadTicketCounts({ variables: { where: ticketWhere, whereWithoutStatuses: ticketWhere } })
-        loadMonthTicketCounts({ variables: { where: ticketMonthWhere, whereWithoutStatuses: ticketMonthWhere } })
-    }, [organizationId, loadTicketCounts, loadMonthTicketCounts])
+    }, [organizationId, loadTicketCounts, dateRange])
 
     useEffect(() => {
         if (!paymentLoading && !isNull(paymentSum) && !isNull(receiptSum)) {
@@ -138,7 +126,7 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     const iconStyle = useMemo(() => ({ display: !breakpoints.TABLET_LARGE ? 'none' : 'block' }), [breakpoints.TABLET_LARGE])
     const cardRowJustify = useMemo(() => breakpoints.TABLET_LARGE ? 'space-between' : 'space-around', [breakpoints.TABLET_LARGE])
 
-    const loading = monthTicketLoading || ticketCountLoading || isNull(ticketCounts.current)
+    const loading = ticketCountLoading || isNull(ticketCounts.current)
 
     return (
         <Card title={<Typography.Title level={3}>{SummaryTitle}</Typography.Title>}>
@@ -153,22 +141,18 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                             </Col>
                             <StatisticCard
                                 label={DoneLabel}
-                                secondaryLabel={MonthTitle}
                                 value={completionPercent}
                             />
                             <StatisticCard
                                 label={NewTicketsLabel}
-                                secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.new_or_reopened.count}
                             />
                             <StatisticCard
                                 label={InWorkLabel}
-                                secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.processing.count}
                             />
                             <StatisticCard
                                 label={ClosedTicketsLabel}
-                                secondaryLabel={TodayTitle}
                                 value={ticketCounts.current.closed.count}
                             />
                         </Row>
@@ -180,17 +164,14 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                             </Col>
                             <StatisticCard
                                 label={PaymentsAmountPercent}
-                                secondaryLabel={MonthTitle}
                                 value={paymentsAmountPercent}
                             />
                             <StatisticCard
                                 label={PaymentsAmount}
-                                secondaryLabel={MonthTitle}
                                 value={intl.formatNumber(paymentSum, { style: 'currency', currency: 'Rub' })}
                             />
                             <StatisticCard
                                 label={ResidentsInApp}
-                                secondaryLabel={TotalTitle}
                                 value={residentsCount}
                             />
                         </Row>
@@ -201,7 +182,11 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     )
 }
 
-const IncidentDashboard = ({ organizationId }) => {
+interface IDashboardCard {
+    ({ organizationId, dateRange }: { organizationId: string, dateRange: [Dayjs, Dayjs] }): React.ReactElement
+}
+
+const IncidentDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
     const intl = useIntl()
     const IncidentsTitle = intl.formatMessage({ id: 'pages.reports.incidentsTitle' })
     const IncidentDescription = intl.formatMessage({ id: 'pages.reports.incidentsDescription' })
@@ -209,7 +194,12 @@ const IncidentDashboard = ({ organizationId }) => {
     const { push } = useRouter()
 
     const { loading, count } = Incident.useCount({
-        where: { organization: { id: organizationId }, status: IncidentStatusType.Actual },
+        where: {
+            organization: { id: organizationId },
+            status: IncidentStatusType.Actual,
+            createdAt_gte: dateRange[0].startOf('day').toISOString(),
+            createdAt_lte: dateRange[1].endOf('day').toISOString(),
+        },
     })
 
     const onCardClick = useCallback(async () => {
@@ -242,7 +232,7 @@ const IncidentDashboard = ({ organizationId }) => {
     )
 }
 
-const TicketQualityControlDashboard = ({ organizationId }) => {
+const TicketQualityControlDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
     const intl = useIntl()
     const QualityControlTitle = intl.formatMessage({ id: 'ticket.qualityControl' })
     const TicketFeedbackTitle = intl.formatMessage({ id: 'pages.reports.ticketFeedbackCount' })
@@ -253,8 +243,8 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
             status: { OR: [{ type: TicketStatusTypeType.Completed }, { type: TicketStatusTypeType.Closed }] },
             qualityControlValue: TicketQualityControlValueType.Good,
             AND: [
-                { createdAt_gte: dayjs().startOf('month').toISOString() },
-                { createdAt_lte: dayjs().endOf('month').toISOString() },
+                { createdAt_gte: dateRange[0].startOf('day').toISOString() },
+                { createdAt_lte: dateRange[1].endOf('day').toISOString() },
             ],
         },
     })
@@ -264,8 +254,8 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
             status: { OR: [{ type: TicketStatusTypeType.Completed }, { type: TicketStatusTypeType.Closed }] },
             qualityControlValue: TicketQualityControlValueType.Bad,
             AND: [
-                { createdAt_gte: dayjs().startOf('month').toISOString() },
-                { createdAt_lte: dayjs().endOf('month').toISOString() },
+                { createdAt_gte: dateRange[0].startOf('day').toISOString() },
+                { createdAt_lte: dateRange[1].endOf('day').toISOString() },
             ],
         },
     })
@@ -319,7 +309,7 @@ const TicketQualityControlDashboard = ({ organizationId }) => {
     )
 }
 
-const TicketTableView = ({ organizationId, dateRange }) => {
+const TicketTableView: IDashboardCard = ({ organizationId, dateRange }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const InProgressTitle = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
@@ -336,8 +326,8 @@ const TicketTableView = ({ organizationId, dateRange }) => {
             organization: { id: organizationId },
             status: { type: TicketStatusTypeType.Processing },
             AND: [
-                { createdAt_gte: dateRange[0] },
-                { createdAt_lte: dateRange[1] },
+                { createdAt_gte: dateRange[0].startOf('day').toISOString() },
+                { createdAt_lte: dateRange[1].endOf('day').toISOString() },
             ],
         },
         first: TICKET_TABLE_PAGE_SIZE,
@@ -374,13 +364,8 @@ const TicketTableView = ({ organizationId, dateRange }) => {
 }
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
-    const intl = useIntl()
-    const PerDayTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.day' })
-    const PerWeekTitle = intl.formatMessage({ id: 'pages.reports.aggregatePeriod.week' })
-
     const [overview, setOverview] = useState<OverviewData>(null)
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
-    const [aggregatePeriod, setAggregatePeriod] = useState<'day' | 'week' | 'month'>('day')
 
     const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
@@ -399,15 +384,12 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     dateTo: dayjs(dateRange[1]).endOf('day').toISOString(),
                 },
                 groupBy: {
-                    aggregatePeriod,
+                    aggregatePeriod: 'day',
                 },
             },
         } })
-    }, [organizationId, loadDashboardData, dateRange, aggregatePeriod])
+    }, [organizationId, loadDashboardData, dateRange])
 
-    const onAggregatePeriodChange = useCallback((aggregatePeriod) => {
-        setAggregatePeriod(aggregatePeriod.target.value)
-    }, [])
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
     }, [])
@@ -425,21 +407,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
 
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
-            <Col xl={12} lg={24}>
-                <PerformanceCard
-                    organizationId={organizationId}
-                    paymentSum={paymentSum}
-                    receiptSum={receiptSum}
-                    residentsData={residentsData}
-                    paymentLoading={false}
-                />
-            </Col>
-            <Col xl={6} lg={12} xs={24}>
-                <IncidentDashboard organizationId={organizationId} />
-            </Col>
-            <Col xl={6} lg={12} xs={24}>
-                <TicketQualityControlDashboard organizationId={organizationId} />
-            </Col>
             <Col span={24}>
                 <TableFiltersContainer>
                     <Row gutter={[24, 24]} align='middle' justify='start'>
@@ -452,17 +419,25 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 disabledDate={disabledDate}
                             />
                         </Col>
-                        <Col>
-                            <RadioGroup value={aggregatePeriod} onChange={onAggregatePeriodChange} disabled={loading}>
-                                <Space direction='horizontal' size={24}>
-                                    <Radio value='day' label={PerDayTitle} />
-                                    <Radio value='week' label={PerWeekTitle} />
-                                </Space>
-                            </RadioGroup>
-                        </Col>
                     </Row>
 
                 </TableFiltersContainer>
+            </Col>
+            <Col xl={12} lg={24}>
+                <PerformanceCard
+                    organizationId={organizationId}
+                    paymentSum={paymentSum}
+                    receiptSum={receiptSum}
+                    residentsData={residentsData}
+                    paymentLoading={false}
+                    dateRange={dateRange}
+                />
+            </Col>
+            <Col xl={6} lg={12} xs={24}>
+                <IncidentDashboard organizationId={organizationId} dateRange={dateRange} />
+            </Col>
+            <Col xl={6} lg={12} xs={24}>
+                <TicketQualityControlDashboard organizationId={organizationId} dateRange={dateRange} />
             </Col>
             {overview === null ? (
                 <Skeleton paragraph={{ rows: 62 }} />

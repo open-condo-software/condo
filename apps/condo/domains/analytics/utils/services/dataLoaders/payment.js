@@ -1,5 +1,4 @@
 const Big = require('big.js')
-const dayjs = require('dayjs')
 const { get, pick } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -75,23 +74,20 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
 }
 
 class PaymentDataLoader extends AbstractDataLoader {
-    async get ({ where, groupBy }) {
-        const paymentMonthSumLoader = new GqlWithKnexLoadList({
+    async get ({ where, groupBy, totalFilter }) {
+        const paymentSumLoader = new GqlWithKnexLoadList({
             listKey: 'Payment',
             fields: 'id',
             where: {
                 ...pick(where, ['organization']),
                 status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
                 deletedAt: null,
-                AND: [
-                    { advancedAt_gte: dayjs().startOf('month').toISOString() },
-                    { advancedAt_lte: dayjs().endOf('month').toISOString() },
-                ],
+                AND: totalFilter,
             },
         })
 
-        const paymentIds = await paymentMonthSumLoader.load()
-        const sumAggregate = await paymentMonthSumLoader.loadAggregate('SUM(amount) as "amountSum"', paymentIds.map(({ id })=> id))
+        const paymentIds = await paymentSumLoader.load()
+        const sumAggregate = await paymentSumLoader.loadAggregate('SUM(amount) as "amountSum"', paymentIds.map(({ id })=> id))
 
         const sum = new Big(sumAggregate.amountSum || 0).toFixed(2)
 
