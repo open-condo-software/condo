@@ -20,7 +20,9 @@ const {
     createTestBillingIntegration,
     createTestBillingIntegrationOrganizationContext,
     createRegisterBillingReceiptsPayload,
-    registerBillingReceiptsByTestClient, addBillingIntegrationAndContext,
+    registerBillingReceiptsByTestClient,
+    addBillingIntegrationAndContext,
+    createTestBillingIntegrationAccessRight,
 } = require('@condo/domains/billing/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -29,13 +31,19 @@ const {
     makeClientWithResidentAccessAndProperty,
     makeClientWithProperty, createTestProperty,
 } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     createTestResident,
     ServiceConsumer,
     discoverServiceConsumersByTestClient,
     registerResidentByTestClient,
 } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithSupportUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithSupportUser,
+    makeClientWithResidentUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithServiceUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('DiscoverServiceConsumersService', () => {
     let admin
@@ -84,32 +92,6 @@ describe('DiscoverServiceConsumersService', () => {
     })
 
     describe('logic tests', () => {
-        test('discover one service consumer', async () => {
-            const user = await makeClientWithProperty()
-
-            await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-            const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-
-            const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
-            const [resident] = await createTestResident(admin, user.user, user.property, { address: billingProperty.address })
-
-            const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, {
-                unitName: resident.unitName,
-                unitType: resident.unitType,
-            })
-
-            // wait for the task to finish
-            await waitFor(async () => {
-                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                    resident: { id: resident.id },
-                    deletedAt: null,
-                })
-
-                expect(createdServiceConsumers).toHaveLength(1)
-                expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
-                expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
-            })
-        })
 
         test('must not discover service consumer if there is no acquiring context', async () => {
             const user = await makeClientWithProperty()
@@ -204,54 +186,6 @@ describe('DiscoverServiceConsumersService', () => {
             })
         })
 
-        test('discover one service consumer for specific resident', async () => {
-            const user = await makeClientWithProperty()
-
-            await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-            const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-
-            const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
-
-            const unitType = FLAT_UNIT_TYPE
-            const unitName = faker.lorem.word()
-
-            const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
-                { unitType, unitName },
-            )
-
-            // no consumers should be created
-            await waitFor(async () => {
-                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                    accountNumber: billingAccount.number,
-                    organization: { id: user.organization.id },
-                    deletedAt: null,
-                })
-
-                expect(createdServiceConsumers).toHaveLength(0)
-            }, { delay: 500 })
-
-            // now, add the resident...
-            const residentClient = await makeClientWithResidentUser()
-            const [resident] = await registerResidentByTestClient(
-                residentClient,
-                {
-                    address: user.property.address,
-                    addressMeta: user.property.addressMeta,
-                    unitType,
-                    unitName,
-                })
-
-            // ...and check for service consumer created immediately
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                resident: { id: resident.id },
-                deletedAt: null,
-            })
-
-            expect(createdServiceConsumers).toHaveLength(1)
-            expect(createdServiceConsumers[0].organization.id).toEqual(user.organization.id)
-            expect(createdServiceConsumers[0].accountNumber).toEqual(billingAccount.number)
-        })
-
         test('discover multiple service consumers for specific resident', async () => {
             const user = await makeClientWithProperty()
 
@@ -324,7 +258,7 @@ describe('DiscoverServiceConsumersService', () => {
                     }),
                     expect.objectContaining({
                         resident: expect.objectContaining({ id: resident1.id }),
-                        organization: expect.objectContaining({ id: user.organization.id }),
+                        organization: expect.objectContaining({ id: organization.id }),
                         accountNumber: billingAccount2.number,
                         isDiscovered: true,
                     }),
@@ -333,14 +267,18 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         describe('Without DSC feature flag', () => {
+
             const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
+
             beforeAll(() => {
                 setIsFeatureFlagsEnabled(false) // Disable feature flags
             })
+
             afterAll(() => {
                 setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
             })
-            test('discover no service consumers if the feature flag was disabled', async () => {
+
+            test('discover no service consumers for managing organization if the feature flag was disabled', async () => {
                 const user = await makeClientWithProperty()
 
                 await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
@@ -516,6 +454,345 @@ describe('DiscoverServiceConsumersService', () => {
                     expect.objectContaining({ id: receipts2[0].id }),
                 ]))
             })
+        })
+
+        test('game of life', async () => {
+            const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const serviceUser1 = await makeClientWithServiceUser()
+            const user2 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const serviceUser2 = await makeClientWithServiceUser()
+            const user3 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const user4 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const residentClient1 = await makeClientWithResidentUser()
+            const residentClient2 = await makeClientWithResidentUser()
+            const residentClient3 = await makeClientWithResidentUser()
+            const residentClient4 = await makeClientWithResidentUser()
+
+            const [managingOrg1] = await registerNewOrganization(user1)
+            const [serviceOrg1] = await registerNewOrganization(user2, { type: SERVICE_PROVIDER_TYPE })
+            const [managingOrg2] = await registerNewOrganization(user3)
+            const [serviceOrg2] = await registerNewOrganization(user4, { type: SERVICE_PROVIDER_TYPE })
+
+            // register resident1 when other actors are not existing yet
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+            const { address: address1, addressMeta: addressMeta1 } = buildFakeAddressAndMeta(true)
+            const [resident1] = await registerResidentByTestClient(
+                residentClient1,
+                { address: address1, addressMeta: addressMeta1, unitType: unitType1, unitName: unitName1 },
+            )
+
+            // resident1 see no receipts
+            const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+            expect(receipts1).toHaveLength(0)
+
+            // user1 adds first receipts to managingOrg1
+            const {
+                billingIntegrationContext: billingContext1,
+                billingIntegration: billingIntegration1,
+            } = await addBillingIntegrationAndContext(support, managingOrg1, {}, { status: CONTEXT_FINISHED_STATUS })
+            await createTestBillingIntegrationAccessRight(support, billingIntegration1, serviceUser1.user)
+            await addAcquiringIntegrationAndContext(support, managingOrg1, {}, { status: CONTEXT_FINISHED_STATUS })
+            const payload1 = {
+                context: { id: billingContext1.id },
+                receipts: [
+                    // One of receipts is for resident1
+                    createRegisterBillingReceiptsPayload({
+                        address: address1,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+            const [registeredReceipts1] = await registerBillingReceiptsByTestClient(serviceUser1, payload1)
+            // resident1: still no receipts, cause the organization haven't added the property
+            const receipts1a = await ResidentBillingReceipt.getAll(residentClient1, {})
+            expect(receipts1a).toHaveLength(0)
+
+            // Now, managingOrg1 adds property with resident1
+            const [property1] = await createTestProperty(user1, managingOrg1, {
+                address: address1,
+                addressMeta: addressMeta1,
+            })
+            // and some another property
+            const [property1a] = await createTestProperty(user1, managingOrg1)
+
+            // resident1 should see receipt
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(1)
+                expect(registeredReceipts1).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                ]))
+            })
+
+            // Let managingOrg1 load another receipts
+            const payload1a = {
+                context: { id: billingContext1.id },
+                receipts: [
+                    // One of receipts is for resident1
+                    createRegisterBillingReceiptsPayload({
+                        address: address1,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+            const [registeredReceipts1a] = await registerBillingReceiptsByTestClient(serviceUser1, payload1a)
+
+            // resident1 should see 2 receipts
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(2)
+                expect([...registeredReceipts1, ...registeredReceipts1a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                ]))
+            })
+
+            // Time for serviceOrg1 add properties
+            // the first property is the same as for managingOrg1
+            const [property2] = await createTestProperty(user2, serviceOrg1, {
+                address: address1, addressMeta: addressMeta1,
+            })
+
+            //resident1 still see the same list of receipts
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(2)
+                expect([...registeredReceipts1, ...registeredReceipts1a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                ]))
+            })
+
+            // Now 2nd resident appears
+            const { address: address2, addressMeta: addressMeta2 } = buildFakeAddressAndMeta(true)
+            const unitType2 = FLAT_UNIT_TYPE
+            const unitName2 = faker.lorem.word()
+            const [resident2] = await registerResidentByTestClient(
+                residentClient2,
+                { address: address2, addressMeta: addressMeta2, unitType: unitType2, unitName: unitName2 },
+            )
+
+            // 2nd resident see no receipts
+            const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+            expect(receipts2).toHaveLength(0)
+
+            // Ok, let managingOrg1 to add some else receipts
+            const payload1b = {
+                context: { id: billingContext1.id },
+                receipts: [
+                    // One of receipts is for resident1
+                    createRegisterBillingReceiptsPayload({
+                        address: address1,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    // Another is for resident2
+                    createRegisterBillingReceiptsPayload({
+                        address: address2,
+                        unitType: unitType2,
+                        unitName: unitName2,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+            const [registeredReceipts1b] = await registerBillingReceiptsByTestClient(serviceUser1, payload1b)
+
+            // serviceOrg1 wanna do the same
+            const {
+                billingIntegrationContext: billingContext2,
+                billingIntegration: billingIntegration2,
+            } = await addBillingIntegrationAndContext(support, serviceOrg1, {}, { status: CONTEXT_FINISHED_STATUS })
+            await createTestBillingIntegrationAccessRight(support, billingIntegration2, serviceUser2.user)
+            await addAcquiringIntegrationAndContext(support, serviceOrg1, {}, { status: CONTEXT_FINISHED_STATUS })
+            const payload2 = {
+                context: { id: billingContext2.id },
+                receipts: [
+                    // One of receipts is for resident1
+                    createRegisterBillingReceiptsPayload({
+                        address: address2,
+                        unitType: unitType2,
+                        unitName: unitName2,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+            const [registeredReceipts2] = await registerBillingReceiptsByTestClient(serviceUser2, payload2)
+
+            // The 1st resident must see 4 receipts
+            // The 2nd one see nothing, cause serviceOrg1 haven't add property
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(3)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(0)
+            })
+
+            // Now serviceOrg1 adds property of resident2
+            const [property2a] = await createTestProperty(user2, serviceOrg1, {
+                address: address2, addressMeta: addressMeta2,
+            })
+
+            // And 2nd resident can see the receipts list
+            // The 1st one still see the same as last time
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(3)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(1)
+                expect(registeredReceipts2).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                ]))
+            })
+
+            // The 3rd resident appears... in the 1st one's flat. OMG!
+            const [resident3] = await registerResidentByTestClient(
+                residentClient3,
+                { address: address1, addressMeta: addressMeta1, unitType: unitType1, unitName: unitName1 },
+            )
+
+            // After that the 3rd resident must see the same as the 1st one
+            // The 2nd see the same
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(3)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(1)
+                expect(registeredReceipts2).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                ]))
+
+                const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
+                expect(receipts3).toHaveLength(3)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts3[0].id }),
+                    expect.objectContaining({ id: receipts3[1].id }),
+                    expect.objectContaining({ id: receipts3[2].id }),
+                ]))
+            })
+
+            // Now managingOrg1 add receipt for flat where 1st and 3rd lives
+            // and one receipt for the 2nd
+            const payload1c = {
+                context: { id: billingContext1.id },
+                receipts: [
+                    // One of receipts is for resident1
+                    createRegisterBillingReceiptsPayload({
+                        address: address1,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    // Another is for resident2
+                    createRegisterBillingReceiptsPayload({
+                        address: address2,
+                        unitType: unitType2,
+                        unitName: unitName2,
+                    }),
+                    createRegisterBillingReceiptsPayload(),
+                ],
+            }
+            const [registeredReceipts1c] = await registerBillingReceiptsByTestClient(serviceUser1, payload1c)
+
+            // After that the 1st and the 3rd residents must see 4 receipts each
+            // The 2nd see the same, cause their property is not added to managingOrg1
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(1)
+                expect(registeredReceipts2).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                ]))
+
+                const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
+                expect(receipts3).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts3[0].id }),
+                    expect.objectContaining({ id: receipts3[1].id }),
+                    expect.objectContaining({ id: receipts3[2].id }),
+                    expect.objectContaining({ id: receipts3[3].id }),
+                ]))
+            })
+
+            // Add resident4 to resident2's flat
+            const [resident4] = await registerResidentByTestClient(
+                residentClient4,
+                { address: address2, addressMeta: addressMeta2, unitType: unitType2, unitName: unitName2 },
+            )
+
+            // Let managingOrg1 add the property of the 2nd and 4th residents
+            const [property1b] = await createTestProperty(user1, managingOrg1, {
+                address: address2,
+                addressMeta: addressMeta2,
+            })
+
+            // The 2nd resident must see +2 receipt from managingOrg1
+            // The 1st and 3rd residents must see the same
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(3)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                    expect.objectContaining({ id: receipts2[1].id }),
+                    expect.objectContaining({ id: receipts2[2].id }),
+                ]))
+
+                const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
+                expect(receipts3).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts3[0].id }),
+                    expect.objectContaining({ id: receipts3[1].id }),
+                    expect.objectContaining({ id: receipts3[2].id }),
+                    expect.objectContaining({ id: receipts3[3].id }),
+                ]))
+
+                const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
+                expect(receipts4).toHaveLength(3)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts4[0].id }),
+                    expect.objectContaining({ id: receipts4[1].id }),
+                    expect.objectContaining({ id: receipts4[2].id }),
+                ]))
+            }, { delay: 500 })
         })
     })
 })

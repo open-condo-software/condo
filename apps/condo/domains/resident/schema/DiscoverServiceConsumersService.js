@@ -71,10 +71,10 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     const unitType = get(billingAccount, 'unitType', null)
                     const unitName = get(billingAccount, 'unitName', null)
 
-                    let goFurther = false
+                    let shouldDiscover = false
 
                     if (organizationType === SERVICE_PROVIDER_TYPE) {
-                        goFurther = true
+                        shouldDiscover = true
                     } else {
                         const isFeatureFlagEnabled = await featureToggleManager.isFeatureEnabled(
                             context,
@@ -83,17 +83,17 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         )
 
                         if (isFeatureFlagEnabled) {
-                            goFurther = true
+                            shouldDiscover = true
                         }
                     }
 
-                    if (goFurther) {
+                    if (shouldDiscover) {
                         items.push({ organizationId, address, addressKey, unitType, unitName })
                     }
                 }
 
                 // Filter by acquiring context
-                const organizationsIdsWithAcquiringContext = new Set() //acquiringContexts.map((c) => get(c, ['organization', 'id']))
+                const organizationsIdsWithAcquiringContext = new Set()
                 await loadListByChunks({
                     context,
                     list: AcquiringIntegrationContext,
@@ -121,9 +121,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     chunkSize: 50,
                     where: {
                         deletedAt: null,
-                        organization: { id_in: items.map((item) => item.organizationId) },
                         OR: items.map((item) => ({
-                            OR: [{ address_i: item.address }, { addressKey: item.addressKey }],
+                            AND: [
+                                { organization: { id: item.organizationId } },
+                                { OR: [{ address_i: item.address }, { addressKey: item.addressKey }] },
+                            ],
                         })),
                     },
                     chunkProcessor: (chunk) => {
@@ -154,7 +156,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         dv,
                         sender,
                         resident: { connect: { id: resident.id } },
-                        organization: { connect: { id: get(resident, ['organization', 'id']) } },
+                        organization: { connect: { id: get(account, ['context', 'organization', 'id']) } },
                         billingIntegrationContext: { connect: { id: get(account, ['context', 'id']) } },
                         accountNumber: account.number,
                         isDiscovered: true,
