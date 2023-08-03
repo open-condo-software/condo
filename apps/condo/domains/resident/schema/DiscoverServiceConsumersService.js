@@ -19,8 +19,6 @@ const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/ser
 
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
-const asyncFilter = async (arr, predicate) => Promise.all(arr.map(predicate)).then((results) => arr.filter((_v, index) => results[index]))
-
 const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceConsumersService', {
     schemaDoc: 'Mutation to create Service Consumers for all residents for address, unitType, unitName, and BillingAccounts for said address' +
         'If a new Resident is created this mutation is called for specific Resident (optional field Resident is provided)' +
