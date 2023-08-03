@@ -59,7 +59,7 @@ const PaymentReceiptDataMapper = (chargedTitle: string, paidTitle: string): Paym
                 {
                     name: paidTitle,
                     data: Object.entries(paymentsGroup).map(([groupLabel, dataObj]) => {
-                        return [groupLabel, dataObj.reduce((p, c) => p + parseFloat(c.sum), 0)]
+                        return [groupLabel, dataObj.reduce((p, c) => p + parseFloat(c.sum), 0).toFixed(2)]
                     }),
                     type: viewMode,
                     label: { show: true, position: 'top' },
@@ -98,7 +98,7 @@ const PaymentTotalDataMapper = (sumTitle: string, paymentCountTitle: string): Pa
                 {
                     name: sumTitle,
                     data: Object.entries(totalGroup).map(([groupLabel, dataObj]) => {
-                        return [groupLabel, dataObj.reduce((p, c) => p + parseFloat(c.sum), 0)]
+                        return [groupLabel, dataObj.reduce((p, c) => p + parseFloat(c.sum), 0).toFixed(2)]
                     }),
                     type: 'bar',
                     label: { show: true, position: 'top' },
