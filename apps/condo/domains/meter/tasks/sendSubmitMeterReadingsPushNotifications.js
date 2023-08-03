@@ -256,7 +256,7 @@ const sendMessagesForSetUpReadings = async ({ context, metersWithResident }) => 
                 meta: {
                     dv: 1,
                     data: {
-                        monthName: lang === RU_LOCALE ? now.locale_ru('ru').format('MMMM') : now.format('MMMM'),
+                        monthName: lang === RU_LOCALE ? now.locale('ru').format('MMMM') : now.format('MMMM'),
                         meterId: meter.id,
                         userId: resident.user.id,
                         residentId: resident.id,
