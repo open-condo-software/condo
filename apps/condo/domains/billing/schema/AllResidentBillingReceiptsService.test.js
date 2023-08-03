@@ -20,7 +20,7 @@ const { registerServiceConsumerByTestClient, updateTestServiceConsumer, register
 const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
-    generateServicesData,
+    generateServicesData, createTestBillingReceiptFile,
 } = require('../utils/testSchema')
 
 
@@ -87,6 +87,86 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 expect(receipt).toHaveProperty('services')
                 expect(receipt.services).not.toBeNull()
+            })
+        })
+
+        it('returns primaryFile', async () => {
+            const userClient = await makeClientWithProperty()
+            const support = await makeClientWithSupportUser()
+            const adminClient = await makeLoggedInAdminClient()
+
+            const [integration] = await createTestBillingIntegration(support)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+
+            const integrationClient = await makeClientWithServiceUser()
+            await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
+            const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
+                address: userClient.property.address,
+            })
+            const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
+
+            const residentUser = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(residentUser, {
+                address: userClient.property.address,
+                addressMeta: userClient.property.addressMeta,
+                unitName: billingAccountAttrs.unitName,
+            })
+            await registerServiceConsumerByTestClient(residentUser, {
+                residentId: resident.id,
+                accountNumber: billingAccountAttrs.number,
+                organizationId: userClient.organization.id,
+            })
+            const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
+
+            // create BillingReceiptFile
+            const [receiptFile] = await createTestBillingReceiptFile(adminClient, receipt, billingContext)
+
+            // set primary file
+            await updateTestBillingReceipt(integrationClient, receipt.id, {
+                primaryFile: { connect: { id: receiptFile.id } },
+            })
+
+            // getting the result
+            const residentBillingReceipts = await ResidentBillingReceipt.getAll(residentUser)
+
+            expect(residentBillingReceipts).toBeDefined()
+            expect(residentBillingReceipts).not.toHaveLength(0)
+            residentBillingReceipts.forEach(receipt => {
+                expect(receipt).toHaveProperty('id')
+                expect(receipt.id).not.toBeNull()
+
+                expect(receipt).toHaveProperty('toPay')
+                expect(receipt.toPay).not.toBeNull()
+
+                expect(receipt).toHaveProperty('paid')
+                expect(receipt.paid).not.toBeNull()
+
+                expect(receipt).toHaveProperty('period')
+                expect(receipt.period).not.toBeNull()
+
+                expect(receipt).toHaveProperty('recipient')
+                expect(receipt.recipient).not.toBeNull()
+
+                expect(receipt).toHaveProperty('serviceConsumer')
+                expect(receipt.serviceConsumer).not.toBeNull()
+
+                expect(receipt).toHaveProperty('serviceConsumer.id')
+                expect(receipt.serviceConsumer.id).not.toBeNull()
+
+                expect(receipt).toHaveProperty('currencyCode')
+                expect(receipt.currencyCode).not.toBeNull()
+
+                expect(receipt).toHaveProperty('category')
+                expect(receipt.category).not.toBeNull()
+
+                expect(receipt).toHaveProperty('services')
+                expect(receipt.services).not.toBeNull()
+
+                expect(receipt).toHaveProperty('primaryFile')
+                expect(receipt.primaryFile).not.toBeNull()
+
+                expect(receipt.primaryFile).toHaveProperty('file')
+                expect(receipt.file).not.toBeNull()
             })
         })
         //TODO: @abshnko return services check to mobile

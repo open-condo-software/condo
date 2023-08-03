@@ -9,11 +9,11 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
+const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-const BILLING_RECEIPT_FILE_FOLDER_NAME = 'billing-receipt-pdf'
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
 const isResidentVerified = async ({ id, phone }, billingAccountId) => {
