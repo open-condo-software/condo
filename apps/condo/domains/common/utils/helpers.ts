@@ -5,6 +5,7 @@ import { FilterValue } from 'antd/es/table/interface'
 import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
+import isInteger from 'lodash/isInteger'
 import isNumber from 'lodash/isNumber'
 import isObject from 'lodash/isObject'
 import { NextRouter } from 'next/router'
@@ -14,6 +15,9 @@ import { IRecordWithId } from '../types'
 
 const DEFAULT_WIDTH_PRECISION = 2
 const PHONE_FORMAT_REGEXP = /(\d)(\d{3})(\d{3})(\d{2})(\d{2})/
+
+export const MAX_32BIT_INTEGER = 2147483647
+export const MIN_32BIT_INTEGER = -2147483648
 
 /**
  * Formats a phone, convert it from number string to string with dividers
@@ -35,6 +39,12 @@ export const getFiltersFromQuery = <T>(query: ParsedUrlQuery): T | Record<string
     } catch (e) {
         return {}
     }
+}
+
+export const is32BitInteger = (data) => {
+    const num = Number(data)
+
+    return Boolean(isInteger(num) && num >= MIN_32BIT_INTEGER && num <= MAX_32BIT_INTEGER)
 }
 
 export const preciseFloor = (x: number, precision: number = DEFAULT_WIDTH_PRECISION) => {

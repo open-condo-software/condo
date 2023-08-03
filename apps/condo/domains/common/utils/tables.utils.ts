@@ -8,8 +8,7 @@ import React from 'react'
 import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
-import { preciseFloor } from './helpers'
-import { is32BitInteger } from './number'
+import { is32BitInteger, preciseFloor } from './helpers'
 
 import {
     getDateFilterDropdown,
