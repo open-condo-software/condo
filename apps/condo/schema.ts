@@ -62145,6 +62145,12 @@ export type ResidentBillingAccount = {
   id: Scalars['ID'];
 };
 
+export type ResidentBillingReceiptFile = {
+  __typename?: 'ResidentBillingReceiptFile';
+  file?: Maybe<File>;
+  controlSum?: Maybe<Scalars['String']>;
+};
+
 export type ResidentBillingReceiptOutput = {
   __typename?: 'ResidentBillingReceiptOutput';
   dv: Scalars['String'];
@@ -62161,6 +62167,7 @@ export type ResidentBillingReceiptOutput = {
   currencyCode: Scalars['String'];
   category: BillingCategory;
   isPayable: Scalars['Boolean'];
+  primaryFile?: Maybe<ResidentBillingReceiptFile>;
 };
 
 export type ResidentBillingReceiptWhereInput = {

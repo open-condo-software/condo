@@ -63761,6 +63761,11 @@ enum SortResidentBillingReceiptsBy {
   serviceConsumer_DESC
 }
 
+type ResidentBillingReceiptFile {
+  file: File
+  controlSum: String
+}
+
 type ResidentBillingReceiptOutput {
   dv: String!
   recipient: BillingReceiptsRecipientField!
@@ -63776,6 +63781,7 @@ type ResidentBillingReceiptOutput {
   currencyCode: String!
   category: BillingCategory!
   isPayable: Boolean!
+  primaryFile: ResidentBillingReceiptFile
 }
 
 input RegisterBillingReceiptInput {
