@@ -14,7 +14,6 @@ const {
     createTestAcquiringIntegration, addAcquiringIntegrationAndContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const {
-    makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingProperty,
     createTestBillingAccount,
     ResidentBillingReceipt,
@@ -23,11 +22,12 @@ const {
     createRegisterBillingReceiptsPayload,
     registerBillingReceiptsByTestClient, addBillingIntegrationAndContext,
 } = require('@condo/domains/billing/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
+const { createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
     makeClientWithResidentAccessAndProperty,
-    makeClientWithProperty,
+    makeClientWithProperty, createTestProperty,
 } = require('@condo/domains/property/utils/testSchema')
 const {
     createTestResident,
@@ -332,32 +332,79 @@ describe('DiscoverServiceConsumersService', () => {
             })
         })
 
-        test('discover no service consumers if the feature flag was disabled', async () => {
+        describe('Without DSC feature flag', () => {
             const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
-            setIsFeatureFlagsEnabled(false) // Disable feature flags
+            beforeAll(() => {
+                setIsFeatureFlagsEnabled(false) // Disable feature flags
+            })
+            afterAll(() => {
+                setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
+            })
+            test('discover no service consumers if the feature flag was disabled', async () => {
+                const user = await makeClientWithProperty()
 
-            const user = await makeClientWithProperty()
-            const { context } = await makeContextWithOrganizationAndIntegrationAsAdmin(
-                {}, {}, { status: 'Finished' },
-            )
+                await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
-            const [billingProperty] = await createTestBillingProperty(admin, context, { address: user.property.address })
-            const [resident] = await createTestResident(admin, user.user, user.property,
-                { address: billingProperty.address },
-            )
-            await createTestBillingAccount(admin, context, billingProperty,
-                { unitName: resident.unitName, unitType: resident.unitType },
-            )
+                const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
+                const [resident] = await createTestResident(admin, user.user, user.property,
+                    { address: billingProperty.address },
+                )
+                await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
+                    { unitName: resident.unitName, unitType: resident.unitType },
+                )
 
-            await waitFor(async () => {
-                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                    resident: { id: resident.id },
-                    deletedAt: null,
+                await waitFor(async () => {
+                    const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                        resident: { id: resident.id },
+                        deletedAt: null,
+                    })
+                    expect(createdServiceConsumers).toHaveLength(0)
                 })
-                expect(createdServiceConsumers).toHaveLength(0)
             })
 
-            setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
+            test('discover service consumers for service provider org even if the feature DSC-flag was disabled', async () => {
+                const user = await makeClientWithProperty()
+                const [organization] = await registerNewOrganization(user, { type: SERVICE_PROVIDER_TYPE })
+                const [property] = await createTestProperty(user, organization)
+                user.organization = organization
+                user.property = property
+
+                await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+                const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
+
+                const residentClient1 = await makeClientWithResidentUser()
+                const [resident] = await registerResidentByTestClient(
+                    residentClient1,
+                    {
+                        address: user.property.address,
+                        addressMeta: user.property.addressMeta,
+                        unitType: FLAT_UNIT_TYPE,
+                        unitName: faker.lorem.word(),
+                    })
+
+                const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
+                    { unitName: resident.unitName, unitType: resident.unitType },
+                )
+
+                await waitFor(async () => {
+                    const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                        resident: { id: resident.id },
+                        deletedAt: null,
+                    })
+                    expect(createdServiceConsumers).toHaveLength(1)
+                    expect(createdServiceConsumers).toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            resident: expect.objectContaining({ id: resident.id }),
+                            organization: expect.objectContaining({ id: user.organization.id }),
+                            accountNumber: billingAccount.number,
+                            isDiscovered: true,
+                        }),
+                    ]))
+                })
+            })
         })
     })
 

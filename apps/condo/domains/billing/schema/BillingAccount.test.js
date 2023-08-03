@@ -12,15 +12,9 @@ const {
     expectToThrowInternalError,
     expectToThrowGraphQLRequestError,
     expectToThrowValidationFailureError,
-    waitFor,
 } = require('@open-condo/keystone/test.utils')
 const { makeClient } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {
-    createTestAcquiringIntegration,
-    createTestAcquiringIntegrationContext,
-} = require('@condo/domains/acquiring/utils/testSchema')
 const {
     makeServiceUserForIntegration,
     makeOrganizationIntegrationManager,
@@ -34,15 +28,9 @@ const {
     updateTestBillingAccounts,
 } = require('@condo/domains/billing/utils/testSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { registerResidentByTestClient, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
-    makeClientWithResidentUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('BillingAccount', () => {
