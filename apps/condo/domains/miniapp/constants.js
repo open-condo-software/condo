@@ -108,6 +108,7 @@ const SCHEMAS_AVAILABLE_TO_B2B_APP = [
 const B2B_APP_ACCESS_CONFIG = {
     Organization: {
         pathToOrganizationId: ['id'],
+        canNotBeManage: true,
     },
 }
 

@@ -1,6 +1,6 @@
 const { getType } = require('@keystonejs/utils')
 const { gql } = require('graphql-tag')
-const { isBoolean, isObject, isEmpty, isFunction, get, isArray, set } = require('lodash')
+const { isBoolean, isObject, isEmpty, isFunction, get, isArray, set, isString } = require('lodash')
 const pluralize = require('pluralize')
 
 const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
@@ -71,7 +71,7 @@ const GENERATED_SCHEMAS = new Map()
  */
 const generateGql = (pathToOrganizationId) => {
     if (!pathToOrganizationId || !isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" should not be empty array')
-    if (pathToOrganizationId.length < 3) throw new Error()
+    if (pathToOrganizationId.length < 3) throw new Error(`To generate gql "pathToOrganizationId" must contain at least three elements! But was ${pathToOrganizationId}`)
 
     const gqlKey = pathToOrganizationId.join(':')
 
@@ -103,9 +103,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
     if (operation === 'create') {
         if (pathToOrganizationId.length === 1) {
-            // NOTE: This is the case with the scheme "Organization".
-            //       Service user cannot manage someone else's organization
-            return false
+            organizationId = get(originalInput, [pathToOrganizationId[0]], null)
         } else if (pathToOrganizationId.length === 2) {
             organizationId = get(originalInput, [pathToOrganizationId[0], 'connect', pathToOrganizationId[1]], null)
         } else if (pathToOrganizationId.length === 3) {
@@ -125,16 +123,14 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
             organizationId = get(parentObject, [pathToOrganizationId[1], pathToOrganizationId[2]])
         } else {
-            throw new Error(`you should implement "canManageByServiceUser" when "pathToOrganizationId" have depth ${pathToOrganizationId.length}`)
+            throw new Error(`You should implement "canManageByServiceUser" when "pathToOrganizationId" have depth ${pathToOrganizationId.length}`)
         }
     } else if (operation === 'update') {
         const item = await getById(listKey, itemId)
         if (!item) return false
 
         if (pathToOrganizationId.length === 1) {
-            // NOTE: This is the case with the scheme "Organization".
-            //       Service user cannot manage someone else's organization
-            return false
+            organizationId = get(item, [pathToOrganizationId[0]], null)
         } else if (pathToOrganizationId.length === 2) {
             organizationId = get(item, [pathToOrganizationId[0]], null)
         } else if (pathToOrganizationId.length === 3) {
@@ -154,7 +150,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
             organizationId = get(parentObject, [pathToOrganizationId[1], pathToOrganizationId[2]])
         } else {
-            throw new Error(`you should implement "canManageByServiceUser" when "pathToOrganizationId" have depth ${pathToOrganizationId.length}`)
+            throw new Error(`You should implement "canManageByServiceUser" when "pathToOrganizationId" have depth ${pathToOrganizationId.length}`)
         }
     }
 
@@ -200,8 +196,8 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
  * }
  */
 const getFilter = (pathToOrganizationId, organizationId) => {
-    if (!pathToOrganizationId || isEmpty(pathToOrganizationId)) throw new Error('no pathToOrganizationId!')
-    if (!organizationId) throw new Error('no organizationId!')
+    if (!pathToOrganizationId || isEmpty(pathToOrganizationId)) throw new Error('No pathToOrganizationId!')
+    if (!organizationId) throw new Error('No organizationId!')
 
     if (pathToOrganizationId.length === 1) {
         return {
@@ -252,46 +248,68 @@ const PERMISSION_FIELD = {
     type: 'Checkbox',
     defaultValue: false,
     kmigratorOptions: { default: false },
+}
+
+const READ_ONLY_PERMISSION_FIELD = {
+    ...PERMISSION_FIELD,
     access: {
         read: true,
-        create: true,
+        create: false,
         update: false,
     },
 }
 
-const CAN_MANAGE_ORGANIZATION_FIELD = {
-    ...PERMISSION_FIELD,
-    schemaDoc: 'Currently, creating and editing organizations is prohibited regardless of the specified value',
+const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
+    if (!isString(permissionFieldName)) throw new Error('No permissionFieldName!')
+
+    if (permissionFieldName.startsWith('canRead')) {
+        return 'Currently, this field is read-only. You cannot get read access for the specified schema.'
+    }
+
+    if (permissionFieldName.startsWith('canManage')) {
+        return 'Currently, this field is read-only. You cannot get manage access for the specified schema.'
+    }
+
+    throw new Error('Permission field name no starts with "canManage" or "canRead"! You should check the implementation!')
 }
 
-const addPermissionFieldsToSchema = (schema, schemaName) => {
+const addPermissionFieldsToSchema = (schema, schemaName, readOnlyPermissionFields) => {
     if (ALL_PERMISSION_NAMES.size < 1) {
-        throw new Error('have not permissions')
+        throw new Error('Has not permissions')
     }
 
     const fields = get(schema, 'fields')
 
     if (!fields || !isObject(fields)) {
-        throw new Error(`${schemaName} has not fields`)
+        throw new Error(`"${schemaName}" schema has not fields`)
     }
 
     const allPermissions = Array.from(ALL_PERMISSION_NAMES)
+
     const fieldNames = Object.keys(fields)
     for (const fieldName of fieldNames) {
         if (allPermissions.includes(fieldName)) {
-            throw new Error(`schema "${schemaName}" have field with name "${fieldName}" yet`)
+            throw new Error(`Schema "${schemaName}" have field with name "${fieldName}" yet`)
         }
     }
 
     for (const permissionFieldName of allPermissions) {
-        set(schema.fields, [permissionFieldName], {
-            ...(permissionFieldName === 'canManageOrganizations' ? CAN_MANAGE_ORGANIZATION_FIELD : PERMISSION_FIELD),
-        })
+        if (readOnlyPermissionFields.includes(permissionFieldName)) {
+            set(schema.fields, [permissionFieldName], {
+                ...READ_ONLY_PERMISSION_FIELD,
+                schemaDoc: getSchemaDocForReadOnlyPermissionField(permissionFieldName),
+            })
+        } else {
+            set(schema.fields, [permissionFieldName], PERMISSION_FIELD)
+        }
     }
 }
 
-const addCustomAccessToSchema = (schema, schemaConfig) => {
+const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
     const access = schema.access
+
+    const canNotBeRead = get(schemaConfig, 'canNotBeRead', false)
+    const canNotBeManage = get(schemaConfig, 'canNotBeManage', false)
 
     const customListAccess = async (args) => {
         const { operation, authentication: { item: user } } = args
@@ -302,6 +320,7 @@ const addCustomAccessToSchema = (schema, schemaConfig) => {
             if (operation === 'read') {
                 const defaultAccess = await evaluateKeystoneAccessResult(access, operation, args)
 
+                if (canNotBeRead) return defaultAccess
                 if (isBoolean(defaultAccess)) return defaultAccess
                 if (isObject(defaultAccess) && isEmpty(defaultAccess)) return defaultAccess
 
@@ -317,7 +336,7 @@ const addCustomAccessToSchema = (schema, schemaConfig) => {
                 }
             } else if ((operation === 'create' || operation === 'update')) {
                 return await evaluateKeystoneAccessResult(access, operation, args)
-                    || await canManageByServiceUser(args, schemaConfig)
+                    || (!canNotBeManage && await canManageByServiceUser(args, schemaConfig))
             }
         }
 
@@ -344,6 +363,8 @@ const ALL_PERMISSION_NAMES = new Set()
  *
  * @typedef {Object} B2BAppAccessConfig
  * @property {Array.<string>} pathToOrganizationId - Way to get the organization id
+ * @property {boolean} canNotBeRead - Service users cannot read schema
+ * @property {boolean} canNotBeManage - Service users cannot manage schema
  */
 
 /**
@@ -354,8 +375,10 @@ const ALL_PERMISSION_NAMES = new Set()
  * {
  *    Organization: {
  *       // Default value ['organization', 'id'] => get value from <SchemaName>.organization.id
- *       // But for the Organization scheme get value from <SchemaName>.id
+ *       // But for the Organization schema get value from <SchemaName>.id
  *       pathToOrganizationId: ['id'],
+ *       // By default schemas can be manage, but for Organization schema cannot be managed
+ *       canNotBeManage: true,
  *    },
  * }
  *
@@ -387,15 +410,31 @@ const ALL_PERMISSION_NAMES = new Set()
  * @param {string} targetSchemaNameWithPermissions - The name of the scheme to which the permissions fields will be added
  */
 const B2BAppAccess = (shouldCreatePermissionsForSchema, config = {}, targetSchemaNameWithPermissions = 'B2BAppAccessRight') => {
-    if (!targetSchemaNameWithPermissions) throw new Error('no targetSchemaNameWithPermissions!')
+    if (!targetSchemaNameWithPermissions) throw new Error('No targetSchemaNameWithPermissions!')
     if (!shouldCreatePermissionsForSchema || !isFunction(shouldCreatePermissionsForSchema)) throw new Error('"shouldCreatePermissionsForSchema" is not function')
-    if (!isObject(config)) throw new Error('config not object!')
+    if (!isObject(config)) throw new Error('Config not object!')
+
+    /**
+     * @type {Array.<string>}
+     */
+    const readOnlyPermissionFields = Object.entries(config)
+        .map(([schemaName, schemaConfig]) => {
+            const readOnlyFieldsBySchema = []
+            if (get(schemaConfig, 'canNotBeRead', false)) {
+                readOnlyFieldsBySchema.push(`canRead${pluralize.plural(schemaName)}`)
+            }
+            if (get(schemaConfig, 'canNotBeManage', false)) {
+                readOnlyFieldsBySchema.push(`canManage${pluralize.plural(schemaName)}`)
+            }
+            return readOnlyFieldsBySchema
+        })
+        .flat()
 
     return (schemaType, schemaName, schema) => {
         if (schemaType !== GQL_LIST_SCHEMA_TYPE || schemaName.endsWith('HistoryRecord')) return schema
 
         if (schemaName === targetSchemaNameWithPermissions) {
-            addPermissionFieldsToSchema(schema, schemaName)
+            addPermissionFieldsToSchema(schema, schemaName, readOnlyPermissionFields)
             return schema
         }
 
@@ -404,19 +443,19 @@ const B2BAppAccess = (shouldCreatePermissionsForSchema, config = {}, targetSchem
         const schemaConfig = get(config, schemaName, {})
 
         if (!Object.keys(get(schema, 'fields', {})).includes('organization') && !get(schemaConfig, 'pathToOrganizationId')) {
-            throw new Error(`schema "${schemaName}" has not field "organization"`)
+            throw new Error(`Schema "${schemaName}" has not field "organization"`)
         }
 
-        addCustomAccessToSchema(schema, schemaConfig)
+        addCustomAccessToSchema(schemaName, schema, schemaConfig)
 
         const canReadName = `canRead${pluralize.plural(schemaName)}`
         const canManageName = `canManage${pluralize.plural(schemaName)}`
 
         if (ALL_PERMISSION_NAMES.has(canReadName)) {
-            throw new Error(`${canReadName} have yet`)
+            throw new Error(`"${canReadName}" have yet`)
         }
         if (ALL_PERMISSION_NAMES.has(canManageName)) {
-            throw new Error(`${canManageName} have yet`)
+            throw new Error(`"${canManageName}" have yet`)
         }
 
         ALL_PERMISSION_NAMES.add(canReadName)

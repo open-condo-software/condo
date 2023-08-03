@@ -2297,7 +2297,7 @@ export type B2BAppAccessRightSet = {
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  /**  Currently, creating and editing organizations is prohibited regardless of the specified value  */
+  /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;

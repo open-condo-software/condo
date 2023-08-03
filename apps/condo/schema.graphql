@@ -62387,7 +62387,7 @@ type B2BAppAccessRightSet {
   sender: SenderField
   canReadOrganizations: Boolean
 
-  """ Currently, creating and editing organizations is prohibited regardless of the specified value 
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageOrganizations: Boolean
   canReadProperties: Boolean

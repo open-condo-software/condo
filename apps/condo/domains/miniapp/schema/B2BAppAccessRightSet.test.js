@@ -211,7 +211,6 @@ describe('B2BAppAccessRightSet', () => {
             test('Can not hard-delete', async () => {
                 const [app] = await createTestB2BApp(admin)
                 const [createdAccessRightSet] = await createTestB2BAppAccessRightSet(admin, app)
-                
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await B2BAppAccessRightSet.delete(integratedServiceUser, createdAccessRightSet.id)
@@ -370,13 +369,27 @@ describe('B2BApp permissions for service user', () => {
         const countByUser = await Organization.count(user, {})
         expect(countByUser).toBe(1)
 
+        // you cannot create a field "canManageOrganizations: true". Only reading! Always false!
+        await catchErrorFrom(async () => {
+            await createTestB2BAppAccessRightSet(admin, right.id, {
+                canManageOrganizations: false,
+            })
+        }, (e) => {
+            expect(e.errors[0].message).toContain('Field "canManageOrganizations" is not defined by type "B2BAppAccessRightCreateInput"')
+        })
+
         // add permissions for B2BApp
         const [accessRightSet] = await createTestB2BAppAccessRightSet(admin, app, {
             canReadOrganizations: true,
         })
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
-        // you cannot update a field "canManageOrganization". Only reading! Always false!
+        // you can update 'canReadOrganizations'
+        await updateTestB2BAppAccessRight(admin, app, {
+            canReadOrganizations: true,
+        })
+
+        // you cannot update a field "canManageOrganizations". Only reading! Always false!
         await catchErrorFrom(async () => {
             await updateTestB2BAppAccessRight(admin, right.id, {
                 canManageOrganizations: false,
@@ -440,6 +453,12 @@ describe('B2BApp permissions for service user', () => {
         })
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
+        // you can update 'canReadProperties' and 'canManageProperties'
+        await updateTestB2BAppAccessRight(admin, app, {
+            canReadProperties: true,
+            canManageProperties: true,
+        })
+
         // B2BApp with permissions
         await createTestProperty(serviceUserClient, organization)
 
@@ -497,6 +516,12 @@ describe('B2BApp permissions for service user', () => {
             canReadProperties: true, // required permission for manage contact
         })
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+        // you can update 'canReadContacts' and 'canManageContacts'
+        await updateTestB2BAppAccessRight(admin, app, {
+            canReadContacts: true,
+            canManageContacts: true,
+        })
 
         // B2BApp with permissions
         await createTestContact(serviceUserClient, organization, property)
@@ -570,6 +595,14 @@ describe('B2BApp permissions for service user', () => {
             canManageTicketComments: true,
         })
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+        // you can update 'canReadTickets', 'canManageTickets', 'canReadTicketComments' and 'canManageTicketComments'
+        await updateTestB2BAppAccessRight(admin, app, {
+            canReadTickets: true,
+            canManageTickets: true,
+            canReadTicketComments: true,
+            canManageTicketComments: true,
+        })
 
         await createTestTicket(serviceUserClient, organization, property)
 
