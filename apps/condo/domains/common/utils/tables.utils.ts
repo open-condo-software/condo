@@ -9,6 +9,7 @@ import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import { getTextRender } from '@condo/domains/common/components/Table/Renders'
 
 import { preciseFloor } from './helpers'
+import { is32BitInteger } from './number'
 
 import {
     getDateFilterDropdown,
@@ -124,7 +125,7 @@ export const getFilter: (
         }
         switch (argData) {
             case 'number':
-                args = search.filter(value => Number(value) && String(value).indexOf('.') === -1).map(Number)
+                args = search.filter(value => Number(value) && is32BitInteger(value) && String(value).indexOf('.') === -1).map(Number)
                 break
             case 'dateTime':
                 args = search
