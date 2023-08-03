@@ -8,13 +8,23 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Space, Tag, Tooltip } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { IFilters } from '@app/callcenter/domains/contact/utils/helpers'
 import { getAddressRender, getDateRender, getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { useDownloadFileFromServer } from '@condo/domains/common/hooks/useDownloadFileFromServer'
 import { getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { formatPhone, getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+
+import type { Organization, Contact } from '@app/condo/schema'
+
+interface IFilters extends Pick<Contact, 'name' | 'phone' | 'email'> {
+    search?: string
+    address?: string
+    name?: string
+    email?: string
+    phone?: string
+    organization?: Organization
+}
 
 const COLUMNS_WIDTH = {
     startedAt: '12%',
