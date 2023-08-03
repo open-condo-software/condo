@@ -7,9 +7,8 @@ import {
     Ticket as TicketType,
 } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, ColProps, Row } from 'antd'
+import { Col, ColProps, Row, RowProps } from 'antd'
 import { CarouselRef } from 'antd/es/carousel'
-import { Gutter } from 'antd/es/grid/row'
 import { EllipsisConfig } from 'antd/es/typography/Base'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -54,9 +53,9 @@ const ADDRESS_STREET_ONE_ROW_HEIGHT = 25
 const ADDRESS_POSTFIX_ONE_ROW_HEIGHT = 22
 
 const TAG_STYLE: CSSProperties = { borderRadius: '100px' }
-const ROW_BIG_GUTTER: [Gutter, Gutter] = [0, 60]
-const ROW_MEDIUM_GUTTER: [Gutter, Gutter] = [0, 40]
-const ROW_MEDIUM_SMALL_GUTTER: [Gutter, Gutter] = [0, 24]
+const ROW_BIG_GUTTER: RowProps['gutter'] = [0, 60]
+const ROW_MEDIUM_GUTTER: RowProps['gutter'] = [0, 40]
+const ROW_MEDIUM_SMALL_GUTTER: RowProps['gutter'] = [0, 24]
 const HINT_CARD_STYLE = { maxHeight: '3em' }
 const TICKET_SORT_BY = [SortTicketsBy.CreatedAtDesc]
 const PLUS_ICON_WRAPPER_CLASS = 'plusIconWrapper'
@@ -304,25 +303,23 @@ const ClientContent: React.FC<IClientContactProps> = ({ lastTicket, contact, sho
     return (
         <Row gutter={ROW_MEDIUM_SMALL_GUTTER}>
             <Col span={24}>
-                <Row justify='space-between'>
-                    <Typography.Title level={2}>{name}</Typography.Title>
-                    <Col>
-                        <Space size={24}>
-                            {
-                                showOrganizationMessage && (
-                                    <Typography.Text strong type='secondary' size='medium'>
-                                        {organizationName}
-                                    </Typography.Text>
-                                )
-                            }
-                            {
-                                lastTicket && (
-                                    <TicketResidentFeatures ticket={lastTicket}/>
-                                )
-                            }
-                        </Space>
-                    </Col>
-                </Row>
+                <Space size={12} direction='vertical'>
+                    <Space size={24} direction='horizontal'>
+                        <Typography.Title level={2}>{name}</Typography.Title>
+                        {
+                            lastTicket && (
+                                <TicketResidentFeatures ticket={lastTicket}/>
+                            )
+                        }
+                    </Space>
+                    {
+                        showOrganizationMessage && (
+                            <Typography.Text strong type='secondary' size='medium'>
+                                {organizationName}
+                            </Typography.Text>
+                        )
+                    }
+                </Space>
             </Col>
             {
                 (email || count > 0) && (
