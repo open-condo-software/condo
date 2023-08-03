@@ -52,11 +52,11 @@
 const { get, cloneDeep, floor, isEqual } = require('lodash')
 const LRUCache = require('lru-cache')
 
+const { getAsyncLocalStorage } = require('./asyncLocalStorage')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
-const { asyncLocalStorage } = require('./threadLocal')
 
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const METRIC_PREFIX = 'adapterCache'
@@ -190,7 +190,7 @@ class AdapterCache {
      * Logs cache event.
      * @param {Object} event
      */
-    logEvent ({ type, functionName, listName, key, result }) {
+    logEvent ({ type, reqId, functionName, listName, key, result }) {
         if (!this.logging) return
 
         logger.info({
@@ -198,6 +198,7 @@ class AdapterCache {
             functionName,
             listName,
             key,
+            reqId,
             result,
         })
     }
@@ -383,6 +384,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
  */
 function getMutationFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI) {
     return async (...args) => {
+        const requestCtxLocalStorage = getAsyncLocalStorage('requestCtx')
 
         // Get mutation value
         const functionResult = await f.apply(listAdapter, args)
@@ -395,6 +397,7 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
             type: 'DROP',
             functionName,
             listName,
+            reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
             key: listName,
             result: functionResult,
         })
@@ -417,10 +420,9 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
  */
 function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async (...args) => {
-        cacheAPI.incrementTotal()
+        const requestCtxLocalStorage = getAsyncLocalStorage('requestCtx')
 
-        console.log('THREAD_LOCAL_VAR:')
-        console.log(asyncLocalStorage.getStore())
+        cacheAPI.incrementTotal()
 
         let key = getKey(args)
         if (key) {
@@ -440,6 +442,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                     type: 'HIT',
                     functionName,
                     listName,
+                    reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
                     key,
                     result: cachedItem,
                 })
@@ -452,6 +455,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                         cacheAPI.logEvent({
                             type: 'BAD_CACHE',
                             functionName,
+                            reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
                             key,
                             listName,
                             result: { cachedResponse, response },
@@ -480,6 +484,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
         cacheAPI.logEvent({
             type: 'MISS',
             functionName,
+            reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
             key,
             listName,
             result: { copiedResponse, cached: shouldCache },

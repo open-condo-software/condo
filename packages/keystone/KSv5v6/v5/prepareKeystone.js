@@ -15,10 +15,10 @@ const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/key
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { registerTasks } = require('@open-condo/keystone/tasks')
 
+const { getAsyncLocalStorage } = require('../../asyncLocalStorage')
 const { parseCorsSettings } = require('../../cors.utils')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
-const { asyncLocalStorage } = require('../../threadLocal')
 
 
 const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
@@ -94,6 +94,8 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {
+            const requestCtxLocalStorage = getAsyncLocalStorage('requestCtx')
+
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
 
@@ -107,7 +109,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
                 // we are expecting to receive reqId from client in order to have fully traced logs end to end
                 // also, property name are constant name, not a dynamic user input
                 // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
-                asyncLocalStorage.run(reqId, () => {
+                requestCtxLocalStorage.run(reqId, () => {
                     req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
                     res.setHeader(requestIdHeaderName, reqId)
                     next()
