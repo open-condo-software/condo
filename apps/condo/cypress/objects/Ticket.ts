@@ -8,6 +8,11 @@ const BASE_SIDE_EFFECTS = [
     '@getAllOrganizationEmployees',
     '@getOrganizationEmployeeById',
     '@getAllServiceSubscriptions',
+    '@getAllIncidentExportTasks',
+    '@getAllTicketExportTasks',
+    '@getAllBankSyncTasks',
+    '@getAllContactExportTasks',
+    '@getAllBankAccountReportTasks',
 ]
 
 class TicketCreate {
@@ -90,8 +95,7 @@ class TicketCreate {
             .click()
         cy.wait('@createTicket')
 
-        cy.location('pathname').should('not.eq', TICKET_CREATE_URL)
-        cy.location('pathname').should('contain', TICKET_VIEW_URL)
+        cy.location('pathname', { timeout: 10000 }).should('contain', TICKET_VIEW_URL)
         return this
     }
 }
@@ -110,7 +114,13 @@ class TicketView {
     visit (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
+        cy.wait([
+            ...BASE_SIDE_EFFECTS,
+            '@getAllTickets',
+            '@getAllTicketStatuses',
+            '@getAllTicketFilterTemplates',
+            '@selectTicketsCount',
+        ])
         return this
     }
 

@@ -9,12 +9,13 @@ export default defineConfig({
         videoCompression: 15,
         waitForAnimations: true,
         defaultCommandTimeout: 10000,
-        retries: 3,
+        retries: 0,
         setupNodeEvents (on, config) {
             // eslint-disable-next-line import/order
             return require('./plugins/index.js')(on, config)
         },
         requestTimeout: 10000,
+        pageLoadTimeout: 10000,
         numTestsKeptInMemory: 1,
     },
 })

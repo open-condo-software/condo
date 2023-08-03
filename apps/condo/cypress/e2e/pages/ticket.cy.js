@@ -6,9 +6,9 @@ import { authUserWithCookies } from '../../plugins/auth'
 
 describe('Ticket',  function () {
     describe('User', function () {
-        afterEach(() => {
-            cy.clearCookies()
-        })
+        // afterEach(() => {
+        //     cy.clearCookies()
+        // })
 
         it('can create ticket',  () => {
             cy.task('keystone:createUserWithProperty').then((response) => {
