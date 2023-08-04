@@ -269,9 +269,11 @@ describe('DiscoverServiceConsumersService', () => {
         describe('Without DSC feature flag', () => {
 
             const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
+            let adminNoFlag
 
-            beforeAll(() => {
+            beforeAll(async () => {
                 setIsFeatureFlagsEnabled(false) // Disable feature flags
+                adminNoFlag = await makeLoggedInAdminClient()
             })
 
             afterAll(() => {
@@ -281,19 +283,19 @@ describe('DiscoverServiceConsumersService', () => {
             test('discover no service consumers for managing organization if the feature flag was disabled', async () => {
                 const user = await makeClientWithProperty()
 
-                await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-                const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                await addAcquiringIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
-                const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
-                const [resident] = await createTestResident(admin, user.user, user.property,
+                const [billingProperty] = await createTestBillingProperty(adminNoFlag, billingIntegrationContext, { address: user.property.address })
+                const [resident] = await createTestResident(adminNoFlag, user.user, user.property,
                     { address: billingProperty.address },
                 )
-                await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
+                await createTestBillingAccount(adminNoFlag, billingIntegrationContext, billingProperty,
                     { unitName: resident.unitName, unitType: resident.unitType },
                 )
 
                 await waitFor(async () => {
-                    const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    const createdServiceConsumers = await ServiceConsumer.getAll(adminNoFlag, {
                         resident: { id: resident.id },
                         deletedAt: null,
                     })
@@ -308,10 +310,10 @@ describe('DiscoverServiceConsumersService', () => {
                 user.organization = organization
                 user.property = property
 
-                await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-                const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                await addAcquiringIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
-                const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
+                const [billingProperty] = await createTestBillingProperty(adminNoFlag, billingIntegrationContext, { address: user.property.address })
 
                 const residentClient1 = await makeClientWithResidentUser()
                 const [resident] = await registerResidentByTestClient(
@@ -323,12 +325,12 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: faker.lorem.word(),
                     })
 
-                const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
+                const [billingAccount] = await createTestBillingAccount(adminNoFlag, billingIntegrationContext, billingProperty,
                     { unitName: resident.unitName, unitType: resident.unitType },
                 )
 
                 await waitFor(async () => {
-                    const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    const createdServiceConsumers = await ServiceConsumer.getAll(adminNoFlag, {
                         resident: { id: resident.id },
                         deletedAt: null,
                     })
@@ -936,8 +938,49 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [registeredReceipts5] = await registerBillingReceiptsByTestClient(serviceUser2, payload5)
 
-            // One receipt must appear
+            // One receipt must appear for 5th
+            // The others must see the same as last time
             await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(6)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                    expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                    expect.objectContaining({ id: receipts1[4].id }),
+                    expect.objectContaining({ id: receipts1[5].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(4)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                    expect.objectContaining({ id: receipts2[1].id }),
+                    expect.objectContaining({ id: receipts2[2].id }),
+                    expect.objectContaining({ id: receipts2[3].id }),
+                ]))
+
+                const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
+                expect(receipts3).toHaveLength(6)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts3[0].id }),
+                    expect.objectContaining({ id: receipts3[1].id }),
+                    expect.objectContaining({ id: receipts3[2].id }),
+                    expect.objectContaining({ id: receipts3[3].id }),
+                    expect.objectContaining({ id: receipts3[4].id }),
+                    expect.objectContaining({ id: receipts3[5].id }),
+                ]))
+
+                const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
+                expect(receipts4).toHaveLength(4)
+                expect([...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts4[0].id }),
+                    expect.objectContaining({ id: receipts4[1].id }),
+                    expect.objectContaining({ id: receipts4[2].id }),
+                    expect.objectContaining({ id: receipts4[3].id }),
+                ]))
+
                 const receipts5 = await ResidentBillingReceipt.getAll(residentClient5, {})
                 expect(receipts5).toHaveLength(1)
                 expect([...registeredReceipts5]).toEqual(expect.arrayContaining([
