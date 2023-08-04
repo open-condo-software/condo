@@ -25,7 +25,7 @@ const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
     return await Meter.getAll(
-        context, { isAutomatic: false }, {
+        context, { isAutomatic: false, deletedAt: null }, {
             sortBy: 'id_ASC',
             first: pageSize,
             skip: offset,
@@ -52,6 +52,7 @@ const readMeterReadings = async ({ context, meters }) => {
             meter: {
                 id_in: meterIds,
             },
+            deletedAt: null,
         },
     })
 }
@@ -67,6 +68,7 @@ const readOrganizations = async ({ context, meters }) => {
         where: {
             id_in: organizationIds,
         },
+        deletedAt: null,
     })
 }
 
@@ -79,13 +81,14 @@ const readMeterReportingPeriods = async ({ context, organizations }) => {
             organization: {
                 id_in: organizationIds,
             },
+            deletedAt: null,
         },
     })
 }
 
 const checkIsDateInPeriod = (date, today, start, end) => {
-    return dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-DD').slice(0, -2) + (start.toString().length === 1 ? '0' + start : start) ||
-        dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-DD').slice(0, -2) + (end.toString().length === 1 ? '0' + end : end)
+    return dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-') + (start.toString().length === 1 ? '0' + start : start) ||
+        dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-') + (end.toString().length === 1 ? '0' + end : end)
 }
 
 const sendSubmitMeterReadingsPushNotifications = async () => {
@@ -148,7 +151,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             else periodsByProperty.push(period)
         }
 
-        for (let meter of meters) {
+        for (const meter of meters) {
             const period = periodsByProperty.find(({ property }) => property.id === meter.property.id) ??
                 periodsByOrganization.find(({ organization }) => organization.id === meter.organization.id) ??
                 defaultPeriod
@@ -169,8 +172,8 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             ))
 
             const isTodayInPeriod = period !== null && checkIsDateInPeriod(state.startTime, state.startTime, notifyStartDay, notifyEndDay)
-            const isEndPeriodNotification = period !== null && state.startTime.format('YYYY-MM-DD') === state.startTime.format('YYYY-MM-DD').slice(0, -2) + notifyStartDay
-            const periodKey = `${state.startTime.format('YYYY-MM-DD').slice(0, -2) + notifyStartDay}-${state.startTime.format('YYYY-MM-DD').slice(0, -2) + notifyEndDay}`
+            const isEndPeriodNotification = period !== null && state.startTime.format('YYYY-MM-DD') === state.startTime.format('YYYY-MM-') + (notifyEndDay.toString().length === 1 ? '0' + notifyEndDay : notifyEndDay)
+            const periodKey = `${state.startTime.format('YYYY-MM-') + notifyStartDay}-${state.startTime.format('YYYY-MM-') + notifyEndDay}`
 
             if (isTodayInPeriod) metersWithoutReadings.push({ meter, periodKey, isEndPeriodNotification, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
         }

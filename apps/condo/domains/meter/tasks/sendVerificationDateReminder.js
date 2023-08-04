@@ -58,6 +58,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         where: {
             accountNumber_in: accountNumbers,
         },
+        deletedAt: null,
     })
 
     // second step is to get all resident ids
@@ -70,6 +71,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         where: {
             id_in: residentsIds,
         },
+        deletedAt: null,
     })
 
     // next step - connect residents to services consumers
@@ -122,6 +124,7 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
                 id_in: users,
             },
             createdAt_gte: dayjs(date).add(-2, 'month').format('YYYY-MM-DD'),
+            deletedAt: null,
         },
     })
 

@@ -169,4 +169,35 @@ describe('Submit meter readings push notification', () => {
         expect(messages).toHaveLength(1)
         expect(messages[0].organization.id).toEqual(meter.organization.id)
     })
+
+    it('should send messages for empty readings and undefined nextVerificationDate with type METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE', async () => {
+        // arrange
+        const client = await makeClientWithServiceConsumer()
+        const adminClient = await makeLoggedInAdminClient()
+        const { property, organization, serviceConsumer, resident } = client
+        const [resource] = await MeterResource.getAll(adminClient, {})
+
+        const [meter, attrs] = await createTestMeter(adminClient, organization, property, resource, {
+            accountNumber: serviceConsumer.accountNumber,
+            unitName: resident.unitName,
+            verificationDate: dayjs().add(-1, 'year').toISOString(),
+            nextVerificationDate: undefined,
+        })
+
+        await createTestMeterReportingPeriod(adminClient, organization, {
+            notifyStartDay: 1,
+            notifyEndDay: Number(dayjs().format('DD')),
+        })
+        // act
+        await sendSubmitMeterReadingsPushNotifications()
+
+        // assert
+        const messages = await getNewMessages({
+            userId: client.user.id,
+            meterId: meter.id,
+        })
+        expect(messages).toHaveLength(1)
+        expect(messages[0].type).toEqual(METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE)
+        expect(messages[0].organization.id).toEqual(meter.organization.id)
+    })
 })
