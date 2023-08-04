@@ -15,7 +15,14 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
+const {
+    RESIDENT_DISCOVER_CONSUMERS_WINDOW,
+    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
+} = require('@condo/domains/resident/constants/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const redisGuard = new RedisGuard()
 
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
@@ -52,6 +59,14 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const { dv, sender, billingAccountsIds, filters } = data
 
                 const reqId = get(context, ['req', 'id'])
+
+                const checkLimits = async (uniqueField) => {
+                    await redisGuard.checkCustomLimitCounters(
+                        `discover-service-consumers-${uniqueField}`,
+                        RESIDENT_DISCOVER_CONSUMERS_WINDOW,
+                        MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
+                    )
+                }
 
                 const billingAccounts = await BillingAccount.getAll(
                     context,
@@ -120,13 +135,13 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     },
                     chunkProcessor: (chunk) => {
                         chunk.forEach((row) => {
-                            organizationsIdsWithProperties.add(get(row, ['organization', 'id']))
+                            organizationsIdsWithProperties.add(`${get(row, ['organization', 'id'])}_${get(row, 'address')}`)
                         })
                         return []
                     },
                 })
 
-                items = items.filter((item) => organizationsIdsWithProperties.has(item.organizationId))
+                items = items.filter((item) => organizationsIdsWithProperties.has(`${item.organizationId}_${item.address}`))
 
                 const residentsWhere = {
                     deletedAt: null,
@@ -140,14 +155,36 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }
                 const residents = await Resident.getAll(context, residentsWhere)
 
-                const combinations = flatMap(residents, (resident) => billingAccounts.map((account) => [resident, account]))
+                const residentsFilteredByLimit = []
+                for (const resident of residents) {
+                    try {
+                        await checkLimits(get(resident, ['user', 'id']))
+                        residentsFilteredByLimit.push(resident)
+                    } catch (err) {
+                        logger.warn({ message: err.message, reqId, resident })
+                    }
+                }
+
+                const combinations = flatMap(residentsFilteredByLimit, (resident) => billingAccounts.map((account) => {
+                    if (
+                        (
+                            resident.address === account.property.address
+                            || resident.addressKey === account.property.addressKey
+                        )
+                        && resident.unitType === account.unitType
+                        && resident.unitName === account.unitName
+                    ) {
+                        return [resident, account]
+                    }
+                }))
+                const definedCombinations = combinations.filter(Boolean)
                 const createdServiceConsumers = await Promise.all(
-                    combinations.map(([resident, account]) => ServiceConsumer.create(context, {
+                    definedCombinations.map(([resident, account]) => ServiceConsumer.create(context, {
                         dv,
                         sender,
                         resident: { connect: { id: resident.id } },
-                        organization: { connect: { id: get(account, ['context', 'organization', 'id']) } },
-                        billingIntegrationContext: { connect: { id: get(account, ['context', 'id']) } },
+                        organization: { connect: { id: get(account, ['context', 'organization', 'id'], null) } },
+                        billingIntegrationContext: { connect: { id: get(account, ['context', 'id'], null) } },
                         accountNumber: account.number,
                         isDiscovered: true,
 

@@ -166,10 +166,6 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident1.unitName, unitType: resident1.unitType },
             )
 
-            const [billingAccount2] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
-                { unitName: resident1.unitName, unitType: resident1.unitType },
-            )
-
             await waitFor(async () => {
                 const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                     OR: [
@@ -181,8 +177,9 @@ describe('DiscoverServiceConsumersService', () => {
                 const residentIds = createdServiceConsumers.map(serviceConsumer => serviceConsumer.resident.id)
                 const accountNumbers = createdServiceConsumers.map(serviceConsumer => serviceConsumer.accountNumber)
 
+                expect(createdServiceConsumers).toHaveLength(2)
                 expect(residentIds).toEqual(expect.arrayContaining([resident1.id, resident2.id]))
-                expect(accountNumbers).toEqual(expect.arrayContaining([billingAccount1.number, billingAccount2.number]))
+                expect(accountNumbers).toEqual(expect.arrayContaining([billingAccount1.number]))
             })
         })
 
@@ -238,32 +235,155 @@ describe('DiscoverServiceConsumersService', () => {
                 })
 
             // ...and check for service consumers created immediately
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                resident: { id: resident1.id },
+                OR: [
+                    { accountNumber: billingAccount1.number },
+                    { accountNumber: billingAccount2.number },
+                ],
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumers).toHaveLength(2)
+            expect(createdServiceConsumers).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident1.id }),
+                    organization: expect.objectContaining({ id: user.organization.id }),
+                    accountNumber: billingAccount1.number,
+                    isDiscovered: true,
+                }),
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident1.id }),
+                    organization: expect.objectContaining({ id: organization.id }),
+                    accountNumber: billingAccount2.number,
+                    isDiscovered: true,
+                }),
+            ]))
+        })
+
+        test('Each resident of organizations must see only their receipts', async () => {
+            const user1 = await makeClientWithProperty()
+            const user2 = await makeClientWithProperty()
+            const user2a = await makeClientWithProperty()
+
+            const { billingIntegrationContext: billingIntegrationContext1 } = await addBillingIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const { billingIntegrationContext: billingIntegrationContext2 } = await addBillingIntegrationAndContext(admin, user2.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(admin, user2.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const { billingIntegrationContext: billingIntegrationContext2a } = await addBillingIntegrationAndContext(admin, user2a.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(admin, user2a.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [billingProperty1] = await createTestBillingProperty(admin, billingIntegrationContext1, { address: user1.property.address })
+            const [billingProperty2] = await createTestBillingProperty(admin, billingIntegrationContext2, { address: user2.property.address })
+            const [billingProperty2a] = await createTestBillingProperty(admin, billingIntegrationContext2a, { address: user2.property.address })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+            const unitType2 = FLAT_UNIT_TYPE
+            const unitName2 = faker.lorem.word()
+
+            const [billingAccount1] = await createTestBillingAccount(admin, billingIntegrationContext1, billingProperty1, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            const [billingAccount2] = await createTestBillingAccount(admin, billingIntegrationContext2, billingProperty2, {
+                unitType: unitType2,
+                unitName: unitName2,
+            })
+
+            const [billingAccount2a] = await createTestBillingAccount(admin, billingIntegrationContext2a, billingProperty2a, {
+                unitType: unitType2,
+                unitName: unitName2,
+            })
+
+            // no consumers should be created after billing accounts appeared in database
+            // because of there are no residents yet
             await waitFor(async () => {
                 const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                    resident: { id: resident1.id },
                     OR: [
-                        { accountNumber: billingAccount1.number },
-                        { accountNumber: billingAccount2.number },
+                        { AND: [{ organization: { id: user1.organization.id } }, { accountNumber: billingAccount1.number }] },
+                        { AND: [{ organization: { id: user2.organization.id } }, { accountNumber: billingAccount2.number }] },
+                        { AND: [{ organization: { id: user2a.organization.id } }, { accountNumber: billingAccount2a.number }] },
                     ],
                     deletedAt: null,
                 })
 
-                expect(createdServiceConsumers).toHaveLength(2)
-                expect(createdServiceConsumers).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        resident: expect.objectContaining({ id: resident1.id }),
-                        organization: expect.objectContaining({ id: user.organization.id }),
-                        accountNumber: billingAccount1.number,
-                        isDiscovered: true,
-                    }),
-                    expect.objectContaining({
-                        resident: expect.objectContaining({ id: resident1.id }),
-                        organization: expect.objectContaining({ id: organization.id }),
-                        accountNumber: billingAccount2.number,
-                        isDiscovered: true,
-                    }),
-                ]))
+                expect(createdServiceConsumers).toHaveLength(0)
+            }, { delay: 500 })
+
+            // Now add residents and start the mutation manually, to pass all billing accounts
+            const [resident1] = await createTestResident(admin, user1.user, user1.property, {
+                address: billingProperty1.address,
+                unitName: unitName1,
+                unitType: unitType1,
             })
+            const [resident2] = await createTestResident(admin, user2.user, user2.property, {
+                address: billingProperty2.address,
+                unitName: unitName2,
+                unitType: unitType2,
+            })
+            const [resident2a] = await createTestResident(admin, user2a.user, user2.property, {
+                address: billingProperty2a.address,
+                unitName: unitName2,
+                unitType: unitType2,
+            })
+
+            const payload = {
+                billingAccountsIds: [billingAccount1.id, billingAccount2.id, billingAccount2a.id],
+            }
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
+
+            expect(statistics).toEqual({
+                created: 5,
+                residentsFound: 3,
+                billingAccountsFound: 3,
+            })
+
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                OR: [
+                    { AND: [{ organization: { id: user1.organization.id } }, { accountNumber: billingAccount1.number }] },
+                    { AND: [{ organization: { id: user2.organization.id } }, { accountNumber: billingAccount2.number }] },
+                    { AND: [{ organization: { id: user2a.organization.id } }, { accountNumber: billingAccount2a.number }] },
+                ],
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumers).toHaveLength(5)
+            expect(createdServiceConsumers).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident1.id }),
+                    organization: expect.objectContaining({ id: user1.organization.id }),
+                    accountNumber: billingAccount1.number,
+                    isDiscovered: true,
+                }),
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident2.id }),
+                    organization: expect.objectContaining({ id: user2.organization.id }),
+                    accountNumber: billingAccount2.number,
+                    isDiscovered: true,
+                }),
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident2a.id }),
+                    organization: expect.objectContaining({ id: user2a.organization.id }),
+                    accountNumber: billingAccount2a.number,
+                    isDiscovered: true,
+                }),
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident2.id }),
+                    organization: expect.objectContaining({ id: user2a.organization.id }),
+                    accountNumber: billingAccount2a.number,
+                    isDiscovered: true,
+                }),
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident2a.id }),
+                    organization: expect.objectContaining({ id: user2.organization.id }),
+                    accountNumber: billingAccount2.number,
+                    isDiscovered: true,
+                }),
+            ]))
         })
 
         describe('Without DSC feature flag', () => {
@@ -300,7 +420,7 @@ describe('DiscoverServiceConsumersService', () => {
                         deletedAt: null,
                     })
                     expect(createdServiceConsumers).toHaveLength(0)
-                })
+                }, { delay: 500 })
             })
 
             test('discover service consumers for service provider org even if the feature DSC-flag was disabled', async () => {
@@ -343,7 +463,7 @@ describe('DiscoverServiceConsumersService', () => {
                             isDiscovered: true,
                         }),
                     ]))
-                })
+                }, { delay: 500 })
             })
         })
     })
@@ -623,8 +743,8 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [registeredReceipts2] = await registerBillingReceiptsByTestClient(serviceUser2, payload2)
 
-            // The 1st resident must see 4 receipts
-            // The 2nd one see nothing, cause serviceOrg1 haven't add property
+            // The 1st resident must see 3 receipts
+            // The 2nd one see nothing, cause serviceOrg1 haven't added property
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
                 expect(receipts1).toHaveLength(3)
@@ -715,16 +835,15 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [registeredReceipts1c] = await registerBillingReceiptsByTestClient(serviceUser1, payload1c)
 
-            // After that the 1st and the 3rd residents must see 4 receipts each
+            // After that the 1st see still 3 receipts because of discovering limit and the 3rd residents must see 4 receipts
             // The 2nd see the same, cause their property is not added to managingOrg1
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(4)
+                expect(receipts1).toHaveLength(3)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
-                    expect.objectContaining({ id: receipts1[3].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -759,12 +878,11 @@ describe('DiscoverServiceConsumersService', () => {
             // The 1st and 3rd residents must see the same
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(4)
+                expect(receipts1).toHaveLength(3)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
-                    expect.objectContaining({ id: receipts1[3].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -820,17 +938,15 @@ describe('DiscoverServiceConsumersService', () => {
             const [registeredReceipts2a] = await registerBillingReceiptsByTestClient(serviceUser2, payload2a)
 
             // The 2nd and 4th residents must see +1 receipt from serviceOrg1
-            // The 1st and 3rd residents must see +2 receipt from serviceOrg1
+            // The 1st see the same because of discovering limit
+            // 3rd resident must see +1 receipt from serviceOrg1 instead +2 because the discovering limit reached
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(6)
+                expect(receipts1).toHaveLength(3)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
-                    expect.objectContaining({ id: receipts1[3].id }),
-                    expect.objectContaining({ id: receipts1[4].id }),
-                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -843,14 +959,13 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(6)
+                expect(receipts3).toHaveLength(5)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
                     expect.objectContaining({ id: receipts3[4].id }),
-                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
@@ -870,17 +985,31 @@ describe('DiscoverServiceConsumersService', () => {
                 addressMeta: addressMeta2a,
             })
 
+            // And upload some receipts to the new address
+            // add one receipt for the new 5th resident
+            const unitType5 = FLAT_UNIT_TYPE
+            const unitName5 = faker.lorem.word()
+            const payload5 = {
+                context: { id: billingContext2.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: address2a,
+                        unitType: unitType5,
+                        unitName: unitName5,
+                    }),
+                ],
+            }
+            const [registeredReceipts5] = await registerBillingReceiptsByTestClient(serviceUser2, payload5)
+
             // Residents must see the same receipts set
+            // TODO(DOMA-6674) this test will fail after 6674 will be merged
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(6)
+                expect(receipts1).toHaveLength(3)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
-                    expect.objectContaining({ id: receipts1[3].id }),
-                    expect.objectContaining({ id: receipts1[4].id }),
-                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -893,14 +1022,13 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(6)
+                expect(receipts3).toHaveLength(5)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
                     expect.objectContaining({ id: receipts3[4].id }),
-                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
@@ -914,42 +1042,21 @@ describe('DiscoverServiceConsumersService', () => {
             }, { delay: 500 })
 
             // 5th resident registered to updated address
-            const unitType5 = FLAT_UNIT_TYPE
-            const unitName5 = faker.lorem.word()
             await registerResidentByTestClient(
                 residentClient5,
                 { address: address2a, addressMeta: addressMeta2a, unitType: unitType5, unitName: unitName5 },
             )
 
-            // No receipts for mr. 5th at the new address
-            const receipts5 = await ResidentBillingReceipt.getAll(residentClient5, {})
-            expect(receipts5).toHaveLength(0)
-
-            // add one receipt for the new 5th resident
-            const payload5 = {
-                context: { id: billingContext2.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: address2a,
-                        unitType: unitType5,
-                        unitName: unitName5,
-                    }),
-                ],
-            }
-            const [registeredReceipts5] = await registerBillingReceiptsByTestClient(serviceUser2, payload5)
-
             // One receipt must appear for 5th
             // The others must see the same as last time
+            // TODO(DOMA-6674) this test will fail after 6674 will be merged
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(6)
+                expect(receipts1).toHaveLength(3)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
-                    expect.objectContaining({ id: receipts1[3].id }),
-                    expect.objectContaining({ id: receipts1[4].id }),
-                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -962,14 +1069,13 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(6)
+                expect(receipts3).toHaveLength(5)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
                     expect.objectContaining({ id: receipts3[4].id }),
-                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
