@@ -33,9 +33,9 @@ const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     serviceConsumer: 'ServiceConsumer',
 }
 
-const getPrimaryFile = (receipt, contacts) => {
-    if (isNil(receipt.primaryFile)) {
-        return receipt.primaryFile
+const getFile = (receipt, contacts) => {
+    if (isNil(receipt.file)) {
+        return receipt.file
     }
     const accountUnitName = get(receipt, ['account', 'unitName'])
     const accountUnitType = get(receipt, ['account', 'unitType'])
@@ -47,13 +47,13 @@ const getPrimaryFile = (receipt, contacts) => {
         && contact.unitType === accountUnitType
         && contact.property.address === propertyAddress)
     const file = propertyContacts.length > 0
-        ? receipt.primaryFile.sensitiveDataFile
-        : receipt.primaryFile.publicDataFile
+        ? receipt.file.sensitiveDataFile
+        : receipt.file.publicDataFile
     const publicUrl = Adapter.publicUrl({ filename: file.filename })
 
     return {
         file: { ...file, publicUrl },
-        controlSum: receipt.primaryFile.controlSum,
+        controlSum: receipt.file.controlSum,
     }
 }
 
@@ -73,7 +73,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! primaryFile: ResidentBillingReceiptFile }`,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile }`,
         },
     ],
 
@@ -144,7 +144,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 })
 
                 receiptsForConsumer.forEach(receipt => {
-                    const primaryFile = getPrimaryFile(receipt, contacts)
+                    const file = getFile(receipt, contacts)
                     processedReceipts.push({
                         id: receipt.id,
                         dv: receipt.dv,
@@ -159,7 +159,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         printableNumber: receipt.printableNumber,
                         serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
-                        primaryFile,
+                        file,
                     })
                 })
 

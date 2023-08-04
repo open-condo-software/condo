@@ -15271,8 +15271,8 @@ export type BillingReceipt = {
   receiver?: Maybe<BillingRecipient>;
   /**  Indicates if services are valid and add up to total sum toPay.  */
   invalidServicesError?: Maybe<Scalars['String']>;
-  /**  A BillingReceiptFile that primary related to this billing receipt (filled up by integration)  */
-  primaryFile?: Maybe<BillingReceiptFile>;
+  /**  A BillingReceiptFile that related to this billing receipt (filled up by integration)  */
+  file?: Maybe<BillingReceiptFile>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -15310,7 +15310,7 @@ export type BillingReceiptCreateInput = {
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   receiver?: Maybe<BillingRecipientRelateToOneInput>;
-  primaryFile?: Maybe<BillingReceiptFileRelateToOneInput>;
+  file?: Maybe<BillingReceiptFileRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -15793,7 +15793,7 @@ export type BillingReceiptHistoryRecord = {
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
-  primaryFile?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -15831,7 +15831,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
-  primaryFile?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -15874,7 +15874,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
-  primaryFile?: Maybe<Scalars['String']>;
+  file?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -16050,10 +16050,10 @@ export type BillingReceiptHistoryRecordWhereInput = {
   invalidServicesError_not?: Maybe<Scalars['JSON']>;
   invalidServicesError_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   invalidServicesError_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  primaryFile?: Maybe<Scalars['String']>;
-  primaryFile_not?: Maybe<Scalars['String']>;
-  primaryFile_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  primaryFile_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file?: Maybe<Scalars['String']>;
+  file_not?: Maybe<Scalars['String']>;
+  file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -16236,7 +16236,7 @@ export type BillingReceiptUpdateInput = {
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   receiver?: Maybe<BillingRecipientRelateToOneInput>;
-  primaryFile?: Maybe<BillingReceiptFileRelateToOneInput>;
+  file?: Maybe<BillingReceiptFileRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -16395,8 +16395,8 @@ export type BillingReceiptWhereInput = {
   recipient_not_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
   receiver?: Maybe<BillingRecipientWhereInput>;
   receiver_is_null?: Maybe<Scalars['Boolean']>;
-  primaryFile?: Maybe<BillingReceiptFileWhereInput>;
-  primaryFile_is_null?: Maybe<Scalars['Boolean']>;
+  file?: Maybe<BillingReceiptFileWhereInput>;
+  file_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -62167,7 +62167,7 @@ export type ResidentBillingReceiptOutput = {
   currencyCode: Scalars['String'];
   category: BillingCategory;
   isPayable: Scalars['Boolean'];
-  primaryFile?: Maybe<ResidentBillingReceiptFile>;
+  file?: Maybe<ResidentBillingReceiptFile>;
 };
 
 export type ResidentBillingReceiptWhereInput = {
@@ -65925,8 +65925,8 @@ export enum SortBillingReceiptsBy {
   PaidDesc = 'paid_DESC',
   ReceiverAsc = 'receiver_ASC',
   ReceiverDesc = 'receiver_DESC',
-  PrimaryFileAsc = 'primaryFile_ASC',
-  PrimaryFileDesc = 'primaryFile_DESC',
+  FileAsc = 'file_ASC',
+  FileDesc = 'file_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

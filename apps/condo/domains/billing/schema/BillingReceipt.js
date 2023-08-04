@@ -174,8 +174,8 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             },
         },
 
-        primaryFile: {
-            schemaDoc: 'A BillingReceiptFile that primary related to this billing receipt (filled up by integration)',
+        file: {
+            schemaDoc: 'A BillingReceiptFile that related to this billing receipt (filled up by integration)',
             type: Relationship,
             ref: 'BillingReceiptFile',
             isRequired: false,

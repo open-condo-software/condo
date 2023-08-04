@@ -90,7 +90,7 @@ describe('AllResidentBillingReceiptsService', () => {
             })
         })
 
-        it('returns primaryFile', async () => {
+        it('returns file', async () => {
             const userClient = await makeClientWithProperty()
             const support = await makeClientWithSupportUser()
             const adminClient = await makeLoggedInAdminClient()
@@ -123,7 +123,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
             // set primary file
             await updateTestBillingReceipt(integrationClient, receipt.id, {
-                primaryFile: { connect: { id: receiptFile.id } },
+                file: { connect: { id: receiptFile.id } },
             })
 
             // getting the result
@@ -162,11 +162,11 @@ describe('AllResidentBillingReceiptsService', () => {
                 expect(receipt).toHaveProperty('services')
                 expect(receipt.services).not.toBeNull()
 
-                expect(receipt).toHaveProperty('primaryFile')
-                expect(receipt.primaryFile).not.toBeNull()
-
-                expect(receipt.primaryFile).toHaveProperty('file')
+                expect(receipt).toHaveProperty('file')
                 expect(receipt.file).not.toBeNull()
+
+                expect(receipt.file).toHaveProperty('file')
+                expect(receipt.file.file).not.toBeNull()
             })
         })
         //TODO: @abshnko return services check to mobile
