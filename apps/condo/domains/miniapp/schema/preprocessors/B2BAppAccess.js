@@ -122,6 +122,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
     if (!listKey) return false
 
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
+    if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
     let organizationId
 
@@ -130,7 +131,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             organizationId = get(originalInput, [pathToOrganizationId[0]], null)
         } else if (pathToOrganizationId.length === 2) {
             organizationId = get(originalInput, [pathToOrganizationId[0], 'connect', pathToOrganizationId[1]], null)
-        } else if (pathToOrganizationId.length === 3) {
+        } else if (pathToOrganizationId.length > 2) {
             const parentObjectId = get(originalInput, [pathToOrganizationId[0], 'connect', 'id'], null)
             if (!parentObjectId) return false
 
@@ -145,19 +146,15 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
             if (!parentObject) return false
 
-            organizationId = get(parentObject, [pathToOrganizationId[1], pathToOrganizationId[2]])
-        } else {
-            throw new Error(`You should implement "canManageByServiceUser" when "pathToOrganizationId" have depth ${pathToOrganizationId.length}`)
+            organizationId = get(parentObject, pathToOrganizationId.slice(1))
         }
     } else if (operation === 'update') {
         const item = await getById(listKey, itemId)
         if (!item) return false
 
-        if (pathToOrganizationId.length === 1) {
+        if (pathToOrganizationId.length === 1 || pathToOrganizationId.length === 2) {
             organizationId = get(item, [pathToOrganizationId[0]], null)
-        } else if (pathToOrganizationId.length === 2) {
-            organizationId = get(item, [pathToOrganizationId[0]], null)
-        } else if (pathToOrganizationId.length === 3) {
+        } else if (pathToOrganizationId.length > 2) {
             const parentObjectId = get(item, [pathToOrganizationId[0]])
             if (!parentObjectId) return false
 
@@ -172,9 +169,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
             if (!parentObject) return false
 
-            organizationId = get(parentObject, [pathToOrganizationId[1], pathToOrganizationId[2]])
-        } else {
-            throw new Error(`You should implement "canManageByServiceUser" when "pathToOrganizationId" have depth ${pathToOrganizationId.length}`)
+            organizationId = get(parentObject, pathToOrganizationId.slice(1))
         }
     }
 
