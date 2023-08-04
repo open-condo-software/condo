@@ -41,7 +41,7 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
     const EnableMessage = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.OnlyProgressionMeterReadings.isEnabled' })
 
     const router = useRouter()
-    const [onlyGreaterThanPreviousMeterReadingIsEnabled, setonlyGreaterThanPreviousMeterReadingIsEnabled] = useState<boolean>(get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled'))
+    const [onlyGreaterThanPreviousMeterReadingIsEnabled, setOnlyGreaterThanPreviousMeterReadingIsEnabled] = useState<boolean>(get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled'))
 
     const initialValues = {
         onlyGreaterThanPreviousMeterReadingIsEnabled: get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled'),
@@ -54,65 +54,66 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
     const createAction = MobileFeatureConfig.useCreate({}, () => router.push('/settings?tab=mobileFeatureConfig'))
     const action = mobileConfig ? updateAction : createAction
 
-    return useMemo(() => (<FormWithAction
-        initialValues={initialValues}
-        action={action}
-        colon={false}
-        layout='horizontal'
-        formValuesToMutationDataPreprocessor={(values) => {
-            if (!mobileConfig) {
-                values.organization = { connect: { id: userOrganizationId } }
-            }
-            return values
-        }}
-    >
-        {({ handleSave, isLoading }) => (
-            <Row gutter={BIG_ROW_GUTTERS}>
-                <Col span={24}>
-                    <Row gutter={MIDDLE_ROW_GUTTERS}>
-                        <Col span={24}>
-                            <Row gutter={SMALL_ROW_GUTTERS}>
-                                <Col span={24}>
-                                    <Typography.Text >{MessageAboutFeat}</Typography.Text>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='onlyGreaterThanPreviousMeterReadingIsEnabled'
-                                        label={EnableMessage}
-                                        labelAlign='left'
-                                        {...INPUT_LAYOUT_PROPS}
-                                        valuePropName='checked'
-                                        initialValue={onlyGreaterThanPreviousMeterReadingIsEnabled}
-                                    >
-                                        <Checkbox
-                                            onChange={() => {
-                                                setonlyGreaterThanPreviousMeterReadingIsEnabled(!onlyGreaterThanPreviousMeterReadingIsEnabled)
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
+    return useMemo(() => (
+        <FormWithAction
+            initialValues={initialValues}
+            action={action}
+            colon={false}
+            layout='horizontal'
+            formValuesToMutationDataPreprocessor={(values) => {
+                if (!mobileConfig) {
+                    values.organization = { connect: { id: userOrganizationId } }
+                }
+                return values
+            }}
+        >
+            {({ handleSave, isLoading }) => (
+                <Row gutter={BIG_ROW_GUTTERS}>
+                    <Col span={24}>
+                        <Row gutter={MIDDLE_ROW_GUTTERS}>
+                            <Col span={24}>
+                                <Row gutter={SMALL_ROW_GUTTERS}>
+                                    <Col span={24}>
+                                        <Typography.Text >{MessageAboutFeat}</Typography.Text>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name='onlyGreaterThanPreviousMeterReadingIsEnabled'
+                                            label={EnableMessage}
+                                            labelAlign='left'
+                                            {...INPUT_LAYOUT_PROPS}
+                                            valuePropName='checked'
+                                            initialValue={onlyGreaterThanPreviousMeterReadingIsEnabled}
+                                        >
+                                            <Checkbox
+                                                onChange={() => {
+                                                    setOnlyGreaterThanPreviousMeterReadingIsEnabled(!onlyGreaterThanPreviousMeterReadingIsEnabled)
+                                                }}
+                                            />
+                                        </Form.Item>
+                                    </Col>
 
-                            </Row>
-                        </Col>
+                                </Row>
+                            </Col>
 
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <ActionBar
-                        actions={[
-                            <Button
-                                key='submit'
-                                onClick={handleSave}
-                                type='primary'
-                                loading={isLoading}
-                            >
-                                {SaveMessage}
-                            </Button>,
-                        ]}
-                    />
-                </Col>
-            </Row>
-        )}
-    </FormWithAction>
+                        </Row>
+                    </Col>
+                    <Col span={24}>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='primary'
+                                    loading={isLoading}
+                                >
+                                    {SaveMessage}
+                                </Button>,
+                            ]}
+                        />
+                    </Col>
+                </Row>
+            )}
+        </FormWithAction>
     ), [action, mobileConfig, onlyGreaterThanPreviousMeterReadingIsEnabled])
 }

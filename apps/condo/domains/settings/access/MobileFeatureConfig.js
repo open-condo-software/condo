@@ -24,6 +24,7 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) 
         if (residents.length > 0) {
             return {
                 organization: { id_in: organizations },
+                deletedAt: null,
             }
         }
         return false

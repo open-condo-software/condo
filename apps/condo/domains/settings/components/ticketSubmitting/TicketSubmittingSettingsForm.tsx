@@ -65,113 +65,114 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
     const createAction = MobileFeatureConfig.useCreate({}, () => router.push('/settings?tab=mobileFeatureConfig'))
     const action = mobileConfig ? updateAction : createAction
 
-    return useMemo(() => (<FormWithAction
-        initialValues={initialValues}
-        action={action}
-        colon={false}
-        layout='horizontal'
-        formValuesToMutationDataPreprocessor={(values) => {
-            if (!mobileConfig) {
-                values.organization = { connect: { id: userOrganizationId } }
-            }
-            return values
-        }}
-    >
-        {({ handleSave, isLoading }) => (
-            <Row gutter={BIG_ROW_GUTTERS}>
-                <Col span={24}>
-                    <Row gutter={MIDDLE_ROW_GUTTERS}>
-                        <Col span={24}>
-                            <Row gutter={SMALL_ROW_GUTTERS}>
-                                <Col span={24}>
-                                    <Typography.Text >{MessageAboutFeat}</Typography.Text>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='commonPhone'
-                                        label={CommonPhoneMessage}
-                                        labelAlign='left'
-                                        {...INPUT_LAYOUT_PROPS}
-                                    >
-                                        <PhoneInput
-                                            placeholder={ExamplePhoneMessage}
-                                            value={commonPhone}
-                                            onChange={(value) => {
-                                                setCommonPhone(value)
-                                            }}
-                                            block
-                                        />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        name='ticketSubmittingIsDisabled'
-                                        label={IsEnabledMessage}
-                                        labelAlign='left'
-                                        {...INPUT_LAYOUT_PROPS}
-                                        valuePropName='checked'
-                                        initialValue={ticketSubmittingIsDisabled}
-                                    >
-                                        <Checkbox
-                                            onChange={() => {
-                                                setTicketSubmittingIsDisabled(!ticketSubmittingIsDisabled)
-                                            }}
-                                        />
-                                    </Form.Item>
-                                </Col>
-
-                            </Row>
-                        </Col>
-
-                    </Row>
-                </Col>
-                <Col span={24}>
+    return useMemo(() => (
+        <FormWithAction
+            initialValues={initialValues}
+            action={action}
+            colon={false}
+            layout='horizontal'
+            formValuesToMutationDataPreprocessor={(values) => {
+                if (!mobileConfig) {
+                    values.organization = { connect: { id: userOrganizationId } }
+                }
+                return values
+            }}
+        >
+            {({ handleSave, isLoading }) => (
+                <Row gutter={BIG_ROW_GUTTERS}>
                     <Col span={24}>
-                        <Form.Item
-                            noStyle
-                            dependencies={['ticketSubmittingIsDisabled', 'commonPhone']}
-                            shouldUpdate>
-                            {
-                                ({ getFieldsValue, getFieldError }) => {
-                                    const {
-                                        ticketSubmittingIsDisabled,
-                                        commonPhone,
-                                    } = getFieldsValue(['ticketSubmittingIsDisabled', 'commonPhone'])
+                        <Row gutter={MIDDLE_ROW_GUTTERS}>
+                            <Col span={24}>
+                                <Row gutter={SMALL_ROW_GUTTERS}>
+                                    <Col span={24}>
+                                        <Typography.Text >{MessageAboutFeat}</Typography.Text>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name='commonPhone'
+                                            label={CommonPhoneMessage}
+                                            labelAlign='left'
+                                            {...INPUT_LAYOUT_PROPS}
+                                        >
+                                            <PhoneInput
+                                                placeholder={ExamplePhoneMessage}
+                                                value={commonPhone}
+                                                onChange={(value) => {
+                                                    setCommonPhone(value)
+                                                }}
+                                                block
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            name='ticketSubmittingIsDisabled'
+                                            label={IsEnabledMessage}
+                                            labelAlign='left'
+                                            {...INPUT_LAYOUT_PROPS}
+                                            valuePropName='checked'
+                                            initialValue={ticketSubmittingIsDisabled}
+                                        >
+                                            <Checkbox
+                                                onChange={() => {
+                                                    setTicketSubmittingIsDisabled(!ticketSubmittingIsDisabled)
+                                                }}
+                                            />
+                                        </Form.Item>
+                                    </Col>
 
-                                    const messageLabels = []
-                                    if (!ticketSubmittingIsDisabled && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
+                                </Row>
+                            </Col>
 
-                                    const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
-                                    const hasInvalidPhoneError = commonPhone && (normalizePhone(commonPhone) !== commonPhone) ? InvalidPhoneMessage : undefined
-                                    const errors = [requiredErrorMessage, hasInvalidPhoneError]
-                                        .filter(Boolean)
-                                        .join(', ')
-
-                                    const isDisabled = hasInvalidPhoneError || requiredErrorMessage
-
-                                    return (
-                                        <ActionBar
-                                            actions={[
-                                                <ButtonWithDisabledTooltip
-                                                    key='submit'
-                                                    type='primary'
-                                                    disabled={isDisabled}
-                                                    title={errors}
-                                                    onClick={handleSave}
-                                                    loading={isLoading}
-                                                >
-                                                    {SaveMessage}
-                                                </ButtonWithDisabledTooltip>,
-                                            ]}
-                                        />
-                                    )
-                                }
-                            }
-                        </Form.Item>
+                        </Row>
                     </Col>
-                </Col>
-            </Row>
-        )}
-    </FormWithAction>
+                    <Col span={24}>
+                        <Col span={24}>
+                            <Form.Item
+                                noStyle
+                                dependencies={['ticketSubmittingIsDisabled', 'commonPhone']}
+                                shouldUpdate>
+                                {
+                                    ({ getFieldsValue, getFieldError }) => {
+                                        const {
+                                            ticketSubmittingIsDisabled,
+                                            commonPhone,
+                                        } = getFieldsValue(['ticketSubmittingIsDisabled', 'commonPhone'])
+
+                                        const messageLabels = []
+                                        if (!ticketSubmittingIsDisabled && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
+
+                                        const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
+                                        const hasInvalidPhoneError = commonPhone && (normalizePhone(commonPhone) !== commonPhone) ? InvalidPhoneMessage : undefined
+                                        const errors = [requiredErrorMessage, hasInvalidPhoneError]
+                                            .filter(Boolean)
+                                            .join(', ')
+
+                                        const isDisabled = hasInvalidPhoneError || requiredErrorMessage
+
+                                        return (
+                                            <ActionBar
+                                                actions={[
+                                                    <ButtonWithDisabledTooltip
+                                                        key='submit'
+                                                        type='primary'
+                                                        disabled={isDisabled}
+                                                        title={errors}
+                                                        onClick={handleSave}
+                                                        loading={isLoading}
+                                                    >
+                                                        {SaveMessage}
+                                                    </ButtonWithDisabledTooltip>,
+                                                ]}
+                                            />
+                                        )
+                                    }
+                                }
+                            </Form.Item>
+                        </Col>
+                    </Col>
+                </Row>
+            )}
+        </FormWithAction>
     ), [action, commonPhone, mobileConfig, ticketSubmittingIsDisabled])
 }
