@@ -16,6 +16,7 @@ const access = require('@condo/domains/billing/access/AllResidentBillingReceipts
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
@@ -138,7 +139,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 // cache verified contacts for authed user
                 // in order to determinate if user can see
                 // a sensitive version of primary file
-                const contacts = await find('Contact', {
+                const contacts = await Contact.getAll(context, {
                     phone: context.authedItem.phone,
                     isVerified: true,
                 })
