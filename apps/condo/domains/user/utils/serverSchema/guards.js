@@ -42,7 +42,7 @@ class RedisGuard {
     /**
      *
      * @param {string} variable
-     * @param {string} windowSize
+     * @param {number} windowSize
      * @param {number} counterLimit
      * @param {Object | undefined} context - Keystone context
      * @return {Promise<void>}

@@ -20,9 +20,7 @@ const { TO_PAY_DETAILS_FIELD } = require('./fields/BillingReceipt/ToPayDetailsFi
 const { RAW_DATA_FIELD, PERIOD_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD, BILLING_ACCOUNT_FIELD } = require('./fields/relations')
 
-
 const DEFAULT_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
-
 
 const BillingReceipt = new GQLListSchema('BillingReceipt', {
     schemaDoc: 'Account monthly invoice document',

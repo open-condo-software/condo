@@ -40834,6 +40834,7 @@ type ServiceConsumerHistoryRecord {
   accountNumber: String
   organization: String
   residentOrganization: JSON
+  isDiscovered: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -40920,6 +40921,8 @@ input ServiceConsumerHistoryRecordWhereInput {
   residentOrganization_not: JSON
   residentOrganization_in: [JSON]
   residentOrganization_not_in: [JSON]
+  isDiscovered: Boolean
+  isDiscovered_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -41007,6 +41010,8 @@ enum SortServiceConsumerHistoryRecordsBy {
   paymentCategory_DESC
   accountNumber_ASC
   accountNumber_DESC
+  isDiscovered_ASC
+  isDiscovered_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -41036,6 +41041,7 @@ input ServiceConsumerHistoryRecordUpdateInput {
   accountNumber: String
   organization: String
   residentOrganization: JSON
+  isDiscovered: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -41066,6 +41072,7 @@ input ServiceConsumerHistoryRecordCreateInput {
   accountNumber: String
   organization: String
   residentOrganization: JSON
+  isDiscovered: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -41156,6 +41163,10 @@ type ServiceConsumer {
   """ Organization data, that is returned for current resident in mobile client 
   """
   residentOrganization: residentOrganization
+
+  """ Determines if the resident created this service consumer providing the account number, or it was created automatically based on the house address and unit name with unit type 
+  """
+  isDiscovered: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -41228,6 +41239,8 @@ input ServiceConsumerWhereInput {
   accountNumber_not_in: [String]
   organization: OrganizationWhereInput
   organization_is_null: Boolean
+  isDiscovered: Boolean
+  isDiscovered_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -41305,6 +41318,8 @@ enum SortServiceConsumersBy {
   accountNumber_DESC
   organization_ASC
   organization_DESC
+  isDiscovered_ASC
+  isDiscovered_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -41331,6 +41346,7 @@ input ServiceConsumerUpdateInput {
   acquiringIntegrationContext: AcquiringIntegrationContextRelateToOneInput
   accountNumber: String
   organization: OrganizationRelateToOneInput
+  isDiscovered: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -41355,6 +41371,7 @@ input ServiceConsumerCreateInput {
   acquiringIntegrationContext: AcquiringIntegrationContextRelateToOneInput
   accountNumber: String
   organization: OrganizationRelateToOneInput
+  isDiscovered: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -64034,19 +64051,26 @@ type SendMessageToResidentScopesServiceOutput {
   status: String!
 }
 
+input DiscoverServiceConsumersInputFilters {
+  residentsIds: [ID!]
+}
+
 input DiscoverServiceConsumersInput {
   dv: Int!
   sender: SenderFieldInput!
-  address: String!
-  unitName: String!
-  unitType: String!
-  billingAccount: BillingAccountWhereUniqueInput
-  resident: ResidentWhereUniqueInput
+  billingAccountsIds: [ID!]!
+  filters: DiscoverServiceConsumersInputFilters
+}
+
+type DiscoverServiceConsumersOutputStatistics {
+  created: Int!
+  residentsFound: Int!
+  billingAccountsFound: Int!
 }
 
 type DiscoverServiceConsumersOutput {
   status: String!
-  createdServiceConsumersTotal: Int!
+  statistics: DiscoverServiceConsumersOutputStatistics!
 }
 
 enum OnBoardingType {

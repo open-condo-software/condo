@@ -6,9 +6,8 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 async function canDiscoverServiceConsumers ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin) return true
 
-    return false
+    return !!user.isAdmin
 }
 
 /*

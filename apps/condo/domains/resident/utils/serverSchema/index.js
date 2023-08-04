@@ -81,7 +81,7 @@ async function discoverServiceConsumers (context, data) {
         query: DISCOVER_SERVICE_CONSUMERS_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to discoverServiceConsumer',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 /* AUTOGENERATE MARKER <CONST> */

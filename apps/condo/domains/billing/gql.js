@@ -16,7 +16,7 @@ const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTE
 const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user { id name } ${COMMON_FIELDS} }`
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
 const BILLING_INTEGRATION_PROBLEM_FIELDS = `{ context { id } title message meta ${COMMON_FIELDS} }`
@@ -25,7 +25,7 @@ const BillingIntegrationProblem = generateGqlQueries('BillingIntegrationProblem'
 const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id address addressKey } importId address addressKey raw globalId meta ${COMMON_FIELDS} }`
 const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 
-const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } number unitName unitType raw globalId meta fullName ${COMMON_FIELDS} }`
+const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } number unitName unitType raw globalId meta fullName ${COMMON_FIELDS} }`
 const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 
 const BILLING_RECIPIENT_FIELDS = `{ context { id } importId tin iec bic bankAccount purpose isApproved meta name ${COMMON_FIELDS} }`
