@@ -13,6 +13,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowValidationFailureError,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -229,11 +230,14 @@ describe('B2CAppBuild', () => {
     })
     describe('Validations', () => {
         test('Cannot accept non-zip archive file', async () => {
-            await expectToThrowValidationFailureError(async () => {
+            await expectToThrowGQLError(async () => {
                 await createTestB2CAppBuild(admin, app, {
                     data: new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')),
                 })
-            }, NON_ZIP_FILE_ERROR)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: NON_ZIP_FILE_ERROR,
+            })
         })
         test('Service account cannot create build linked to non-permitted app or change link to another app', async () => {
             const [secondApp] = await createTestB2CApp(admin)
