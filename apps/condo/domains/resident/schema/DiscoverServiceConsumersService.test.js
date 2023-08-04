@@ -458,7 +458,7 @@ describe('DiscoverServiceConsumersService', () => {
             })
         })
 
-        test('game of life', async () => {
+        test('game of life: the chain of users\' actions', async () => {
             const user1 = await makeClientWithNewRegisteredAndLoggedInUser()
             const serviceUser1 = await makeClientWithServiceUser()
             const user2 = await makeClientWithNewRegisteredAndLoggedInUser()
