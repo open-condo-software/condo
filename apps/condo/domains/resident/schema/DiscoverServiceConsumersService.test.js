@@ -44,6 +44,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC } = require('@condo/domains/resident/constants/constants')
 
 describe('DiscoverServiceConsumersService', () => {
     let admin
@@ -1110,6 +1111,60 @@ describe('DiscoverServiceConsumersService', () => {
                     expect.objectContaining({ id: receipts5[0].id }),
                 ]))
             }, { delay: 500 })
+        })
+
+        test(`Same user can not discover more than ${MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC} times`, async () => {
+            const residentClient = await makeClientWithResidentUser()
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+            const serviceUser = await makeClientWithServiceUser()
+
+            const [managingOrg] = await registerNewOrganization(user)
+
+            const {
+                billingIntegrationContext: billingContext,
+                billingIntegration: billingIntegration,
+            } = await addBillingIntegrationAndContext(support, managingOrg, {}, { status: CONTEXT_FINISHED_STATUS })
+            await createTestBillingIntegrationAccessRight(support, billingIntegration, serviceUser.user)
+            await addAcquiringIntegrationAndContext(support, managingOrg, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const allRegisteredReceipts = []
+
+            for (let i = 0; i <= MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC; i++) {
+                const unitType = FLAT_UNIT_TYPE
+                const unitName = faker.lorem.word()
+                const { address, addressMeta } = buildFakeAddressAndMeta(true)
+
+                // Add some receipts
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({ address, unitType, unitName }),
+                    ],
+                }
+                const [registeredReceipts] = await registerBillingReceiptsByTestClient(serviceUser, payload)
+                allRegisteredReceipts.push(...registeredReceipts)
+
+                await createTestProperty(user, managingOrg, { address, addressMeta })
+
+                await waitFor(async () => {
+                    const receipts = await ResidentBillingReceipt.getAll(residentClient, {})
+                    expect(receipts).toHaveLength(i)
+                })
+
+                await registerResidentByTestClient(
+                    residentClient,
+                    { address, addressMeta, unitType, unitName },
+                )
+
+                // The last loop iteration must find the same number of receipts as the previous one
+                const expectedReceiptsNumber = i >= MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC ? i : i + 1
+
+                const receipts = await ResidentBillingReceipt.getAll(residentClient, {})
+                expect(receipts).toHaveLength(expectedReceiptsNumber)
+                expect(allRegisteredReceipts).toEqual(expect.arrayContaining(
+                    Array(expectedReceiptsNumber).fill(null).map((val, index) => expect.objectContaining({ id: receipts[index].id })),
+                ))
+            }
         })
     })
 })
