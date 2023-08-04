@@ -9,29 +9,29 @@ const { evaluateKeystoneAccessResult } = require('@open-condo/keystone/plugins/u
 const { GQL_LIST_SCHEMA_TYPE, find, getById } = require('@open-condo/keystone/schema')
 
 
-function fieldAccessWrapperIfNeeded (access, fnWrapper) {
+function fieldAccessWrapperIfNeeded (defaultAccess, customAccessFn) {
     // NOTE: you can use the same object in many places! you don't need to wrap it twice
-    if (!fnWrapper.alreadyprocessedbyb2bappaccessplugin) fnWrapper.alreadyprocessedbyb2bappaccessplugin = true
+    if (!customAccessFn.alreadyprocessedbyb2bappaccessplugin) customAccessFn.alreadyprocessedbyb2bappaccessplugin = true
 
-    const type = getType(access)
+    const type = getType(defaultAccess)
     if (type === 'Boolean') {
         // No need to wrap! You already have access, or you should not have it anyway!
-        return access
+        return defaultAccess
     } else if (type === 'Function') {
         // NOTE: to prevent multiple wrapping the same function
-        if (access.alreadyprocessedbyb2bappaccessplugin) return access
-        else return fnWrapper
+        if (defaultAccess.alreadyprocessedbyb2bappaccessplugin) return defaultAccess
+        else return customAccessFn
     } else if (type === 'AsyncFunction') {
         // NOTE: to prevent multiple wrapping the same function
-        if (access.alreadyprocessedbyb2bappaccessplugin) return access
-        else return fnWrapper
+        if (defaultAccess.alreadyprocessedbyb2bappaccessplugin) return defaultAccess
+        else return customAccessFn
     } else if (type === 'Object') {
         const newAccess = {}
-        if (typeof access.read !== 'undefined') newAccess.read = fieldAccessWrapperIfNeeded(access.read, fnWrapper)
-        if (typeof access.create !== 'undefined') newAccess.create = fieldAccessWrapperIfNeeded(access.create, fnWrapper)
-        if (typeof access.update !== 'undefined') newAccess.update = fieldAccessWrapperIfNeeded(access.update, fnWrapper)
-        if (typeof access.delete !== 'undefined') newAccess.delete = fieldAccessWrapperIfNeeded(access.delete, fnWrapper)
-        if (typeof access.auth !== 'undefined') newAccess.auth = fieldAccessWrapperIfNeeded(access.auth, fnWrapper)
+        if (typeof defaultAccess.read !== 'undefined') newAccess.read = fieldAccessWrapperIfNeeded(defaultAccess.read, customAccessFn)
+        if (typeof defaultAccess.create !== 'undefined') newAccess.create = fieldAccessWrapperIfNeeded(defaultAccess.create, customAccessFn)
+        if (typeof defaultAccess.update !== 'undefined') newAccess.update = fieldAccessWrapperIfNeeded(defaultAccess.update, customAccessFn)
+        if (typeof defaultAccess.delete !== 'undefined') newAccess.delete = fieldAccessWrapperIfNeeded(defaultAccess.delete, customAccessFn)
+        if (typeof defaultAccess.auth !== 'undefined') newAccess.auth = fieldAccessWrapperIfNeeded(defaultAccess.auth, customAccessFn)
         return newAccess
     }
 
@@ -54,7 +54,32 @@ const generateGqlDataPart = (pathToOrganizationId) => {
     return `{ ${pathToOrganizationId.join(' { ')}${' }'.repeat(pathToOrganizationId.length)}`
 }
 
-const GENERATED_SCHEMAS = new Map()
+/**
+ *
+ * @param listKey
+ * @param pathToOrganizationId
+ * @return {string}
+ *
+ * @example
+ * Input: ('Ticket', ['organization', 'id'])
+ * Output: `
+ *         query getAllTickets ($where: TicketWhereInput, $first: Int = 1) {
+ *             objs: allTickets(where: $where, first: $first) { organization { id } }
+ *         }
+ *     `
+ */
+const generateGqlQueryAsString = (listKey, pathToOrganizationId) => {
+    if (!isString(listKey) || listKey.trim().length < 1) throw new Error('"listKey" must not be empty string!')
+    if (!pathToOrganizationId || !isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" should not be empty array')
+
+    return `
+        query getAll${pluralize.plural(listKey)} ($where: ${listKey}WhereInput, $first: Int = 1) {
+            objs: all${pluralize.plural(listKey)}(where: $where, first: $first) ${generateGqlDataPart(pathToOrganizationId)}
+        }
+    `
+}
+
+const ALL_GENERATED_GQL_QUERIES = new Map()
 
 /**
  *
@@ -69,24 +94,23 @@ const GENERATED_SCHEMAS = new Map()
  *         }
  *     `
  */
-const generateGql = (pathToOrganizationId) => {
+const generateGqlQuery = (pathToOrganizationId) => {
     if (!pathToOrganizationId || !isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" should not be empty array')
-    if (pathToOrganizationId.length < 3) throw new Error(`To generate gql "pathToOrganizationId" must contain at least three elements! But was ${pathToOrganizationId}`)
+    if (pathToOrganizationId.length < 2) throw new Error(`To generate gql "pathToOrganizationId" must contain at least two elements! But was ${pathToOrganizationId}`)
 
     const gqlKey = pathToOrganizationId.join(':')
 
-    if (GENERATED_SCHEMAS.has(gqlKey)) {
-        return GENERATED_SCHEMAS.get(gqlKey)
+    // get already generated gql query to reuse them
+    if (ALL_GENERATED_GQL_QUERIES.has(gqlKey)) {
+        return ALL_GENERATED_GQL_QUERIES.get(gqlKey)
     }
 
     const listKey = pathToOrganizationId[0].charAt(0).toUpperCase() + pathToOrganizationId[0].slice(1)
 
-    const generatedGql = gql`
-        query getAll${pluralize.plural(listKey)} ($where: ${listKey}WhereInput, $first: Int = 1) {
-            objs: all${pluralize.plural(listKey)}(where: $where, first: $first) ${generateGqlDataPart(pathToOrganizationId.slice(1))}
-        }
-    `
-    GENERATED_SCHEMAS.set(gqlKey, generatedGql)
+    const generatedGql = gql`${generateGqlQueryAsString(listKey, pathToOrganizationId.slice(1))}`
+
+    // save generated gql query to reuse them
+    ALL_GENERATED_GQL_QUERIES.set(gqlKey, generatedGql)
 
     return generatedGql
 }
@@ -111,7 +135,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGql(pathToOrganizationId),
+                query: generateGqlQuery(pathToOrganizationId),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -138,7 +162,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGql(pathToOrganizationId),
+                query: generateGqlQuery(pathToOrganizationId),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -196,12 +220,12 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
  * }
  */
 const getFilter = (pathToOrganizationId, organizationId) => {
-    if (!pathToOrganizationId || isEmpty(pathToOrganizationId)) throw new Error('No pathToOrganizationId!')
-    if (!organizationId) throw new Error('No organizationId!')
+    if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" must be not empty array!')
+    if (!isString(organizationId) || organizationId.trim().length < 1) throw new Error('"organizationId" must be string!')
 
     if (pathToOrganizationId.length === 1) {
         return {
-            [`${pathToOrganizationId[0]}_in`]: organizationId,
+            [`${pathToOrganizationId[0]}`]: organizationId,
             deletedAt: null,
         }
     }
@@ -259,8 +283,13 @@ const READ_ONLY_PERMISSION_FIELD = {
     },
 }
 
+/**
+ *
+ * @param permissionFieldName {string}
+ * @return {string}
+ */
 const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
-    if (!isString(permissionFieldName)) throw new Error('No permissionFieldName!')
+    if (!isString(permissionFieldName) || permissionFieldName.trim().length < 1) throw new Error('"permissionFieldName" must be not empty string!')
 
     if (permissionFieldName.startsWith('canRead')) {
         return 'Currently, this field is read-only. You cannot get read access for the specified schema.'
@@ -308,8 +337,8 @@ const addPermissionFieldsToSchema = (schema, schemaName, readOnlyPermissionField
 const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
     const access = schema.access
 
-    const canNotBeRead = get(schemaConfig, 'canNotBeRead', false)
-    const canNotBeManage = get(schemaConfig, 'canNotBeManage', false)
+    const cannotBeRead = get(schemaConfig, 'cannotBeRead', false)
+    const cannotBeManage = get(schemaConfig, 'cannotBeManage', false)
 
     const customListAccess = async (args) => {
         const { operation, authentication: { item: user } } = args
@@ -320,7 +349,7 @@ const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
             if (operation === 'read') {
                 const defaultAccess = await evaluateKeystoneAccessResult(access, operation, args)
 
-                if (canNotBeRead) return defaultAccess
+                if (cannotBeRead) return defaultAccess
                 if (isBoolean(defaultAccess)) return defaultAccess
                 if (isObject(defaultAccess) && isEmpty(defaultAccess)) return defaultAccess
 
@@ -336,7 +365,7 @@ const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
                 }
             } else if ((operation === 'create' || operation === 'update')) {
                 return await evaluateKeystoneAccessResult(access, operation, args)
-                    || (!canNotBeManage && await canManageByServiceUser(args, schemaConfig))
+                    || (!cannotBeManage && await canManageByServiceUser(args, schemaConfig))
             }
         }
 
@@ -363,8 +392,8 @@ const ALL_PERMISSION_NAMES = new Set()
  *
  * @typedef {Object} B2BAppAccessConfig
  * @property {Array.<string>} pathToOrganizationId - Way to get the organization id
- * @property {boolean} canNotBeRead - Service users cannot read schema
- * @property {boolean} canNotBeManage - Service users cannot manage schema
+ * @property {boolean} cannotBeRead - Service users cannot read schema
+ * @property {boolean} cannotBeManage - Service users cannot manage schema
  */
 
 /**
@@ -378,7 +407,7 @@ const ALL_PERMISSION_NAMES = new Set()
  *       // But for the Organization schema get value from <SchemaName>.id
  *       pathToOrganizationId: ['id'],
  *       // By default schemas can be manage, but for Organization schema cannot be managed
- *       canNotBeManage: true,
+ *       cannotBeManage: true,
  *    },
  * }
  *
@@ -420,10 +449,10 @@ const B2BAppAccess = (shouldCreatePermissionsForSchema, config = {}, targetSchem
     const readOnlyPermissionFields = Object.entries(config)
         .map(([schemaName, schemaConfig]) => {
             const readOnlyFieldsBySchema = []
-            if (get(schemaConfig, 'canNotBeRead', false)) {
+            if (get(schemaConfig, 'cannotBeRead', false)) {
                 readOnlyFieldsBySchema.push(`canRead${pluralize.plural(schemaName)}`)
             }
-            if (get(schemaConfig, 'canNotBeManage', false)) {
+            if (get(schemaConfig, 'cannotBeManage', false)) {
                 readOnlyFieldsBySchema.push(`canManage${pluralize.plural(schemaName)}`)
             }
             return readOnlyFieldsBySchema
@@ -467,4 +496,8 @@ const B2BAppAccess = (shouldCreatePermissionsForSchema, config = {}, targetSchem
 
 module.exports = {
     B2BAppAccess,
+    generateGqlDataPart,
+    generateGqlQueryAsString,
+    getSchemaDocForReadOnlyPermissionField,
+    getFilter,
 }

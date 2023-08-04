@@ -199,8 +199,11 @@ describe('B2BAppAccessRight', () => {
             const [app] = await createTestB2BApp(admin)
             const [app2] = await createTestB2BApp(admin)
 
-            await createTestB2BAppAccessRight(admin, serviceUser, app)
-            await createTestB2BAppAccessRight(admin, serviceUser, app2)
+            const [accessRight1] = await createTestB2BAppAccessRight(admin, serviceUser, app)
+            const [accessRight2] = await createTestB2BAppAccessRight(admin, serviceUser, app2)
+
+            expect(accessRight1).toBeDefined()
+            expect(accessRight2).toBeDefined()
         })
 
         test('Сan not create or update "B2BAppAccessRight" if "app" and "accessRightSet" refer to different "B2BApp"', async () => {
@@ -219,7 +222,7 @@ describe('B2BAppAccessRight', () => {
             // cannot create B2BAppAccessRight for app if accessRightSet for another app
             await expectToThrowGQLError(async () => {
                 await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSet2)
-            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOUND)
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
 
             // can create B2BAppAccessRight for app if accessRightSet for that app
             const [b2BAppAccessRight] = await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSet1)
@@ -229,16 +232,16 @@ describe('B2BAppAccessRight', () => {
                 await updateTestB2BAppAccessRight(admin, b2BAppAccessRight.id, {
                     app: { connect: { id: app2.id } },
                 })
-            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOUND)
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
             await expectToThrowGQLError(async () => {
                 await updateTestB2BAppAccessRight(admin, b2BAppAccessRight.id, {
                     accessRightSet: { connect: { id: accessRightSet2.id } },
                 })
-            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOUND)
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
         })
     })
     describe('Constraints', () => {
-        test('Cannot be created 2 links for a app', async () => {
+        test('Cannot be created 2 active access rights for a single app', async () => {
             const admin = await makeLoggedInAdminClient()
             const [serviceUser] = await registerNewServiceUserByTestClient(admin)
             const [serviceUser2] = await registerNewServiceUserByTestClient(admin)

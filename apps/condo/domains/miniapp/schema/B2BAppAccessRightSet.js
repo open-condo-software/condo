@@ -9,7 +9,16 @@ const access = require('@condo/domains/miniapp/access/B2BAppAccessRightSet')
 
 
 const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
-    schemaDoc: 'A set of access rights for a service user integrated with B2BApp.',
+    schemaDoc: 'A set of access rights for a service user integrated with your B2BApp' +
+        ' (exist B2BAppAccessRight with links to your service user and your B2BApp).' +
+        '\nThis set of access right will be used to check your service user access to schemas that are linked to' +
+        ' "Organization" schema (such as "Organization", "Ticket" and others).' +
+        '\nThese accesses will only apply to entities that belong to organizations that connected your app.' +
+        '\nThis schema contains fields corresponding to "can<Action><Scheme name in plural>" format' +
+        ' (e.g. "canReadOrganizations", "canManageContacts" and etc.)' +
+        '\nNOTE: Some schemas have links with other models.' +
+        ' Therefore, it is necessary to take this into account when specifying the necessary rights.' +
+        '\nFor example, to create a contact, in addition to having access to managing properties, you also need to have access to read organization',
     fields: {
 
         app: {
@@ -23,6 +32,9 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
                 update: false,
             },
         },
+
+        // * PLEASE DON'T DELETE THIS NOTE *
+        // NOTE: All other fields are generated automatically in the "B2BAppAccess" global preprocessor
 
     },
     kmigratorOptions: {

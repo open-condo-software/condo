@@ -2052,7 +2052,10 @@ export type B2BAppAccessRight = {
   user?: Maybe<User>;
   /**  Link to B2BApp.accessRights  */
   app?: Maybe<B2BApp>;
-  /**  Link to the set of access rights available to this application  */
+  /**
+   *  Link to the set of access rights. This set of access right will be used to check your service user access to schemas that are linked to "Organization" schema (such as "Organization", "Ticket" and others).
+   * These accesses will only apply to entities that belong to organizations that connected your app
+   */
   accessRightSet?: Maybe<B2BAppAccessRightSet>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -2269,7 +2272,14 @@ export type B2BAppAccessRightRelateToManyInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  A set of access rights for a service user integrated with B2BApp.  */
+/**
+ *  A set of access rights for a service user integrated with your B2BApp (exist B2BAppAccessRight with links to your service user and your B2BApp).
+ * This set of access right will be used to check your service user access to schemas that are linked to "Organization" schema (such as "Organization", "Ticket" and others).
+ * These accesses will only apply to entities that belong to organizations that connected your app.
+ * This schema contains fields corresponding to "can<Action><Scheme name in plural>" format (e.g. "canReadOrganizations", "canManageContacts" and etc.)
+ * NOTE: Some schemas have links with other models. Therefore, it is necessary to take this into account when specifying the necessary rights.
+ * For example, to create a contact, in addition to having access to managing properties, you also need to have access to read organization
+ */
 export type B2BAppAccessRightSet = {
   __typename?: 'B2BAppAccessRightSet';
   /**

@@ -10,14 +10,14 @@ const { getByCondition } = require('@open-condo/keystone/schema')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRight')
-const { ACCESS_RIGHT_SET_NOT_FOUND } = require('@condo/domains/miniapp/constants')
+const { ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP } = require('@condo/domains/miniapp/constants')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 
 
 const ERRORS = {
-    ACCESS_RIGHT_SET_NOT_FOUND: {
+    ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP: {
         code: BAD_USER_INPUT,
-        type: ACCESS_RIGHT_SET_NOT_FOUND,
+        type: ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP,
         message: '"accessRightSet" must be connected to B2BApp, which specified in "app"',
     },
 }
@@ -35,7 +35,10 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
         accessRightSet: {
-            schemaDoc: 'Link to the set of access rights available to this application',
+            schemaDoc: 'Link to the set of access rights.' +
+                ' This set of access right will be used to check your service user access to schemas that are' +
+                ' linked to "Organization" schema (such as "Organization", "Ticket" and others).' +
+                '\n These accesses will only apply to entities that belong to organizations that connected your app',
             type: 'Relationship',
             ref: 'B2BAppAccessRightSet',
             isRequired: false,
@@ -75,7 +78,7 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
                 })
 
                 if (!accessRightSet) {
-                    throw new GQLError(ERRORS.ACCESS_RIGHT_SET_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP, context)
                 }
             }
         },

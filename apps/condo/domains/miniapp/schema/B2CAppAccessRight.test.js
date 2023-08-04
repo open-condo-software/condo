@@ -190,7 +190,7 @@ describe('B2CAppAccessRight', () => {
         })
     })
     describe('Constraints', () => {
-        test('Cannot be created 2 links for a app', async () => {
+        test('Cannot be created 2 active access rights for a single app', async () => {
             const admin = await makeLoggedInAdminClient()
             const [serviceUser] = await registerNewServiceUserByTestClient(admin)
             const [serviceUser2] = await registerNewServiceUserByTestClient(admin)
