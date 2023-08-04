@@ -15,6 +15,9 @@ const {
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestContact,
+} = require('@condo/domains/contact/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -23,7 +26,6 @@ const { addResidentAccess, makeClientWithResidentUser, makeClientWithSupportUser
 const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
     generateServicesData, createTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE,
 } = require('../utils/testSchema')
-const { createTestContact } = require("../../contact/utils/testSchema");
 
 
 describe('AllResidentBillingReceiptsService', () => {
