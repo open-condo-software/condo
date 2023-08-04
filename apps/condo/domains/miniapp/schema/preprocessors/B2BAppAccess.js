@@ -161,7 +161,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
         app: {
             accessRights_some: {
                 accessRightSet: {
-                    [`canRead${pluralize.plural(listKey)}`]: true,
+                    [`canManage${pluralize.plural(listKey)}`]: true,
                     deletedAt: null,
                 },
                 user: { id: user.id, type: 'service', deletedAt: null },
