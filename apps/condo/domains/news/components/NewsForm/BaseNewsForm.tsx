@@ -30,7 +30,7 @@ import { Options as ScrollOptions } from 'scroll-into-view-if-needed'
 
 import { IGenerateHooksResult } from '@open-condo/codegen/generate.hooks'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Radio, RadioGroup, Space, Tabs, Typography } from '@open-condo/ui'
+import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -42,6 +42,7 @@ import {
 import { LabelWithInfo } from '@condo/domains/common/components/LabelWithInfo'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import MemoizedNewsPreview from '@condo/domains/news/components/NewsPreview'
@@ -296,6 +297,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     const ProfanityInTitle = intl.formatMessage({ id: 'news.fields.profanityInTitle.error' })
     const ProfanityInBody = intl.formatMessage({ id: 'news.fields.profanityInBody.error' })
 
+    const { logEvent, getEventName } = useTracking()
+
     const router = useRouter()
 
     const { breakpoints } = useLayoutContext()
@@ -351,25 +354,6 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
             if (unitType && unitName) return `${unitType}-${unitName}`
         }).filter(Boolean)
     }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length])
-    const initialUnitNames: string[] = useMemo(() => {
-        if (initialHasAllProperties) return []
-        if (initialProperties.length !== 1) return []
-
-        return initialNewsItemScopes.map(item => {
-            const unitName = item.unitName
-            if (unitName) return unitName
-        }).filter(Boolean)
-    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length])
-    const initialUnitTypes = useMemo(() => {
-        if (initialHasAllProperties) return []
-        if (initialProperties.length !== 1) return []
-        if (!isEmpty(initialSectionKeys)) return []
-
-        return initialNewsItemScopes.map(item => {
-            const unitType = item.unitType
-            if (unitType) return unitType
-        }).filter(Boolean)
-    }, [initialHasAllProperties, initialNewsItemScopes, initialProperties.length, initialSectionKeys])
     const commonTemplates = useMemo(() => {
         return transform(templates, (result, value, key) => {
             if (value.type === NEWS_TYPE_COMMON || isNull(value.type)) {
@@ -498,6 +482,12 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
         const templateId = value
         const title = templateId !== 'emptyTemplate' ? templates[templateId].title : ''
         const body = templateId !== 'emptyTemplate' ? templates[templateId].body : ''
+
+        const eventName = getEventName(TrackingEventType.Click)
+        const eventProperties = {
+            components: { value: { title, body } },
+        }
+        logEvent({ eventName, eventProperties })
 
         form.setFieldValue('title', title)
         setSelectedTitle(title)
