@@ -66,7 +66,7 @@ const CONTEXT_STATUSES = [
 
 const NON_SERVICE_USER_ERROR = '[user] No user specified or it has non-service type'
 const NO_CONTEXT_STATUS_ERROR = '[status] Status field cannot be set to null'
-const NON_ZIP_FILE_ERROR = '[data] Expected data to have "application/zip" mimetype'
+const NON_ZIP_FILE_ERROR = 'NON_ZIP_FILE'
 const RESTRICT_BUILD_SELECT_ERROR = '[currentBuild] Cannot set current build to build of other B2C app'
 const INCORRECT_ADDRESS_ERROR = '[address] Incorrect address was provided. Make sure you use normalized address as input'
 const INCORRECT_HOUSE_TYPE_ERROR = '[address] Address with specified house type is not currently supported'

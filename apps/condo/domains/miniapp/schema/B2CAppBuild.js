@@ -6,6 +6,7 @@ const { Text, Relationship, File } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
@@ -17,6 +18,21 @@ const { B2CApp } = require('@condo/domains/miniapp/utils/serverSchema')
 
 const B2C_APP_BUILD_FILE_ADAPTER = new FileAdapter('B2CAppBuilds')
 const dataMetaAfterChange = getFileMetaAfterChange(B2C_APP_BUILD_FILE_ADAPTER, 'data')
+
+const ALLOWED_MIME_TYPES = [
+    // Official mimetype for zip archives, which is used in many Unix OS
+    'application/zip',
+    // Deprecated types only Windows uses
+    'application/x-zip-compressed',
+    'application/zip-compressed',
+]
+
+const ERRORS = {
+    NON_ZIP_FILE: {
+        code: BAD_USER_INPUT,
+        type: NON_ZIP_FILE_ERROR,
+    },
+}
 
 
 const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
@@ -50,10 +66,13 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
             isRequired: true,
             adapter: B2C_APP_BUILD_FILE_ADAPTER,
             hooks: {
-                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                validateInput: ({ resolvedData, fieldPath, context }) => {
                     const mimetype = get(resolvedData, [fieldPath, 'mimetype'])
-                    if (mimetype !== 'application/zip') {
-                        addFieldValidationError(`${NON_ZIP_FILE_ERROR}, but got: ${mimetype}`)
+                    if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
+                        throw new GQLError({
+                            ...ERRORS.NON_ZIP_FILE,
+                            message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: ${mimetype}`,
+                        }, context)
                     }
                 },
             },
