@@ -266,6 +266,10 @@ describe('DiscoverServiceConsumersService', () => {
             const user2 = await makeClientWithProperty()
             const user2a = await makeClientWithProperty()
 
+            const residentClient1 = await makeClientWithResidentUser()
+            const residentClient2 = await makeClientWithResidentUser()
+            const residentClient2a = await makeClientWithResidentUser()
+
             const { billingIntegrationContext: billingIntegrationContext1 } = await addBillingIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
             await addAcquiringIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
@@ -315,17 +319,17 @@ describe('DiscoverServiceConsumersService', () => {
             }, { delay: 500 })
 
             // Now add residents and start the mutation manually, to pass all billing accounts
-            const [resident1] = await createTestResident(admin, user1.user, user1.property, {
+            const [resident1] = await createTestResident(admin, residentClient1.user, user1.property, {
                 address: billingProperty1.address,
                 unitName: unitName1,
                 unitType: unitType1,
             })
-            const [resident2] = await createTestResident(admin, user2.user, user2.property, {
+            const [resident2] = await createTestResident(admin, residentClient2.user, user2.property, {
                 address: billingProperty2.address,
                 unitName: unitName2,
                 unitType: unitType2,
             })
-            const [resident2a] = await createTestResident(admin, user2a.user, user2.property, {
+            const [resident2a] = await createTestResident(admin, residentClient2a.user, user2.property, {
                 address: billingProperty2a.address,
                 unitName: unitName2,
                 unitType: unitType2,
@@ -387,7 +391,7 @@ describe('DiscoverServiceConsumersService', () => {
         })
 
         // TODO(DOMA-6817) run these tests after 6817 done
-        describe.skip('Without DSC feature flag', () => {
+        describe('Without DSC feature flag', () => {
             const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
             let adminNoFlag
 
@@ -400,7 +404,7 @@ describe('DiscoverServiceConsumersService', () => {
                 setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
             })
 
-            test('discover no service consumers for managing organization if the feature flag was disabled', async () => {
+            test.skip('discover no service consumers for managing organization if the feature flag was disabled', async () => {
                 const user = await makeClientWithProperty()
 
                 await addAcquiringIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
