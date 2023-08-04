@@ -8,7 +8,6 @@ const {
 } = require('./B2BAppAccess')
 
 
-
 describe('Helpers function for B2BAppAccess', () => {
     describe('generateGqlDataPart', () => {
         const validCases = [
@@ -140,27 +139,37 @@ describe('Helpers function for B2BAppAccess', () => {
     })
 
     describe('getFilter', () => {
-        const organizationId = faker.datatype.uuid()
+        const organizationIds = [faker.datatype.uuid()]
         const validCases = [
             {
                 input: {
                     pathToOrganizationId: ['a'],
-                    organizationId,
+                    organizationIds: [],
                 },
                 output: {
-                    'a': organizationId,
+                    'a_in': [],
+                    deletedAt: null,
+                },
+            },
+            {
+                input: {
+                    pathToOrganizationId: ['a'],
+                    organizationIds,
+                },
+                output: {
+                    'a_in': organizationIds,
                     deletedAt: null,
                 },
             },
             {
                 input: {
                     pathToOrganizationId: ['a', 'b', 'c'],
-                    organizationId,
+                    organizationIds,
                 },
                 output: {
                     'a': {
                         'b': {
-                            'c': organizationId,
+                            'c_in': organizationIds,
                             deletedAt: null,
                         },
                         deletedAt: null,
@@ -171,14 +180,14 @@ describe('Helpers function for B2BAppAccess', () => {
             {
                 input: {
                     pathToOrganizationId: ['a', 'b', 'c', 'd', 'e'],
-                    organizationId,
+                    organizationIds,
                 },
                 output: {
                     'a': {
                         'b': {
                             'c': {
                                 'd': {
-                                    'e': organizationId,
+                                    'e_in': organizationIds,
                                     deletedAt: null,
                                 },
                                 deletedAt: null,
@@ -195,39 +204,32 @@ describe('Helpers function for B2BAppAccess', () => {
             {
                 input: {
                     pathToOrganizationId: [],
-                    organizationId,
+                    organizationIds,
                 },
                 error: '"pathToOrganizationId" must be not empty array!',
             },
             {
                 input: {
                     pathToOrganizationId: null,
-                    organizationId,
+                    organizationIds,
                 },
                 error: '"pathToOrganizationId" must be not empty array!',
             },
             {
                 input: {
                     pathToOrganizationId: ['a', 'b', 'c', 'd', 'e'],
-                    organizationId: null,
+                    organizationIds: null,
                 },
-                error: '"organizationId" must be string!',
-            },
-            {
-                input: {
-                    pathToOrganizationId: ['a', 'b', 'c', 'd', 'e'],
-                    organizationId: '      ',
-                },
-                error: '"organizationId" must be string!',
+                error: '"organizationId" must be array!',
             },
         ]
 
-        test.each(validCases)('getFilter($input.pathToOrganizationId, $input.organizationId) - returned valid value (%#)', async ({ input: { pathToOrganizationId, organizationId }, output }) => {
-            expect(getFilter(pathToOrganizationId, organizationId)).toEqual(output)
+        test.each(validCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - returned valid value (%#)', async ({ input: { pathToOrganizationId, organizationIds }, output }) => {
+            expect(getFilter(pathToOrganizationId, organizationIds)).toEqual(output)
         })
 
-        test.each(invalidCases)('getFilter($input.listKey, $input.pathToOrganizationId) - throw error "$error"', async ({ input: { pathToOrganizationId, organizationId }, error }) => {
-            expect(() => getFilter(pathToOrganizationId, organizationId)).toThrow(error)
+        test.each(invalidCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - throw error "$error"', async ({ input: { pathToOrganizationId, organizationIds }, error }) => {
+            expect(() => getFilter(pathToOrganizationId, organizationIds)).toThrow(error)
         })
     })
 

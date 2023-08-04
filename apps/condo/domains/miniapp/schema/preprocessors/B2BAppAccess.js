@@ -203,15 +203,15 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 /**
  *
  * @param pathToOrganizationId {string[]}
- * @param organizationId {string}
+ * @param organizationIds {string[]}
  * @return {{[p: string]: *, deletedAt: null}|{[p: number]: {deletedAt: null}|{deletedAt: null}, deletedAt: null}}
  *
  * @example
- * Input: (['ticket', 'organization', 'id'], 'cdcbf4f8-a5b2-4831-bfb0-354a0abe0aa3')
+ * Input: (['ticket', 'organization', 'id'], ['cdcbf4f8-a5b2-4831-bfb0-354a0abe0aa3'])
  * Output: {
  *     ticket: {
  *         organization: {
- *             id: 'cdcbf4f8-a5b2-4831-bfb0-354a0abe0aa3',
+ *             id_in: ['cdcbf4f8-a5b2-4831-bfb0-354a0abe0aa3'],
  *             deletedAt, null,
  *         },
  *         deletedAt, null,
@@ -219,19 +219,19 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
  *     deletedAt, null,
  * }
  */
-const getFilter = (pathToOrganizationId, organizationId) => {
+const getFilter = (pathToOrganizationId, organizationIds) => {
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" must be not empty array!')
-    if (!isString(organizationId) || organizationId.trim().length < 1) throw new Error('"organizationId" must be string!')
+    if (!isArray(organizationIds)) throw new Error('"organizationId" must be array!')
 
     if (pathToOrganizationId.length === 1) {
         return {
-            [`${pathToOrganizationId[0]}`]: organizationId,
+            [`${pathToOrganizationId[0]}_in`]: organizationIds,
             deletedAt: null,
         }
     }
 
     return {
-        [pathToOrganizationId[0]]: getFilter(pathToOrganizationId.slice(1), organizationId),
+        [pathToOrganizationId[0]]: getFilter(pathToOrganizationId.slice(1), organizationIds),
         deletedAt: null,
     }
 }
