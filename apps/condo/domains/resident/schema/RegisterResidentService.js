@@ -16,8 +16,8 @@ const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverS
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 const access = require('@condo/domains/resident/access/RegisterResidentService')
 const {
-    RESIDENT_DISCOVER_CONSUMERS_WINDOW,
-    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
+    RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
+    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
 } = require('@condo/domains/resident/constants/constants')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
@@ -30,8 +30,8 @@ const logger = getLogger('registerResident')
 const checkLimits = async (uniqueField) => {
     await redisGuard.checkCustomLimitCounters(
         `discover-service-consumers-${uniqueField}`,
-        RESIDENT_DISCOVER_CONSUMERS_WINDOW,
-        MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
+        RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
+        MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
     )
 }
 
