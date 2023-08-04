@@ -835,15 +835,16 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [registeredReceipts1c] = await registerBillingReceiptsByTestClient(serviceUser1, payload1c)
 
-            // After that the 1st see still 3 receipts because of discovering limit and the 3rd residents must see 4 receipts
+            // After that the 1st and the 3rd residents must see 4 receipts each
             // The 2nd see the same, cause their property is not added to managingOrg1
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(3)
+                expect(receipts1).toHaveLength(4)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -878,11 +879,12 @@ describe('DiscoverServiceConsumersService', () => {
             // The 1st and 3rd residents must see the same
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(3)
+                expect(receipts1).toHaveLength(4)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -938,15 +940,17 @@ describe('DiscoverServiceConsumersService', () => {
             const [registeredReceipts2a] = await registerBillingReceiptsByTestClient(serviceUser2, payload2a)
 
             // The 2nd and 4th residents must see +1 receipt from serviceOrg1
-            // The 1st see the same because of discovering limit
-            // 3rd resident must see +1 receipt from serviceOrg1 instead +2 because the discovering limit reached
+            // The 1st and 3rd residents must see +2 receipt from serviceOrg1
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(3)
+                expect(receipts1).toHaveLength(6)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                    expect.objectContaining({ id: receipts1[4].id }),
+                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -959,13 +963,14 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(5)
+                expect(receipts3).toHaveLength(6)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
                     expect.objectContaining({ id: receipts3[4].id }),
+                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
@@ -1005,11 +1010,14 @@ describe('DiscoverServiceConsumersService', () => {
             // TODO(DOMA-6674) this test will fail after 6674 will be merged
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(3)
+                expect(receipts1).toHaveLength(6)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                    expect.objectContaining({ id: receipts1[4].id }),
+                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -1022,13 +1030,14 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(5)
+                expect(receipts3).toHaveLength(6)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
                     expect.objectContaining({ id: receipts3[4].id }),
+                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
@@ -1052,11 +1061,14 @@ describe('DiscoverServiceConsumersService', () => {
             // TODO(DOMA-6674) this test will fail after 6674 will be merged
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(3)
+                expect(receipts1).toHaveLength(6)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
+                    expect.objectContaining({ id: receipts1[3].id }),
+                    expect.objectContaining({ id: receipts1[4].id }),
+                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -1069,13 +1081,14 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(5)
+                expect(receipts3).toHaveLength(6)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
                     expect.objectContaining({ id: receipts3[4].id }),
+                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})

@@ -15,14 +15,7 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 const access = require('@condo/domains/resident/access/DiscoverServiceConsumersService')
-const {
-    RESIDENT_DISCOVER_CONSUMERS_WINDOW,
-    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
-} = require('@condo/domains/resident/constants/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
-const redisGuard = new RedisGuard()
 
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
@@ -59,14 +52,6 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const { dv, sender, billingAccountsIds, filters } = data
 
                 const reqId = get(context, ['req', 'id'])
-
-                const checkLimits = async (uniqueField) => {
-                    await redisGuard.checkCustomLimitCounters(
-                        `discover-service-consumers-${uniqueField}`,
-                        RESIDENT_DISCOVER_CONSUMERS_WINDOW,
-                        MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
-                    )
-                }
 
                 const billingAccounts = await BillingAccount.getAll(
                     context,
@@ -155,17 +140,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }
                 const residents = await Resident.getAll(context, residentsWhere)
 
-                const residentsFilteredByLimit = []
-                for (const resident of residents) {
-                    try {
-                        await checkLimits(get(resident, ['user', 'id']))
-                        residentsFilteredByLimit.push(resident)
-                    } catch (err) {
-                        logger.warn({ message: err.message, reqId, resident })
-                    }
-                }
-
-                const combinations = flatMap(residentsFilteredByLimit, (resident) => billingAccounts.map((account) => {
+                const combinations = flatMap(residents, (resident) => billingAccounts.map((account) => {
                     if (
                         (
                             resident.address === account.property.address

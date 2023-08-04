@@ -9,17 +9,31 @@ const {
 } = require('@open-condo/keystone/plugins/utils/address-service-client')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { getAddressUpToBuildingFrom } = require('@condo/domains/property/utils/serverSchema/helpers')
 const access = require('@condo/domains/resident/access/RegisterResidentService')
+const {
+    RESIDENT_DISCOVER_CONSUMERS_WINDOW,
+    MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
+} = require('@condo/domains/resident/constants/constants')
 const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
+const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
-const { CONTEXT_FINISHED_STATUS } = require('../../acquiring/constants/context')
+const redisGuard = new RedisGuard()
 
 const logger = getLogger('registerResident')
+
+const checkLimits = async (uniqueField) => {
+    await redisGuard.checkCustomLimitCounters(
+        `discover-service-consumers-${uniqueField}`,
+        RESIDENT_DISCOVER_CONSUMERS_WINDOW,
+        MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW,
+    )
+}
 
 const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
     types: [
@@ -98,7 +112,10 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     id = resident.id
                 }
 
+
                 try {
+                    // checkLimits throws an error if the limit was reached
+                    await checkLimits(id)
                     const billingAccounts = await BillingAccount.getAll(
                         context,
                         {
@@ -109,16 +126,25 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                         },
                     )
 
-                    // Call the mutation directly (without task) to make the resident see receipts immediately
-                    const discoveringResult = await discoverServiceConsumers(context, {
-                        dv,
-                        sender,
-                        billingAccountsIds: billingAccounts.map(({ id }) => id),
-                        filters: { residentsIds: [id] },
-                    })
-                    logger.info({ message: 'discoverServiceConsumers done', result: discoveringResult, reqId })
+                    try {
+                        // Call the mutation directly (without task) to make the resident see receipts immediately
+                        const discoveringResult = await discoverServiceConsumers(context, {
+                            dv,
+                            sender,
+                            billingAccountsIds: billingAccounts.map(({ id }) => id),
+                            filters: { residentsIds: [id] },
+                        })
+                        logger.info({
+                            message: 'discoverServiceConsumers done',
+                            result: discoveringResult,
+                            reqId,
+                            resident: { id },
+                        })
+                    } catch (err) {
+                        logger.error({ message: 'discoverServiceConsumers fail', err, reqId })
+                    }
                 } catch (err) {
-                    logger.error({ message: 'discoverServiceConsumers fail', err, reqId })
+                    logger.warn({ message: err.message, reqId, resident: { id } })
                 }
 
                 // Hack that helps to resolve all subfields in result of this mutation
