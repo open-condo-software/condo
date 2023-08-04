@@ -32,6 +32,7 @@ const {
     makeClientWithProperty, createTestProperty, updateTestProperty,
 } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC } = require('@condo/domains/resident/constants/constants')
 const {
     createTestResident,
     ServiceConsumer,
@@ -44,7 +45,6 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC } = require('@condo/domains/resident/constants/constants')
 
 describe('DiscoverServiceConsumersService', () => {
     let admin
@@ -391,7 +391,108 @@ describe('DiscoverServiceConsumersService', () => {
             ]))
         })
 
-        // TODO(DOMA-6817) run these tests after 6817 done
+        test('Two residents within same property: only one can see receipts', async () => {
+            const user1 = await makeClientWithProperty()
+            const serviceUser = await makeClientWithServiceUser()
+
+            const residentClient1 = await makeClientWithResidentUser()
+            const residentClient2 = await makeClientWithResidentUser()
+
+            const {
+                billingIntegration,
+                billingIntegrationContext: billingIntegrationContext1,
+            } = await addBillingIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await createTestBillingIntegrationAccessRight(support, billingIntegration, serviceUser.user)
+            await addAcquiringIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [billingProperty1] = await createTestBillingProperty(admin, billingIntegrationContext1, { address: user1.property.address })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+            const unitType2 = FLAT_UNIT_TYPE
+            const unitName2 = faker.lorem.word()
+
+            const [billingAccount1] = await createTestBillingAccount(admin, billingIntegrationContext1, billingProperty1, {
+                unitType: unitType1,
+                unitName: unitName1,
+            })
+
+            // no consumers should be created after billing accounts appeared in database
+            // because of there are no residents yet
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    OR: [
+                        { AND: [{ organization: { id: user1.organization.id } }, { accountNumber: billingAccount1.number }] },
+                    ],
+                    deletedAt: null,
+                })
+
+                expect(createdServiceConsumers).toHaveLength(0)
+            }, { delay: 500 })
+
+            // Now add residents and start the mutation manually, to pass all billing accounts
+            const [resident1] = await createTestResident(admin, residentClient1.user, user1.property, {
+                address: billingProperty1.address,
+                unitName: unitName1,
+                unitType: unitType1,
+            })
+            await createTestResident(admin, residentClient2.user, user1.property, {
+                address: billingProperty1.address,
+                unitName: unitName2,
+                unitType: unitType2,
+            })
+
+            const payload = {
+                billingAccountsIds: [billingAccount1.id],
+            }
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
+
+            expect(statistics).toEqual({
+                created: 1,
+                residentsFound: 1,
+                billingAccountsFound: 1,
+            })
+
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                OR: [
+                    { AND: [{ organization: { id: user1.organization.id } }, { accountNumber: billingAccount1.number }] },
+                ],
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumers).toHaveLength(1)
+            expect(createdServiceConsumers).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident1.id }),
+                    organization: expect.objectContaining({ id: user1.organization.id }),
+                    accountNumber: billingAccount1.number,
+                    isDiscovered: true,
+                }),
+            ]))
+
+            // Add some receipts
+            const payloadReceipts = {
+                context: { id: billingIntegrationContext1.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty1.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                ],
+            }
+            const [registeredReceipts] = await registerBillingReceiptsByTestClient(serviceUser, payloadReceipts)
+
+            const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+            expect(receipts1).toHaveLength(1)
+            expect(registeredReceipts).toEqual(expect.arrayContaining([
+                expect.objectContaining({ id: receipts1[0].id }),
+            ]))
+
+            const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+            expect(receipts2).toHaveLength(0)
+        })
+
         describe('Without DSC feature flag', () => {
             const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
             let adminNoFlag
@@ -405,6 +506,7 @@ describe('DiscoverServiceConsumersService', () => {
                 setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
             })
 
+            // TODO(DOMA-6817) run this test after 6817 done
             test.skip('discover no service consumers for managing organization if the feature flag was disabled', async () => {
                 const user = await makeClientWithProperty()
 
