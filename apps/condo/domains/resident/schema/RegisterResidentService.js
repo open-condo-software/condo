@@ -115,7 +115,7 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
 
                 try {
                     // checkLimits throws an error if the limit was reached
-                    await checkLimits(id)
+                    await checkLimits(context.authedItem.id)
                     const billingAccounts = await BillingAccount.getAll(
                         context,
                         {
