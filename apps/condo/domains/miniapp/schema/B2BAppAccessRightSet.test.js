@@ -385,13 +385,13 @@ describe('B2BApp permissions for service user', () => {
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
         // you can update 'canReadOrganizations'
-        await updateTestB2BAppAccessRight(admin, app, {
+        await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, {
             canReadOrganizations: true,
         })
 
         // you cannot update a field "canManageOrganizations". Only reading! Always false!
         await catchErrorFrom(async () => {
-            await updateTestB2BAppAccessRight(admin, right.id, {
+            await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, {
                 canManageOrganizations: false,
             })
         }, (e) => {
@@ -454,7 +454,7 @@ describe('B2BApp permissions for service user', () => {
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
         // you can update 'canReadProperties' and 'canManageProperties'
-        await updateTestB2BAppAccessRight(admin, app, {
+        await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, {
             canReadProperties: true,
             canManageProperties: true,
         })
@@ -518,7 +518,7 @@ describe('B2BApp permissions for service user', () => {
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
         // you can update 'canReadContacts' and 'canManageContacts'
-        await updateTestB2BAppAccessRight(admin, app, {
+        await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, {
             canReadContacts: true,
             canManageContacts: true,
         })
@@ -597,7 +597,7 @@ describe('B2BApp permissions for service user', () => {
         await updateTestB2BAppAccessRight(admin, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
 
         // you can update 'canReadTickets', 'canManageTickets', 'canReadTicketComments' and 'canManageTicketComments'
-        await updateTestB2BAppAccessRight(admin, app, {
+        await updateTestB2BAppAccessRightSet(admin, accessRightSet.id, {
             canReadTickets: true,
             canManageTickets: true,
             canReadTicketComments: true,
