@@ -2,19 +2,6 @@
 const TICKET_CREATE_URL = '/ticket/create'
 const TICKET_VIEW_URL = '/ticket'
 
-const BASE_SIDE_EFFECTS = [
-    '@getAllOnBoardings',
-    '@getAllOnBoardingSteps',
-    '@getAllOrganizationEmployees',
-    '@getOrganizationEmployeeById',
-    '@getAllServiceSubscriptions',
-    '@getAllIncidentExportTasks',
-    '@getAllTicketExportTasks',
-    '@getAllBankSyncTasks',
-    '@getAllContactExportTasks',
-    '@getAllBankAccountReportTasks',
-]
-
 class TicketCreate {
 /*
     Elements:
@@ -33,7 +20,6 @@ class TicketCreate {
 
     visit (): this {
         cy.visit(TICKET_CREATE_URL)
-        cy.wait(BASE_SIDE_EFFECTS)
         return this
     }
 
@@ -115,7 +101,6 @@ class TicketView {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
         cy.wait([
-            ...BASE_SIDE_EFFECTS,
             '@getAllTickets',
             '@getAllTicketStatuses',
             '@getAllTicketFilterTemplates',
@@ -213,7 +198,6 @@ class TicketEdit {
     visit (ticket): this {
         cy.visit(`${TICKET_VIEW_URL}/${ticket.id}`)
         cy.wait([
-            ...BASE_SIDE_EFFECTS,
             '@getAllTickets',
             '@getAllTicketFiles',
             '@getAllOrganizationEmployees',
@@ -318,7 +302,7 @@ Elements:
     visitTicketsPage (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
+        cy.wait(['@getAllTickets'])
 
         return this
     }
