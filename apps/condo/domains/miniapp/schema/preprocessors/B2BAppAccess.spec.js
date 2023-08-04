@@ -8,7 +8,7 @@ const {
 } = require('./B2BAppAccess')
 
 
-describe('Helpers function for B2BAppAccess', () => {
+describe('Helper functions for B2BAppAccess preprocessor', () => {
     describe('generateGqlDataPart', () => {
         const validCases = [
             {
