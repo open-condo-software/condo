@@ -4,16 +4,19 @@
 
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { pick, get } = require('lodash')
+const { pick, get, isNil } = require('lodash')
 
 const { generateQuerySortBy } = require('@open-condo/codegen/generate.gql')
 const { generateQueryWhereInput } = require('@open-condo/codegen/generate.gql')
-const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
+const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
 const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 const {
     BILLING_RECEIPT_RECIPIENT_FIELD_NAME,
@@ -21,7 +24,7 @@ const {
     BILLING_RECEIPT_SERVICES_FIELD,
 } = require('../constants/constants')
 
-
+const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
 const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     id: 'ID',
@@ -31,6 +34,29 @@ const ALL_RESIDENT_BILLING_RECEIPTS_FIELDS = {
     serviceConsumer: 'ServiceConsumer',
 }
 
+const getFile = (receipt, contacts) => {
+    if (isNil(receipt.file)) {
+        return receipt.file
+    }
+    const accountUnitName = get(receipt, ['account', 'unitName'])
+    const accountUnitType = get(receipt, ['account', 'unitType'])
+    const propertyAddress = get(receipt, ['property', 'address'])
+
+    // let's search for a contact
+    // if any exists = user allowed to see sensitive data
+    const propertyContacts = contacts.filter(contact => contact.unitName === accountUnitName
+        && contact.unitType === accountUnitType
+        && contact.property.address === propertyAddress)
+    const file = propertyContacts.length > 0
+        ? receipt.file.sensitiveDataFile
+        : receipt.file.publicDataFile
+    const publicUrl = Adapter.publicUrl({ filename: file.filename })
+
+    return {
+        file: { ...file, publicUrl },
+        controlSum: receipt.file.controlSum,
+    }
+}
 
 const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillingReceiptsService', {
     types: [
@@ -44,7 +70,11 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
         },
         {
             access: true,
-            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! }`,
+            type: 'type ResidentBillingReceiptFile { file: File controlSum: String}',
+        },
+        {
+            access: true,
+            type: `type ResidentBillingReceiptOutput { dv: String!, recipient: ${BILLING_RECEIPT_RECIPIENT_FIELD_NAME}!, id: ID!, period: String!, toPay: String!, paid: String!, explicitFee: String!, printableNumber: String, toPayDetails: ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME}, services: ${BILLING_RECEIPT_SERVICES_FIELD}, serviceConsumer: ServiceConsumer! currencyCode: String! category: BillingCategory! isPayable: Boolean! file: ResidentBillingReceiptFile }`,
         },
     ],
 
@@ -106,21 +136,33 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     }
                 )
 
-                receiptsForConsumer.forEach(receipt => processedReceipts.push({
-                    id: receipt.id,
-                    dv: receipt.dv,
-                    category: receipt.category,
-                    recipient: receipt.recipient,
-                    receiver: receipt.receiver,
-                    account: receipt.account,
-                    period: receipt.period,
-                    toPay: receipt.toPay,
-                    toPayDetails: receipt.toPayDetails,
-                    services: receipt.services,
-                    printableNumber: receipt.printableNumber,
-                    serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber),
-                    currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
-                }))
+                // cache verified contacts for authed user
+                // in order to determinate if user can see
+                // a sensitive version of primary file
+                const contacts = await Contact.getAll(context, {
+                    phone: context.authedItem.phone,
+                    isVerified: true,
+                })
+
+                receiptsForConsumer.forEach(receipt => {
+                    const file = getFile(receipt, contacts)
+                    processedReceipts.push({
+                        id: receipt.id,
+                        dv: receipt.dv,
+                        category: receipt.category,
+                        recipient: receipt.recipient,
+                        receiver: receipt.receiver,
+                        account: receipt.account,
+                        period: receipt.period,
+                        toPay: receipt.toPay,
+                        toPayDetails: receipt.toPayDetails,
+                        services: receipt.services,
+                        printableNumber: receipt.printableNumber,
+                        serviceConsumer: serviceConsumers.find(x => get(receipt, ['account', 'number']) === x.accountNumber),
+                        currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
+                        file,
+                    })
+                })
 
                 //
                 // Set receipt.isPayable field

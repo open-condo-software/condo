@@ -10894,6 +10894,7 @@ type BillingReceiptHistoryRecord {
   recipient: JSON
   receiver: String
   invalidServicesError: JSON
+  file: String
   id: ID!
   v: Int
   createdAt: String
@@ -11070,6 +11071,10 @@ input BillingReceiptHistoryRecordWhereInput {
   invalidServicesError_not: JSON
   invalidServicesError_in: [JSON]
   invalidServicesError_not_in: [JSON]
+  file: String
+  file_not: String
+  file_in: [String]
+  file_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -11215,6 +11220,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   recipient: JSON
   receiver: String
   invalidServicesError: JSON
+  file: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -11256,6 +11262,7 @@ input BillingReceiptHistoryRecordCreateInput {
   recipient: JSON
   receiver: String
   invalidServicesError: JSON
+  file: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -11377,6 +11384,13 @@ input BillingRecipientRelateToOneInput {
   disconnectAll: Boolean
 }
 
+input BillingReceiptFileRelateToOneInput {
+  create: BillingReceiptFileCreateInput
+  connect: BillingReceiptFileWhereUniqueInput
+  disconnect: BillingReceiptFileWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 """ Account monthly invoice document """
 type BillingReceipt {
   """
@@ -11461,6 +11475,10 @@ type BillingReceipt {
 
   """ Indicates if services are valid and add up to total sum toPay. """
   invalidServicesError: String
+
+  """ A BillingReceiptFile that related to this billing receipt (filled up by integration) 
+  """
+  file: BillingReceiptFile
   id: ID!
   v: Int
   createdAt: String
@@ -11631,6 +11649,8 @@ input BillingReceiptWhereInput {
   recipient_not_in: [BillingReceiptsRecipientFieldInput]
   receiver: BillingRecipientWhereInput
   receiver_is_null: Boolean
+  file: BillingReceiptFileWhereInput
+  file_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -11726,6 +11746,8 @@ enum SortBillingReceiptsBy {
   paid_DESC
   receiver_ASC
   receiver_DESC
+  file_ASC
+  file_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -11765,6 +11787,7 @@ input BillingReceiptUpdateInput {
   services: [BillingReceiptServiceFieldInput!]
   recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
+  file: BillingReceiptFileRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -11802,6 +11825,7 @@ input BillingReceiptCreateInput {
   services: [BillingReceiptServiceFieldInput!]
   recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
+  file: BillingReceiptFileRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -63737,6 +63761,11 @@ enum SortResidentBillingReceiptsBy {
   serviceConsumer_DESC
 }
 
+type ResidentBillingReceiptFile {
+  file: File
+  controlSum: String
+}
+
 type ResidentBillingReceiptOutput {
   dv: String!
   recipient: BillingReceiptsRecipientField!
@@ -63752,6 +63781,7 @@ type ResidentBillingReceiptOutput {
   currencyCode: String!
   category: BillingCategory!
   isPayable: Boolean!
+  file: ResidentBillingReceiptFile
 }
 
 input RegisterBillingReceiptInput {

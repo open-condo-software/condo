@@ -174,6 +174,14 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             },
         },
 
+        file: {
+            schemaDoc: 'A BillingReceiptFile that related to this billing receipt (filled up by integration)',
+            type: Relationship,
+            ref: 'BillingReceiptFile',
+            isRequired: false,
+            knexOptions: { isNotNullable: false },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
