@@ -100,12 +100,7 @@ class TicketView {
     visit (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait([
-            '@getAllTickets',
-            '@getAllTicketStatuses',
-            '@getAllTicketFilterTemplates',
-            '@selectTicketsCount',
-        ])
+        cy.wait(['@getAllTicketCommentsTimes'])
         return this
     }
 
@@ -197,24 +192,6 @@ class TicketEdit {
  */
     visit (ticket): this {
         cy.visit(`${TICKET_VIEW_URL}/${ticket.id}`)
-        cy.wait([
-            '@getAllTickets',
-            '@getAllTicketFiles',
-            '@getAllOrganizationEmployees',
-            '@getAllTicketStatuses',
-            '@getAllTicketComments',
-            '@getAllTicketChanges',
-            '@getAllTicketPropertyHints',
-            '@getAllUserTicketCommentReadTimes',
-            '@getAllOrganizationEmployeeSpecializations',
-            '@getAllPropertyScopeProperties',
-            '@getAllPropertyScopes',
-            '@getAllPropertyScopeOrganizationEmployees',
-            '@getAllTicketPropertyHintProperties',
-            '@getAllIncidentProperties',
-            '@getAllIncidents',
-        ])
-
         return this
     }
 
