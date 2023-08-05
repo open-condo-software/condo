@@ -25,6 +25,7 @@ const {
 const { Organization, createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty, Property, updateTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     createTestTicket,
     createTestTicketComment,
@@ -39,8 +40,6 @@ const {
     registerNewServiceUserByTestClient,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { buildFakeAddressAndMeta } = require('../../property/utils/testSchema/factories')
 
 
 describe('B2BAppAccessRightSet', () => {
