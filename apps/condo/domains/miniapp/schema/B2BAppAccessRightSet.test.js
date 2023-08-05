@@ -40,6 +40,8 @@ const {
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
 
+const { buildFakeAddressAndMeta } = require('../../property/utils/testSchema/factories')
+
 
 describe('B2BAppAccessRightSet', () => {
     let admin
@@ -364,6 +366,84 @@ describe('B2BApp permissions for service user', () => {
         expect(foundRight).toHaveProperty('accessRightSet.canManageContacts', false)
     })
 
+    describe('Bulk-operations', () => {
+        test('Cannot create many Properties in one request', async () => {
+            const [organization] = await registerNewOrganization(user)
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canReadProperties: true,
+                canManageProperties: true,
+                canReadOrganizations: true,
+            })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+            const { address, addressMeta } = buildFakeAddressAndMeta(false)
+            const { address: address2, addressMeta: addressMeta2 } = buildFakeAddressAndMeta(false)
+            const attrs = [{
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    organization: { connect: { id: organization.id } },
+                    type: 'building',
+                    name: faker.address.streetAddress(true),
+                    address: address,
+                    addressMeta: addressMeta,
+                },
+            }, {
+                data:{
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    organization: { connect: { id: organization.id } },
+                    type: 'building',
+                    name: faker.address.streetAddress(true),
+                    address: address2,
+                    addressMeta: addressMeta2,
+                },
+            }]
+
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Property.createMany(serviceUser, attrs)
+            })
+        })
+
+        test('Cannot update many Properties in one request', async () => {
+            const [organization] = await registerNewOrganization(user)
+            const [app] = await createTestB2BApp(support)
+            await createTestB2BAppContext(support, app, organization, { status: 'Finished' })
+            const [right] = await createTestB2BAppAccessRight(support, serviceUser.user, app)
+            const [accessRightSet] = await createTestB2BAppAccessRightSet(support, app, {
+                canReadProperties: true,
+                canManageProperties: true,
+                canReadOrganizations: true,
+            })
+            await updateTestB2BAppAccessRight(support, right.id, { accessRightSet: { connect: { id: accessRightSet.id } } })
+
+            const [property1] = await createTestProperty(support, organization)
+            const [property2] = await createTestProperty(support, organization)
+
+            const attrs = [{
+                id: property1.id,
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    name: faker.address.streetAddress(true),
+                },
+            }, {
+                id: property2.id,
+                data: {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    name: faker.address.streetAddress(true),
+                },
+            }]
+            await expectToThrowAccessDeniedErrorToObjects(async () => {
+                await Property.updateMany(serviceUser, attrs)
+            })
+        })
+    })
+
     test('Organization', async () => {
         const [organization] = await registerNewOrganization(user)
 
@@ -650,8 +730,6 @@ describe('B2BApp permissions for service user', () => {
             expect(countByUser).toBe(1)
         }
 
-
-        // ----
         // B2BApp with permissions { canReadProperties: false, canManageProperties: true, canReadOrganizations: true }
         {
             await updateTestB2BAppAccessRightSet(support, accessRightSet.id, {

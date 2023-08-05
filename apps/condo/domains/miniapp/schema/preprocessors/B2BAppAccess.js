@@ -121,6 +121,11 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
 
     if (!listKey) return false
 
+    const isBulkRequest = Array.isArray(originalInput)
+
+
+    if (isBulkRequest) return false
+
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) return false
 
@@ -149,6 +154,8 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             organizationId = get(parentObject, pathToOrganizationId.slice(1))
         }
     } else if (operation === 'update') {
+        if (!itemId) return false
+
         const item = await getById(listKey, itemId)
         if (!item) return false
 
