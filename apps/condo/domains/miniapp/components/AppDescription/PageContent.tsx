@@ -46,6 +46,7 @@ type PageContentProps = {
     partnerUrl?: string
     gallery?: Array<string>
     contextStatus: string | null
+    accessible: boolean
     appUrl?: string
     connectAction: () => void
 }
@@ -73,6 +74,7 @@ const PageContent: React.FC<PageContentProps> = ({
     gallery,
     contextStatus,
     appUrl,
+    accessible,
     connectAction,
 }) => {
     const intl = useIntl()
@@ -101,7 +103,7 @@ const PageContent: React.FC<PageContentProps> = ({
                         dv: 1,
                         sender: getClientSideSenderInfo(),
                         organization: { id: userOrganizationId },
-                        where: { connected: false, id_not: id, category },
+                        where: { connected: false, app: { id_not: id, category } },
                     },
                 },
             })
@@ -142,6 +144,7 @@ const PageContent: React.FC<PageContentProps> = ({
                             gallery={gallery}
                             contextStatus={contextStatus}
                             appUrl={appUrl}
+                            accessible={accessible}
                             connectAction={connectAction}
                         />
                     </Col>
@@ -178,7 +181,7 @@ const PageContent: React.FC<PageContentProps> = ({
                                 {moreApps.map(app => (
                                     <AppCard
                                         key={app.id}
-                                        connected={app.connected}
+                                        connected={app.connected && app.accessible}
                                         name={app.name}
                                         description={app.shortDescription}
                                         logoUrl={app.logo}
