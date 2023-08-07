@@ -1,5 +1,5 @@
 import {
-    detectEventTypes,
+    detectTicketEventTypes,
     ASSIGNEE_CONNECTED_EVENT_TYPE,
     EXECUTOR_CONNECTED_EVENT_TYPE,
     STATUS_CHANGED_EVENT_TYPE,
@@ -18,7 +18,7 @@ describe('Ticket request event detection', () => {
             updatedItem: { assignee: 'xxx' },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [ASSIGNEE_CONNECTED_EVENT_TYPE]: true })
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [ASSIGNEE_CONNECTED_EVENT_TYPE]: true })
     })
 
     it('correctly detects executor connection on ticket create', () => {
@@ -28,7 +28,7 @@ describe('Ticket request event detection', () => {
             updatedItem: { executor: 'xxx' },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [EXECUTOR_CONNECTED_EVENT_TYPE]: true })
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [EXECUTOR_CONNECTED_EVENT_TYPE]: true })
     })
 
     it('correctly detects assignee and executor connection on ticket create', () => {
@@ -38,7 +38,7 @@ describe('Ticket request event detection', () => {
             updatedItem: { assignee: 'xxx', executor: 'yyy' },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject(
+        expect(detectTicketEventTypes(requestData)).toMatchObject(
             { [ASSIGNEE_CONNECTED_EVENT_TYPE]: true, [EXECUTOR_CONNECTED_EVENT_TYPE]: true }
         )
     })
@@ -50,7 +50,7 @@ describe('Ticket request event detection', () => {
             updatedItem: { assignee: 'xxx' },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [ASSIGNEE_CONNECTED_EVENT_TYPE]: true })
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [ASSIGNEE_CONNECTED_EVENT_TYPE]: true })
     })
 
     it('correctly detects assignee change on ticket update', () => {
@@ -60,7 +60,7 @@ describe('Ticket request event detection', () => {
             updatedItem: { assignee: 'xxx1' },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [ASSIGNEE_CONNECTED_EVENT_TYPE]: true })
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [ASSIGNEE_CONNECTED_EVENT_TYPE]: true })
     })
 
     it('correctly detects executor connection on ticket update', () => {
@@ -70,7 +70,7 @@ describe('Ticket request event detection', () => {
             updatedItem: { executor: 'xxx' },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [EXECUTOR_CONNECTED_EVENT_TYPE]: true })
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [EXECUTOR_CONNECTED_EVENT_TYPE]: true })
     })
 
     it('correctly detects executor change on ticket update', () => {
@@ -80,7 +80,7 @@ describe('Ticket request event detection', () => {
             updatedItem: { executor: 'xxx1' },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [EXECUTOR_CONNECTED_EVENT_TYPE]: true })
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [EXECUTOR_CONNECTED_EVENT_TYPE]: true })
     })
 
     it('correctly detects event on ticket create', () => {
@@ -93,7 +93,7 @@ describe('Ticket request event detection', () => {
             },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [STATUS_CHANGED_EVENT_TYPE]: false } )
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [STATUS_CHANGED_EVENT_TYPE]: false } )
     })
 
     it('correctly detects event change on ticket update', () => {
@@ -107,6 +107,6 @@ describe('Ticket request event detection', () => {
             },
         }
 
-        expect(detectEventTypes(requestData)).toMatchObject({ [STATUS_CHANGED_EVENT_TYPE]: true } )
+        expect(detectTicketEventTypes(requestData)).toMatchObject({ [STATUS_CHANGED_EVENT_TYPE]: true } )
     })
 })
