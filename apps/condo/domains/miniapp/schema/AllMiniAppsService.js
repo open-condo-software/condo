@@ -15,21 +15,42 @@ const {
 } = require('@condo/domains/miniapp/constants')
 const { APPS_FILE_ADAPTER } = require('@condo/domains/miniapp/schema/fields/integration')
 
-const priorityCompare = (lhs, rhs) => {
+const PRIORITY_DESC_SORT = 'displayPriority_DESC'
+const CONNECTED_ASC_SORT = 'connectedAt_ASC'
+
+function datePropertyCompare (lhs, rhs, property = 'createdAt', order = 'DESC') {
+    const lhsDateString = get(lhs, property)
+    if (!lhsDateString) {
+        return order === 'DESC' ? 1 : -1
+    }
+    const rhsDateString = get(rhs, property)
+    if (!rhsDateString) {
+        return order === 'DESC' ? 1 : -1
+    }
+
+    const lhsDate = dayjs(lhsDateString)
+    const rhsDate = dayjs(rhsDateString)
+
+    if (lhsDate.isAfter(rhsDate)) {
+        return order === 'DESC' ? -1 : 1
+    } else if (lhsDate.isBefore(rhsDate)) {
+        return order === 'DESC' ? 1 : -1
+    } else {
+        return 0
+    }
+}
+
+function priorityDescCompare (lhs, rhs) {
     const diff = rhs.displayPriority - lhs.displayPriority
     if (diff !== 0) {
         return diff
     } else {
-        const lhsCreatedAt = dayjs(lhs.createdAt)
-        const rhsCreatedAt = dayjs(rhs.createdAt)
-        if (lhsCreatedAt.isAfter(rhsCreatedAt)) {
-            return -1
-        } else if (lhsCreatedAt.isBefore(rhsCreatedAt)) {
-            return 1
-        } else {
-            return 0
-        }
+        return datePropertyCompare(lhs, rhs, 'createdAt', 'DESC')
     }
+}
+
+function connectedAscCompare (lhs, rhs) {
+    return datePropertyCompare(lhs, rhs, 'connectedAt', 'ASC')
 }
 
 const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
@@ -40,15 +61,19 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
         },
         {
             access: true,
-            type: 'input AllMiniAppsWhereInput { connected: Boolean, id_not: String, category: String, accessible: Boolean }',
+            type: 'input AllMiniAppsWhereInput { app: B2BAppWhereInput, connected: Boolean, accessible: Boolean }',
         },
         {
             access: true,
-            type: 'input AllMiniAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, search: String, where: AllMiniAppsWhereInput }',
+            type: `enum SortAllMiniAppsBy { ${PRIORITY_DESC_SORT}, ${CONNECTED_ASC_SORT} }`,
         },
         {
             access: true,
-            type: 'type MiniAppOutput { id: ID!, connected: Boolean!, accessible: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String }',
+            type: 'input AllMiniAppsInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, where: AllMiniAppsWhereInput, sortBy: SortAllMiniAppsBy }',
+        },
+        {
+            access: true,
+            type: 'type MiniAppOutput { id: ID!, connected: Boolean!, accessible: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String, icon: String, menuCategory: String }',
         },
     ],
     
@@ -57,14 +82,10 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
             access: access.canExecuteAllMiniApps,
             schema: 'allMiniApps (data: AllMiniAppsInput!): [MiniAppOutput!]',
             resolver: async (parent, args, context) => {
-                const { data: { organization, search, where: { connected, category, accessible, ...restWhere } = {} } } = args
+                const { data: { organization, where: { connected, accessible, app } = {}, sortBy } } = args
                 const { authedItem: user } = context
 
                 let services = []
-
-                const searchFilters = search ? {
-                    name_contains_i: search,
-                } : {}
 
                 const employee = await getByCondition('OrganizationEmployee', {
                     organization,
@@ -79,44 +100,52 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 const accessibleB2BApps = new Set(appRoles.map(role => role.app))
 
                 const B2BApps = await find('B2BApp', {
+                    ...app,
                     isHidden: false,
                     isGlobal: false,
                     deletedAt: null,
-                    ...searchFilters,
-                    ...restWhere,
                 })
                 const B2BAppContexts = await find('B2BAppContext', {
                     organization,
                     deletedAt: null,
                     status: CONTEXT_FINISHED_STATUS,
                 })
-                const connectedB2BApps = new Set(B2BAppContexts.map(context => context.app))
+                const connectedB2BApps = Object.assign({}, ...B2BAppContexts.map(ctx => ({ [ctx.app]: ctx.createdAt })))
                 for (const app of B2BApps) {
                     const logoUrl = app.logo ? APPS_FILE_ADAPTER.publicUrl({ filename: app.logo.filename }) : null
+                    const connected = app.id in connectedB2BApps
                     services.push({
                         id: app.id,
                         name: app.name,
                         shortDescription: app.shortDescription,
-                        connected: connectedB2BApps.has(app.id),
+                        connected,
                         accessible: accessibleB2BApps.has(app.id),
                         category: app.category,
                         logo: logoUrl,
                         label: app.label,
+                        icon: app.icon,
+                        menuCategory: app.menuCategory,
                         // NOTE: Extra props for sort that will be omitted
                         displayPriority: app.displayPriority,
                         createdAt: app.createdAt,
+                        connectedAt: get(connectedB2BApps, app.id, null),
                     })
                 }
                 if (connected !== undefined) {
                     services = services.filter(service => service.connected === connected)
                 }
-                if (category !== undefined) {
-                    services = services.filter(service => service.category === category)
-                }
                 if (accessible !== undefined) {
                     services = services.filter(service => service.accessible === accessible)
                 }
-                services.sort(priorityCompare)
+
+                if (sortBy === CONNECTED_ASC_SORT) {
+                    console.log('SORTING CUSTOM')
+                    console.log(services)
+                    services.sort(connectedAscCompare)
+                } else {
+                    services.sort(priorityDescCompare)
+                }
+
                 return services
             },
         },
