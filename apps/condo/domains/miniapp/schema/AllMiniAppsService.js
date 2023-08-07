@@ -139,8 +139,6 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
                 }
 
                 if (sortBy === CONNECTED_ASC_SORT) {
-                    console.log('SORTING CUSTOM')
-                    console.log(services)
                     services.sort(connectedAscCompare)
                 } else {
                     services.sort(priorityDescCompare)
