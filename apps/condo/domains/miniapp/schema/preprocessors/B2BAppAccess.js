@@ -9,7 +9,7 @@ const { evaluateKeystoneAccessResult } = require('@open-condo/keystone/plugins/u
 const { GQL_LIST_SCHEMA_TYPE, find, getById } = require('@open-condo/keystone/schema')
 
 
-function fieldAccessWrapperIfNeeded (defaultAccess, customAccessFn) {
+function wrapInCustomAccess (defaultAccess, customAccessFn) {
     // NOTE: you can use the same object in many places! you don't need to wrap it twice
     if (!customAccessFn.alreadyprocessedbyb2bappaccessplugin) customAccessFn.alreadyprocessedbyb2bappaccessplugin = true
 
@@ -27,11 +27,11 @@ function fieldAccessWrapperIfNeeded (defaultAccess, customAccessFn) {
         else return customAccessFn
     } else if (type === 'Object') {
         const newAccess = {}
-        if (typeof defaultAccess.read !== 'undefined') newAccess.read = fieldAccessWrapperIfNeeded(defaultAccess.read, customAccessFn)
-        if (typeof defaultAccess.create !== 'undefined') newAccess.create = fieldAccessWrapperIfNeeded(defaultAccess.create, customAccessFn)
-        if (typeof defaultAccess.update !== 'undefined') newAccess.update = fieldAccessWrapperIfNeeded(defaultAccess.update, customAccessFn)
-        if (typeof defaultAccess.delete !== 'undefined') newAccess.delete = fieldAccessWrapperIfNeeded(defaultAccess.delete, customAccessFn)
-        if (typeof defaultAccess.auth !== 'undefined') newAccess.auth = fieldAccessWrapperIfNeeded(defaultAccess.auth, customAccessFn)
+        if (typeof defaultAccess.read !== 'undefined') newAccess.read = wrapInCustomAccess(defaultAccess.read, customAccessFn)
+        if (typeof defaultAccess.create !== 'undefined') newAccess.create = wrapInCustomAccess(defaultAccess.create, customAccessFn)
+        if (typeof defaultAccess.update !== 'undefined') newAccess.update = wrapInCustomAccess(defaultAccess.update, customAccessFn)
+        if (typeof defaultAccess.delete !== 'undefined') newAccess.delete = wrapInCustomAccess(defaultAccess.delete, customAccessFn)
+        if (typeof defaultAccess.auth !== 'undefined') newAccess.auth = wrapInCustomAccess(defaultAccess.auth, customAccessFn)
         return newAccess
     }
 
@@ -374,7 +374,7 @@ const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
         return await evaluateKeystoneAccessResult(access, operation, args)
     }
 
-    schema.access = fieldAccessWrapperIfNeeded(access, customListAccess)
+    schema.access = wrapInCustomAccess(access, customListAccess)
 }
 
 const ALL_PERMISSION_NAMES = new Set()
