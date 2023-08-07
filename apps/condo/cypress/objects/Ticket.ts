@@ -100,12 +100,12 @@ class TicketView {
     visit (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait(['@getAllTicketCommentsTimes'])
+        cy.get('[data-cy=ticket__filter__status-count]').should('be.visible')
         return this
     }
 
     clickIsWarrantyCheckbox (): this {
-        cy.get('[data-cy=ticket__filter-isWarranty]').click()
+        cy.get('[data-cy=ticket__filter-isWarranty]').should('not.be.disabled').click()
         cy.location('search').should('contain', 'isWarranty')
         cy.wait('@getAllTickets')
         cy.get('[data-cy=ticket__table] tbody tr').should('have.length.greaterThan', 0)
@@ -192,6 +192,24 @@ class TicketEdit {
  */
     visit (ticket): this {
         cy.visit(`${TICKET_VIEW_URL}/${ticket.id}`)
+        cy.wait([
+            '@getAllTickets',
+            '@getAllTicketFiles',
+            '@getAllOrganizationEmployees',
+            '@getAllTicketStatuses',
+            '@getAllTicketComments',
+            '@getAllTicketChanges',
+            '@getAllTicketPropertyHints',
+            '@getAllUserTicketCommentReadTimes',
+            '@getAllOrganizationEmployeeSpecializations',
+            '@getAllPropertyScopeProperties',
+            '@getAllPropertyScopes',
+            '@getAllPropertyScopeOrganizationEmployees',
+            '@getAllTicketPropertyHintProperties',
+            '@getAllIncidentProperties',
+            '@getAllIncidents',
+        ])
+
         return this
     }
 
