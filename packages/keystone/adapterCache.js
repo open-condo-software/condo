@@ -103,6 +103,8 @@ class AdapterCache {
             // Cache: { listName -> queryKey -> { response, listScore } }
             this.cache = new LRUCache({ max: this.maxCacheKeys, dispose: () => this.totalDropsOnLRU++ })
 
+            this.idCache = getCacheRedisClient('id')
+
             // Log statistics each <provided> seconds
             if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
             if (this.enabled) this.metricsInterval = setInterval(() => this._logMetrics(), 1000)
@@ -257,7 +259,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
     // Step 1: Preprocess lists.
-    const relations = {}        // list -> [{list, path, many}]
+    const relations = {}               // list -> [{list, path, many}]
     const manyRefs = new Set()  // lists that are referenced in many: true relations
     const manyLists = new Set() // lists that have many: true relations
 
@@ -487,6 +489,10 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
 
 function getStateRedisClient () {
     return getRedisClient('cache')
+}
+
+function getCacheRedisClient (name) {
+    return getRedisClient(name)
 }
 
 /**
