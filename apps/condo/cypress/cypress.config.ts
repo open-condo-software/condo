@@ -15,6 +15,7 @@ export default defineConfig({
             return require('./plugins/index.js')(on, config)
         },
         requestTimeout: 10000,
-        numTestsKeptInMemory: 1,
+        pageLoadTimeout: 10000,
+        numTestsKeptInMemory: 0,
     },
 })

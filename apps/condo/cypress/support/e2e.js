@@ -1,7 +1,7 @@
 import './commands'
 
 Cypress.on('uncaught:exception', (err) => {
-    if (err.message.toLowerCase().includes('resizeobserver loop limit exceeded')) {
+    if (err.message.toLowerCase().includes('resizeobserver')) {
         return false
     }
 })

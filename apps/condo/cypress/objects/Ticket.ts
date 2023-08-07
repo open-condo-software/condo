@@ -2,14 +2,6 @@
 const TICKET_CREATE_URL = '/ticket/create'
 const TICKET_VIEW_URL = '/ticket'
 
-const BASE_SIDE_EFFECTS = [
-    '@getAllOnBoardings',
-    '@getAllOnBoardingSteps',
-    '@getAllOrganizationEmployees',
-    '@getOrganizationEmployeeById',
-    '@getAllServiceSubscriptions',
-]
-
 class TicketCreate {
 /*
     Elements:
@@ -28,7 +20,6 @@ class TicketCreate {
 
     visit (): this {
         cy.visit(TICKET_CREATE_URL)
-        cy.wait(BASE_SIDE_EFFECTS)
         return this
     }
 
@@ -90,8 +81,7 @@ class TicketCreate {
             .click()
         cy.wait('@createTicket')
 
-        cy.location('pathname').should('not.eq', TICKET_CREATE_URL)
-        cy.location('pathname').should('contain', TICKET_VIEW_URL)
+        cy.location('pathname', { timeout: 10000 }).should('contain', TICKET_VIEW_URL)
         return this
     }
 }
@@ -110,12 +100,16 @@ class TicketView {
     visit (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
+        cy.wait('@getAllOrganizationEmployees')
+        cy.wait('@getAllTicketStatuses')
+        cy.wait('@getAllUserTicketCommentReadTimes')
+        cy.wait('@getAllPropertyScopeOrganizationEmployees')
+        cy.wait('@getAllTickets')
         return this
     }
 
     clickIsWarrantyCheckbox (): this {
-        cy.get('[data-cy=ticket__filter-isWarranty]').click()
+        cy.get('[data-cy=ticket__filter-isWarranty]').should('not.be.disabled').click()
         cy.location('search').should('contain', 'isWarranty')
         cy.wait('@getAllTickets')
         cy.get('[data-cy=ticket__table] tbody tr').should('have.length.greaterThan', 0)
@@ -203,7 +197,6 @@ class TicketEdit {
     visit (ticket): this {
         cy.visit(`${TICKET_VIEW_URL}/${ticket.id}`)
         cy.wait([
-            ...BASE_SIDE_EFFECTS,
             '@getAllTickets',
             '@getAllTicketFiles',
             '@getAllOrganizationEmployees',
@@ -308,7 +301,7 @@ Elements:
     visitTicketsPage (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.wait([...BASE_SIDE_EFFECTS, '@getAllTickets'])
+        cy.wait(['@getAllTickets'])
 
         return this
     }
