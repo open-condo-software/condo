@@ -57,12 +57,13 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             graphQLReturnFragment: '{ id address addressKey }',
             resolver: async (item) => {
                 const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-                const [ property ] = await find('Property', {
+                const propertyConditions = item.addressKey
+                    ? { OR: [{ address_i: item.address }, { addressKey: item.addressKey }] }
+                    : { address_i: item.address }
+
+                const [property] = await find('Property', {
                     organization: { id: billingContext.organization },
-                    OR: [
-                        { address_i: item.address },
-                        { addressKey: item.addressKey },
-                    ],
+                    ...propertyConditions,
                     deletedAt: null,
                 })
 
