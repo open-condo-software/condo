@@ -17,5 +17,6 @@ export default defineConfig({
         requestTimeout: 10000,
         pageLoadTimeout: 10000,
         numTestsKeptInMemory: 1,
+        numTestsKeptInMemory: 0,
     },
 })

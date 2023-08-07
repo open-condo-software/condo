@@ -178,7 +178,7 @@
     "bad-words-next": "^1.6.7",
     "cross-env": "^7.0.3",
     "css-loader": "1.0.1",
-    "cypress": "10.11.0",
+    "cypress": "12.17.3",
     "eslint-plugin-cypress": "^2.12.1",
     "extracted-loader": "^1.0.7",
     "form-data": "^4.0.0",
