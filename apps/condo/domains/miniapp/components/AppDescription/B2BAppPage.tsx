@@ -57,9 +57,8 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
     }, [initialAction, organizationId, appId])
 
     const handleCloseModal = useCallback(() => {
-        refetchRole()
         setModalOpen(false)
-    }, [refetchRole])
+    }, [])
 
     if (appLoading || contextLoading || appRoleLoading || appError || contextError || appRoleError) {
         return (
