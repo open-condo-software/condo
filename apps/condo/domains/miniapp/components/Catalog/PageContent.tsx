@@ -105,7 +105,9 @@ export const CatalogPageContent: React.FC = () => {
                         dv: 1,
                         sender: getClientSideSenderInfo(),
                         organization: { id: userOrganizationId },
-                        search,
+                        where: {
+                            app: { name_contains_i: search },
+                        },
                     },
                 },
             })
