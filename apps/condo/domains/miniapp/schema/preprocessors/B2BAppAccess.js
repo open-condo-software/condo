@@ -9,9 +9,28 @@ const { evaluateKeystoneAccessResult } = require('@open-condo/keystone/plugins/u
 const { GQL_LIST_SCHEMA_TYPE, find, getById } = require('@open-condo/keystone/schema')
 
 
+const ALL_GENERATED_GQL_QUERIES = new Map()
+
+const ALL_PERMISSION_NAMES = new Set()
+
+const PERMISSION_FIELD = {
+    type: 'Checkbox',
+    defaultValue: false,
+    kmigratorOptions: { default: false },
+}
+
+const READ_ONLY_PERMISSION_FIELD = {
+    ...PERMISSION_FIELD,
+    access: {
+        read: true,
+        create: false,
+        update: false,
+    },
+}
+
 function wrapInCustomAccess (defaultAccess, customAccessFn) {
     // NOTE: you can use the same object in many places! you don't need to wrap it twice
-    if (!customAccessFn.alreadyprocessedbyb2bappaccessplugin) customAccessFn.alreadyprocessedbyb2bappaccessplugin = true
+    if (!customAccessFn.alreadyProcessedByB2BAppAccessPlugin) customAccessFn.alreadyProcessedByB2BAppAccessPlugin = true
 
     const type = getType(defaultAccess)
     if (type === 'Boolean') {
@@ -19,11 +38,11 @@ function wrapInCustomAccess (defaultAccess, customAccessFn) {
         return defaultAccess
     } else if (type === 'Function') {
         // NOTE: to prevent multiple wrapping the same function
-        if (defaultAccess.alreadyprocessedbyb2bappaccessplugin) return defaultAccess
+        if (defaultAccess.alreadyProcessedByB2BAppAccessPlugin) return defaultAccess
         else return customAccessFn
     } else if (type === 'AsyncFunction') {
         // NOTE: to prevent multiple wrapping the same function
-        if (defaultAccess.alreadyprocessedbyb2bappaccessplugin) return defaultAccess
+        if (defaultAccess.alreadyProcessedByB2BAppAccessPlugin) return defaultAccess
         else return customAccessFn
     } else if (type === 'Object') {
         const newAccess = {}
@@ -79,35 +98,33 @@ const generateGqlQueryAsString = (listKey, pathToOrganizationId) => {
     `
 }
 
-const ALL_GENERATED_GQL_QUERIES = new Map()
-
 /**
  *
  * @param pathToOrganizationId {string[]}
+ * @param schemaName {string}
  * @return {*|DocumentNode}
  *
  * @example
- * Input: ['ticket', 'organization', 'id']
+ * Input: ('MySchemaName', ['myField', 'organization', 'id'])
  * Output: gql`
- *         query getAllTickets ($where: TicketWhereInput, $first: Int = 1) {
- *             objs: allTickets(where: $where, first: $first) { organization { id } }
+ *         query getAllMySchemaNames ($where: MySchemaNameWhereInput, $first: Int = 1) {
+ *             objs: allMySchemaNames(where: $where, first: $first) { myField { organization { id } } }
  *         }
  *     `
  */
-const generateGqlQuery = (pathToOrganizationId) => {
+const generateGqlQuery = (schemaName, pathToOrganizationId) => {
+    if (schemaName && (!isString(schemaName) || schemaName.trim().length < 1)) throw new Error(`"customListKey" should be not empty string! But was: "${schemaName}"`)
     if (!pathToOrganizationId || !isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) throw new Error('"pathToOrganizationId" should not be empty array')
-    if (pathToOrganizationId.length < 2) throw new Error(`To generate gql "pathToOrganizationId" must contain at least two elements! But was ${pathToOrganizationId}`)
+    if (pathToOrganizationId.length < 1) throw new Error(`To generate gql "pathToOrganizationId" must contain at least one elements! But was ${pathToOrganizationId}`)
 
-    const gqlKey = pathToOrganizationId.join(':')
+    const gqlKey = [schemaName, ...pathToOrganizationId].join(':')
 
     // get already generated gql query to reuse them
     if (ALL_GENERATED_GQL_QUERIES.has(gqlKey)) {
         return ALL_GENERATED_GQL_QUERIES.get(gqlKey)
     }
 
-    const listKey = pathToOrganizationId[0].charAt(0).toUpperCase() + pathToOrganizationId[0].slice(1)
-
-    const generatedGql = gql`${generateGqlQueryAsString(listKey, pathToOrganizationId.slice(1))}`
+    const generatedGql = gql`${generateGqlQueryAsString(schemaName, pathToOrganizationId)}`
 
     // save generated gql query to reuse them
     ALL_GENERATED_GQL_QUERIES.set(gqlKey, generatedGql)
@@ -115,14 +132,13 @@ const generateGqlQuery = (pathToOrganizationId) => {
     return generatedGql
 }
 
-const canManageByServiceUser = async ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig) => {
+const canManageByServiceUser = async ({ authentication: { item: user }, listKey, originalInput, itemId, operation, context }, schemaConfig, parentSchemaName) => {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (!listKey) return false
 
     const isBulkRequest = Array.isArray(originalInput)
-
 
     if (isBulkRequest) return false
 
@@ -141,7 +157,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQuery(pathToOrganizationId),
+                query: generateGqlQuery(parentSchemaName, pathToOrganizationId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -166,7 +182,7 @@ const canManageByServiceUser = async ({ authentication: { item: user }, listKey,
             if (!parentObjectId) return false
 
             const [parentObject] = await execGqlWithoutAccess(context, {
-                query: generateGqlQuery(pathToOrganizationId),
+                query: generateGqlQuery(parentSchemaName, pathToOrganizationId.slice(1)),
                 variables: {
                     where: { id: parentObjectId },
                     first: 1,
@@ -270,21 +286,6 @@ const canReadByServiceUser = async ({ authentication: { item: user }, args, list
     return getFilter(pathToOrganizationId, organizationIds)
 }
 
-const PERMISSION_FIELD = {
-    type: 'Checkbox',
-    defaultValue: false,
-    kmigratorOptions: { default: false },
-}
-
-const READ_ONLY_PERMISSION_FIELD = {
-    ...PERMISSION_FIELD,
-    access: {
-        read: true,
-        create: false,
-        update: false,
-    },
-}
-
 /**
  *
  * @param permissionFieldName {string}
@@ -337,10 +338,31 @@ const addPermissionFieldsToSchema = (schema, schemaName, readOnlyPermissionField
 }
 
 const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
+    const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
+
+    if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) {
+        throw new Error('config.pathToOrganizationId must be not empty array!')
+    }
+    for (const pathPart of pathToOrganizationId) {
+        if (!isString(pathPart) || pathPart.trim().length < 1) {
+            throw new Error(`"pathToOrganizationId" must contain array of string! But was: ${pathToOrganizationId}`)
+        }
+    }
+
+    const schemaFields = get(schema, 'fields', {})
+    const refSchemaName = get(schemaFields, [pathToOrganizationId[0], 'ref'], null)
+
+    if (!Object.keys(schemaFields).includes('organization') && !get(schemaConfig, 'pathToOrganizationId')) {
+        throw new Error(`Schema "${schemaName}" has not field "organization"`)
+    }
+    if (pathToOrganizationId.length > 1 && !refSchemaName) {
+        throw new Error(`not found "ref" for "${pathToOrganizationId[0]}" field in "${schemaName}" schema`)
+    }
+
     const access = schema.access
 
-    const cannotBeRead = get(schemaConfig, 'cannotBeRead', false)
-    const cannotBeManage = get(schemaConfig, 'cannotBeManage', false)
+    const canBeRead = get(schemaConfig, 'canBeRead', true)
+    const canBeManage = get(schemaConfig, 'canBeManage', true)
 
     const customListAccess = async (args) => {
         const { operation, authentication: { item: user } } = args
@@ -351,7 +373,7 @@ const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
             if (operation === 'read') {
                 const defaultAccess = await evaluateKeystoneAccessResult(access, operation, args)
 
-                if (cannotBeRead) return defaultAccess
+                if (!canBeRead) return defaultAccess
                 if (isBoolean(defaultAccess)) return defaultAccess
                 if (isObject(defaultAccess) && isEmpty(defaultAccess)) return defaultAccess
 
@@ -367,7 +389,7 @@ const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
                 }
             } else if ((operation === 'create' || operation === 'update')) {
                 return await evaluateKeystoneAccessResult(access, operation, args)
-                    || (!cannotBeManage && await canManageByServiceUser(args, schemaConfig))
+                    || (canBeManage && await canManageByServiceUser(args, schemaConfig, refSchemaName))
             }
         }
 
@@ -376,8 +398,6 @@ const addCustomAccessToSchema = (schemaName, schema, schemaConfig) => {
 
     schema.access = wrapInCustomAccess(access, customListAccess)
 }
-
-const ALL_PERMISSION_NAMES = new Set()
 
 /**
  *
@@ -393,9 +413,9 @@ const ALL_PERMISSION_NAMES = new Set()
  * Overrides the plugin's default behavior for the specified schema
  *
  * @typedef {Object} B2BAppAccessConfig
- * @property {Array.<string>} pathToOrganizationId - Way to get the organization id
- * @property {boolean} cannotBeRead - Service users cannot read schema
- * @property {boolean} cannotBeManage - Service users cannot manage schema
+ * @property {Array.<string>} pathToOrganizationId - Way to get the organization id (default value: ['organization', 'id'])
+ * @property {boolean} canBeRead - Service users can read schema (default value: true)
+ * @property {boolean} canBeManage - Service users can manage schema (default value: true)
  */
 
 /**
@@ -409,7 +429,7 @@ const ALL_PERMISSION_NAMES = new Set()
  *       // But for the Organization schema get value from <SchemaName>.id
  *       pathToOrganizationId: ['id'],
  *       // By default schemas can be manage, but for Organization schema cannot be managed
- *       cannotBeManage: true,
+ *       canBeManage: false,
  *    },
  * }
  *
@@ -451,10 +471,10 @@ const B2BAppAccess = (shouldCreatePermissionsForSchema, config = {}, targetSchem
     const readOnlyPermissionFields = Object.entries(config)
         .map(([schemaName, schemaConfig]) => {
             const readOnlyFieldsBySchema = []
-            if (get(schemaConfig, 'cannotBeRead', false)) {
+            if (!get(schemaConfig, 'canBeRead', true)) {
                 readOnlyFieldsBySchema.push(`canRead${pluralize.plural(schemaName)}`)
             }
-            if (get(schemaConfig, 'cannotBeManage', false)) {
+            if (!get(schemaConfig, 'canBeManage', true)) {
                 readOnlyFieldsBySchema.push(`canManage${pluralize.plural(schemaName)}`)
             }
             return readOnlyFieldsBySchema
@@ -472,10 +492,6 @@ const B2BAppAccess = (shouldCreatePermissionsForSchema, config = {}, targetSchem
         if (!shouldCreatePermissionsForSchema(schemaName)) return schema
 
         const schemaConfig = get(config, schemaName, {})
-
-        if (!Object.keys(get(schema, 'fields', {})).includes('organization') && !get(schemaConfig, 'pathToOrganizationId')) {
-            throw new Error(`Schema "${schemaName}" has not field "organization"`)
-        }
 
         addCustomAccessToSchema(schemaName, schema, schemaConfig)
 
