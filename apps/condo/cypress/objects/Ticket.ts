@@ -100,7 +100,20 @@ class TicketView {
     visit (): this {
         cy.visit(TICKET_VIEW_URL)
         cy.location('pathname').should('equal', TICKET_VIEW_URL)
-        cy.get('[data-cy=ticket__filter__status-count]').should('be.visible')
+        cy.wait([
+            '@getAllOrganizationEmployees',
+        ])
+        cy.get('[data-cy=ticket__filter__status-count]', { timeout: 15000 }).should('be.visible')
+        cy.wait([
+            '@getAllTicketStatuses',
+            '@getAllUserTicketCommentReadTimes',
+            '@getAllPropertyScopeProperties',
+
+        ])
+        cy.wait([
+            '@getAllPropertyScopeOrganizationEmployees',
+        ])
+        cy.wait('@getAllTickets')
         return this
     }
 
