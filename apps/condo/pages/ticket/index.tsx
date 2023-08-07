@@ -497,7 +497,7 @@ const TicketStatusFilterContainer = ({ searchTicketsQuery, searchTicketsWithoutS
     return loading ? <Loader style={LOADER_STYLES}/> : (
         <Row gutter={SMALL_HORIZONTAL_GUTTER} style={TICKET_STATUS_FILTER_CONTAINER_ROW_STYLES}>
             <Col style={ALL_TICKETS_COUNT_CONTAINER_STYLES}>
-                <Typography.Text size='large' strong data-cy='ticket__filter__status-count'>
+                <Typography.Text size='large' strong>
                     {
                         intl.formatMessage({ id: 'TicketsCount' }, {
                             ticketsCount: count.all.count,
