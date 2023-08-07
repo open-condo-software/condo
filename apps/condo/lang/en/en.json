@@ -311,6 +311,7 @@
   "miniapp.connectModal.Finished.withIcon.message": "The new service will appear in the left menu, and will also remain in the «Connected» tab in the «Services» section. To start using it, close this window and click «Open». Thank you for choosing us again.",
   "miniapp.connectModal.InProgress.title": "We'll get back to you shortly",
   "miniapp.connectModal.InProgress.message": "The specialists of the sales and technical support department will consider your application to connect the service soon. Then they will write or call you back to clarify the details.",
+  "miniapp.supportIsNotAllowed": "Access to the app is blocked for support and administration users",
   "MinutesShort": "{minutes} min.",
   "No": "No",
   "RolesAndAccess": "Roles and accesses",
