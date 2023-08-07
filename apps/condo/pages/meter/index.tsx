@@ -18,10 +18,10 @@ import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 're
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileDown, Filter } from '@open-condo/icons'
+import { FileDown, Filter, QuestionCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Space } from '@open-condo/ui'
+import { ActionBar, Button, Space, Tooltip } from '@open-condo/ui'
 
 import { BaseMutationArgs } from '@condo/domains/banking/hooks/useBankTransactionsTable'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
@@ -71,8 +71,7 @@ const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
 const FILTERS_CONTAINER_GUTTER: RowProps['gutter'] = [20, 20]
 const RESET_FILTERS_BUTTON_STYLE: CSSProperties = { paddingLeft: 0 }
 const DEFAULT_PERIOD_TEXT_STYLE = { alignSelf: 'start' }
-const CHECKBOX_WRAPPER_STYLES: CSSProperties = { flexWrap: 'nowrap', overflowX: 'auto', overflowY: 'hidden' }
-const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
+const QUICK_FILTERS_COL_STYLE: CSSProperties = { alignSelf: 'center' }
 
 export type UpdateSelectedMeterReportingPeriods = (args: BaseMutationArgs<MutationUpdateMeterReportingPeriodsArgs>) => Promise<unknown>
 
@@ -88,6 +87,7 @@ export const MetersPageContent = ({
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
     const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
+    const OnlyLatestDescMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatestDescription' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
     const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
@@ -209,20 +209,22 @@ export const MetersPageContent = ({
                                                 allowClear
                                             />
                                         </Col>
-                                        <Col>
-                                            <Checkbox
-                                                checked={showOnlyLatestReadings}
-                                                onClick={switchShowOnlyLatestReadings}
-                                            >
-                                                {OnlyLatestMessage}
-                                            </Checkbox>
-
+                                        <Col style={QUICK_FILTERS_COL_STYLE}>
+                                            <Tooltip
+                                                placement='rightBottom'
+                                                title={OnlyLatestDescMessage}
+                                                children={<>
+                                                    <Checkbox
+                                                        checked={showOnlyLatestReadings}
+                                                        onClick={switchShowOnlyLatestReadings}
+                                                        children={OnlyLatestMessage}
+                                                    />
+                                                    <QuestionCircle size='medium'/>
+                                                </>}
+                                            />
                                         </Col>
                                     </Row>
                                 </Col>
-                                <Row gutter={CHECKBOX_WRAPPER_GUTTERS} style={CHECKBOX_WRAPPER_STYLES}>
-
-                                </Row>
                                 <Col>
                                     <Space size={12} direction={breakpoints.TABLET_LARGE ? 'horizontal' : 'vertical'}>
                                         {
