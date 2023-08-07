@@ -10,6 +10,7 @@ async function canReadB2BAppAccessRights ({ authentication: { item: user } }) {
 
     if (user.isSupport || user.isAdmin) return {}
 
+    // TODO(DOMA-6766): Add the ability to read the permissions of B2BApp for employees whose role has the flag "canManageIntegrations"
     return false
 }
 

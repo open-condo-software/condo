@@ -23,7 +23,16 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['app'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'b2с_app_access_right_unique_app',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

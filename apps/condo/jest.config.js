@@ -18,7 +18,7 @@ module.exports = {
             displayName: 'schema specs',
             testEnvironment: 'node',
             testMatch: [
-                `${__dirname}/domains/**/schema/*.spec.js`,
+                `${__dirname}/domains/**/schema/**/*.spec.js`,
             ],
             setupFilesAfterEnv: [`${__dirname}/jest.setupSpec.js`],
             // NOTE: need to pass uuid export syntax through babel

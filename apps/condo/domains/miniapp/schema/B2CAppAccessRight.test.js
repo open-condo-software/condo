@@ -4,7 +4,7 @@
 
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowUniqueConstraintViolationError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -176,6 +176,31 @@ describe('B2CAppAccessRight', () => {
                     user: { connect: { id: client.user.id } },
                 })
             }, NON_SERVICE_USER_ERROR)
+        })
+
+        test('One service user can be linked for different B2CApps', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+
+            const [app] = await createTestB2CApp(admin)
+            const [app2] = await createTestB2CApp(admin)
+
+            await createTestB2CAppAccessRight(admin, serviceUser, app)
+            await createTestB2CAppAccessRight(admin, serviceUser, app2)
+        })
+    })
+    describe('Constraints', () => {
+        test('Cannot be created 2 active access rights for a single app', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+            const [serviceUser2] = await registerNewServiceUserByTestClient(admin)
+
+            const [app] = await createTestB2CApp(admin)
+            await createTestB2CAppAccessRight(admin, serviceUser, app)
+
+            await expectToThrowUniqueConstraintViolationError(async () => {
+                await createTestB2CAppAccessRight(admin, serviceUser2, app)
+            }, 'b2с_app_access_right_unique_app')
         })
     })
 })
