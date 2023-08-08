@@ -65364,6 +65364,19 @@ type PaymentsSumOutput {
   sum: String!
 }
 
+input PaymentByLinkInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  qrCode: String!
+}
+
+type PaymentByLinkOutput {
+  multiPaymentId: ID!
+  address: String!
+  unitName: String!
+  accountNumber: String!
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -75524,6 +75537,7 @@ type Mutation {
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
+  paymentByLink(data: PaymentByLinkInput!): PaymentByLinkOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
