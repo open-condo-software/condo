@@ -15,7 +15,7 @@ const {
     TICKET_STATUS_DECLINED_TYPE, TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
+const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP, ORGANIZATION_TICKET_VISIBILITY, PROPERTY_TICKET_VISIBILITY, PROPERTY_AND_SPECIALIZATION_VISIBILITY, ASSIGNED_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const {
@@ -25,11 +25,15 @@ const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serve
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { Ticket, TicketCommentsTime } = require('./serverSchema')
+const uniq = require('lodash/uniq')
+const compact = require('lodash/compact')
+const { TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
 const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
 const TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE = 'TICKET_WITHOUT_RESIDENT_CREATED'
+const TICKET_CREATED_EVENT_TYPE = 'TICKET_CREATED'
 
 /**
  * Detects possible events within Ticket schema request
@@ -53,9 +57,10 @@ const detectTicketEventTypes = ({ operation, existingItem, updatedItem }) => {
     const nextStatusId = get(updatedItem, 'status')
     const isStatusAdded = isCreateOperation && !!nextStatusId
     const isStatusUpdated = isUpdateOperation && nextStatusId && nextStatusId !== prevStatusId
-    const client = get(updatedItem, 'client')
+    const clientId = get(updatedItem, 'client')
     const isResidentTicket = get(updatedItem, 'isResidentTicket')
     const canReadByResident = get(updatedItem, 'canReadByResident')
+    const createdBy = get(updatedItem, 'createdBy')
     const result = {}
 
     /**
@@ -80,13 +85,15 @@ const detectTicketEventTypes = ({ operation, existingItem, updatedItem }) => {
      * ticket status gets the status open within create ticket operation or
      * ticket status changed within update ticket operation
      */
-    result[STATUS_CHANGED_EVENT_TYPE] = client && (isStatusAdded || isStatusUpdated)
+    result[STATUS_CHANGED_EVENT_TYPE] = clientId && (isStatusAdded || isStatusUpdated)
 
     /**
      * ticket created and the resident does not have a mobile app or
      * does not have an address as in ticket
      */
-    result[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] = isCreateOperation && isResidentTicket && !client && canReadByResident
+    result[TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE] = isCreateOperation && isResidentTicket && !clientId && canReadByResident
+
+    result[TICKET_CREATED_EVENT_TYPE] = isCreateOperation
 
     return result
 }
@@ -116,9 +123,12 @@ const sendTicketNotifications = async (requestData) => {
     const updatedBy = get(updatedItem, 'updatedBy')
     const canReadByResident = get(updatedItem, 'canReadByResident') || get(existingItem, 'canReadByResident')
 
+    const newItem = { ...existingItem, ...updatedItem }
+    const organizationId = get(newItem, 'organization', null)
+
     // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
     const organization = await getByCondition('Organization', {
-        id: updatedItem.organization,
+        id: organizationId,
         deletedAt: null,
     })
 
@@ -129,6 +139,117 @@ const sendTicketNotifications = async (requestData) => {
      */
     const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
     const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
+
+    if (eventTypes[TICKET_CREATED_EVENT_TYPE]) {
+        // Send notifications to ticket organization employee users by scopes.
+        // Notification about ticket creation sends to resident above in STATUS_CHANGED_EVENT_TYPE block
+        const employeeUsersToSendNotification = []
+
+        const baseEmployeesQuery = {
+            organization: { id: organizationId, deletedAt: null },
+            deletedAt: null,
+            isRejected: false,
+            isBlocked: false,
+        }
+        const employeesWithOrganizationTicketVisibility = await find('OrganizationEmployee', {
+            ...baseEmployeesQuery,
+            role: {
+                ticketVisibilityType: ORGANIZATION_TICKET_VISIBILITY,
+            },
+        })
+        const employeesWithPropertyTicketVisibility = await find('OrganizationEmployee', {
+            ...baseEmployeesQuery,
+            role: {
+                ticketVisibilityType: PROPERTY_TICKET_VISIBILITY,
+            },
+        })
+        const employeesWithPropertyAndSpecializationTicketVisibility = await find('OrganizationEmployee', {
+            ...baseEmployeesQuery,
+            role: {
+                ticketVisibilityType: PROPERTY_AND_SPECIALIZATION_VISIBILITY,
+            },
+        })
+
+        const ticketProperty = get(newItem, 'property')
+        const ticketCategory = get(newItem, 'categoryClassifier')
+
+        const organizationPropertyScopes = await find('PropertyScope', {
+            organization: { id: organizationId, deletedAt: null },
+            deletedAt: null,
+        })
+        const employeeSpecializations = await find('OrganizationEmployeeSpecialization', {
+            employee: { id_in: employeesWithPropertyAndSpecializationTicketVisibility.map(obj => obj.id), deletedAt: null },
+            specialization: { id: ticketCategory, deletedAt: null },
+            deletedAt: null,
+        })
+        const employeesWithMatchedCategory = await find('OrganizationEmployee', {
+            id_in: compact(employeeSpecializations.map(obj => get(obj, 'employee', null))),
+            deletedAt: null,
+        })
+
+        // all employees with organization ticket visibility, because they are visible all organization tickets
+        employeeUsersToSendNotification.push(...(employeesWithOrganizationTicketVisibility.map(employee => employee.user)))
+        // assignee and executor of ticket (ASSIGNED_TICKET_VISIBILITY)
+        employeeUsersToSendNotification.push(...[newItem.assignee, newItem.executor])
+
+        const isDefaultScopeExists = organizationPropertyScopes.find(scope => scope.hasAllProperties && scope.hasAllEmployees)
+
+        if (isDefaultScopeExists) {
+            employeeUsersToSendNotification.push(...(employeesWithPropertyTicketVisibility.map(employee => employee.user)))
+            employeeUsersToSendNotification.push(...(employeesWithMatchedCategory.map(employee => employee.user)))
+        } else {
+            const propertyScopeProperties = await find('PropertyScopeProperty', {
+                propertyScope: { id_in: organizationPropertyScopes.map(scope => scope.id), deletedAt: null },
+                property: { id: ticketProperty, deletedAt: null },
+                deletedAt: null,
+            })
+            const scopesWithTicketProperty = organizationPropertyScopes.filter(
+                scope => propertyScopeProperties.find(obj => obj.propertyScope === scope.id) || scope.hasAllProperties
+            )
+
+            if (scopesWithTicketProperty.find(scope => scope.hasAllEmployees)) {
+                employeeUsersToSendNotification.push(...(employeesWithPropertyTicketVisibility.map(employee => employee.user)))
+                employeeUsersToSendNotification.push(...(employeesWithMatchedCategory.map(employee => employee.user)))
+            } else {
+                const propertyScopeOrganizationEmployees = await find('PropertyScopeOrganizationEmployee', {
+                    deletedAt: null,
+                    propertyScope: { id_in: scopesWithTicketProperty.map(scope => scope.id) },
+                })
+
+                const matchedEmployeesWithPropertyVisibility = employeesWithPropertyTicketVisibility
+                    .filter(employee => propertyScopeOrganizationEmployees.find(obj => obj.employee === employee.id))
+                employeeUsersToSendNotification.push(...(matchedEmployeesWithPropertyVisibility.map(employee => employee.user)))
+
+                const matchedCategoryAndPropertyEmployees = employeesWithMatchedCategory
+                    .filter(employee => propertyScopeOrganizationEmployees.find(obj => obj.employee === employee.id))
+                employeeUsersToSendNotification.push(...(matchedCategoryAndPropertyEmployees.map(employee => employee.user)))
+            }
+        }
+
+        const employeeUsers = uniq(compact(
+            employeeUsersToSendNotification.filter(userId => userId !== createdBy)
+        ))
+
+        for (const userId of employeeUsers) {
+            await sendMessage(context, {
+                lang,
+                to: { user: { id: userId } },
+                type: TICKET_CREATED_TYPE,
+                meta: {
+                    dv: 1,
+                    data: {
+                        ticketId: updatedItem.id,
+                        ticketNumber: updatedItem.number,
+                        userId,
+                        url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                        organization: organization.name,
+                    },
+                },
+                sender: updatedItem.sender,
+                organization: { id: organization.id },
+            })
+        }
+    }
 
     if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
         const userId = nextAssigneeId || prevAssigneeId

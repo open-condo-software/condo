@@ -33,13 +33,13 @@ const {
     APP_MASTER_ID_ANDROID,
     APP_RESIDENT_ID_ANDROID,
     PUSH_TRANSPORT,
-    SMS_TRANSPORT,
+    SMS_TRANSPORT, TICKET_CREATED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const {
     Message,
     MessageOrganizationBlackList,
     updateTestMessageOrganizationBlackList,
-    syncRemoteClientWithPushTokenByTestClient,
+    syncRemoteClientWithPushTokenByTestClient, updateTestMessage,
 } = require('@condo/domains/notification/utils/testSchema')
 const {
     PROPERTY_TICKET_VISIBILITY,
@@ -54,7 +54,7 @@ const {
     createTestOrganizationEmployeeSpecialization,
     createTestOrganization,
     createTestOrganizationEmployeeRole,
-    updateTestOrganizationEmployee,
+    updateTestOrganizationEmployee, updateTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
@@ -67,7 +67,7 @@ const { createTestResident } = require('@condo/domains/resident/utils/testSchema
 const {
     createTestPropertyScope,
     createTestPropertyScopeOrganizationEmployee,
-    createTestPropertyScopeProperty,
+    createTestPropertyScopeProperty, updateTestPropertyScope, PropertyScope,
 } = require('@condo/domains/scope/utils/testSchema')
 const {
     REVIEW_VALUES,
@@ -95,6 +95,8 @@ const {
     createTestPhone,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+
+const { TICKET_COMMENT_ADDED_TYPE } = require('../../notification/constants/constants')
 
 
 const FEEDBACK_VALUES_WITHOUT_RETURNED = FEEDBACK_VALUES.filter(item => item !== FEEDBACK_VALUES_BY_KEY.RETURNED)
@@ -3371,8 +3373,14 @@ describe('Ticket', () => {
         })
 
         describe('Ticket created', () => {
+            let organization
+
             beforeAll(async () => {
+                const [testOrganization] = await createTestOrganization(admin)
+                organization = testOrganization
+
                 const supportClient = await makeClientWithSupportUser()
+
                 const allOrganizationsBlackList = await MessageOrganizationBlackList.getAll(supportClient, {
                     organization_is_null: true,
                 })
@@ -3384,163 +3392,460 @@ describe('Ticket', () => {
                 }
             })
 
-            test('send sms after create ticket with isResidentTicket is true and without resident matches contact data', async () => {
-                const client = await makeClientWithProperty()
-                const clientName = faker.name.firstName()
-                const clientPhone = createTestPhone()
-                const today = dayjs().format('YYYY-MM-DD')
+            describe('sms to resident without mobile app', () => {
+                it('send sms after create ticket with isResidentTicket is true and without resident matches contact data', async () => {
+                    const client = await makeClientWithProperty()
+                    const clientName = faker.name.firstName()
+                    const clientPhone = createTestPhone()
+                    const today = dayjs().format('YYYY-MM-DD')
 
-                const [ticket] = await createTestTicket(client, client.organization, client.property, {
-                    isResidentTicket: true,
-                    canReadByResident: true,
-                    clientName,
-                    clientPhone,
+                    const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                        isResidentTicket: true,
+                        canReadByResident: true,
+                        clientName,
+                        clientPhone,
+                    })
+
+                    expect(ticket.client).toBeNull()
+
+                    const messageWhere = {
+                        phone: clientPhone,
+                        type: TRACK_TICKET_IN_DOMA_APP_TYPE,
+                        uniqKey: `${today}_${md5(clientPhone)}`,
+                    }
+                    const message = await Message.getOne(admin, messageWhere)
+
+                    expect(message).toBeDefined()
+                    expect(message.id).toMatch(UUID_RE)
+
+                    await waitFor(async () => {
+                        const message1 = await Message.getOne(admin, messageWhere)
+
+                        // Testing processingMeta old way structure
+                        expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message1.processingMeta.transport).toEqual('sms')
+
+                        const content = message1.processingMeta.messageContext
+
+                        expect(content.phone).toEqual(clientPhone)
+                        expect(content.message).toBeDefined()
+
+                        // Testing processingMeta ADR-7 way structure
+                        const transportMeta = message1.processingMeta.transportsMeta[0]
+
+                        expect(transportMeta.transport).toEqual(SMS_TRANSPORT)
+
+                        const content1 = transportMeta.messageContext
+
+                        expect(content1.phone).toEqual(clientPhone)
+                        expect(content1.message).toBeDefined()
+                    })
                 })
 
-                expect(ticket.client).toBeNull()
+                it('dont send sms 2 times a day to same number', async () => {
+                    const admin = await makeLoggedInAdminClient()
+                    const client = await makeClientWithProperty()
 
-                const messageWhere = {
-                    phone: clientPhone,
-                    type: TRACK_TICKET_IN_DOMA_APP_TYPE,
-                    uniqKey: `${today}_${md5(clientPhone)}`,
-                }
-                const message = await Message.getOne(admin, messageWhere)
+                    const clientName = faker.name.firstName()
+                    const clientPhone = createTestPhone()
+                    const today = dayjs().format('YYYY-MM-DD')
 
-                expect(message).toBeDefined()
-                expect(message.id).toMatch(UUID_RE)
+                    const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                        isResidentTicket: true,
+                        canReadByResident: true,
+                        clientName,
+                        clientPhone,
+                    })
 
-                await waitFor(async () => {
-                    const message1 = await Message.getOne(admin, messageWhere)
+                    expect(ticket.client).toBeNull()
 
-                    // Testing processingMeta old way structure
-                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                    expect(message1.processingMeta.transport).toEqual('sms')
+                    const messageWhere = {
+                        phone: clientPhone,
+                        type: TRACK_TICKET_IN_DOMA_APP_TYPE,
+                    }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                    const content = message1.processingMeta.messageContext
+                    expect(message.id).toMatch(UUID_RE)
+                    expect(message.uniqKey).toEqual(`${today}_${md5(clientPhone)}`)
 
-                    expect(content.phone).toEqual(clientPhone)
-                    expect(content.message).toBeDefined()
+                    await createTestTicket(client, client.organization, client.property, {
+                        isResidentTicket: true,
+                        canReadByResident: true,
+                        clientName,
+                        clientPhone,
+                    })
 
-                    // Testing processingMeta ADR-7 way structure
-                    const transportMeta = message1.processingMeta.transportsMeta[0]
+                    const messages = await Message.getAll(admin, messageWhere)
 
-                    expect(transportMeta.transport).toEqual(SMS_TRANSPORT)
+                    expect(messages).toHaveLength(1)
+                })
 
-                    const content1 = transportMeta.messageContext
+                it('dont send sms if ticket.isResidentTicket is false', async () => {
+                    const client = await makeClientWithProperty()
 
-                    expect(content1.phone).toEqual(clientPhone)
-                    expect(content1.message).toBeDefined()
+                    const clientName = faker.name.firstName()
+                    const clientPhone = createTestPhone()
+
+                    await createTestTicket(client, client.organization, client.property, {
+                        isResidentTicket: false,
+                        clientName,
+                        clientPhone,
+                    })
+
+                    const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
+
+                    expect(message).toBeUndefined()
+                })
+
+                it('dont send sms if resident matches ticket contact data', async () => {
+                    const residentClient = await makeClientWithResidentUser()
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const unitName = faker.random.alphaNumeric(5)
+                    const unitType = FLAT_UNIT_TYPE
+                    const { phone, name } = residentClient.userAttrs
+
+                    await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                        unitType,
+                    })
+
+                    await createTestTicket(admin, organization, property, {
+                        isResidentTicket: true,
+                        canReadByResident: true,
+                        clientName: name,
+                        clientPhone: phone,
+                        unitName,
+                        unitType,
+                    })
+
+                    const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
+
+                    expect(message).toBeUndefined()
+                })
+
+                it('dont send sms if resident user create ticket', async () => {
+                    const residentClient = await makeClientWithResidentUser()
+
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const unitName = faker.random.alphaNumeric(5)
+                    const unitType = FLAT_UNIT_TYPE
+                    const { phone } = residentClient.userAttrs
+
+                    await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                        unitType,
+                    })
+
+                    await createTestTicket(residentClient, organization, property, {
+                        unitName,
+                        unitType,
+                    })
+
+                    const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
+
+                    expect(message).toBeUndefined()
                 })
             })
 
-            test('dont send sms 2 times a day to same number', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const client = await makeClientWithProperty()
+            describe('push to employees', () => {
+                describe('by ticket visibility', () => {
+                    let propertyInScope, propertyOutOfScope,
+                        employeeInScopeClient, employeeOutOfScopeClient,
+                        employeeInScope, employeeOutOfScope,
+                        employeeRole, testScope
 
-                const clientName = faker.name.firstName()
-                const clientPhone = createTestPhone()
-                const today = dayjs().format('YYYY-MM-DD')
+                    beforeAll(async () => {
+                        employeeInScopeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                        employeeOutOfScopeClient = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [ticket] = await createTestTicket(client, client.organization, client.property, {
-                    isResidentTicket: true,
-                    canReadByResident: true,
-                    clientName,
-                    clientPhone,
+                        const [defaultRole] = await createTestOrganizationEmployeeRole(admin, organization, {
+                            canManageTickets: true,
+                        })
+                        employeeRole = defaultRole
+
+                        const [employee1] = await createTestOrganizationEmployee(admin, organization, employeeInScopeClient.user, employeeRole)
+                        const [employee2] = await createTestOrganizationEmployee(admin, organization, employeeOutOfScopeClient.user, employeeRole)
+                        employeeInScope = employee1
+                        employeeOutOfScope = employee2
+
+                        const [property1] = await createTestProperty(admin, organization)
+                        const [property2] = await createTestProperty(admin, organization)
+                        propertyInScope = property1
+                        propertyOutOfScope = property2
+
+                        const [scope] = await createTestPropertyScope(admin, organization)
+                        await createTestPropertyScopeProperty(admin, scope, propertyInScope)
+                        await createTestPropertyScopeOrganizationEmployee(admin, scope, employeeInScope)
+                        testScope = scope
+
+                        const syncRemoteClientPayload = {
+                            devicePlatform: DEVICE_PLATFORM_ANDROID,
+                            appId: APP_MASTER_ID_ANDROID,
+                        }
+                        await syncRemoteClientWithPushTokenByTestClient(employeeInScopeClient, syncRemoteClientPayload)
+                        await syncRemoteClientWithPushTokenByTestClient(employeeOutOfScopeClient, syncRemoteClientPayload)
+                    })
+
+                    afterEach(async () => {
+                        const messages = await Message.getAll(admin, {
+                            user: { id_in: [employeeInScopeClient.user.id, employeeOutOfScopeClient.user.id] },
+                            deletedAt: null,
+                        })
+                        for (const message of messages) {
+                            await updateTestMessage(admin, message.id, {
+                                deletedAt: 'true',
+                            })
+                        }
+
+                        const scopes = await PropertyScope.getAll(admin, {
+                            id_not_in: testScope.id,
+                            organization: { id: organization.id },
+                            deletedAt: null,
+                        })
+                        for (const scope of scopes) {
+                            await updateTestPropertyScope(admin, scope.id, {
+                                deletedAt: 'true',
+                            })
+                        }
+                    })
+
+                    describe('organization', () => {
+                        beforeAll(async () => {
+                            await updateTestOrganizationEmployeeRole(admin, employeeRole.id, {
+                                ticketVisibilityType: ORGANIZATION_TICKET_VISIBILITY,
+                            })
+                        })
+
+                        it('gets push when creating any ticket in his organization', async () => {
+                            const [ticket] = await createTestTicket(admin, organization, propertyInScope)
+
+                            await waitFor(async () => {
+                                const userId = employeeInScopeClient.user.id
+                                const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message.meta.data.userId).toEqual(userId)
+                                expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+                            })
+                        })
+
+                        it('don\'t gets push when creating ticket not in his organization', async () => {
+                            const [otherOrganization] = await createTestOrganization(admin)
+                            const [otherProperty] = await createTestProperty(admin, organization)
+                            await createTestTicket(admin, otherOrganization, otherProperty)
+
+                            const userId = employeeInScopeClient.user.id
+                            const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                            expect(message).toBeUndefined()
+                        })
+
+                        it('don\'t get push when it\'s his ticket', async () => {
+                            await createTestTicket(employeeInScopeClient, organization, propertyInScope)
+
+                            const userId = employeeInScopeClient.user.id
+                            const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                            expect(message).toBeUndefined()
+                        })
+                    })
+
+                    describe('property', () => {
+                        beforeAll(async () => {
+                            await updateTestOrganizationEmployeeRole(admin, employeeRole.id, {
+                                ticketVisibilityType: PROPERTY_TICKET_VISIBILITY,
+                            })
+                        })
+
+                        it('gets push when ticket created with property from scope', async () => {
+                            const [ticket] = await createTestTicket(admin, organization, propertyInScope)
+
+                            await waitFor(async () => {
+                                const userId = employeeInScopeClient.user.id
+                                const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message.meta.data.userId).toEqual(userId)
+                                expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+                            })
+                        })
+
+                        it('gets push when employee in scope with all properties and employees', async () => {
+                            const [scope] = await createTestPropertyScope(admin, organization, {
+                                hasAllProperties: true,
+                                hasAllEmployees: true,
+                            })
+                            await createTestPropertyScopeOrganizationEmployee(admin, scope, employeeOutOfScope)
+
+                            const [ticket] = await createTestTicket(admin, organization, propertyOutOfScope)
+
+                            await waitFor(async () => {
+                                const userId = employeeOutOfScope.user.id
+                                const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message.meta.data.userId).toEqual(userId)
+                                expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+                            })
+                        })
+
+                        it('gets push when employee in scope with all properties', async () => {
+                            const [scope] = await createTestPropertyScope(admin, organization, {
+                                hasAllProperties: true,
+                            })
+                            await createTestPropertyScopeOrganizationEmployee(admin, scope, employeeOutOfScope)
+
+                            const [ticket] = await createTestTicket(admin, organization, propertyOutOfScope)
+
+                            await waitFor(async () => {
+                                const userId = employeeOutOfScope.user.id
+                                const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message.meta.data.userId).toEqual(userId)
+                                expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+                            })
+                        })
+
+                        it('gets push when employee in scope with all employees', async () => {
+                            const [scope] = await createTestPropertyScope(admin, organization, {
+                                hasAllEmployees: true,
+                            })
+                            await createTestPropertyScopeProperty(admin, scope, propertyOutOfScope)
+
+                            const [ticket] = await createTestTicket(admin, organization, propertyOutOfScope)
+
+                            await waitFor(async () => {
+                                const userId = employeeOutOfScope.user.id
+                                const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message.meta.data.userId).toEqual(userId)
+                                expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+                            })
+                        })
+
+                        it('don\'t get push when ticket created with property which not from scope', async () => {
+                            await createTestTicket(admin, organization, propertyOutOfScope)
+
+                            const userId = employeeInScopeClient.user.id
+                            const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                            expect(message).toBeUndefined()
+                        })
+
+                        it('don\'t get push when ticket created with property from scope but employee not from scope', async () => {
+                            await createTestTicket(admin, organization, propertyInScope)
+
+                            const userId = employeeOutOfScopeClient.user.id
+                            const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                            expect(message).toBeUndefined()
+                        })
+                    })
+
+                    describe('property and specialization', () => {
+                        beforeAll(async () => {
+                            await updateTestOrganizationEmployeeRole(admin, employeeRole.id, {
+                                ticketVisibilityType: PROPERTY_AND_SPECIALIZATION_VISIBILITY,
+                            })
+                        })
+
+                        it('gets push when employee in scope and his spec match ticket category', async () => {
+                            const [classifier] = await createTestTicketClassifier(admin)
+                            await createTestOrganizationEmployeeSpecialization(admin, employeeInScope, classifier.category)
+                            const [ticket] = await createTestTicket(admin, organization, propertyInScope, {
+                                classifier: { connect: { id: classifier.id } },
+                            })
+
+                            await waitFor(async () => {
+                                const userId = employeeInScopeClient.user.id
+                                const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message.meta.data.userId).toEqual(userId)
+                                expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+                            })
+                        })
+
+                        it('doesnt get push when employee out of scope and his spec match ticket category', async () => {
+                            const [classifier] = await createTestTicketClassifier(admin)
+                            await createTestOrganizationEmployeeSpecialization(admin, employeeOutOfScope, classifier.category)
+                            await createTestTicket(admin, organization, propertyInScope, {
+                                classifier: { connect: { id: classifier.id } },
+                            })
+
+                            const userId = employeeOutOfScopeClient.user.id
+                            const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                            expect(message).toBeUndefined()
+                        })
+
+                        it('doesnt get push when employee in scope and his spec dont match ticket category', async () => {
+                            const [classifier] = await createTestTicketClassifier(admin)
+                            await createTestOrganizationEmployeeSpecialization(admin, employeeInScope, classifier.category)
+                            await createTestTicket(admin, organization, propertyInScope)
+
+                            const userId = employeeInScopeClient.user.id
+                            const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                            expect(message).toBeUndefined()
+                        })
+                    })
+
+                    describe('assigned', () => {
+                        beforeAll(async () => {
+                            await updateTestOrganizationEmployeeRole(admin, employeeRole.id, {
+                                ticketVisibilityType: ASSIGNED_TICKET_VISIBILITY,
+                            })
+                        })
+
+                        it('gets push when user is assignee or executor of ticket', async () => {
+                            const [ticket] = await createTestTicket(admin, organization, propertyInScope, {
+                                executor: { connect: { id: employeeInScopeClient.user.id } },
+                                assignee: { connect: { id: employeeOutOfScopeClient.user.id } },
+                            })
+
+                            await waitFor(async () => {
+                                const userId = employeeInScopeClient.user.id
+                                const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                                expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message.meta.data.userId).toEqual(userId)
+                                expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+
+                                const userId1 = employeeOutOfScopeClient.user.id
+                                const message1 = await Message.getOne(admin, { user: { id: userId1 }, type: TICKET_CREATED_TYPE })
+
+                                expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
+                                expect(message1.meta.data.ticketId).toEqual(ticket.id)
+                                expect(message1.meta.data.userId).toEqual(userId1)
+                                expect(message1.processingMeta.transportsMeta[0].transport).toEqual('push')
+                            })
+                        })
+
+                        it('doesnt get push when user is not assignee or executor of ticket', async () => {
+                            await createTestTicket(admin, organization, propertyInScope)
+                            const userId = employeeOutOfScopeClient.user.id
+                            const message = await Message.getOne(admin, { user: { id: userId }, type: TICKET_CREATED_TYPE })
+
+                            expect(message).toBeUndefined()
+                        })
+                    })
                 })
-
-                expect(ticket.client).toBeNull()
-
-                const messageWhere = {
-                    phone: clientPhone,
-                    type: TRACK_TICKET_IN_DOMA_APP_TYPE,
-                }
-                const message = await Message.getOne(admin, messageWhere)
-
-                expect(message.id).toMatch(UUID_RE)
-                expect(message.uniqKey).toEqual(`${today}_${md5(clientPhone)}`)
-
-                await createTestTicket(client, client.organization, client.property, {
-                    isResidentTicket: true,
-                    canReadByResident: true,
-                    clientName,
-                    clientPhone,
-                })
-
-                const messages = await Message.getAll(admin, messageWhere)
-
-                expect(messages).toHaveLength(1)
-            })
-
-            test('dont send sms if ticket.isResidentTicket is false', async () => {
-                const client = await makeClientWithProperty()
-
-                const clientName = faker.name.firstName()
-                const clientPhone = createTestPhone()
-
-                await createTestTicket(client, client.organization, client.property, {
-                    isResidentTicket: false,
-                    clientName,
-                    clientPhone,
-                })
-
-                const messageWhere = { phone: clientPhone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
-
-                expect(message).toBeUndefined()
-            })
-
-            test('dont send sms if resident matches ticket contact data', async () => {
-                const residentClient = await makeClientWithResidentUser()
-
-                const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
-                const unitName = faker.random.alphaNumeric(5)
-                const unitType = FLAT_UNIT_TYPE
-                const { phone, name } = residentClient.userAttrs
-
-                await createTestResident(admin, residentClient.user, property, {
-                    unitName,
-                    unitType,
-                })
-
-                await createTestTicket(admin, organization, property, {
-                    isResidentTicket: true,
-                    canReadByResident: true,
-                    clientName: name,
-                    clientPhone: phone,
-                    unitName,
-                    unitType,
-                })
-
-                const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
-
-                expect(message).toBeUndefined()
-            })
-
-            test('dont send sms if resident user create ticket', async () => {
-                const residentClient = await makeClientWithResidentUser()
-
-                const [organization] = await createTestOrganization(admin)
-                const [property] = await createTestProperty(admin, organization)
-                const unitName = faker.random.alphaNumeric(5)
-                const unitType = FLAT_UNIT_TYPE
-                const { phone } = residentClient.userAttrs
-
-                await createTestResident(admin, residentClient.user, property, {
-                    unitName,
-                    unitType,
-                })
-
-                await createTestTicket(residentClient, organization, property, {
-                    unitName,
-                    unitType,
-                })
-
-                const messageWhere = { phone, type: TRACK_TICKET_IN_DOMA_APP_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
-
-                expect(message).toBeUndefined()
             })
         })
     })

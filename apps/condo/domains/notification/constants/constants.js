@@ -31,6 +31,7 @@ const MESSAGE_FORWARDED_TO_SUPPORT_TYPE = 'MESSAGE_FORWARDED_TO_SUPPORT'
 const TICKET_ASSIGNEE_CONNECTED_TYPE = 'TICKET_ASSIGNEE_CONNECTED'
 const TICKET_EXECUTOR_CONNECTED_TYPE = 'TICKET_EXECUTOR_CONNECTED'
 const TRACK_TICKET_IN_DOMA_APP_TYPE = 'TRACK_TICKET_IN_DOMA_APP'
+const TICKET_CREATED_TYPE = 'TICKET_CREATED'
 const TICKET_STATUS_OPENED_TYPE = 'TICKET_STATUS_OPENED'
 const TICKET_STATUS_IN_PROGRESS_TYPE = 'TICKET_STATUS_IN_PROGRESS'
 const TICKET_STATUS_COMPLETED_TYPE = 'TICKET_STATUS_COMPLETED'
@@ -186,6 +187,16 @@ const MESSAGE_META = {
         dv: { defaultValue: '', required: true },
         data: {
             organization: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_CREATED_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            organization: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
         },
     },
     [TICKET_STATUS_OPENED_TYPE]: {
@@ -784,6 +795,7 @@ module.exports = {
     TICKET_ASSIGNEE_CONNECTED_TYPE,
     TICKET_EXECUTOR_CONNECTED_TYPE,
     TRACK_TICKET_IN_DOMA_APP_TYPE,
+    TICKET_CREATED_TYPE,
     TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE,
     TICKET_STATUS_COMPLETED_TYPE,
