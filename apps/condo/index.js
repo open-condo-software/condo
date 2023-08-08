@@ -7,7 +7,6 @@ const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')
 const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
-const express = require('express')
 
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
@@ -16,6 +15,7 @@ const { HealthCheck, getRedisHealthCheck, getPostgresHealthCheck } = require('@o
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const metrics = require('@open-condo/keystone/metrics')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
+const { TracingMiddleware } = require('@open-condo/keystone/tracing')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
@@ -23,8 +23,6 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
-const {TracingMiddleware} = require("@open-condo/keystone/tracing");
-
 
 dayjs.extend(duration)
 dayjs.extend(utc)
@@ -32,6 +30,7 @@ dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
+const IS_ENABLE_GRAFANA_TRACE = true
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 
@@ -45,6 +44,11 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
         logInjection: true,
     })
 }
+
+// Enable Open telemetry tracing
+// if (IS_ENABLE_GRAFANA_TRACE && !IS_BUILD_PHASE) {
+//     require('@open-condo/keystone/tracing').init()
+// }
 
 if (!IS_BUILD_PHASE) {
     setInterval(() => {
