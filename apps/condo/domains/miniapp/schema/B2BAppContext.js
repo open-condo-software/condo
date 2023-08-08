@@ -6,14 +6,59 @@ const { Relationship } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
 const { Json } = require('@open-condo/keystone/fields')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@condo/domains/miniapp/access/B2BAppContext')
 const { NO_CONTEXT_STATUS_ERROR, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
-const { createDefaultB2BAppRoles, deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
+const { deleteB2BAppRoles } = require('@condo/domains/miniapp/tasks')
+const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
+
+const logger = getLogger('miniapp/createDefaultB2BAppRoles')
+
+async function createDefaultB2BAppRoles (appId, organizationId, sender, context) {
+    logger.info({ msg: 'Creating default B2BAppRoles for organization', organizationId, appId })
+    const permissions = await find('B2BAppPermission', {
+        app: { id: appId },
+        deletedAt: null,
+    })
+    const rolePermissions = Object.assign({}, ...permissions.map(permission => ({
+        [permission.key]: true,
+    })))
+
+    const employeeRoles = await find('OrganizationEmployeeRole', {
+        organization: { id: organizationId },
+        // TODO(DOMA-6750): Include deletedAt at filtering when roles become soft-deletable
+        // deletedAt: null,
+        canManageIntegrations: true,
+    })
+    const organizationRolesIds = employeeRoles.map(role => role.id)
+    logger.info({ msg: `Found ${organizationRolesIds.length} organization roles with "canManageIntegrations" flag`, organizationId, appId, organizationRolesIds })
+
+    const existingAppRoles = await find('B2BAppRole', {
+        role: { id_in: organizationRolesIds },
+        deletedAt: null,
+        app: { id: appId },
+    })
+    const rolesToSkip = new Set(existingAppRoles.map(appRole => appRole.role))
+
+    for (const roleId of organizationRolesIds) {
+        if (rolesToSkip.has(roleId)) {
+            continue
+        }
+        logger.info({ msg: `Creating default B2BAppRole for role ${roleId}`, organizationId, roleId, appId })
+        await B2BAppRole.create(context, {
+            dv: 1,
+            sender,
+            app: { connect: { id: appId } },
+            role: { connect: { id: roleId } },
+            permissions: rolePermissions,
+        })
+    }
+}
 
 const B2BAppContext = new GQLListSchema('B2BAppContext', {
     schemaDoc: 'Object which connects B2B App and Organization. Used to determine if app is connected or not, and store settings / state of app for specific organization',
@@ -87,7 +132,7 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
                 return addValidationError(NO_CONTEXT_STATUS_ERROR)
             }
         },
-        afterChange: async ({ existingItem, updatedItem }) => {
+        afterChange: async ({ existingItem, updatedItem, context }) => {
             const oldStatus = get(existingItem, 'status')
             const newStatus = get(updatedItem, 'status')
             const oldDeletedAt = get(existingItem, 'deletedAt')
@@ -98,11 +143,12 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
 
             const organizationId = updatedItem.organization
             const appId = updatedItem.app
+            const sender = updatedItem.sender
 
             if (isSoftDeletedHappened) {
                 await deleteB2BAppRoles.delay(appId, organizationId)
             } else if (isConnectionHappened) {
-                await createDefaultB2BAppRoles.delay(appId, organizationId)
+                await createDefaultB2BAppRoles(appId, organizationId, sender, context)
             }
         },
     },

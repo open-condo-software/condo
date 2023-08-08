@@ -1591,14 +1591,14 @@ export type AllMiniAppsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   organization: OrganizationWhereUniqueInput;
-  search?: Maybe<Scalars['String']>;
   where?: Maybe<AllMiniAppsWhereInput>;
+  sortBy?: Maybe<SortAllMiniAppsBy>;
 };
 
 export type AllMiniAppsWhereInput = {
+  app?: Maybe<B2BAppWhereInput>;
   connected?: Maybe<Scalars['Boolean']>;
-  id_not?: Maybe<Scalars['String']>;
-  category?: Maybe<Scalars['String']>;
+  accessible?: Maybe<Scalars['Boolean']>;
 };
 
 export enum AppCategory {
@@ -1619,10 +1619,6 @@ export type AppColorSchemaFieldInput = {
   main: Scalars['String'];
   secondary: Scalars['String'];
 };
-
-export enum AppType {
-  B2B = 'B2B'
-}
 
 /**
  *  Ticket where user is assignee or executor.
@@ -29649,13 +29645,15 @@ export type MetersUpdateInput = {
 export type MiniAppOutput = {
   __typename?: 'MiniAppOutput';
   id: Scalars['ID'];
-  type: AppType;
   connected: Scalars['Boolean'];
+  accessible: Scalars['Boolean'];
   name: Scalars['String'];
   shortDescription: Scalars['String'];
   category: AppCategory;
   logo?: Maybe<Scalars['String']>;
   label?: Maybe<Scalars['String']>;
+  icon?: Maybe<Scalars['String']>;
+  menuCategory?: Maybe<Scalars['String']>;
 };
 
 /**  Information about resident's payment for single or multiple services/receipts  */
@@ -64633,6 +64631,11 @@ export enum SortAcquiringIntegrationsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC'
+}
+
+export enum SortAllMiniAppsBy {
+  DisplayPriorityDesc = 'displayPriority_DESC',
+  ConnectedAtAsc = 'connectedAt_ASC'
 }
 
 export enum SortAssigneeScopeHistoryRecordsBy {

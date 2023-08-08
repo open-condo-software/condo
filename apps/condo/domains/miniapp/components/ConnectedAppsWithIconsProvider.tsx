@@ -1,26 +1,27 @@
-import { SortB2BAppContextsBy } from '@app/condo/schema'
+import { SortAllMiniAppsBy } from '@app/condo/schema'
 import get from 'lodash/get'
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useLazyQuery } from '@open-condo/next/apollo'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { ALL_MENU_CATEGORIES, DEFAULT_MENU_CATEGORY } from '@condo/domains/common/constants/menuCategories'
-import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
-import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
 
-import type { B2BAppContext as ContextType } from '@app/condo/schema'
 
-type ContextsByCategories = Record<string, Array<ContextType>>
+import type { MiniAppOutput } from '@app/condo/schema'
+
+type AppsByCategories = Record<string, Array<MiniAppOutput>>
 
 type IConnectedAppsWithIconsContext = {
-    contextsByCategories: ContextsByCategories
+    appsByCategories: AppsByCategories
     connectedAppsIds: Array<string>
     refetch: () => void
 }
 
 export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsContext>({
-    contextsByCategories: {},
+    appsByCategories: {},
     connectedAppsIds: [],
     refetch: () => ({}),
 })
@@ -28,32 +29,55 @@ export const ConnectedWithIconsContext = createContext<IConnectedAppsWithIconsCo
 export const ConnectedAppsWithIconsContextProvider: React.FC = ({ children }) => {
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
-    const [contextsByCategories, setContextsByCategories] = useState<ContextsByCategories>({})
+    const [appsByCategories, setAppsByCategories] = useState<AppsByCategories>({})
     const [connectedApps, setConnectedApps] = useState<Array<string>>([])
 
-    const { objs, refetch } = B2BAppContext.useObjects({
-        where: {
-            organization: { id: orgId },
-            app: { icon_not: null },
-            status: CONTEXT_FINISHED_STATUS,
+    const [fetchMiniAppsQuery] = useLazyQuery(ALL_MINI_APPS_QUERY, {
+        onCompleted: (data) => {
+            const apps = get(data, 'objs', [])
+            const appsByCategories: AppsByCategories = Object.assign({}, ...ALL_MENU_CATEGORIES.map(category =>({ [category]: [] })))
+            for (const app of apps) {
+                const menuCategory = get(app, 'menuCategory', DEFAULT_MENU_CATEGORY) || DEFAULT_MENU_CATEGORY
+                appsByCategories[menuCategory].push(app)
+            }
+            setConnectedApps(apps.map(app => app.id))
+            setAppsByCategories(appsByCategories)
         },
-        sortBy: [SortB2BAppContextsBy.CreatedAtAsc],
+        onError: () => {
+            setConnectedApps([])
+            setAppsByCategories(Object.assign({}, ...ALL_MENU_CATEGORIES.map(category =>({ [category]: [] }))))
+        },
     })
 
-    useDeepCompareEffect(() => {
-        const connectedAppsIds: Array<string> = []
-        const contextsByCategories: ContextsByCategories = Object.assign({}, ...ALL_MENU_CATEGORIES.map(category => ({ [category]: [] })))
-        for (const ctx of objs) {
-            const appCategory = get(ctx, ['app', 'menuCategory'], DEFAULT_MENU_CATEGORY) || DEFAULT_MENU_CATEGORY
-            contextsByCategories[appCategory].push(ctx)
-            connectedAppsIds.push(ctx.app.id)
+    const fetchMiniApps = useCallback(() => {
+        if (orgId) {
+            fetchMiniAppsQuery({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        organization: { id: orgId },
+                        where: {
+                            connected: true,
+                            accessible: true,
+                            app: { icon_not: null },
+                        },
+                        sortBy: SortAllMiniAppsBy.ConnectedAtAsc,
+                    },
+                },
+            })
+        } else {
+            setConnectedApps([])
+            setAppsByCategories(Object.assign({}, ...ALL_MENU_CATEGORIES.map(category =>({ [category]: [] }))))
         }
-        setContextsByCategories(contextsByCategories)
-        setConnectedApps(connectedAppsIds)
-    }, [objs])
+    }, [orgId, fetchMiniAppsQuery])
+
+    useEffect(() => {
+        fetchMiniApps()
+    }, [orgId, fetchMiniApps])
 
     return (
-        <ConnectedWithIconsContext.Provider value={{ contextsByCategories: contextsByCategories, refetch, connectedAppsIds: connectedApps }}>
+        <ConnectedWithIconsContext.Provider value={{ appsByCategories: appsByCategories, refetch: fetchMiniApps, connectedAppsIds: connectedApps }}>
             {children}
         </ConnectedWithIconsContext.Provider>
     )

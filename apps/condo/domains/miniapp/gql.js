@@ -14,7 +14,7 @@ const { SCHEMAS_AVAILABLE_TO_B2B_APP } = require('./constants')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const APP_FIELDS = '{ id name shortDescription connected type category logo label }'
+const APP_FIELDS = '{ id name shortDescription connected accessible category logo label icon menuCategory }'
  
 const ALL_MINI_APPS_QUERY = gql`
     query getAllMiniApps ($data: AllMiniAppsInput!) {

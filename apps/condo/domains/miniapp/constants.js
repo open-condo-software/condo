@@ -1,13 +1,8 @@
-const B2B_APP_TYPE = 'B2B'
-
 /**
  * List of app types available in CRM
  * type + id is used to get specific model from API
  * @type {(string)[]}
  */
-const APP_TYPES = [
-    B2B_APP_TYPE,
-]
 
 // GLOBAL B2B APPS FEATURES
 const GLOBAL_FEATURE_GRAPHQL_TYPE = 'B2BAppGlobalFeature'
@@ -34,11 +29,6 @@ const B2B_APP_CATEGORIES = [
 
 const ALL_APPS_CATEGORY = 'RECOMMENDED'
 const CONNECTED_APPS_CATEGORY = 'CONNECTED'
-
-// TODO: REMOVE
-const ALL_APPS_CATEGORIES = [
-    ...B2B_APP_CATEGORIES,
-]
 
 // There is special app with fixed ID that is used for debugging on mobile side
 const DEBUG_APP_ID = 'kDomaLocalMiniappId'
@@ -114,8 +104,6 @@ const B2B_APP_ACCESS_CONFIG = {
 
 
 module.exports = {
-    B2B_APP_TYPE,
-    APP_TYPES,
     ALL_APPS_CATEGORY,
     CONNECTED_APPS_CATEGORY,
     DISPATCHING_CATEGORY,
@@ -124,7 +112,6 @@ module.exports = {
     BUSINESS_DEVELOPMENT_CATEGORY,
     OTHER_CATEGORY,
     B2B_APP_CATEGORIES,
-    ALL_APPS_CATEGORIES,
     CONTEXT_IN_PROGRESS_STATUS,
     CONTEXT_FINISHED_STATUS,
     CONTEXT_ERROR_STATUS,

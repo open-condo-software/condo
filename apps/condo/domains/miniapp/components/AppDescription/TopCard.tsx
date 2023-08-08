@@ -1,11 +1,13 @@
 import { CheckOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Col, Row, Space, Image } from 'antd'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { HtmlHTMLAttributes, CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
 
 import { ChevronRight } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag, Carousel, Button } from '@open-condo/ui'
 import type { ButtonProps, CarouselRef } from '@open-condo/ui'
 // TODO(DOMA-4844): Replace with @open-condo/ui/colors
@@ -43,7 +45,6 @@ const ARROW_REVERSE_STYLES: CSSProperties = { transform: 'scaleX(-1)' }
 
 type TopCardProps = {
     id: string
-    type: string
     name: string
     category: string
     label?: string
@@ -52,6 +53,7 @@ type TopCardProps = {
     gallery?: Array<string>
     contextStatus: string | null
     appUrl?: string
+    accessible: boolean
     connectAction: () => void
 }
 
@@ -104,7 +106,6 @@ const getImageSize = (width: number) => {
 
 const TopCard = React.memo<TopCardProps>(({
     id,
-    type,
     name,
     category,
     label,
@@ -113,10 +114,13 @@ const TopCard = React.memo<TopCardProps>(({
     gallery,
     contextStatus,
     appUrl,
+    accessible,
     connectAction,
 }) => {
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
+    const userOrganization = useOrganization()
+    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
 
     const router = useRouter()
     const [{ width: contentWidth }, setContentRef] = useContainerSize()
@@ -126,6 +130,7 @@ const TopCard = React.memo<TopCardProps>(({
         const btnProps: ButtonProps = { type: 'primary' }
         if (!contextStatus) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
+            btnProps.disabled = !canManageIntegrations
             btnProps.onClick = () => {
                 connectAction()
             }
@@ -134,8 +139,9 @@ const TopCard = React.memo<TopCardProps>(({
             btnProps.disabled = true
         } else if (appUrl) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.open' })
+            btnProps.disabled = !accessible
             btnProps.onClick = () => {
-                router.push(`/miniapps/${id}?type=${type}`)
+                router.push(`/miniapps/${id}`)
             }
         } else {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connected' })
@@ -144,7 +150,7 @@ const TopCard = React.memo<TopCardProps>(({
         }
 
         return btnProps
-    }, [id, type, appUrl, contextStatus, connectAction, intl, router])
+    }, [id, appUrl, contextStatus, connectAction, intl, router, canManageIntegrations, accessible])
 
     const images = gallery || []
     const imagesAmount = images.length

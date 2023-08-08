@@ -134,7 +134,7 @@ const MenuItems: React.FC = () => {
 
     const { canRead: canManageNewsItems } = useNewsItemsAccess()
 
-    const { contextsByCategories, connectedAppsIds } = useConnectedAppsWithIconsContext()
+    const { appsByCategories, connectedAppsIds } = useConnectedAppsWithIconsContext()
 
     useDeepCompareEffect(() => {
         updateContext({ orgFeatures })
@@ -318,18 +318,18 @@ const MenuItems: React.FC = () => {
                                 excludePaths={item.excludePaths}
                             />
                         ))}
-                        {get(contextsByCategories, category.key, []).map((ctx) => (
+                        {get(appsByCategories, category.key, []).map((app) => (
                             <MenuItem
-                                id={`menu-item-app-${ctx.app.id}`}
-                                key={`menu-item-app-${ctx.app.id}`}
-                                path={`/miniapps/${ctx.app.id}`}
-                                icon={get(AllIcons, ctx.app.icon, AllIcons['QuestionCircle'])}
-                                label={ctx.app.name}
+                                id={`menu-item-app-${app.id}`}
+                                key={`menu-item-app-${app.id}`}
+                                path={`/miniapps/${app.id}`}
+                                icon={get(AllIcons, app.icon, AllIcons['QuestionCircle'])}
+                                label={app.name}
                                 labelRaw
                                 disabled={disabled}
                                 isCollapsed={isCollapsed}
                                 toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                                excludePaths={[new RegExp(`/miniapps/${ctx.app.id}/.+`)]}
+                                excludePaths={[new RegExp(`/miniapps/${app.id}/.+`)]}
                             />
                         ))}
                     </>

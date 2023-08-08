@@ -15,7 +15,7 @@ import { PageHeader } from '@condo/domains/common/components/containers/BaseLayo
 import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, ALL_APPS_CATEGORIES, ALL_APPS_CATEGORY, CONNECTED_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
+import { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS, B2B_APP_CATEGORIES, ALL_APPS_CATEGORY, CONNECTED_APPS_CATEGORY } from '@condo/domains/miniapp/constants'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql.js'
 import { B2BAppPromoBlock } from '@condo/domains/miniapp/utils/clientSchema'
 
@@ -38,7 +38,7 @@ const BANNER_CHANGE_SPEED_IN_MS = 1200 // 1.2 sec
 const ALL_SECTIONS = [
     ALL_APPS_CATEGORY,
     CONNECTED_APPS_CATEGORY,
-    ...ALL_APPS_CATEGORIES,
+    ...B2B_APP_CATEGORIES,
 ]
 
 type QueryResult = {
@@ -105,7 +105,9 @@ export const CatalogPageContent: React.FC = () => {
                         dv: 1,
                         sender: getClientSideSenderInfo(),
                         organization: { id: userOrganizationId },
-                        search,
+                        where: {
+                            app: { name_contains_i: search },
+                        },
                     },
                 },
             })
@@ -121,7 +123,7 @@ export const CatalogPageContent: React.FC = () => {
         if (connectedApps.length) {
             tabs.push({ category: CONNECTED_APPS_CATEGORY, apps: connectedApps })
         }
-        for (const category of ALL_APPS_CATEGORIES) {
+        for (const category of B2B_APP_CATEGORIES) {
             const categoryApps = miniapps.filter(app => app.category === category)
             tabs.push({ category, apps: categoryApps })
         }

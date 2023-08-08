@@ -64865,10 +64865,6 @@ type GetNewsItemsRecipientsCountersOutput {
   receiversCount: Int!
 }
 
-enum AppType {
-  B2B
-}
-
 enum AppCategory {
   DISPATCHING
   GIS
@@ -64878,28 +64874,35 @@ enum AppCategory {
 }
 
 input AllMiniAppsWhereInput {
+  app: B2BAppWhereInput
   connected: Boolean
-  id_not: String
-  category: String
+  accessible: Boolean
+}
+
+enum SortAllMiniAppsBy {
+  displayPriority_DESC
+  connectedAt_ASC
 }
 
 input AllMiniAppsInput {
   dv: Int!
   sender: SenderFieldInput!
   organization: OrganizationWhereUniqueInput!
-  search: String
   where: AllMiniAppsWhereInput
+  sortBy: SortAllMiniAppsBy
 }
 
 type MiniAppOutput {
   id: ID!
-  type: AppType!
   connected: Boolean!
+  accessible: Boolean!
   name: String!
   shortDescription: String!
   category: AppCategory!
   logo: String
   label: String
+  icon: String
+  menuCategory: String
 }
 
 enum SendB2CAppPushMessageType {

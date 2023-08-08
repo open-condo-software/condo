@@ -9,8 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { PageWrapper, PageContent as PageContentWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useConnectedAppsWithIconsContext } from '@condo/domains/miniapp/components/ConnectedAppsWithIconsProvider'
-import { B2B_APP_TYPE } from '@condo/domains/miniapp/constants'
-import { B2BApp, B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
+import { B2BApp, B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 
 import { ConnectModal } from './ConnectModal'
 import { PageContent } from './PageContent'
@@ -27,6 +26,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
 
     const userOrganization = useOrganization()
     const organizationId = get(userOrganization, ['organization', 'id'], null)
+    const employeeRoleId = get(userOrganization, ['link', 'role', 'id'], null)
     const [modalOpen, setModalOpen] = useState(false)
 
     const { obj: app, error: appError, loading: appLoading } = B2BApp.useObject({ where: { id } })
@@ -34,13 +34,22 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
         obj: context,
         error: contextError,
         loading: contextLoading,
-        refetch,
+        refetch: refetchContext,
     } = B2BAppContext.useObject({ where: { app: { id }, organization: { id: organizationId } } })
+
+    const {
+        obj: appRole,
+        loading: appRoleLoading,
+        error: appRoleError,
+        refetch: refetchRole,
+    } = B2BAppRole.useObject({ where:{ app: { id }, role: { id: employeeRoleId } } })
+
     const appId = get(app, 'id', null)
 
     const initialAction = B2BAppContext.useCreate({}, () => {
-        refetch()
+        refetchContext()
         refetchMenu()
+        refetchRole()
         setModalOpen(true)
     })
     const createContextAction = useCallback(() => {
@@ -51,9 +60,16 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
         setModalOpen(false)
     }, [])
 
-    if (appLoading || contextLoading || appError || contextError) {
-        return <LoadingOrErrorPage title={LoadingMessage} error={appError || contextError} loading={appLoading || contextLoading}/>
+    if (appLoading || contextLoading || appRoleLoading || appError || contextError || appRoleError) {
+        return (
+            <LoadingOrErrorPage
+                title={LoadingMessage}
+                error={appError || contextError || appRoleError}
+                loading={appLoading || contextLoading || appRoleLoading}
+            />
+        )
     }
+
     if (!app) {
         return <Error statusCode={404}/>
     }
@@ -67,7 +83,6 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                 <PageContentWrapper>
                     <PageContent
                         id={app.id}
-                        type={B2B_APP_TYPE}
                         name={app.name}
                         category={app.category}
                         label={app.label}
@@ -80,6 +95,7 @@ export const B2BAppPage: React.FC<B2BPageProps> = ({ id }) => {
                         gallery={app.gallery}
                         contextStatus={get(context, 'status', null)}
                         appUrl={app.appUrl}
+                        accessible={Boolean(appRole)}
                         connectAction={createContextAction}
                     />
                     <ConnectModal
