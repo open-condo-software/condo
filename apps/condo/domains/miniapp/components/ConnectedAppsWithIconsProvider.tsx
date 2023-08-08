@@ -6,9 +6,9 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { ALL_MENU_CATEGORIES, DEFAULT_MENU_CATEGORY } from '@condo/domains/common/constants/menuCategories'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { ALL_MINI_APPS_QUERY } from '@condo/domains/miniapp/gql'
 
-import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
 
 import type { MiniAppOutput } from '@app/condo/schema'
 

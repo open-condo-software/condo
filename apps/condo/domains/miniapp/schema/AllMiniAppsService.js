@@ -53,6 +53,11 @@ function connectedAscCompare (lhs, rhs) {
     return datePropertyCompare(lhs, rhs, 'connectedAt', 'ASC')
 }
 
+/**
+ * Aggregates information about all B2BApps from user's employee perspective
+ * Including resolving connection status, accessibility by employee role and so on
+ * @type {GQLCustomSchema}
+ */
 const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
     types: [
         {
@@ -76,7 +81,6 @@ const AllMiniAppsService = new GQLCustomSchema('AllMiniAppsService', {
             type: 'type MiniAppOutput { id: ID!, connected: Boolean!, accessible: Boolean!, name: String!, shortDescription: String!, category: AppCategory!, logo: String, label: String, icon: String, menuCategory: String }',
         },
     ],
-    
     queries: [
         {
             access: access.canExecuteAllMiniApps,
