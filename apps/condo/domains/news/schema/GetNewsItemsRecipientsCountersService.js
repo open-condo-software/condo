@@ -57,7 +57,7 @@ const GetNewsItemsRecipientsCountersService = new GQLCustomSchema('GetNewsItemsR
                         chunkProcessor: (chunk) => {
                             propertiesCount += chunk.length
                             for (const property of chunk) {
-                                unitsCount += property.unitsCount
+                                unitsCount += (property.unitsCount + property.uninhabitedUnitsCount)
                                 orConditions.push(...queryConditionsByUnits(property))
                             }
 
