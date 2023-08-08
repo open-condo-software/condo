@@ -4,6 +4,7 @@
 
 const compact = require('lodash/compact')
 const get = require('lodash/get')
+const isArray = require('lodash/isArray')
 const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
@@ -55,11 +56,7 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageTicketComments ({ authentication: { item: user }, originalInput, operation, itemId }) {
-    if (!user) return throwAuthenticationError()
-    if (user.deletedAt) return false
-    if (user.isAdmin) return true
-
+const checkManageCommentAccess = async ({ user, operation, originalInput, itemId }) => {
     if (user.type === RESIDENT) {
         if (operation === 'create') {
             const ticketId = get(originalInput, ['ticket', 'connect', 'id'])
@@ -75,7 +72,7 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
             }
 
             return ticket.client === user.id
-        } 
+        }
         return false
     } else {
         if (operation === 'create') {
@@ -97,6 +94,27 @@ async function canManageTicketComments ({ authentication: { item: user }, origin
     }
 
     return false
+}
+
+async function canManageTicketComments ({ authentication: { item: user }, originalInput, operation, itemId }) {
+    if (!user) return throwAuthenticationError()
+    if (user.deletedAt) return false
+    if (user.isAdmin) return true
+
+    if (operation === 'create' && isArray(originalInput)) {
+        for (const ticketCommentInputData of originalInput) {
+            const ticketCommentInput = get(ticketCommentInputData, 'data')
+            const accessToCreateComment = await checkManageCommentAccess({ user, operation, originalInput: ticketCommentInput, itemId })
+
+            if (!accessToCreateComment) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    return await checkManageCommentAccess({ user, operation, originalInput, itemId })
 }
 
 async function canSetUserField ({ authentication: { item: user }, originalInput }) {
