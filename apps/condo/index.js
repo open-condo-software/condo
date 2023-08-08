@@ -7,6 +7,7 @@ const duration = require('dayjs/plugin/duration')
 const isBetween = require('dayjs/plugin/isBetween')
 const timezone = require('dayjs/plugin/timezone')
 const utc = require('dayjs/plugin/utc')
+const express = require('express')
 
 const conf = require('@open-condo/config')
 const { FeaturesMiddleware } = require('@open-condo/featureflags/FeaturesMiddleware')
@@ -24,6 +25,7 @@ const { SCHEMAS_AVAILABLE_TO_B2B_APP, B2B_APP_ACCESS_CONFIG } = require('@condo/
 const { B2BAppAccess } = require('@condo/domains/miniapp/schema/preprocessors/B2BAppAccess')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+
 
 dayjs.extend(duration)
 dayjs.extend(utc)
@@ -129,9 +131,49 @@ const checks = [
     getPostgresHealthCheck(),
 ]
 
+class TracingMiddleware {
+    async prepareMiddleware ({ keystone }) {
+        const app = express()
+
+        const opentelemetry = require('@opentelemetry/sdk-node')
+        const {
+            getNodeAutoInstrumentations,
+        } = require('@opentelemetry/auto-instrumentations-node')
+        const {
+            OTLPTraceExporter,
+        } = require('@opentelemetry/exporter-trace-otlp-proto')
+        const {
+            OTLPMetricExporter,
+        } = require('@opentelemetry/exporter-metrics-otlp-proto')
+        const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
+
+        const sdk = new opentelemetry.NodeSDK({
+            traceExporter: new OTLPTraceExporter({
+                // optional - default url is http://localhost:4318/v1/traces
+                //url: 'http://0.0.0.0:4317',
+                // optional - collection of custom headers to be sent with each request, empty by default
+                headers: {},
+            }),
+            metricReader: new PeriodicExportingMetricReader({
+                exporter: new OTLPMetricExporter({
+                    //url: '<your-otlp-endpoint>/v1/metrics', // url is optional and can be omitted - default is http://localhost:4318/v1/metrics
+                    //url: 'http://0.0.0.0:4317',
+                    headers: {}, // an optional object containing custom headers to be sent with each request
+                    concurrencyLimit: 1, // an optional limit on pending requests
+                }),
+            }),
+            instrumentations: [getNodeAutoInstrumentations()],
+        })
+        sdk.start()
+
+        return app
+    }
+}
+
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
 const apps = () => {
     return [
+        new TracingMiddleware(),
         new HealthCheck({ checks }),
         new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
