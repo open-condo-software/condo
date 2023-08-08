@@ -10,14 +10,14 @@ const {
 
 const { createTestOrganization, createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { MobileFeatureConfig, createTestMobileFeatureConfig, updateTestMobileFeatureConfig } = require('@condo/domains/settings/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 
 describe('MobileFeatureConfig', () => {
-    let admin, commonOrganization
+    let admin, support
     beforeAll(async () => {
-        admin = await makeLoggedInAdminClient();
-        [commonOrganization] = await createTestOrganization(admin)
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
     })
     describe('CRUD tests', () => {
         describe('accesses', () => {
@@ -54,9 +54,59 @@ describe('MobileFeatureConfig', () => {
                 })
 
                 test('can read', async () => {
-                    const [obj, attrs] = await createTestMobileFeatureConfig(admin, commonOrganization)
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [obj, attrs] = await createTestMobileFeatureConfig(admin, organization)
 
                     const objs = await MobileFeatureConfig.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
+
+                    expect(objs.length).toBeGreaterThanOrEqual(1)
+                    expect(objs).toEqual(expect.arrayContaining([
+                        expect.objectContaining({
+                            id: obj.id,
+                        }),
+                    ]))
+                })
+            })
+
+            describe('support', () => {
+                test('can create', async () => {
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [obj, attrs] = await createTestMobileFeatureConfig(support, organization)
+
+                    expectValuesOfCommonFields(obj, attrs, support)
+                })
+
+                test('can update', async () => {
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [objCreated] = await createTestMobileFeatureConfig(support, organization)
+
+                    const [obj, attrs] = await updateTestMobileFeatureConfig(support, objCreated.id)
+
+                    expect(obj.dv).toEqual(1)
+                    expect(obj.sender).toEqual(attrs.sender)
+                    expect(obj.v).toEqual(2)
+                    expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
+                })
+
+                test('can\'t hard delete', async () => {
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [objCreated] = await createTestMobileFeatureConfig(support, organization)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await MobileFeatureConfig.delete(support, objCreated.id)
+                    })
+                })
+
+                test('can read', async () => {
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [obj, attrs] = await createTestMobileFeatureConfig(support, organization)
+
+                    const objs = await MobileFeatureConfig.getAll(support, {}, { sortBy: ['updatedAt_DESC'] })
 
                     expect(objs.length).toBeGreaterThanOrEqual(1)
                     expect(objs).toEqual(expect.arrayContaining([
@@ -148,9 +198,7 @@ describe('MobileFeatureConfig', () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [organization] = await createTestOrganization(admin)
 
-                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManageMobileFeatureConfigs: true,
-                    })
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
                     await createTestOrganizationEmployee(admin, organization, client.user, role)
 
                     const [objCreated] = await createTestMobileFeatureConfig(admin, organization)
@@ -188,8 +236,10 @@ describe('MobileFeatureConfig', () => {
             })
 
             test('TICKET_SUBMITTING_PHONES_NOT_CONFIGURED', async () => {
+                const [organization] = await createTestOrganization(admin)
+
                 await expectToThrowGQLError(
-                    async () => await createTestMobileFeatureConfig(admin, commonOrganization, {
+                    async () => await createTestMobileFeatureConfig(admin, organization, {
                         commonPhone: undefined,
                         ticketSubmittingIsDisabled: true,
                     }),
@@ -201,8 +251,10 @@ describe('MobileFeatureConfig', () => {
             })
 
             test('COMMON_PHONE_INVALID', async () => {
+                const [organization] = await createTestOrganization(admin)
+
                 await expectToThrowGQLError(
-                    async () => await createTestMobileFeatureConfig(admin, commonOrganization, {
+                    async () => await createTestMobileFeatureConfig(admin, organization, {
                         commonPhone: 'undefined',
                         ticketSubmittingIsDisabled: true,
                     }),

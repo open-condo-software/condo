@@ -14,6 +14,7 @@ import { ControlRoomSettingsContent } from '@condo/domains/common/components/set
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
 import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
+import { MOBILE_FEATURE_CONFIGURATION } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -29,7 +30,6 @@ import { EmployeeRolesSettingsContent } from '@condo/domains/organization/compon
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
 import { PropertyScopeSettingsContent } from '@condo/domains/scope/components/PropertyScopeSettingsContent'
-import { MOBILE_FEATURE_CONFIGURATION } from '@condo/domains/settings/constants'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 import {
     SettingsContent as TicketPropertyHintSettings,

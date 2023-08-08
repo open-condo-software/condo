@@ -8,11 +8,11 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
+import { MOBILE_FEATURE_CONFIGURATION, TICKET_SUBMITTING_SETTING, ONLY_PROGRESSION_METER_READINGS_SETTING } from '@condo/domains/common/constants/featureflags'
 import {
     OnlyProgressionMeterReadingsSettingCard,
 } from '@condo/domains/settings/components/ticketSubmitting/OnlyProgressionMeterReadingsSettingCard'
 import { TicketSubmittingSettingCard } from '@condo/domains/settings/components/ticketSubmitting/TicketSubmittingSettingCard'
-import { MOBILE_FEATURE_CONFIGURATION, TICKET_SUBMITTING_SETTING, ONLY_PROGRESSION_METER_READINGS_SETTING } from '@condo/domains/settings/constants'
 import { MobileFeatureConfig as MobileFeatureConfigAPI } from '@condo/domains/settings/utils/clientSchema'
 
 const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]

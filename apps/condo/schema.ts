@@ -29656,6 +29656,380 @@ export type MiniAppOutput = {
   menuCategory?: Maybe<Scalars['String']>;
 };
 
+/**  Manages availability of some features in mobile application, stores data required in disabled state of a feature.  */
+export type MobileFeatureConfig = {
+  __typename?: 'MobileFeatureConfig';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MobileFeatureConfig List config, or
+   *  2. As an alias to the field set on 'labelField' in the MobileFeatureConfig List config, or
+   *  3. As an alias to a 'name' field on the MobileFeatureConfig List (if one exists), or
+   *  4. As an alias to the 'id' field on the MobileFeatureConfig List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Phone number where the organization wants to receive common calls  */
+  commonPhone?: Maybe<Scalars['String']>;
+  /**  Disabling the ability to send tickets by the user of the resident's mobile application. Instead, he will be shown a screen with phones where he can contact to send a request  */
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  /**  Restricts residents to submit only meter readings, that are greater than previous. Restrictions apply to mobile phones only.  */
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  /**  Can be used to store some meta information for mobile applications.  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type MobileFeatureConfigCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type MobileFeatureConfigHistoryRecord = {
+  __typename?: 'MobileFeatureConfigHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MobileFeatureConfigHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MobileFeatureConfigHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MobileFeatureConfigHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MobileFeatureConfigHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MobileFeatureConfigHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MobileFeatureConfigHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MobileFeatureConfigHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MobileFeatureConfigHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commonPhone?: Maybe<Scalars['String']>;
+  commonPhone_not?: Maybe<Scalars['String']>;
+  commonPhone_contains?: Maybe<Scalars['String']>;
+  commonPhone_not_contains?: Maybe<Scalars['String']>;
+  commonPhone_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_i?: Maybe<Scalars['String']>;
+  commonPhone_not_i?: Maybe<Scalars['String']>;
+  commonPhone_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_not_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commonPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingIsDisabled_not?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MobileFeatureConfigHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MobileFeatureConfigHistoryRecordsCreateInput = {
+  data?: Maybe<MobileFeatureConfigHistoryRecordCreateInput>;
+};
+
+export type MobileFeatureConfigHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigHistoryRecordUpdateInput>;
+};
+
+export type MobileFeatureConfigUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type MobileFeatureConfigWhereInput = {
+  AND?: Maybe<Array<Maybe<MobileFeatureConfigWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MobileFeatureConfigWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  commonPhone_not?: Maybe<Scalars['String']>;
+  commonPhone_contains?: Maybe<Scalars['String']>;
+  commonPhone_not_contains?: Maybe<Scalars['String']>;
+  commonPhone_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_i?: Maybe<Scalars['String']>;
+  commonPhone_not_i?: Maybe<Scalars['String']>;
+  commonPhone_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_not_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commonPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingIsDisabled_not?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type MobileFeatureConfigWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MobileFeatureConfigsCreateInput = {
+  data?: Maybe<MobileFeatureConfigCreateInput>;
+};
+
+export type MobileFeatureConfigsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigUpdateInput>;
+};
+
 /**  Information about resident's payment for single or multiple services/receipts  */
 export type MultiPayment = {
   __typename?: 'MultiPayment';
@@ -33158,6 +33532,30 @@ export type Mutation = {
   deleteB2BAppAccessRightSet?: Maybe<B2BAppAccessRightSet>;
   /**  Delete multiple B2BAppAccessRightSet items by ID.  */
   deleteB2BAppAccessRightSets?: Maybe<Array<Maybe<B2BAppAccessRightSet>>>;
+  /**  Create a single MobileFeatureConfigHistoryRecord item.  */
+  createMobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Create multiple MobileFeatureConfigHistoryRecord items.  */
+  createMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Update a single MobileFeatureConfigHistoryRecord item by ID.  */
+  updateMobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Update multiple MobileFeatureConfigHistoryRecord items by ID.  */
+  updateMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Delete a single MobileFeatureConfigHistoryRecord item by ID.  */
+  deleteMobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Delete multiple MobileFeatureConfigHistoryRecord items by ID.  */
+  deleteMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Create a single MobileFeatureConfig item.  */
+  createMobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Create multiple MobileFeatureConfig items.  */
+  createMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
+  /**  Update a single MobileFeatureConfig item by ID.  */
+  updateMobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Update multiple MobileFeatureConfig items by ID.  */
+  updateMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
+  /**  Delete a single MobileFeatureConfig item by ID.  */
+  deleteMobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Delete multiple MobileFeatureConfig items by ID.  */
+  deleteMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
   /**  Create a single WebhookHistoryRecord item.  */
   createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
   /**  Create multiple WebhookHistoryRecord items.  */
@@ -42423,6 +42821,68 @@ export type MutationDeleteB2BAppAccessRightSetArgs = {
 
 
 export type MutationDeleteB2BAppAccessRightSetsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMobileFeatureConfigHistoryRecordArgs = {
+  data?: Maybe<MobileFeatureConfigHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMobileFeatureConfigHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMobileFeatureConfigHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMobileFeatureConfigHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMobileFeatureConfigArgs = {
+  data?: Maybe<MobileFeatureConfigCreateInput>;
+};
+
+
+export type MutationCreateMobileFeatureConfigsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigsCreateInput>>>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigUpdateInput>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMobileFeatureConfigArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMobileFeatureConfigsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -55016,6 +55476,22 @@ export type Query = {
   _allB2BAppAccessRightSetsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the B2BAppAccessRightSet list.  */
   _B2BAppAccessRightSetsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MobileFeatureConfigHistoryRecord items which match the where clause.  */
+  allMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Search for the MobileFeatureConfigHistoryRecord item with the matching ID.  */
+  MobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Perform a meta-query on all MobileFeatureConfigHistoryRecord items which match the where clause.  */
+  _allMobileFeatureConfigHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MobileFeatureConfigHistoryRecord list.  */
+  _MobileFeatureConfigHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MobileFeatureConfig items which match the where clause.  */
+  allMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
+  /**  Search for the MobileFeatureConfig item with the matching ID.  */
+  MobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Perform a meta-query on all MobileFeatureConfig items which match the where clause.  */
+  _allMobileFeatureConfigsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MobileFeatureConfig list.  */
+  _MobileFeatureConfigsMeta?: Maybe<_ListMeta>;
   /**  Search for all WebhookHistoryRecord items which match the where clause.  */
   allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
   /**  Search for the WebhookHistoryRecord item with the matching ID.  */
@@ -60737,6 +61213,56 @@ export type Query_AllB2BAppAccessRightSetsMetaArgs = {
   where?: Maybe<B2BAppAccessRightSetWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortB2BAppAccessRightSetsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMobileFeatureConfigHistoryRecordsArgs = {
+  where?: Maybe<MobileFeatureConfigHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMobileFeatureConfigHistoryRecordArgs = {
+  where: MobileFeatureConfigHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMobileFeatureConfigHistoryRecordsMetaArgs = {
+  where?: Maybe<MobileFeatureConfigHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMobileFeatureConfigsArgs = {
+  where?: Maybe<MobileFeatureConfigWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMobileFeatureConfigArgs = {
+  where: MobileFeatureConfigWhereUniqueInput;
+};
+
+
+export type Query_AllMobileFeatureConfigsMetaArgs = {
+  where?: Maybe<MobileFeatureConfigWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -68138,6 +68664,58 @@ export enum SortMetersBy {
   PlaceDesc = 'place_DESC',
   B2cAppAsc = 'b2cApp_ASC',
   B2cAppDesc = 'b2cApp_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortMobileFeatureConfigHistoryRecordsBy {
+  CommonPhoneAsc = 'commonPhone_ASC',
+  CommonPhoneDesc = 'commonPhone_DESC',
+  TicketSubmittingIsDisabledAsc = 'ticketSubmittingIsDisabled_ASC',
+  TicketSubmittingIsDisabledDesc = 'ticketSubmittingIsDisabled_DESC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledAsc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_ASC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledDesc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMobileFeatureConfigsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  CommonPhoneAsc = 'commonPhone_ASC',
+  CommonPhoneDesc = 'commonPhone_DESC',
+  TicketSubmittingIsDisabledAsc = 'ticketSubmittingIsDisabled_ASC',
+  TicketSubmittingIsDisabledDesc = 'ticketSubmittingIsDisabled_DESC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledAsc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_ASC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledDesc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

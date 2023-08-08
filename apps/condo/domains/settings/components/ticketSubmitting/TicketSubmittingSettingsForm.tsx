@@ -51,7 +51,6 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
 
     const router = useRouter()
     const [commonPhone, setCommonPhone] = useState<string>(get(mobileConfig, 'commonPhone'))
-    const [ticketSubmittingIsDisabled, setTicketSubmittingIsDisabled] = useState<boolean>(get(mobileConfig, 'ticketSubmittingIsDisabled'))
 
     const initialValues = {
         commonPhone: get(mobileConfig, 'commonPhone'),
@@ -111,13 +110,8 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                             labelAlign='left'
                                             {...INPUT_LAYOUT_PROPS}
                                             valuePropName='checked'
-                                            initialValue={ticketSubmittingIsDisabled}
                                         >
-                                            <Checkbox
-                                                onChange={() => {
-                                                    setTicketSubmittingIsDisabled(!ticketSubmittingIsDisabled)
-                                                }}
-                                            />
+                                            <Checkbox/>
                                         </Form.Item>
                                     </Col>
 
@@ -140,7 +134,7 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                         } = getFieldsValue(['ticketSubmittingIsDisabled', 'commonPhone'])
 
                                         const messageLabels = []
-                                        if (!ticketSubmittingIsDisabled && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
+                                        if (ticketSubmittingIsDisabled && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
 
                                         const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
                                         const hasInvalidPhoneError = commonPhone && (normalizePhone(commonPhone) !== commonPhone) ? InvalidPhoneMessage : undefined
@@ -174,5 +168,5 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                 </Row>
             )}
         </FormWithAction>
-    ), [action, commonPhone, mobileConfig, ticketSubmittingIsDisabled])
+    ), [action, commonPhone, mobileConfig])
 }

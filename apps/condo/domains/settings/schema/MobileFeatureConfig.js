@@ -9,8 +9,9 @@ const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/settings/access/MobileFeatureConfig')
+const { ticketSubmittingValidations } = require('@condo/domains/settings/utils/MobileFeatureConfigSchemaValidations')
 
 
 
@@ -41,15 +42,7 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
     schemaDoc: 'Manages availability of some features in mobile application,' +
         ' stores data required in disabled state of a feature.',
     fields: {
-
-        organization: {
-            schemaDoc: 'Ref to the organization. Also needed for scope management',
-            type: Relationship,
-            ref: 'Organization',
-            isRequired: true,
-            knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        },
+        organization: ORGANIZATION_OWNED_FIELD,
 
         commonPhone: {
             schemaDoc: 'Phone number where the organization wants to receive common calls',
@@ -60,18 +53,6 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
             schemaDoc: 'Disabling the ability to send tickets by the user of the resident\'s mobile application. ' +
                 'Instead, he will be shown a screen with phones where he can contact to send a request',
             type: Checkbox,
-            hooks: {
-                validateInput: async ({ resolvedData, context }) => {
-                    if (resolvedData.ticketSubmittingIsDisabled) {
-                        if (!resolvedData['commonPhone']) {
-                            throw new GQLError(ERRORS.TICKET_SUBMITTING_PHONES_NOT_CONFIGURED, context)
-                        }
-                        if (resolvedData['commonPhone'] && normalizePhone(resolvedData['commonPhone']) !== resolvedData['commonPhone']) {
-                            throw new GQLError(ERRORS.COMMON_PHONE_INVALID, context)
-                        }
-                    }
-                },
-            },
         },
 
         onlyGreaterThanPreviousMeterReadingIsEnabled: {
@@ -81,7 +62,7 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
         },
 
         meta: {
-            schemaDoc: 'Can be used to store additional settings from external sources or mini apps',
+            schemaDoc: 'Can be used to store some meta information for mobile applications.',
             type: Json,
         },
 
@@ -103,6 +84,11 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
                 name: 'mobilefeatureconfig_unique_organization',
             },
         ],
+    },
+    hooks: {
+        validateInput: async ({ resolvedData, context }) => {
+            await ticketSubmittingValidations(resolvedData, context, ERRORS)
+        },
     },
 })
 

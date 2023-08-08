@@ -41,7 +41,6 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
     const EnableMessage = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.OnlyProgressionMeterReadings.isEnabled' })
 
     const router = useRouter()
-    const [onlyGreaterThanPreviousMeterReadingIsEnabled, setOnlyGreaterThanPreviousMeterReadingIsEnabled] = useState<boolean>(get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled'))
 
     const initialValues = {
         onlyGreaterThanPreviousMeterReadingIsEnabled: get(mobileConfig, 'onlyGreaterThanPreviousMeterReadingIsEnabled'),
@@ -83,13 +82,8 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
                                             labelAlign='left'
                                             {...INPUT_LAYOUT_PROPS}
                                             valuePropName='checked'
-                                            initialValue={onlyGreaterThanPreviousMeterReadingIsEnabled}
                                         >
-                                            <Checkbox
-                                                onChange={() => {
-                                                    setOnlyGreaterThanPreviousMeterReadingIsEnabled(!onlyGreaterThanPreviousMeterReadingIsEnabled)
-                                                }}
-                                            />
+                                            <Checkbox/>
                                         </Form.Item>
                                     </Col>
 
@@ -115,5 +109,5 @@ export const OnlyProgressionMeterReadingsForm: React.FC<ITicketSubmittingSetting
                 </Row>
             )}
         </FormWithAction>
-    ), [action, mobileConfig, onlyGreaterThanPreviousMeterReadingIsEnabled])
+    ), [action, mobileConfig])
 }

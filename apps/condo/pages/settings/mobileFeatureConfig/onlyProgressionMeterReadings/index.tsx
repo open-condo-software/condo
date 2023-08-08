@@ -27,7 +27,7 @@ const OnlyProgressionMeterReadingsContent: React.FC = () => {
             organization: { id: userOrganizationId },
         },
     })
-    return (!loading &&
+    return !loading && (
         <>
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
             <Row gutter={ROW_GUTTER}>
