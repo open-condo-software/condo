@@ -1,7 +1,7 @@
 const dayjs = require('dayjs')
 const locale_ru = require('dayjs/locale/ru')
 const isBetween = require('dayjs/plugin/isBetween')
-const { get, uniq, isNull, isEmpty, compact, isNil } = require('lodash')
+const { get, uniq, isNull, isEmpty, isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
@@ -96,9 +96,9 @@ const readMeterReportingPeriods = async ({ context, organizations }) => {
     })
 }
 
-const checkIsDateInPeriod = (date, today, start, end) => {
-    return dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-') + (start.toString().length === 1 ? '0' + start : start) ||
-        dayjs(date).format('YYYY-MM-DD') === today.format('YYYY-MM-') + (end.toString().length === 1 ? '0' + end : end)
+const checkIsDateStartOrEndOfPeriod = (date, today, start, end) => {
+    return dayjs(date).format('YYYY-MM-DD') === dayjs(today).set('date', start).format('YYYY-MM-DD') ||
+        dayjs(date).format('YYYY-MM-DD') === dayjs(today).set('date', end).format('YYYY-MM-DD')
 }
 
 const sendSubmitMeterReadingsPushNotifications = async () => {
@@ -156,8 +156,8 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
         let defaultPeriod = null
 
         for (let period of reportingPeriods) {
-            if (!period.organization) defaultPeriod = period
-            else if (!period.property) periodsByOrganization.push(period)
+            if (isNil(period.organization) && isNil(period.property)) defaultPeriod = period
+            else if (!isNil(period.organization) && isNil(period.property)) periodsByOrganization.push(period)
             else periodsByProperty.push(period)
         }
 
@@ -171,21 +171,16 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             const notifyStartDay = get(period, 'notifyStartDay')
             const notifyEndDay = get(period, 'notifyEndDay')
 
-            const readingsOfCurrentMeter = compact(meterReadings.map(reading => {
-                if (
-                    reading.meter.id === meter.id &&
-                    (period !== null && checkIsDateInPeriod(reading.date, state.startTime, notifyStartDay, notifyEndDay))
-                ) {
-                    return reading
-                }
-            }
+            const readingsOfCurrentMeter = meterReadings.filter(reading => (
+                reading.meter.id === meter.id &&
+                checkIsDateStartOrEndOfPeriod(reading.date, state.startTime, notifyStartDay, notifyEndDay)
             ))
 
-            const isTodayInPeriod = period !== null && checkIsDateInPeriod(state.startTime, state.startTime, notifyStartDay, notifyEndDay)
-            const isEndPeriodNotification = period !== null && state.startTime.format('YYYY-MM-DD') === state.startTime.format('YYYY-MM-') + (notifyEndDay.toString().length === 1 ? '0' + notifyEndDay : notifyEndDay)
-            const periodKey = `${state.startTime.format('YYYY-MM-') + notifyStartDay}-${state.startTime.format('YYYY-MM-') + notifyEndDay}`
+            const isTodayStartOrEndOfPeriod = checkIsDateStartOrEndOfPeriod(state.startTime, state.startTime, notifyStartDay, notifyEndDay)
+            const isEndPeriodNotification = dayjs(state.startTime).format('YYYY-MM-DD') === dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')
+            const periodKey = `${dayjs(state.startTime).set('date', notifyStartDay).format('YYYY-MM-DD')}-${dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')}`
 
-            if (isTodayInPeriod) metersWithoutReadings.push({ meter, periodKey, isEndPeriodNotification, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
+            if (isTodayStartOrEndOfPeriod) metersWithoutReadings.push({ meter, periodKey, isEndPeriodNotification, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
         }
 
         // right join organizations

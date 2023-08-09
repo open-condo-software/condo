@@ -2,9 +2,9 @@
 import { MeterReportingPeriod as MeterReportingPeriodType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Col, Form, Row, Typography } from 'antd'
-import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isNil from 'lodash/isNil'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -167,9 +167,9 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         fetchPolicy: 'network-only',
     })
 
-    const hasOrganizationPeriod = Boolean(reportingPeriods.find(period => period.property === null && period.organization !== null))
+    const hasOrganizationPeriod = Boolean(reportingPeriods.find(period => isNil(period.property) && !isNil(period.organization)))
 
-    const periodsWithProperty = compact(reportingPeriods.map(period => period.property && period))
+    const periodsWithProperty = reportingPeriods.filter(period => !isNil(period.property))
 
     const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, periodsWithProperty.map(period => period.property.id)),
         [organization, isPeriodsLoading])
