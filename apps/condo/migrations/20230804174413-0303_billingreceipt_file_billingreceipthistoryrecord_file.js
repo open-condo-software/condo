@@ -5,6 +5,11 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s'; 
+
+--
 -- Add field file to billingreceipt
 --
 ALTER TABLE "BillingReceipt" ADD COLUMN "file" uuid NULL CONSTRAINT "BillingReceipt_file_24115686_fk_BillingReceiptFile_id" REFERENCES "BillingReceiptFile"("id") DEFERRABLE INITIALLY DEFERRED; SET CONSTRAINTS "BillingReceipt_file_24115686_fk_BillingReceiptFile_id" IMMEDIATE;
@@ -15,6 +20,7 @@ ALTER TABLE "BillingReceiptHistoryRecord" ADD COLUMN "file" uuid NULL;
 CREATE INDEX "BillingReceipt_file_24115686" ON "BillingReceipt" ("file");
 COMMIT;
 
+SET statement_timeout = '10s';
     `)
 }
 
