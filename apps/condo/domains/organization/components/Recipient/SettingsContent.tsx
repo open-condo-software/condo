@@ -7,9 +7,10 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { BankAccountInfo } from '@condo/domains/banking/components/BankAccountInfo'
-import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
+import { BillingRecipient, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
+import { CONTEXT_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
+import { Recipient } from '@condo/domains/organization/components/Recipient'
 
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
@@ -34,14 +35,28 @@ export const RecipientSettingsContent = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const userOrganizationName = get(userOrganization, ['organization', 'name'])
+
+    //TODO(MAXIMDANILOV): DOMA-3252 go from BillingRecipient to Index
+    const {
+        obj: context,
+    } = BillingIntegrationOrganizationContext.useObject({
+        where: {
+            organization: { id: userOrganizationId },
+            status: CONTEXT_FINISHED_STATUS,
+        },
+    })
+
+    const contextId = get(context, ['id'], null)
 
     const {
-        objs: bankAccounts,
-        loading: bankAccountsIsLoading,
-    } = BankAccount.useObjects(
-        { where: { organization: { id: userOrganizationId }, deletedAt: null } }
-    )
+        loading: isRecipientsLoading,
+        objs: recipients,
+    } = BillingRecipient.useObjects({
+        where: {
+            context: { id : contextId },
+            isApproved: true,
+        },
+    })
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -58,9 +73,9 @@ export const RecipientSettingsContent = () => {
             </Col>
 
             {
-                bankAccounts.map((bankAccount, index) => {
+                recipients.map((recipient, index) => {
                     return (
-                        <BankAccountInfo bankAccount={bankAccount} organizationName={userOrganizationName} key={index}/>
+                        <Recipient recipient={recipient} key={index}/>
                     )
                 })
             }
