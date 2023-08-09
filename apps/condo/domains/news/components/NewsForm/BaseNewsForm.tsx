@@ -1046,7 +1046,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                 <Col span={24}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
-                                            <Row gutter={[0, 0]}>
+                                            <Row>
                                                 <Col span={24} style={ { marginBottom: '24px' } }>
                                                     <Typography.Title level={2}>
                                                         {SelectSendPeriodLabel} ({tzInfo})
