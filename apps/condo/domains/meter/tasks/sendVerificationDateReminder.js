@@ -57,8 +57,8 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         list: ServiceConsumer,
         where: {
             accountNumber_in: accountNumbers,
+            deletedAt: null,
         },
-        deletedAt: null,
     })
 
     // second step is to get all resident ids
@@ -70,8 +70,8 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         list: Resident,
         where: {
             id_in: residentsIds,
+            deletedAt: null,
         },
-        deletedAt: null,
     })
 
     // next step - connect residents to services consumers
@@ -86,7 +86,10 @@ const joinResidentsToMeters = async ({ context, meters }) => {
     const metersWithServiceConsumers = rightJoin(
         meters,
         servicesConsumerWithConnectedResidents,
-        (meter, item) => item.servicesConsumer.accountNumber === meter.accountNumber,
+        (meter, item) => (
+            item.servicesConsumer.accountNumber === meter.accountNumber &&
+            item.servicesConsumer.organization.id === meter.organization.id
+        ),
         (meter, servicesConsumers) => ({ meter, servicesConsumers })
     )
         .filter(item => item.servicesConsumers != null && item.servicesConsumers.length > 0)

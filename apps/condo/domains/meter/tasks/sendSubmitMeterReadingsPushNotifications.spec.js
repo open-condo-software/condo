@@ -11,7 +11,7 @@ const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/met
 const {
     MeterReadingSource,
     createTestMeterReading,
-    createTestMeterReportingPeriod, createTestMeter, MeterResource,
+    createTestMeterReportingPeriod, createTestMeter, MeterResource, Meter,
 } = require('@condo/domains/meter/utils/testSchema')
 const {
     METER_SUBMIT_READINGS_REMINDER_TYPE,
@@ -111,6 +111,37 @@ describe('Submit meter readings push notification', () => {
         const messages = await getNewMessages({
             userId: client.user.id,
             meterId: client.meter.id,
+        })
+        expect(messages).toHaveLength(0)
+    })
+
+    it('should not send messages for deleted meters', async () => {
+        // arrange
+        const client = await makeClientWithServiceConsumer()
+        const adminClient = await makeLoggedInAdminClient()
+        const { property, organization, serviceConsumer, resident } = client
+        const [resource] = await MeterResource.getAll(adminClient, {})
+
+        const [meter, attrs] = await createTestMeter(adminClient, organization, property, resource, {
+            accountNumber: serviceConsumer.accountNumber,
+            unitName: resident.unitName,
+            verificationDate: dayjs().add(-1, 'year').toISOString(),
+            nextVerificationDate: undefined,
+        })
+
+        await Meter.softDelete(adminClient, meter.id)
+
+        await createTestMeterReportingPeriod(adminClient, organization, {
+            notifyStartDay: 1,
+            notifyEndDay: Number(dayjs().format('DD')),
+        })
+        // act
+        await sendSubmitMeterReadingsPushNotifications()
+
+        // assert
+        const messages = await getNewMessages({
+            userId: client.user.id,
+            meterId: meter.id,
         })
         expect(messages).toHaveLength(0)
     })

@@ -25,7 +25,16 @@ const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
 const readMetersPage = async ({ context, offset, pageSize }) => {
     return await Meter.getAll(
-        context, { isAutomatic: false, deletedAt: null }, {
+        context, {
+            isAutomatic: false,
+            deletedAt: null,
+            organization: {
+                deletedAt: null,
+            },
+            property: {
+                deletedAt: null,
+            },
+        }, {
             sortBy: 'id_ASC',
             first: pageSize,
             skip: offset,
@@ -51,6 +60,7 @@ const readMeterReadings = async ({ context, meters }) => {
             date_lte: endWindowDate,
             meter: {
                 id_in: meterIds,
+                deletedAt: null,
             },
             deletedAt: null,
         },
