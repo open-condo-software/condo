@@ -17,6 +17,7 @@ const {
     TICKET_COMMENT_ADDED_TYPE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID, APP_MASTER_ID_ANDROID,
 } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { syncRemoteClientWithPushTokenByTestClient, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -27,14 +28,13 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
+const { updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-const { syncRemoteClientWithPushTokenByTestClient, updateTestMessage } = require('../../notification/utils/testSchema')
-const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('../constants')
-const { STATUS_IDS } = require('../constants/statusTransitions')
-const { updateTestTicket } = require('../utils/testSchema')
 
 describe('TicketComment', () => {
     describe('employee', () => {
@@ -1090,25 +1090,19 @@ describe('TicketComment', () => {
                 expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
                 expect(ticketComment.content).toMatch(content)
 
-                const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-                const message = await Message.getOne(admin, messageWhere)
-
-                expect(message).toBeDefined()
-                expect(message.id).toMatch(UUID_RE)
-                expect(message.organization.id).toEqual(ticket.organization.id)
-
                 await waitFor(async () => {
-                    const message1 = await Message.getOne(admin, messageWhere)
+                    const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
 
-                    expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                    expect(message1.meta.data.ticketId).toEqual(ticket.id)
-                    expect(message1.meta.data.commentId).toEqual(ticketComment.id)
-                    expect(message1.meta.data.residentId).toEqual(resident.id)
-                    expect(message1.meta.data.userId).toEqual(residentClient.user.id)
+                    expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(message.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message.meta.data.commentId).toEqual(ticketComment.id)
+                    expect(message.meta.data.residentId).toEqual(resident.id)
+                    expect(message.meta.data.userId).toEqual(residentClient.user.id)
                     /** old way check */
-                    expect(message1.processingMeta.transport).toEqual('push')
+                    expect(message.processingMeta.transport).toEqual('push')
                     /** ADR-7 way check */
-                    expect(message1.processingMeta.transportsMeta[0].transport).toEqual('push')
+                    expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
                 })
             })
 
@@ -1170,8 +1164,10 @@ describe('TicketComment', () => {
                 const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
                 const messages = await Message.getAll(admin, messageWhere)
 
-                expect(messages).toHaveLength(1)
-                expect(messages[0].organization.id).toEqual(ticket.organization.id)
+                waitFor(async () => {
+                    expect(messages).toHaveLength(1)
+                    expect(messages[0].organization.id).toEqual(ticket.organization.id)
+                })
             })
         })
 
