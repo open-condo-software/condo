@@ -90,6 +90,12 @@ export type BaseNewsFormProps = {
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const FLEX_START_STYLE: React.CSSProperties = { alignItems: 'flex-start' }
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
+const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
+const MARGIN_BOTTOM_38_STYLE: React.CSSProperties = { marginBottom: '38px' }
+const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
+const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
+const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
+const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
 const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
@@ -820,7 +826,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
                                             <Row>
-                                                <Col span={24} style={ { marginBottom: '32px' } }>
+                                                <Col span={24} style={MARGIN_BOTTOM_32_STYLE}>
                                                     <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
                                                         <Col span={24}>
                                                             <Typography.Title level={2}>
@@ -877,7 +883,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </Row>
                                                 </Col>
                                                 {templates && (
-                                                    <Row gutter={SMALL_VERTICAL_GUTTER} style={ { marginBottom: '38px' } }>
+                                                    <Row gutter={SMALL_VERTICAL_GUTTER} style={MARGIN_BOTTOM_38_STYLE}>
                                                         <Col span={24}>
                                                             <Typography.Title level={4}>
                                                                 {TemlatesLabel}
@@ -914,7 +920,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </Row>
                                                 )}
                                                 <Col span={24}>
-                                                    <Col span={24} style={ { marginBottom: '10px' } }>
+                                                    <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
                                                         <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
@@ -1047,7 +1053,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
                                             <Row>
-                                                <Col span={24} style={ { marginBottom: '24px' } }>
+                                                <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
                                                     <Typography.Title level={2}>
                                                         {SelectSendPeriodLabel} ({tzInfo})
                                                     </Typography.Title>
@@ -1066,7 +1072,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </Form.Item>
                                                 </Col>
                                                 {sendPeriod === 'later' && (
-                                                    <Col span={24} style={ { marginTop: '8px' } }>
+                                                    <Col span={24} style={MARGIN_TOP_8_STYLE}>
                                                         <Form.Item
                                                             label={SendAtLabel}
                                                             labelCol={FORM_FILED_COL_PROPS}
@@ -1112,7 +1118,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     </Row>
                                 </Col>
                                 {isFunction(ActionBar) && (
-                                    <Col span={24} style={ { marginTop: '44px' } }>
+                                    <Col span={24} style={MARGIN_TOP_44_STYLE}>
                                         <ActionBar
                                             handleSave={handleSave}
                                             isLoading={isLoading}
