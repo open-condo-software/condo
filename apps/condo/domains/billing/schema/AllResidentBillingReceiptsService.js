@@ -50,6 +50,12 @@ const getFile = (receipt, contacts) => {
     const file = propertyContacts.length > 0
         ? receipt.file.sensitiveDataFile
         : receipt.file.publicDataFile
+
+    // case when file url is omit in BillingReceiptFile
+    if (isNil(file)) {
+        return null
+    }
+
     const publicUrl = Adapter.publicUrl({ filename: file.filename })
 
     return {
