@@ -1444,7 +1444,7 @@
   "TicketAssignment": "Назначение заявки",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Фио Жителя",
-  "ticket.callRecord.attachCallRecordToTicket": "Вы можете прикрепить этот звонок к заявке",
+  "ticket.callRecord.attachCallRecordToTicket": "Прикрепить звонок",
   "ticket.callRecord.attachCallRecordToTicket.notification.message": "Звонок прикреплен к заявке",
   "ticket.callRecord.attachCallRecordToTicket.notification.description": "Запись разговора сохранена в карточке заявки",
   "ticket.callRecord.incomingCall": "Входящий звонок с номера {phone}",
