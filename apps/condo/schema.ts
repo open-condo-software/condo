@@ -34217,6 +34217,10 @@ export type Mutation = {
    * 			"url": {
    * 				"defaultValue": "",
    * 				"required": true
+   * 			},
+   * 			"organizationId": {
+   * 				"defaultValue": "",
+   * 				"required": true
    * 			}
    * 		}
    * 	},
@@ -34239,6 +34243,10 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"organizationId": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
