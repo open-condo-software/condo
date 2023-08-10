@@ -318,7 +318,7 @@ describe('NewsItemRecipientsExportTask', () => {
 
             expectDataFormat(data, [
                 [i18n('excelExport.sheetNames.newsRecipients', { locale }), '', ''],
-                ['Адрес', 'Квартира', 'Установлено мобильное приложение жителя'],
+                ['Адрес', 'Помещение', 'Установлено мобильное приложение жителя'],
                 ...(residentsData.map(residentData => [
                     property.address,
                     residentData.resident.unitName,
