@@ -84,17 +84,17 @@ export const MetersPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
-    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
-    const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
-    const OnlyLatestDescMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatestDescription' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const FiltersButtonLabel = intl.formatMessage({ id: 'FiltersLabel' })
-    const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
-    const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
-    const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
-    const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
-    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
+    const EmptyListLabel = intl.formatMessage({ id: 'meter.index.emptyList.header' })
+    const CreateMeter = intl.formatMessage({ id: 'meter.index.createMeterButtonLabel' })
+    const OnlyLatestMessage = intl.formatMessage({ id: 'meter.index.quickFilterOnlyLatest' })
+    const OnlyLatestDescMessage = intl.formatMessage({ id: 'meter.index.quickFilterOnlyLatestDescription' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const FiltersButtonLabel = intl.formatMessage({ id: 'filtersLabel' })
+    const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.meterReading.objectsName.many' })
+    const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.meterReading.objectsName.many.genitive' })
+    const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.meterAccountNumberExistInOtherUnit' })
+    const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.meterNumberExistInOrganization' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.clickOrDragImportFileHint' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -314,9 +314,9 @@ export const PropertyMetersPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
-    const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const EmptyListLabel = intl.formatMessage({ id: 'meter.index.emptyList.header' })
+    const CreateMeter = intl.formatMessage({ id: 'meter.index.createMeterButtonLabel' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -408,12 +408,12 @@ export const MeterReportingPeriodPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
-    const CreateReportingPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.EmptyList.create' })
-    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.update.ConfirmDeleteMessage' })
+    const EmptyListLabel = intl.formatMessage({ id: 'meter.index.emptyList.header' })
+    const CreateReportingPeriodLabel = intl.formatMessage({ id: 'meter.index.reportingPeriod.emptyList.create' })
+    const DeleteLabel = intl.formatMessage({ id: 'delete' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'meter.reportingPeriod.update.confirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'meter.reportingPeriod.update.confirmDeleteMessage' })
 
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
@@ -440,7 +440,7 @@ export const MeterReportingPeriodPageContent = ({
             else defaultPeriod.current = period
         }))
     }, [reportingPeriods])
-    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { notifyStartDay: get(defaultPeriod, 'current.notifyStartDay'), notifyEndDay: get(defaultPeriod, 'current.notifyEndDay') })
+    const DefaultPeriodMessage = intl.formatMessage({ id: 'meter.index.reportingPeriod.defaultPeriod' }, { notifyStartDay: get(defaultPeriod, 'current.notifyStartDay'), notifyEndDay: get(defaultPeriod, 'current.notifyEndDay') })
 
     const [search, handleSearchChange, handleSearchReset] = useSearch()
     const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading
@@ -598,10 +598,10 @@ const sortableProperties = ['date', 'clientName', 'source']
 
 const MetersPage: IMeterIndexPage = () => {
     const intl = useIntl()
-    const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
-    const MeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.meterTab' })
-    const PropertyMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.index.propertyMeterTab' })
-    const ReportingPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriodTab' })
+    const PageTitleMessage = intl.formatMessage({ id: 'meter.index.pageTitle' })
+    const MeterMessage = intl.formatMessage({ id: 'meter.index.meterTab' })
+    const PropertyMeterMessage = intl.formatMessage({ id: 'meter.index.propertyMeterTab' })
+    const ReportingPeriodMessage = intl.formatMessage({ id: 'meter.index.reportingPeriodTab' })
 
     const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = get(organization, 'id')

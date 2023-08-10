@@ -21,7 +21,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const intl = useIntl()
     const FallbackPageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
     const SupportNotAllowedMessage = intl.formatMessage({ id: 'miniapp.supportIsNotAllowed' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const LoadingMessage = intl.formatMessage({ id: 'loading' })
 
     const router = useRouter()
     const auth = useAuth()
