@@ -56,6 +56,7 @@ const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
+const {getTracer} = require("./tracing");
 
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const METRIC_PREFIX = 'adapterCache'
@@ -92,6 +93,8 @@ class AdapterCache {
             this.maxCacheKeys = maxCacheKeys || 1000
 
             this.logging = !!logging
+
+            this.tracing = true
 
             // Stats
             this.logStatsEachSecs = logStatsEachSecs || 60

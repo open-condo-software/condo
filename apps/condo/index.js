@@ -15,7 +15,6 @@ const { HealthCheck, getRedisHealthCheck, getPostgresHealthCheck } = require('@o
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const metrics = require('@open-condo/keystone/metrics')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
-const { TracingMiddleware } = require('@open-condo/keystone/tracing')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
@@ -23,6 +22,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
+const {TracingMiddleware} = require("@open-condo/keystone/tracing");
 
 dayjs.extend(duration)
 dayjs.extend(utc)
@@ -45,10 +45,10 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     })
 }
 
-// Enable Open telemetry tracing
-// if (IS_ENABLE_GRAFANA_TRACE && !IS_BUILD_PHASE) {
-//     require('@open-condo/keystone/tracing').init()
-// }
+//Enable Open telemetry tracing
+if (IS_ENABLE_GRAFANA_TRACE && !IS_BUILD_PHASE) {
+    require('@open-condo/keystone/tracing').init()
+}
 
 if (!IS_BUILD_PHASE) {
     setInterval(() => {
