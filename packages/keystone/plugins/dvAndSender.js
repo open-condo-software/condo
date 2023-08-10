@@ -74,7 +74,7 @@ const dvAndSender = () => plugin(({ fields = {}, hooks = {}, ...rest }) => {
     fields[senderField] = {
         type: Json,
         schemaDoc: 'Client-side device identification used for the anti-fraud detection. ' +
-            'Example `{ dv: 1, fingerprint: \'VaxSw2aXZa\'}`. ' +
+            'Example `{ "dv": 1, "fingerprint": "ExF1n6eRAz" }`. ' +
             'Where the `fingerprint` should be the same for the same devices and it\'s not linked to the user ID. ' +
             'It\'s the device ID like browser / mobile application / remote system',
         graphQLInputType: 'SenderFieldInput',
