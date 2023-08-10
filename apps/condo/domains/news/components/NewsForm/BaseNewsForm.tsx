@@ -87,6 +87,7 @@ export type BaseNewsFormProps = {
     actionName: ActionNameProps,
 }
 
+//TODO(DOMA-6846) wrap form label with 0 margin and use default spacing (details in 6613 pr)
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
 const FLEX_START_STYLE: React.CSSProperties = { alignItems: 'flex-start' }
 const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
