@@ -83,7 +83,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }
 
                 // Filter by acquiring context
-                const organizationsIdsWithAcquiringContext = new Set()
+                /** @type {Object<string, string[]>} */
+                let organizationsToAcquiringContextsMap = {}
                 await loadListByChunks({
                     context,
                     list: AcquiringIntegrationContext,
@@ -95,13 +96,21 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     },
                     chunkProcessor: (chunk) => {
                         chunk.forEach((row) => {
-                            organizationsIdsWithAcquiringContext.add(get(row, ['organization', 'id']))
+                            const organizationId = get(row, ['organization', 'id'])
+                            const acquiringContextId = get(row, 'id')
+                            organizationsToAcquiringContextsMap = {
+                                ...organizationsToAcquiringContextsMap,
+                                [organizationId]: [
+                                    ...(organizationsToAcquiringContextsMap[organizationId] || []),
+                                    acquiringContextId,
+                                ],
+                            }
                         })
                         return []
                     },
                 })
 
-                items = items.filter((item) => organizationsIdsWithAcquiringContext.has(item.organizationId))
+                items = items.filter((item) => !!get(organizationsToAcquiringContextsMap, item.organizationId))
 
                 // Filter by property
                 const organizationsIdsWithProperties = new Set()
@@ -154,19 +163,23 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }))
                 const definedCombinations = combinations.filter(Boolean)
                 const createdServiceConsumers = await Promise.all(
-                    definedCombinations.map(([resident, account]) => ServiceConsumer.create(context, {
-                        dv,
-                        sender,
-                        resident: { connect: { id: resident.id } },
-                        organization: { connect: { id: get(account, ['context', 'organization', 'id'], null) } },
-                        billingIntegrationContext: { connect: { id: get(account, ['context', 'id'], null) } },
-                        accountNumber: account.number,
-                        isDiscovered: true,
+                    definedCombinations.map(([resident, account]) => {
+                        const organizationId = get(account, ['context', 'organization', 'id'], null)
+                        const billingContextId = get(account, ['context', 'id'], null)
+                        const [acquiringContextId] = get(organizationsToAcquiringContextsMap, organizationId, [null])
 
-                        // fill the deprecated field for backward compatibility
-                        // See apps/condo/domains/billing/schema/AllResidentBillingReceiptsService.js:74)
-                        billingAccount: { connect: { id: account.id } },
-                    })),
+                        return ServiceConsumer.create(context, {
+                            dv,
+                            sender,
+                            resident: { connect: { id: resident.id } },
+                            accountNumber: account.number,
+                            organization: { connect: { id: organizationId } },
+                            billingAccount: { connect: { id: account.id } },
+                            billingIntegrationContext: billingContextId ? { connect: { id: billingContextId } } : null,
+                            acquiringIntegrationContext: acquiringContextId ? { connect: { id: acquiringContextId } } : null,
+                            isDiscovered: true,
+                        })
+                    }),
                 )
 
                 const statistics = {

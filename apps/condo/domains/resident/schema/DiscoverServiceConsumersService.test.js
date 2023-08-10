@@ -187,11 +187,11 @@ describe('DiscoverServiceConsumersService', () => {
         test('discover multiple service consumers for specific resident', async () => {
             const user = await makeClientWithProperty()
 
-            await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const { acquiringIntegrationContext: acquiringIntegrationContext1 } = await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
             const { billingIntegrationContext: billingIntegrationContext1 } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
             const [organization] = await createTestOrganization(admin)
-            await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const { acquiringIntegrationContext: acquiringIntegrationContext2 } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
             const { billingIntegrationContext: billingIntegrationContext2 } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
             const [billingProperty1] = await createTestBillingProperty(admin, billingIntegrationContext1, { address: user.property.address })
@@ -251,12 +251,14 @@ describe('DiscoverServiceConsumersService', () => {
                     resident: expect.objectContaining({ id: resident1.id }),
                     organization: expect.objectContaining({ id: user.organization.id }),
                     accountNumber: billingAccount1.number,
+                    residentAcquiringIntegrationContext: expect.objectContaining({ id: acquiringIntegrationContext1.id }),
                     isDiscovered: true,
                 }),
                 expect.objectContaining({
                     resident: expect.objectContaining({ id: resident1.id }),
                     organization: expect.objectContaining({ id: organization.id }),
                     accountNumber: billingAccount2.number,
+                    residentAcquiringIntegrationContext: expect.objectContaining({ id: acquiringIntegrationContext2.id }),
                     isDiscovered: true,
                 }),
             ]))
