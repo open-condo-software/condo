@@ -16,7 +16,7 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
     fields: {
         user: SERVICE_USER_FIELD,
         app: {
-            schemaDoc: 'Link to B2BApp.accessRights',
+            schemaDoc: 'Link to B2СApp.accessRights',
             type: Relationship,
             ref: 'B2CApp.accessRights',
             isRequired: true,
