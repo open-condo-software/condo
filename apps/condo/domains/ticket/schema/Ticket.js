@@ -884,6 +884,8 @@ const Ticket = new GQLListSchema('Ticket', {
              */
             const { property, unitName, sectionName, sectionType, unitType, floorName, classifier } = Ticket.schema.fields
 
+            const [requestData] = args
+
             await storeChangesIfUpdated(
                 buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
                 createTicketChange,
@@ -894,8 +896,6 @@ const Ticket = new GQLListSchema('Ticket', {
                     { classifier },
                 ]
             )(...args)
-
-            const [requestData] = args
 
             await manageAssigneeScope(...args)
 

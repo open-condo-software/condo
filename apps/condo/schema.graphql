@@ -23525,6 +23525,10 @@ type TicketChange {
   sourceDisplayNameTo: String
   sourceDisplayNameToNonLocalized: String
 
+  """ Actual creation ticket change date, for case when ticket updated from offline 
+  """
+  actualCreationDate: String
+
   """ Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee 
   """
   changedByRole: String
@@ -24574,6 +24578,14 @@ input TicketChangeWhereInput {
   sourceDisplayNameTo_not_ends_with_i: String
   sourceDisplayNameTo_in: [String]
   sourceDisplayNameTo_not_in: [String]
+  actualCreationDate: String
+  actualCreationDate_not: String
+  actualCreationDate_lt: String
+  actualCreationDate_lte: String
+  actualCreationDate_gt: String
+  actualCreationDate_gte: String
+  actualCreationDate_in: [String]
+  actualCreationDate_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -24807,6 +24819,8 @@ enum SortTicketChangesBy {
   sourceDisplayNameFrom_DESC
   sourceDisplayNameTo_ASC
   sourceDisplayNameTo_DESC
+  actualCreationDate_ASC
+  actualCreationDate_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -24925,6 +24939,7 @@ input TicketChangeUpdateInput {
   sourceIdTo: ID
   sourceDisplayNameFrom: String
   sourceDisplayNameTo: String
+  actualCreationDate: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -25041,6 +25056,7 @@ input TicketChangeCreateInput {
   sourceIdTo: ID
   sourceDisplayNameFrom: String
   sourceDisplayNameTo: String
+  actualCreationDate: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64297,6 +64313,13 @@ input PredictTicketClassificationInput {
   details: String!
 }
 
+input TicketMultipleUpdateInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  id: ID!
+  data: [TicketUpdateInput]!
+}
+
 enum SendMessageLang {
   ru
   en
@@ -73254,6 +73277,7 @@ type Mutation {
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
+  ticketMultipleUpdate(data: TicketMultipleUpdateInput!): Ticket!
 
   """
   Sends message of specified type to specified contact

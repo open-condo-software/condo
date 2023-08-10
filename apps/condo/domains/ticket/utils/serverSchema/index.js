@@ -38,6 +38,7 @@ const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ti
 const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
 const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
+const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Ticket = generateServerUtils(TicketGQL)
@@ -87,6 +88,19 @@ const UserFavoriteTicket = generateServerUtils(UserFavoriteTicketGQL)
 const IncidentExportTask = generateServerUtils(IncidentExportTaskGQL)
 const CallRecord = generateServerUtils(CallRecordGQL)
 const CallRecordFragment = generateServerUtils(CallRecordFragmentGQL)
+async function ticketMultipleUpdate (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: TICKET_MULTIPLE_UPDATE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to ticketMultipleUpdate',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -313,5 +327,6 @@ module.exports = {
     IncidentExportTask,
     CallRecord,
     CallRecordFragment,
+    ticketMultipleUpdate,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

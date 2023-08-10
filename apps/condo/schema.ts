@@ -34005,6 +34005,7 @@ export type Mutation = {
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
+  ticketMultipleUpdate: Ticket;
   /**
    * Sends message of specified type to specified contact
    *
@@ -42613,6 +42614,11 @@ export type MutationCreateBankAccountRequestArgs = {
 
 export type MutationShareTicketArgs = {
   data: ShareTicketInput;
+};
+
+
+export type MutationTicketMultipleUpdateArgs = {
+  data: TicketMultipleUpdateInput;
 };
 
 
@@ -70212,6 +70218,8 @@ export enum SortTicketChangesBy {
   SourceDisplayNameFromDesc = 'sourceDisplayNameFrom_DESC',
   SourceDisplayNameToAsc = 'sourceDisplayNameTo_ASC',
   SourceDisplayNameToDesc = 'sourceDisplayNameTo_DESC',
+  ActualCreationDateAsc = 'actualCreationDate_ASC',
+  ActualCreationDateDesc = 'actualCreationDate_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -72200,6 +72208,8 @@ export type TicketChange = {
   /**  New display name of related entity. Ticket source channel/system. Examples: call, email, visit, ...  */
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
   sourceDisplayNameToNonLocalized?: Maybe<Scalars['String']>;
+  /**  Actual creation ticket change date, for case when ticket updated from offline  */
+  actualCreationDate?: Maybe<Scalars['String']>;
   /**  Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -72318,6 +72328,7 @@ export type TicketChangeCreateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
+  actualCreationDate?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -72463,6 +72474,7 @@ export type TicketChangeUpdateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
+  actualCreationDate?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -73497,6 +73509,14 @@ export type TicketChangeWhereInput = {
   sourceDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   sourceDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sourceDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  actualCreationDate?: Maybe<Scalars['String']>;
+  actualCreationDate_not?: Maybe<Scalars['String']>;
+  actualCreationDate_lt?: Maybe<Scalars['String']>;
+  actualCreationDate_lte?: Maybe<Scalars['String']>;
+  actualCreationDate_gt?: Maybe<Scalars['String']>;
+  actualCreationDate_gte?: Maybe<Scalars['String']>;
+  actualCreationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  actualCreationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -77148,6 +77168,13 @@ export type TicketLabel = {
   label: Scalars['String'];
   color: Scalars['String'];
   value: Scalars['String'];
+};
+
+export type TicketMultipleUpdateInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  id: Scalars['ID'];
+  data: Array<Maybe<TicketUpdateInput>>;
 };
 
 /**  Ticket settings rules for each organization. (Setting the "deadline" fields for each ticket type)  */
