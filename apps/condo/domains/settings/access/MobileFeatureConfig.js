@@ -18,12 +18,15 @@ async function canReadMobileFeatureConfigs ({ authentication: { item: user } }) 
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { user: { id: user.id } })
+        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
         const organizations = uniq(map(residents, 'organization'))
 
         if (residents.length > 0) {
             return {
-                organization: { id_in: organizations },
+                organization: {
+                    id_in: organizations,
+                    deletedAt: null,
+                },
                 deletedAt: null,
             }
         }
@@ -52,7 +55,7 @@ async function canManageMobileFeatureConfigs (attrs) {
         organizationId = get(originalInput, 'organization.connect.id')
     }
     if ( operation === 'update') {
-        if (!itemId) throw new Error('no itemId')
+        if (!itemId) return false
 
         const foundConfig = await getById('MobileFeatureConfig', itemId)
         if (!foundConfig) return false

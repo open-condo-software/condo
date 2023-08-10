@@ -8,6 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { Loader } from '@condo/domains/common/components/Loader'
 import {
     OnlyProgressionMeterReadingsForm,
 } from '@condo/domains/settings/components/ticketSubmitting/OnlyProgressionMeterReadingsForm'
@@ -20,14 +21,14 @@ const OnlyProgressionMeterReadingsContent: React.FC = () => {
     const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig.OnlyProgressionMeterReadings.title' })
     
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationId = get(userOrganization, ['organization', 'id'], null)
 
     const { obj: mobileConfig, loading } = MobileFeatureConfig.useObject({
         where: {
             organization: { id: userOrganizationId },
         },
     })
-    return !loading && (
+    return loading ? <Loader fill size='small'/> : (
         <>
             <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
             <Row gutter={ROW_GUTTER}>

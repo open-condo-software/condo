@@ -8,7 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { CardsContainer } from '@condo/domains/common/components/Card/CardsContainer'
 import { SettingCardSkeleton } from '@condo/domains/common/components/settings/SettingCard'
-import { MOBILE_FEATURE_CONFIGURATION, TICKET_SUBMITTING_SETTING, ONLY_PROGRESSION_METER_READINGS_SETTING } from '@condo/domains/common/constants/featureflags'
+import { MOBILE_FEATURE_CONFIGURATION, TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP, SUBMIT_ONLY_PROGRESSION_METER_READINGS } from '@condo/domains/common/constants/featureflags'
 import {
     OnlyProgressionMeterReadingsSettingCard,
 } from '@condo/domains/settings/components/ticketSubmitting/OnlyProgressionMeterReadingsSettingCard'
@@ -19,7 +19,7 @@ const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 
 export const MobileFeatureConfigContent: React.FC = () => {
     const userOrganization = useOrganization()
-    const userOrganizationId = get(userOrganization, ['organization', 'id'])
+    const userOrganizationId = get(userOrganization, ['organization', 'id'], null)
     const { obj: mobileConfig, loading } = MobileFeatureConfigAPI.useObject({
         where: {
             organization: { id: userOrganizationId },
@@ -27,8 +27,8 @@ export const MobileFeatureConfigContent: React.FC = () => {
     })
     const { useFlag } = useFeatureFlags()
     const hasMobileFeatureConfigurationFeature = useFlag(MOBILE_FEATURE_CONFIGURATION)
-    const hasTicketSubmittingSettingFeature = useFlag(TICKET_SUBMITTING_SETTING)
-    const hasOnlyProgressionMeterReadingsSettingFeature = useFlag(ONLY_PROGRESSION_METER_READINGS_SETTING)
+    const hasTicketSubmittingSettingFeature = useFlag(TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP)
+    const hasOnlyProgressionMeterReadingsSettingFeature = useFlag(SUBMIT_ONLY_PROGRESSION_METER_READINGS)
 
     if (!hasMobileFeatureConfigurationFeature) {
         return null

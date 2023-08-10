@@ -50,7 +50,6 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
     const MessageAboutFeat = intl.formatMessage({ id: 'pages.condo.settings.mobileFeatureConfig.submittingPeriod.messageAboutFeat' })
 
     const router = useRouter()
-    const [commonPhone, setCommonPhone] = useState<string>(get(mobileConfig, 'commonPhone'))
 
     const initialValues = {
         commonPhone: get(mobileConfig, 'commonPhone'),
@@ -95,10 +94,6 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                         >
                                             <PhoneInput
                                                 placeholder={ExamplePhoneMessage}
-                                                value={commonPhone}
-                                                onChange={(value) => {
-                                                    setCommonPhone(value)
-                                                }}
                                                 block
                                             />
                                         </Form.Item>
@@ -168,5 +163,5 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                 </Row>
             )}
         </FormWithAction>
-    ), [action, commonPhone, mobileConfig])
+    ), [action, mobileConfig])
 }

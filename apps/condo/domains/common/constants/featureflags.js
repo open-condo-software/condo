@@ -13,8 +13,8 @@ const SERVICE_PROVIDER_PROFILE = 'service-provider-profile'
 const SHOW_ORGANIZATION_TYPES = 'show-organization-types'
 const ENABLE_DISCOVER_SERVICE_CONSUMERS = 'enable-discover-service-consumers'
 const MOBILE_FEATURE_CONFIGURATION = 'mobile-feature-configuration'
-const TICKET_SUBMITTING_SETTING = 'ticket-submitting-from-resident-mobile-app'
-const ONLY_PROGRESSION_METER_READINGS_SETTING = 'submit-only-progression-meter-readings'
+const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resident-mobile-app'
+const SUBMIT_ONLY_PROGRESSION_METER_READINGS = 'submit-only-progression-meter-readings'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -32,6 +32,6 @@ module.exports = {
     SHOW_ORGANIZATION_TYPES,
     ENABLE_DISCOVER_SERVICE_CONSUMERS,
     MOBILE_FEATURE_CONFIGURATION,
-    TICKET_SUBMITTING_SETTING,
-    ONLY_PROGRESSION_METER_READINGS_SETTING,
+    TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP,
+    SUBMIT_ONLY_PROGRESSION_METER_READINGS,
 }

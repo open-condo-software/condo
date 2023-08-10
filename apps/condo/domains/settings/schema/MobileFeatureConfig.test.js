@@ -260,8 +260,8 @@ describe('MobileFeatureConfig', () => {
                     }),
                     {
                         code: 'BAD_USER_INPUT',
-                        type: 'COMMON_PHONE_NOT_CONFIGURED',
-                        message: 'commonPhone is invalid',
+                        type: 'WRONG_PHONE_FORMAT',
+                        message: 'Wrong phone number format',
                     })
             })
         })

@@ -9,6 +9,7 @@ const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/settings/access/MobileFeatureConfig')
 const { ticketSubmittingValidations } = require('@condo/domains/settings/utils/MobileFeatureConfigSchemaValidations')
@@ -18,6 +19,7 @@ const { ticketSubmittingValidations } = require('@condo/domains/settings/utils/M
 const ERRORS = {
     TICKET_SUBMITTING_PHONES_NOT_CONFIGURED: {
         code: BAD_USER_INPUT,
+        variable: ['data', 'commonPhone'],
         type: 'TICKET_SUBMITTING_PHONES_NOT_CONFIGURED',
         message: 'commonPhone field not specified',
         messageForUser: 'api.organization.MobileFeatureConfig.TICKET_SUBMITTING_PHONES_NOT_CONFIGURED',
@@ -45,8 +47,8 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
         organization: ORGANIZATION_OWNED_FIELD,
 
         commonPhone: {
+            ...PHONE_FIELD,
             schemaDoc: 'Phone number where the organization wants to receive common calls',
-            type: Text,
         },
 
         ticketSubmittingIsDisabled: {
@@ -86,8 +88,8 @@ const MobileFeatureConfig = new GQLListSchema('MobileFeatureConfig', {
         ],
     },
     hooks: {
-        validateInput: async ({ resolvedData, context }) => {
-            await ticketSubmittingValidations(resolvedData, context, ERRORS)
+        validateInput: async ({ resolvedData, context, existingItem }) => {
+            await ticketSubmittingValidations(resolvedData, context, existingItem, ERRORS)
         },
     },
 })
