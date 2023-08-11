@@ -17,11 +17,9 @@ const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 const CREATE_RESIDENT_VISIBLE_COMMENT_BY_STAFF_TYPE = 'CREATE_RESIDENT_VISIBLE_COMMENT_BY_STAFF'
 const CREATE_RESIDENT_COMMENT_BY_RESIDENT_TYPE = 'CREATE_RESIDENT_COMMENT_BY_RESIDENT'
 
-const detectTicketCommentEventTypes = async ({ operation, updatedItem, ticket }) => {
+const detectTicketCommentEventTypes = async ({ operation, createdById, commentType, ticket }) => {
     const isCreateOperation = operation === 'create'
-    const createdById = get(updatedItem, 'createdBy')
     const canReadByResident = get(ticket, 'canReadByResident')
-    const commentType = get(updatedItem, 'type')
     const isResidentComment = commentType === RESIDENT_COMMENT_TYPE
     const isCreateResidentCommentOperation = isCreateOperation && isResidentComment
 
@@ -41,11 +39,11 @@ const detectTicketCommentEventTypes = async ({ operation, updatedItem, ticket })
 /**
  * Sends notifications after ticket comment created
  */
-const sendTicketCommentNotifications = async ({ operation, updatedItem }) => {
+const sendTicketCommentNotifications = async ({ operation, ticketId, createdById, commentId, commentType, sender }) => {
     const { keystone: context } = await getSchemaCtx('TicketComment')
 
-    const ticket = await Ticket.getOne(context, { id: updatedItem.ticket })
-    const eventTypes = await detectTicketCommentEventTypes({ operation, updatedItem, ticket })
+    const ticket = await Ticket.getOne(context, { id: ticketId })
+    const eventTypes = await detectTicketCommentEventTypes({ operation, createdById, commentType, ticket })
     const clientId = get(ticket, 'client.id')
     const organizationId = get(ticket, 'organization.id')
     const propertyId = get(ticket, 'property.id')
@@ -82,12 +80,13 @@ const sendTicketCommentNotifications = async ({ operation, updatedItem }) => {
                     ticketId: ticket.id,
                     ticketNumber: ticket.number,
                     userId: clientId,
-                    commentId: updatedItem.id,
+                    commentId,
                     url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
                     residentId: get(resident, 'id', null),
+                    organizationId: organization.id,
                 },
             },
-            sender: updatedItem.sender,
+            sender,
             organization: { id: organization.id },
         })
     }
@@ -108,12 +107,13 @@ const sendTicketCommentNotifications = async ({ operation, updatedItem }) => {
                         ticketId: ticket.id,
                         ticketNumber: ticket.number,
                         userId: userId,
-                        commentId: updatedItem.id,
+                        commentId,
                         url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
                         residentId: get(resident, 'id', null),
+                        organizationId: organization.id,
                     },
                 },
-                sender: updatedItem.sender,
+                sender,
                 organization: { id: organization.id },
             })
         }
