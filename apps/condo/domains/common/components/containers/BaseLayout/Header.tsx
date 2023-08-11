@@ -49,7 +49,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
             ? (
                 <Layout.Header className='header mobile-header'>
                     <div className='context-bar'>
-                        <Space direction='horizontal' size={12}>
+                        <Space direction='horizontal' size={4}>
                             <SBBOLIndicator organization={organization} />
                             <InlineOrganizationSelect/>
                         </Space>
