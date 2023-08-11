@@ -244,9 +244,9 @@ export const getUnitNameRender = <T extends Record<string, unknown>>(intl, text:
     const unitType = get(record, 'unitType', BuildingUnitSubType.Flat)
 
     if (text) {
-        extraTitle = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+        extraTitle = intl.formatMessage({ id: `ticket.field.unitType.${unitType}` })
         if (unitType !== BuildingUnitSubType.Flat) {
-            unitNamePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.prefix.${unitType}` })
+            unitNamePrefix = intl.formatMessage({ id: `ticket.field.unitType.prefix.${unitType}` })
         }
     }
 

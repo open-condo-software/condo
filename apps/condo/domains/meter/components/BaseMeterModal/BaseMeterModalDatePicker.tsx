@@ -38,7 +38,7 @@ export const MeterModalDatePicker: React.FC<ICreateMeterModalDatePickerProps> = 
     validateFirst = false,
 }) => {
     const intl = useIntl()
-    const EnterDatePlaceHolder = intl.formatMessage({ id: 'EnterDate' })
+    const EnterDatePlaceHolder = intl.formatMessage({ id: 'enterDate' })
 
     const dayjsInitialValue = dayjs(initialValue)
     const initialDateValue = initialValue && dayjsInitialValue.isValid() ? dayjsInitialValue : null

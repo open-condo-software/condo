@@ -91,7 +91,7 @@ interface IResidentActionsProps {
 
 export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     const intl = useIntl()
-    const ResidentAppealMessage = intl.formatMessage({ id: 'ResidentAppeal' })
+    const ResidentAppealMessage = intl.formatMessage({ id: 'residentAppeal' })
 
     const { minified } = props
     const { organization, link } = useOrganization()

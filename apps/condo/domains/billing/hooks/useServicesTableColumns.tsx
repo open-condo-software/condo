@@ -44,15 +44,15 @@ const getAdvancedMoneyRender = (intl, currencyCode: string) => {
 
 export const useServicesTableColumns = (detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
-    const ToPayTitle = intl.formatMessage({ id: 'field.TotalCharged' })
-    const ServiceTitle = intl.formatMessage({ id: 'BillingServiceName' })
-    const ChargeTitle = intl.formatMessage({ id: 'Charged' })
-    const VolumeTitle = intl.formatMessage({ id: 'Volume' })
-    const UnitsTitle = intl.formatMessage({ id: 'ServicesUnitsShort' })
-    const TariffTitle = intl.formatMessage({ id: 'Tariff' })
-    const PrivilegesTitle = intl.formatMessage({ id: 'Privileges' })
-    const RecalculationTitle = intl.formatMessage({ id: 'Recalculation' })
-    const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
+    const ToPayTitle = intl.formatMessage({ id: 'field.totalCharged' })
+    const ServiceTitle = intl.formatMessage({ id: 'billingServiceName' })
+    const ChargeTitle = intl.formatMessage({ id: 'charged' })
+    const VolumeTitle = intl.formatMessage({ id: 'volume' })
+    const UnitsTitle = intl.formatMessage({ id: 'servicesUnitsShort' })
+    const TariffTitle = intl.formatMessage({ id: 'tariff' })
+    const PrivilegesTitle = intl.formatMessage({ id: 'privileges' })
+    const RecalculationTitle = intl.formatMessage({ id: 'recalculation' })
+    const PenaltyTitle = intl.formatMessage({ id: 'paymentPenalty' })
 
 
     const moneyRender = getAdvancedMoneyRender(intl, currencyCode)

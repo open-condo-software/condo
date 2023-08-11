@@ -6,8 +6,8 @@ import { useIntl } from '@open-condo/next/intl'
 
 export const useNotificationMessages = () => {
     const intl = useIntl()
-    const ChangesSavedMessage = intl.formatMessage({ id: 'ChangesSaved' })
-    const ReadyMessage = intl.formatMessage({ id: 'Ready' })
+    const ChangesSavedMessage = intl.formatMessage({ id: 'changesSaved' })
+    const ReadyMessage = intl.formatMessage({ id: 'ready' })
 
     const getSuccessfulChangeNotification = useCallback(() => ({
         message: <Typography.Text strong>{ReadyMessage}</Typography.Text>,

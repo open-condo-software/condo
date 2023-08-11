@@ -21,8 +21,8 @@ export const MainContent: React.FC<MainContentProps> = ({
     uploadComponent,
 }) => {
     const intl = useIntl()
-    const AccrualsTabTitle = intl.formatMessage({ id: 'Accruals' })
-    const PaymentsTabTitle = intl.formatMessage({ id: 'Payments' })
+    const AccrualsTabTitle = intl.formatMessage({ id: 'accruals' })
+    const PaymentsTabTitle = intl.formatMessage({ id: 'payments' })
 
     const { billingContext } = useBillingAndAcquiringContexts()
     const appUrl = get(billingContext, ['integration', 'appUrl'])

@@ -157,8 +157,8 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     } = props
 
     const intl = useIntl()
-    const IncludingFeeMessage = intl.formatMessage({ id: 'IncludingFee' })
-    const IncludingServiceChargeMessage = intl.formatMessage({ id: 'IncludingServiceCharge' })
+    const IncludingFeeMessage = intl.formatMessage({ id: 'includingFee' })
+    const IncludingServiceChargeMessage = intl.formatMessage({ id: 'includingServiceCharge' })
 
     const moneyAmount = intl.formatNumber(amountWithExplicits, {
         style: 'currency',
@@ -177,12 +177,12 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     const isPositiveFee = Big(explicitFee || '0').gt(0)
     const isPositiveCharge = Big(explicitServiceCharge || '0').gt(0)
 
-    let statusMessage = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
+    let statusMessage = intl.formatMessage({ id: 'multiPayment.status.DONE' })
     if (status === MULTIPAYMENT_PROCESSING_STATUS || status === MULTIPAYMENT_WITHDRAWN_STATUS) {
         // NOTE: LOGICAL "WITHDRAWN" = UI "PROCESSING"
-        statusMessage = intl.formatMessage({ id: 'MultiPayment.status.PROCESSING' })
+        statusMessage = intl.formatMessage({ id: 'multiPayment.status.PROCESSING' })
     } else if (status === MULTIPAYMENT_ERROR_STATUS) {
-        statusMessage = intl.formatMessage({ id: 'MultiPayment.status.ERROR' })
+        statusMessage = intl.formatMessage({ id: 'multiPayment.status.ERROR' })
     }
     let statusColor = STATUS_SUCCESS_COLOR
     if (status === MULTIPAYMENT_PROCESSING_STATUS || status === MULTIPAYMENT_WITHDRAWN_STATUS) {

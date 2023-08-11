@@ -15,9 +15,9 @@ import { useCurrentBuild } from './useCurrentBuild'
  */
 export function useHotCodeReload (): void {
     const intl = useIntl()
-    const NotificationTitle = intl.formatMessage({ id: 'HotCodeReload.title' })
-    const NotificationMessage = intl.formatMessage({ id: 'HotCodeReload.message' })
-    const ButtonLabel = intl.formatMessage({ id: 'HotCodeReload.action' })
+    const NotificationTitle = intl.formatMessage({ id: 'hotCodeReload.title' })
+    const NotificationMessage = intl.formatMessage({ id: 'hotCodeReload.message' })
+    const ButtonLabel = intl.formatMessage({ id: 'hotCodeReload.action' })
 
     const buildId = useCurrentBuild()
     const previousBuildId = usePrevious<string>(buildId)

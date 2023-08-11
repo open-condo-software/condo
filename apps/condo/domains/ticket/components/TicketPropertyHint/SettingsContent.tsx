@@ -42,9 +42,9 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 export const SettingsContent = () => {
     const intl = useIntl()
-    const TicketPropertyHintTitle = intl.formatMessage({ id: 'Hint' })
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const CreateHintMessage = intl.formatMessage({ id: 'pages.condo.settings.hint.createTicketPropertyHint' })
+    const TicketPropertyHintTitle = intl.formatMessage({ id: 'hint' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const CreateHintMessage = intl.formatMessage({ id: 'settings.hint.createTicketPropertyHint' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])

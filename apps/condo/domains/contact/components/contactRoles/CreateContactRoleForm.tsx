@@ -11,7 +11,7 @@ import { BaseContactRoleForm } from './BaseContactRoleForm'
 
 export const CreateContactRoleForm = () => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
 
     const { organization } = useOrganization()
     const action = ContactRole.useCreate({ organization: { connect: { id: organization.id } } })

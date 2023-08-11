@@ -16,7 +16,7 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
 const UpdatePropertyScopePage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.editPropertyScope' })
+    const PageTitleMsg = intl.formatMessage({ id: 'settings.propertyScope.form.editPropertyScope' })
 
     const { query } = useRouter()
 

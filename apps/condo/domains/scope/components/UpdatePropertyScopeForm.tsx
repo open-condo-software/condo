@@ -15,7 +15,7 @@ import { BasePropertyScopeForm } from './BasePropertyScopeForm'
 
 export const UpdatePropertyScopeForm = ({ id }) => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
 
     const { obj: propertyScope, loading: scopeLoading } = PropertyScope.useObject({ where: { id } })
     const propertyScopeId = get(propertyScope, 'id', null)

@@ -17,7 +17,7 @@ interface IPageWithHeaderAction extends React.FC {
 
 const CreateEmployeePage: IPageWithHeaderAction = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'employee.AddEmployee' })
+    const PageTitleMsg = intl.formatMessage({ id: 'employee.addEmployee' })
         
     return (
         <>

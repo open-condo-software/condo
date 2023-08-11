@@ -59,33 +59,35 @@ const langDir = path.join(root, 'lang')
 const translations = []
 
 fs.readdirSync(langDir).map(folderName => {
-    const fileName = `${folderName}/${folderName}.json`
     const lang = folderName
-    const filePath = `${langDir}/${fileName}`
-    console.log(`Load file ${filePath}`)
 
-    let data
-    try {
-        data = fs.readFileSync(filePath, 'utf8')
-    } catch (e) {
-        console.log(`Error reading file "${fileName}"`)
-        console.error(e)
-        process.exit(1)
-    }
-    if (!data) {
-        console.error(`Loaded file "${fileName}" seems to be empty`)
-        process.exit(1)
-        return
-    }
-    let parsedData
-    try {
-        parsedData = JSON.parse(data)
-    } catch (e) {
-        console.log(`Error parsing file "${fileName}"`)
-        console.error(e)
-        process.exit(1)
-    }
-    translations.push([lang, Object.keys(parsedData)])
+    const filenames = [`${folderName}/${folderName}.json`, `${folderName}/${folderName}.pages.json`]
+    const langKeys = []
+
+    filenames.forEach(filename => {
+        let data
+
+        try {
+            data = fs.readFileSync(langDir + '/' + filename)
+        } catch (e) {
+            console.log(`Error reading file "${filename}"`)
+            console.error(e)
+            process.exit(1)
+        }
+
+        let parsedData
+
+        try {
+            parsedData = JSON.parse(data)
+        } catch (e) {
+            console.log(`Error parsing file "${filename}"`)
+            console.error(e)
+            process.exit(1)
+        }
+        langKeys.push(...Object.keys(parsedData))
+    })
+
+    translations.push([lang, langKeys])
 })
 
 translations.map(([lang, keys], i) => {

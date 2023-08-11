@@ -47,7 +47,7 @@ interface IButtonWithCountdownProps {
 }
 
 const ButtonWithCountdown = ({ notificationKey, action, intl, initialCountdown }: IButtonWithCountdownProps) => {
-    const SuccessNotificationButtonText = intl.formatMessage({ id: 'pages.condo.news.notification.success.button' })
+    const SuccessNotificationButtonText = intl.formatMessage({ id: 'news.notification.success.button' })
     const [countdown, setCountdown] = useState<number>(initialCountdown)
 
     const interval = useMemo(() => {
@@ -79,8 +79,8 @@ const ButtonWithCountdown = ({ notificationKey, action, intl, initialCountdown }
 }
 
 export const getCompletedNotification = (intl: IntlShape, action: () => void, key: string): NotificationApiProps => {
-    const SuccessNotificationTitle = intl.formatMessage({ id: 'pages.condo.news.notification.success.title' })
-    const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.news.notification.success.description' })
+    const SuccessNotificationTitle = intl.formatMessage({ id: 'news.notification.success.title' })
+    const SuccessNotificationDescription = intl.formatMessage({ id: 'news.notification.success.description' })
 
     const { publicRuntimeConfig: { newsItemsSendingDelay } } = getConfig()
 
@@ -115,7 +115,7 @@ export const getCompletedNotification = (intl: IntlShape, action: () => void, ke
 export const CreateNewsForm: React.FC = () => {
     const intl: IntlShape = useIntl()
     const EmptyTemplateTitle = intl.formatMessage({ id: 'news.fields.emptyTemplate.title' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])

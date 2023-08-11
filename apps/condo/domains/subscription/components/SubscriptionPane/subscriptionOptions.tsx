@@ -20,7 +20,7 @@ const StyledTitle = styled(Typography.Title)`
 export const getSubscriptionOptions = (intl, subscription: ServiceSubscription, setIsVisible: Dispatch<SetStateAction<boolean>>) => {
     const ClientsMessage = intl.formatMessage({ id: 'subscription.option.description.clients' })
     const ActiveMessage = intl.formatMessage({ id: 'subscription.action.active' })
-    const LoginBySbbolMessage = intl.formatMessage({ id: 'LoginBySBBOL' })
+    const LoginBySbbolMessage = intl.formatMessage({ id: 'loginBySbbol' })
     const DescriptionDefaultMessage = intl.formatMessage({ id: 'subscription.option.description.default' })
     const ActiveActionMessage = intl.formatMessage({ id: 'subscription.action.active' })
     const CreateBillMessage = intl.formatMessage({ id: 'subscription.data.createBill' })

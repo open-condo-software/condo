@@ -28,7 +28,7 @@ const handleStopPropagation = (e) => e.stopPropagation()
 export const FilterContainer: React.FC<IFilterContainerProps> = (props) => {
     const { showClearButton, clearFilters, children } = props
     const intl = useIntl()
-    const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
+    const ResetLabel = intl.formatMessage({ id: 'filters.reset' })
 
     return (
         <div style={FILTER_CONTAINER_STYLES} onKeyDown={handleStopPropagation}>
@@ -61,7 +61,7 @@ const StyledSelectFilterContainer = styled.div`
 export const SelectFilterContainer: React.FC<IFilterContainerProps> = (props) => {
     const { showClearButton, clearFilters, style, children } = props
     const intl = useIntl()
-    const ResetLabel = intl.formatMessage({ id: 'filters.Reset' })
+    const ResetLabel = intl.formatMessage({ id: 'filters.reset' })
 
     return (
         <StyledSelectFilterContainer style={style} onKeyDown={handleStopPropagation}>

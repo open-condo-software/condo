@@ -9,7 +9,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 
 const ContactUpdatePage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'EditingContact' })
+    const PageTitle = intl.formatMessage({ id: 'editingContact' })
 
     return (
         <>

@@ -435,7 +435,7 @@ describe('TicketChange', () => {
                 const obj = await TicketChange.getOne(admin, {
                     ticket: { id: ticket.id },
                 })
-                expect(obj.changedByRole).toEqual(i18n('DeletedEmployee'))
+                expect(obj.changedByRole).toEqual(i18n('deletedEmployee'))
             })
 
             it('ticket changed by user with deleted organization employee and existing related from organization employee', async () => {

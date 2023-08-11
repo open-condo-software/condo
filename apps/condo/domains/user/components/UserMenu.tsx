@@ -25,7 +25,7 @@ export const UserMenu: React.FC = () => {
 
     const intl = useIntl()
     const MyProfileMessage = intl.formatMessage({ id: 'profile' })
-    const SignOutMessage = intl.formatMessage({ id: 'SignOut' })
+    const SignOutMessage = intl.formatMessage({ id: 'signOut' })
     const auth = useAuth()
     const router = useRouter()
     const userName = formatUserName(get(auth, ['user', 'name'], ''))

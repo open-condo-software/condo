@@ -30,13 +30,13 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
     const intl = useIntl()
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === MapEditMode.EditUnit ? 'Save' : 'Add' })
-    const DeleteLabel = intl.formatMessage({ id: 'Delete' })
-    const NameLabel = intl.formatMessage({ id: 'pages.condo.property.unit.Name' })
-    const SectionLabel = intl.formatMessage({ id: 'pages.condo.property.section.Name' })
-    const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
-    const UnitTypeLabel = intl.formatMessage({ id: 'pages.condo.property.modal.UnitType' })
-    const RenameNextUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextUnits' })
-    const UnitErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const DeleteLabel = intl.formatMessage({ id: 'delete' })
+    const NameLabel = intl.formatMessage({ id: 'property.unit.name' })
+    const SectionLabel = intl.formatMessage({ id: 'property.section.name' })
+    const FloorLabel = intl.formatMessage({ id: 'property.floor.name' })
+    const UnitTypeLabel = intl.formatMessage({ id: 'property.modal.unitType' })
+    const RenameNextUnitsLabel = intl.formatMessage({ id: 'property.modal.renameNextUnits' })
+    const UnitErrorLabel = intl.formatMessage({ id: 'property.warning.modal.sameUnitNamesErrorMsg' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -153,7 +153,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                     value={unitType}
                     data-cy='property-map__unit-form__unit-type-select__option'
                 >
-                    {intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                    {intl.formatMessage({ id: `property.modal.unitType.${unitType}` })}
                 </Option>
             ))
     ), [BuildingUnitSubType])
@@ -188,7 +188,7 @@ const UnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplic
                 <Space direction='vertical' size={8}>
                     <Typography.Text>{UnitTypeLabel}</Typography.Text>
                     <Select
-                        value={intl.formatMessage({ id: `pages.condo.property.modal.unitType.${unitType}` })}
+                        value={intl.formatMessage({ id: `property.modal.unitType.${unitType}` })}
                         onSelect={updateUnitType}
                         style={INPUT_STYLE}
                         data-cy='property-map__unit-form__unit-type-select'

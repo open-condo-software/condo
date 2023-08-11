@@ -8,9 +8,9 @@ import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSea
 
 
 export const getEmployeeSpecializationsMessage = (intl, employee, organizationEmployeeSpecializations = []) => {
-    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
-    const SpecializationsCountMessage = intl.formatMessage({ id: 'employee.SpecializationsCount' })
-    const AndMessage = intl.formatMessage({ id: 'And' })
+    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.allSpecializations' })
+    const SpecializationsCountMessage = intl.formatMessage({ id: 'employee.specializationsCount' })
+    const AndMessage = intl.formatMessage({ id: 'and' })
 
     const employeeSpecializations = organizationEmployeeSpecializations
         .filter(scope => scope.employee && scope.employee.id === employee.id)

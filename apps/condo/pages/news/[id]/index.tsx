@@ -66,21 +66,21 @@ const FieldPairRow: React.FC<IFieldPairRowProps> = (props) => {
 
 const NewsItemCard: React.FC = () => {
     const intl = useIntl()
-    const Regular = intl.formatMessage({ id: 'pages.news.newsItemCard.type.common' })
-    const Emergency = intl.formatMessage({ id: 'pages.news.newsItemCard.type.emergency' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
-    const SentAtLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.sentAt' })
-    const TypeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.type' })
-    const ValidBeforeLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.validBefore' })
-    const TitleLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.title' })
-    const BodyLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.field.body' })
-    const EditTitle = intl.formatMessage({ id: 'Edit' })
-    const DeleteTitle = intl.formatMessage({ id: 'Delete' })
-    const ResendTitle = intl.formatMessage({ id: 'pages.news.newsItemCard.resendButton' })
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.ConfirmDeleteTitle' })
-    const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.ConfirmDeleteMessage' })
-    const CancelMessage = intl.formatMessage({ id: 'news.CancelMessage' })
+    const Regular = intl.formatMessage({ id: 'news.newsItemCard.type.common' })
+    const Emergency = intl.formatMessage({ id: 'news.newsItemCard.type.emergency' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
+    const NotFoundMsg = intl.formatMessage({ id: 'notFound' })
+    const SentAtLabel = intl.formatMessage({ id: 'news.newsItemCard.field.sentAt' })
+    const TypeLabel = intl.formatMessage({ id: 'news.newsItemCard.field.type' })
+    const ValidBeforeLabel = intl.formatMessage({ id: 'news.newsItemCard.field.validBefore' })
+    const TitleLabel = intl.formatMessage({ id: 'news.newsItemCard.field.title' })
+    const BodyLabel = intl.formatMessage({ id: 'news.newsItemCard.field.body' })
+    const EditTitle = intl.formatMessage({ id: 'edit' })
+    const DeleteTitle = intl.formatMessage({ id: 'delete' })
+    const ResendTitle = intl.formatMessage({ id: 'news.newsItemCard.resendButton' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'news.confirmDeleteTitle' })
+    const ConfirmDeleteMessage = intl.formatMessage({ id: 'news.confirmDeleteMessage' })
+    const CancelMessage = intl.formatMessage({ id: 'news.cancelMessage' })
 
     const { user } = useAuth()
     const { query, push } = useRouter()
@@ -100,7 +100,7 @@ const NewsItemCard: React.FC = () => {
         },
     })
 
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.news.newsItemCard.title' }, { number: get(newsItem, 'number', '...') })
+    const PageTitleMsg = intl.formatMessage({ id: 'news.newsItemCard.title' }, { number: get(newsItem, 'number', '...') })
 
     const {
         objs: newsItemScopes,
@@ -178,7 +178,7 @@ const NewsItemCard: React.FC = () => {
         await softDeleteNews(newsItem)
     }, [softDeleteNews, newsItem])
 
-    const CreatedByLabel = intl.formatMessage({ id: 'pages.news.newsItemCard.author' }, {
+    const CreatedByLabel = intl.formatMessage({ id: 'news.newsItemCard.author' }, {
         createdBy: get(employee, 'name'),
         isOwner: createdBy === user.id,
     })

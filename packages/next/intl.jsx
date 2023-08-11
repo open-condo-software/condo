@@ -21,9 +21,9 @@ let getMessages = async (locale) => {
         const module = await messagesImporter(locale)
         return module.default || module
     } catch (error) {
-        console.error('getMessages error:', error)
         const module = await import(`./lang/${defaultLocale}/${defaultLocale}.json`)
-        return module.default
+        const pages = await import(`./lang/${defaultLocale}/${defaultLocale}.pages.json`)
+        return { ...module.default, ...pages.default }
     }
 }
 

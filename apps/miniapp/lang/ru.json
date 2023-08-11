@@ -1,8 +1,8 @@
 {
-  "pages.index.PageTitle": "Демо",
-  "pages.index.tasks.Title": "Оповещения о прогрессе отложенных задач",
-  "pages.index.tasks.Add": "Добавить задачу на панель прогресса",
-  "pages.index.tasks.Update": "Обновить последнюю задачу на панеле прогресса",
+  "index.PageTitle": "Демо",
+  "index.tasks.Title": "Оповещения о прогрессе отложенных задач",
+  "index.tasks.Add": "Добавить задачу на панель прогресса",
+  "index.tasks.Update": "Обновить последнюю задачу на панеле прогресса",
   "menu.Users": "Пользователи",
   "WeAreStillDevelopingThisPage": "Мы еще **разрабатываем** эту страницу, она пока недоступна",
   "UserData": "Данные пользователя",

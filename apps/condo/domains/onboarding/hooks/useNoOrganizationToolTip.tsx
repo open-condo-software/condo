@@ -18,7 +18,7 @@ interface INoOrganizationToolTipHook {
 
 export const useNoOrganizationToolTip = (): INoOrganizationToolTipHook => {
     const intl = useIntl()
-    const CreateOrgWarning = intl.formatMessage({ id: 'onboarding.step.warn.create.Organization' })
+    const CreateOrgWarning = intl.formatMessage({ id: 'onboarding.step.warn.create.organization' })
 
     const wrapElementIntoNoOrganizationToolTip = (params: INoOrganizationToolTipWrapper): JSX.Element => {
         return (

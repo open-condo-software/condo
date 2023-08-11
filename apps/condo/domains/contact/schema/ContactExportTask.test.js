@@ -347,11 +347,11 @@ describe('exportContacts', () => {
                 contact.name,
                 contact.property.address,
                 contact.unitName,
-                contact.unitType ? i18n(`field.UnitType.${contact.unitType}`, { locale }) : empty,
+                contact.unitType ? i18n(`field.unitType.${contact.unitType}`, { locale }) : empty,
                 contact.phone || empty,
                 contact.email || empty,
                 contact.role ? indexedRoles[contact.role] : empty,
-                i18n(contact.isVerified ? 'Yes' : 'No', { locale }),
+                i18n(contact.isVerified ? 'yes' : 'no', { locale }),
             ])),
         ])
     })

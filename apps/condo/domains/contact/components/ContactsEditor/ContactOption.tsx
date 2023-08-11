@@ -22,8 +22,8 @@ const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px' }
 
 export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected }) => {
     const intl = useIntl()
-    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
-    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const FullNameLabel = intl.formatMessage({ id: 'contact.contact.contactsEditor.name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.contact.contactsEditor.phone' })
 
     const { breakpoints } = useLayoutContext()
 

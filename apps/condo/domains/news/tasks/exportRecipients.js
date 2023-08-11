@@ -31,8 +31,8 @@ const logger = getLogger('exportNewsItemRecipients')
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: TASK_WORKER_FINGERPRINT } }
 
 const buildExportFile = async ({ rows, locale }) => {
-    const YesMessage = i18n('Yes', { locale })
-    const NoMessage = i18n('No', { locale })
+    const YesMessage = i18n('yes', { locale })
+    const NoMessage = i18n('no', { locale })
     const HeaderMessage = i18n('excelExport.sheetNames.newsRecipients', { locale })
 
     const processedRows = rows.reduce((acc, row) => {

@@ -24,7 +24,7 @@ const DynamicVoyager = dynamic(
 
 const DocsGraphPage: React.FC = () => {
     const intl = useIntl()
-    const AccessError = intl.formatMessage({ id: 'AccessError' })
+    const AccessError = intl.formatMessage({ id: 'accessError' })
 
     const { publicRuntimeConfig } = getConfig()
     const { docsConfig }  = publicRuntimeConfig

@@ -86,15 +86,15 @@ interface IPropertyCardBalanceContent {
 
 const PropertyCardBalanceContent: IPropertyCardBalanceContent = ({ bankAccount,  clickCallback }) => {
     const intl = useIntl()
-    const BalanceTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.title' })
-    const BalanceDescription = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.description' }, {
+    const BalanceTitle = intl.formatMessage({ id: 'property.id.propertyReportBalance.title' })
+    const BalanceDescription = intl.formatMessage({ id: 'property.id.propertyReportBalance.description' }, {
         dateUpdated: intl.formatDate(get(bankAccount, 'integrationContext.meta.amountAt', bankAccount.updatedAt), INTL_DATE_FORMAT),
     })
     const BalanceValue = intl.formatNumber(get(bankAccount, 'integrationContext.meta.amount', 0), {
         style: 'currency',
         currency: bankAccount.currencyCode,
     })
-    const ButtonTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.buttonTitle' })
+    const ButtonTitle = intl.formatMessage({ id: 'property.id.propertyReportBalance.buttonTitle' })
 
     return (
         <>
@@ -124,17 +124,17 @@ interface IPropertyCardInfoContent {
 
 const PropertyCardInfoContent: IPropertyCardInfoContent = (props) => {
     const intl = useIntl()
-    const PropertyReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportTitle' })
-    const PropertyReportDescription = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportDescription' })
-    const PropertyReportComingSoonTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportComingSoonTitle' })
-    const PropertyReportComingSoonSubTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportComingSoonSubTitle' })
-    const PropertyReportAccessDeniedTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportAccessDenied' })
-    const BecomeSberClientTitle = intl.formatMessage({ id: 'pages.condo.property.id.becomeSberClientTitle' })
-    const SetupReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.setupReportTitle' })
-    const ModalTitle = intl.formatMessage({ id: 'pages.condo.property.id.ModalTitle' })
-    const ModalDescription = intl.formatMessage({ id: 'pages.condo.property.id.ModalDescription' })
-    const AlreadySentTitle = intl.formatMessage({ id: 'pages.condo.property.id.AlreadySentTitle' })
-    const LoadingError = intl.formatMessage({ id: 'errors.LoadingError' })
+    const PropertyReportTitle = intl.formatMessage({ id: 'property.id.propertyReportTitle' })
+    const PropertyReportDescription = intl.formatMessage({ id: 'property.id.propertyReportDescription' })
+    const PropertyReportComingSoonTitle = intl.formatMessage({ id: 'property.id.propertyReportComingSoonTitle' })
+    const PropertyReportComingSoonSubTitle = intl.formatMessage({ id: 'property.id.propertyReportComingSoonSubTitle' })
+    const PropertyReportAccessDeniedTitle = intl.formatMessage({ id: 'property.id.propertyReportAccessDenied' })
+    const BecomeSberClientTitle = intl.formatMessage({ id: 'property.id.becomeSberClientTitle' })
+    const SetupReportTitle = intl.formatMessage({ id: 'property.id.setupReportTitle' })
+    const ModalTitle = intl.formatMessage({ id: 'property.id.modalTitle' })
+    const ModalDescription = intl.formatMessage({ id: 'property.id.modalDescription' })
+    const AlreadySentTitle = intl.formatMessage({ id: 'property.id.alreadySentTitle' })
+    const LoadingError = intl.formatMessage({ id: 'errors.loadingError' })
 
     const { featureEnabled, setupButtonClick, organizationId, propertyId, hasAccess } = props
 

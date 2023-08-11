@@ -59,10 +59,10 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     unitName,
 }) => {
     const intl = useIntl()
-    const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
-    const ContactWithSamePhoneExistMessage = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone.contactWithSamePhoneExists' })
-    const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
-    const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
+    const NamePlaceholder = intl.formatMessage({ id: 'contact.contact.contactsEditor.name.placeholder' })
+    const ContactWithSamePhoneExistMessage = intl.formatMessage({ id: 'contact.contact.contactsEditor.phone.contactWithSamePhoneExists' })
+    const FullNameLabel = intl.formatMessage({ id: 'contact.contact.contactsEditor.name' })
+    const PhoneLabel = intl.formatMessage({ id: 'contact.contact.contactsEditor.phone' })
 
     const [value, setValue] = useState({})
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)

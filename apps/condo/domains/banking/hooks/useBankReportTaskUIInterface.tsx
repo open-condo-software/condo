@@ -20,10 +20,10 @@ import type {
 
 export const useBankReportTaskUIInterface = () => {
     const intl = useIntl()
-    const TaskProgressTitle = intl.formatMessage({ id: 'tasks.BankReportTask.progress.title' })
-    const TaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.BankReportTask.progress.description.processing' })
-    const TaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.BankReportTask.progress.description.completed' })
-    const UpdateTitle = intl.formatMessage({ id: 'Update' })
+    const TaskProgressTitle = intl.formatMessage({ id: 'tasks.bankReportTask.progress.title' })
+    const TaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.bankReportTask.progress.description.processing' })
+    const TaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.bankReportTask.progress.description.completed' })
+    const UpdateTitle = intl.formatMessage({ id: 'update' })
 
     const { reload } = useRouter()
 
@@ -66,7 +66,7 @@ type UserBankReportTaskButtonProps = {
 
 export const useBankReportTaskButton = (props: UserBankReportTaskButtonProps) => {
     const intl = useIntl()
-    const CreateReportTitle = intl.formatMessage({ id: 'pages.condo.property.report.createReport.title' })
+    const CreateReportTitle = intl.formatMessage({ id: 'property.report.createReport.title' })
 
     const { organizationId, user, bankAccount, type = 'primary' } = props
 

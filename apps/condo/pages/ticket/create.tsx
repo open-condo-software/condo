@@ -13,7 +13,7 @@ const WRAPPER_GUTTER: Gutter | [Gutter, Gutter] = [0, 60]
 
 const CreateTicketPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id:'pages.condo.ticket.index.CreateTicketModalTitle' })
+    const PageTitleMsg = intl.formatMessage({ id:'ticket.index.CreateTicketModalTitle' })
 
     return (
         <>

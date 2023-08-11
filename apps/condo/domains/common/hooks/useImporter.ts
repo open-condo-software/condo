@@ -42,10 +42,10 @@ export const useImporter = ({
     mutationErrorsToMessages,
 }: IUseImporterProps) => {
     const intl = useIntl()
-    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'TooManyRowsInTable' }, {
+    const TooManyRowsErrorMessage = intl.formatMessage({ id: 'tooManyRowsInTable' }, {
         value: maxTableLength,
     })
-    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'TableHasInvalidHeaders' }, {
+    const InvalidHeadersErrorMessage = intl.formatMessage({ id: 'tableHasInvalidHeaders' }, {
         value: columns.map(column => `"${column.name}"`).join(', '),
     })
     const NotValidRowTypesMessage = intl.formatMessage({ id:'errors.import.InvalidColumnTypes' })

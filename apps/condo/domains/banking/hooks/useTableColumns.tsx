@@ -56,11 +56,11 @@ export function useTableColumns () {
     const BankAccountTitle = intl.formatMessage({ id: 'global.bankAccount' })
     const CategoryTitle = intl.formatMessage({ id: 'global.category' })
     const NumberTitle = intl.formatMessage({ id: 'global.number' })
-    const DateTitle = intl.formatMessage({ id: 'Date' })
+    const DateTitle = intl.formatMessage({ id: 'date' })
     const ReceiverTitle = intl.formatMessage({ id: 'global.receiver' })
     const PaymentPurposeTitle = intl.formatMessage({ id: 'global.paymentPurpose' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
-    const CategoryNotSetTitle = intl.formatMessage({ id: 'pages.banking.table.notSet' })
+    const CategoryNotSetTitle = intl.formatMessage({ id: 'banking.table.notSet' })
 
     const router = useRouter()
 

@@ -12,7 +12,7 @@ type TicketDetailsFieldProps = {
 
 export const TicketDetailsField: React.FC<TicketDetailsFieldProps> = ({ ticket }) => {
     const intl = useIntl()
-    const TicketDetailsMessage = intl.formatMessage({ id: 'Problem' })
+    const TicketDetailsMessage = intl.formatMessage({ id: 'problem' })
 
     return (
         <PageFieldRow title={TicketDetailsMessage} ellipsis lineWrapping='break-spaces'>

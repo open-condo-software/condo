@@ -43,9 +43,9 @@ const NOT_FOUND_CONTENT_ROW_GUTTERS: [Gutter, Gutter] = [20, 0]
 
 const NotFoundSearchByPhoneContent = ({ onSelect, phone, canManageContacts }) => {
     const intl = useIntl()
-    const NotFoundContentMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent' })
-    const CreateTicketMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.createTicket' })
-    const CreateContactMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notFoundContent.createContact' })
+    const NotFoundContentMessage = intl.formatMessage({ id: 'searchByPhoneNumber.modal.select.notFoundContent' })
+    const CreateTicketMessage = intl.formatMessage({ id: 'searchByPhoneNumber.modal.select.notFoundContent.createTicket' })
+    const CreateContactMessage = intl.formatMessage({ id: 'searchByPhoneNumber.modal.select.notFoundContent.createContact' })
 
     const router = useRouter()
 
@@ -130,10 +130,10 @@ const SearchByPhoneSelect = ({
     canManageContacts,
 }) => {
     const intl = useIntl()
-    const EnterPhoneMessage = intl.formatMessage({ id: 'EnterPhoneNumber' })
-    const ResidentsOptGroupMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.residents' })
-    const NotResidentsOptGroupMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.notResidents' })
-    const EmployeesOptGroupMessage = intl.formatMessage({ id: 'SearchByPhoneNumber.modal.select.employees' })
+    const EnterPhoneMessage = intl.formatMessage({ id: 'enterPhoneNumber' })
+    const ResidentsOptGroupMessage = intl.formatMessage({ id: 'searchByPhoneNumber.modal.select.residents' })
+    const NotResidentsOptGroupMessage = intl.formatMessage({ id: 'searchByPhoneNumber.modal.select.notResidents' })
+    const EmployeesOptGroupMessage = intl.formatMessage({ id: 'searchByPhoneNumber.modal.select.employees' })
 
     const [phone, setPhone] = useState('')
 
@@ -214,7 +214,7 @@ const SearchByPhoneSelect = ({
 
 export const useSearchByPhoneModal = (searchByPhoneFn, canManageContacts) => {
     const intl = useIntl()
-    const SearchByPhoneMessage = intl.formatMessage({ id: 'SearchByPhoneNumber' })
+    const SearchByPhoneMessage = intl.formatMessage({ id: 'searchByPhoneNumber' })
 
     const { breakpoints } = useLayoutContext()
 

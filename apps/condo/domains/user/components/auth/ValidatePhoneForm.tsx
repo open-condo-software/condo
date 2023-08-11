@@ -42,17 +42,17 @@ const INPUT_STYLE: CSSProperties = { maxWidth: '120px' }
 
 export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElement<IValidatePhoneFormProps> => {
     const intl = useIntl()
-    const ChangePhoneNumberLabel = intl.formatMessage({ id: 'pages.auth.register.ChangePhoneNumber' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SmsCodeTitle = intl.formatMessage({ id: 'pages.auth.register.field.SmsCode' })
-    const ResendSmsLabel = intl.formatMessage({ id: 'pages.auth.register.ResendSmsLabel' })
-    const SMSAvailableLabel = intl.formatMessage({ id: 'pages.auth.register.CodeIsAvailable' })
-    const SMSCodeMismatchError = intl.formatMessage({ id: 'pages.auth.register.SMSCodeMismatchError' })
-    const SMSExpiredError = intl.formatMessage({ id: 'pages.auth.register.SMSExpiredError' })
-    const ConfirmActionExpiredError = intl.formatMessage({ id: 'pages.auth.register.ConfirmActionExpiredError' })
-    const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'pages.auth.register.SMSMaxRetriesReachedError' })
-    const SMSBadFormat = intl.formatMessage({ id: 'pages.auth.register.SMSBadFormat' })
-    const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const ChangePhoneNumberLabel = intl.formatMessage({ id: 'auth.register.changePhoneNumber' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'fieldIsRequired' })
+    const SmsCodeTitle = intl.formatMessage({ id: 'auth.register.field.smsCode' })
+    const ResendSmsLabel = intl.formatMessage({ id: 'auth.register.resendSmsLabel' })
+    const SMSAvailableLabel = intl.formatMessage({ id: 'auth.register.codeIsAvailable' })
+    const SMSCodeMismatchError = intl.formatMessage({ id: 'auth.register.smsCodeMismatchError' })
+    const SMSExpiredError = intl.formatMessage({ id: 'auth.register.smsExpiredError' })
+    const ConfirmActionExpiredError = intl.formatMessage({ id: 'auth.register.confirmActionExpiredError' })
+    const SMSMaxRetriesReachedError = intl.formatMessage({ id: 'auth.register.smsMaxRetriesReachedError' })
+    const SMSBadFormat = intl.formatMessage({ id: 'auth.register.smsBadFormat' })
+    const SMSTooManyRequestsError = intl.formatMessage({ id: 'auth.tooManyRequests' })
     // TODO(DOMA-3293): remove this legacy error style and Useless error messages
     const ErrorToFormFieldMsgMapping = useMemo(() => {
         return {
@@ -86,7 +86,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
     const [phoneValidateError, setPhoneValidateError] = useState(null)
     const [resendSmsMutation] = useMutation(RESEND_CONFIRM_PHONE_SMS_MUTATION)
     const [completeConfirmPhoneMutation] = useMutation(COMPLETE_CONFIRM_PHONE_MUTATION)
-    const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'Hide' }) : intl.formatMessage({ id: 'Show' })
+    const PhoneToggleLabel = isPhoneVisible ? intl.formatMessage({ id: 'hide' }) : intl.formatMessage({ id: 'show' })
 
     const SMS_VALIDATOR = useCallback(() => ({
         validator () {
@@ -180,7 +180,7 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                         <Col span={24}>
                             <DefaultTypography.Text>
                                 <FormattedMessage
-                                    id='pages.auth.register.info.SmsCodeSent'
+                                    id='auth.register.info.SmsCodeSent'
                                     values={{
                                         phone: (
                                             <span style={{ whiteSpace: 'nowrap' }}>

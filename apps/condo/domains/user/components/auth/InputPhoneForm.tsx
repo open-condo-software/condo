@@ -47,15 +47,15 @@ interface IInputPhoneFormProps {
 export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => {
     const [form] = Form.useForm()
     const intl = useIntl()
-    const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
-    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
-    const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const PhoneMsg = intl.formatMessage({ id: 'auth.register.field.phone' })
+    const ExamplePhoneMsg = intl.formatMessage({ id: 'example.phone' })
+    const FieldIsRequiredMsg = intl.formatMessage({ id: 'fieldIsRequired' })
+    const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'auth.tooManyRequests' })
     const WrongPhoneFormatErrorMsg = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
-    const RegisterMsg = intl.formatMessage({ id: 'Register' })
-    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
-    const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
-    const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
+    const RegisterMsg = intl.formatMessage({ id: 'register' })
+    const LoginBySBBOLMsg = intl.formatMessage({ id: 'loginBySbbol' })
+    const ConsentContent = intl.formatMessage({ id: 'auth.register.info.consentContent' })
+    const PrivacyPolicyContent = intl.formatMessage({ id: 'auth.register.info.privacyPolicyContent' })
 
     const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
 
@@ -165,7 +165,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                 <Col span={24}>
                                     <Typography.Paragraph type='secondary' style={FORM_PARAGRAPH_STYLES}>
                                         <FormattedMessage
-                                            id='pages.auth.register.info.PersonalDataProcessingConsent'
+                                            id='auth.register.info.PersonalDataProcessingConsent'
                                             values={{
                                                 consentLink: (
                                                     <Typography.Link

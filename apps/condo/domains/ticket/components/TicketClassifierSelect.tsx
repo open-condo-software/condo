@@ -74,7 +74,7 @@ const useTicketClassifierSelectHook = ({
     initialValue,
 }: ITicketClassifierSelectHookInput): ITicketClassifierSelectHookOutput => {
     const intl = useIntl()
-    const SelectMessage = intl.formatMessage({ id: 'Select' })
+    const SelectMessage = intl.formatMessage({ id: 'select' })
 
     const [classifiers, setClassifiersFromRules] = useState<Options[]>([])
     const [searchClassifiers, setSearchClassifiers] = useState<Options[]>([])
@@ -154,9 +154,9 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
     details,
 }, afterUpdateRuleId }: ITicketThreeLevelsClassifierHookInput): ITicketThreeLevelsClassifierHookOutput => {
     const intl = useIntl()
-    const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
-    const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
-    const ProblemClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.ProblemLabel' })
+    const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.placeLabel' })
+    const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.categoryLabel' })
+    const ProblemClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.problemLabel' })
     const ruleRef = useRef<ITicketClassifierType>({ id: classifier, place: null, category:null, problem: null })
     const client = useApolloClient()
     const ClassifierLoader = new ClassifiersQueryLocal(client)

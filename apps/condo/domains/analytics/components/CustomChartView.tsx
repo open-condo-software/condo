@@ -57,7 +57,7 @@ const CustomChartView =
         const { viewMode, data, mapperInstance, chartConfig } = props
 
         const intl = useIntl()
-        const NoData = intl.formatMessage({ id: 'NoData' })
+        const NoData = intl.formatMessage({ id: 'noData' })
 
         let legend = [], tooltip = null
 

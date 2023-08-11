@@ -1,5 +1,5 @@
 {
-  "pages.index.PageTitle": "demo",
-  "menu.Users": "Users",
-  "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available"
+    "index.PageTitle": "demo",
+    "menu.Users": "Users",
+    "WeAreStillDevelopingThisPage": "We are still **developing** this page, it is not **yet** available"
 }

@@ -18,13 +18,13 @@ const BANK_ACCOUNT_REPORT_PAGE_PATHNAME = '/property/[id]/report'
 
 export const useBankSyncTaskUIInterface = () => {
     const intl = useIntl()
-    const BankSyncTaskProgressTitle = intl.formatMessage({ id: 'tasks.BankSyncTask.file.progress.title' })
-    const BankSyncTaskExternalSystemProgressTitle = intl.formatMessage({ id: 'tasks.BankSyncTask.externalSystem.progress.title' })
-    const BankSyncTaskProgressDescriptionPreparing = intl.formatMessage({ id: 'tasks.BankSyncTask.progress.description.preparing' })
-    const BankSyncTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.BankSyncTask.progress.description.processing' })
-    const BankSyncTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.BankSyncTask.file.progress.description.completed' })
-    const BankSyncTaskExternalSystemProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.BankSyncTask.externalSystem.progress.description.completed' })
-    const UpdateTitle = intl.formatMessage({ id: 'Update' })
+    const BankSyncTaskProgressTitle = intl.formatMessage({ id: 'tasks.bankSyncTask.file.progress.title' })
+    const BankSyncTaskExternalSystemProgressTitle = intl.formatMessage({ id: 'tasks.bankSyncTask.externalSystem.progress.title' })
+    const BankSyncTaskProgressDescriptionPreparing = intl.formatMessage({ id: 'tasks.bankSyncTask.progress.description.preparing' })
+    const BankSyncTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.bankSyncTask.progress.description.processing' })
+    const BankSyncTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.bankSyncTask.file.progress.description.completed' })
+    const BankSyncTaskExternalSystemProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.bankSyncTask.externalSystem.progress.description.completed' })
+    const UpdateTitle = intl.formatMessage({ id: 'update' })
 
     const { reload, push, pathname } = useRouter()
 

@@ -38,9 +38,9 @@ interface AddressSearchInputProps extends SelectProps<string> {
 export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = (props) => {
     const { setAddressValidatorError, addressValidatorError } = props
     const intl = useIntl()
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
-    const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
-    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
+    const AddressMetaError = intl.formatMessage({ id: 'errors.addressMetaParse' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.property.nonSelectedError' })
 
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     useEffect(() => {

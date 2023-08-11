@@ -18,8 +18,8 @@ interface IEmployeeInviteRetryButtonProps {
 
 export const EmployeeInviteRetryButton: React.FC<IEmployeeInviteRetryButtonProps> = (props) => {
     const intl = useIntl()
-    const RetryInviteMessage = intl.formatMessage({ id: 'employee.RetryInvite' })
-    const Seconds = intl.formatMessage({ id: 'Seconds' })
+    const RetryInviteMessage = intl.formatMessage({ id: 'employee.retryInvite' })
+    const Seconds = intl.formatMessage({ id: 'seconds' })
 
     const { link, organization } = useOrganization()
 

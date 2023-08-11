@@ -8,7 +8,7 @@ import { PageContent, PageHeader, PageWrapper } from '@miniapp/domains/common/co
 const IndexPage: React.FC = () => {
     const intl = useIntl()
 
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.index.PageTitle' })
+    const PageTitleMsg = intl.formatMessage({ id: 'index.PageTitle' })
 
     return (
         <>

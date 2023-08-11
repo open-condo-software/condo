@@ -109,9 +109,9 @@ export const FeatureFlagsController: React.FC = () => {
 
     const intl = useIntl()
 
-    const SaveMessage = intl.formatMessage({ id: 'Save' })
-    const featureFlagsTitle = intl.formatMessage({ id: 'FeatureFlags.Modal.Title' } )
-    const featureFlagsDescription = intl.formatMessage({ id: 'FeatureFlags.Modal.Description' } )
+    const SaveMessage = intl.formatMessage({ id: 'save' })
+    const featureFlagsTitle = intl.formatMessage({ id: 'featureFlags.modal.title' } )
+    const featureFlagsDescription = intl.formatMessage({ id: 'featureFlags.modal.description' } )
 
     const [isModalVisible, setIsModalVisible] = useState(false)
 

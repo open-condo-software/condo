@@ -127,13 +127,13 @@ enum ReportCategories {
 
 const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [], currencyCode = 'RUB' }) => {
     const intl = useIntl()
-    const PropertyBalanceLabel = intl.formatMessage({ id: 'pages.condo.property.id.propertyReportBalance.title' })
+    const PropertyBalanceLabel = intl.formatMessage({ id: 'property.id.propertyReportBalance.title' })
     const IncomeTitle = intl.formatMessage({ id: 'global.income' }, { isSingular: false })
     const WithdrawalTitle = intl.formatMessage({ id: 'global.withdrawal' }, { isSingular: false })
-    const ChooseReportTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.chooseReportTitle' })
-    const ReportCardWithdrawalTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle.withdrawal' })
-    const ReportCardIncomeTitle = intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.reportCardTitle.income' })
-    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const ChooseReportTitle = intl.formatMessage({ id: 'property.id.propertyReport.chooseReportTitle' })
+    const ReportCardWithdrawalTitle = intl.formatMessage({ id: 'property.id.propertyReport.reportCardTitle.withdrawal' })
+    const ReportCardIncomeTitle = intl.formatMessage({ id: 'property.id.propertyReport.reportCardTitle.income' })
+    const NoDataTitle = intl.formatMessage({ id: 'noData' })
 
     const { breakpoints, isMobile } = useLayoutContext()
     const router = useRouter()
@@ -191,7 +191,7 @@ const BankAccountReportContent: IBankReportContent = ({ bankAccountReports = [],
                         const value = intl.formatNumber(totalSum, { style: 'currency', currency: currencyCode }) + '\n'
                         const isOutcome = get(chartData, '0.isOutcome', false)
 
-                        return value + truncate(intl.formatMessage({ id: 'pages.condo.property.id.propertyReport.totalSumTitle' }, {
+                        return value + truncate(intl.formatMessage({ id: 'property.id.propertyReport.totalSumTitle' }, {
                             sumItem: isOutcome ? WithdrawalTitle.toLowerCase() : IncomeTitle.toLowerCase(),
                         }), LABEL_TRUNCATE_LENGTH)
                     },
@@ -401,7 +401,7 @@ interface IBankAccountReport {
 
 const BankAccountReport: IBankAccountReport = ({ bankAccount, bankAccountReports, role }) => {
     const intl = useIntl()
-    const NoDataTitle = intl.formatMessage({ id: 'NoData' })
+    const NoDataTitle = intl.formatMessage({ id: 'noData' })
 
     const { user } = useAuth()
 

@@ -40,7 +40,7 @@ export const UpdateIncidentActionBar: React.FC<ComponentProps<BaseIncidentFormPr
 
 export const UpdateIncidentForm: React.FC<IUpdateIncidentForm> = (props) => {
     const intl = useIntl()
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'serverError' })
     const PageTitle = intl.formatMessage({ id: 'incident.update.title' })
 
     const { id, showOrganization } = props

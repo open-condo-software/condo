@@ -32,10 +32,10 @@ const ERRORS = {
 }
 
 const mapEmployeesToExcelRow = (employees, employeesSpecializations, locale) => {
-    const SpecializationsCountMessage = i18n('employee.SpecializationsCount', { locale })
-    const AllSpecializationsMessage = i18n('employee.AllSpecializations', { locale })
+    const SpecializationsCountMessage = i18n('employee.specializationsCount', { locale })
+    const AllSpecializationsMessage = i18n('employee.allSpecializations', { locale })
     const BlockedMessage = i18n('employee.isBlocked', { locale })
-    const AndMessage = i18n('And', { locale })
+    const AndMessage = i18n('and', { locale })
 
     return employees
         .map(employee => {
@@ -83,8 +83,8 @@ const ExportPropertyScopeToExcelService = new GQLCustomSchema('ExportPropertySco
             resolver: async (parent, args, context) => {
                 const { where, sortBy } = args.data
                 const locale = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-                const allPropertiesMessage = i18n('pages.condo.settings.propertyScope.allProperties', { locale })
-                const allEmployeesMessage = i18n('pages.condo.settings.propertyScope.allEmployees', { locale })
+                const allPropertiesMessage = i18n('settings.propertyScope.allProperties', { locale })
+                const allEmployeesMessage = i18n('settings.propertyScope.allEmployees', { locale })
                 const headerMessage = i18n('excelExport.headers.propertyScopes.title', { locale, meta: { date: dayjs().format('DD.MM.YYYY') } })
 
                 const propertyScopes = await loadPropertyScopesForExcelExport({ where, sortBy })

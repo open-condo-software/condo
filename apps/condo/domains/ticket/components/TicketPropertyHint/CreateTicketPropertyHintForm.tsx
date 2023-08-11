@@ -11,7 +11,7 @@ import { BaseTicketPropertyHintForm } from './BaseTicketPropertyHintForm'
 
 export const CreateTicketPropertyHintForm = () => {
     const intl = useIntl()
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const SaveLabel = intl.formatMessage({ id: 'save' })
 
     const { organization } = useOrganization()
     const action = TicketPropertyHint.useCreate({ organization: { connect: { id: organization.id } } })

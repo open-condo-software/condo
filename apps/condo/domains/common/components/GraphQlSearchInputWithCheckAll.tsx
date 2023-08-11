@@ -48,7 +48,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     }
 ) => {
     const intl = useIntl()
-    const CheckedAllMessage = intl.formatMessage({ id: 'CheckedAll' })
+    const CheckedAllMessage = intl.formatMessage({ id: 'checkedAll' })
 
     const [allDataLength, setAllDataLength] = useState<number>()
     const [isAllChecked, setIsAllChecked] = useState<boolean>(checkAllInitialValue)

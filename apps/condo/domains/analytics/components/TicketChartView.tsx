@@ -68,9 +68,9 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
     } = props
 
     const intl = useIntl()
-    const NoData = intl.formatMessage({ id: 'NoData' })
+    const NoData = intl.formatMessage({ id: 'noData' })
     const LoadMoreTitle = intl.formatMessage(
-        { id: 'pages.condo.analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle' },
+        { id: 'analytics.TicketAnalyticsPage.TicketChartView.LoadMoreTitle' },
         { entity: intl.formatMessage({ id: `component.TicketWarningModal.Entity.${mainGroup}` }) }
     )
 

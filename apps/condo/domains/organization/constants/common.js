@@ -29,8 +29,8 @@ const DELETED_ORGANIZATION_NAME = 'Deleted Organization'
 const DEFAULT_ROLES = {
     // Administrator role is required for mutation logic
     'Administrator': {
-        'name': 'employee.role.Administrator.name',
-        'description': 'employee.role.Administrator.description',
+        'name': 'employee.role.administrator.name',
+        'description': 'employee.role.administrator.description',
         'canManageOrganization': true,
         'canManageEmployees': true,
         'canInviteNewOrganizationEmployees': true,
@@ -65,8 +65,8 @@ const DEFAULT_ROLES = {
         'canManageNewsItemTemplates': true,
     },
     'Dispatcher': {
-        'name': 'employee.role.Dispatcher.name',
-        'description': 'employee.role.Dispatcher.description',
+        'name': 'employee.role.dispatcher.name',
+        'description': 'employee.role.dispatcher.description',
         'canManageOrganization': false,
         'canManageEmployees': false,
         'canInviteNewOrganizationEmployees': false,
@@ -99,8 +99,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
     },
     'Manager': {
-        'name': 'employee.role.Manager.name',
-        'description': 'employee.role.Manager.description',
+        'name': 'employee.role.manager.name',
+        'description': 'employee.role.manager.description',
         'canManageOrganization': false,
         'canManageEmployees': false,
         'canInviteNewOrganizationEmployees': false,
@@ -135,8 +135,8 @@ const DEFAULT_ROLES = {
         'canManageNewsItemTemplates': true,
     },
     'Foreman': {
-        'name': 'employee.role.Foreman.name',
-        'description': 'employee.role.Foreman.description',
+        'name': 'employee.role.foreman.name',
+        'description': 'employee.role.foreman.description',
         'canManageOrganization': false,
         'canManageEmployees': false,
         'canInviteNewOrganizationEmployees': true,
@@ -169,8 +169,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     },
     'Technician': {
-        'name': 'employee.role.Technician.name',
-        'description': 'employee.role.Technician.description',
+        'name': 'employee.role.technician.name',
+        'description': 'employee.role.technician.description',
         'canManageOrganization': false,
         'canManageEmployees': false,
         'canInviteNewOrganizationEmployees': false,
@@ -203,8 +203,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     },
     'Contractor': {
-        'name': 'employee.role.Contractor.name',
-        'description': 'employee.role.Contractor.description',
+        'name': 'employee.role.contractor.name',
+        'description': 'employee.role.contractor.description',
         'canManageTickets': true,
         'canManageContacts': false,
         'canShareTickets': true,

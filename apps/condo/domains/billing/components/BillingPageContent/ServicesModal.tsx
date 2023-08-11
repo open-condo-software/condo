@@ -90,8 +90,8 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     isDetailed,
 }) => {
     const intl = useIntl()
-    const AccountMessage = intl.formatMessage({ id: 'field.AccountNumberShort' })
-    const ViewPDFButton = intl.formatMessage({ id: 'pages.billing.ReceiptsTable.PDFTooltip' })
+    const AccountMessage = intl.formatMessage({ id: 'field.accountNumberShort' })
+    const ViewPDFButton = intl.formatMessage({ id: 'billing.receiptsTable.pdfTooltip' })
 
     const moneyRender = useMemo(() => {
         return getMoneyRender(intl, currencyCode)
@@ -116,7 +116,7 @@ export const ServicesModal: React.FC<IServicesModalProps> = ({
     const columns = useServicesTableColumns(isDetailed, currencyCode)
 
     const { significantServices, insignificantServices } = splitServices(receipt)
-    const ExpandMessage = intl.formatMessage({ id: 'MoreReceiptsWithZeroCharge' }, {
+    const ExpandMessage = intl.formatMessage({ id: 'moreReceiptsWithZeroCharge' }, {
         count: insignificantServices.length,
     })
     const dataSource = formatRows(significantServices, insignificantServices, ExpandMessage)

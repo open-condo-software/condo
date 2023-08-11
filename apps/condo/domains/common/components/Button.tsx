@@ -325,7 +325,7 @@ export const Button: React.FC<CustomButtonProps> = (props) => {
 // TODO: Restyle and refactor this button someday later
 export const LoginWithSBBOLButton: React.FC<{ block?: boolean, redirect?: string }> = ({ block, redirect }) => {
     const intl = useIntl()
-    const LoginLabel = intl.formatMessage({ id: 'LoginBySBBOL' })
+    const LoginLabel = intl.formatMessage({ id: 'loginBySbbol' })
     const queryParams = redirect ? `?redirectUrl=${encodeURIComponent(redirect)}` : ''
     const authUrl = `/api/sbbol/auth${queryParams}`
 

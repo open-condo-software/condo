@@ -36,8 +36,8 @@ const SELECT_LOADER_STYLE = { display: 'flex', justifyContent: 'center', padding
 
 export const BaseSearchInput = <S extends string> (props: ISearchInput<S>) => {
     const intl = useIntl()
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
-    const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })
+    const LoadingMessage = intl.formatMessage({ id: 'loading' })
+    const NotFoundMessage = intl.formatMessage({ id: 'notFound' })
 
     const {
         search,

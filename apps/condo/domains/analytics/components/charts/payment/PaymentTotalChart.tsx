@@ -12,9 +12,9 @@ import type { IPaymentChartCard } from './dataMappers'
 
 const PaymentTotalChart: IPaymentChartCard = ({ data }) => {
     const intl = useIntl()
-    const ChartTitle = intl.formatMessage({ id: 'pages.reports.paymentsTotal' })
+    const ChartTitle = intl.formatMessage({ id: 'reports.paymentsTotal' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
-    const PaymentCountTitle = intl.formatMessage({ id: 'pages.reports.paymentCount' })
+    const PaymentCountTitle = intl.formatMessage({ id: 'reports.paymentCount' })
 
     const dataMapper = useMemo(() => PaymentTotalDataMapper(SumTitle, PaymentCountTitle), [SumTitle, PaymentCountTitle])
 

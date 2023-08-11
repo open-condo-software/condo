@@ -38,9 +38,9 @@ const WarnText = styled.div`
 
 function MappingForm ({ columns, cols, onChangeMapping, onFinish }) {
     const intl = useIntl()
-    const ColumnMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Column' })
-    const SelectColumnMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.SelectColumn' })
-    const NextStepButtonLabel = intl.formatMessage({ id: 'containers.FormTableExcelImport.NextStepButtonLabel' })
+    const ColumnMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.column' })
+    const SelectColumnMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.selectColumn' })
+    const NextStepButtonLabel = intl.formatMessage({ id: 'containers.formTableExcelImport.nextStepButtonLabel' })
 
     const [form] = Form.useForm()
     const [values, setValues] = useState({})
@@ -113,12 +113,12 @@ function ExcelExporterButton ({ columns, setExportedData }) {
     if (!columns) throw new Error('no columns prop')
 
     const intl = useIntl()
-    const ImportFromFileButtonLabel = intl.formatMessage({ id: 'containers.FormTableExcelImport.ImportFromFileButtonLabel' })
-    const ClickOrDragImportFileTextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileText' })
-    const ClickOrDragImportFileHintMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
-    const Step1TextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step1Text' })
-    const Step2TextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step2Text' })
-    const Step3TextMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.Step3Text' })
+    const ImportFromFileButtonLabel = intl.formatMessage({ id: 'containers.formTableExcelImport.importFromFileButtonLabel' })
+    const ClickOrDragImportFileTextMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.clickOrDragImportFileText' })
+    const ClickOrDragImportFileHintMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.clickOrDragImportFileHint' })
+    const Step1TextMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.step1Text' })
+    const Step2TextMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.step2Text' })
+    const Step3TextMessage = intl.formatMessage({ id: 'containers.formTableExcelImport.step3Text' })
     const StepHelpText = {
         1: Step1TextMessage,
         2: Step2TextMessage,

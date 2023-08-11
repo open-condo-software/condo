@@ -33,8 +33,8 @@ const INPUT_STYLE: CSSProperties = { width: '18em' }
 
 export const ReceiptsTable: React.FC = () => {
     const intl = useIntl()
-    const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const LoadingErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
+    const SearchPlaceholder = intl.formatMessage({ id: 'filters.fullSearch' })
+    const LoadingErrorMessage = intl.formatMessage({ id: 'errors.loadingError' })
 
     const { billingContext } = useBillingAndAcquiringContexts()
     const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')

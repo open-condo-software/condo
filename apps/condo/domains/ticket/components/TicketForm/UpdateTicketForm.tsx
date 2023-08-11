@@ -18,9 +18,9 @@ import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
-    const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
-    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+    const ApplyChangesMessage = intl.formatMessage({ id: 'applyChanges' })
+    const CancelLabel = intl.formatMessage({ id: 'cancel' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.property.nonSelectedError' })
 
     const { push, query: { id } } = useRouter()
     const onCancel = useCallback(() => {

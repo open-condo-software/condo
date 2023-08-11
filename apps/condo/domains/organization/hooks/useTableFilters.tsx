@@ -12,10 +12,10 @@ const filterRole = getFilter(['role', 'id'], 'array', 'string', 'in')
 
 export const useTableFilters = () => {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'field.FullName.short' })
-    const PhoneMessage = intl.formatMessage({ id: 'Phone' })
-    const PositionMessage = intl.formatMessage({ id: 'employee.Position' })
-    const RoleMessage = intl.formatMessage({ id: 'employee.Role' })
+    const NameMessage = intl.formatMessage({ id: 'field.fullName.short' })
+    const PhoneMessage = intl.formatMessage({ id: 'phone' })
+    const PositionMessage = intl.formatMessage({ id: 'employee.position' })
+    const RoleMessage = intl.formatMessage({ id: 'employee.role' })
 
     const propertyFilterMetas: FiltersMeta<PropertyWhereInput>[] = [
         {

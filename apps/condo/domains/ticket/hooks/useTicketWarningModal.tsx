@@ -12,13 +12,13 @@ interface IUseTicketWarningModal {
 
 export const useTicketWarningModal: IUseTicketWarningModal = (selectedEntity) => {
     const intl = useIntl()
-    const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
-    const EntityTitle = intl.formatMessage({ id: 'component.TicketWarningModal.Entity.' + selectedEntity })
-    const ModalTitle = intl.formatMessage({ id: 'component.TicketWarningModal.Title' }, {
+    const ConfirmTitle = intl.formatMessage({ id: 'component.ticketWarningModal.confirmTitle' })
+    const EntityTitle = intl.formatMessage({ id: 'component.ticketWarningModal.entity.' + selectedEntity })
+    const ModalTitle = intl.formatMessage({ id: 'component.ticketWarningModal.title' }, {
         ticketFilterRestriction: MAX_FILTERED_ELEMENTS,
         selectedEntity: EntityTitle,
     })
-    const ModalDescription = intl.formatMessage({ id: 'component.TicketWarningModal.Description' }, {
+    const ModalDescription = intl.formatMessage({ id: 'component.ticketWarningModal.description' }, {
         ticketFilterRestriction: MAX_FILTERED_ELEMENTS,
         selectedEntity: EntityTitle,
     })

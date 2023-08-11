@@ -182,7 +182,7 @@ function ExtraDropdownActionsMenu ({ actions }) {
 
 function ExpandableDescription ({ children }) {
     const intl = useIntl()
-    const ReadMoreMsg = intl.formatMessage({ id: 'ReadMore' })
+    const ReadMoreMsg = intl.formatMessage({ id: 'readMore' })
 
     return <Typography.Paragraph ellipsis={{ rows: 3, expandable: true, symbol: ReadMoreMsg }}>
         {children}
@@ -256,9 +256,9 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> extends FormProps {
 
 const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const intl = useIntl()
-    const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
-    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
-    const ChangesSavedMsg = intl.formatMessage({ id: 'ChangesSaved' })
+    const ClientSideErrorMsg = intl.formatMessage({ id: 'clientSideError' })
+    const DoneMsg = intl.formatMessage({ id: 'operationCompleted' })
+    const ChangesSavedMsg = intl.formatMessage({ id: 'changesSaved' })
 
     const {
         action,
@@ -440,8 +440,8 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     ...props
 }) => {
     const intl = useIntl()
-    const CancelMessage = ModalCancelButtonLabelMsg ? ModalCancelButtonLabelMsg : intl.formatMessage({ id: 'Cancel' })
-    const SaveMessage = ModalSaveButtonLabelMsg ? ModalSaveButtonLabelMsg : intl.formatMessage({ id: 'Save' })
+    const CancelMessage = ModalCancelButtonLabelMsg ? ModalCancelButtonLabelMsg : intl.formatMessage({ id: 'cancel' })
+    const SaveMessage = ModalSaveButtonLabelMsg ? ModalSaveButtonLabelMsg : intl.formatMessage({ id: 'save' })
     const handleSaveRef = useRef(null)
     const Buttons = []
     if (showCancelButton) {

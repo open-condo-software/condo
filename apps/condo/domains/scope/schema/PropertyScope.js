@@ -34,7 +34,7 @@ const PropertyScope = new GQLListSchema('PropertyScope', {
             schemaDoc: 'The name of the zone that limits the visibility of employees by properties',
             type: LocalizedText,
             isRequired: true,
-            template: 'pages.condo.settings.propertyScope.default.name',
+            template: 'settings.propertyScope.default.name',
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, context }) => {
                     if (resolvedData[fieldPath] && resolvedData[fieldPath].length > MAX_NAME_LENGTH) {

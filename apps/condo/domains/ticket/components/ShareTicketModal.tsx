@@ -162,12 +162,12 @@ interface IShareTicketModalProps {
 
 export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const intl = useIntl()
-    const SendTicketToEmailMessage = intl.formatMessage({ id: 'SendTicketToEmail' })
-    const ToEmployeesEmailMessage = intl.formatMessage({ id: 'ToEmployeesEmail' })
-    const EmployeesNameMessage = intl.formatMessage({ id: 'EmployeesName' })
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
-    const WhatsappMessage = intl.formatMessage({ id: 'WhatsApp' })
-    const TelegramMessage = intl.formatMessage({ id: 'Telegram' })
+    const SendTicketToEmailMessage = intl.formatMessage({ id: 'sendTicketToEmail' })
+    const ToEmployeesEmailMessage = intl.formatMessage({ id: 'toEmployeesEmail' })
+    const EmployeesNameMessage = intl.formatMessage({ id: 'employeesName' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'serverError' })
+    const WhatsappMessage = intl.formatMessage({ id: 'whatsApp' })
+    const TelegramMessage = intl.formatMessage({ id: 'telegram' })
     const ShareHeaderMessage = intl.formatMessage({ id: 'ticket.shareHeader' })
     const ShareButtonMessage = intl.formatMessage({ id: 'ticket.shareButton' })
     const OKMessage = intl.formatMessage({ id: 'OK' })

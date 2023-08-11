@@ -14,7 +14,7 @@ const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 
 const CreateTicketPropertyHintPage = () => {
     const intl = useIntl()
-    const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.newPropertyScope' })
+    const PageTitleMsg = intl.formatMessage({ id: 'settings.propertyScope.form.newPropertyScope' })
 
     return (
         <>

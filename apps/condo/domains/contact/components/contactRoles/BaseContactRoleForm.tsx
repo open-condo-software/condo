@@ -44,9 +44,9 @@ export const BaseContactRoleForm: React.FC<BaseTicketPropertyHintFormProps> = ({
     initialValues,
 }) => {
     const intl = useIntl()
-    const NameMessage = intl.formatMessage({ id: 'ContactRoles.name' })
-    const NamePlaceholderValue = intl.formatMessage({ id: 'ContactRoles.namePlaceholderValue' })
-    const ContactRoleIsDuplicateMessage = intl.formatMessage({ id: 'ContactRoles.error.duplicate' })
+    const NameMessage = intl.formatMessage({ id: 'contactRoles.name' })
+    const NamePlaceholderValue = intl.formatMessage({ id: 'contactRoles.namePlaceholderValue' })
+    const ContactRoleIsDuplicateMessage = intl.formatMessage({ id: 'contactRoles.error.duplicate' })
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
 

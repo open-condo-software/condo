@@ -17,9 +17,9 @@ const MeterReportingPeriodUpdatePage = () => {
     const intl = useIntl()
     const { query: { id: reportingPeriodId }, push } = useRouter()
 
-    const PageTitle = intl.formatMessage({ id: 'meter.reportingPeriod.EditMeterReportingPeriod' })
-    const NotFoundMsg = intl.formatMessage({ id: 'NotFound' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const PageTitle = intl.formatMessage({ id: 'meter.reportingPeriod.editMeterReportingPeriod' })
+    const NotFoundMsg = intl.formatMessage({ id: 'notFound' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
 
     const {
         obj: reportingPeriod,

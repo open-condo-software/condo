@@ -29,7 +29,7 @@ const taskLogger = getLogger('exportContacts')
 const contactToRow = ({ task, contact, translatedRolesMap }) => {
     const { locale } = task
 
-    const unitType = contact.unitName ? i18n(`field.UnitType.${contact.unitType}`, { locale }) : ''
+    const unitType = contact.unitName ? i18n(`field.unitType.${contact.unitType}`, { locale }) : ''
     const roleId = get(contact, 'role', null)
     return {
         name: contact.name,
@@ -39,7 +39,7 @@ const contactToRow = ({ task, contact, translatedRolesMap }) => {
         phone: contact.phone || EMPTY_VALUE,
         email: contact.email || EMPTY_VALUE,
         role: roleId ? translatedRolesMap[roleId] : EMPTY_VALUE,
-        isVerified: i18n(contact.isVerified ? 'Yes' : 'No', { locale }),
+        isVerified: i18n(contact.isVerified ? 'yes' : 'no', { locale }),
     }
 }
 

@@ -22,8 +22,8 @@ type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
 // TODO(DOMA-1588): Add memoization for hook members to prevent unnecessary rerenders
 export const usePropertyValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
-    const PropertyFieldIsRequiredMessage = intl.formatMessage({ id: 'field.Property.requiredError' })
-    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+    const PropertyFieldIsRequiredMessage = intl.formatMessage({ id: 'field.property.requiredError' })
+    const AddressNotSelected = intl.formatMessage({ id: 'field.property.nonSelectedError' })
 
     const { allowLandLine } = settings
 

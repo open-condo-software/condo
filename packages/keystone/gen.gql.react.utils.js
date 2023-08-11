@@ -15,8 +15,8 @@ function genReactHooks (TestUtils, { convertGQLItemToUIState, convertUIStateToGQ
 
     function useObjects (variables = {}, options = {}) {
         const intl = useIntl()
-        const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
-        const AccessErrorMsg = intl.formatMessage({ id: 'AccessError' })
+        const ServerErrorPleaseTryAgainLaterMsg = intl.formatMessage({ id: 'serverErrorPleaseTryAgainLater' })
+        const AccessErrorMsg = intl.formatMessage({ id: 'accessError' })
         let { loading, data, refetch, error, fetchMore } = useQuery(TestUtils.GET_ALL_OBJS_WITH_COUNT_QUERY, {
             variables,
             notifyOnNetworkStatusChange: true,

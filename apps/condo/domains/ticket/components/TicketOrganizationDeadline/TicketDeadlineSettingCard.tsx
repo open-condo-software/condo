@@ -21,8 +21,8 @@ const TYPOGRAPHY_STYLE: React.CSSProperties = { width: '100%' }
 
 export const TicketDeadlineSettingCard: React.FC<TicketDeadlineSettingCardProps> = ({ ticketSetting }) => {
     const intl = useIntl()
-    const TicketDeadlineTitle = intl.formatMessage({ id: 'pages.condo.settings.callCenter.card.ticketDeadlines.title' })
-    const TicketWithoutDefaultDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.callCenter.card.ticketDeadlines.withoutDeadline' })
+    const TicketDeadlineTitle = intl.formatMessage({ id: 'settings.callCenter.card.ticketDeadlines.title' })
+    const TicketWithoutDefaultDeadlineLabel = intl.formatMessage({ id: 'settings.callCenter.card.ticketDeadlines.withoutDeadline' })
 
     const router = useRouter()
 
@@ -40,10 +40,10 @@ export const TicketDeadlineSettingCard: React.FC<TicketDeadlineSettingCardProps>
                 deadlineText = TicketWithoutDefaultDeadlineLabel
             } else {
                 const deadline = convertDurationToDays(deadlineDuration)
-                deadlineText = `+${intl.formatMessage({ id: 'DaysShort' }, { days: deadline })}`
+                deadlineText = `+${intl.formatMessage({ id: 'daysShort' }, { days: deadline })}`
             }
             return {
-                label: `${intl.formatMessage({ id: `pages.condo.settings.callCenter.card.ticketDeadlines.type.${fieldName}` })}: ${deadlineText}`,
+                label: `${intl.formatMessage({ id: `settings.callCenter.card.ticketDeadlines.type.${fieldName}` })}: ${deadlineText}`,
                 type: fieldName,
                 deadlineDuration,
             }

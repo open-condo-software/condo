@@ -14,7 +14,7 @@ const TITLE_MARGIN = { marginBottom: '20px' }
 const MeterReportingPeriodCreatePage = () => {
     const intl = useIntl()
     
-    const PageTitle = intl.formatMessage({ id: 'meter.reportingPeriod.AddMeterReportingPeriod' })
+    const PageTitle = intl.formatMessage({ id: 'meter.reportingPeriod.addMeterReportingPeriod' })
 
     const router = useRouter()
     

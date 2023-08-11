@@ -66,9 +66,9 @@ const TICKET_CARD_HAS_MORE_LINK_STYLE: React.CSSProperties = { fontSize: 12, mar
 
 const TicketCard: React.FC<ITicketCardProps> = ({ contactId, address, tickets }) => {
     const intl = useIntl()
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const TicketsByContactMessage = intl.formatMessage({ id: 'TicketsByContact' })
-    const NoTicketsOnAddressMessage = intl.formatMessage({ id: 'Contact.NoTicketOnAddress' })
+    const AddressLabel = intl.formatMessage({ id: 'field.address' })
+    const TicketsByContactMessage = intl.formatMessage({ id: 'ticketsByContact' })
+    const NoTicketsOnAddressMessage = intl.formatMessage({ id: 'contact.noTicketOnAddress' })
 
     const { breakpoints } = useLayoutContext()
     const hasMoreTickets = tickets.length >= TICKETS_ON_CARD ? tickets.length - TICKETS_ON_CARD : 0
@@ -117,7 +117,7 @@ const TicketCard: React.FC<ITicketCardProps> = ({ contactId, address, tickets })
                                 <Col span={24}>
                                     <Link href={`/ticket/${query}`}>
                                         <Typography.Link style={TICKET_CARD_HAS_MORE_LINK_STYLE}>
-                                            {intl.formatMessage({ id: 'MoreTicketsLeft' }, {
+                                            {intl.formatMessage({ id: 'moreTicketsLeft' }, {
                                                 ticketsLeft: hasMoreTickets,
                                             })}
                                         </Typography.Link>
@@ -141,7 +141,7 @@ export const generateQueryVariables = (contactId: string) => ({
 
 const TicketCardList: React.FC<ITicketCardListProps> = ({ contactId }) => {
     const intl = useIntl()
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' })
 
     const {
         loading,

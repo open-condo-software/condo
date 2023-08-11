@@ -21,7 +21,7 @@ export interface IResendNewsForm {
 export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
     const intl = useIntl()
     const EmptyTemplateTitle = intl.formatMessage({ id: 'news.fields.emptyTemplate.title' })
-    const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMsg = intl.formatMessage({ id: 'serverError' })
 
     const { organization } = useOrganization()
     const organizationId = useMemo(() => get(organization, 'id'), [organization])

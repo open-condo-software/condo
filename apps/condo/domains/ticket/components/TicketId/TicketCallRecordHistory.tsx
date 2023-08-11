@@ -25,9 +25,9 @@ const ALERT_DESCRIPTION_WRAPPER_STYLE: CSSProperties = { paddingTop: '24px' }
 
 export const TicketCallRecordHistory: React.FC<ITicketCallRecordHistoryProps> = (props) => {
     const intl = useIntl()
-    const TicketCallRecordHistoryTitle = intl.formatMessage({ id: 'pages.condo.ticket.title.CallRecordsHistory' })
+    const TicketCallRecordHistoryTitle = intl.formatMessage({ id: 'ticket.title.callRecordsHistory' })
     const AttachCallToTicketMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket' })
-    const AttachMessage = intl.formatMessage({ id: 'global.Attach' })
+    const AttachMessage = intl.formatMessage({ id: 'global.attach' })
     const NotificationMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.message' })
     const NotificationDescription = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.description' })
 
@@ -60,7 +60,7 @@ export const TicketCallRecordHistory: React.FC<ITicketCallRecordHistoryProps> = 
     }, [NotificationDescription, NotificationMessage, requestFeature, ticketId, ticketOrganizationId])
 
     const showAttachCallToTicketAlert = isCallActive && !connectedTickets.find(id => ticketId === id)
-    
+
     if (ticketCalls.length === 0 && !showAttachCallToTicketAlert) {
         return null
     }

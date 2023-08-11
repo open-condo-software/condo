@@ -19,7 +19,7 @@ export interface IUpdateNewsForm {
 
 export const UpdateNewsActionBar = (props) => {
     const intl = useIntl()
-    const SaveButtonMessage = intl.formatMessage({ id: 'Save' })
+    const SaveButtonMessage = intl.formatMessage({ id: 'save' })
 
     const { handleSave, isLoading } = props
 
@@ -41,7 +41,7 @@ export const UpdateNewsActionBar = (props) => {
 
 export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
     const intl = useIntl()
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'serverError' })
     const EmptyTemplateTitle = intl.formatMessage({ id: 'news.fields.emptyTemplate.title' })
     
     const router = useRouter()

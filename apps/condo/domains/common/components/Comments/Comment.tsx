@@ -265,8 +265,8 @@ const CommentFileList: React.FC<CommentFileListProps> = ({ comment }) => {
 }
 
 const getCommentAuthorRoleMessage = (author: User, intl) => {
-    const ResidentMessage = intl.formatMessage({ id: 'Contact' }).toLowerCase()
-    const EmployeeMessage = intl.formatMessage({ id: 'Employee' }).toLowerCase()
+    const ResidentMessage = intl.formatMessage({ id: 'contact' }).toLowerCase()
+    const EmployeeMessage = intl.formatMessage({ id: 'employee' }).toLowerCase()
 
     switch (author.type) {
         case RESIDENT: {
@@ -280,11 +280,11 @@ const getCommentAuthorRoleMessage = (author: User, intl) => {
 
 export const Comment: React.FC<ICommentProps> = ({ comment, setEditableComment, deleteAction }) => {
     const intl = useIntl()
-    const ConfirmDeleteTitle = intl.formatMessage({ id: 'Comments.actions.delete.confirm.title' })
-    const ConfirmDeleteOkText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.okText' })
-    const ConfirmDeleteCancelText = intl.formatMessage({ id: 'Comments.actions.delete.confirm.cancelText' })
-    const CommentDeletedText = intl.formatMessage({ id: 'Comments.deleted' })
-    const MetaUpdatedText = intl.formatMessage({ id: 'Comments.meta.updated' })
+    const ConfirmDeleteTitle = intl.formatMessage({ id: 'comments.actions.delete.confirm.title' })
+    const ConfirmDeleteOkText = intl.formatMessage({ id: 'comments.actions.delete.confirm.okText' })
+    const ConfirmDeleteCancelText = intl.formatMessage({ id: 'comments.actions.delete.confirm.cancelText' })
+    const CommentDeletedText = intl.formatMessage({ id: 'comments.deleted' })
+    const MetaUpdatedText = intl.formatMessage({ id: 'comments.meta.updated' })
 
     const { user } = useAuth()
 

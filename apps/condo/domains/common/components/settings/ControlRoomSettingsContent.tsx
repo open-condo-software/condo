@@ -15,7 +15,7 @@ const CONTENT_GUTTER: Gutter | [Gutter, Gutter] = [0, 40]
 
 export const ControlRoomSettingsContent: React.FC = () => {
     const intl = useIntl()
-    const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
+    const ControlRoomTitle = intl.formatMessage({ id: 'controlRoom' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])

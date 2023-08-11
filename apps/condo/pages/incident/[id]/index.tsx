@@ -60,8 +60,8 @@ const IncidentPropertiesField: React.FC<IncidentFieldProps> = ({ incident }) => 
     const intl = useIntl()
     const AddressLabel = intl.formatMessage({ id: 'incident.fields.properties.label' })
     const AllPropertiesMessage = intl.formatMessage({ id: 'incident.fields.properties.allSelected' })
-    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const DeletedMessage = intl.formatMessage({ id: 'deleted' })
+    const LoadingMessage = intl.formatMessage({ id: 'loading' })
 
     const { objs: incidentProperties, allDataLoaded } = IncidentProperty.useAllObjects({
         where: {
@@ -189,7 +189,7 @@ const IncidentClassifiersField: React.FC<IncidentFieldProps> = ({ incident }) =>
     const intl = useIntl()
     const ClassifierLabel = intl.formatMessage({ id: 'incident.fields.classifier.label' })
     const HaveNotMessage = intl.formatMessage({ id: 'incident.fields.classifier.empty' })
-    const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const LoadingMessage = intl.formatMessage({ id: 'loading' })
 
     const { objs: incidentClassifiers, allDataLoaded } = IncidentClassifierIncident.useAllObjects({
         where: {
@@ -473,7 +473,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
 
 const IncidentIdPage: IIncidentIdPage = () => {
     const intl = useIntl()
-    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
+    const ServerErrorMessage = intl.formatMessage({ id: 'serverError' })
     const ErrorPageTitle = intl.formatMessage({ id: 'incident.id.error.title' })
 
     const router = useRouter()

@@ -89,8 +89,8 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     setSending,
 }) => {
     const intl = useIntl()
-    const PlaceholderMessage = intl.formatMessage({ id: 'Comments.form.placeholder' })
-    const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
+    const PlaceholderMessage = intl.formatMessage({ id: 'comments.form.placeholder' })
+    const HelperMessage = intl.formatMessage({ id: 'comments.form.helper' })
 
     const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
     const { getEventName, logEvent } = useTracking()

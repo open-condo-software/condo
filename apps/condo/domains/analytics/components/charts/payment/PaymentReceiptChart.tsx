@@ -13,8 +13,8 @@ import type { IPaymentChartCard } from './dataMappers'
 
 const PaymentReceiptChart: IPaymentChartCard = ({ data }) => {
     const intl = useIntl()
-    const ChargedTitle = intl.formatMessage({ id: 'Charged' })
-    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
+    const ChargedTitle = intl.formatMessage({ id: 'charged' })
+    const PaidTitle = intl.formatMessage({ id: 'paymentPaid' })
 
     const dataMapper = useMemo(() => PaymentReceiptDataMapper(ChargedTitle, PaidTitle), [ChargedTitle, PaidTitle])
 

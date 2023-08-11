@@ -13,7 +13,7 @@ import { Loader } from '../Loader'
 
 function RedirectToLogin () {
     const intl = useIntl()
-    const RedirectingMessage = intl.formatMessage({ id: 'Redirecting' })
+    const RedirectingMessage = intl.formatMessage({ id: 'redirecting' })
 
     const { asPath } = useRouter()
 
@@ -30,7 +30,7 @@ function RedirectToLogin () {
 
 export const AuthRequired: React.FC = ({ children }) => {
     const intl = useIntl()
-    const SignInRequiredMessage = intl.formatMessage({ id: 'SignInRequired' })
+    const SignInRequiredMessage = intl.formatMessage({ id: 'signInRequired' })
 
     const auth = useAuth()
     const { isAuthenticated, isLoading } = auth

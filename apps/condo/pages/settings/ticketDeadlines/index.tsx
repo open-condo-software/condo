@@ -15,7 +15,7 @@ const ROW_GUTTER: [Gutter, Gutter] = [0, 60]
 
 const TicketDeadlinesContent: React.FC = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.pageTitle' })
+    const PageTitle = intl.formatMessage({ id: 'settings.ticketDeadlines.pageTitle' })
 
     return (
         <>
@@ -34,7 +34,7 @@ const TicketDeadlinesContent: React.FC = () => {
 
 const TicketDeadlinesPage: React.FC = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.pageTitle' })
+    const PageTitle = intl.formatMessage({ id: 'settings.ticketDeadlines.pageTitle' })
 
     return (
         <>
