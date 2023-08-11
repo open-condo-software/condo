@@ -126,6 +126,7 @@ const addInstrumentationToKeystone = (tracer, keystone) => {
         patchedList.updateMutation = getTracedMutationFunction(ksListTracer, { listKey, name: 'updateMutation' }, list, list.updateMutation)
         patchedList.updateManyMutation = getTracedMutationFunction(ksListTracer, { listKey, name: 'updateManyMutation' }, list, list.updateManyMutation)
 
+        // Todo add deelete mutations
         // patchedList.deleteMutation = getMutationFunctionWithCache(list, list.deleteMutation, true, requestCache)
         // patchedList.deleteManyMutation = getMutationFunctionWithCache(list, list.deleteManyMutation, true, requestCache)
 
