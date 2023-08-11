@@ -171,6 +171,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [TICKET_EXECUTOR_CONNECTED_TYPE]: {
@@ -180,6 +181,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [TRACK_TICKET_IN_DOMA_APP_TYPE]: {
