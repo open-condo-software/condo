@@ -1,0 +1,9 @@
+schema.ts
+**/node_modules
+**/dist
+**/.next
+**/.kmigrator
+**/codegen.yaml
+
+**/cypress/videos/**
+**/cypress/screenshots/**
