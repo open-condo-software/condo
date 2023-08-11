@@ -125,6 +125,7 @@ const colors = {
     infoAlertBg,
     infoAlertMessage,
     infoAlertDescription,
+    sberDarkGreen,
 }
 
 const fontSizes = {

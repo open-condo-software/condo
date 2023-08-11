@@ -15,6 +15,8 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
+import { SBBOLIndicator } from './SBBOLIndicator'
+
 import { ASSIGNED_TICKET_VISIBILITY } from '../constants/common'
 
 import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
@@ -102,9 +104,12 @@ export const InlineOrganizationSelect: React.FC = () => {
         const items: DropdownProps['menu']['items'] = sortedEmployees.map(employee => ({
             key: employee.id,
             label: (
-                <Typography.Paragraph ellipsis={{ rows: 2 }} size='medium'>
-                    {get(employee, ['organization', 'name'], '')}
-                </Typography.Paragraph>
+                <Space direction='horizontal' size={8}>
+                    <SBBOLIndicator organization={get(employee, 'organization')} />
+                    <Typography.Paragraph ellipsis={{ rows: 2 }} size='medium'>
+                        {get(employee, ['organization', 'name'], '')}
+                    </Typography.Paragraph>
+                </Space>
             ),
             onClick: selectEmployee(employee.id),
         }))
