@@ -112,7 +112,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
 
     return (
-        <FullscreenWrapper mode='view' className={isFullscreen ? 'fullscreen' : '' }>
+        <FullscreenWrapper className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
                 <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!showViewModeSelect}>
                     {

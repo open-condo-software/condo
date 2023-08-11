@@ -11,8 +11,8 @@ export const FullscreenWrapper = styled.div<{
   padding: 24px;
   background: ${colors.backgroundLightGrey};
   &.fullscreen {
-    ${({ mode }) => `padding: ${mode === 'view' ? '76px 24px 84px' : '76px 24px 84px'};`}
-    box-sizing: padding-box;
+    padding: 76px 24px 84px;
+    box-sizing: border-box;
     overflow: auto;
 
     position: fixed;
