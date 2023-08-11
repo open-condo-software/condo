@@ -235,6 +235,9 @@ describe('DiscoverServiceConsumersService', () => {
                     unitName: unitName1,
                 })
 
+            // trying to create duplicates
+            await discoverServiceConsumersByTestClient(admin, { billingAccountsIds: [billingAccount1.id, billingAccount2.id] })
+
             // ...and check for service consumers created immediately
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 resident: { id: resident1.id },
