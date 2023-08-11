@@ -1444,7 +1444,7 @@
   "TicketAssignment": "Application assignment",
   "ticketsTable.Number": "№",
   "ticketsTable.ResidentName": "Resident Name",
-  "ticket.callRecord.attachCallRecordToTicket": "You can attach this call to the ticket",
+  "ticket.callRecord.attachCallRecordToTicket": "Attach call",
   "ticket.callRecord.attachCallRecordToTicket.notification.message": "The call is attached to the ticket",
   "ticket.callRecord.attachCallRecordToTicket.notification.description": "Conversation record saved in ticket card",
   "ticket.callRecord.incomingCall": "Incoming call from {phone}",
