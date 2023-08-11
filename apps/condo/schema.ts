@@ -34831,6 +34831,10 @@ export type Mutation = {
    * 			"residentId": {
    * 				"defaultValue": "",
    * 				"required": true
+   * 			},
+   * 			"organizationId": {
+   * 				"defaultValue": "",
+   * 				"required": true
    * 			}
    * 		}
    * 	},
