@@ -11,6 +11,7 @@ import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 export const StyledTabs = styled(Tabs)`
     > .condo-tabs-nav {
         margin: 0;
+        height: 46px;
 
         .condo-tabs-ink-bar {
           display: none;
