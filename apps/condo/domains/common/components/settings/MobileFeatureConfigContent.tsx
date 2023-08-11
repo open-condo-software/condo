@@ -1,7 +1,7 @@
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
-import React  from 'react'
+import React from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
