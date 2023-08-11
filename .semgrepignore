@@ -1,3 +1,4 @@
+.github/*
 schema.ts
 **/node_modules
 **/dist

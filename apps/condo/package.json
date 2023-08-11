@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "analysis": "../../bin/run-semgrep.sh",
     "test": "mkdirp dist/admin && jest --unhandled-rejections=strict",
     "prepare": "node ./bin/prepare.js",
     "dev": "yarn build:deps && node --trace-warnings ./../../bin/keystone-dev.js",
