@@ -4,6 +4,7 @@ import { jsx } from '@emotion/react'
 import { Col, Form, Row, Typography } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+import isNil from 'lodash/isNil'
 import { useRouter } from 'next/router'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -60,11 +61,14 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const OrMessage = intl.formatMessage({ id: 'Or' })
     const DeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const SubmitButtonLabel = intl.formatMessage({ id: 'ApplyChanges' })
+    const SubmitButtonApplyLabel = intl.formatMessage({ id: 'ApplyChanges' })
+    const SubmitButtonCreateLabel = intl.formatMessage({ id: 'Create' })
     const AddressPlaceholderMessage = intl.formatMessage({ id: 'placeholder.Address' })
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const StartLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.start' })
     const FinishLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.finish' })
+    const AddressPlaceholderLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.addressPlaceholder' })
+    const AddressPlaceholderDefaultPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.addressPlaceholderIfDefaultPeriod' })
     const IncorrectPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.incorrectPeriod' })
     const OrganizationLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationPeriod' })
     const OrganizationTooltipMessage = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.create.organizationTooltip' })
@@ -91,6 +95,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const startNumberRef = useRef<number>(formInitialValues.notifyStartDay)
     const finishNumberRef = useRef<number>(formInitialValues.notifyEndDay)
+    const [selectRerender, execSelectRerender] = useState()
     const selectedPropertyIdRef = useRef(selectedPropertyId)
 
     useEffect(() => {
@@ -135,11 +140,13 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
 
     const handleStartChange = useCallback((value) => {
         startNumberRef.current = value
+        execSelectRerender(value)
         handleDayChange()
     }, [])
 
     const handleFinishChange = useCallback((value) => {
         finishNumberRef.current = value
+        execSelectRerender(value)
         handleDayChange()
     }, [])
 
@@ -153,7 +160,6 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         error: periodsLoadingError,
     } = MeterReportingPeriod.useObjects({
         where: {
-            property_is_null: false,
             organization: { id: organizationId },
         },
     },
@@ -161,7 +167,11 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         fetchPolicy: 'network-only',
     })
 
-    const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, reportingPeriods.map(period => period.property.id)),
+    const hasOrganizationPeriod = Boolean(reportingPeriods.find(period => isNil(period.property) && !isNil(period.organization)))
+
+    const periodsWithProperty = reportingPeriods.filter(period => !isNil(period.property))
+
+    const search = useMemo(() => searchOrganizationPropertyWithoutPropertyHint(organizationId, periodsWithProperty.map(period => period.property.id)),
         [organization, isPeriodsLoading])
 
     const handelGQLInputChange = () => {
@@ -189,8 +199,8 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                     values.property = { connect: { id: selectedPropertyIdRef.current } }
                 }
                 values.isOrganizationPeriod = undefined
-                values.notifyStartDay = parseInt(values.notifyStartDay)
-                values.notifyEndDay = parseInt(values.notifyEndDay)
+                values.notifyStartDay = startNumberRef.current
+                values.notifyEndDay = finishNumberRef.current
 
                 if (isCreateMode) {
                     values.organization = { connect: { id: organizationId } }
@@ -224,6 +234,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                 <GraphQlSearchInput
                                                     label={AddressPlaceholderMessage}
                                                     showArrow={false}
+                                                    placeholder={isOrganizationPeriod ? AddressPlaceholderDefaultPeriodLabel : AddressPlaceholderLabel}
                                                     disabled={isOrganizationPeriod}
                                                     onChange={handelGQLInputChange}
                                                     initialValue={isCreateMode ? undefined : selectedPropertyId}
@@ -243,6 +254,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                         >
                                             <Checkbox
                                                 checked={isOrganizationPeriod}
+                                                disabled={hasOrganizationPeriod}
                                                 eventName='OrganizationReportingPeriodCheckbox'
                                                 style={CHECKBOX_STYLE}
                                                 onChange={handleCheckboxChange}
@@ -257,7 +269,6 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             {...INPUT_LAYOUT_PROPS}
                                             labelAlign='left'
                                             required
-                                            shouldUpdate
                                             validateFirst
                                         >
                                             <Select
@@ -326,7 +337,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                                                     onClick={handleSave}
                                                                     loading={isLoading}
                                                                 >
-                                                                    {SubmitButtonLabel}
+                                                                    {isCreateMode ? SubmitButtonCreateLabel : SubmitButtonApplyLabel}
                                                                 </ButtonWithDisabledTooltip>,
                                                                 isCreateMode ? <></> : <DeleteButtonWithConfirmModal
                                                                     key='delete'

@@ -493,7 +493,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const createMeterReadingAction = PropertyMeterReading.useCreate({
         source: { connect: { id: CRM_METER_READING_SOURCE_ID } },
     }, async () => {
-        await router.push(`/meter?meterType=${METER_PAGE_TYPES.propertyMeter}`)
+        await router.push(`/meter?tab=${METER_PAGE_TYPES.propertyMeter}`)
     })
 
     const handleSubmit = useCallback(async (values) => {
