@@ -31,7 +31,7 @@ const AllTicketChartDataMapper = new TicketChart({
                 .from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
                 .sort((a, b) => dayjs(a, DATE_FORMAT).unix() - dayjs(b, DATE_FORMAT).unix())
 
-            Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
+            Object.entries(aggregatedData).forEach(([groupBy, dataObj], index) => {
                 series.push({
                     name: groupBy,
                     type: viewMode,
@@ -72,7 +72,7 @@ const TicketByCategoryDataMapper = new TicketChart({
                 .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
                 .slice(0, TOP_VALUES)
 
-            Object.entries(aggregatedData).map(([groupBy, dataObj], index) => {
+            Object.entries(aggregatedData).forEach(([groupBy, dataObj], index) => {
                 const seriesConfig = {
                     name: groupBy,
                     type: viewMode,
@@ -133,7 +133,7 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
                 .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
                 .slice(0, TOP_VALUES).reverse()
 
-            Object.entries(aggregatedData).map(([groupBy, dataObj]) => {
+            Object.entries(aggregatedData).forEach(([groupBy, dataObj]) => {
                 const seriesConfig = {
                     name: groupBy,
                     type: viewMode,
