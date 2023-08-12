@@ -4632,6 +4632,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4772,6 +4773,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageCallRecords_not: Boolean
   canDownloadCallRecords: Boolean
   canDownloadCallRecords_not: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageMobileFeatureConfigs_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4911,6 +4914,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageCallRecords_DESC
   canDownloadCallRecords_ASC
   canDownloadCallRecords_DESC
+  canManageMobileFeatureConfigs_ASC
+  canManageMobileFeatureConfigs_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4964,6 +4969,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5018,6 +5024,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5101,6 +5108,7 @@ type OrganizationEmployeeRole {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5229,6 +5237,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageCallRecords_not: Boolean
   canDownloadCallRecords: Boolean
   canDownloadCallRecords_not: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageMobileFeatureConfigs_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5350,6 +5360,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageCallRecords_DESC
   canDownloadCallRecords_ASC
   canDownloadCallRecords_DESC
+  canManageMobileFeatureConfigs_ASC
+  canManageMobileFeatureConfigs_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5402,6 +5414,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5452,6 +5465,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62583,6 +62597,446 @@ input B2BAppAccessRightSetsCreateInput {
   data: B2BAppAccessRightSetCreateInput
 }
 
+enum MobileFeatureConfigHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type MobileFeatureConfigHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MobileFeatureConfigHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MobileFeatureConfigHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MobileFeatureConfigHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MobileFeatureConfigHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MobileFeatureConfigHistoryRecordWhereInput {
+  AND: [MobileFeatureConfigHistoryRecordWhereInput]
+  OR: [MobileFeatureConfigHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  commonPhone: String
+  commonPhone_not: String
+  commonPhone_contains: String
+  commonPhone_not_contains: String
+  commonPhone_starts_with: String
+  commonPhone_not_starts_with: String
+  commonPhone_ends_with: String
+  commonPhone_not_ends_with: String
+  commonPhone_i: String
+  commonPhone_not_i: String
+  commonPhone_contains_i: String
+  commonPhone_not_contains_i: String
+  commonPhone_starts_with_i: String
+  commonPhone_not_starts_with_i: String
+  commonPhone_ends_with_i: String
+  commonPhone_not_ends_with_i: String
+  commonPhone_in: [String]
+  commonPhone_not_in: [String]
+  ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingIsDisabled_not: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_action_not: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_action_in: [MobileFeatureConfigHistoryRecordHistoryActionType]
+  history_action_not_in: [MobileFeatureConfigHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input MobileFeatureConfigHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMobileFeatureConfigHistoryRecordsBy {
+  commonPhone_ASC
+  commonPhone_DESC
+  ticketSubmittingIsDisabled_ASC
+  ticketSubmittingIsDisabled_DESC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_ASC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input MobileFeatureConfigHistoryRecordUpdateInput {
+  organization: String
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MobileFeatureConfigHistoryRecordsUpdateInput {
+  id: ID!
+  data: MobileFeatureConfigHistoryRecordUpdateInput
+}
+
+input MobileFeatureConfigHistoryRecordCreateInput {
+  organization: String
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MobileFeatureConfigHistoryRecordsCreateInput {
+  data: MobileFeatureConfigHistoryRecordCreateInput
+}
+
+""" Manages availability of some features in mobile application, stores data required in disabled state of a feature. 
+"""
+type MobileFeatureConfig {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MobileFeatureConfig List config, or
+   2. As an alias to the field set on 'labelField' in the MobileFeatureConfig List config, or
+   3. As an alias to a 'name' field on the MobileFeatureConfig List (if one exists), or
+   4. As an alias to the 'id' field on the MobileFeatureConfig List.
+  """
+  _label_: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Phone number where the organization wants to receive common calls """
+  commonPhone: String
+
+  """ Disabling the ability to send tickets by the user of the resident's mobile application. Instead, he will be shown a screen with phones where he can contact to send a request 
+  """
+  ticketSubmittingIsDisabled: Boolean
+
+  """ Restricts residents to submit only meter readings, that are greater than previous. Restrictions apply to mobile phones only. 
+  """
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+
+  """ Can be used to store some meta information for mobile applications. """
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input MobileFeatureConfigWhereInput {
+  AND: [MobileFeatureConfigWhereInput]
+  OR: [MobileFeatureConfigWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  commonPhone: String
+  commonPhone_not: String
+  commonPhone_contains: String
+  commonPhone_not_contains: String
+  commonPhone_starts_with: String
+  commonPhone_not_starts_with: String
+  commonPhone_ends_with: String
+  commonPhone_not_ends_with: String
+  commonPhone_i: String
+  commonPhone_not_i: String
+  commonPhone_contains_i: String
+  commonPhone_not_contains_i: String
+  commonPhone_starts_with_i: String
+  commonPhone_not_starts_with_i: String
+  commonPhone_ends_with_i: String
+  commonPhone_not_ends_with_i: String
+  commonPhone_in: [String]
+  commonPhone_not_in: [String]
+  ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingIsDisabled_not: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input MobileFeatureConfigWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMobileFeatureConfigsBy {
+  organization_ASC
+  organization_DESC
+  commonPhone_ASC
+  commonPhone_DESC
+  ticketSubmittingIsDisabled_ASC
+  ticketSubmittingIsDisabled_DESC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_ASC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input MobileFeatureConfigUpdateInput {
+  organization: OrganizationRelateToOneInput
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MobileFeatureConfigsUpdateInput {
+  id: ID!
+  data: MobileFeatureConfigUpdateInput
+}
+
+input MobileFeatureConfigCreateInput {
+  organization: OrganizationRelateToOneInput
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MobileFeatureConfigsCreateInput {
+  data: MobileFeatureConfigCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -68157,6 +68611,36 @@ type Query {
   """ Retrieve the meta-data for the B2BAppAccessRightSet list. """
   _B2BAppAccessRightSetsMeta: _ListMeta
 
+  """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
+  """
+  allMobileFeatureConfigHistoryRecords(where: MobileFeatureConfigHistoryRecordWhereInput, search: String, sortBy: [SortMobileFeatureConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MobileFeatureConfigHistoryRecord]
+
+  """ Search for the MobileFeatureConfigHistoryRecord item with the matching ID. 
+  """
+  MobileFeatureConfigHistoryRecord(where: MobileFeatureConfigHistoryRecordWhereUniqueInput!): MobileFeatureConfigHistoryRecord
+
+  """ Perform a meta-query on all MobileFeatureConfigHistoryRecord items which match the where clause. 
+  """
+  _allMobileFeatureConfigHistoryRecordsMeta(where: MobileFeatureConfigHistoryRecordWhereInput, search: String, sortBy: [SortMobileFeatureConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MobileFeatureConfigHistoryRecord list. 
+  """
+  _MobileFeatureConfigHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MobileFeatureConfig items which match the where clause. 
+  """
+  allMobileFeatureConfigs(where: MobileFeatureConfigWhereInput, search: String, sortBy: [SortMobileFeatureConfigsBy!], orderBy: String, first: Int, skip: Int): [MobileFeatureConfig]
+
+  """ Search for the MobileFeatureConfig item with the matching ID. """
+  MobileFeatureConfig(where: MobileFeatureConfigWhereUniqueInput!): MobileFeatureConfig
+
+  """ Perform a meta-query on all MobileFeatureConfig items which match the where clause. 
+  """
+  _allMobileFeatureConfigsMeta(where: MobileFeatureConfigWhereInput, search: String, sortBy: [SortMobileFeatureConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MobileFeatureConfig list. """
+  _MobileFeatureConfigsMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -72396,6 +72880,42 @@ type Mutation {
 
   """ Delete multiple B2BAppAccessRightSet items by ID. """
   deleteB2BAppAccessRightSets(ids: [ID!]): [B2BAppAccessRightSet]
+
+  """ Create a single MobileFeatureConfigHistoryRecord item. """
+  createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord
+
+  """ Create multiple MobileFeatureConfigHistoryRecord items. """
+  createMobileFeatureConfigHistoryRecords(data: [MobileFeatureConfigHistoryRecordsCreateInput]): [MobileFeatureConfigHistoryRecord]
+
+  """ Update a single MobileFeatureConfigHistoryRecord item by ID. """
+  updateMobileFeatureConfigHistoryRecord(id: ID!, data: MobileFeatureConfigHistoryRecordUpdateInput): MobileFeatureConfigHistoryRecord
+
+  """ Update multiple MobileFeatureConfigHistoryRecord items by ID. """
+  updateMobileFeatureConfigHistoryRecords(data: [MobileFeatureConfigHistoryRecordsUpdateInput]): [MobileFeatureConfigHistoryRecord]
+
+  """ Delete a single MobileFeatureConfigHistoryRecord item by ID. """
+  deleteMobileFeatureConfigHistoryRecord(id: ID!): MobileFeatureConfigHistoryRecord
+
+  """ Delete multiple MobileFeatureConfigHistoryRecord items by ID. """
+  deleteMobileFeatureConfigHistoryRecords(ids: [ID!]): [MobileFeatureConfigHistoryRecord]
+
+  """ Create a single MobileFeatureConfig item. """
+  createMobileFeatureConfig(data: MobileFeatureConfigCreateInput): MobileFeatureConfig
+
+  """ Create multiple MobileFeatureConfig items. """
+  createMobileFeatureConfigs(data: [MobileFeatureConfigsCreateInput]): [MobileFeatureConfig]
+
+  """ Update a single MobileFeatureConfig item by ID. """
+  updateMobileFeatureConfig(id: ID!, data: MobileFeatureConfigUpdateInput): MobileFeatureConfig
+
+  """ Update multiple MobileFeatureConfig items by ID. """
+  updateMobileFeatureConfigs(data: [MobileFeatureConfigsUpdateInput]): [MobileFeatureConfig]
+
+  """ Delete a single MobileFeatureConfig item by ID. """
+  deleteMobileFeatureConfig(id: ID!): MobileFeatureConfig
+
+  """ Delete multiple MobileFeatureConfig items by ID. """
+  deleteMobileFeatureConfigs(ids: [ID!]): [MobileFeatureConfig]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord
