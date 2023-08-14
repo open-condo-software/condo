@@ -306,4 +306,5 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
 
 module.exports = {
     softDeleted,
+    SOFT_DELETED_ERRORS: ERRORS,
 }

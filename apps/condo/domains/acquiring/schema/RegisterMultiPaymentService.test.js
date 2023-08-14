@@ -6,9 +6,10 @@ const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
 
+const { SOFT_DELETED_ERRORS } = require('@open-condo/keystone/plugins/softDeleted')
 const {
     makeClient,
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -938,6 +939,32 @@ describe('RegisterMultiPaymentService', () => {
             expect(multiPaymentSum).toEqual(delta)
         })
     })
+
+    describe('SoftDeleted tests', () => {
+        test('Cannot delete billingIntegration when billingIntegrationContext depends on it', async () => {
+            const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
+
+            const billingIntegrationId = batches[0].billingIntegration.id
+            const billingContextId = batches[0].billingContext.id
+
+            await expectToThrowGQLError(
+                async () => {
+                    await updateTestBillingIntegration(commonData.admin, batches[0].billingIntegration.id, {
+                        deletedAt: dayjs().toISOString(),
+                    })
+                },
+                { ...SOFT_DELETED_ERRORS.CANNOT_DELETE_PROTECTED_RELATION,
+                    messageInterpolation: {
+                        relTo: 'BillingIntegration',
+                        relFrom: 'BillingIntegrationOrganizationContext',
+                        objId: billingIntegrationId,
+                        existingDependants: billingContextId,
+                    },
+                }
+            )
+        })
+    })
+
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
     describe('ServerSchema get all should provide enough fields', () => {
         test('AcquiringIntegration', async () => {
