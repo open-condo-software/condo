@@ -56,7 +56,6 @@ const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
 const { getRedisClient } = require('./redis')
-const {getTracer} = require("./tracing");
 
 const STATE_REDIS_KEY_PREFIX = 'adapterCacheState'
 const METRIC_PREFIX = 'adapterCache'

@@ -35,8 +35,6 @@ function getTracedMutationFunction (tracer, config, ctx, f) {
 
             span.setAttribute('listKey', listKey)
 
-            span.setAttribute('x-request-id', '')
-
             const result = await f.call(ctx, data, context, mutationState)
             span.end()
             return result
@@ -68,11 +66,6 @@ const patchKeystoneGraphQLExecutor = (tracer, keystone) => {
 }
 
 
-const patchKeystoneAdapter = (tracer, keystone) => {
-
-}
-
-
 const patchKeystoneList = (tracer, keystone) => {
     keystone.listsArray.map((list) => {
         const patchedList = list
@@ -96,9 +89,49 @@ const patchKeystoneList = (tracer, keystone) => {
     })
 }
 
+
+const getTracedAdapterFunction = (tracer, config, ctx, f) => {
+    const { name, listKey } = config
+
+    return async function (...args) {
+        return tracer.startActiveSpan(name + DELIMETER + listKey, async (span) => {
+            span.setAttribute('type', 'adapter')
+
+            span.setAttribute('listKey', listKey)
+            span.setAttribute('functionName', name)
+
+            const res = await f.call(ctx, ...args)
+            span.end()
+            return res
+        })
+    }
+}
+
+
+const patchKeystoneAdapter = (tracer, keystone) => {
+    for (const listAdapter of Object.values(get(keystone, ['adapter', 'listAdapters']))) {
+        const originalListAdapter = listAdapter
+        const listKey = listAdapter.key
+
+        listAdapter.find = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:find' }, listAdapter, originalListAdapter.find)
+        listAdapter.findOne = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:findOne' }, listAdapter, originalListAdapter.findOne)
+        listAdapter.findById = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:findById' }, listAdapter, originalListAdapter.findById)
+        listAdapter.itemsQuery = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:itemsQuery' }, listAdapter, originalListAdapter.itemsQuery)
+
+        listAdapter.create = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:create' }, listAdapter, originalListAdapter.create)
+        listAdapter.delete = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:delete' }, listAdapter, originalListAdapter.delete)
+        listAdapter.update = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:update' }, listAdapter, originalListAdapter.update)
+
+        listAdapter.createMany = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:createMany' }, listAdapter, originalListAdapter.createMany)
+        listAdapter.deleteMany = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:createMany' }, listAdapter, originalListAdapter.deleteMany)
+        listAdapter.updateMany = getTracedAdapterFunction(tracer, { listKey, name: 'adapter:createMany' }, listAdapter, originalListAdapter.updateMany)
+    }
+}
+
 const patchKeystone = (tracer, keystone) => {
     patchKeystoneGraphQLExecutor(tracer, keystone)
     patchKeystoneList(tracer, keystone)
+    patchKeystoneAdapter(tracer, keystone)
 }
 
 module.exports = {
