@@ -1,8 +1,9 @@
 const get = require('lodash/get')
 
 const conf = require('@open-condo/config')
-const { AddressServiceClient } = require('@open-condo/keystone/plugins/utils/address-service-client/AddressServiceClient')
-const { MockedAddressServiceClient } = require('@open-condo/keystone/plugins/utils/address-service-client/MockedAddressServiceClient')
+
+const { AddressServiceClient } = require('./AddressServiceClient')
+const { MockedAddressServiceClient } = require('./MockedAddressServiceClient')
 
 let instance
 
