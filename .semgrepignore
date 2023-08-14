@@ -1,5 +1,6 @@
 .github/*
-schema.ts
+*schema.graphql
+*schema.ts
 **/node_modules
 **/dist
 **/.next
@@ -8,3 +9,15 @@ schema.ts
 
 **/cypress/videos/**
 **/cypress/screenshots/**
+*.png
+
+# yarn berry
+.pnp.*
+.yarn/*
+*yarn.lock
+.idea/*
+
+# yarn + npm
+yarn-error.log
+npm-debug.*
+ignore.*
