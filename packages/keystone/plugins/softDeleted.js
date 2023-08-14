@@ -1,6 +1,8 @@
 const { getType } = require('@keystonejs/utils')
 const { get } = require('lodash')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+
 const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./utils')
 const { plugin } = require('./utils/typing')
 
@@ -89,7 +91,7 @@ const hasObjs = async (schemaName, path, objId) => {
  * 2. Have book.author equal to Author, that relates to deleted User
  * 3. Since these books exist ([Book<id=1>]) we raise an error
  */
-const canDelete = async (listName, obj) => {
+const canDelete = async (listName, obj, context) => {
     const relations = getListDependentRelations(listName)
 
     const objId = typeof obj === 'string' ? obj : obj.id
@@ -100,7 +102,10 @@ const canDelete = async (listName, obj) => {
         if (onDelete === PROTECT) {
             const existingDependants = await hasObjs(rel.from, rel.path, objId)
             if (existingDependants.length > 0) {
-                throw new Error(`You can not delete ${rel.to}:${objId}, dependant: ${rel.from} exists: ${existingDependants.map(x => x.id).join(',')}, and on_delete rule on ${rel.from} set to ${onDelete}`)
+                throw new GQLError({
+                    ...ERRORS.CANNOT_DELETE_PROTECTED_RELATION,
+                    messageInterpolation: { relTo: rel.to, relFrom: rel.from, existingDependants: existingDependants.map(x => x.id).join(','), objId: obj.id },
+                }, context)
             }
         }
         if (onDelete === CASCADE) {
@@ -113,6 +118,31 @@ const canDelete = async (listName, obj) => {
     }
 
     return true
+}
+
+const ALREADY_MERGED = 'ALREADY_MERGED'
+const ALREADY_DELETED = 'ALREADY_DELETED'
+const CANNOT_DELETE_PROTECTED_RELATION = 'CANNOT_DELETE_PROTECTED_RELATION'
+
+const ERRORS = {
+    ALREADY_MERGED: {
+        code: BAD_USER_INPUT,
+        type: ALREADY_MERGED,
+        message: 'Already merged',
+        messageForUser: `api.softDeleted.${ALREADY_MERGED}`,
+    },
+    ALREADY_DELETED: {
+        code: BAD_USER_INPUT,
+        type: ALREADY_DELETED,
+        message: 'Already deleted',
+        messageForUser: `api.softDeleted.${ALREADY_DELETED}`,
+    },
+    CANNOT_DELETE_PROTECTED_RELATION: {
+        code: BAD_USER_INPUT,
+        type: CANNOT_DELETE_PROTECTED_RELATION,
+        message: 'You cannot delete this entity. It has a dependant relation, with relation.onDelete set to PROTECT',
+        messageForUser: `api.softDeleted.${CANNOT_DELETE_PROTECTED_RELATION}`,
+    },
 }
 
 const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
@@ -152,15 +182,15 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     fields[newIdField] = { ...newIdOptions }
 
     // NOTE: we can't change and restore already merged objects!
-    const newResolveInput = async ({ existingItem, resolvedData }) => {
+    const newResolveInput = async ({ context, existingItem, resolvedData }) => {
         if (existingItem && existingItem[newIdField]) {
-            throw new Error('Already merged')
+            throw new GQLError(ERRORS.ALREADY_MERGED, context)
         }
         if (existingItem && existingItem[deletedAtField] && resolvedData[deletedAtField] !== null) {
-            throw new Error('Already deleted')
+            throw new GQLError(ERRORS.ALREADY_DELETED, context)
         }
         if (resolvedData[deletedAtField]) {
-            await canDelete(schemaName, { ...existingItem, ...resolvedData })
+            await canDelete(schemaName, { ...existingItem, ...resolvedData }, context)
             resolvedData[deletedAtField] = new Date().toISOString()
         }
         if (resolvedData[newIdField]) {
