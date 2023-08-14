@@ -6,12 +6,10 @@ const MUTATION_QUERY_REGEX = /(?:mutation|query)\s+(\w+)/
 
 
 function getTracedQueryFunction (tracer, config, ctx, f) {
-    const { name, listKey, hooks } = config
+    const { name, listKey } = config
 
     return async function (args, context, gqlName, info, from) {
         return tracer.startActiveSpan(name + DELIMETER + listKey, async (span) => {
-            if (hooks.setCommonAttributes) { hooks.setCommonAttributes(span) }
-
             span.setAttribute('type', 'query')
 
             span.setAttribute('listKey', listKey)
@@ -29,7 +27,7 @@ function getTracedQueryFunction (tracer, config, ctx, f) {
 
 
 function getTracedMutationFunction (tracer, config, ctx, f) {
-    const { name, listKey, hooks } = config
+    const { name, listKey } = config
 
     return async function (data, context, mutationState) {
         return tracer.startActiveSpan(name + DELIMETER + listKey, async (span) => {
@@ -37,7 +35,7 @@ function getTracedMutationFunction (tracer, config, ctx, f) {
 
             span.setAttribute('listKey', listKey)
 
-            if (hooks.setCommonAttributes) { hooks.setCommonAttributes(span) }
+            span.setAttribute('x-request-id', '')
 
             const result = await f.call(ctx, data, context, mutationState)
             span.end()
@@ -47,7 +45,7 @@ function getTracedMutationFunction (tracer, config, ctx, f) {
 }
 
 
-const patchKeystoneGraphQLExecutor = (tracer, keystone, hooks) => {
+const patchKeystoneGraphQLExecutor = (tracer, keystone) => {
     const originalExecuteGraphQL = keystone.executeGraphQL
     keystone.executeGraphQL = ({ context, query, variables }) => {
         let queryName = undefined
@@ -60,8 +58,6 @@ const patchKeystoneGraphQLExecutor = (tracer, keystone, hooks) => {
         }
 
         return tracer.startActiveSpan('gql' + DELIMETER + queryName, async (span) => {
-            if (hooks.setCommonAttributes) { hooks.setCommonAttributes(span) }
-
             span.setAttribute('queryName', queryName)
 
             const result = originalExecuteGraphQL.call(keystone, { context, query, variables })
@@ -72,37 +68,37 @@ const patchKeystoneGraphQLExecutor = (tracer, keystone, hooks) => {
 }
 
 
-const patchKeystoneAdapter = (tracer, keystone, hooks) => {
+const patchKeystoneAdapter = (tracer, keystone) => {
 
 }
 
 
-const patchKeystoneList = (tracer, keystone, hooks) => {
+const patchKeystoneList = (tracer, keystone) => {
     keystone.listsArray.map((list) => {
         const patchedList = list
 
         const listKey = list.key
 
-        patchedList.createMutation = getTracedMutationFunction(tracer, { listKey, name: 'createMutation', hooks }, list, list.createMutation)
-        patchedList.createManyMutation = getTracedMutationFunction(tracer, { listKey, name: 'createManyMutation', hooks }, list, list.createManyMutation)
+        patchedList.createMutation = getTracedMutationFunction(tracer, { listKey, name: 'createMutation' }, list, list.createMutation)
+        patchedList.createManyMutation = getTracedMutationFunction(tracer, { listKey, name: 'createManyMutation' }, list, list.createManyMutation)
 
-        patchedList.updateMutation = getTracedMutationFunction(tracer, { listKey, name: 'updateMutation', hooks }, list, list.updateMutation)
-        patchedList.updateManyMutation = getTracedMutationFunction(tracer, { listKey, name: 'updateManyMutation', hooks }, list, list.updateManyMutation)
+        patchedList.updateMutation = getTracedMutationFunction(tracer, { listKey, name: 'updateMutation' }, list, list.updateMutation)
+        patchedList.updateManyMutation = getTracedMutationFunction(tracer, { listKey, name: 'updateManyMutation' }, list, list.updateManyMutation)
 
         // Todo add delete mutations
         // patchedList.deleteMutation = getMutationFunctionWithCache(list, list.deleteMutation, true, requestCache)
         // patchedList.deleteManyMutation = getMutationFunctionWithCache(list, list.deleteManyMutation, true, requestCache)
 
-        patchedList.listQuery = getTracedQueryFunction(tracer, { listKey, name: 'listQuery', hooks }, list, list.listQuery)
-        patchedList.itemQuery = getTracedQueryFunction(tracer, { listKey, name: 'itemQuery', hooks }, list, list.itemQuery)
+        patchedList.listQuery = getTracedQueryFunction(tracer, { listKey, name: 'listQuery' }, list, list.listQuery)
+        patchedList.itemQuery = getTracedQueryFunction(tracer, { listKey, name: 'itemQuery' }, list, list.itemQuery)
 
         return patchedList
     })
 }
 
-const patchKeystone = (tracer, keystone, hooks) => {
-    patchKeystoneGraphQLExecutor(tracer, keystone, hooks)
-    patchKeystoneList(tracer, keystone, hooks)
+const patchKeystone = (tracer, keystone) => {
+    patchKeystoneGraphQLExecutor(tracer, keystone)
+    patchKeystoneList(tracer, keystone)
 }
 
 module.exports = {
