@@ -30,7 +30,7 @@ dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
-const IS_ENABLE_GRAFANA_TRACE = true
+const IS_ENABLE_GRAFANA_TRACE = conf.GRAFANA_TRACE_ENABLED === 'true'
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 
