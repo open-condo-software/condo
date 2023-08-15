@@ -121,6 +121,8 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
 
     useDeepCompareEffect(() => {
         const escapedPath = path ? path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : undefined
+        // not a ReDoS issue: running on end user browser
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         const regex = new RegExp(`^${escapedPath}`)
         setIsActive(path === '/'
             ? asPath === path

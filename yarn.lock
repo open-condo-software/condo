@@ -740,6 +740,7 @@ __metadata:
     react-progressive-image: ^0.6.0
     react-test-renderer: ^16.13.1
     react-yandex-metrika: ^2.6.0
+    recheck: ^4.4.5
     redlock: ^5.0.0-beta.2
     serialize-error: ^8.1.0
     swr: ^1.3.0
@@ -38296,6 +38297,55 @@ __metadata:
   dependencies:
     picomatch: ^2.2.1
   checksum: 1ced032e6e45670b6d7352d71d21ce7edf7b9b928494dcaba6f11fba63180d9da6cd7061ebc34175ffda6ff529f481818c962952004d273178acd70f7059b320
+  languageName: node
+  linkType: hard
+
+"recheck-jar@npm:4.4.5":
+  version: 4.4.5
+  resolution: "recheck-jar@npm:4.4.5"
+  checksum: d0304ec712d5db1651c4f410eb80241cedddc17363cd559f77f6a7d2b800dec390d7a99639fd263c3a2aa5ddd502208aede8158df0a53b415b28f05b32ffb8ae
+  languageName: node
+  linkType: hard
+
+"recheck-linux-x64@npm:4.4.5":
+  version: 4.4.5
+  resolution: "recheck-linux-x64@npm:4.4.5"
+  conditions: os=linux & cpu=x64
+  languageName: node
+  linkType: hard
+
+"recheck-macos-x64@npm:4.4.5":
+  version: 4.4.5
+  resolution: "recheck-macos-x64@npm:4.4.5"
+  conditions: os=darwin & cpu=x64
+  languageName: node
+  linkType: hard
+
+"recheck-windows-x64@npm:4.4.5":
+  version: 4.4.5
+  resolution: "recheck-windows-x64@npm:4.4.5"
+  conditions: os=win32 & cpu=x64
+  languageName: node
+  linkType: hard
+
+"recheck@npm:^4.4.5":
+  version: 4.4.5
+  resolution: "recheck@npm:4.4.5"
+  dependencies:
+    recheck-jar: 4.4.5
+    recheck-linux-x64: 4.4.5
+    recheck-macos-x64: 4.4.5
+    recheck-windows-x64: 4.4.5
+  dependenciesMeta:
+    recheck-jar:
+      optional: true
+    recheck-linux-x64:
+      optional: true
+    recheck-macos-x64:
+      optional: true
+    recheck-windows-x64:
+      optional: true
+  checksum: 5ac0a157c71627bb8fda26d15acc8bfca77a239a72cc2fe076be5519c9d5b8c3d178a4ec34426c9a6bdb965f96b18d73ae8221cee53bc680a074cbad193e28f1
   languageName: node
   linkType: hard
 

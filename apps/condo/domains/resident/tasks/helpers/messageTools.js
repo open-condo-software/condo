@@ -1,4 +1,5 @@
 const { get, isEmpty, escapeRegExp } = require('lodash')
+const { checkSync } = require('recheck')
 
 const { MESSAGE_META } = require('@condo/domains/notification/constants/constants')
 const { WRONG_MESSAGE_TYPE_PROVIDED_ERROR } = require('@condo/domains/notification/constants/errors')
@@ -40,9 +41,14 @@ const renderTemplateString = (templateString, data) => {
     let result = `${templateString}`
 
     for (const key of keys) {
-        const keyRegexp = new RegExp(`{${escapeRegExp(key)}}`, 'gmi')
+        const flags = 'gmi'
+        const reDoSCheck = checkSync(key, flags)
 
-        result = result.replace(keyRegexp, data[key] || '')
+        if (reDoSCheck.status !== 'vulnerable') {
+            const pattern = `{${escapeRegExp(key)}}`
+            const keyRegexp = new RegExp(pattern, flags)
+            result = result.replace(keyRegexp, data[key] || '')
+        }
     }
 
     return result
