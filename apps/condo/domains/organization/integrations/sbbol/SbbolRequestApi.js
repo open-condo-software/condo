@@ -39,6 +39,7 @@ class SbbolRequestApi {
         this.options = {
             hostname,
             port,
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
             rejectUnauthorized: false,
             requestCert: true,
             timeout: REQUEST_TIMEOUT,

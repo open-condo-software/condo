@@ -1,3 +1,4 @@
+const { faker } = require('@faker-js/faker')
 const jwt = require('jsonwebtoken')
 
 const { SBER_ID_SESSION_KEY } = require('@condo/domains/user/constants/common')
@@ -7,6 +8,8 @@ const {
     validateNonce,
     hasSamePhone,
 } = require('./validations')
+
+const JWT_SECRET = faker.datatype.uuid()
 
 const getReqWithSessionParam = (path, value) => {
     return {
@@ -20,7 +23,7 @@ const getReqWithSessionParam = (path, value) => {
 }
 const getTokenSet = (nonce) => {
     return {
-        idToken: jwt.sign({ nonce }, 'testKey'),
+        idToken: jwt.sign({ nonce }, JWT_SECRET),
     }
 }
 

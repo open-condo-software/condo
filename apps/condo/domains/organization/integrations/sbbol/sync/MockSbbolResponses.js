@@ -168,6 +168,8 @@ const EXAMPLE_TOKEN_SET = {
     token_type: 'Bearer',
     expires_in: 3600,
     refresh_token: '03e0be32-e72e-47ec-b740-a00b333a8ac4-1',
+    // just a mocked fake data for test purposes
+    // nosemgrep: generic.secrets.security.detected-jwt-token.detected-jwt-token
     id_token: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJnb3N0MzQuMTAtMjAxMiJ9.eyJzdWIiOiI2ODM4ZjM1MmI0YzQ0YjZjOGFmYTY0ZTFlZDJmNjg1NzM0MjE4NDAwNjZiZTU3MTgxZjNiN2IyYjc1NThkYmJlIiwiYXVkIjoiMTAwMTMiLCJhY3IiOiJsb2EtMyIsImF6cCI6IjEwMDEzIiwiYXV0aF90aW1lIjoxNTgyMzcwNDk5LCJhbXIiOiJ7cHdkLCBtY2EsIG1mYSwgb3RwLCBzbXN9IiwiaXNzIjoiaHR0cDovL3NidC1vYWZzLTYzODo5MDgwL2ljZGsiLCJleHAiOjE1ODIzNzA4MDEsImlhdCI6MTU4MjM3MDUwMSwibm9uY2UiOiI3YmU2NmFjOS1kMDdjLTQ5NjctYWRlZC1jYTI3MGEyN2U5ZTgiLCJ1c2wiOiJQYXJ0bmVyMzMyMiJ9.IWCyZzOk5nT0GWfhi9n3Nqy8Ii8mJ1eeFS7YRoE-l74lqo6BLksCuaVXt2ErMZYmDyyZscu7ISm0n-YsSrgZPQ',
 }
 
