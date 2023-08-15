@@ -38,6 +38,8 @@ nunjucks.addFilter('dateFormat', function (dateStr, locale, format) {
  * @returns {string}
  */
 function getTemplate (locale, messageType, transportType) {
+    // this is template reading method and files are distributed as part of source codes
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
     const transportTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${transportType}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
