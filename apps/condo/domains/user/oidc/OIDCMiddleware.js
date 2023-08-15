@@ -19,6 +19,10 @@ class OIDCMiddleware {
         //
         const Provider = require('oidc-provider')
         const provider = new Provider(conf.SERVER_URL, createConfiguration(keystone, conf))
+
+        // all bellow routes are handling csrf properly using oidc-client
+        // also, all operations in those routes just adding grands for end users - not a csrf attack source
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         OIDCBearerTokenKeystonePatch(app, keystone)

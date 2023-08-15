@@ -40,6 +40,9 @@ class LocalFilesMiddleware {
     }
 
     prepareMiddleware () {
+        // this route serve a static file to the user browser and does not have any operation for csrf attacking
+        // also, it used for development purposes only (see conf.FILE_FIELD_ADAPTER configuration)
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use(this._path, express.static(this._src))
         return app
