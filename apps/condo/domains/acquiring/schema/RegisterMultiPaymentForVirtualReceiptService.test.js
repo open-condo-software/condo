@@ -5,6 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { SOFT_DELETED_ERRORS } = require('@open-condo/keystone/plugins/softDeleted')
 const {
     makeClient,
     makeLoggedInAdminClient, expectToThrowGQLError,
@@ -28,10 +29,6 @@ const {
     makePayer,
     updateTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
-const {SOFT_DELETED_ERRORS} = require("@open-condo/keystone/plugins/softDeleted");
 
 function generateReceipt (billingAccount) {
     return {
