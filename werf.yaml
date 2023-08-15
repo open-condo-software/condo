@@ -283,6 +283,22 @@ git:
     group: app
 
 shell:
+  beforeInstall:
+    - "apt-get install -y openssl libssl-dev libengine-gost-openssl1.1"
+    - |
+      cat <<EOT >> /etc/ssl/openssl.cnf
+      [openssl_def]
+      engines = engine_section
+
+      [engine_section]
+      gost = gost_section
+
+      [gost_section]
+      engine_id = gost
+      dynamic_path = /usr/lib/x86_64-linux-gnu/engines-1.1/gost.so
+      default_algorithms = ALL
+      CRYPT_PARAMS = id-Gost28147-89-CryptoPro-A-ParamSet
+      EOT
   install:
     - "cd /app"
     - "npm i -g turbo"
