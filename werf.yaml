@@ -284,7 +284,8 @@ git:
 
 shell:
   beforeInstall:
-    - "apt-get install -y openssl libssl-dev libengine-gost-openssl1.1"
+    - "apt update -qq"
+    - "apt install -qq -y openssl libssl-dev libengine-gost-openssl1.1"
     - |
       cat <<EOT >> /etc/ssl/openssl.cnf
       [openssl_def]
