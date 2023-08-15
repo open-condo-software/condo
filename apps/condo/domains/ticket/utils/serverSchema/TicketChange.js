@@ -143,6 +143,10 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
         variables: { id: existingItem.id },
     })
     if (updatedResult.errors) {
+        // this log entry for development & support purposes only
+        // no important logs can be hided by injected external console.log formatters
+        // no logs formatters can be injected
+        // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
         console.error(`Error while fetching related ${fieldName} in manyToManyResolver of changeTrackable for a Ticket`, updatedResult.errors)
         return {}
     }

@@ -46,6 +46,8 @@ const renderTemplateString = (templateString, data) => {
 
         if (reDoSCheck.status !== 'vulnerable') {
             const pattern = `{${escapeRegExp(key)}}`
+            // ReDos injection checked in code above
+            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
             const keyRegexp = new RegExp(pattern, flags)
             result = result.replace(keyRegexp, data[key] || '')
         }
