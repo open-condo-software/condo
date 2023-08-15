@@ -1,10 +1,10 @@
 import { Organization } from '@app/condo/schema'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 
 import { IconProps, Sber } from '@open-condo/icons'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { UUID_REGEXP } from '@condo/domains/common/constants/regexps'
 import { colors } from '@condo/domains/common/constants/style'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
 
@@ -19,7 +19,7 @@ export const SBBOLIndicator: React.FC<SBBOLIndicatorProps> = ({ organization }) 
     const importRemoteSystem = get(organization, 'importRemoteSystem')
     const importId = get(organization, 'importId')
 
-    if (importRemoteSystem !== SBBOL_IMPORT_NAME || !UUID_REGEXP.test(importId)) return null
+    if (importRemoteSystem !== SBBOL_IMPORT_NAME || isEmpty(importId)) return null
 
     const size = breakpoints.TABLET_LARGE ? 'large' : 'small'
 
