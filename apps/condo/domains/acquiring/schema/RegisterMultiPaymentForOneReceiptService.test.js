@@ -5,6 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+const { SOFT_DELETED_ERRORS } = require('@open-condo/keystone/plugins/softDeleted')
 const {
     makeClient,
     makeLoggedInAdminClient,
@@ -13,6 +14,7 @@ const {
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToResult,
     catchErrorFrom,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -324,6 +326,60 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
             })
         })
     })
+
+    describe('SoftDeleted tests', () => {
+        test('Should not be able to delete acquiring integration, if context exists', async () => {
+            const {
+                admin,
+                acquiringContext,
+                acquiringIntegration,
+            } = await makePayer()
+
+            const acquiringContextId = acquiringContext.id
+            const acquiringIntegrationId = acquiringIntegration.id
+
+            await expectToThrowGQLError(
+                async () => {
+                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                        deletedAt: dayjs().toISOString(),
+                    })
+                },
+                {
+                    ...SOFT_DELETED_ERRORS.CANNOT_DELETE_PROTECTED_RELATION,
+                    messageInterpolation: {
+                        relTo: 'AcquiringIntegration',
+                        relFrom: 'AcquiringIntegrationContext',
+                        objId: acquiringIntegrationId,
+                        existingDependants: acquiringContextId,
+                    },
+                }
+            )
+        })
+
+        test('Should be able to delete acquiring integration, if context is deleted first', async () => {
+            const {
+                admin,
+                acquiringContext,
+                acquiringIntegration,
+            } = await makePayer()
+
+            const acquiringContextId = acquiringContext.id
+            const acquiringIntegrationId = acquiringIntegration.id
+
+            await updateTestAcquiringIntegrationContext(admin, acquiringContextId, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            const acquiringIntegraion = await AcquiringIntegration.getAll(admin, { id: acquiringIntegrationId })
+
+            expect(acquiringIntegraion).toHaveLength(0)
+        })
+    })
+    
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
     describe('ServerSchema get all should provide enough fields', () => {
         test('AcquiringIntegration', async () => {

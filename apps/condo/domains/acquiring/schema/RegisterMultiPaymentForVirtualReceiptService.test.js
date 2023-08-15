@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 
 const {
     makeClient,
-    makeLoggedInAdminClient,
+    makeLoggedInAdminClient, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -31,6 +31,7 @@ const {
 const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
+const {SOFT_DELETED_ERRORS} = require("@open-condo/keystone/plugins/softDeleted");
 
 function generateReceipt (billingAccount) {
     return {
@@ -268,6 +269,37 @@ describe('RegisterMultiPaymentForVirtualReceiptService', () => {
             })
         })
     })
+
+    describe('Soft Deleted', () => {
+        test('Should not be able to delete acquiring integration if context exists', async () => {
+            const {
+                admin,
+                acquiringContext,
+                acquiringIntegration,
+            } = await makePayer()
+
+            const acquiringContextId = acquiringContext.id
+            const acquiringIntegrationId = acquiringIntegration.id
+
+            await expectToThrowGQLError(
+                async () => {
+                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                        deletedAt: dayjs().toISOString(),
+                    })
+                },
+                {
+                    ...SOFT_DELETED_ERRORS.CANNOT_DELETE_PROTECTED_RELATION,
+                    messageInterpolation: {
+                        relTo: 'AcquiringIntegration',
+                        relFrom: 'AcquiringIntegrationContext',
+                        objId: acquiringIntegrationId,
+                        existingDependants: acquiringContextId,
+                    },
+                }
+            )
+        })
+    })
+
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
     describe('ServerSchema get all should provide enough fields', () => {
         test('AcquiringIntegration', async () => {
