@@ -7,6 +7,7 @@ const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
@@ -168,7 +169,7 @@ const Contact = new GQLListSchema('Contact', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     access: {
         read: access.canReadContacts,
         create: access.canManageContacts,
