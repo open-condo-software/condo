@@ -378,6 +378,35 @@ describe('RegisterMultiPaymentForOneReceiptService', () => {
 
             expect(acquiringIntegraion).toHaveLength(0)
         })
+
+        test('Should not be able to delete object twice', async () => {
+            const {
+                admin,
+                acquiringContext,
+                acquiringIntegration,
+            } = await makePayer()
+
+            const acquiringContextId = acquiringContext.id
+
+            await updateTestAcquiringIntegrationContext(admin, acquiringContextId, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                deletedAt: dayjs().toISOString(),
+            })
+
+            await expectToThrowGQLError(
+                async () => {
+                    await updateTestAcquiringIntegration(admin, acquiringIntegration.id, {
+                        deletedAt: dayjs().toISOString(),
+                    })
+                },
+                {
+                    ...SOFT_DELETED_ERRORS.ALREADY_DELETED,
+                }
+            )
+        })
     })
     
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
