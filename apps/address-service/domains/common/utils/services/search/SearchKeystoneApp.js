@@ -171,7 +171,7 @@ class SearchKeystoneApp {
                 const extractUnit = Boolean(get(req, ['query', 'extractUnit'], false))
 
                 if (!s) {
-                    res.send(400)
+                    res.sendStatus(400)
                     return
                 }
 
