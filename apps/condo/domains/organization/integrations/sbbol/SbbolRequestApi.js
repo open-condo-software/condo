@@ -36,10 +36,11 @@ class SbbolRequestApi {
     constructor (options) {
         const { accessToken, host, port, certificate, passphrase } = options
         const { host: hostname } = new URL(host)
+
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
         this.options = {
             hostname,
             port,
-            // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
             rejectUnauthorized: false,
             requestCert: true,
             timeout: REQUEST_TIMEOUT,
