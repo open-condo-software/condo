@@ -58,6 +58,8 @@ async function createExportFile ({ fileName, templatePath, replaces, meta }) {
  * @return {Promise<{ stream }>}
  */
 async function buildExportFile ({ templatePath, replaces, options }) {
+    // all results of export file generation will be accessible only for authorized end users
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const content = await render(path.resolve(templatePath), replaces, options)
     const stream = Readable.from(content)
     return { stream }
