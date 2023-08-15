@@ -267,14 +267,7 @@ const sendTicketNotifications = async (requestData) => {
 const sendTicketCommentNotifications = async (requestData) => {
     const { operation, updatedItem } = requestData
 
-    await sendTicketCommentNotificationsTask.delay({
-        operation,
-        ticketId: get(updatedItem, 'ticket'),
-        createdById: get(updatedItem, 'createdBy'),
-        commentId: updatedItem.id,
-        commentType: get(updatedItem, 'type'),
-        sender: updatedItem.sender,
-    })
+    await sendTicketCommentNotificationsTask.delay({ operation, updatedItem })
 }
 
 const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) => {
