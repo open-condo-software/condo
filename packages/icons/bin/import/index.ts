@@ -52,6 +52,8 @@ getSVGData({
         const componentCode = fillTemplate({ componentName, jsx: jsCodeFiltered })
         fs.ensureDirSync(ICONS_PATH)
         fs.outputFileSync(
+            // this script running only by developers to pull icons from the upstream source
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             path.join(ICONS_PATH, fileName),
             componentCode
         )

@@ -175,6 +175,9 @@ class HealthCheck {
     }
 
     async prepareMiddleware ({ keystone }) {
+        // this route can not be used for csrf attack (because no cookies and tokens are used in a public route)
+        // also, all operations behind route are read only
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         await this.prepareChecks({ keystone })

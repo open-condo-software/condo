@@ -39,8 +39,15 @@ const webBridge: WebBridge | undefined = IS_BROWSER_CLIENT
 export function createCondoBridge (): CondoBridge {
     const subscribers: Array<CondoBridgeSubscriptionListener> = []
 
+    /**
+     * Send params to container
+     * @param method handler method
+     * @param params send params. Should not be sensitive data!
+     */
     function send<K extends AnyRequestMethodName> (method: K, params?: RequestParams<K> & RequestId) {
         if (webBridge && typeof webBridge.postMessage === 'function') {
+            // used for sending render info to containers only
+            // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
             webBridge.postMessage({
                 handler: method,
                 params,

@@ -56,6 +56,9 @@ class RequestCache {
 
     // Add a middleware which resets cache after end of each request to avoid memory leak errors
     prepareMiddleware ({ keystone }) {
+        // just a middleware that going to work along with keystone security policies
+        // not a part of csrf since not exposing any routes
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         if (this.enabled) {

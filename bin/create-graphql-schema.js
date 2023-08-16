@@ -34,9 +34,13 @@ async function getGraphQLSchema (keystoneModule) {
 }
 
 async function generate ({ namePath }) {
+    // this is part of codegen development script and no end users input expected
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     await writeFile(path.join(namePath, 'codegen.yaml'), CODEGEN_CONFIG)
     // eslint-disable-next-line import/order
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const schema = await getGraphQLSchema(require(path.join(namePath, 'index')))
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     await writeFile(path.join(namePath, 'schema.graphql'), schema)
 }
 
