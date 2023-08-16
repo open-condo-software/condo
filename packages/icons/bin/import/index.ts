@@ -59,7 +59,7 @@ getSVGData({
 
     console.log(chalk.redBright('-> Generating entry file...'))
     const names = [...new Set(data.map(svg => svg.name))]
-    names.sort()
+    names.sort() // NOSONAR
     const exports = names.map(name => `export { ${name} } from './components/${name}'`).join('\n')
     const indexContent = [CODEGEN_COMMENT, TYPE_EXPORT, exports].join('\n')
     fs.outputFileSync(

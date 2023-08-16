@@ -38,8 +38,8 @@ const createBuildingParking = (parkingSections: number, sectionTemplate = testSe
 }
 
 const createBuilding = (data): MapEdit => {
-    const Map = new MapEdit(JSON.parse(JSON.stringify(data)), () => null)
-    return Map
+    const map = new MapEdit(JSON.parse(JSON.stringify(data)), () => null)
+    return map
 }
 
 describe('Map constructor', () => {

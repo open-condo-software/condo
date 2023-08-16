@@ -87,7 +87,7 @@ const getAddressDetails = (propertyAddressMeta) => {
     const settlement = streetWithType ? streetWithType : settlementPart
     const streetPart = settlement && `${settlement}, ${houseType} ${houseName}${block}`
     const regionPart = regionName && regionName !== cityName && regionWithFullType
-    const cityPart = cityWithType && cityWithType
+    const cityPart = cityWithType ? cityWithType : null
 
     const areaWithType = get(addressMeta, 'area_with_type')
     const areaPart = areaWithType && areaWithType !== cityPart && areaWithType

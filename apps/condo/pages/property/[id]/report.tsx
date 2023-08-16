@@ -32,8 +32,8 @@ import {
     BankAccount,
     BankTransaction,
     BankAccountReport as BankAccountReportClient,
+    BankSyncTask,
 } from '@condo/domains/banking/utils/clientSchema'
-import { BankSyncTask } from '@condo/domains/banking/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -578,7 +578,7 @@ const PropertyReportPage = (): React.ReactElement => {
     )
 
     useEffect(() => {
-        if (typeof window !== undefined) {
+        if (typeof window !== 'undefined') {
             if (!reportPageEnabled) {
                 push(asPath.split('/report')[0])
             }

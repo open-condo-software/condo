@@ -293,7 +293,8 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     let create = null
 
     if (!action && mutation) {
-        [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        [create] = useMutation(mutation) // NOSONAR
     }
 
     const getCompletedNotification = useCallback(() => ({

@@ -30,7 +30,7 @@ export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
     if (isEmpty(text)) return null
 
     let result
-    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig')
+    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig') // NOSONAR
 
     if (isEmpty(search) || !searchRegexp.test(text)) {
         result = renderPart(text, 0, false, type, style)

@@ -23,7 +23,6 @@ import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/cond
 import type { DropdownProps } from 'antd'
 
 function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmployeeType) {
-    lhs.organization.name
     return get(lhs, ['organization', 'name'], '')
         .toLowerCase()
         .localeCompare(
