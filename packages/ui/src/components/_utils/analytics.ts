@@ -75,11 +75,6 @@ export function extractChildrenContent (children: React.ReactNode | React.ReactI
     return null
 }
 
-/**
- * Send analytics click event
- * @param component - component name
- * @param data - click metadata. Should not be a sensitive data
- */
 export function sendAnalyticsClickEvent<Component extends ComponentNames['click']> (
     component: Component,
     data: ComponentSpecificClickEventProps[Component] & CommonComponentProps
@@ -92,7 +87,7 @@ export function sendAnalyticsClickEvent<Component extends ComponentNames['click'
             component,
             ...data,
         }
-        // used only for non-sensitive click metadata delivery to container
+
         // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
@@ -103,11 +98,6 @@ export function sendAnalyticsClickEvent<Component extends ComponentNames['click'
     }
 }
 
-/**
- * Send analytics click event
- * @param component - component name
- * @param data - click metadata. Should not be a sensitive data
- */
 export function sendAnalyticsCheckEvent<Component extends ComponentNames['check']> (
     component: Component,
     data: ComponentSpecificCheckEventProps[Component] & CommonComponentProps
@@ -121,7 +111,6 @@ export function sendAnalyticsCheckEvent<Component extends ComponentNames['check'
             ...data,
         }
 
-        // used only for non-sensitive click metadata delivery to container
         // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
@@ -132,11 +121,6 @@ export function sendAnalyticsCheckEvent<Component extends ComponentNames['check'
     }
 }
 
-/**
- * Send analytics click event
- * @param component - component name
- * @param data - click metadata. Should not be a sensitive data
- */
 export function sendAnalyticsChangeEvent<Component extends ComponentNames['change']> (
     component: Component,
     data: ComponentSpecificChangeEventProps[Component] & CommonComponentProps
@@ -149,7 +133,7 @@ export function sendAnalyticsChangeEvent<Component extends ComponentNames['chang
             component,
             ...data,
         }
-        // used only for non-sensitive click metadata delivery to container
+
         // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
