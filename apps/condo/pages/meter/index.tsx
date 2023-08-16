@@ -18,7 +18,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileDown, Filter, QuestionCircle } from '@open-condo/icons'
+import { FileDown, Filter, QuestionCircle, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Space, Tooltip } from '@open-condo/ui'
@@ -86,6 +86,7 @@ export const MetersPageContent = ({
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
     const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
     const OnlyLatestDescMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatestDescription' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -156,6 +157,8 @@ export const MetersPageContent = ({
     }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage])
 
     const exampleTemplateLink = useMemo(() => `/meter-import-example-${intl.locale}.xlsx`, [intl.locale])
+
+    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
 
     return (
         <>
@@ -268,6 +271,16 @@ export const MetersPageContent = ({
                             exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                             sortBy={sortBy}
                             actions={[
+                                canManageMeterReadings && (
+                                    <Button
+                                        key='create'
+                                        type='primary'
+                                        icon={<PlusCircle size='medium' />}
+                                        onClick={handleCreateMeterReadings}
+                                    >
+                                        {CreateMeterReadingsButtonLabel}
+                                    </Button>
+                                ),
                                 canManageMeterReadings && (
                                     <ImportWrapper
                                         key='import'
