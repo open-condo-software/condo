@@ -251,7 +251,6 @@ const MESSAGE_META = {
             commentId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
             residentId: { defaultValue: '', required: true },
-            organizationId: { defaultValue: '', required: true },
         },
     },
     [METER_VERIFICATION_DATE_REMINDER_TYPE]: {
