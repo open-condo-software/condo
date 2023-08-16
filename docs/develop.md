@@ -147,3 +147,15 @@ The configuration for the [eslint](https://eslint.org) is found under `package.j
 [VSCode integration:](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 
 [Other editors](https://eslint.org/docs/user-guide/integrations#editors)
+
+
+## Code Analysis
+
+We use [semgrep](https://semgrep.dev/) as our static analysis tool. It enforces developers to avoid use vulnerable code
+
+We don't allow vulnerabilities in the repo. To ensure this we run [semgrep](https://semgrep.dev/) SAST analysis on `CI`.
+
+The configuration and running parameters for the [semgrep](https://semgrep.dev/) is found under `bin/run-semgrep.sh`
+
+**Available CLI-commands:**
+- `yarn analysis` static code analysis (SAST) <- this command runs on CI
