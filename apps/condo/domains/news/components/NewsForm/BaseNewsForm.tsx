@@ -186,7 +186,7 @@ const isTimeDisabled = date => {
             disabledMinutes: () => [],
         }
     }
-    const hour = dayjs().hour()
+    let hour = dayjs().hour()
     if (date && dayjs(date).hour() > dayjs().hour()) {
         return {
             disabledHours: () => Array.from({ length: hour }, (_, i) => i),
@@ -194,7 +194,7 @@ const isTimeDisabled = date => {
         }
     }
     const minute = dayjs().minute() + ADDITIONAL_DISABLED_MINUTES_COUNT
-    if (minute > 59) hour + 1
+    if (minute > 59) hour += 1 
     return {
         disabledHours: () => Array.from({ length: hour }, (_, i) => i),
         disabledMinutes: () => Array.from({ length: minute }, (_, i) => i),
