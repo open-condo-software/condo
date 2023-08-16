@@ -46,6 +46,8 @@ class SuggestionKeystoneApp {
      * @returns {Express}
      */
     prepareMiddleware (params) {
+        // this route can not be used for csrf attack (a public route)
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         function setNoCache (req, res, next) {
