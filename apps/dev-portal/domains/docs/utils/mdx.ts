@@ -25,6 +25,8 @@ type MdxData = {
 }
 
 export async function extractMdx (docsRoot: string, route: string, locale: string): Promise<MdxData> {
+    // is part of source code reading - no end user input
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const fullRoute = path.join(docsRoot, route)
 
     const localizedFiles = globSync(`${fullRoute}.${locale}.md*(x)`)
