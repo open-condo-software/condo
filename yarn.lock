@@ -1265,6 +1265,7 @@ __metadata:
     antd-dayjs-webpack-plugin: ^1.0.6
     babel-jest: ^29.4.0
     classnames: 2.2.6
+    cross-env: ^7.0.3
     css-loader: 1.0.1
     dayjs: ^1.10.6
     emotion: ^10.0.27
