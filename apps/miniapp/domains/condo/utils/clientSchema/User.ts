@@ -33,7 +33,7 @@ function convertToUIFormState (state: IUserUIState): IUserFormState | undefined 
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr] // NOSONAR
     }
     return result as IUserFormState
 }
@@ -43,7 +43,7 @@ function convertToGQLInput (state: IUserFormState): UserUpdateInput {
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr] // NOSONAR
     }
     return result
 }

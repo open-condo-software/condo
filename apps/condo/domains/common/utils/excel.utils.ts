@@ -36,7 +36,7 @@ export function defaultValidator (value) {
     value = value.replace(/[ ]*\p{Pd}+[ \p{Pd}]*/gu, '-')
     value = value.replace(/["\u00B6]+/gu, '')
     value = value.replace(/\s+/g, ' ')
-    value = value.replace(/^\s+|\s+$/g, '')
+    value = value.replace(/(^\s+)|(\s+$)/g, '')
     if (/[™×÷‼‽⁇⁈⁉©®±°$¢£¤¥¦§{}=*;:&^%@!?<>]/g.test(value)) {
         return {
             status: 'error',
@@ -55,7 +55,7 @@ export function addressValidator (value) {
     value = value.replace(/[ ]*\p{Pd}+[ \p{Pd}]*/gu, '-')
     value = value.replace(/["\u00B6]+/gu, '')
     value = value.replace(/\s+/g, ' ')
-    value = value.replace(/^\s+|\s+$/g, '')
+    value = value.replace(/(^\s+)|(\s+$)/g, '')
     if (!isNaN(value.replace(/[0-9,. -]+/g, ''))) {
         return {
             status: 'error',
@@ -95,7 +95,7 @@ export function nameValidator (value) {
     value = value.replace(/[ ]*\p{Pd}+[ \p{Pd}]*/gu, '-')
     value = value.replace(/["\u00B6]+/gu, '')
     value = value.replace(/\s+/g, ' ')
-    value = value.replace(/^\s+|\s+$/g, '')
+    value = value.replace(/(^\s+)|(\s+$)/g, '')
     if (!isNaN(value.replace(/[0-9,. -]+/g, ''))) {
         return {
             status: 'error',
@@ -137,7 +137,7 @@ export function emailValidator (value) {
             message: '[no.email.sign]',
         }
     }
-    value = value.replace(/^\s+|\s+$/g, '')
+    value = value.replace(/(^\s+)|(\s+$)/g, '')
     if (isValidEmail(value)) {
         return {
             status: 'ok',
@@ -161,7 +161,7 @@ export function emailValidator (value) {
 }
 
 export function phoneValidator (value) {
-    value = value.replace(/^\s+|\s+$/g, '')
+    value = value.replace(/(^\s+)|(\s+$)/g, '')
     const digits = (value.match(/[0-9]+/g) || []).join('')
     if (digits.length < 10) {
         return {

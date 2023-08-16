@@ -125,7 +125,7 @@ const PdfView = () => {
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
-                        Object.entries(data).map(([groupBy, dataObj]) => {
+                        Object.entries(data).forEach(([groupBy, dataObj]) => {
                             series.push({
                                 name: groupBy,
                                 type: viewMode,
@@ -182,7 +182,7 @@ const PdfView = () => {
                         const axisLabels = Object.keys(data.summary)
                             .sort((firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel])
                         const legend = Object.keys(data)
-                        Object.entries(data).map(([groupBy, dataObj]) => {
+                        Object.entries(data).forEach(([groupBy, dataObj]) => {
                             const seriesData = []
                             axisLabels.forEach(axisLabel => {
                                 seriesData.push(dataObj[axisLabel])
