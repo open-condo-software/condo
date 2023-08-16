@@ -64,10 +64,11 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
 const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
 
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
-    const { value, placeholder, style, disabled, block, showCountryPrefix = true, ...otherProps } = props
+    const { value, placeholder, style, disabled, block, showCountryPrefix = true, country, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
     const { organization } = useOrganization()
     const userOrganizationCountry = showCountryPrefix && get(organization, 'country', defaultLocale)
+    const countryFromProps = showCountryPrefix && country
     const inputRef = useRef<PhoneInputRef>()
 
     /*
@@ -113,7 +114,7 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
             ref={inputRef}
             inputClass='ant-input'
             value={String(value)}
-            country={userOrganizationCountry}
+            country={countryFromProps || userOrganizationCountry}
             onChange={onChange}
             disabled={disabled}
             inputStyle={inputStyles}
