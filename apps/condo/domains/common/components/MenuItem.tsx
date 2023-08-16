@@ -12,6 +12,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { transitions } from '@condo/domains/common/constants/style'
 import { renderLink } from '@condo/domains/common/utils/Renders'
+import { getEscaped } from '@condo/domains/common/utils/string.utils'
 import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 
 import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
@@ -120,7 +121,7 @@ export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const [isActive, setIsActive] = useState(false)
 
     useDeepCompareEffect(() => {
-        const escapedPath = path ? path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') : undefined
+        const escapedPath = path ? getEscaped(path) : undefined
         // not a ReDoS issue: running on end user browser
         // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         const regex = new RegExp(`^${escapedPath}`)
