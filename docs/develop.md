@@ -157,5 +157,17 @@ We don't allow vulnerabilities in the repo. To ensure this we run [semgrep](http
 
 The configuration and running parameters for the [semgrep](https://semgrep.dev/) is found under `bin/run-semgrep.sh`
 
+**Semgrep installation**:
+
+To install semgrep:
+```shell
+brew install semgrep
+```
+
+Alternatively:
+```shell
+python3 -m pip install semgrep
+```
+
 **Available CLI-commands:**
 - `yarn analysis` static code analysis (SAST) <- this command runs on CI
