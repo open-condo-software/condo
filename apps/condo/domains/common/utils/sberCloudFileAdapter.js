@@ -251,6 +251,9 @@ const obsRouterHandler = ({ keystone }) => {
 
 class OBSFilesMiddleware {
     prepareMiddleware ({ keystone }) {
+        // this route does not have any system change operation and used only for serving files to end user browser
+        // this mean no csrf attacking possible - since no data change operation going to be made by opening a link
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
         return app

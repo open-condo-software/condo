@@ -117,6 +117,8 @@ class OIDCHelper {
 
 class CondoOIDCMiddleware {
     prepareMiddleware () {
+        // this route can not be used for csrf attack (use oidc-client library to handle auth flows properly)
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         const oidcSessionKey = 'oidc'
         const helper = new OIDCHelper()

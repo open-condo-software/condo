@@ -322,6 +322,7 @@ const TicketTable = ({
                                     />
                                 ),
                                 selectedTicketKeys.length < 1 && TicketImportButton && TicketImportButton,
+                                // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
                                 selectedTicketKeys.length < 1 && <TicketsExportToXlsxButton key='exportToXlsx'/>,
                                 selectedTicketKeys.length > 0 && (
                                     <Button

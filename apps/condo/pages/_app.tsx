@@ -258,6 +258,8 @@ const MenuItems: React.FC = () => {
                     icon: AllIcons['Services'],
                     label: 'global.section.miniapps',
                     access: !isAssignedVisibilityType && isManagingCompany,
+                    // not a ReDoS issue: running on end user browser
+                    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                     excludePaths: connectedAppsIds.map((id) => new RegExp(`/miniapps/${id}$`)),
                 },
             ].filter(checkItemAccess),
@@ -318,8 +320,11 @@ const MenuItems: React.FC = () => {
                                 excludePaths={item.excludePaths}
                             />
                         ))}
-                        {get(appsByCategories, category.key, []).map((app) => (
-                            <MenuItem
+                        {get(appsByCategories, category.key, []).map((app) => {
+                            // not a ReDoS issue: running on end user browser
+                            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+                            const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
+                            return <MenuItem
                                 id={`menu-item-app-${app.id}`}
                                 key={`menu-item-app-${app.id}`}
                                 path={`/miniapps/${app.id}`}
@@ -329,9 +334,9 @@ const MenuItems: React.FC = () => {
                                 disabled={disabled}
                                 isCollapsed={isCollapsed}
                                 toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                                excludePaths={[new RegExp(`/miniapps/${app.id}/.+`)]}
+                                excludePaths={[miniAppsPattern]}
                             />
-                        ))}
+                        })}
                     </>
                 ))}
             </div>

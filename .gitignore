@@ -60,3 +60,4 @@ apps/condo/public/ui
 
 # semgrep
 semgrep.sarif
+semgrep_results/*

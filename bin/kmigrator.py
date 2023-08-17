@@ -652,6 +652,8 @@ def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
         command += ['--check', '--dry-run', '--noinput']
     elif empty:
         command += ['--empty']
+    # call script generated command without end user input (development only)
+    # nosemgrep: python.lang.security.audit.dangerous-system-call.dangerous-system-call
     r = os.system(' '.join(command))
     if r != 0:
         raise KProblem('ERROR: can\'t create migration')

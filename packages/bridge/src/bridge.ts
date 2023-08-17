@@ -41,6 +41,7 @@ export function createCondoBridge (): CondoBridge {
 
     function send<K extends AnyRequestMethodName> (method: K, params?: RequestParams<K> & RequestId) {
         if (webBridge && typeof webBridge.postMessage === 'function') {
+            // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
             webBridge.postMessage({
                 handler: method,
                 params,

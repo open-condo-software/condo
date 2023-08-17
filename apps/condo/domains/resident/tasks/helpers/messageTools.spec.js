@@ -43,6 +43,20 @@ describe('messageTools', () => {
 
             expect(result).toEqual([data.a, '{d}', data.c].join(':'))
         })
+
+        it('skips template parts having ReDoS pattern key', async () => {
+            const template = '^a+a+$' // template with ReDoS exploit
+            // data with ReDoS exploit
+            const data = {
+                '^a+a+$': faker.random.alphaNumeric(8),
+            }
+            const result = renderTemplateString(template, data)
+
+            // no data should be populated
+            // since reg exp wasn't run by function - cause data key has ReDoS exploit
+            // expected original template
+            expect(result).toEqual(template)
+        })
     })
 
     describe('hydrateItems', () => {

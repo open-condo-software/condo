@@ -208,6 +208,9 @@ function toGQLWhere (filters) {
     Object.keys(filters).forEach((key) => {
         const v = filters[key]
         if (v && v.length === 1) {
+            // where statement going to be sanitized by backend
+            // and going to use for read requests only
+            // nosemgrep: javascript.lang.security.insecure-object-assign.insecure-object-assign
             Object.assign(where, JSON.parse(v[0]))
         } else if (v && v.length >= 1) {
             if (where.OR) {

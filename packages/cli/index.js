@@ -90,6 +90,8 @@ async function checkMkCertCommandAndLocalCerts (keyFile, certFile, domain = 'app
     }
 
     if (!await exists(keyFile) || !await exists(certFile) || !await _checkCertDomain(certFile, domain)) {
+        // no user input expected for development utility script
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
         await safeExec(`mkdir -p "${path.join(certFile, '..')}"`)
         await safeExec(`mkcert --cert-file "${certFile}" --key-file "${keyFile}" localhost "${domain}" "*.${domain}"`)
     }
@@ -122,6 +124,9 @@ async function updateAppEnvFile (appName, key, value) {
         }
     }
 
+    // not a ReDoS case. Key is an env variable.
+    // no user input expected for development utility script
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     const re = new RegExp(`^${key}=.*?[\n]`, 'ms')
 
     if (!re.test(envData)) {

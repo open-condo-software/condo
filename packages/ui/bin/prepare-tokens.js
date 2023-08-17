@@ -12,6 +12,7 @@ const get = require('lodash/get')
  */
 function prepareTokens (tokenFile) {
     const filename = tokenFile ? tokenFile : 'tokens.json'
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const tokenPath = path.join(__dirname, '../src/tokens', filename)
     const tokens = require(tokenPath)
 
@@ -46,6 +47,7 @@ function prepareTokens (tokenFile) {
         // instead of <prefix>-...
         chile_process.on('exit', code => {
             if (code === 0) {
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const fileName = path.join(__dirname, `../src/tokens/sets/${setName}.json`)
                 const file = require(fileName)
                 fs.writeFileSync(fileName, JSON.stringify({

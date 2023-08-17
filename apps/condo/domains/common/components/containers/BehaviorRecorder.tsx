@@ -31,6 +31,9 @@ const BehaviorRecorder = ({ engine }: Props) => {
 
     return (
         <div dangerouslySetInnerHTML={{
+            // this is injection of prepared engine rely html (see bellow)
+            // not a user input
+            // nosemgrep: typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml
             __html: htmlFor[engine](params),
         }}>
         </div>

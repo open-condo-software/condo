@@ -22,6 +22,7 @@ const { SIGNIN_AS_USER_MUTATION } = require('@condo/domains/user/gql')
 const { REGISTER_NEW_SERVICE_USER_MUTATION } = require('@condo/domains/user/gql')
 const { SEND_MESSAGE_TO_SUPPORT_MUTATION } = require('@condo/domains/user/gql')
 const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
+// nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
 const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')

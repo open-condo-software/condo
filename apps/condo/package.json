@@ -152,6 +152,7 @@
     "react-progressive-image": "^0.6.0",
     "react-test-renderer": "^16.13.1",
     "react-yandex-metrika": "^2.6.0",
+    "recheck": "^4.4.5",
     "redlock": "^5.0.0-beta.2",
     "serialize-error": "^8.1.0",
     "swr": "^1.3.0",

@@ -21,3 +21,7 @@
 yarn-error.log
 npm-debug.*
 ignore.*
+
+# not a source code files
+docker-compose.yml
+packages/codegen/*
