@@ -24,10 +24,12 @@ const getTracer = (name) => {
 
 
 class TracingMiddleware {
+    enabled = false
 
     constructor ({ enabled, tracesUrl, metricsUrl, headers = {} }) {
+        this.enabled = !!enabled
 
-        if (!enabled) {
+        if (!this.enabled) {
             return
         }
 
