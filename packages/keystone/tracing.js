@@ -1,6 +1,7 @@
 const opentelemetry = require('@opentelemetry/api')
 const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-proto')
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-proto')
+const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg')
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
 const opentelemetrySDK = require('@opentelemetry/sdk-node')
@@ -23,6 +24,7 @@ const init = ({ tracesUrl = 'http://localhost:4318/v1/traces', metricsUrl = 'htt
         }),
 
         instrumentations: [
+            new HttpInstrumentation(),
             new PgInstrumentation(),
         ],
     })
