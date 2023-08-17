@@ -7,30 +7,9 @@ const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
 const opentelemetrySDK = require('@opentelemetry/sdk-node')
 
 const KeystoneInstrumentation = require('./KeystoneInstrumentation')
+const { getLogger } = require('./logging')
 
-const init = ({ tracesUrl = 'http://localhost:4318/v1/traces', metricsUrl = 'http://localhost:4318/v1/metrics' } = {}) => {
-    const sdk = new opentelemetrySDK.NodeSDK({
-        serviceName: 'condo',
-        traceExporter: new OTLPTraceExporter({
-            url: tracesUrl,
-            headers: {},
-        }),
-        metricReader: new PeriodicExportingMetricReader({
-            exporter: new OTLPMetricExporter({
-                url: metricsUrl,
-                headers: {},
-                concurrencyLimit: 1,
-            }),
-        }),
-
-        instrumentations: [
-            new HttpInstrumentation(),
-            new PgInstrumentation(),
-        ],
-    })
-
-    sdk.start()
-}
+const logger = getLogger('open-telemetry')
 
 const tracers = {}
 const getTracer = (name) => {
@@ -45,7 +24,42 @@ const getTracer = (name) => {
 
 
 class TracingMiddleware {
+
+    constructor ({ enabled, tracesUrl, metricsUrl, headers = {} }) {
+
+        logger.info({ enabled: !!enabled, tracesUrl, metricsUrl })
+        if (!this.enabled) {
+            return
+        }
+
+        const sdk = new opentelemetrySDK.NodeSDK({
+            serviceName: 'condo',
+            traceExporter: new OTLPTraceExporter({
+                url: tracesUrl,
+                headers: headers,
+            }),
+            metricReader: new PeriodicExportingMetricReader({
+                exporter: new OTLPMetricExporter({
+                    url: metricsUrl,
+                    headers: headers,
+                    concurrencyLimit: 1,
+                }),
+            }),
+
+            instrumentations: [
+                new HttpInstrumentation(),
+                new PgInstrumentation(),
+            ],
+        })
+
+        sdk.start()
+    }
+
     async prepareMiddleware ({ keystone }) {
+        if (!this.enabled) {
+            return
+        }
+
         const keystoneTracer = getTracer('@open-condo/keystone')
         KeystoneInstrumentation.patchKeystone(keystoneTracer, keystone)
     }
@@ -53,6 +67,5 @@ class TracingMiddleware {
 
 module.exports = {
     TracingMiddleware,
-    init,
     getTracer,
 }
