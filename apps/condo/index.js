@@ -45,11 +45,6 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     })
 }
 
-//Enable Open telemetry tracing
-if (IS_ENABLE_GRAFANA_TRACE && !IS_BUILD_PHASE) {
-    require('@open-condo/keystone/tracing').init()
-}
-
 if (!IS_BUILD_PHASE) {
     setInterval(() => {
         const v8Stats = v8.getHeapStatistics()
@@ -136,10 +131,10 @@ const checks = [
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
 const apps = () => {
     return [
-        new TracingMiddleware(),
+        new TracingMiddleware(conf.OTEL_CONFIG && !IS_BUILD_PHASE ? JSON.parse(conf.OTEL_CONFIG) : { enabled: false }),
         new HealthCheck({ checks }),
-        new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : {}),
-        new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : {}),
+        new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : { enabled: false }),
+        new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : { enabled: false }),
         new VersioningMiddleware(),
         new OIDCMiddleware(),
         new FeaturesMiddleware(),

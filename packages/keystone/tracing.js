@@ -27,10 +27,11 @@ class TracingMiddleware {
 
     constructor ({ enabled, tracesUrl, metricsUrl, headers = {} }) {
 
-        logger.info({ enabled: !!enabled, tracesUrl, metricsUrl })
-        if (!this.enabled) {
+        if (!enabled) {
             return
         }
+
+        logger.info({ message: 'OTEL is enabled. Config:', tracesUrl, metricsUrl })
 
         const sdk = new opentelemetrySDK.NodeSDK({
             serviceName: 'condo',
