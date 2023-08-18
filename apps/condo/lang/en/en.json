@@ -1319,6 +1319,7 @@
   "Status": "Status",
   "Account": "Account",
   "news.component.RecipientCounter.mailing": "Mailing",
+  "news.component.RecipientCounter.label.property": "house",
   "news.component.RecipientCounter.label.properties": "houses",
   "news.component.RecipientCounter.willReceive.label": "will receive",
   "news.component.RecipientCounter.willReceive.hint": "In {count} units found users of mobile app Doma — they will receive letter.",

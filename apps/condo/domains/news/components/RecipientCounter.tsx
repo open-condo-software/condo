@@ -149,6 +149,7 @@ interface RecipientCounterProps {
 export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScopes }) => {
     const intl = useIntl()
     const MailingMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.mailing' })
+    const PropertyLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.property' })
     const PropertiesLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.label.properties' })
     const WillReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willReceive.label' })
     const WillNotReceiveLabelMessage = intl.formatMessage({ id: 'news.component.RecipientCounter.willNotReceive.label' })
@@ -241,7 +242,7 @@ export const RecipientCounter: React.FC<RecipientCounterProps> = ({ newsItemScop
                         <Row align='top' justify='space-evenly'>
                             <Col>
                                 <Counter
-                                    label={PropertiesLabelMessage}
+                                    label={propertiesCount === 1 ? PropertyLabelMessage : PropertiesLabelMessage}
                                     value={propertiesCount}
                                 />
                             </Col>
