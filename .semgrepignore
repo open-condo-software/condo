@@ -1,4 +1,5 @@
 .github/*
+.helm/*
 *schema.graphql
 *schema.ts
 **/node_modules
