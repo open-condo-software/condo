@@ -363,7 +363,9 @@ function createschema (argv) {
                 const app = path.basename(targetDirectory)
                 console.log(app)
 
-                const isTargetDirExists = await exists(pathJoin(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
+                // no end user input expected
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+                const isTargetDirExists = await exists(path.join(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
                 if (isTargetDirExists && !force) throw new Error(`Schema ${domain}.'${name}'.js is already exists!`)
 
                 console.log(msgBox)
@@ -423,7 +425,9 @@ function createservice (argv) {
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
                 const app = path.basename(targetDirectory)
 
-                const isTargetDirExists = await exists(pathJoin(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
+                // no end user input expected
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+                const isTargetDirExists = await exists(path.join(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
                 if (isTargetDirExists && !force) throw new Error(`Service ${domain}.'${name}'.js is already exists!`)
 
                 console.log(msgBox)
