@@ -1,4 +1,4 @@
-name: [review] Deploy
+name: "[review] Deploy"
 
 on:
   workflow_dispatch:
