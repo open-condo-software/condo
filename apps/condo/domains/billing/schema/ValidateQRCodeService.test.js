@@ -184,7 +184,6 @@ describe('ValidateQRCodeService', () => {
                 await catchErrorFrom(async () => {
                     await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
                 }, ({ errors }) => {
-
                     expect(errors).toMatchObject([{
                         path: ['result'],
                         extensions: {
