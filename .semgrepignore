@@ -1,4 +1,4 @@
-.github/*
+*.github/*
 .helm/*
 *schema.graphql
 *schema.ts
