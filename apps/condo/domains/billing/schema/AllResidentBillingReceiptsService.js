@@ -148,6 +148,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                 const contacts = await Contact.getAll(context, {
                     phone: context.authedItem.phone,
                     isVerified: true,
+                    deletedAt: null,
                 })
 
                 receiptsForConsumer.forEach(receipt => {
