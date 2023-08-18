@@ -1,0 +1,70 @@
+name: Deploy to Review Cluster
+
+on:
+  workflow_dispatch:
+    branches:
+      - '/^review-.*$/'
+jobs:
+  converge:
+    name: "Deploy to Review Cluster"
+    runs-on: self-hosted
+    env:
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+      PULL_USER: ${{ secrets.PULL_USER }}
+      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+    steps:
+      - name: Login to Sbercloud Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: swr.ru-moscow-1.hc.sbercloud.ru
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
+          if_key_exists: replace 
+      - name: Set env for namespace
+        run: echo "REVIEW_NAMESPACE=$(echo review-${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: Set env url prefix
+        run: echo "REVIEW_URL_PREFIX=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g' | cut -c -30)" >> $GITHUB_ENV
+      - name: Converge
+        uses: werf/actions/converge@v1.2
+        with:
+          channel: beta
+          env: review
+          kube-config-base64-data: ${{ secrets.TEST_CLUSTER_KUBE_CONFIG_BASE64_DATA }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"
+          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=review-${{ env.REVIEW_URL_PREFIX }}-callcenter.r.doma.ai"
+          WERF_SET_CI_EPS_URL: "global.ci_eps_url=review-${{ env.REVIEW_URL_PREFIX }}-eps.r.doma.ai"
+          WERF_SET_CI_RB_URL: "global.ci_rb_url=review-${{ env.REVIEW_URL_PREFIX }}-rb.r.doma.ai"
+          WERF_SET_CI_INSURANCE_URL: "global.ci_insurance_url=review-${{ env.REVIEW_URL_PREFIX }}-insurance.doma.ai"
+          WERF_SET_CI_REGISTRY_MA_URL: "global.ci_registry_ma_url=review-${{ env.REVIEW_URL_PREFIX }}-registry.r.doma.ai"
+          WERF_SET_CI_MINIAPP_URL: "global.ci_miniapp_url=review-${{ env.REVIEW_URL_PREFIX }}-miniapp.doma.ai"
+          WERF_SET_CI_PROPERTY_IMPORTER_URL: "global.ci_property_importer_url=review-${{ env.REVIEW_URL_PREFIX }}-property-importer.doma.ai"
+          WERF_SET_CI_CLASSIFIER_URL: "global.ci_classifier_url=review-${{ env.REVIEW_URL_PREFIX }}-ml.r.doma.ai"
+          WERF_SET_CI_ADDRESS_SERVICE_URL: "global.ci_address_service_url=review-${{ env.REVIEW_URL_PREFIX }}-address-service.doma.ai"
+          WERF_SET_CI_TELEPHONY_URL: "global.ci_telephony_url=review-${{ env.REVIEW_URL_PREFIX }}-telephony.doma.ai"
+          WERF_SET_CI_DEVPORTAL_URL: "global.ci_devportal_url=review-${{ env.REVIEW_URL_PREFIX }}-developers.doma.ai"
+          WERF_SET_CI_PASSAPP_URL: "global.ci_passapp_url=review-${{ env.REVIEW_URL_PREFIX }}-miniapp-pass.doma.ai"
+          WERF_NAMESPACE: ${{ env.REVIEW_NAMESPACE}}
+          WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
+          WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
+          WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+          WERF_REPO_CONTAINER_REGISTRY: default
+      - name: Urls output
+        run: |
+          echo "condo: https://review-${{ env.REVIEW_URL_PREFIX }}-condo.r.doma.ai"
+          echo "callcenter: https://review-${{ env.REVIEW_URL_PREFIX }}-callcenter.r.doma.ai"
+          echo "eps: https://review-${{ env.REVIEW_URL_PREFIX }}-eps.r.doma.ai"
+          echo "rb: https://review-${{ env.REVIEW_URL_PREFIX }}-rb.r.doma.ai"

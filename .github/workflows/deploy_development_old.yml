@@ -1,0 +1,53 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: DEPLOY CONDO
+
+concurrency: nodejs.condo.deploy.yml
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+  push:
+    branches:
+     - "master"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
+      - name: Prepare
+        run: |
+          cp .env.example .env
+          sudo apt install -y pv
+          ssh root@dev.doma.ai 'id'
+      - name: Docker build
+        run: |
+          bash ./bin/warm-docker-cache
+          docker-compose build
+      - name: Upload builded image
+        timeout-minutes: 20
+        run: |
+          ssh root@dev.doma.ai "docker rmi apps:condo" || echo "no image"
+          ssh root@dev.doma.ai "docker images -f "reference=dokku/condo" -q | xargs docker rmi" || echo "no useless images"
+          ssh root@dev.doma.ai "docker system prune -af" || echo "no trash"
+          docker save apps:condo | bzip2 | pv | ssh root@dev.doma.ai 'bunzip2 | docker load'
+      - name: Restart condo app
+        run: |
+          export APP_VERSION=$GITHUB_SHA
+          export DOKKU_APP_NAME=condo
+          ssh root@dev.doma.ai "docker tag apps:condo dokku/${DOKKU_APP_NAME}:${APP_VERSION}"
+          #ssh root@dev.doma.ai "dokku tags:deploy ${DOKKU_APP_NAME} ${APP_VERSION}"
+          ssh root@dev.doma.ai "dokku git:from-image ${DOKKU_APP_NAME} dokku/${DOKKU_APP_NAME}:${APP_VERSION}"
+          ssh root@dev.doma.ai "docker exec -i -u root ${DOKKU_APP_NAME}.web.1 yarn workspace @app/condo migrate"

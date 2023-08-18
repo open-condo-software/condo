@@ -1,0 +1,46 @@
+name: Deploy to development cluster
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+
+jobs:
+  converge:
+    name: "Deploy to development cluster"
+    runs-on: self-hosted
+    env:
+      WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
+      PULL_USER: ${{ secrets.PULL_USER }}
+      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
+          if_key_exists: replace          
+      - name: Set env for branch name
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
+      - name: Converge
+        uses: werf/actions/converge@v1.2
+        with:
+          channel: beta
+          env: development
+          kube-config-base64-data: ${{ secrets.TEST_CLUSTER_KUBE_CONFIG_BASE64_DATA }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          WERF_SET_CI_CONDO_URL: "global.ci_condo_url=condo.tcs.doma.ai"
+          WERF_SET_CI_CALLCENTER_URL: "global.ci_callcenter_url=callcenter.tcs.doma.ai"
+          WERF_SET_CI_EPS_URL: "global.ci_eps_url=eps.tcs.doma.ai"
+          WERF_SET_CI_RB_URL: "global.ci_rb_url=rb.tcs.doma.ai"
+          WERF_NAMESPACE: "development"
+          WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
+          WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
