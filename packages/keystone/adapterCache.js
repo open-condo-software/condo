@@ -93,8 +93,6 @@ class AdapterCache {
 
             this.logging = !!logging
 
-            this.tracing = true
-
             // Stats
             this.logStatsEachSecs = logStatsEachSecs || 60
             this.totalRequests = 0
@@ -104,8 +102,6 @@ class AdapterCache {
 
             // Cache: { listName -> queryKey -> { response, listScore } }
             this.cache = new LRUCache({ max: this.maxCacheKeys, dispose: () => this.totalDropsOnLRU++ })
-
-            this.idCache = getCacheRedisClient('id')
 
             // Log statistics each <provided> seconds
             if (this.enabled) this.statsInterval = setInterval(() => this._logStats(), this.logStatsEachSecs * 1000)
@@ -491,10 +487,6 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
 
 function getStateRedisClient () {
     return getRedisClient('cache')
-}
-
-function getCacheRedisClient (name) {
-    return getRedisClient(name)
 }
 
 /**
