@@ -1,4 +1,4 @@
-name: Deploy to Develop
+name: "[development] Deploy"
 
 concurrency: deploy_develop.yaml
 
@@ -12,7 +12,7 @@ on:
 
 jobs:
   converge:
-    name: "Deploy to development"
+    name: "[development] Deploy"
     runs-on: self-hosted
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
@@ -45,7 +45,7 @@ jobs:
         with:
           channel: beta
           env: development
-          kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+          kube-config-base64-data: ${{ secrets.KUBECONFIG_BASE64_DEVELOPMENT_CLUSTER }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
         env:
           WERF_SET_CI_CONDO_URL: "global.ci_condo_url=condo.d.doma.ai"
@@ -60,6 +60,7 @@ jobs:
           WERF_SET_CI_ADDRESS_SERVICE_URL: "global.ci_address_service_url=address-service.d.doma.ai"
           WERF_SET_CI_TELEPHONY_URL: "global.ci_telephony_url=telephony.d.doma.ai"
           WERF_SET_CI_DEVPORTAL_URL: "global.ci_devportal_url=developers.d.doma.ai"
+          WERF_SET_CI_PASSAPP_URL: "global.ci_passapp_url=miniapp-pass.d.doma.ai"
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
