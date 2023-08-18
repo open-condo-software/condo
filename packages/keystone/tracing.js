@@ -1,10 +1,10 @@
-const opentelemetry = require('@opentelemetry/api')
+const otelApi = require('@opentelemetry/api')
 const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-proto')
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-proto')
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg')
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
-const opentelemetrySDK = require('@opentelemetry/sdk-node')
+const otelSdk = require('@opentelemetry/sdk-node')
 
 const KeystoneInstrumentation = require('./KeystoneInstrumentation')
 const { getLogger } = require('./logging')
@@ -14,7 +14,7 @@ const logger = getLogger('open-telemetry')
 const tracers = {}
 const getTracer = (name) => {
     if (!tracers[name]) {
-        tracers[name] = opentelemetry.trace.getTracer(
+        tracers[name] = otelApi.trace.getTracer(
             name,
             '1.0.0',
         )
@@ -35,7 +35,7 @@ class TracingMiddleware {
 
         logger.info({ message: 'OTEL is enabled. Config:', tracesUrl, metricsUrl })
 
-        const sdk = new opentelemetrySDK.NodeSDK({
+        const sdk = new otelSdk.NodeSDK({
             serviceName: 'condo',
             traceExporter: new OTLPTraceExporter({
                 url: tracesUrl,
