@@ -52,7 +52,7 @@
 const { get, cloneDeep, floor, isEqual } = require('lodash')
 const LRUCache = require('lru-cache')
 
-const { getAsyncLocalStorage } = require('./asyncLocalStorage')
+const { getExecutionContext } = require('./asyncLocalStorage')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
@@ -200,6 +200,7 @@ class AdapterCache {
             key,
             reqId,
             result,
+            context: getExecutionContext(),
         })
     }
 
@@ -384,7 +385,6 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
  */
 function getMutationFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI) {
     return async (...args) => {
-        const requestCtxLocalStorage = getAsyncLocalStorage('requestCtx')
 
         // Get mutation value
         const functionResult = await f.apply(listAdapter, args)
@@ -397,7 +397,6 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
             type: 'DROP',
             functionName,
             listName,
-            reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
             key: listName,
             result: functionResult,
         })
@@ -420,7 +419,8 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
  */
 function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async (...args) => {
-        const requestCtxLocalStorage = getAsyncLocalStorage('requestCtx')
+
+        const executionContext = getExecutionContext()
 
         cacheAPI.incrementTotal()
 
@@ -442,9 +442,9 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                     type: 'HIT',
                     functionName,
                     listName,
-                    reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
                     key,
                     result: cachedItem,
+
                 })
 
                 const cachedResponse = cloneDeep(cachedItem.response)
@@ -455,7 +455,6 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                         cacheAPI.logEvent({
                             type: 'BAD_CACHE',
                             functionName,
-                            reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
                             key,
                             listName,
                             result: { cachedResponse, response },
@@ -484,7 +483,6 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
         cacheAPI.logEvent({
             type: 'MISS',
             functionName,
-            reqId: get(requestCtxLocalStorage.getStore(), 'reqId'),
             key,
             listName,
             result: { copiedResponse, cached: shouldCache },

@@ -15,7 +15,7 @@ const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/key
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { registerTasks } = require('@open-condo/keystone/tasks')
 
-const { getAsyncLocalStorage } = require('../../asyncLocalStorage')
+const { internalGetAsyncLocalStorage } = require('../../asyncLocalStorage')
 const { parseCorsSettings } = require('../../cors.utils')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
@@ -94,7 +94,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {
-            const requestCtxLocalStorage = getAsyncLocalStorage('requestCtx')
+            const requestCtxLocalStorage = internalGetAsyncLocalStorage('requestCtx')
 
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
