@@ -3,13 +3,20 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, catchErrorFrom, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
+const {
+    makeLoggedInAdminClient,
+    makeClient,
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToResult, setXForwardedFor,
+} = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { createTestAcquiringIntegrationContext, createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const {
+    createTestAcquiringIntegrationContext,
+    createTestAcquiringIntegration,
+} = require('@condo/domains/acquiring/utils/testSchema')
 const { updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const { MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW } = require('@condo/domains/billing/constants')
 const { validateQRCodeByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -36,16 +43,19 @@ describe('ValidateQRCodeService', () => {
             PayeeINN: faker.random.numeric(8),
             PayerAddress: faker.address.streetAddress(true),
             Sum: faker.random.numeric(6),
-            lastName: faker.random.alpha(10),
-            paymPeriod: faker.random.numeric(6),
+            LastName: faker.random.alpha(10),
+            PaymPeriod: faker.random.numeric(6),
             BIC: faker.random.numeric(8),
+            PersAcc: faker.random.numeric(20),
         }
         const [testOrganization] = await createTestOrganization(adminClient, { tin: qrCodeObj.PayeeINN })
         organization = testOrganization
 
-        qrCodeString = JSON.stringify(qrCodeObj).replace(/["{}]+/g, '')
-            .replace(/[:]+/g, '=')
-            .replace(/[,]+/g, '|')
+        qrCodeString = 'ST00012|'.concat(
+            JSON.stringify(qrCodeObj).replace(/["{}]+/g, '')
+                .replace(/[:]+/g, '=')
+                .replace(/[,]+/g, '|'),
+        )
     })
 
     test('should parse fields correctly', async () => {
@@ -67,8 +77,11 @@ describe('ValidateQRCodeService', () => {
             'BIC',
             'PayerAddress',
             'Sum',
-            'lastName',
-            'paymPeriod',
+            'LastName',
+            'PaymPeriod',
+            'PersAcc',
+            'PayeeINN',
+            'PersonalAcc',
         ]
 
         test.each(cases)('should throw if QR code doesn\'t have "%s"', async (field) => {
@@ -78,20 +91,20 @@ describe('ValidateQRCodeService', () => {
             }, ({ errors }) => {
 
                 expect(errors).toMatchObject([{
-                    message: 'Provided QR code doesn\'t have one of required fields: BIC, payerAddress, lastName, paymPeriod or Sum',
+                    message: 'Provided QR code doesn\'t have all required fields',
                     path: ['result'],
                     extensions: {
                         mutation: 'validateQRCode',
                         code: 'BAD_USER_INPUT',
                         type: 'WRONG_FORMAT',
-                        message: 'Provided QR code doesn\'t have one of required fields: BIC, payerAddress, lastName, paymPeriod or Sum',
+                        message: 'Provided QR code doesn\'t have all required fields',
                     },
                 }])
             })
         })
     })
 
-    describe('Validate organization',  () => {
+    describe('Validate organization', () => {
         test('should throw if no organization with provided TIN exists', async () => {
             const qrCode = qrCodeString.replace(qrCodeObj.PayeeINN, '000000000')
             await catchErrorFrom(async () => {
@@ -106,26 +119,6 @@ describe('ValidateQRCodeService', () => {
                         code: 'INTERNAL_ERROR',
                         type: 'NOT_FOUND',
                         message: 'Organization with provided TIN is not registered with Doma.ai',
-                    },
-                }])
-            })
-        })
-
-        test('should throw if no BankAccount was found', async () => {
-            await createTestBankAccount(adminClient, organization)
-            const qrCode = qrCodeString.replace(`PayeeINN=${qrCodeObj.PayeeINN}|`, '')
-            await catchErrorFrom(async () => {
-                await validateQRCodeByTestClient(adminClient, { qrCode })
-            }, ({ errors }) => {
-
-                expect(errors).toMatchObject([{
-                    message: 'Bank Account with provided personal account number wasn\'t found',
-                    path: ['result'],
-                    extensions: {
-                        mutation: 'validateQRCode',
-                        code: 'INTERNAL_ERROR',
-                        type: 'NOT_FOUND',
-                        message: 'Bank Account with provided personal account number wasn\'t found',
                     },
                 }])
             })
@@ -176,13 +169,15 @@ describe('ValidateQRCodeService', () => {
     })
 
     test('should throw limit exceeded error on too many calls', async () => {
+        setXForwardedFor(Array(4).fill(null).map(() => faker.random.numeric(3)).join('.'))
+        const userClient2 = await makeClientWithResidentUser()
         const [integration] = await createTestAcquiringIntegration(adminClient)
         const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
-        
+
         for await (const i of Array.from(Array(MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW + 1).keys())) {
             if (i === MAX_CLIENT_VALIDATE_QR_CODE_BY_WINDOW) {
                 await catchErrorFrom(async () => {
-                    await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
+                    await validateQRCodeByTestClient(userClient2, { qrCode: qrCodeString })
                 }, ({ errors }) => {
                     expect(errors).toMatchObject([{
                         path: ['result'],
@@ -194,9 +189,10 @@ describe('ValidateQRCodeService', () => {
                     }])
                 })
             } else {
-                await validateQRCodeByTestClient(userClient, { qrCode: qrCodeString })
+                await validateQRCodeByTestClient(userClient2, { qrCode: qrCodeString })
             }
         }
+        setXForwardedFor()
         await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
     })
 
