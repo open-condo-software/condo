@@ -16,6 +16,7 @@ import { LOCALES } from '@condo/domains/common/constants/locale'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
+import type { PropertyReportTypes } from '@condo/domains/banking/components/BankCostItemContext'
 import type { RenderReturnType } from '@condo/domains/common/components/Table/Renders'
 import type { FilterValue } from 'antd/lib/table/interface'
 
@@ -49,7 +50,7 @@ const renderDate = (intl, search?: FilterValue | string) => {
     }
 }
 
-export function useTableColumns () {
+export const useTableColumns = (type?: PropertyReportTypes) => {
     const intl = useIntl()
     const ContractorTitle = intl.formatMessage({ id: 'global.contractor' }, { isSingular: true })
     const TinTitle = intl.formatMessage({ id: 'global.tin' })
@@ -100,17 +101,16 @@ export function useTableColumns () {
             {
                 title: PaymentPurposeTitle,
                 key: 'target',
-                width: '18%',
                 render: getTextRender(search),
                 dataIndex: 'purpose',
             },
-            {
+            ...(type === 'withdrawal' ? [{
                 title: CategoryTitle,
                 key: 'category',
                 width: '14%',
                 render: renderCategory(intl, search, CategoryNotSetTitle),
                 dataIndex: ['costItem', 'name'],
-            },
+            }] : []),
             {
                 title: SumTitle,
                 key: 'sum',
@@ -149,6 +149,6 @@ export function useTableColumns () {
                 render: renderCategory(intl, search, CategoryNotSetTitle),
             },
         ],
-    ], [search, ContractorTitle, TinTitle, BankAccountTitle, CategoryTitle, NumberTitle, CategoryNotSetTitle, intl,
-        DateTitle, PaymentPurposeTitle, SumTitle, ReceiverTitle])
+    ], [NumberTitle, search, DateTitle, intl, ReceiverTitle, BankAccountTitle, PaymentPurposeTitle, type, CategoryTitle,
+        CategoryNotSetTitle, SumTitle, ContractorTitle, TinTitle])
 }

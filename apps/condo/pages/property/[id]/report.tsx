@@ -391,13 +391,15 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
                                     />
                                 </Col>
                             )}
-                            <Col>
-                                <Checkbox
-                                    label={CategoryCheckboxTitle}
-                                    checked={categoryNotSet}
-                                    onChange={handleCategoryFilterChange}
-                                />
-                            </Col>
+                            {tab !== 'income' && (
+                                <Col>
+                                    <Checkbox
+                                        label={CategoryCheckboxTitle}
+                                        checked={categoryNotSet}
+                                        onChange={handleCategoryFilterChange}
+                                    />
+                                </Col>
+                            )}
                         </Row>
                     </TableFiltersContainer>
                 </Col>
