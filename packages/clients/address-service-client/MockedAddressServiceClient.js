@@ -129,7 +129,7 @@ class MockedAddressServiceClient {
         return {
             addressSources: [s],
             address,
-            addressKey: get(item, 'addressKey', createHash('md5').update(address).digest('hex')),
+            addressKey: get(item, 'addressKey', createHash('sha1').update(address).digest('hex')),
             addressMeta: {
                 data: get(item, ['addressMeta', 'data'], this.DEFAULT_META_DATA),
                 unitType,
