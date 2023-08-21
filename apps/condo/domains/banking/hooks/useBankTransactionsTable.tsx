@@ -95,7 +95,7 @@ const useBankTransactionsTable: IUseBankContractorAccountTable = (props) => {
             refetchEmptyCostItems()
         },
     })
-    const [bankTransactionTableColumns] = useTableColumns()
+    const [bankTransactionTableColumns] = useTableColumns(type)
 
     const [selectedRows, setSelectedRows] = useState([])
 
@@ -110,10 +110,10 @@ const useBankTransactionsTable: IUseBankContractorAccountTable = (props) => {
     const handleRowClick = useCallback((row) => {
         return {
             onClick: () => {
-                setSelectedItem(row)
+                type !== 'income' && setSelectedItem(row)
             },
         }
-    }, [setSelectedItem])
+    }, [setSelectedItem, type])
     const handleSelectAll = useCallback((checked) => {
         if (checked) {
             setSelectedRows(bankTransactions)
@@ -125,12 +125,12 @@ const useBankTransactionsTable: IUseBankContractorAccountTable = (props) => {
         setSelectedRows([])
     }
 
-    const rowSelection: TableRowSelection<BankTransactionType> = useMemo(() => ({
+    const rowSelection: TableRowSelection<BankTransactionType> = useMemo(() => type !== 'income' ? ({
         type: 'checkbox',
         onSelect: handleSelectRow,
         onSelectAll: handleSelectAll,
         selectedRowKeys: selectedRows.map(row => row.id),
-    }), [handleSelectRow, handleSelectAll, selectedRows])
+    }) : null, [handleSelectRow, handleSelectAll, selectedRows, type])
     const dataSource = useMemo(() => {
         return bankTransactions.map(({ ...transaction }) => {
             const costItem = bankCostItems.find(costItem => {
@@ -148,21 +148,26 @@ const useBankTransactionsTable: IUseBankContractorAccountTable = (props) => {
             return transaction
         })
     }, [bankCostItems, bankTransactions])
+    const progressRow = useMemo(() => {
+        if (type === 'income') return null
 
-    const progressLoading = loading || emptyCostItemsLoading
+        if (loading || emptyCostItemsLoading) {
+            return (
+                <Col span={24}>
+                    <Skeleton paragraph={{ rows: 1 }} />
+                </Col>
+            )
+        }
+
+        return <CategoryProgress totalRows={totalRows} entity={type} emptyRows={emptyCostItemsCount} />
+    }, [type, loading, emptyCostItemsLoading, totalRows, emptyCostItemsCount])
+
     const isLoading = loading || bankCostItemsLoading || updateLoading
 
     const Component = useMemo(() => {
         return () => (
             <Row gutter={TABLE_ROW_GUTTER}>
-                {progressLoading
-                    ? (
-                        <Col span={24}>
-                            <Skeleton paragraph={{ rows: 1 }} />
-                        </Col>
-                    )
-                    : <CategoryProgress totalRows={totalRows} entity={type} emptyRows={emptyCostItemsCount} />
-                }
+                {progressRow}
                 <Col span={24}>
                     <Table
                         loading={isLoading}
@@ -176,8 +181,7 @@ const useBankTransactionsTable: IUseBankContractorAccountTable = (props) => {
                 </Col>
             </Row>
         )
-    }, [isLoading, progressLoading, dataSource, bankTransactionTableColumns,
-        handleRowClick, type, rowSelection, totalRows, emptyCostItemsCount])
+    }, [isLoading, dataSource, bankTransactionTableColumns, progressRow, handleRowClick, rowSelection, totalRows])
 
     return { Component, loading: isLoading, selectedRows, clearSelection, updateSelected }
 }
