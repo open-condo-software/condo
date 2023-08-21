@@ -420,8 +420,6 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
 function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async (...args) => {
 
-        const executionContext = getExecutionContext()
-
         cacheAPI.incrementTotal()
 
         let key = getKey(args)
