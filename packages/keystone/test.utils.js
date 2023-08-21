@@ -87,6 +87,12 @@ let __isAwaiting = false
 let __isFeatureFlagsEnabled = true
 
 /**
+ * Something looks like an ip address. Need to test calls limit from one ip address.
+ * @type {string}
+ */
+let __x_forwarder_for_header
+
+/**
  * This function needs to be called BEFORE the test client creation
  * @param {boolean} isFeatureFlagsEnabled
  */
@@ -99,6 +105,14 @@ function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
  */
 function getIsFeatureFlagsEnabled () {
     return __isFeatureFlagsEnabled
+}
+
+/**
+ * Use before create the client.
+ * @param {string} [ip]
+ */
+function setXForwardedFor (ip = undefined) {
+    __x_forwarder_for_header = ip
 }
 
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
@@ -256,6 +270,7 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
             mode: 'cors',
             credentials: 'include',
             'feature-flags': __isFeatureFlagsEnabled,
+            ...(__x_forwarder_for_header ? { 'x-forwarded-for': __x_forwarder_for_header } : {}),
         },
         includeExtensions: true,
         isExtractableFile: (value) => {
@@ -788,6 +803,7 @@ module.exports = {
     UploadingFile,
     setIsFeatureFlagsEnabled,
     getIsFeatureFlagsEnabled,
+    setXForwardedFor,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,
