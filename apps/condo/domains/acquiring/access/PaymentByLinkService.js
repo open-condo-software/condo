@@ -8,9 +8,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canPaymentByLink ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.type === RESIDENT || user.isAdmin) return true
-
-    return false
+    return user.type === RESIDENT || user.isAdmin
 }
 
 /*

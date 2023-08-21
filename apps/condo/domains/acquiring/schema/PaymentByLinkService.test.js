@@ -5,21 +5,28 @@
 const { faker } = require('@faker-js/faker')
 
 const { getById } = require('@open-condo/keystone/schema')
-const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
-    expectToThrowAccessDeniedErrorToResult,
+const {
+    makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
+    expectToThrowAccessDeniedErrorToResult, setXForwardedFor,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { paymentByLinkByTestClient } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
-const { Payment } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBankAccount, updateTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
-const { createTestBillingReceipt, createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
-const { createTestBillingIntegrationOrganizationContext,
-    createTestBillingIntegration, createTestBillingProperty,
-    createTestBillingRecipient, updateTestBillingRecipient,
+const {
+    Payment,
+    paymentByLinkByTestClient,
+    addAcquiringIntegrationAndContext,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
+const {
+    createValidRuTin10,
+    createValidRuRoutingNumber, createValidRuNumber,
+} = require('@condo/domains/banking/utils/testSchema/bankAccount')
+const {
+    createTestBillingProperty,
+    createTestBillingRecipient,
+    createTestBillingReceipt, createTestBillingAccount,
+    validateQRCodeByTestClient, addBillingIntegrationAndContext,
 } = require('@condo/domains/billing/utils/testSchema')
-const { validateQRCodeByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
@@ -28,76 +35,109 @@ const {
     makeClientWithStaffUser,
     makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
- 
+
+function generateQRCode (qrCodeData = {}, { version = '0001', encodingTag = '2' } = {}) {
+    const bic = createValidRuRoutingNumber()
+
+    const qrCodeObj = {
+        PersonalAcc: createValidRuNumber(bic),
+        PayeeINN: createValidRuTin10(),
+        Sum: faker.random.numeric(6),
+        LastName: faker.random.alpha(10),
+        PaymPeriod: '07.2023',
+        BIC: bic,
+        PersAcc: faker.random.numeric(8),
+        PayerAddress: 'г Москва, ул Тверская, д 14, кв 2',
+        ...qrCodeData,
+    }
+
+    return [`ST${version}${encodingTag}|${Object.keys(qrCodeObj).map((k) => `${k}=${qrCodeObj[k]}`).join('|')}`, qrCodeObj]
+}
+
+async function createOrganizationAndPropertyAndQrCode (client, houseNumber, flatNumber, PaymPeriod) {
+    const [organization] = await createTestOrganization(client)
+
+    const [property] = await createTestProperty(client, { id: organization.id }, {},
+        true, {
+            city: 'Москва',
+            city_with_type: 'г Москва',
+            street: 'Тверская',
+            street_with_type: 'ул Тверская',
+            house: `${houseNumber}`,
+            block: '',
+            block_type: '',
+            region_with_type: '',
+            flat: `${flatNumber}`,
+            flat_type: 'кв',
+        })
+
+    const [qrCode, qrCodeAttrs] = generateQRCode({
+        PayerAddress: `г Москва, ул Тверская, д ${houseNumber}, кв ${flatNumber}`,
+        PayeeINN: organization.tin,
+        PaymPeriod,
+    })
+
+    return { organization, property, qrCode, qrCodeAttrs }
+}
+
 describe('PaymentByLinkService', () => {
-    let qrCode, qrCodeObj, organization, property
+    let qrCode, qrCodeObj
     let admin, support, user, anonymous, staff, service
     beforeAll(async () => {
+        setXForwardedFor(Array(4).fill(null).map(() => faker.random.numeric(3)).join('.'))
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         user = await makeClientWithResidentUser()
         anonymous = await makeClient()
         staff = await makeClientWithStaffUser()
         service = await makeClientWithServiceUser()
+        setXForwardedFor()
         qrCodeObj = {
             PersonalAcc: '40702810801500116391',
             PayeeINN: faker.random.numeric(8),
             Sum: faker.random.numeric(6),
-            lastName: faker.random.alpha(10),
-            paymPeriod: '07.2023',
+            LastName: faker.random.alpha(10),
+            PaymPeriod: '07.2023',
             BIC: '044525999',
             PersAcc: faker.random.numeric(8),
+            PayerAddress: 'г Москва, ул Тверская, д 14, кв 2',
         }
 
-        const [testOrganization] = await createTestOrganization(admin, { tin: qrCodeObj.PayeeINN })
-        organization = testOrganization
-
-        const [testProperty] = await createTestProperty(admin, { id: organization.id }, {},
-            true, {
-                city: 'Москва',
-                city_with_type: 'г Москва',
-                street: 'Тверская',
-                street_with_type: 'ул Тверская',
-                house: '14',
-                block: '',
-                block_type: '',
-                region_with_type: '',
-                flat: '2',
-                flat_type: 'кв',
-            })
-        property = testProperty
-        qrCode = JSON.stringify(qrCodeObj).replace(/["{}]+/g, '')
-            .replace(/[:]+/g, '=')
-            .replace(/[,]+/g, '|')
-            .concat('|PayerAddress=г Москва, ул Тверская, д 14, кв 2')
+        const [newQrCode] = generateQRCode(qrCodeObj)
+        qrCode = newQrCode
     })
+
     test('user: create multiPayment from older receipt', async () => {
-        const [integration] = await createTestAcquiringIntegration(admin)
-        const [organization] = await createTestOrganization(admin, { tin: qrCodeObj.PayeeINN })
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
-        const [billingIntegration] = await createTestBillingIntegration(admin)
-        const [billingIntegrationContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
-        const [bankAccount] = await createTestBankAccount(admin, organization, {
-            number: qrCodeObj.PersonalAcc,
-            routingNumber: qrCodeObj.BIC,
+        const {
+            organization,
+            qrCode,
+            qrCodeAttrs,
+        } = await createOrganizationAndPropertyAndQrCode(admin, 15, 3, '07.2023')
+
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        await createTestBankAccount(admin, organization, {
+            number: qrCodeAttrs.PersonalAcc,
+            routingNumber: qrCodeAttrs.BIC,
         })
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
-        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeObj.PersonalAcc })
-        const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
+            bankAccount: qrCodeAttrs.PersonalAcc,
+            bic: qrCodeAttrs.BIC,
+        })
+        await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-06-01',
             receiver: { connect: { id: billingRecipient.id } },
         })
-        const payload = { qrCode }
 
-        const [data] = await paymentByLinkByTestClient(user, payload)
-        await updateTestBankAccount(admin, bankAccount.id, { deletedAt: faker.date.past() })
-        await updateTestBillingRecipient(admin, billingRecipient.id, { deletedAt: faker.date.past() } )
+        const [data] = await paymentByLinkByTestClient(user, { qrCode })
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
         expect(data.unitName).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeObj.PersonalAcc)
+        expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
 
         const multiPayment = await getById('MultiPayment', data.multiPaymentId)
         expect(multiPayment).toBeDefined()
@@ -105,39 +145,43 @@ describe('PaymentByLinkService', () => {
         const payments = await Payment.getAll(admin, {
             multiPayment: { id: multiPayment.id },
         })
-        expect(payments[0].accountNumber).toBe(qrCodeObj.PersonalAcc)
-        expect(payments[0].recipientBic).toBe(qrCodeObj.BIC)
-        expect(payments[0].receipt).toBeNull()
 
+        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
+        expect(payments[0].recipientBic).toBe(qrCodeAttrs.BIC)
+        expect(payments[0].receipt).toBeNull()
     })
 
     test('user: create multiPayment from existing receipt', async () => {
-        const [integration] = await createTestAcquiringIntegration(admin)
-        const [organization] = await createTestOrganization(admin, { tin: qrCodeObj.PayeeINN })
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
-        const [billingIntegration] = await createTestBillingIntegration(admin)
-        const [billingIntegrationContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
-        const [bankAccount] = await createTestBankAccount(admin, organization, {
-            number: qrCodeObj.PersonalAcc,
-            routingNumber: qrCodeObj.BIC,
+        const {
+            organization,
+            qrCode,
+            qrCodeAttrs,
+        } = await createOrganizationAndPropertyAndQrCode(admin, 16, 6, '07.2023')
+
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        await createTestBankAccount(admin, organization, {
+            number: qrCodeAttrs.PersonalAcc,
+            routingNumber: qrCodeAttrs.BIC,
         })
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
-        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeObj.PersonalAcc })
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
+            bankAccount: qrCodeAttrs.PersonalAcc,
+            bic: qrCodeAttrs.BIC,
+        })
         const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-07-01',
             receiver: { connect: { id: billingRecipient.id } },
         })
-        const payload = { qrCode }
 
-        const [data] = await paymentByLinkByTestClient(admin, payload)
-        await updateTestBankAccount(admin, bankAccount.id, { deletedAt: faker.date.past() })
-        await updateTestBillingRecipient(admin, billingRecipient.id, { deletedAt: faker.date.past() } )
+        const [data] = await paymentByLinkByTestClient(admin, { qrCode })
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
         expect(data.unitName).toBeDefined()
-        expect(data.accountNumber).toEqual(qrCodeObj.PersonalAcc)
+        expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
 
         const multiPayment = await getById('MultiPayment', data.multiPaymentId)
         expect(multiPayment).toBeDefined()
@@ -147,16 +191,16 @@ describe('PaymentByLinkService', () => {
         })
         expect(payments[0].receipt).toBeDefined()
         expect(payments[0].accountNumber).toBe(billingReceipt.account.number)
-        expect(payments[0].recipientBic).toBe(billingReceipt.recipient.bic)
-
+        expect(payments[0].recipientBic).toBe(billingReceipt.receiver.bic)
     })
 
     test('should throw if no Bank Account or Billing Recipient found', async () => {
-        const [integration] = await createTestAcquiringIntegration(admin)
-        const [organization] = await createTestOrganization(admin, { tin: qrCodeObj.PayeeINN })
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
-        const [billingIntegration] = await createTestBillingIntegration(admin)
-        const [billingIntegrationContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+        const [qrCode, qrCodeAttrs] = generateQRCode()
+        const [organization] = await createTestOrganization(admin, { tin: qrCodeAttrs.PayeeINN })
+
+        await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
         const payload = { qrCode }
 
         await catchErrorFrom(async () => {
@@ -178,18 +222,27 @@ describe('PaymentByLinkService', () => {
     })
 
     test('should throw if no Billing Receipts found', async () => {
-        const [integration] = await createTestAcquiringIntegration(admin)
-        const [organization] = await createTestOrganization(admin, { tin: qrCodeObj.PayeeINN })
-        const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, integration, { status: CONTEXT_FINISHED_STATUS })
-        const [billingIntegration] = await createTestBillingIntegration(admin)
-        const [billingIntegrationContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+        const {
+            organization,
+            qrCode,
+            qrCodeAttrs,
+        } = await createOrganizationAndPropertyAndQrCode(admin, 14, 4, '07.2023')
+
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
         const payload = { qrCode }
 
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeObj.PersAcc })
-        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeObj.PersonalAcc })
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeAttrs.PersonalAcc })
         const [billingRecipient2] = await createTestBillingRecipient(admin, billingIntegrationContext)
-        const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
+        await createTestBankAccount(admin, organization, {
+            number: qrCodeAttrs.PersonalAcc,
+            routingNumber: qrCodeAttrs.BIC,
+        })
+
+        await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
             period: '2023-07-01',
             receiver: { connect: { id: billingRecipient2.id } },
         })
@@ -209,12 +262,8 @@ describe('PaymentByLinkService', () => {
                 },
             }])
         })
-
-        await updateTestBillingRecipient(admin, billingRecipient.id, { deletedAt: faker.date.past() } )
-        await updateTestBillingRecipient(admin, billingRecipient2.id, { deletedAt: faker.date.past() } )
-
     })
- 
+
     test('anonymous: can\'t execute', async () => {
         await expectToThrowAuthenticationErrorToResult(async () => {
             await paymentByLinkByTestClient(anonymous, { qrCode })
