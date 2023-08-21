@@ -133,14 +133,14 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
 
                 // Stage 3: make sure PersonalAccount is in our system (either in BankAccount or in BillingRecipient)
                 /** @type {BankAccount[]} */
-                const bankAccounts = await BankAccount.getAll(context, {
+                const bankAccount = await BankAccount.getOne(context, {
                     number: PersonalAcc,
                     organization: { id_in: validOrganizationIds, deletedAt: null },
                     routingNumber: BIC,
                     deletedAt: null,
                 })
 
-                if (bankAccounts.length === 0) {
+                if (!bankAccount) {
                     /** @type {BillingRecipient[]} */
                     const billingRecipients = await BillingRecipient.getAll(context, {
                         context: { id_in: billingContexts.map((context) => context.id), deletedAt: null },

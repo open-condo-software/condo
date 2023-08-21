@@ -89,7 +89,6 @@ async function paymentByLink (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write paymentByLink serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: PAYMENT_BY_LINK_MUTATION,
