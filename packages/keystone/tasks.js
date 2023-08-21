@@ -2,10 +2,10 @@ const Queue = require('bull')
 
 const conf = require('@open-condo/config')
 
+const { internalGetAsyncLocalStorage } = require('./asyncLocalStorage')
 const { getLogger } = require('./logging')
 const { getRedisClient } = require('./redis')
 const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
-const {internalGetAsyncLocalStorage} = require("./asyncLocalStorage");
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')

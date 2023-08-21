@@ -5,6 +5,9 @@ const { getLogger } = require('./logging')
 const ASYNC_LOCAL_STORAGES = {}
 const logger = getLogger('asyncLocalStorage')
 
+/**
+ * Return current execution context
+ */
 function getExecutionContext () {
     const requestCtxLocalStorage = internalGetAsyncLocalStorage('requestCtx')
     const taskCtxLocalStorage = internalGetAsyncLocalStorage('taskCtx')
@@ -22,6 +25,7 @@ function getExecutionContext () {
  *
  * @param {string} name -- name of storage
  * @returns {import('node:async_hooks').AsyncLocalStorage}
+ * @deprecated for any external usage!
  */
 function internalGetAsyncLocalStorage (name = 'default') {
     if (!name) throw new Error('getAsyncLocalStorage() without client name')
