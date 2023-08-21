@@ -6,6 +6,7 @@ const { Text, Relationship, Virtual } = require('@keystonejs/fields')
 const { Big } = require('big.js')
 const { get } = require('lodash')
 
+const { readOnlyFieldAccess } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
@@ -91,49 +92,49 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             schemaDoc: 'Calculation formula. Example: balance + charge + recalculation + privilege + penalty',
             type: Text,
             // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
-            access: access.readOnlyAccess,
+            access: readOnlyFieldAccess,
         },
 
         charge: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money charged by paid period. Example: "50.00", "-50.00"',
             // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
-            access: access.readOnlyAccess,
+            access: readOnlyFieldAccess,
         },
 
         balance: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Recipient balance on the receipt creation moment. Example: "50.00", "-50.00"',
             // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
-            access: access.readOnlyAccess,
+            access: readOnlyFieldAccess,
         },
 
         recalculation: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Recipient balance recalculation in case of overpaid or etc. Example: "50.00", "-50.00"',
             // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
-            access: access.readOnlyAccess,
+            access: readOnlyFieldAccess,
         },
 
         privilege: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Special privileges for recipient. Example: "50.00", "-50.00"',
             // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
-            access: access.readOnlyAccess,
+            access: readOnlyFieldAccess,
         },
 
         penalty: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money that recipient doesn\'t pay for previous receipt. Example: "50.00", "-50.00"',
             // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
-            access: access.readOnlyAccess,
+            access: readOnlyFieldAccess,
         },
 
         paid: {
             ...MONEY_AMOUNT_FIELD,
             schemaDoc: 'Amount of money that recipient already paid by current receipt. Example: "50.00", "-50.00"',
             // TODO(DOMA-6519): change read-only access to { create: true, read: true, update: true } after toPayDetails field removal
-            access: access.readOnlyAccess,
+            access: readOnlyFieldAccess,
         },
 
         // TODO(DOMA-6519): remove field and provide backward compatibility options for API

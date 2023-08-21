@@ -49,8 +49,6 @@ async function canManageBillingReceipts (args) {
     return await canManageBillingEntityWithContext(args)
 }
 
-const readOnlyAccess = { create: false, read: true, update: false }
-
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -59,5 +57,4 @@ module.exports = {
     canReadBillingReceipts,
     canManageBillingReceipts,
     canReadSensitiveBillingReceiptData,
-    readOnlyAccess,
 }
