@@ -201,12 +201,12 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
                         const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', lastBillingReceipt.context.id)
                         /** @type {AcquiringIntegrationContext[]} */
                         const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
-                            organization: { id: billingIntegrationContext.organization.id, deletedAt: null },
+                            organization: { id: billingIntegrationContext.organization, deletedAt: null },
                             status: CONTEXT_FINISHED_STATUS,
                             deletedAt: null,
                         })
                         const bankAccounts = await BankAccount.getAll(context, {
-                            organization: { id: billingIntegrationContext.organization.id, deletedAt: null },
+                            organization: { id: billingIntegrationContext.organization, deletedAt: null },
                             deletedAt: null,
                         })
 
