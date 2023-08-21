@@ -221,7 +221,7 @@ describe('PaymentByLinkService', () => {
 
     })
 
-    test('should throw if no Billing Receipts found', async () => {
+    test('should throw an error if no Billing Receipts found', async () => {
         const {
             organization,
             qrCode,

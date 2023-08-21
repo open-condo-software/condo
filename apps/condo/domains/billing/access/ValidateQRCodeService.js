@@ -8,9 +8,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canValidateQRCode ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.type === RESIDENT) return true
-
-    return false
+    return user.isAdmin || user.type === RESIDENT
 }
 
 /*
