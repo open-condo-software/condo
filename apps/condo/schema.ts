@@ -3561,6 +3561,8 @@ export type B2BAppPermission = {
   app?: Maybe<B2BApp>;
   /**  The permission key. Must be written in lowerCamelCase, start with the prefix "can", and answer the question, "What can a user with this permission do?". Examples: "canManagePasses", "canReadPrivateData", etc.  */
   key?: Maybe<Scalars['String']>;
+  /**  Name of permission. Must be very brief (from 1 to 50 characters) and describe the capabilities that the employee will get with this permission. Must use nouns that indicate actions with objects or sections of the mini-application. Examples: "Passes management", "Access to settings", "Contacts viewing".  */
+  name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3580,6 +3582,7 @@ export type B2BAppPermission = {
 export type B2BAppPermissionCreateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3604,6 +3607,7 @@ export type B2BAppPermissionHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3622,6 +3626,7 @@ export type B2BAppPermissionHistoryRecord = {
 export type B2BAppPermissionHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3645,6 +3650,7 @@ export enum B2BAppPermissionHistoryRecordHistoryActionType {
 export type B2BAppPermissionHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3684,6 +3690,24 @@ export type B2BAppPermissionHistoryRecordWhereInput = {
   key_not_ends_with_i?: Maybe<Scalars['String']>;
   key_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   key_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -3778,6 +3802,7 @@ export type B2BAppPermissionHistoryRecordsUpdateInput = {
 export type B2BAppPermissionUpdateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3812,6 +3837,24 @@ export type B2BAppPermissionWhereInput = {
   key_not_ends_with_i?: Maybe<Scalars['String']>;
   key_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   key_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -65476,6 +65519,8 @@ export enum SortB2BAppHistoryRecordsBy {
 export enum SortB2BAppPermissionHistoryRecordsBy {
   KeyAsc = 'key_ASC',
   KeyDesc = 'key_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -65499,6 +65544,8 @@ export enum SortB2BAppPermissionsBy {
   AppDesc = 'app_DESC',
   KeyAsc = 'key_ASC',
   KeyDesc = 'key_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
