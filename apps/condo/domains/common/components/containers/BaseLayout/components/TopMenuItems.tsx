@@ -9,7 +9,6 @@ import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndi
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
-
 export interface ITopMenuItemsProps {
     headerAction?: React.ElementType
 }

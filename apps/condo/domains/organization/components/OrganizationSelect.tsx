@@ -12,6 +12,7 @@ import { Space, Typography  } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
@@ -51,6 +52,7 @@ export const InlineOrganizationSelect: React.FC = () => {
             isRejected: false,
             isBlocked: false,
             isAccepted: true,
+            organization: { type_not: HOLDING_TYPE },
         },
     })
 

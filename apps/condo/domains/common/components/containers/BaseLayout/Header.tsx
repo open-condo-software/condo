@@ -19,7 +19,6 @@ import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
-
 interface IHeaderProps {
     headerAction?: React.ElementType
     TopMenuItems?: React.FC<ITopMenuItemsProps>
