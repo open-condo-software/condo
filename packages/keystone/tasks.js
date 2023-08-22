@@ -214,12 +214,20 @@ function isSerializable (data) {
 }
 
 function executeTask (name, args, job = null) {
+    // Since executeTask is synchronous we should use enterWith:
+    // From the docs:
+    // Transitions into the context for the remainder of the current synchronous execution and then persists the store through any following asynchronous calls.
+    internalGetAsyncLocalStorage('taskCtx').enterWith({ id: job.id, name: job.name })
+
     if (!TASKS.has(name)) throw new Error(`executeTask: Unknown task name ${name}`)
     if (!isSerializable(args)) throw new Error('executeTask: args is not serializable')
 
     const fn = TASKS.get(name)
+    const result = fn.apply(job, args)
 
-    return fn.apply(job, args)
+    internalGetAsyncLocalStorage('taskCtx').exit()
+
+    return result
 }
 
 function getTaskLoggingContext (job) {
@@ -249,9 +257,7 @@ async function createWorker (keystoneModule) {
     taskQueue.process('*', WORKER_CONCURRENCY, async function (job) {
         logger.info({ taskId: job.id, status: 'processing', task: getTaskLoggingContext(job) })
         try {
-            await internalGetAsyncLocalStorage('taskCtx').run({ id: job.id, name: job.name }, async () => {
-                return await executeTask(job.name, job.data.args, job)
-            })
+            return await executeTask(job.name, job.data.args, job)
         } catch (error) {
             logger.error({ taskId: job.id, status: 'error', error, task: getTaskLoggingContext(job) })
             throw error
