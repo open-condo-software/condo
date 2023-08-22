@@ -299,7 +299,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         await sleep(SLEEP_TIMEOUT)
     }
 
-    if (isEmpty(transactions)) {
+    if (isEmpty(transactions) && !isEmpty(duplicatedTransactions)) {
         logger.error({ msg: TRANSACTIONS_NOT_ADDED.message })
         await BankSyncTask.update(context, taskId, {
             ...DV_SENDER,
