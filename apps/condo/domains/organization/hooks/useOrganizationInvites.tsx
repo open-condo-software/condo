@@ -16,11 +16,13 @@ import {
 } from '@condo/domains/organization/gql'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 
+import type { OrganizationWhereInput } from '@app/condo/schema'
+
 interface IOrganizationInvitesHookResult {
     loading: boolean
 }
 
-export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
+export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInput): IOrganizationInvitesHookResult => {
     const intl = useIntl()
     const AcceptMessage = intl.formatMessage({ id: 'Accept' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
@@ -30,7 +32,7 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
     const userId = get(user, 'id', null)
     const { selectLink } = useOrganization()
     const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
-        { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false } },
+        { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false, organization: organizationFilter } },
     )
     const { addNotification } = useLayoutContext()
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)
