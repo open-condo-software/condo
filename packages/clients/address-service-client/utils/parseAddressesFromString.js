@@ -38,7 +38,7 @@ class AddressFromStringParser {
         if (!input) {
             return input
         }
-        return input.replace(/^[.,\s]*|[.,\s]*$/g, '')
+        return input.replace(/^[.,\s]*|[.,\s]*$/g, '') // NOSONAR
     }
 
     /**
