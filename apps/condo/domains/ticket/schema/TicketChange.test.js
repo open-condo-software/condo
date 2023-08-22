@@ -534,7 +534,7 @@ describe('TicketChange', () => {
                 })
 
                 // Explicitly sleep for some time
-                await new Promise(r => setTimeout(r, 500));
+                await new Promise(r => setTimeout(r, 500))
 
                 // Update 2 Update anything but the status. TicketChange actualUpdateDate should be GT StatusUpdatedAt
                 await updateTestTicket(client, ticket.id, { details: 'o tempora o mores!' })
