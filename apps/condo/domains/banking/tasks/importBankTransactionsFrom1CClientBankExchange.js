@@ -6,8 +6,14 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
+const { i18n } = require('@open-condo/locales/loader')
 
-const { BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
+const {
+    BANK_INTEGRATION_IDS,
+    _1C_CLIENT_BANK_EXCHANGE,
+    BANK_SYNC_TASK_STATUS,
+    TRANSACTIONS_NOT_ADDED,
+} = require('@condo/domains/banking/constants')
 const {
     BankIntegration,
     BankAccount,
@@ -226,6 +232,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             organization: {
                 id: organization.id,
             },
+            deletedAt: null,
         })
         if (existingTransaction) {
             duplicatedTransactions.push(importId)
@@ -290,6 +297,20 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         }
 
         await sleep(SLEEP_TIMEOUT)
+    }
+
+    if (isEmpty(transactions)) {
+        logger.error({ msg: TRANSACTIONS_NOT_ADDED.message })
+        await BankSyncTask.update(context, taskId, {
+            ...DV_SENDER,
+            status: TASK_ERROR_STATUS,
+            meta: {
+                errorMessage: i18n(TRANSACTIONS_NOT_ADDED.messageForUser),
+                duplicatedTransactions,
+            },
+        })
+
+        throw new Error(TRANSACTIONS_NOT_ADDED.message)
     }
 
     await BankSyncTask.update(context, taskId, {
