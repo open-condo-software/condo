@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "analysis": "./bin/run-semgrep.sh",
+    "analysis": "./bin/run-semgrep.sh -a",
     "build:packages": "turbo run build --filter='./packages/*'",
     "build:apps": "turbo run build --filter='./apps/*'",
     "build": "turbo run build",

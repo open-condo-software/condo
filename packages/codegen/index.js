@@ -255,6 +255,8 @@ function createapp (argv) {
                 }
                 const msgBox = boxen(greeting, boxenOptions)
                 const template = conf.CODEGEN_APPLICATION_TEMPLATE || DEFAULT_APPLICATION_TEMPLATE
+                // no end user input expected
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const targetDirectory = path.resolve(process.cwd(), `./apps/${name}`)
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
 

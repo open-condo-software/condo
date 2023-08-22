@@ -171,3 +171,5 @@ python3 -m pip install semgrep
 
 **Available CLI-commands:**
 - `yarn analysis` static code analysis (SAST) <- this command runs on CI
+- `yarn analysis -d apps/condo` - run analysis for specific directory
+- `yarn analysis -s` - run analysis with SARIF files output
