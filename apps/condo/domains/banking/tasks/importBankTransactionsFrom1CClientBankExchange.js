@@ -158,6 +158,12 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         const bankAccountUpdatePayload = {
             meta: bankAccountData.meta,
         }
+
+        // In case if Property was deleted and BankAccount did not -> update link to a new property to connect with existing transactions
+        if (bankAccount.property !== property.id) {
+            bankAccountUpdatePayload.property = { connect: { id: property.id } }
+        }
+
         if (bankAccount.integrationContext) {
             if (get(bankAccount, ['integrationContext', 'integration', 'id']) !== BANK_INTEGRATION_IDS['1CClientBankExchange']) {
                 await throwErrorAndSetErrorStatusToTask(context, task, 'Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case')
