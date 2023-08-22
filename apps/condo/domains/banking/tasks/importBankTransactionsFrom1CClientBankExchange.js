@@ -29,6 +29,7 @@ const { ConvertToUTF8 } = require('@condo/domains/banking/utils/serverSchema/con
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 // Avoids producing "BankSyncTaskHistoryRecord" record for each iteration in the processing loop, when we update progress
 // Practically, we need to
@@ -131,6 +132,20 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             logger.error({ msg: errorMsg })
             throw new Error(errorMsg)
         }
+
+        // In case if Property was deleted and BankAccount did not -> update link to a new property to connect with existing transactions
+        if (bankAccount.property !== null) {
+            const currentProperty = await Property.getOne(context, {
+                id: bankAccount.property.id,
+            })
+
+            if (currentProperty.deletedAt !== null) {
+                await BankAccount.update(context, bankAccount.id, {
+                    property: { connect: { id: property.id } },
+                    ...DV_SENDER,
+                })
+            }
+        }
     }
     let integrationContext
     if (!bankAccount) {
@@ -157,11 +172,6 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
     } else {
         const bankAccountUpdatePayload = {
             meta: bankAccountData.meta,
-        }
-
-        // In case if Property was deleted and BankAccount did not -> update link to a new property to connect with existing transactions
-        if (bankAccount.property !== property.id) {
-            bankAccountUpdatePayload.property = { connect: { id: property.id } }
         }
 
         if (bankAccount.integrationContext) {
