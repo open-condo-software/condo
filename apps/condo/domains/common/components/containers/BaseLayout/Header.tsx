@@ -13,12 +13,17 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
 import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
 import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
-import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
+import { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
 import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
+import type{ OrganizationWhereInput } from '@app/condo/schema'
+
+const ORGANIZATION_FILTER: OrganizationWhereInput = {
+    type_not: HOLDING_TYPE,
+}
 
 interface IHeaderProps {
     headerAction?: React.ElementType
@@ -34,7 +39,7 @@ export const Header: React.FC<IHeaderProps> = (props) => {
 
     const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
 
-    useOrganizationInvites()
+    useOrganizationInvites(ORGANIZATION_FILTER)
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
