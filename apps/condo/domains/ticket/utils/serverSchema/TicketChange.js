@@ -33,7 +33,7 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
     const statusUpdatedInOfflineMode =
         newItem.statusUpdatedAt &&
         (fieldsChanges.statusIdFrom && fieldsChanges.statusIdTo) &&
-        // curr time + 10 sec > statusUpdatedAt : if true, this means that status was most likely updated in offline mode
+        // curr time - 10 sec > statusUpdatedAt : if true, this means that status was most likely updated in offline mode
         new Date(new Date().getTime() - 10000) > newItem.statusUpdatedAt
 
     if (statusUpdatedInOfflineMode ) {
