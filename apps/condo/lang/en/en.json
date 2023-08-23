@@ -642,6 +642,7 @@
   "pages.condo.meter.index.PageTitle": "Meters log",
   "pages.condo.meter.index.EmptyList.header": "The list is empty",
   "pages.condo.meter.index.CreateMeterButtonLabel": "Add new meter",
+  "pages.condo.meter.index.CreateMeterReadingsButtonLabel": "Take meter readings",
   "pages.condo.meter.index.QuickFilterOnlyLatest": "Only last readings",
   "pages.condo.meter.index.QuickFilterOnlyLatestDescription": "If a resident submitted readings more than once in a given period, then in the table you will see only the last sent readings",
   "pages.condo.meter.index.meterTab": "Submeter log",

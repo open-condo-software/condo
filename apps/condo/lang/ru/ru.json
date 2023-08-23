@@ -642,6 +642,7 @@
   "pages.condo.meter.index.PageTitle": "Приборы учета",
   "pages.condo.meter.index.EmptyList.header": "Показания ИПУ пока не добавлены",
   "pages.condo.meter.index.CreateMeterButtonLabel": "Добавить показания",
+  "pages.condo.meter.index.CreateMeterReadingsButtonLabel": "Сдать показания ПУ",
   "pages.condo.meter.index.QuickFilterOnlyLatest": "Только последние показания",
   "pages.condo.meter.index.QuickFilterOnlyLatestDescription": "Если житель сдавал показания в заданный период больше одного раза, то в таблице вы увидите только его последние отправленные показания",
   "pages.condo.meter.index.meterTab": "Показания ИПУ",
