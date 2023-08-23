@@ -65041,7 +65041,7 @@ input DiscoverServiceConsumersInput {
 }
 
 type DiscoverServiceConsumersOutputStatistics {
-  created: Int!
+  createdIds: [ID!]
   residentsFound: Int!
   billingAccountsFound: Int!
 }

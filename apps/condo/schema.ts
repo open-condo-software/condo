@@ -20602,7 +20602,7 @@ export type DiscoverServiceConsumersOutput = {
 
 export type DiscoverServiceConsumersOutputStatistics = {
   __typename?: 'DiscoverServiceConsumersOutputStatistics';
-  created: Scalars['Int'];
+  createdIds?: Maybe<Array<Scalars['ID']>>;
   residentsFound: Scalars['Int'];
   billingAccountsFound: Scalars['Int'];
 };

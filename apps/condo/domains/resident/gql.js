@@ -42,7 +42,7 @@ const SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION = gql`
 
 const DISCOVER_SERVICE_CONSUMERS_MUTATION = gql`
     mutation discoverServiceConsumers ($data: DiscoverServiceConsumersInput!) {
-        result: discoverServiceConsumers(data: $data) { status statistics { created residentsFound billingAccountsFound } }
+        result: discoverServiceConsumers(data: $data) { status statistics { createdIds residentsFound billingAccountsFound } }
     }
 `
 /* AUTOGENERATE MARKER <CONST> */
