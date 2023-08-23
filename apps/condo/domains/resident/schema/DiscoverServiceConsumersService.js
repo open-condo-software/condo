@@ -35,7 +35,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
         },
         {
             access: true,
-            type: 'type DiscoverServiceConsumersOutputStatistics { created: Int!, residentsFound: Int!, billingAccountsFound: Int! }',
+            type: 'type DiscoverServiceConsumersOutputStatistics { createdIds: [ID!], residentsFound: Int!, billingAccountsFound: Int! }',
         },
         {
             access: true,
@@ -222,7 +222,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 )
 
                 const statistics = {
-                    created: createdServiceConsumers.filter(Boolean).length,
+                    createdIds: createdServiceConsumers.filter(Boolean).map(({ id }) => id),
                     residentsFound: residents.length,
                     billingAccountsFound: billingAccounts.length,
                 }
