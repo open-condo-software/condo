@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-
+const { sortBy } = require('lodash')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -494,7 +494,7 @@ describe('TicketChange', () => {
         })
 
         describe('actualCreationDate', () => {
-            it('filled if statusUpdatedAt difference from now more than 10 sec', async () => {
+            it('is filled if statusUpdatedAt difference from now more than 10 sec', async () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await createTestOrganization(admin)
                 const [property] = await createTestProperty(admin, organization)
@@ -503,7 +503,6 @@ describe('TicketChange', () => {
 
                 const [ticket] = await createTestTicket(client, organization, property)
                 const statusUpdatedAt = dayjs().subtract('20', 'second').toISOString()
-
 
                 const payload = {
                     status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
@@ -516,6 +515,41 @@ describe('TicketChange', () => {
                 })
 
                 expect(obj.actualCreationDate).toEqual(statusUpdatedAt)
+            })
+
+            it('is not filled if statusUpdatedAt is not in the payload', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageTickets: true })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [ticket] = await createTestTicket(client, organization, property)
+                const statusUpdatedAt = dayjs().subtract('20', 'second').toISOString()
+
+                // Update 1 Update status explicitly. TicketChange actualUpdateDate should equal this number
+                await updateTestTicket(client, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+                    statusUpdatedAt,
+                })
+
+                // Explicitly sleep for some time
+                await new Promise(r => setTimeout(r, 500))
+
+                // Update 2 Update anything but the status. TicketChange actualUpdateDate should be GT StatusUpdatedAt
+                await updateTestTicket(client, ticket.id, { details: 'o tempora o mores!' })
+
+                const objs = await TicketChange.getAll(client,
+                    { ticket: { id: ticket.id } },
+                    { sortBy: 'actualCreationDate_ASC' }
+                )
+
+                const statusUpdatedAtDate = new Date(statusUpdatedAt)
+                const date1 = new Date(objs[0].actualCreationDate)
+                const date2 = new Date(objs[1].actualCreationDate)
+
+                expect(date1.getTime()).toEqual(statusUpdatedAtDate.getTime())
+                expect(date2.getTime()).toBeGreaterThan(statusUpdatedAtDate.getTime())
             })
         })
     })

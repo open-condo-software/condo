@@ -21,7 +21,8 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
         ...fieldsChanges,
     }
 
-    if (newItem.statusUpdatedAt) {
+    // If status was changed
+    if (newItem.statusUpdatedAt && (fieldsChanges.statusIdFrom && fieldsChanges.statusIdTo)) {
         payload.actualCreationDate = dayjs(newItem.statusUpdatedAt).toISOString()
     }
 
