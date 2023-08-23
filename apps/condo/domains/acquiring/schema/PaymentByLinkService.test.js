@@ -4,7 +4,6 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { getById } = require('@open-condo/keystone/schema')
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
     expectToThrowAccessDeniedErrorToResult, setXForwardedFor,
@@ -14,7 +13,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const {
     Payment,
     paymentByLinkByTestClient,
-    addAcquiringIntegrationAndContext,
+    addAcquiringIntegrationAndContext, MultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBankAccount } = require('@condo/domains/banking/utils/testSchema')
 const {
@@ -139,7 +138,7 @@ describe('PaymentByLinkService', () => {
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
 
-        const multiPayment = await getById('MultiPayment', data.multiPaymentId)
+        const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
 
         const payments = await Payment.getAll(admin, {
@@ -183,7 +182,7 @@ describe('PaymentByLinkService', () => {
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
 
-        const multiPayment = await getById('MultiPayment', data.multiPaymentId)
+        const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
 
         const payments = await Payment.getAll(admin, {
