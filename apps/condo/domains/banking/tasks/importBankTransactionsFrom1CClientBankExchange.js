@@ -134,7 +134,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         }
 
         // In case if Property was deleted and BankAccount did not -> update link to a new property to connect with existing transactions
-        if (bankAccount.property !== null) {
+        if (bankAccount && bankAccount.property !== null) {
             const currentProperty = await Property.getOne(context, {
                 id: bankAccount.property.id,
             })
