@@ -1,4 +1,5 @@
 const { discoverServiceConsumersTask } = require('./discoverServiceConsumers.task')
+const { discoverServiceConsumersCronTask } = require('./discoverServiceConsumersCron.task')
 const {
     manageResidentToPropertyAndOrganizationConnections,
     manageResidentToTicketClientConnections,
@@ -13,5 +14,6 @@ module.exports = {
     sendBillingReceiptNotificationsWeekendsTask,
     manageResidentToPropertyAndOrganizationConnections,
     manageResidentToTicketClientConnections,
+    discoverServiceConsumersCronTask,
     discoverServiceConsumersTask,
 }
