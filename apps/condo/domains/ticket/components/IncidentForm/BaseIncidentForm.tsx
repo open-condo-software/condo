@@ -333,8 +333,8 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
     const initialIncidentProperties = useMemo(() => get(initialValues, 'incidentProperties', []), [initialValues]) as IIncidentProperty[]
     const initialIncidentClassifiers = useMemo(() => get(initialValues, 'incidentClassifiers', []), [initialValues]) as IIncidentClassifierIncident[]
 
-    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => item.property.id), [initialIncidentProperties])
-    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => item.classifier.id), [initialIncidentClassifiers])
+    const initialPropertyIds = useMemo(() => initialIncidentProperties.map(item => get(item, 'property.id')), [initialIncidentProperties])
+    const initialClassifierIds = useMemo(() => initialIncidentClassifiers.map(item => get(item, 'classifier.id')), [initialIncidentClassifiers])
 
     const handleFormSubmit = useCallback(async (values) => {
         const { properties, allClassifiers, categoryClassifiers, problemClassifiers, ...incidentValues } = values
@@ -367,7 +367,7 @@ export const BaseIncidentForm: React.FC<BaseIncidentFormProps> = (props) => {
             .filter(classifier => !get(classifier, 'problem.id') &&
                 selectedCategoryWithoutSelectedProblemIds.includes(get(classifier, 'category.id')))
         const selectedClassifierIds = [...selectedClassifiersByCategoryAndProblem, ...selectedClassifiersWithoutProblem]
-            .map(classifier => classifier.id)
+            .map(classifier => get(classifier, 'id'))
 
         const addedClassifierIds = difference(selectedClassifierIds, initialClassifierIds)
         for (const classifierId of addedClassifierIds) {
