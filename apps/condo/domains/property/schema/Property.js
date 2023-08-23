@@ -13,9 +13,8 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { addressService } = require('@open-condo/keystone/plugins/addressService')
-const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const {
     JSON_UNKNOWN_VERSION_ERROR,
     JSON_SCHEMA_VALIDATION_ERROR,
@@ -32,7 +31,6 @@ const { PROPERTY_MAP_GRAPHQL_TYPES } = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
 const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
-const { discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 const { softDeletePropertyScopeProperties } = require('@condo/domains/scope/utils/serverSchema')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
@@ -367,22 +365,6 @@ const Property = new GQLListSchema('Property', {
                     await softDeleteTicketHintPropertiesByProperty(context, updatedItem)
                     await softDeletePropertyScopeProperties(context, updatedItem)
                 }
-            }
-
-            if (isCreatedProperty || isAddressUpdated) {
-                const billingAccounts = await find('BillingAccount', {
-                    context: {
-                        status: CONTEXT_FINISHED_STATUS,
-                        organization: { id: updatedItem.organization },
-                        deletedAt: null,
-                    },
-                    property: { address: updatedItem.address, deletedAt: null },
-                })
-
-                // TODO(DOMA-6813): maybe prevent redis queue overloading
-                await discoverServiceConsumersTask.delay({
-                    billingAccountsIds: billingAccounts.map(({ id }) => id),
-                })
             }
         },
     },
