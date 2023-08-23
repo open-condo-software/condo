@@ -33,6 +33,7 @@ const {
 } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC } = require('@condo/domains/resident/constants/constants')
+const { discoverServiceConsumersCronTask } = require('@condo/domains/resident/tasks')
 const {
     createTestResident,
     ServiceConsumer,
@@ -166,6 +167,8 @@ describe('DiscoverServiceConsumersService', () => {
             const [billingAccount1] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
                 { unitName: resident1.unitName, unitType: resident1.unitType },
             )
+
+            await discoverServiceConsumersCronTask.delay()
 
             await waitFor(async () => {
                 const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
@@ -346,11 +349,11 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
 
-            expect(statistics).toEqual({
-                created: 5,
+            expect(statistics).toEqual(expect.objectContaining({
                 residentsFound: 3,
                 billingAccountsFound: 3,
-            })
+            }))
+            expect(statistics.createdIds).toHaveLength(5)
 
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 OR: [
@@ -452,11 +455,11 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
 
-            expect(statistics).toEqual({
-                created: 1,
+            expect(statistics).toEqual(expect.objectContaining({
                 residentsFound: 1,
                 billingAccountsFound: 1,
-            })
+            }))
+            expect(statistics.createdIds).toHaveLength(1)
 
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 OR: [
@@ -488,14 +491,18 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [registeredReceipts] = await registerBillingReceiptsByTestClient(serviceUser, payloadReceipts)
 
-            const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-            expect(receipts1).toHaveLength(1)
-            expect(registeredReceipts).toEqual(expect.arrayContaining([
-                expect.objectContaining({ id: receipts1[0].id }),
-            ]))
+            await discoverServiceConsumersCronTask.delay()
 
-            const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
-            expect(receipts2).toHaveLength(0)
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                expect(receipts1).toHaveLength(1)
+                expect(registeredReceipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                ]))
+
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+                expect(receipts2).toHaveLength(0)
+            })
         })
 
         describe('Without DSC feature flag', () => {
@@ -560,6 +567,8 @@ describe('DiscoverServiceConsumersService', () => {
                 const [billingAccount] = await createTestBillingAccount(adminNoFlag, billingIntegrationContext, billingProperty,
                     { unitName: resident.unitName, unitType: resident.unitType },
                 )
+
+                await discoverServiceConsumersCronTask.delay()
 
                 await waitFor(async () => {
                     const createdServiceConsumers = await ServiceConsumer.getAll(adminNoFlag, {
@@ -673,6 +682,8 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [registeredReceipts] = await registerBillingReceiptsByTestClient(admin, payload)
 
+            await discoverServiceConsumersCronTask.delay()
+
             // 3/3 check that residents can see the receipts list
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
@@ -750,6 +761,8 @@ describe('DiscoverServiceConsumersService', () => {
             // and some another property
             await createTestProperty(user1, managingOrg1)
 
+            await discoverServiceConsumersCronTask.delay()
+
             // resident1 should see receipt
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
@@ -773,6 +786,8 @@ describe('DiscoverServiceConsumersService', () => {
                 ],
             }
             const [registeredReceipts1a] = await registerBillingReceiptsByTestClient(serviceUser1, payload1a)
+
+            await discoverServiceConsumersCronTask.delay()
 
             // resident1 should see 2 receipts
             await waitFor(async () => {
@@ -854,6 +869,8 @@ describe('DiscoverServiceConsumersService', () => {
                 ],
             }
             const [registeredReceipts2] = await registerBillingReceiptsByTestClient(serviceUser2, payload2)
+
+            await discoverServiceConsumersCronTask.delay()
 
             // The 1st resident must see 3 receipts
             // The 2nd one see nothing, cause serviceOrg1 haven't added property
@@ -946,6 +963,8 @@ describe('DiscoverServiceConsumersService', () => {
                 ],
             }
             const [registeredReceipts1c] = await registerBillingReceiptsByTestClient(serviceUser1, payload1c)
+
+            await discoverServiceConsumersCronTask.delay()
 
             // After that the 1st and the 3rd residents must see 4 receipts each
             // The 2nd see the same, cause their property is not added to managingOrg1
@@ -1050,6 +1069,8 @@ describe('DiscoverServiceConsumersService', () => {
                 ],
             }
             const [registeredReceipts2a] = await registerBillingReceiptsByTestClient(serviceUser2, payload2a)
+
+            await discoverServiceConsumersCronTask.delay()
 
             // The 2nd and 4th residents must see +1 receipt from serviceOrg1
             // The 1st and 3rd residents must see +2 receipt from serviceOrg1
