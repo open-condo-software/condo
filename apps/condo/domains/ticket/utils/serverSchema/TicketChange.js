@@ -12,6 +12,9 @@ const { TicketChange } = require('./index')
 //     buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS })
 // )
 
+/**
+ * This code is executed when ticket is updated. It makes some additional checks and creates TicketChange object.
+ */
 const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, context }) => {
     const newItem = { ...existingItem, ...updatedItem }
     const payload = {
@@ -21,8 +24,19 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
         ...fieldsChanges,
     }
 
-    // If status was changed
-    if (newItem.statusUpdatedAt && (fieldsChanges.statusIdFrom && fieldsChanges.statusIdTo)) {
+    /**
+     * Status updates are considered sensitive information, and should be handled with care.
+     * (Example: management company pays his workers based on status change timings)
+     *
+     * If status is updated in offline mode (if proposed status update is greater than now for 10s) then it should be used as actualCreationDate
+     */
+    const statusUpdatedInOfflineMode =
+        newItem.statusUpdatedAt &&
+        (fieldsChanges.statusIdFrom && fieldsChanges.statusIdTo) &&
+        // curr time + 10 sec > statusUpdatedAt : if true, this means that status was most likely updated in offline mode
+        new Date(new Date().getTime() - 10000) > newItem.statusUpdatedAt
+
+    if (statusUpdatedInOfflineMode ) {
         payload.actualCreationDate = dayjs(newItem.statusUpdatedAt).toISOString()
     }
 
