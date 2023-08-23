@@ -6,8 +6,14 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
+const { i18n } = require('@open-condo/locales/loader')
 
-const { BANK_INTEGRATION_IDS, _1C_CLIENT_BANK_EXCHANGE, BANK_SYNC_TASK_STATUS } = require('@condo/domains/banking/constants')
+const {
+    BANK_INTEGRATION_IDS,
+    _1C_CLIENT_BANK_EXCHANGE,
+    BANK_SYNC_TASK_STATUS,
+    TRANSACTIONS_NOT_ADDED,
+} = require('@condo/domains/banking/constants')
 const {
     BankIntegration,
     BankAccount,
@@ -23,6 +29,7 @@ const { ConvertToUTF8 } = require('@condo/domains/banking/utils/serverSchema/con
 const { TASK_PROCESSING_STATUS, TASK_COMPLETED_STATUS, TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 // Avoids producing "BankSyncTaskHistoryRecord" record for each iteration in the processing loop, when we update progress
 // Practically, we need to
@@ -125,6 +132,20 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             logger.error({ msg: errorMsg })
             throw new Error(errorMsg)
         }
+
+        // In case if Property was deleted and BankAccount did not -> update link to a new property to connect with existing transactions
+        if (bankAccount.property !== null) {
+            const currentProperty = await Property.getOne(context, {
+                id: bankAccount.property.id,
+            })
+
+            if (currentProperty.deletedAt !== null) {
+                await BankAccount.update(context, bankAccount.id, {
+                    property: { connect: { id: property.id } },
+                    ...DV_SENDER,
+                })
+            }
+        }
     }
     let integrationContext
     if (!bankAccount) {
@@ -152,6 +173,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         const bankAccountUpdatePayload = {
             meta: bankAccountData.meta,
         }
+
         if (bankAccount.integrationContext) {
             if (get(bankAccount, ['integrationContext', 'integration', 'id']) !== BANK_INTEGRATION_IDS['1CClientBankExchange']) {
                 await throwErrorAndSetErrorStatusToTask(context, task, 'Another integration is used for this bank account, that fetches transactions in a different way. You cannot import transactions from file in this case')
@@ -226,6 +248,7 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
             organization: {
                 id: organization.id,
             },
+            deletedAt: null,
         })
         if (existingTransaction) {
             duplicatedTransactions.push(importId)
@@ -290,6 +313,20 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
         }
 
         await sleep(SLEEP_TIMEOUT)
+    }
+
+    if (isEmpty(transactions) && !isEmpty(duplicatedTransactions)) {
+        logger.error({ msg: TRANSACTIONS_NOT_ADDED.message })
+        await BankSyncTask.update(context, taskId, {
+            ...DV_SENDER,
+            status: TASK_ERROR_STATUS,
+            meta: {
+                errorMessage: i18n(TRANSACTIONS_NOT_ADDED.messageForUser),
+                duplicatedTransactions,
+            },
+        })
+
+        throw new Error(TRANSACTIONS_NOT_ADDED.message)
     }
 
     await BankSyncTask.update(context, taskId, {

@@ -37,6 +37,10 @@ const INVALID_DATE = {
     message: 'Invalid options.dateTo or options.DateFrom',
     messageForUser: 'api.banking.BankSyncTask.INVALID_DATE',
 }
+const TRANSACTIONS_NOT_ADDED = {
+    message: 'Transactions not added to BankAccount',
+    messageForUser: 'api.banking.BankSyncTask.TRANSACTIONS_NOT_ADDED',
+}
 
 module.exports = {
     BANK_INTEGRATION_IDS,
@@ -51,4 +55,5 @@ module.exports = {
     BANK_ACCOUNT_REPORT_TEMPLATE_VALUES,
     INVALID_DATE,
     WRONG_INTEGRATION,
+    TRANSACTIONS_NOT_ADDED,
 }
