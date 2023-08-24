@@ -85,7 +85,7 @@ async function allPaymentsSum (context, data) {
 const RecurrentPaymentContext = generateServerUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateServerUtils(RecurrentPaymentGQL)
 
-async function paymentByLink (context, data) {
+async function createPaymentByLink (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
@@ -93,7 +93,7 @@ async function paymentByLink (context, data) {
     return await execGqlWithoutAccess(context, {
         query: PAYMENT_BY_LINK_MUTATION,
         variables: { data: { dv: 1, ...data } },
-        errorMessage: '[error] Unable to paymentByLink',
+        errorMessage: '[error] Unable to createPaymentByLink',
         dataPath: 'obj',
     })
 }
@@ -113,6 +113,6 @@ module.exports = {
     allPaymentsSum,
     RecurrentPaymentContext,
     RecurrentPayment,
-    paymentByLink,
+    createPaymentByLink,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

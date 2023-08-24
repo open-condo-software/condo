@@ -65364,13 +65364,13 @@ type PaymentsSumOutput {
   sum: String!
 }
 
-input PaymentByLinkInput {
+input CreatePaymentByLinkInput {
   dv: Int!
   sender: SenderFieldInput!
   qrCode: String!
 }
 
-type PaymentByLinkOutput {
+type CreatePaymentByLinkOutput {
   multiPaymentId: ID!
   address: String!
   unitName: String!
@@ -75537,7 +75537,7 @@ type Mutation {
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
-  paymentByLink(data: PaymentByLinkInput!): PaymentByLinkOutput
+  createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 

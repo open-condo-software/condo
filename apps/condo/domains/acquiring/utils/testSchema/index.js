@@ -495,7 +495,7 @@ async function updateTestRecurrentPayment (client, id, extraAttrs = {}) {
 }
 
 
-async function paymentByLinkByTestClient(client, extraAttrs = {}) {
+async function createPaymentByLinkByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -735,6 +735,6 @@ module.exports = {
     sumPaymentsByTestClient,
     RecurrentPaymentContext, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
-    paymentByLinkByTestClient,
+    createPaymentByLinkByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

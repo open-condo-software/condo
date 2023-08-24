@@ -69,8 +69,8 @@ const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state payAfter billingReceip
 const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMENT_FIELDS)
 
 const PAYMENT_BY_LINK_MUTATION = gql`
-    mutation paymentByLink ($data: PaymentByLinkInput!) {
-        result: paymentByLink(data: $data) { multiPaymentId, address, unitName, accountNumber }
+    mutation createPaymentByLink ($data: CreatePaymentByLinkInput!) {
+        result: createPaymentByLink(data: $data) { multiPaymentId, address, unitName, accountNumber }
     }
 `
 
