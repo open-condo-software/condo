@@ -7,7 +7,6 @@ const { Wysiwyg } = require('@keystonejs/fields-wysiwyg-tinymce')
 const get = require('lodash/get')
 
 const userAccess = require('@open-condo/keystone/access')
-const { GQLError } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -16,13 +15,14 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('@condo/domains/miniapp/constants')
+const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
-const { ORGANIZATION_ERRORS } = require('@condo/domains/organization/constants/errors')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
 const { isValidTin } = require('@condo/domains/organization/utils/tin.utils')
 const { COUNTRY_RELATED_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
+
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('orgavatars')
 
@@ -168,7 +168,10 @@ const Organization = new GQLListSchema('Organization', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
+        serviceUserAccessForB2BApp({ schemaConfig: SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG.Organization }),
+    ],
     access: {
         read: access.canReadOrganizations,
         create: access.canManageOrganizations,

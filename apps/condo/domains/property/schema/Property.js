@@ -23,6 +23,8 @@ const {
 } = require('@condo/domains/common/constants/errors')
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
+const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('@condo/domains/miniapp/constants')
+const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
@@ -37,6 +39,7 @@ const { softDeletePropertyScopeProperties } = require('@condo/domains/scope/util
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
+
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -312,7 +315,11 @@ const Property = new GQLListSchema('Property', {
             },
         },
     },
-    plugins: [uuided(), addressService({ fieldsHooks: { address: addressFieldHooks } }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        uuided(), addressService({ fieldsHooks: { address: addressFieldHooks } }),
+        versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
+        serviceUserAccessForB2BApp({ schemaConfig: SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG.Property }),
+    ],
     access: {
         auth: true,
         delete: false,

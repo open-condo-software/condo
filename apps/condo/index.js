@@ -20,8 +20,6 @@ const { getWebhookModels } = require('@open-condo/webhooks/schema')
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { VersioningMiddleware } = require('@condo/domains/common/utils/VersioningMiddleware')
-const { SCHEMAS_AVAILABLE_TO_B2B_APP, B2B_APP_ACCESS_CONFIG } = require('@condo/domains/miniapp/constants')
-const { B2BAppAccess } = require('@condo/domains/miniapp/schema/preprocessors/B2BAppAccess')
 const { UserExternalIdentityMiddleware } = require('@condo/domains/user/integration/UserExternalIdentityMiddleware')
 const { OIDCMiddleware } = require('@condo/domains/user/oidc')
 
@@ -105,8 +103,6 @@ const schemas = () => [
     require('@condo/domains/analytics/schema'),
     require('@condo/domains/scope/schema'),
     require('@condo/domains/news/schema'),
-    // NOTE: miniapps must be placed after all other schemas.
-    //       "B2BAppAccess" preprocessor needs to know about all registered accesses to other schemas
     require('@condo/domains/miniapp/schema'),
     require('@condo/domains/settings/schema'),
     getWebhookModels('@app/condo/schema.graphql'),
@@ -158,11 +154,4 @@ module.exports = prepareKeystone({
     schemas, tasks,
     apps, lastApp,
     ui: { hooks: require.resolve('@app/condo/admin-ui') },
-    schemasPreprocessors: () => [
-        B2BAppAccess(
-            (schemaName) => SCHEMAS_AVAILABLE_TO_B2B_APP.includes(schemaName),
-            B2B_APP_ACCESS_CONFIG,
-            'B2BAppAccessRightSet',
-        ),
-    ],
 })

@@ -62271,6 +62271,12 @@ type B2BAppAccessRightSetHistoryRecord {
   """
   _label_: String
   app: String
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -62293,6 +62299,18 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
+  canManageContacts: Boolean
+  canManageContacts_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62376,6 +62394,18 @@ input B2BAppAccessRightSetHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  canReadContacts_ASC
+  canReadContacts_DESC
+  canManageContacts_ASC
+  canManageContacts_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -62396,6 +62426,12 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
 
 input B2BAppAccessRightSetHistoryRecordUpdateInput {
   app: String
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62417,6 +62453,12 @@ input B2BAppAccessRightSetHistoryRecordsUpdateInput {
 
 input B2BAppAccessRightSetHistoryRecordCreateInput {
   app: String
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62455,6 +62497,15 @@ type B2BAppAccessRightSet {
 
   """ Link to B2BApp """
   app: B2BApp
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -62476,15 +62527,6 @@ type B2BAppAccessRightSet {
   """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
-  canReadOrganizations: Boolean
-
-  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
-  """
-  canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
-  canReadContacts: Boolean
-  canManageContacts: Boolean
 }
 
 input B2BAppAccessRightSetWhereInput {
@@ -62492,6 +62534,18 @@ input B2BAppAccessRightSetWhereInput {
   OR: [B2BAppAccessRightSetWhereInput]
   app: B2BAppWhereInput
   app_is_null: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
+  canManageContacts: Boolean
+  canManageContacts_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62548,18 +62602,6 @@ input B2BAppAccessRightSetWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
-  canReadOrganizations: Boolean
-  canReadOrganizations_not: Boolean
-  canManageOrganizations: Boolean
-  canManageOrganizations_not: Boolean
-  canReadProperties: Boolean
-  canReadProperties_not: Boolean
-  canManageProperties: Boolean
-  canManageProperties_not: Boolean
-  canReadContacts: Boolean
-  canReadContacts_not: Boolean
-  canManageContacts: Boolean
-  canManageContacts_not: Boolean
 }
 
 input B2BAppAccessRightSetWhereUniqueInput {
@@ -62569,6 +62611,18 @@ input B2BAppAccessRightSetWhereUniqueInput {
 enum SortB2BAppAccessRightSetsBy {
   app_ASC
   app_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
+  canManageContacts_ASC
+  canManageContacts_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -62585,22 +62639,16 @@ enum SortB2BAppAccessRightSetsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
-  canReadOrganizations_ASC
-  canReadOrganizations_DESC
-  canManageOrganizations_ASC
-  canManageOrganizations_DESC
-  canReadProperties_ASC
-  canReadProperties_DESC
-  canManageProperties_ASC
-  canManageProperties_DESC
-  canReadContacts_ASC
-  canReadContacts_DESC
-  canManageContacts_ASC
-  canManageContacts_DESC
 }
 
 input B2BAppAccessRightSetUpdateInput {
   app: B2BAppRelateToOneInput
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62610,12 +62658,6 @@ input B2BAppAccessRightSetUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
-  canReadOrganizations: Boolean
-  canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
-  canReadContacts: Boolean
-  canManageContacts: Boolean
 }
 
 input B2BAppAccessRightSetsUpdateInput {
@@ -62625,6 +62667,12 @@ input B2BAppAccessRightSetsUpdateInput {
 
 input B2BAppAccessRightSetCreateInput {
   app: B2BAppRelateToOneInput
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62634,12 +62682,6 @@ input B2BAppAccessRightSetCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
-  canReadOrganizations: Boolean
-  canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
-  canReadContacts: Boolean
-  canManageContacts: Boolean
 }
 
 input B2BAppAccessRightSetsCreateInput {

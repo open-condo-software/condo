@@ -4,11 +4,10 @@ const {
     generateGqlDataPart,
     generateGqlQueryAsString,
     getFilter,
-    getSchemaDocForReadOnlyPermissionField,
-} = require('./B2BAppAccess')
+} = require('./serviceUserAccessForB2BApp')
 
 
-describe('Helper functions for B2BAppAccess preprocessor', () => {
+describe('Helper functions for serviceUserAccessForB2BApp preprocessor', () => {
     describe('generateGqlDataPart', () => {
         const validCases = [
             {
@@ -230,45 +229,6 @@ describe('Helper functions for B2BAppAccess preprocessor', () => {
 
         test.each(invalidCases)('getFilter($input.pathToOrganizationId, $input.organizationIds) - throw error "$error"', async ({ input: { pathToOrganizationId, organizationIds }, error }) => {
             expect(() => getFilter(pathToOrganizationId, organizationIds)).toThrow(error)
-        })
-    })
-
-    describe('getSchemaDocForReadOnlyPermissionField', () => {
-        const validCases = [
-            {
-                input: 'canReadTickets',
-                output: 'Currently, this field is read-only. You cannot get read access for the specified schema.',
-            },
-            {
-                input: 'canManageProperties',
-                output: 'Currently, this field is read-only. You cannot get manage access for the specified schema.',
-            },
-        ]
-        const invalidCases = [
-            {
-                input: '    ',
-                error: '"permissionFieldName" must be not empty string!',
-            },
-            {
-                input: null,
-                error: '"permissionFieldName" must be not empty string!',
-            },
-            {
-                input: 'CanManageTickets',
-                error: 'Permission field name no starts with "canManage" or "canRead"! You should check the implementation!',
-            },
-            {
-                input: 'readTickets',
-                error: 'Permission field name no starts with "canManage" or "canRead"! You should check the implementation!',
-            },
-        ]
-
-        test.each(validCases)('getSchemaDocForReadOnlyPermissionField($input) - returned valid value ($output)', async ({ input, output }) => {
-            expect(getSchemaDocForReadOnlyPermissionField(input)).toEqual(output)
-        })
-
-        test.each(invalidCases)('getSchemaDocForReadOnlyPermissionField$input) - throw error "$error"', async ({ input, error }) => {
-            expect(() => getSchemaDocForReadOnlyPermissionField(input)).toThrow(error)
         })
     })
 })

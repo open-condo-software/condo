@@ -14,8 +14,11 @@ const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const access = require('@condo/domains/contact/access/Contact')
+const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('@condo/domains/miniapp/constants')
+const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
+
 
 /**
  * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
@@ -169,7 +172,10 @@ const Contact = new GQLListSchema('Contact', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
+    plugins: [
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
+        serviceUserAccessForB2BApp({ schemaConfig: SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG.Contact }),
+    ],
     access: {
         read: access.canReadContacts,
         create: access.canManageContacts,
