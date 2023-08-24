@@ -177,24 +177,40 @@ describe('Sbercloud', () => {
         })
     })
     describe('Check access to read file', () => {
-        it('check access for read file by model', async () => {
-            const Api = await SberCloudObsTest.initApi()
+        let userClient, support, adminClient,
+            integration, billingContext, Api,
+            getFileWithMeta
+
+        beforeAll(async () => {
+            Api = await SberCloudObsTest.initApi()
             if (Api) {
-                const userClient = await makeClientWithProperty()
-                const support = await makeClientWithSupportUser()
-                const adminClient = await makeLoggedInAdminClient()
+                userClient = await makeClientWithProperty()
+                support = await makeClientWithSupportUser()
+                adminClient = await makeLoggedInAdminClient()
 
-                const [integration] = await createTestBillingIntegration(support)
-                const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+                integration = (await createTestBillingIntegration(support))[0]
+                billingContext = (await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration))[0]
+            }
 
+            getFileWithMeta = async (meta) => {
                 const name = `testFile_${Math.random()}.txt` // NOSONAR
                 const objectName = `${FOLDER_NAME}/${name}`
                 await Api.uploadObject(name, `Random text ${Math.random()}`) // NOSONAR
-                const setMetaResult = await Api.setMeta(name, {
+                const setMetaResult = await Api.setMeta(name, meta)
+                expect(setMetaResult).toBe(true)
+
+                return {
+                    name, objectName,
+                }
+            }
+        })
+
+        it('check access for read file by model', async () => {
+            if (Api) {
+                const { objectName } = await getFileWithMeta({
                     listkey: 'BillingIntegrationOrganizationContext',
                     id: billingContext.id,
                 })
-                expect(setMetaResult).toBe(true)
 
                 handler(
                     mockedReq(objectName, adminClient.user),
@@ -204,25 +220,13 @@ describe('Sbercloud', () => {
             }
         })
         it('check access for read file by model param', async () => {
-            const Api = await SberCloudObsTest.initApi()
             if (Api) {
-                const userClient = await makeClientWithProperty()
-                const support = await makeClientWithSupportUser()
-                const adminClient = await makeLoggedInAdminClient()
-
-                const [integration] = await createTestBillingIntegration(support)
-                const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
-
-                const name = `testFile_${Math.random()}.txt` // NOSONAR
-                const objectName = `${FOLDER_NAME}/${name}`
-                await Api.uploadObject(name, `Random text ${Math.random()}`) // NOSONAR
-                const setMetaResult = await Api.setMeta(name, {
+                const { objectName } = await getFileWithMeta({
                     listkey: 'BillingIntegrationOrganizationContext',
                     id: billingContext.id,
                     propertyquery: 'organization { id }',
                     propertyvalue: userClient.organization.id,
                 })
-                expect(setMetaResult).toBe(true)
 
                 handler(
                     mockedReq(objectName, adminClient.user),
