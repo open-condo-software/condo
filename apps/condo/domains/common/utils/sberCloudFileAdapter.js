@@ -292,4 +292,5 @@ class OBSFilesMiddleware {
 module.exports = {
     SberCloudFileAdapter,
     OBSFilesMiddleware,
+    obsRouterHandler,
 }

@@ -1,4 +1,54 @@
+/**
+ * @jest-environment node
+ */
+const index = require('@app/condo/index')
 const ObsClient = require('esdk-obs-nodejs')
+
+const {
+    setFakeClientMode,
+    makeLoggedInAdminClient,
+} = require('@open-condo/keystone/test.utils')
+
+const {
+    completeTestPayment,
+    createTestAcquiringIntegrationContext,
+    createTestAcquiringIntegration,
+} = require('@condo/domains/acquiring/utils/testSchema')
+const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingAccount,
+    createTestBillingProperty,
+    createTestBillingIntegrationOrganizationContext,
+    createTestBillingIntegrationAccessRight,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
+    generateServicesData, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestContact,
+    updateTestContact,
+} = require('@condo/domains/contact/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const {
+    registerServiceConsumerByTestClient,
+    updateTestServiceConsumer,
+    registerResidentByTestClient,
+    createTestResident,
+    ServiceConsumer,
+} = require('@condo/domains/resident/utils/testSchema')
+const {
+    addResidentAccess,
+    makeClientWithResidentUser,
+    makeClientWithSupportUser,
+    makeClientWithServiceUser,
+} = require('@condo/domains/user/utils/testSchema')
+
+const { obsRouterHandler } = require('./sberCloudFileAdapter')
+
+const { keystone } = index
+
 const FOLDER_NAME = '__jest_test_api___'
 
 
@@ -9,7 +59,7 @@ class SberCloudObsTest {
             throw new Error('SberCloudAdapter: S3Adapter requires a bucket name.')
         }
         this.obs = new ObsClient(config.s3Options)
-        this.folder = config.folder     
+        this.folder = config.folder
     }
 
     async checkBucket () {
@@ -44,10 +94,10 @@ class SberCloudObsTest {
         return serverAnswer
     }
 
-    async getMeta (filename) {
-        const result  = await this.s3.getObjectMetadata({
+    async getMeta (name) {
+        const result = await this.obs.getObjectMetadata({
             Bucket: this.bucket,
-            Key: filename,
+            Key: `${this.folder}/${name}`,
         })
         if (result.CommonMsg.Status < 300) {
             return result.InterfaceResult.Metadata
@@ -56,17 +106,17 @@ class SberCloudObsTest {
         }
     }
 
-    async setMeta (filename, newMeta = {} ) {
-        const result = await this.s3.setObjectMetadata({
+    async setMeta (name, newMeta = {}) {
+        const result = await this.obs.setObjectMetadata({
             Bucket: this.bucket,
-            Key: filename,
+            Key: `${this.folder}/${name}`,
             Metadata: newMeta,
             MetadataDirective: 'REPLACE_NEW',
         })
-        const  { CommonMsg: { Status } } = result 
+        const { CommonMsg: { Status } } = result
         return Status < 300
-    }    
-    
+    }
+
     static async initApi () {
         const S3Config = {
             ...(process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}),
@@ -83,11 +133,36 @@ class SberCloudObsTest {
             return null
         }
         return Api
-    }    
+    }
 }
 
 
 describe('Sbercloud', () => {
+    let adminClient, handler
+    let mockedNext, mockedReq, mockedRes
+
+    setFakeClientMode(index)
+
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+        handler = obsRouterHandler({ keystone })
+        mockedNext = () => {
+            throw new Error('calling method not expected by test cases')
+        }
+        mockedReq = (file, user) => ({
+            get: (header) => header,
+            params: { file },
+            user,
+        })
+        mockedRes = {
+            sendStatus: mockedNext,
+            status: mockedNext,
+            end: mockedNext,
+            json: mockedNext,
+            redirect: mockedNext,
+        }
+    })
+
     describe('Huawei SDK', () => {
         it('can add file to s3', async () => {
             const Api = await SberCloudObsTest.initApi()
@@ -125,6 +200,57 @@ describe('Sbercloud', () => {
                 const { CommonMsg: { Status: checkStatus } } = await Api.checkObjectExists(name)
                 expect(checkStatus).toBe(404)
             }
-        })    
+        })
+    })
+    describe('Check access to read file', () => {
+        it('check access for read file by model', async () => {
+            const Api = await SberCloudObsTest.initApi()
+            if (Api) {
+                const userClient = await makeClientWithProperty()
+                const support = await makeClientWithSupportUser()
+                const adminClient = await makeLoggedInAdminClient()
+
+                const [integration] = await createTestBillingIntegration(support)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
+
+                const integrationClient = await makeClientWithServiceUser()
+                await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
+                const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
+                    address: userClient.property.address,
+                })
+                const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
+
+                const residentUser = await makeClientWithResidentUser()
+                const [resident] = await registerResidentByTestClient(residentUser, {
+                    address: userClient.property.address,
+                    addressMeta: userClient.property.addressMeta,
+                    unitName: billingAccountAttrs.unitName,
+                })
+                await registerServiceConsumerByTestClient(residentUser, {
+                    residentId: resident.id,
+                    accountNumber: billingAccountAttrs.number,
+                    organizationId: userClient.organization.id,
+                })
+                const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
+
+                // create BillingReceiptFile
+                const [receiptFile] = await createTestBillingReceiptFile(adminClient, receipt, billingContext)
+
+                const name = `testFile_${Math.random()}.txt`
+                const objectName = `${FOLDER_NAME}/${name}`
+                await Api.uploadObject(name, `Random text ${Math.random()}`)
+                const setMetaResult = await Api.setMeta(name, {
+                    listkey: 'BillingReceiptFile',
+                    id: receiptFile.id,
+                })
+                expect(setMetaResult).toBe(true)
+
+                handler(
+                    mockedReq(objectName, userClient.user),
+                    { ...mockedRes, redirect: console.log },
+                    mockedNext,
+                )
+            }
+        })
     })
 })
