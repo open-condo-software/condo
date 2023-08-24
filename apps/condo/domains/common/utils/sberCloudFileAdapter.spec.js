@@ -236,9 +236,9 @@ describe('Sbercloud', () => {
                 // create BillingReceiptFile
                 const [receiptFile] = await createTestBillingReceiptFile(adminClient, receipt, billingContext)
 
-                const name = `testFile_${Math.random()}.txt`
+                const name = `testFile_${Math.random()}.txt` // NOSONAR
                 const objectName = `${FOLDER_NAME}/${name}`
-                await Api.uploadObject(name, `Random text ${Math.random()}`)
+                await Api.uploadObject(name, `Random text ${Math.random()}`) // NOSONAR
                 const setMetaResult = await Api.setMeta(name, {
                     listkey: 'BillingReceiptFile',
                     id: receiptFile.id,
