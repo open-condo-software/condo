@@ -44,7 +44,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'input GetOverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String! }',
+            type: 'input GetOverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String!, propertyIds: [ID] }',
         },
         {
             access: true,
@@ -115,7 +115,12 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                         { createdAt_lte: where.dateTo },
                     ],
                 }
-                const ticketWhereFilter = { organization: { id: where.organization }, ...dateFilter, deletedAt: null }
+                const ticketWhereFilter = {
+                    organization: { id: where.organization },
+                    ...dateFilter,
+                    deletedAt: null,
+                    ...(where.propertyIds.length > 0 && { property: { id_in: where.propertyIds } }),
+                }
 
                 const dataProvider = new AnalyticsDataProvider({
                     entities: {

@@ -22111,6 +22111,7 @@ export type GetOverviewDashboardWhereInput = {
   organization: Scalars['String'];
   dateFrom: Scalars['String'];
   dateTo: Scalars['String'];
+  propertyIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 export type GetPhoneByConfirmPhoneActionTokenInput = {

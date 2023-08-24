@@ -4,7 +4,6 @@ import {
     TicketQualityControlValueType,
 } from '@app/condo/schema'
 import { Row, Col, Skeleton } from 'antd'
-import Big from 'big.js'
 import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
@@ -27,20 +26,19 @@ import {
     PaymentTotalChart,
 } from '@condo/domains/analytics/components/charts'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
+import { MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
+import { GET_TICKETS_COUNT_QUERY, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
-const TICKET_TABLE_PAGE_SIZE = 5
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
 const CARD_ROW_GUTTER: RowProps['gutter'] = [24, 24]
 const CARD_STYLE: React.CSSProperties = { height: '160px' }
@@ -69,21 +67,20 @@ const StatisticCard: React.FC<StatisticCardProps> = ({ label, value, secondaryLa
     </Col>
 )
 
-const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData, paymentLoading, dateRange }) => {
+const PerformanceCard = ({ organizationId, paymentSum, residentsData, paymentLoading, dateRange }) => {
     const intl = useIntl()
     const SummaryTitle = intl.formatMessage({ id: 'pages.reports.summary' })
     const DoneLabel = intl.formatMessage({ id: 'Done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
     const NewTicketsLabel = intl.formatMessage({ id: 'ticket.status.OPEN.many' })
+    const CompletedLabel = intl.formatMessage({ id: 'ticket.status.COMPLETED.many' })
     const ClosedTicketsLabel = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
-    const PaymentsAmountPercent = intl.formatMessage({ id: 'pages.reports.paymentsAmountPercent' })
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
 
     const { breakpoints } = useLayoutContext()
 
     const [completionPercent, setCompletionPercent] = useState('—')
-    const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
     const [residentsCount, setResidentsCount] = useState(0)
     const ticketCounts = useRef(null)
 
@@ -109,14 +106,6 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
 
         loadTicketCounts({ variables: { where: ticketWhere, whereWithoutStatuses: ticketWhere } })
     }, [organizationId, loadTicketCounts, dateRange])
-
-    useEffect(() => {
-        if (!paymentLoading && !isNull(paymentSum) && !isNull(receiptSum)) {
-            if (Number(receiptSum) > 0) {
-                setPaymentsAmountPercent(Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%')
-            }
-        }
-    }, [receiptSum, paymentSum, paymentLoading])
 
     useEffect(() => {
         if (residentsData.length) {
@@ -152,6 +141,10 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                                 value={ticketCounts.current.processing.count}
                             />
                             <StatisticCard
+                                label={CompletedLabel}
+                                value={ticketCounts.current.completed.count}
+                            />
+                            <StatisticCard
                                 label={ClosedTicketsLabel}
                                 value={ticketCounts.current.closed.count}
                             />
@@ -162,10 +155,6 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                             <Col style={iconStyle}>
                                 <Wallet />
                             </Col>
-                            <StatisticCard
-                                label={PaymentsAmountPercent}
-                                value={paymentsAmountPercent}
-                            />
                             <StatisticCard
                                 label={PaymentsAmount}
                                 value={intl.formatNumber(paymentSum, { style: 'currency', currency: 'Rub' })}
@@ -309,63 +298,13 @@ const TicketQualityControlDashboard: IDashboardCard = ({ organizationId, dateRan
     )
 }
 
-const TicketTableView: IDashboardCard = ({ organizationId, dateRange }) => {
-    const intl = useIntl()
-    const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
-    const InProgressTitle = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
-
-    const router = useRouter()
-    const { columns } = useLightWeightTableColumns()
-
-    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
-
-    const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, 5), [offset])
-
-    const { objs: tickets, loading, count } = Ticket.useObjects({
-        where: {
-            organization: { id: organizationId },
-            status: { type: TicketStatusTypeType.Processing },
-            AND: [
-                { createdAt_gte: dateRange[0].startOf('day').toISOString() },
-                { createdAt_lte: dateRange[1].endOf('day').toISOString() },
-            ],
-        },
-        first: TICKET_TABLE_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * TICKET_TABLE_PAGE_SIZE,
-    })
-
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: async () => {
-                await router.push(`/ticket/${record.id}`)
-            },
-        }
-    }, [router])
-
-    return (
-        <Row gutter={[0, 16]}>
-            <Col span={24}>
-                <Typography.Title level={3}>
-                    {TicketTitle} {InProgressTitle.toLowerCase()}
-                </Typography.Title>
-            </Col>
-            <Col span={24}>
-                <Table
-                    totalRows={count}
-                    loading={loading}
-                    columns={columns}
-                    dataSource={tickets}
-                    pageSize={5}
-                    onRow={handleRowAction}
-                />
-            </Col>
-        </Row>
-    )
-}
-
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
+    const intl = useIntl()
+    const AllAddressesPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
+
     const [overview, setOverview] = useState<OverviewData>(null)
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
+    const [addressList, setAddressList] = useState<string[]>([])
 
     const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
@@ -382,16 +321,20 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     organization: organizationId,
                     dateFrom: dateRange[0].toISOString(),
                     dateTo: dayjs(dateRange[1]).endOf('day').toISOString(),
+                    propertyIds: addressList,
                 },
                 groupBy: {
                     aggregatePeriod: 'day',
                 },
             },
         } })
-    }, [organizationId, loadDashboardData, dateRange])
+    }, [organizationId, loadDashboardData, dateRange, addressList])
 
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
+    }, [])
+    const onAddressChange = useCallback(labelsList => {
+        setAddressList(labelsList)
     }, [])
 
     const newTickets = get(overview, 'ticketByDay.tickets', [])
@@ -401,7 +344,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const paymentsData = get(overview, 'payment.payments', [])
     const paymentSum = get(overview, 'payment.sum', null)
     const receiptsData = get(overview, 'receipt.receipts', [])
-    const receiptSum = get(overview, 'receipt.sum', null)
     const residentsData = get(overview, 'resident.residents', [])
     const chargedToPaidData = paymentsData.length > 0 && receiptsData.length > 0 ? [paymentsData, receiptsData] : []
 
@@ -419,6 +361,20 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                                 disabledDate={disabledDate}
                             />
                         </Col>
+                        <Col span={10}>
+                            <GraphQlSearchInput
+                                allowClear
+                                search={searchOrganizationProperty(organizationId)}
+                                mode='multiple'
+                                infinityScroll
+                                value={addressList}
+                                onChange={onAddressChange}
+                                maxTagCount='responsive'
+                                maxTagTextLength={MAX_TAG_TEXT_LENGTH}
+                                placeholder={AllAddressesPlaceholder}
+                                style={{ width: '100%' }}
+                            />
+                        </Col>
                     </Row>
 
                 </TableFiltersContainer>
@@ -427,7 +383,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 <PerformanceCard
                     organizationId={organizationId}
                     paymentSum={paymentSum}
-                    receiptSum={receiptSum}
                     residentsData={residentsData}
                     paymentLoading={false}
                     dateRange={dateRange}
@@ -449,9 +404,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         </Col>
                         <Col lg={12} md={24} xs={24}>
                             <TicketByCategoryChart data={categoryTickets} />
-                        </Col>
-                        <Col span={24}>
-                            <TicketTableView organizationId={organizationId} dateRange={dateRange} />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
                             <PaymentTotalChart data={paymentsData} />

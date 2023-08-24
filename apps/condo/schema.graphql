@@ -66300,6 +66300,7 @@ input GetOverviewDashboardWhereInput {
   organization: String!
   dateFrom: String!
   dateTo: String!
+  propertyIds: [ID]
 }
 
 input GetOverviewDashboardInput {
