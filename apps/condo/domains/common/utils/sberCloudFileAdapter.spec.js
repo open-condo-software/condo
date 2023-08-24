@@ -212,40 +212,45 @@ describe('Sbercloud', () => {
                 const [integration] = await createTestBillingIntegration(support)
                 const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
 
-                const integrationClient = await makeClientWithServiceUser()
-                await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)
-                const [billingProperty] = await createTestBillingProperty(integrationClient, billingContext, {
-                    address: userClient.property.address,
+                const name = `testFile_${Math.random()}.txt` // NOSONAR
+                const objectName = `${FOLDER_NAME}/${name}`
+                await Api.uploadObject(name, `Random text ${Math.random()}`) // NOSONAR
+                const setMetaResult = await Api.setMeta(name, {
+                    listkey: 'BillingIntegrationOrganizationContext',
+                    id: billingContext.id,
                 })
-                const [billingAccount, billingAccountAttrs] = await createTestBillingAccount(integrationClient, billingContext, billingProperty)
+                expect(setMetaResult).toBe(true)
 
-                const residentUser = await makeClientWithResidentUser()
-                const [resident] = await registerResidentByTestClient(residentUser, {
-                    address: userClient.property.address,
-                    addressMeta: userClient.property.addressMeta,
-                    unitName: billingAccountAttrs.unitName,
-                })
-                await registerServiceConsumerByTestClient(residentUser, {
-                    residentId: resident.id,
-                    accountNumber: billingAccountAttrs.number,
-                    organizationId: userClient.organization.id,
-                })
-                const [receipt] = await createTestBillingReceipt(integrationClient, billingContext, billingProperty, billingAccount)
+                handler(
+                    mockedReq(objectName, adminClient.user),
+                    { ...mockedRes, redirect: console.log },
+                    mockedNext,
+                )
+            }
+        })
+        it('check access for read file by model param', async () => {
+            const Api = await SberCloudObsTest.initApi()
+            if (Api) {
+                const userClient = await makeClientWithProperty()
+                const support = await makeClientWithSupportUser()
+                const adminClient = await makeLoggedInAdminClient()
 
-                // create BillingReceiptFile
-                const [receiptFile] = await createTestBillingReceiptFile(adminClient, receipt, billingContext)
+                const [integration] = await createTestBillingIntegration(support)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration)
 
                 const name = `testFile_${Math.random()}.txt` // NOSONAR
                 const objectName = `${FOLDER_NAME}/${name}`
                 await Api.uploadObject(name, `Random text ${Math.random()}`) // NOSONAR
                 const setMetaResult = await Api.setMeta(name, {
-                    listkey: 'BillingReceiptFile',
-                    id: receiptFile.id,
+                    listkey: 'BillingIntegrationOrganizationContext',
+                    id: billingContext.id,
+                    propertyquery: 'organization { id }',
+                    propertyvalue: userClient.organization.id,
                 })
                 expect(setMetaResult).toBe(true)
 
                 handler(
-                    mockedReq(objectName, userClient.user),
+                    mockedReq(objectName, adminClient.user),
                     { ...mockedRes, redirect: console.log },
                     mockedNext,
                 )
