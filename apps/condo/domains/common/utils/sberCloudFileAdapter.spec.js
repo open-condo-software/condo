@@ -10,39 +10,14 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const {
-    completeTestPayment,
-    createTestAcquiringIntegrationContext,
-    createTestAcquiringIntegration,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
-const {
-    createTestBillingAccount,
-    createTestBillingProperty,
     createTestBillingIntegrationOrganizationContext,
-    createTestBillingIntegrationAccessRight,
 } = require('@condo/domains/billing/utils/testSchema')
 const {
-    createTestBillingIntegration, createTestBillingReceipt, updateTestBillingReceipt, ResidentBillingReceipt,
-    generateServicesData, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE,
+    createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const {
-    createTestContact,
-    updateTestContact,
-} = require('@condo/domains/contact/utils/testSchema')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const {
-    registerServiceConsumerByTestClient,
-    updateTestServiceConsumer,
-    registerResidentByTestClient,
-    createTestResident,
-    ServiceConsumer,
-} = require('@condo/domains/resident/utils/testSchema')
-const {
-    addResidentAccess,
-    makeClientWithResidentUser,
     makeClientWithSupportUser,
-    makeClientWithServiceUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 const { obsRouterHandler } = require('./sberCloudFileAdapter')
