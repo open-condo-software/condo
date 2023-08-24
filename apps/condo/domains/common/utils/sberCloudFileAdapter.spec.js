@@ -138,13 +138,12 @@ class SberCloudObsTest {
 
 
 describe('Sbercloud', () => {
-    let adminClient, handler
+    let handler
     let mockedNext, mockedReq, mockedRes
 
     setFakeClientMode(index)
 
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
         handler = obsRouterHandler({ keystone })
         mockedNext = () => {
             throw new Error('calling method not expected by test cases')
