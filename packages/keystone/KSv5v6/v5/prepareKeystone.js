@@ -39,6 +39,9 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
     if (tasks && typeof tasks !== 'function') throw new Error('tasks should be a function like `() => [ Task ]`')
     if (apps && typeof apps !== 'function') throw new Error('apps should be a function like `() => [ App | Middleware ]`')
 
+    const prcs = process
+    internalGetAsyncLocalStorage('keystoneInstanceCtx').enterWith({ id: v4(), argv: process.argv, execArgv: process.execArgv})
+
     const keystoneConfig = prepareDefaultKeystoneConfig(conf)
     const keystone = new Keystone({
         ...keystoneConfig,

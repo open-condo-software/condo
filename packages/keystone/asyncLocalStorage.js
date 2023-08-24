@@ -11,16 +11,16 @@ const logger = getLogger('asyncLocalStorage')
 function getExecutionContext () {
     const requestCtxLocalStorage = internalGetAsyncLocalStorage('requestCtx')
     const taskCtxLocalStorage = internalGetAsyncLocalStorage('taskCtx')
+    const keystoneInstanceCtxLocalStorage = internalGetAsyncLocalStorage('keystoneInstanceCtx')
     return {
         requestCtx: requestCtxLocalStorage.getStore(),
         taskCtx: taskCtxLocalStorage.getStore(),
+        keystoneCtx: keystoneInstanceCtxLocalStorage.getStore(),
     }
 }
 
 /**
- *
  * This function is intended to be used in internal modules only, like prepareKeystone.js
- *
  * Use this function if you need a specific asyncLocalStorage instance in project
  *
  * @param {string} name -- name of storage
