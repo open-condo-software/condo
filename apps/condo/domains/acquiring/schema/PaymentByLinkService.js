@@ -35,7 +35,7 @@ const ERRORS = {
         mutation: 'paymentByLink',
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Provided address did not match any FIAS address',
+        message: 'The provided address is invalid',
     },
     BANK_ACCOUNT_IS_INVALID: {
         mutation: 'paymentByLink',
@@ -78,7 +78,6 @@ const PaymentByLinkService = new GQLCustomSchema('PaymentByLinkService', {
                         PersonalAcc,
                         BIC,
                         PayerAddress,
-                        LastName,
                         PaymPeriod,
                         Sum,
                         PayeeINN,
