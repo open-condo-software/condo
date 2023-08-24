@@ -378,9 +378,11 @@ const Property = new GQLListSchema('Property', {
                     property: { address: updatedItem.address, deletedAt: null },
                 })
 
-                await discoverServiceConsumersTask.delay({
-                    billingAccountsIds: billingAccounts.map(({ id }) => id),
-                })
+                if (billingAccounts.length > 0) {
+                    await discoverServiceConsumersTask.delay({
+                        billingAccountsIds: billingAccounts.map(({ id }) => id),
+                    })
+                }
             }
         },
     },
