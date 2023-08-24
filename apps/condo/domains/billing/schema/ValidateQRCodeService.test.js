@@ -77,7 +77,6 @@ describe('ValidateQRCodeService', () => {
             'BIC',
             'PayerAddress',
             'Sum',
-            'LastName',
             'PaymPeriod',
             'PersAcc',
             'PayeeINN',
@@ -91,13 +90,13 @@ describe('ValidateQRCodeService', () => {
             }, ({ errors }) => {
 
                 expect(errors).toMatchObject([{
-                    message: 'Provided QR code doesn\'t have all required fields',
+                    message: `Provided QR code doesn't have required fields: ${field}`,
                     path: ['result'],
                     extensions: {
                         mutation: 'validateQRCode',
                         code: 'BAD_USER_INPUT',
                         type: 'WRONG_FORMAT',
-                        message: 'Provided QR code doesn\'t have all required fields',
+                        message: `Provided QR code doesn't have required fields: ${field}`,
                     },
                 }])
             })

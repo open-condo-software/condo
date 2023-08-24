@@ -24,13 +24,13 @@ const redisGuard = new RedisGuard()
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
 const ERRORS = {
-    INVALID_QR_CODE: {
+    INVALID_QR_CODE: (missedFieldsArr) => ({
         mutation: 'validateQRCode',
         variable: ['data', 'qrCode'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Provided QR code doesn\'t have all required fields',
-    },
+        message: `Provided QR code doesn't have required fields: ${missedFieldsArr.join(', ')}`,
+    }),
     NO_ORGANIZATION: {
         mutation: 'validateQRCode',
         code: INTERNAL_ERROR,
@@ -54,6 +54,8 @@ const ERRORS = {
  * @typedef {object} ValidateQRCodeInputArgs
  * @property {ValidateQRCodeInput} data
  */
+
+const REQUIRED_QR_CODE_FIELDS = ['BIC', 'PayerAddress', 'PaymPeriod', 'Sum', 'PersAcc', 'PayeeINN', 'PersonalAcc']
 
 const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
     types: [
@@ -87,19 +89,24 @@ const ValidateQRCodeService = new GQLCustomSchema('ValidateQRCodeService', {
                 await checkLimits(ip)
 
                 const matches = /^ST(?<version>\d{4})(?<encodingTag>\d)\|(?<requisitesStr>.*)$/g.exec(qrCode)
-                const encodingTag = get(matches, ['groups', 'encodingTag'])
                 const requisitesStr = get(matches, ['groups', 'requisitesStr'], '')
 
                 // TODO(AleX83Xpert): maybe decode requisitesStr
                 // Need to test the result of scanning from mobile devices
                 // https://encoding.spec.whatwg.org/#koi8-r
                 // https://encoding.spec.whatwg.org/#windows-1251
+                // const encodingTag = get(matches, ['groups', 'encodingTag'])
                 // const encoding = get(['windows-1251', 'utf-8', 'koi8-r'], encodingTag, 'utf-8')
 
                 const qrCodeFields = Object.fromEntries(requisitesStr.split('|').map(part => part.split('=', 2)))
-                const { PersonalAcc, PersAcc, BIC, PayerAddress, LastName, PaymPeriod, Sum, PayeeINN } = qrCodeFields
 
-                if (!BIC || !PayerAddress || !LastName || !PaymPeriod || !Sum || !PersAcc || !PayeeINN || !PersonalAcc) throw new GQLError(ERRORS.INVALID_QR_CODE, context)
+                const missedFields = REQUIRED_QR_CODE_FIELDS.filter((requiredField) => !get(qrCodeFields, requiredField, null))
+
+                if (missedFields.length > 0) {
+                    throw new GQLError(ERRORS.INVALID_QR_CODE(missedFields), context)
+                }
+
+                const { PayeeINN } = qrCodeFields
 
                 const organizations = await Organization.getAll(context, {
                     tin: PayeeINN,
