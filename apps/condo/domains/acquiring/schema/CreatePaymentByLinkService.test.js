@@ -136,7 +136,7 @@ describe('CreatePaymentByLinkService', () => {
 
         const [data] = await createPaymentByLinkByTestClient(admin, { qrCode })
 
-        expect(data.multiPaymentId).toBeDefined()
+        expect(data.multiPaymentId).toBeDefined() // NOSONAR code duplications is normal for tests
         expect(data.address).toBeDefined()
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
@@ -182,7 +182,7 @@ describe('CreatePaymentByLinkService', () => {
             }),
         })
 
-        const [data] = await createPaymentByLinkByTestClient(user, { qrCode })
+        const [data] = await createPaymentByLinkByTestClient(user, { qrCode }) // NOSONAR code duplications is normal for tests
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
@@ -227,7 +227,7 @@ describe('CreatePaymentByLinkService', () => {
             receiver: { connect: { id: billingRecipient.id } },
         })
 
-        const [data] = await createPaymentByLinkByTestClient(user, { qrCode })
+        const [data] = await createPaymentByLinkByTestClient(user, { qrCode }) // NOSONAR code duplications is normal for tests
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
@@ -265,7 +265,7 @@ describe('CreatePaymentByLinkService', () => {
             routingNumber: qrCodeAttrs.BIC,
         })
 
-        const [data] = await createPaymentByLinkByTestClient(user, { qrCode })
+        const [data] = await createPaymentByLinkByTestClient(user, { qrCode }) // NOSONAR code duplications is normal for tests
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
