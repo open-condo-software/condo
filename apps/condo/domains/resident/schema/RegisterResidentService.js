@@ -127,19 +127,21 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     )
 
                     try {
-                        // Call the mutation directly (without task) to make the resident see receipts immediately
-                        const discoveringResult = await discoverServiceConsumers(context, {
-                            dv,
-                            sender,
-                            billingAccountsIds: billingAccounts.map(({ id }) => id),
-                            filters: { residentsIds: [id] },
-                        })
-                        logger.info({
-                            message: 'discoverServiceConsumers done',
-                            result: discoveringResult,
-                            reqId,
-                            resident: { id },
-                        })
+                        if (billingAccounts.length > 0) {
+                            // Call the mutation directly (without task) to make the resident see receipts immediately
+                            const discoveringResult = await discoverServiceConsumers(context, {
+                                dv,
+                                sender,
+                                billingAccountsIds: billingAccounts.map(({ id }) => id),
+                                filters: { residentsIds: [id] },
+                            })
+                            logger.info({
+                                message: 'discoverServiceConsumers done',
+                                result: discoveringResult,
+                                reqId,
+                                resident: { id },
+                            })
+                        }
                     } catch (err) {
                         logger.error({ message: 'discoverServiceConsumers fail', err, reqId })
                     }

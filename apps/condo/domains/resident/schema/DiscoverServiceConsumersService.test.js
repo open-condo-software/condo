@@ -755,6 +755,9 @@ describe('DiscoverServiceConsumersService', () => {
                 ],
             }
             const [registeredReceipts1] = await registerBillingReceiptsByTestClient(serviceUser1, payload1)
+
+            await discoverServiceConsumersCronTask.delay()
+
             // resident1: still no receipts, cause the organization haven't added the property
             const receipts1a = await ResidentBillingReceipt.getAll(residentClient1, {})
             expect(receipts1a).toHaveLength(0)
@@ -766,8 +769,6 @@ describe('DiscoverServiceConsumersService', () => {
             })
             // and some another property
             await createTestProperty(user1, managingOrg1)
-
-            await discoverServiceConsumersCronTask.delay()
 
             // resident1 should see receipt
             await waitFor(async () => {
