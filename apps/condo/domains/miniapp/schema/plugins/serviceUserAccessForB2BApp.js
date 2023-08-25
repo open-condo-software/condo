@@ -8,6 +8,8 @@ const { evaluateKeystoneAccessResult } = require('@open-condo/keystone/plugins/u
 const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
 const { find, getById } = require('@open-condo/keystone/schema')
 
+const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('@condo/domains/miniapp/constants')
+
 
 const ALL_GENERATED_GQL_QUERIES = new Map()
 
@@ -262,10 +264,19 @@ function plugin (fn) {
  *      1.4) B2BAppAccessRightSet connected to B2BAppAccessRight
  *
  *      1.5) In the scheme B2BAppAccessRightSet for the B2BApp A the necessary rights were issued to execute the request
- *
- * @param {B2BAppAccessConfig} schemaConfig - Overrides the plugin's default behavior for the specified schema
  */
-const serviceUserAccessForB2BApp = ({ schemaConfig } = {}) => plugin((schema, { schemaName }) => {
+const serviceUserAccessForB2BApp = () => plugin((schema, { schemaName }) => {
+
+    if (!(schemaName in SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG)) {
+        throw new Error(`SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG has not schema "${schemaName}"! You should to add name of this scheme to config or remove plugin from this schema!`)
+    }
+
+    /**
+     *
+     * @type {B2BAppAccessConfig}
+     */
+    const schemaConfig = get(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG, schemaName, {})
+
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) {

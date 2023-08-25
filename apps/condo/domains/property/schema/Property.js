@@ -23,7 +23,6 @@ const {
 } = require('@condo/domains/common/constants/errors')
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
-const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('@condo/domains/miniapp/constants')
 const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/property/access/Property')
@@ -317,8 +316,7 @@ const Property = new GQLListSchema('Property', {
     },
     plugins: [
         uuided(), addressService({ fieldsHooks: { address: addressFieldHooks } }),
-        versioned(), tracked(), softDeleted(), dvAndSender(), historical(),
-        serviceUserAccessForB2BApp({ schemaConfig: SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG.Property }),
+        versioned(), tracked(), softDeleted(), dvAndSender(), historical(), serviceUserAccessForB2BApp(),
     ],
     access: {
         auth: true,

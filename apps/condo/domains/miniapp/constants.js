@@ -119,7 +119,7 @@ const PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS = {
  *    access: // ...some access
  *    plugins: [
  *        // ...some your plugins
- *        serviceUserAccessForB2BApp({ schemaConfig: SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG.MySchema })
+ *        serviceUserAccessForB2BApp()
  *    ]
  * }
  *
