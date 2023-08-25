@@ -1,4 +1,5 @@
 {
   "show-modal-window": "CondoWebAppShowModalWindow",
+  "update-modal-window": "CondoWebAppUpdateModalWindow",
   "close-modal-window": "CondoWebAppCloseModalWindow"
 }

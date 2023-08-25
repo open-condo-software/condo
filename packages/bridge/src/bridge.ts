@@ -19,6 +19,7 @@ const WEB_SPECIFIC_METHODS: Array<AnyRequestMethodName> = [
     'CondoWebAppCloseModalWindow',
     'CondoWebAppGetActiveProgressBars',
     'CondoWebAppGetLaunchParams',
+    'CondoWebAppRedirect',
     'CondoWebAppRequestAuth',
     'CondoWebAppResizeWindow',
     'CondoWebAppShowModalWindow',
