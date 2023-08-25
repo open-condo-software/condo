@@ -66346,6 +66346,10 @@ type ResidentOverviewResult {
   residents: [ResidentGroupedCounter!]
 }
 
+type PropertyOverviewResult {
+  sum: String!
+}
+
 type OverviewData {
   ticketByProperty: TicketOverviewResult
   ticketByDay: TicketOverviewResult
@@ -66354,6 +66358,7 @@ type OverviewData {
   payment: PaymentOverviewResult
   receipt: ReceiptOverviewResult
   resident: ResidentOverviewResult
+  property: PropertyOverviewResult
 }
 
 type GetOverviewDashboardOutput {

@@ -67,7 +67,7 @@ const StatisticCard: React.FC<StatisticCardProps> = ({ label, value, secondaryLa
     </Col>
 )
 
-const PerformanceCard = ({ organizationId, paymentSum, residentsData, paymentLoading, dateRange }) => {
+const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsData, paymentLoading, dateRange }) => {
     const intl = useIntl()
     const SummaryTitle = intl.formatMessage({ id: 'pages.reports.summary' })
     const DoneLabel = intl.formatMessage({ id: 'Done' })
@@ -77,6 +77,7 @@ const PerformanceCard = ({ organizationId, paymentSum, residentsData, paymentLoa
     const ClosedTicketsLabel = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
+    const UnitsCount = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
 
     const { breakpoints } = useLayoutContext()
 
@@ -110,6 +111,8 @@ const PerformanceCard = ({ organizationId, paymentSum, residentsData, paymentLoa
     useEffect(() => {
         if (residentsData.length) {
             setResidentsCount(residentsData.reduce((p, c) => p + Number(c.count), 0))
+        } else {
+            setResidentsCount(0)
         }
     }, [residentsData])
     const iconStyle = useMemo(() => ({ display: !breakpoints.TABLET_LARGE ? 'none' : 'block' }), [breakpoints.TABLET_LARGE])
@@ -162,6 +165,10 @@ const PerformanceCard = ({ organizationId, paymentSum, residentsData, paymentLoa
                             <StatisticCard
                                 label={ResidentsInApp}
                                 value={residentsCount}
+                            />
+                            <StatisticCard
+                                label={UnitsCount}
+                                value={propertyData}
                             />
                         </Row>
                     </Col>
@@ -341,6 +348,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const propertyTickets = get(overview, 'ticketByProperty.tickets', [])
     const categoryTickets = get(overview, 'ticketByCategory.tickets', [])
     const executorTickets = get(overview, 'ticketByExecutor.tickets', [])
+    const propertyData = get(overview, 'property.sum', 0)
     const paymentsData = get(overview, 'payment.payments', [])
     const paymentSum = get(overview, 'payment.sum', null)
     const receiptsData = get(overview, 'receipt.receipts', [])
@@ -384,6 +392,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     organizationId={organizationId}
                     paymentSum={paymentSum}
                     residentsData={residentsData}
+                    propertyData={propertyData}
                     paymentLoading={false}
                     dateRange={dateRange}
                 />

@@ -3,6 +3,7 @@
  */
 
 const dayjs = require('dayjs')
+const { get } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
@@ -13,6 +14,7 @@ const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domain
 const access = require('@condo/domains/analytics/access/GetOverviewDashboardService')
 const { AnalyticsDataProvider } = require('@condo/domains/analytics/utils/services/AnalyticsDataProvider')
 const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/payment')
+const { PropertyDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/property')
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
 const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
 const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
@@ -80,7 +82,11 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult }',
+            type: 'type PropertyOverviewResult { sum: String! }',
+        },
+        {
+            access: true,
+            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult, property: PropertyOverviewResult }',
         },
         {
             access: true,
@@ -119,7 +125,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                     organization: { id: where.organization },
                     ...dateFilter,
                     deletedAt: null,
-                    ...(where.propertyIds.length > 0 && { property: { id_in: where.propertyIds } }),
+                    ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
                 }
 
                 const dataProvider = new AnalyticsDataProvider({
@@ -160,6 +166,15 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                             },
                             remappingOptions: TICKET_REMAPPING_OPTIONS,
                         },
+                        property: {
+                            provider: new PropertyDataLoader({ context }),
+                            queryOptions: {
+                                where: {
+                                    organization: { id: where.organization },
+                                    ...(get(where, 'propertyIds.length', 0) > 0 && { id_in: where.propertyIds }),
+                                },
+                            },
+                        },
                         payment: {
                             provider: new PaymentDataLoader({ context }),
                             queryOptions: {
@@ -199,6 +214,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                 where: {
                                     organization: { id: where.organization },
                                     deletedAt: null,
+                                    ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
                                 },
                                 groupBy: ['address'],
                             },

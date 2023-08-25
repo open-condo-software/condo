@@ -50111,6 +50111,7 @@ export type OverviewData = {
   payment?: Maybe<PaymentOverviewResult>;
   receipt?: Maybe<ReceiptOverviewResult>;
   resident?: Maybe<ResidentOverviewResult>;
+  property?: Maybe<PropertyOverviewResult>;
 };
 
 /**  Information about completed transaction from user to a specific organization  */
@@ -52795,6 +52796,11 @@ export type PropertyMetersCreateInput = {
 export type PropertyMetersUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PropertyMeterUpdateInput>;
+};
+
+export type PropertyOverviewResult = {
+  __typename?: 'PropertyOverviewResult';
+  sum: Scalars['String'];
 };
 
 export type PropertyRelateToOneInput = {

@@ -52,6 +52,9 @@ const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
                         status
                     }
                 }
+                property {
+                    sum
+                }
                 payment {
                     payments {
                         dayGroup

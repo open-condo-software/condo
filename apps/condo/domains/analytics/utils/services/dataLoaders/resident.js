@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const { get, isEmpty } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -41,12 +41,14 @@ class ResidentGqlKnexLoader extends GqlToKnexBaseAdapter {
             filterValues.push(...groupIdArray.map(id => [id]))
         }, [[], []])
 
-        const query = knex(this.domainName).count('id').select(this.groups)
         const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
+        const query = knex(this.domainName).count('id').select(this.groups).groupBy(this.aggregateBy).where(knexWhere)
 
-        this.result = await query.groupBy(this.aggregateBy)
-            .where(knexWhere)
-            .orderBy('count', 'desc')
+        if (!isEmpty(this.whereIn)) {
+            query.whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])
+        }
+
+        this.result = await query.orderBy('count', 'desc')
     }
 }
 

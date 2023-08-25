@@ -81,6 +81,7 @@ class ReceiptDataLoader extends AbstractDataLoader {
                 ],
                 charge_not: null,
                 ...billingReceiptContextWhereFilter,
+                deletedAt: null,
             },
         })
 

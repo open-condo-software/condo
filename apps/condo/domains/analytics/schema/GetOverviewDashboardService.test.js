@@ -126,6 +126,7 @@ describe('GetOverviewDashboardService', () => {
             expect(data.overview).toHaveProperty(['payment', 'payments'])
             expect(data.overview).toHaveProperty(['resident', 'residents'])
             expect(data.overview).toHaveProperty(['receipt', 'receipts'])
+            expect(data.overview).toHaveProperty(['property', 'sum'])
             expect(data.overview).toHaveProperty(['ticketByDay', 'tickets'])
             expect(data.overview).toHaveProperty(['ticketByProperty', 'tickets'])
             expect(data.overview).toHaveProperty(['ticketByExecutor', 'tickets'])
@@ -379,6 +380,18 @@ describe('GetOverviewDashboardService', () => {
                 expect(data.overview.resident.residents).toHaveLength(1)
                 expect(data.overview).toHaveProperty(['resident', 'residents', '0', 'count'], '1')
                 expect(data.overview).toHaveProperty(['resident', 'residents', '0', 'address'], resident.address)
+            })
+
+            it('should return total residents filtered by property ids', async () => {
+                const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
+                    where: {
+                        organization: organization.id, dateFrom, dateTo, propertyIds: [property.id],
+                    },
+                    groupBy: { aggregatePeriod: 'day' },
+                })
+
+                expect(data.overview.resident.residents).toHaveLength(1)
+                expect(data.overview).toHaveProperty(['resident', 'residents', '0', 'count'], '1')
             })
         })
     })
