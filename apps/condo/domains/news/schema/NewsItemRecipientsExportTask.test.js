@@ -115,7 +115,6 @@ describe('NewsItemRecipientsExportTask', () => {
 
                 await waitFor(async () => {
                     const [obj, attrs] = await updateTestNewsItemRecipientsExportTask(adminClient, objCreated.id)
-                    console.log('OBJ', obj)
 
                     expect(obj.dv).toEqual(1)
                     expect(obj.sender).toEqual(attrs.sender)
