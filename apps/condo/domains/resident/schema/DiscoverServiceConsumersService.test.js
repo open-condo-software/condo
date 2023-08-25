@@ -357,11 +357,11 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
 
-            expect(statistics).toEqual(expect.objectContaining({
+            expect(statistics).toEqual({
+                created: 5,
                 residentsFound: 3,
                 billingAccountsFound: 3,
-            }))
-            expect(statistics.createdIds).toHaveLength(5)
+            })
 
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 OR: [
@@ -463,11 +463,11 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
 
-            expect(statistics).toEqual(expect.objectContaining({
+            expect(statistics).toEqual({
+                created: 1,
                 residentsFound: 1,
                 billingAccountsFound: 1,
-            }))
-            expect(statistics.createdIds).toHaveLength(1)
+            })
 
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 OR: [
@@ -593,6 +593,19 @@ describe('DiscoverServiceConsumersService', () => {
                         }),
                     ]))
                 }, { delay: 500 })
+            })
+        })
+
+        test('must return zeroes if there are no billing accounts passed in', async () => {
+            const payload = {
+                billingAccountsIds: [],
+            }
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
+
+            expect(statistics).toEqual({
+                created: 0,
+                residentsFound: 0,
+                billingAccountsFound: 0,
             })
         })
     })
