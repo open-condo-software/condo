@@ -5,7 +5,6 @@ import isFunction from 'lodash/isFunction'
 import getConfig from 'next/config'
 import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
 
-import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -13,7 +12,6 @@ import { Radio, RadioGroup, Space } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { SHOW_ORGANIZATION_TYPES } from '@condo/domains/common/constants/featureflags'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
@@ -104,10 +102,6 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
         [ValueIsTooShortMsg, TinTooShortMsg, TinValueIsInvalid]
     )
 
-    const { useFlag } = useFeatureFlags()
-    // TODO(DOMA-6567): Remove feature-flag and open service providers to everybody as soon as discoverServiceConsumers and tests arrives
-    const isTypesVisible = useFlag(SHOW_ORGANIZATION_TYPES)
-
     const [isVisible, setIsVisible] = useState<boolean>(false)
     const { selectLink, organization } = useOrganization()
     const { user } = useAuth()
@@ -169,16 +163,14 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             showCancelButton={false}
             validateTrigger={MODAL_VALIDATE_TRIGGERS}
         >
-            {isTypesVisible && (
-                <Form.Item name='type' style={ORGANIZATION_TYPE_FORM_ITEM_STYLES}>
-                    <RadioGroup defaultValue={MANAGING_COMPANY_TYPE}>
-                        <Space direction='vertical' size={16}>
-                            <Radio value={MANAGING_COMPANY_TYPE} label={ManagingCompanyMessage}/>
-                            <Radio value={SERVICE_PROVIDER_TYPE} label={ServiceProviderMessage}/>
-                        </Space>
-                    </RadioGroup>
-                </Form.Item>
-            )}
+            <Form.Item name='type' style={ORGANIZATION_TYPE_FORM_ITEM_STYLES}>
+                <RadioGroup defaultValue={MANAGING_COMPANY_TYPE}>
+                    <Space direction='vertical' size={16}>
+                        <Radio value={MANAGING_COMPANY_TYPE} label={ManagingCompanyMessage}/>
+                        <Radio value={SERVICE_PROVIDER_TYPE} label={ServiceProviderMessage}/>
+                    </Space>
+                </RadioGroup>
+            </Form.Item>
             <Form.Item name='name' label={NameMsg} rules={validators.name} validateFirst>
                 <Input
                     placeholder={CreateOrganizationPlaceholder}
