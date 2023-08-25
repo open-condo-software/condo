@@ -1,4 +1,3 @@
-const { getType } = require('@keystonejs/utils')
 const { gql } = require('graphql-tag')
 const { get, isArray, isEmpty, isString, isBoolean, isObject } = require('lodash')
 const pluralize = require('pluralize')
@@ -12,37 +11,6 @@ const { find, getById } = require('@open-condo/keystone/schema')
 
 const ALL_GENERATED_GQL_QUERIES = new Map()
 
-
-function wrapInCustomAccess (defaultAccess, customAccessFn) {
-    // NOTE: you can use the same object in many places! you don't need to wrap it twice
-    if (!customAccessFn.alreadyProcessedByB2BAppAccessPlugin) customAccessFn.alreadyProcessedByB2BAppAccessPlugin = true
-
-    const type = getType(defaultAccess)
-    if (type === 'Boolean') {
-        // No need to wrap! You already have access, or you should not have it anyway!
-        return defaultAccess
-    } else if (type === 'Function') {
-        // NOTE: to prevent multiple wrapping the same function
-        if (defaultAccess.alreadyProcessedByB2BAppAccessPlugin) return defaultAccess
-        else return customAccessFn
-    } else if (type === 'AsyncFunction') {
-        // NOTE: to prevent multiple wrapping the same function
-        if (defaultAccess.alreadyProcessedByB2BAppAccessPlugin) return defaultAccess
-        else return customAccessFn
-    } else if (type === 'Object') {
-        const newAccess = {}
-        if (typeof defaultAccess.read !== 'undefined') newAccess.read = wrapInCustomAccess(defaultAccess.read, customAccessFn)
-        if (typeof defaultAccess.create !== 'undefined') newAccess.create = wrapInCustomAccess(defaultAccess.create, customAccessFn)
-        if (typeof defaultAccess.update !== 'undefined') newAccess.update = wrapInCustomAccess(defaultAccess.update, customAccessFn)
-        if (typeof defaultAccess.delete !== 'undefined') newAccess.delete = wrapInCustomAccess(defaultAccess.delete, customAccessFn)
-        if (typeof defaultAccess.auth !== 'undefined') newAccess.auth = wrapInCustomAccess(defaultAccess.auth, customAccessFn)
-        return newAccess
-    }
-
-    throw new Error(
-        `fieldAccessWrapperIfNeeded(), received ${type}.`,
-    )
-}
 
 /**
  *
@@ -360,7 +328,7 @@ const serviceUserAccessForB2BApp = ({ schemaConfig }) => plugin((schema, { schem
         return await evaluateKeystoneAccessResult(access, operation, args)
     }
 
-    schema.access = wrapInCustomAccess(access, customListAccess)
+    schema.access = customListAccess
 
     return schema
 })
