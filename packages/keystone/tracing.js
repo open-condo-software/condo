@@ -33,7 +33,7 @@ class TracingMiddleware {
             return
         }
 
-        logger.info({ message: 'OTEL is enabled. Config:', tracesUrl, metricsUrl })
+        logger.info({ msg: 'OTEL is enabled. Config:', tracesUrl, metricsUrl })
 
         const sdk = new otelSdk.NodeSDK({
             serviceName: 'condo',
