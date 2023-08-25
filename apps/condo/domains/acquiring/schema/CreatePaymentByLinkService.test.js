@@ -24,7 +24,7 @@ const {
     createTestBillingProperty,
     createTestBillingRecipient,
     createTestBillingReceipt, createTestBillingAccount,
-    validateQRCodeByTestClient, addBillingIntegrationAndContext,
+    validateQRCodeByTestClient, addBillingIntegrationAndContext, createTestRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -106,7 +106,103 @@ describe('CreatePaymentByLinkService', () => {
         qrCode = newQrCode
     })
 
-    test('user: create multiPayment from older receipt', async () => {
+    test('user: create multiPayment when scanned receipt is the last receipt in out database', async () => {
+        const {
+            organization,
+            qrCode,
+            qrCodeAttrs,
+        } = await createOrganizationAndPropertyAndQrCode(admin, 16, 6, '07.2023')
+
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        await createTestBankAccount(admin, organization, {
+            number: qrCodeAttrs.PersonalAcc,
+            routingNumber: qrCodeAttrs.BIC,
+        })
+        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
+            bankAccount: qrCodeAttrs.PersonalAcc,
+            bic: qrCodeAttrs.BIC,
+        })
+        const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
+            period: '2023-07-01',
+            receiver: { connect: { id: billingRecipient.id } },
+            recipient: createTestRecipient({
+                bic: billingRecipient.bic,
+            }),
+        })
+
+        const [data] = await createPaymentByLinkByTestClient(admin, { qrCode })
+
+        expect(data.multiPaymentId).toBeDefined()
+        expect(data.address).toBeDefined()
+        expect(data.unitName).toBeDefined()
+        expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
+
+        const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
+        expect(multiPayment).toBeDefined()
+
+        const payments = await Payment.getAll(admin, {
+            multiPayment: { id: multiPayment.id },
+        })
+
+        expect(payments).toHaveLength(1)
+        expect(payments[0].receipt).toBeDefined()
+        expect(payments[0].accountNumber).toBe(billingReceipt.account.number)
+        expect(payments[0].recipientBic).toBe(billingReceipt.receiver.bic)
+    })
+
+    test('user: create multiPayment when scanned receipt is older than the last receipt in our database', async () => {
+        const {
+            organization,
+            qrCode,
+            qrCodeAttrs,
+        } = await createOrganizationAndPropertyAndQrCode(admin, 15, 3, '06.2023')
+
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+        const [bankAccount] = await createTestBankAccount(admin, organization, {
+            number: qrCodeAttrs.PersonalAcc,
+            routingNumber: qrCodeAttrs.BIC,
+        })
+        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
+        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
+            bankAccount: qrCodeAttrs.PersonalAcc,
+            bic: qrCodeAttrs.BIC,
+        })
+        await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
+            period: '2023-07-01',
+            receiver: { connect: { id: billingRecipient.id } },
+            recipient: createTestRecipient({
+                bic: billingRecipient.bic,
+            }),
+        })
+
+        const [data] = await createPaymentByLinkByTestClient(user, { qrCode })
+
+        expect(data.multiPaymentId).toBeDefined()
+        expect(data.address).toBeDefined()
+        expect(data.unitName).toBeDefined()
+        expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
+
+        const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
+        expect(multiPayment).toBeDefined()
+
+        const payments = await Payment.getAll(admin, {
+            multiPayment: { id: multiPayment.id },
+        })
+
+        expect(payments).toHaveLength(1)
+        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
+        expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
+        expect(payments[0].receipt).toBeDefined()
+    })
+
+    test('user: create virtual multiPayment when scanned receipt is newer than the last receipt in our database', async () => {
         const {
             organization,
             qrCode,
@@ -150,32 +246,26 @@ describe('CreatePaymentByLinkService', () => {
         expect(payments[0].receipt).toBeNull()
     })
 
-    test('user: create multiPayment from existing receipt', async () => {
+    test('user: create virtual multiPayment if no receipts found', async () => {
         const {
             organization,
             qrCode,
             qrCodeAttrs,
-        } = await createOrganizationAndPropertyAndQrCode(admin, 16, 6, '07.2023')
+        } = await createOrganizationAndPropertyAndQrCode(admin, 14, 4, '07.2023')
 
         const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
         await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
-        await createTestBankAccount(admin, organization, {
+        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
+        await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
+        await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeAttrs.PersonalAcc })
+        await createTestBillingRecipient(admin, billingIntegrationContext)
+        const [bankAccount] = await createTestBankAccount(admin, organization, {
             number: qrCodeAttrs.PersonalAcc,
             routingNumber: qrCodeAttrs.BIC,
         })
-        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
-        const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
-            bankAccount: qrCodeAttrs.PersonalAcc,
-            bic: qrCodeAttrs.BIC,
-        })
-        const [billingReceipt] = await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
-            period: '2023-07-01',
-            receiver: { connect: { id: billingRecipient.id } },
-        })
 
-        const [data] = await createPaymentByLinkByTestClient(admin, { qrCode })
+        const [data] = await createPaymentByLinkByTestClient(user, { qrCode })
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
@@ -188,9 +278,10 @@ describe('CreatePaymentByLinkService', () => {
         const payments = await Payment.getAll(admin, {
             multiPayment: { id: multiPayment.id },
         })
-        expect(payments[0].receipt).toBeDefined()
-        expect(payments[0].accountNumber).toBe(billingReceipt.account.number)
-        expect(payments[0].recipientBic).toBe(billingReceipt.receiver.bic)
+
+        expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
+        expect(payments[0].recipientBic).toBe(bankAccount.routingNumber)
+        expect(payments[0].receipt).toBeNull()
     })
 
     test('should throw if no Bank Account or Billing Recipient found', async () => {
@@ -218,49 +309,6 @@ describe('CreatePaymentByLinkService', () => {
             }])
         })
 
-    })
-
-    test('should throw an error if no Billing Receipts found', async () => {
-        const {
-            organization,
-            qrCode,
-            qrCodeAttrs,
-        } = await createOrganizationAndPropertyAndQrCode(admin, 14, 4, '07.2023')
-
-        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-
-        const payload = { qrCode }
-
-        const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
-        const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
-        await createTestBillingRecipient(admin, billingIntegrationContext, { bankAccount: qrCodeAttrs.PersonalAcc })
-        const [billingRecipient2] = await createTestBillingRecipient(admin, billingIntegrationContext)
-        await createTestBankAccount(admin, organization, {
-            number: qrCodeAttrs.PersonalAcc,
-            routingNumber: qrCodeAttrs.BIC,
-        })
-
-        await createTestBillingReceipt(admin, billingIntegrationContext, billingProperty, billingAccount, {
-            period: '2023-07-01',
-            receiver: { connect: { id: billingRecipient2.id } },
-        })
-
-        await catchErrorFrom(async () => {
-            await createPaymentByLinkByTestClient(user, payload)
-        }, ({ errors }) => {
-
-            expect(errors).toMatchObject([{
-                message: 'No Billing Receipts were found for provided accounts',
-                path: ['result'],
-                extensions: {
-                    mutation: 'createPaymentByLink',
-                    code: 'INTERNAL_ERROR',
-                    type: 'NOT_FOUND',
-                    message: 'No Billing Receipts were found for provided accounts',
-                },
-            }])
-        })
     })
 
     test('anonymous: can\'t execute', async () => {

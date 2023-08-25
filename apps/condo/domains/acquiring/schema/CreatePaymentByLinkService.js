@@ -5,7 +5,7 @@
 const { get } = require('lodash')
 
 const { createInstance } = require('@open-condo/clients/address-service-client')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/CreatePaymentByLinkService')
@@ -22,7 +22,6 @@ const {
     BillingIntegrationOrganizationContext,
     BillingRecipient,
 } = require('@condo/domains/billing/utils/serverSchema')
-const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
@@ -42,12 +41,6 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
         message: 'Provided bank account is not in the system',
-    },
-    NO_BILLING_RECEIPTS_FOUND: {
-        mutation: 'createPaymentByLink',
-        code: INTERNAL_ERROR,
-        type: NOT_FOUND,
-        message: 'No Billing Receipts were found for provided accounts',
     },
 }
 
@@ -75,13 +68,13 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
 
                 const {
                     qrCodeFields: {
-                        PersonalAcc,
+                        PersonalAcc, // organization's bank account
                         BIC,
                         PayerAddress,
-                        PaymPeriod,
+                        PaymPeriod, // mm.yyyy
                         Sum,
                         PayeeINN,
-                        PersAcc,
+                        PersAcc, // resident's account within organization
                     },
                 } = validationResult
                 const addressServiceClient = createInstance({ address: PayerAddress })
@@ -89,8 +82,9 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
 
                 if (!normalizedAddress.addressKey) throw new GQLError(ERRORS.ADDRESS_IS_INVALID, context)
 
-                // Stage 1: find properties by addressKey
+                // Stage 1: find properties
                 const properties = await Property.getAll(context, {
+                    organization: { tin: PayeeINN },
                     OR: [
                         { address: normalizedAddress.address },
                         { addressKey: normalizedAddress.addressKey },
@@ -131,7 +125,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 }
 
                 // Stage 3: make sure PersonalAccount is in our system (either in BankAccount or in BillingRecipient)
-                /** @type {BankAccount[]} */
+                /** @type {BankAccount} */
                 const bankAccount = await BankAccount.getOne(context, {
                     number: PersonalAcc,
                     organization: { id_in: validOrganizationIds, deletedAt: null },
@@ -150,43 +144,22 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     if (billingRecipients.length === 0) throw new GQLError(ERRORS.BANK_ACCOUNT_IS_INVALID, context)
                 }
 
-                // Stage 4: find BillingReceipt with provided Personal Accounts and period
-                const period = `${PaymPeriod.split('.')[1]}-${PaymPeriod.split('.')[0]}-01`
-
-                /** @type {BillingReceipt[]} */
-                const billingReceipts = await BillingReceipt.getAll(context, {
+                // Stage 4: find the last BillingReceipt we have
+                const [lastBillingReceipt] = await BillingReceipt.getAll(context, {
                     account: { number: PersAcc, deletedAt: null },
-                    receiver: { bankAccount: PersonalAcc, deletedAt: null, tin: PayeeINN, isApproved: true },
-                    period,
+                    receiver: { bankAccount: PersonalAcc, deletedAt: null },
                     deletedAt: null,
+                }, {
+                    sortBy: ['period_DESC'],
+                    first: 1,
                 })
 
-                // if period matches we use found receipt to create MultiPayment
+                const period = `${PaymPeriod.split('.')[1]}-${PaymPeriod.split('.')[0]}-01`
+
                 let multiPaymentId
-                if (billingReceipts.length === 1) {
-                    const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
-                        dv, sender,
-                        receipt: { id: billingReceipts[0].id },
-                        acquiringIntegrationContext: { id: contextsMap[get(billingReceipts[0], ['context', 'id'])] },
-                    })
-                    multiPaymentId = id
-                } else {
-                    // find the last receipt we have in out database
-                    /** @type {BillingReceipt} */
-                    const [lastBillingReceipt] = await BillingReceipt.getAll(context, {
-                        account: { number: PersAcc, deletedAt: null },
-                        receiver: { bankAccount: PersonalAcc, deletedAt: null },
-                        deletedAt: null,
-                    }, {
-                        sortBy: ['period_DESC'],
-                        first: 1,
-                    })
-
-                    // if no receipt -> no payment
-                    if (!lastBillingReceipt) throw new GQLError(ERRORS.NO_BILLING_RECEIPTS_FOUND, context)
-
-                    if (lastBillingReceipt.period > period) {
-                        // we have a newer receipt
+                if (lastBillingReceipt) {
+                    // if period matches we use found receipt to create MultiPayment
+                    if (lastBillingReceipt.period === period) {
                         const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
                             dv, sender,
                             receipt: { id: lastBillingReceipt.id },
@@ -194,40 +167,71 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                         })
                         multiPaymentId = id
                     } else {
-                        // the last receipt is older than the scanned one
+                        if (lastBillingReceipt.period > period) {
+                            // we have a newer receipt
+                            const { multiPaymentId: id } = await registerMultiPaymentForOneReceipt(context, {
+                                dv, sender,
+                                receipt: { id: lastBillingReceipt.id },
+                                acquiringIntegrationContext: { id: contextsMap[get(lastBillingReceipt, ['context', 'id'])] },
+                            })
+                            multiPaymentId = id
+                        } else {
+                            // the last receipt is older than the scanned one
 
-                        // find acquiring context and routing number from older receipt
-                        const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', lastBillingReceipt.context.id)
-                        /** @type {AcquiringIntegrationContext[]} */
-                        const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
-                            organization: { id: billingIntegrationContext.organization, deletedAt: null },
-                            status: CONTEXT_FINISHED_STATUS,
-                            deletedAt: null,
-                        })
-                        const bankAccounts = await BankAccount.getAll(context, {
-                            organization: { id: billingIntegrationContext.organization, deletedAt: null },
-                            deletedAt: null,
-                        })
+                            // find acquiring context and routing number from older receipt
+                            const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', lastBillingReceipt.context.id)
+                            /** @type {AcquiringIntegrationContext[]} */
+                            const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
+                                organization: { id: billingIntegrationContext.organization, deletedAt: null },
+                                status: CONTEXT_FINISHED_STATUS,
+                                deletedAt: null,
+                            })
+                            const bankAccounts = await BankAccount.getAll(context, {
+                                organization: { id: billingIntegrationContext.organization, deletedAt: null },
+                                deletedAt: null,
+                            })
 
-                        const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
-                            dv, sender,
-                            receipt: {
-                                currencyCode: bankAccounts[0].currencyCode,
-                                amount: Sum,
-                                period,
-                                recipient: {
-                                    routingNumber: bankAccounts[0].routingNumber,
-                                    bankAccount: PersonalAcc,
-                                    accountNumber: PersAcc,
+                            const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
+                                dv, sender,
+                                receipt: {
+                                    currencyCode: bankAccounts[0].currencyCode,
+                                    amount: Sum,
+                                    period,
+                                    recipient: {
+                                        routingNumber: bankAccounts[0].routingNumber,
+                                        bankAccount: PersonalAcc,
+                                        accountNumber: PersAcc,
+                                    },
                                 },
-                            },
-                            acquiringIntegrationContext: {
-                                id: acquiringContexts[0].id,
-                            },
-                        })
+                                acquiringIntegrationContext: {
+                                    id: acquiringContexts[0].id,
+                                },
+                            })
 
-                        multiPaymentId = id
+                            multiPaymentId = id
+                        }
+
                     }
+                } else {
+                    // No receipts found
+                    const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
+                        dv, sender,
+                        receipt: {
+                            currencyCode: bankAccount.currencyCode,
+                            amount: Sum,
+                            period,
+                            recipient: {
+                                routingNumber: BIC,
+                                bankAccount: PersonalAcc,
+                                accountNumber: PersAcc,
+                            },
+                        },
+                        acquiringIntegrationContext: {
+                            id: acquiringContexts[0].id,
+                        },
+                    })
+
+                    multiPaymentId = id
                 }
 
                 return {
