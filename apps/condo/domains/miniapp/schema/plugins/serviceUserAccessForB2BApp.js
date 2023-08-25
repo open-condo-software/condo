@@ -266,13 +266,11 @@ function plugin (fn) {
  *      1.5) In the scheme B2BAppAccessRightSet for the B2BApp A the necessary rights were issued to execute the request
  */
 const serviceUserAccessForB2BApp = () => plugin((schema, { schemaName }) => {
-
     if (!(schemaName in SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG)) {
         throw new Error(`SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG has not schema "${schemaName}"! You should to add name of this scheme to config or remove plugin from this schema!`)
     }
 
     /**
-     *
      * @type {B2BAppAccessConfig}
      */
     const schemaConfig = get(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG, schemaName, {})
