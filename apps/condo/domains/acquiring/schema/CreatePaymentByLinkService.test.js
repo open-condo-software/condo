@@ -136,10 +136,10 @@ describe('CreatePaymentByLinkService', () => {
 
         const [data] = await createPaymentByLinkByTestClient(admin, { qrCode })
 
-        expect(data.multiPaymentId).toBeDefined() // NOSONAR code duplications is normal for tests
-        expect(data.address).toBeDefined()
+        expect(data.multiPaymentId).toBeDefined()
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
+        expect(data.address).toBeDefined()
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
@@ -186,8 +186,8 @@ describe('CreatePaymentByLinkService', () => {
 
         expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
-        expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
+        expect(data.unitName).toBeDefined()
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
@@ -209,13 +209,14 @@ describe('CreatePaymentByLinkService', () => {
             qrCodeAttrs,
         } = await createOrganizationAndPropertyAndQrCode(admin, 15, 3, '07.2023')
 
-        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
-
         await createTestBankAccount(admin, organization, {
             number: qrCodeAttrs.PersonalAcc,
             routingNumber: qrCodeAttrs.BIC,
         })
+
+        const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+        await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
         const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext)
         const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, { number: qrCodeAttrs.PersAcc })
         const [billingRecipient] = await createTestBillingRecipient(admin, billingIntegrationContext, {
@@ -229,8 +230,8 @@ describe('CreatePaymentByLinkService', () => {
 
         const [data] = await createPaymentByLinkByTestClient(user, { qrCode }) // NOSONAR code duplications is normal for tests
 
-        expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
+        expect(data.multiPaymentId).toBeDefined()
         expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
 
@@ -267,10 +268,10 @@ describe('CreatePaymentByLinkService', () => {
 
         const [data] = await createPaymentByLinkByTestClient(user, { qrCode }) // NOSONAR code duplications is normal for tests
 
-        expect(data.multiPaymentId).toBeDefined()
         expect(data.address).toBeDefined()
-        expect(data.unitName).toBeDefined()
         expect(data.accountNumber).toEqual(qrCodeAttrs.PersonalAcc)
+        expect(data.multiPaymentId).toBeDefined()
+        expect(data.unitName).toBeDefined()
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
