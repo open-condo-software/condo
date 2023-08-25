@@ -108,14 +108,14 @@ const DocPage: React.FC<DocPageProps> = ({
                         <div className={styles.articleColumn}>
                             <Row gutter={FOOTER_GUTTER}>
                                 <Col span={24}>
-                                    <Row gutter={TITLE_GUTTER}>
+                                    <Row gutter={TITLE_GUTTER} id='article'>
                                         <Col span={24}>
-                                            <Typography.Title>{articleTitle}</Typography.Title>
+                                            <Typography.Title id='article-title'>{articleTitle}</Typography.Title>
                                         </Col>
                                         <Col span={24}>
-                                            <div className='condo-markdown'>
+                                            <article className='condo-markdown' id='article-content'>
                                                 <MDXRemote {...serializedContent} components={MDXMapping} lazy/>
-                                            </div>
+                                            </article>
                                         </Col>
                                         {editUrl && (
                                             <Col span={24}>
