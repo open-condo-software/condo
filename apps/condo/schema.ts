@@ -2288,6 +2288,13 @@ export type B2BAppAccessRightSet = {
   _label_?: Maybe<Scalars['String']>;
   /**  Link to B2BApp  */
   app?: Maybe<B2BApp>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2302,17 +2309,16 @@ export type B2BAppAccessRightSet = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
 };
 
 export type B2BAppAccessRightSetCreateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2322,12 +2328,6 @@ export type B2BAppAccessRightSetCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
 };
 
 /**  A keystone list  */
@@ -2342,6 +2342,12 @@ export type B2BAppAccessRightSetHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2359,6 +2365,12 @@ export type B2BAppAccessRightSetHistoryRecord = {
 
 export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2381,6 +2393,12 @@ export enum B2BAppAccessRightSetHistoryRecordHistoryActionType {
 
 export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2402,6 +2420,18 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   app_not?: Maybe<Scalars['String']>;
   app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canReadContacts_not?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2502,6 +2532,12 @@ export type B2BAppAccessRightSetRelateToOneInput = {
 
 export type B2BAppAccessRightSetUpdateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2511,12 +2547,6 @@ export type B2BAppAccessRightSetUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
 };
 
 export type B2BAppAccessRightSetWhereInput = {
@@ -2524,6 +2554,18 @@ export type B2BAppAccessRightSetWhereInput = {
   OR?: Maybe<Array<Maybe<B2BAppAccessRightSetWhereInput>>>;
   app?: Maybe<B2BAppWhereInput>;
   app_is_null?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canReadContacts_not?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2580,18 +2622,6 @@ export type B2BAppAccessRightSetWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canReadProperties_not?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties_not?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canReadContacts_not?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts_not?: Maybe<Scalars['Boolean']>;
 };
 
 export type B2BAppAccessRightSetWhereUniqueInput = {
@@ -65349,6 +65379,18 @@ export enum SortB2BAppAccessRightHistoryRecordsBy {
 }
 
 export enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
+  CanManageContactsAsc = 'canManageContacts_ASC',
+  CanManageContactsDesc = 'canManageContacts_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
+  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanManagePropertiesAsc = 'canManageProperties_ASC',
+  CanManagePropertiesDesc = 'canManageProperties_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -65370,6 +65412,18 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
 export enum SortB2BAppAccessRightSetsBy {
   AppAsc = 'app_ASC',
   AppDesc = 'app_DESC',
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
+  CanManageContactsAsc = 'canManageContacts_ASC',
+  CanManageContactsDesc = 'canManageContacts_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
+  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanManagePropertiesAsc = 'canManageProperties_ASC',
+  CanManagePropertiesDesc = 'canManageProperties_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -65385,19 +65439,7 @@ export enum SortB2BAppAccessRightSetsBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
-  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
-  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
-  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
-  CanReadPropertiesAsc = 'canReadProperties_ASC',
-  CanReadPropertiesDesc = 'canReadProperties_DESC',
-  CanManagePropertiesAsc = 'canManageProperties_ASC',
-  CanManagePropertiesDesc = 'canManageProperties_DESC',
-  CanReadContactsAsc = 'canReadContacts_ASC',
-  CanReadContactsDesc = 'canReadContacts_DESC',
-  CanManageContactsAsc = 'canManageContacts_ASC',
-  CanManageContactsDesc = 'canManageContacts_DESC'
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortB2BAppAccessRightsBy {
