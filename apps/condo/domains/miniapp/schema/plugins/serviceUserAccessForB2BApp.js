@@ -265,7 +265,7 @@ function plugin (fn) {
  *
  * @param {B2BAppAccessConfig} schemaConfig - Overrides the plugin's default behavior for the specified schema
  */
-const serviceUserAccessForB2BApp = ({ schemaConfig }) => plugin((schema, { schemaName }) => {
+const serviceUserAccessForB2BApp = ({ schemaConfig } = {}) => plugin((schema, { schemaName }) => {
     const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
 
     if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) {
