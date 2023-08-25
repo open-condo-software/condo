@@ -72,15 +72,7 @@ async function discoverServiceConsumersCronTask () {
     try {
         const result = await discoverServiceConsumers(context, data)
         logger.info({ message: 'discoverServiceConsumersCronTask done', result })
-
-        const [lastCreatedServiceConsumer] = await ServiceConsumer.getAll(context, { id_in: get(result, ['statistics', 'createdIds'], []) }, {
-            sortBy: ['createdAt_DESC'],
-            first: 1,
-        })
-
-        if (lastCreatedServiceConsumer) {
-            redisClient.set(REDIS_KEY, dayjs(lastCreatedServiceConsumer.createdAt).toISOString())
-        }
+        redisClient.set(REDIS_KEY, dayjs(maxDate).toISOString())
     } catch (err) {
         logger.error({ message: 'discoverServiceConsumersCronTask fail', err })
     }
