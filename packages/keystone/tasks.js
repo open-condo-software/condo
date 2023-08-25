@@ -225,8 +225,6 @@ function executeTask (name, args, job = null) {
     const fn = TASKS.get(name)
     const result = fn.apply(job, args)
 
-    internalGetAsyncLocalStorage('taskCtx').exit()
-
     return result
 }
 
