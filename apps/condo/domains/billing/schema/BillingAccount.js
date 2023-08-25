@@ -9,14 +9,12 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingAccount')
-const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
 const {
     JSON_EXPECT_OBJECT_ERROR,
     UNEQUAL_CONTEXT_ERROR,
 } = require('@condo/domains/common/constants/errors')
 const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
@@ -101,16 +99,6 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             const { context: propertyContextId } = property
             if (accountContextId !== propertyContextId) {
                 return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
-            }
-        },
-        afterChange: async ({ context, updatedItem, operation }) => {
-            if (operation === 'create') {
-                const { id } = updatedItem
-
-                // TODO(DOMA-6813): maybe prevent redis queue overloading
-                await discoverServiceConsumersTask.delay({
-                    billingAccountsIds: [id],
-                })
             }
         },
     },

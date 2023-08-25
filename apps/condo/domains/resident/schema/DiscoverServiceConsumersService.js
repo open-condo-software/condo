@@ -51,6 +51,17 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const { data } = args
                 const { dv, sender, billingAccountsIds, filters } = data
 
+                if (billingAccountsIds.length === 0) {
+                    return {
+                        status: 'skip',
+                        statistics: {
+                            created: 0,
+                            residentsFound: 0,
+                            billingAccountsFound: 0,
+                        },
+                    }
+                }
+
                 const reqId = get(context, ['req', 'id'])
 
                 const billingAccounts = await BillingAccount.getAll(

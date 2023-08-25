@@ -31,8 +31,7 @@ const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { PROPERTY_MAP_GRAPHQL_TYPES } = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
-const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
-const { discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
+const { manageResidentToPropertyAndOrganizationConnections, discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 const { softDeletePropertyScopeProperties } = require('@condo/domains/scope/utils/serverSchema')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
@@ -379,10 +378,11 @@ const Property = new GQLListSchema('Property', {
                     property: { address: updatedItem.address, deletedAt: null },
                 })
 
-                // TODO(DOMA-6813): maybe prevent redis queue overloading
-                await discoverServiceConsumersTask.delay({
-                    billingAccountsIds: billingAccounts.map(({ id }) => id),
-                })
+                if (billingAccounts.length > 0) {
+                    await discoverServiceConsumersTask.delay({
+                        billingAccountsIds: billingAccounts.map(({ id }) => id),
+                    })
+                }
             }
         },
     },
