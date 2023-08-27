@@ -2295,6 +2295,10 @@ export type B2BAppAccessRightSet = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2319,6 +2323,10 @@ export type B2BAppAccessRightSetCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2348,6 +2356,10 @@ export type B2BAppAccessRightSetHistoryRecord = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2371,6 +2383,10 @@ export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2399,6 +2415,10 @@ export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2432,6 +2452,14 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeters_not?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters_not?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings_not?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2538,6 +2566,10 @@ export type B2BAppAccessRightSetUpdateInput = {
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2566,6 +2598,14 @@ export type B2BAppAccessRightSetWhereInput = {
   canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeters_not?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters_not?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings_not?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -65391,6 +65431,14 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
+  CanReadMeterReadingsAsc = 'canReadMeterReadings_ASC',
+  CanReadMeterReadingsDesc = 'canReadMeterReadings_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -65424,6 +65472,14 @@ export enum SortB2BAppAccessRightSetsBy {
   CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
+  CanReadMeterReadingsAsc = 'canReadMeterReadings_ASC',
+  CanReadMeterReadingsDesc = 'canReadMeterReadings_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

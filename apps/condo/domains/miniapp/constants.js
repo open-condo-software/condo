@@ -143,6 +143,8 @@ const SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG = {
         canBeManage: false,
     },
     Property: {},
+    Meter: {},
+    MeterReading: {},
 }
 
 module.exports = {
