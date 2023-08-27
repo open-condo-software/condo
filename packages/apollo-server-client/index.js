@@ -22,6 +22,50 @@ class UploadingFile {
     }
 }
 
+const normalizeAuthRequisites = (requisites = {}) => {
+    const { email, identity, password, secret, phone } = requisites
+    return Object.fromEntries([
+        ['email', email || identity],
+        ['password', password || secret],
+        ['phone', phone],
+    ].filter(([, value]) => !!value))
+}
+
+class OIDCAuthClient {
+
+    constructor (authToken) {
+        this.authToken = authToken
+        this.cookieJar = new fetch.Headers()
+    }
+
+    async oidcRequest (url) {
+        const response = await fetch(url, {
+            headers: {
+                ...this.authToken ? { authorization: `Bearer ${this.authToken}` } : {},
+                cookie: [...this.cookieJar.entries()].map(([name, value]) => `${name}=${value}`).join('; '),
+            },
+            redirect: 'manual',
+            credentials: 'same-origin',
+        })
+        if (response.status >= 400) {
+            throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
+        }
+        const newCookies = response.headers.raw()['set-cookie']
+        if (newCookies) {
+            newCookies.forEach(cookie => {
+                const [cookieValue] = cookie.split(';')
+                const [name, value] = cookieValue.split('=')
+                this.cookieJar.set(name, value)
+            })
+        }
+        return {
+            location: response.headers.get('location'),
+            debug: await response.text(),
+        }
+    }
+
+}
+
 class ApolloServerClient {
 
     client
@@ -43,7 +87,8 @@ class ApolloServerClient {
     constructor (endpoint, authRequisites = {}, { clientName = 'apollo-server-client', locale = 'ru' } = {}) {
         this.clientName = clientName
         this.endpoint = endpoint
-        this.authRequisites = authRequisites
+
+        this.authRequisites = normalizeAuthRequisites(authRequisites)
         this.logger = getLogger(clientName)
         this.batchClient = this.createClient([this.errorLink(), this.authLink(), this.retryLink(), this.batchTerminateLink()])
         this.client = this.createClient([this.errorLink(), this.authLink(), this.retryLink(), this.uploadTerminateLink()])
@@ -76,13 +121,42 @@ class ApolloServerClient {
         }
     }
 
+    /**
+    * @example
+    * const client = new ApolloServerClient(`${CONDO_URL}/admin/api`, { phone:'***', password: '***' })
+    * await client.signIn()
+    * const miniAppClient = await client.signInToMiniApp(`${REGISTRY_URL}/graphql`)
+    */
+    async signInToMiniApp (apiEndpoint) {
+        if (!this.authToken) {
+            throw new Error('You need to authorize on condo first')
+        }
+        const miniAppAuth = new OIDCAuthClient()
+        const condoAuth = new OIDCAuthClient(this.authToken)
+        const { origin } = new URL(apiEndpoint)
+        // Start auth
+        const { location: startAuthUrl } = await miniAppAuth.oidcRequest(`${origin}/oidc/auth`)
+        // Condo redirects
+        const { location: interactUrl } = await condoAuth.oidcRequest(startAuthUrl)
+        const { location: interactCompleteUrl } = await condoAuth.oidcRequest(interactUrl)
+        const { location: completeAuthUrl } = await condoAuth.oidcRequest(interactCompleteUrl)
+        // Complete auth
+        await miniAppAuth.oidcRequest(completeAuthUrl)
+        const decodedToken = decodeURIComponent(miniAppAuth.cookieJar.get('keystone.sid'))
+
+        const miniAppClient = new ApolloServerClient(apiEndpoint, this.authRequisites)
+        miniAppClient.authToken = decodedToken.split('s:')[1]
+
+        return miniAppClient
+    }
+
     async singInByEmailAndPassword () {
-        const { identity, email, password, secret } = this.authRequisites
+        const { email, password } = this.authRequisites
         const { data: { auth: { user, token } } } = await this.client.mutate({
             mutation: SIGNIN_BY_EMAIL_MUTATION,
             variables: {
-                identity: identity || email,
-                secret: secret || password,
+                identity: email,
+                secret: password,
             },
         })
         this.userId = user.id
@@ -232,6 +306,7 @@ class ApolloServerClient {
                     authorization: 'Bearer ' + this.authToken,
                     'accept-language': this.locale,
                 },
+                credentials: 'same-origin',
             })
             return forward(operation)
         })
@@ -242,7 +317,10 @@ class ApolloServerClient {
             delay: { initial: 300, max: Infinity, jitter: true },
             attempts: {
                 max: MAX_RETRIES_ON_NETWORK_ERROR,
-                retryIf: (error, _operation) => !!error,
+                retryIf: (error, _operation) => {
+                    this.info('Retry', { error, _operation })
+                    return !!error
+                },
             },
         })
     }
