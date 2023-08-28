@@ -217,7 +217,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     const { multiPaymentId: id } = await registerMultiPaymentForVirtualReceipt(context, {
                         dv, sender,
                         receipt: {
-                            currencyCode: bankAccount.currencyCode,
+                            currencyCode: get(billingContexts, [0, 'integration', 'currencyCode']),
                             amount: Sum,
                             period,
                             recipient: {

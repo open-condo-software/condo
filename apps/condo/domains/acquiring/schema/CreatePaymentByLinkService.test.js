@@ -244,6 +244,7 @@ describe('CreatePaymentByLinkService', () => {
 
         expect(payments[0].accountNumber).toBe(qrCodeAttrs.PersAcc)
         expect(payments[0].recipientBic).toBe(qrCodeAttrs.BIC)
+        expect(payments[0].currencyCode).toBe(billingIntegrationContext.integration.currencyCode)
         expect(payments[0].receipt).toBeNull()
     })
 
