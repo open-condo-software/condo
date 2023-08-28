@@ -30,7 +30,7 @@ dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
-const IS_ENABLE_GRAFANA_TRACE = conf.GRAFANA_TRACE_ENABLED === 'true'
+const IS_ENABLE_OTEL = conf.OTEL_ENABLED === '1'
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 
@@ -43,6 +43,12 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     require('dd-trace').init({
         logInjection: true,
     })
+}
+
+if (IS_ENABLE_OTEL && !IS_BUILD_PHASE) {
+    require('@open-condo/keystone/tracing').init(
+        conf.OTEL_CONFIG ? JSON.parse(conf.OTEL_CONFIG) : {}
+    )
 }
 
 if (!IS_BUILD_PHASE) {
