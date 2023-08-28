@@ -1,0 +1,66 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: TEST APPS BUILD
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: arc-runner-set
+
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
+
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: Init .env
+        run: |
+          set -x
+          echo '# Build time .env config!' > .env
+          echo 'COOKIE_SECRET=undefined' >> .env
+          echo 'DATABASE_URL=undefined' >> .env
+          echo 'REDIS_URL=undefined' >> .env
+          echo 'NODE_ENV=production' >> .env
+          echo 'FILE_FIELD_ADAPTER=local' >> .env
+          echo 'FAKE_ADDRESS_SUGGESTIONS=true' >> .env
+
+      - name: Test apps build
+        run: yarn build:apps
+
+      - name: Test artifacts existence
+        run: |
+          test "./apps/condo/dist" && echo "keystone build successful (condo)" || exit 1
+          test "./apps/condorb/dist" && echo "keystone build successful (condorb)" || exit 1
+          test "./apps/eps/dist" && echo "keystone build successful (eps)" || exit 1
+          test "./apps/property-importer/dist" && echo "keystone build successful (property-importer)" || exit 1
+          test "./apps/registry/dist" && echo "keystone build successful (registry)" || exit 1
+          test "./apps/insurance/dist" && echo "keystone build successful (insurance)" || exit 1
+          test "./apps/miniapp/dist" && echo "keystone build successful (miniapp)" || exit 1
