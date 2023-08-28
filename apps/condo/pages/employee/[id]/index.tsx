@@ -303,8 +303,8 @@ export const EmployeeInfoPage = () => {
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
 
-    const isEmployeeEditable = get(link, ['role', 'canInviteNewOrganizationEmployees'], null)
-    const isEmployeeReinvitable = get(link, ['role', 'canManageEmployees'], null) && !get(employee, 'isAccepted')
+    const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)
+    const isEmployeeReinvitable = get(link, ['role', 'canInviteNewOrganizationEmployees'], false) && !get(employee, 'isAccepted')
 
     if (error || loading) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
