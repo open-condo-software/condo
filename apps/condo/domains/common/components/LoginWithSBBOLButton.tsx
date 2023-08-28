@@ -2,10 +2,10 @@
 import { useRouter } from 'next/router'
 import React from 'react'
 
+import { Sber } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Button } from '@open-condo/ui'
-
-import { SberIconWithoutLabel } from './icons/SberIcon'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { useCheckTLSClientCert } from '../hooks/useCheckTLSClientCert'
 
@@ -39,7 +39,7 @@ export const LoginWithSBBOLButton: React.FC<{ label?: string, block?: boolean, r
             key='submit'
             type='secondary'
             className='condo-btn-sbbol'
-            icon={<SberIconWithoutLabel/>}
+            icon={<Sber color={colors.teal['5']}/>}
             onClick={() => checkTlsCert ? checkSSLClientCert() : redirectToAuth()}
             loading={loading}
             block={block}
