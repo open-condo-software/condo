@@ -8,7 +8,6 @@ const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { APPLE_ID_SESSION_KEY } = require('@condo/domains/user/constants/common')
 const { AppleIdIdentityIntegration } = require('@condo/domains/user/integration/appleid/AppleIdIdentityIntegration')
 const { syncUser } = require('@condo/domains/user/integration/appleid/sync/syncUser')
-const { handleAuthRouteError } = require('@condo/domains/user/integration/utils/helper')
 const {
     getUserType,
     getRedirectUrl,
@@ -21,6 +20,7 @@ const {
     interruptForRegistration,
     authorizeUser,
 } = require('@condo/domains/user/integration/appleid/utils')
+const { handleAuthRouteError } = require('@condo/domains/user/integration/utils/helper')
 
 const APPLE_ID_CONFIG = conf.APPLE_ID_CONFIG ? JSON.parse(conf.APPLE_ID_CONFIG) : {}
 
