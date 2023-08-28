@@ -1,7 +1,7 @@
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
 import getConfig from 'next/config'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
@@ -13,19 +13,20 @@ const useDeskFieldsIdsMap = {
     organizationName: 20572,
 }
 
-const getUserIdentify = () => {
+const getUsedeskMessenger = () => {
     if (typeof window === 'undefined') {
         return null
     }
 
-    return get(window, ['usedeskMessenger', 'userIdentify'], null)
+    return get(window, 'usedeskMessenger', null)
 }
 
 const UseDeskWidget: React.FC = () => {
     const { link } = useOrganization()
     const { user } = useAuth()
 
-    const userIdentify = getUserIdentify()
+    const messenger = useMemo(() => getUsedeskMessenger(), [])
+    const userIdentify = useMemo(() => get(messenger, 'userIdentify', null), [messenger])
 
     useEffect(() => {
         try {
@@ -33,7 +34,10 @@ const UseDeskWidget: React.FC = () => {
                 const name = get(link, 'name')
                 const email = get(user, 'email')
                 const phone = get(user, 'phone')
+                const token = messenger && messenger.getChatToken()
+
                 userIdentify({
+                    token,
                     name,
                     email,
                     phone: typeof phone === 'string' ? phone.slice(1) : phone,
@@ -54,7 +58,7 @@ const UseDeskWidget: React.FC = () => {
         } catch (e) {
             console.error('Failed to load widget "UseDesk"', e)
         }
-    }, [link, userIdentify, user])
+    }, [link, userIdentify, user, messenger])
 
     return UseDeskWidgetId ?
         <script async src={`//lib.usedesk.ru/secure.usedesk.ru/${UseDeskWidgetId}.js`}></script> : null
