@@ -21,6 +21,7 @@ const {
 } = require('@condo/domains/meter/constants/errors')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { Meter: MeterApi } = require('@condo/domains/meter/utils/serverSchema')
+const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const { numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp } = require('./fields')
@@ -221,7 +222,7 @@ const Meter = new GQLListSchema('Meter', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), serviceUserAccessForB2BApp()],
     access: {
         read: access.canReadMeters,
         create: access.canManageMeters,
