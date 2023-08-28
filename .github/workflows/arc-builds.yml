@@ -17,11 +17,6 @@ jobs:
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
-      - name: Install git on container
-        run: |
-          apt update
-          apt install -y git
-    
       - name: Checkout code with submodules
         uses: actions/checkout@v2
         with:
