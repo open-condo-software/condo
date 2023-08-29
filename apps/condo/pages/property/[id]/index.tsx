@@ -216,13 +216,29 @@ const PropertyIdPage: IPropertyIdPage = () => {
     const intl = useIntl()
     const PageTitleMsg = intl.formatMessage({ id: 'pages.condo.property.id.PageTitle' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const PropertyNotFoundTitle = intl.formatMessage({ id: 'pages.condo.property.id.NotFound.PageTitle' })
+    const PropertyNotFoundMessage = intl.formatMessage({ id: 'pages.condo.property.id.NotFound.Message' })
 
     const { query: { id } } = useRouter()
-    const { loading, obj: property, error } = Property.useObject({ where: { id: id as string } })
-    const { link } = useOrganization()
+    const { link, organization } = useOrganization()
+
+    const organizationId = get(organization, 'id', null)
+
+    const { loading, obj: property, error } = Property.useObject({
+        where: {
+            id: id as string,
+            organization: {
+                id: organizationId,
+            },
+        },
+    })
 
     if (error || loading) {
         return <LoadingOrErrorPage title={PageTitleMsg} loading={loading} error={error ? ServerErrorMsg : null}/>
+    }
+
+    if (!property) {
+        return <LoadingOrErrorPage title={PropertyNotFoundTitle} loading={false} error={PropertyNotFoundMessage}/>
     }
 
     return <>
