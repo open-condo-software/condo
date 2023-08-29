@@ -11,6 +11,7 @@ import ruWindows from '@condo/lang/ru/pages/tls/windows.md'
 import styled from '@emotion/styled'
 import { Anchor, Col, Collapse, Image, Row } from 'antd'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
@@ -27,13 +28,16 @@ import { useLayoutContext } from '@condo/domains/common/components/LayoutContext
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { Logo } from '@condo/domains/common/components/Logo'
 import { Poster } from '@condo/domains/common/components/Poster'
+import { LOCALES } from '@condo/domains/common/constants/locale'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 
-const guidesContent = {
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+
+const GUIDES_CONTENT = {
     ru: {
         windows: ruWindows,
         macos: ruMacos,
@@ -275,21 +279,16 @@ const MarkdownWrapper = styled(TextWrapper)`
 `
 
 type TlsPageGuideSectionProps = {
-    name: string
+    content: string
 }
 
-
-
-const TlsPageGuideSection: React.FC<TlsPageGuideSectionProps> = ({ name }): JSX.Element => {
-    const intl = useIntl()
-    return (
-        <MarkdownWrapper>
-            <Markdown>
-                {get(guidesContent, [intl.locale, name])}
-            </Markdown>
-        </MarkdownWrapper>
-    )
-}
+const TlsPageGuideSection: React.FC<TlsPageGuideSectionProps> = ({ content }): JSX.Element => (
+    <MarkdownWrapper>
+        <Markdown>
+            {content}
+        </Markdown>
+    </MarkdownWrapper>
+)
 
 const StyledCollapse = styled(Collapse)`
     background: none;
@@ -307,7 +306,12 @@ const StyledCollapse = styled(Collapse)`
     }
 `
 
-const TlsPageGuide: React.FC = (): JSX.Element => {
+
+type TlsPageGuideProps = {
+    guidesContent: { [key: string]: string }
+}
+
+const TlsPageGuide: React.FC<TlsPageGuideProps> = ({ guidesContent }): JSX.Element => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage( { id: 'pages.condo.tls.guide.title' })
     const DescriptionMessage = intl.formatMessage( { id: 'pages.condo.tls.guide.description' })
@@ -328,19 +332,19 @@ const TlsPageGuide: React.FC = (): JSX.Element => {
                 </Typography.Text>
                 <StyledCollapse style={{ width: '100%' }}>
                     <Collapse.Panel key='windows' header={<Typography.Title level={3}>{SectionWindowsTitle}</Typography.Title>}>
-                        <TlsPageGuideSection name='windows'/>
+                        <TlsPageGuideSection content={get(guidesContent, 'windows')}/>
                     </Collapse.Panel>
                     <Collapse.Panel key='macos' header={<Typography.Title level={3}>{SectionMacosTitle}</Typography.Title>}>
-                        <TlsPageGuideSection name='macos'/>
+                        <TlsPageGuideSection content={get(guidesContent, 'macos')}/>
                     </Collapse.Panel>
                     <Collapse.Panel key='linux' header={<Typography.Title level={3}>{SectionLinuxTitle}</Typography.Title>}>
-                        <TlsPageGuideSection name='linux'/>
+                        <TlsPageGuideSection content={get(guidesContent, 'linux')}/>
                     </Collapse.Panel>
                     <Collapse.Panel key='android' header={<Typography.Title level={3}>{SectionAndroidTitle}</Typography.Title>}>
-                        <TlsPageGuideSection name='android'/>
+                        <TlsPageGuideSection content={get(guidesContent, 'android')}/>
                     </Collapse.Panel>
                     <Collapse.Panel key='ios' header={<Typography.Title level={3}>{SectionIosTitle}</Typography.Title>}>
-                        <TlsPageGuideSection name='ios'/>
+                        <TlsPageGuideSection content={get(guidesContent, 'ios')}/>
                     </Collapse.Panel>
                 </StyledCollapse>
             </Space>
@@ -367,13 +371,13 @@ const TlsPageEpilog: React.FC = (): JSX.Element => {
     )
 }
 
-function TlsPage (): React.ReactElement {
+function TlsPage ({ guidesContent }): React.ReactElement {
     return (
         <Space direction='vertical' size={20}>
             <Header/>
             <Space direction='vertical' size={60}>
                 <TlsPagePoster/>
-                <TlsPageGuide/>
+                <TlsPageGuide guidesContent={guidesContent} />
                 <TlsPageEpilog/>
             </Space>
         </Space>
@@ -387,5 +391,14 @@ TlsPage.container = (props) => (
     />
 )
 
+export const getServerSideProps = ({ req }) => {
+    // Values of "accept-language" header field are far more complex and described in MDN docs
+    // Since english versions of guides will almost never be used, to avoid technical overhead
+    // handle only formats with language code only.
+    const acceptedLocale = req.headers['accept-language']
+    const detectedLocale = Object.keys(LOCALES).includes(acceptedLocale) ? acceptedLocale : defaultLocale
+    const guidesContent = GUIDES_CONTENT[detectedLocale]
+    return { props: { guidesContent } }
+}
 
 export default TlsPage
