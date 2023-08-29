@@ -2,7 +2,7 @@ const Queue = require('bull')
 
 const conf = require('@open-condo/config')
 
-const { internalGetAsyncLocalStorage } = require('./asyncLocalStorage')
+const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionContext')
 const { getLogger } = require('./logging')
 const { getRedisClient } = require('./redis')
 const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
@@ -217,7 +217,7 @@ function executeTask (name, args, job = null) {
     // Since executeTask is synchronous we should use enterWith:
     // From the docs:
     // Transitions into the context for the remainder of the current synchronous execution and then persists the store through any following asynchronous calls.
-    internalGetAsyncLocalStorage('taskCtx').enterWith({ id: job.id, name: job.name })
+    _internalGetExecutionContextAsyncLocalStorage().enterWith({ task: { id: job.id, name: job.name } })
 
     if (!TASKS.has(name)) throw new Error(`executeTask: Unknown task name ${name}`)
     if (!isSerializable(args)) throw new Error('executeTask: args is not serializable')

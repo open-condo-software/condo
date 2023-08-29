@@ -15,7 +15,7 @@ const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/key
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { registerTasks } = require('@open-condo/keystone/tasks')
 
-const { internalGetAsyncLocalStorage } = require('../../asyncLocalStorage')
+const { internalGetAsyncLocalStorage, _internalGetExecutionContextAsyncLocalStorage} = require('../../executionContext')
 const { parseCorsSettings } = require('../../cors.utils')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
@@ -39,7 +39,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
     if (tasks && typeof tasks !== 'function') throw new Error('tasks should be a function like `() => [ Task ]`')
     if (apps && typeof apps !== 'function') throw new Error('apps should be a function like `() => [ App | Middleware ]`')
 
-    internalGetAsyncLocalStorage('keystoneInstanceCtx').enterWith({ id: v4(), argv: process.argv, execArgv: process.execArgv })
+    _internalGetExecutionContextAsyncLocalStorage().enterWith( { prepareKeystone: { id: v4(), argv: process.argv, execArgv: process.execArgv } })
 
     const keystoneConfig = prepareDefaultKeystoneConfig(conf)
     const keystone = new Keystone({
@@ -96,7 +96,6 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {
-            const requestCtxLocalStorage = internalGetAsyncLocalStorage('requestCtx')
 
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
@@ -108,7 +107,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
             const requestIdHeaderName = 'X-Request-Id'
             app.use(function reqId (req, res, next) {
                 const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
-                requestCtxLocalStorage.run(reqId, () => {
+                _internalGetExecutionContextAsyncLocalStorage().run({ request: { id: reqId } }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection

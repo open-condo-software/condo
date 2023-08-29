@@ -52,7 +52,7 @@
 const { get, cloneDeep, floor, isEqual } = require('lodash')
 const LRUCache = require('lru-cache')
 
-const { getExecutionContext } = require('./asyncLocalStorage')
+const { getExecutionContext } = require('./executionContext')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
