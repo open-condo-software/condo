@@ -191,6 +191,5 @@ class KeystoneTracingApp {
 
 
 module.exports = {
-    KeystoneTracingApp,
-    ApolloTracingPlugin,
+    KeystoneTracingApp
 }
