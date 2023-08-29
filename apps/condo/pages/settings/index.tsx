@@ -6,6 +6,7 @@ import React, { CSSProperties, useMemo } from 'react'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { TabItem } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
@@ -13,7 +14,6 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
-import { SettingsTabPaneDescriptor } from '@condo/domains/common/components/settings/Tabs'
 import { MOBILE_FEATURE_CONFIGURATION } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
@@ -66,53 +66,57 @@ const SettingsPage: React.FC = () => {
         if (canManageContactRoles) result.push(SETTINGS_TAB_CONTACT_ROLES)
         if (canManageMobileFeatureConfigsRoles) result.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
         return result
-    }, [hasSubscriptionFeature, canManageContactRoles])
+    }, [hasSubscriptionFeature, canManageContactRoles, canManageMobileFeatureConfigsRoles])
 
-    const settingsTabs: SettingsTabPaneDescriptor[] = useMemo(
+    const settingsTabs: TabItem[] = useMemo(
         () => [
             hasSubscriptionFeature && {
                 key: SETTINGS_TAB_SUBSCRIPTION,
-                title: SubscriptionTitle,
-                content: <SubscriptionPane/>,
+                label: SubscriptionTitle,
+                children: <SubscriptionPane/>,
             },
             {
                 key: SETTINGS_TAB_PROPERTY_HINT,
-                title: HintTitle,
-                content: <TicketPropertyHintSettings/>,
+                label: HintTitle,
+                children: <TicketPropertyHintSettings/>,
             },
             {
                 key: SETTINGS_TAB_PROPERTY_SCOPE,
-                title: PropertyScopeTitle,
-                content: <PropertyScopeSettingsContent/>,
+                label: PropertyScopeTitle,
+                children: <PropertyScopeSettingsContent/>,
                 eventName: 'PropertyScopeVisitIndex',
             },
             {
                 key: SETTINGS_TAB_EMPLOYEE_ROLES,
-                title: EmployeeRolesTitle,
-                content: <EmployeeRolesSettingsContent/>,
+                label: EmployeeRolesTitle,
+                children: <EmployeeRolesSettingsContent/>,
             },
             {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
-                title: DetailsTitle,
-                content: <RecipientSettingsContent/>,
+                label: DetailsTitle,
+                children: <RecipientSettingsContent/>,
             },
             canManageContactRoles && {
                 key: SETTINGS_TAB_CONTACT_ROLES,
-                title: RolesTitle,
-                content: <ContactRolesSettingsContent/>,
+                label: RolesTitle,
+                children: <ContactRolesSettingsContent/>,
             },
             {
                 key: SETTINGS_TAB_CONTROL_ROOM,
-                title: ControlRoomTitle,
-                content: <ControlRoomSettingsContent/>,
+                label: ControlRoomTitle,
+                children: <ControlRoomSettingsContent/>,
             },
             canManageMobileFeatureConfigsRoles && hasMobileFeatureConfigurationFeature && {
                 key: SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
-                title: MobileFeatureConfigTitle,
-                content: <MobileFeatureConfigContent/>,
+                label: MobileFeatureConfigTitle,
+                children: <MobileFeatureConfigContent/>,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, hasMobileFeatureConfigurationFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, MobileFeatureConfigTitle],
+        [
+            hasSubscriptionFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, EmployeeRolesTitle, DetailsTitle,
+            canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles,
+            hasMobileFeatureConfigurationFeature, MobileFeatureConfigTitle,
+        ],
     )
 
     const titleContent = useMemo(() => (
