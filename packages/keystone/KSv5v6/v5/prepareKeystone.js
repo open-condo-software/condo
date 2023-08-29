@@ -15,8 +15,8 @@ const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/key
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { registerTasks } = require('@open-condo/keystone/tasks')
 
-const { internalGetAsyncLocalStorage, _internalGetExecutionContextAsyncLocalStorage} = require('../../executionContext')
 const { parseCorsSettings } = require('../../cors.utils')
+const { _internalGetExecutionContextAsyncLocalStorage } = require('../../executionContext')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
