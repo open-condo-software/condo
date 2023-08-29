@@ -36,11 +36,10 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'yarn'
-          cache-dependency-path: yarn.lock
 
       - name: Install packages
         run: |
+          npm install -g yarn
           npm i -g turbo
           yarn install --immutable
           pip3 install django
