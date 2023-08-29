@@ -18,7 +18,6 @@ const IS_OTEL_TRACING_ENABLED = conf.IS_OTEL_TRACING_ENABLED === '1'
 const OTEL_CONFIG = conf.OTEL_CONFIG ? JSON.parse(conf.OTEL_CONFIG) : {}
 
 const { tracesUrl, metricsUrl, headers = {} } = OTEL_CONFIG
-const logger = getLogger('open-telemetry')
 
 const tracers = {}
 
@@ -191,5 +190,5 @@ class KeystoneTracingApp {
 
 
 module.exports = {
-    KeystoneTracingApp
+    KeystoneTracingApp,
 }
