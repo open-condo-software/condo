@@ -5,10 +5,7 @@ const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg')
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
 const otelSdk = require('@opentelemetry/sdk-node')
-const cuid = require('cuid')
-const ensureError = require('ensure-error')
 const { get } = require('lodash')
-const { serializeError } = require('serialize-error')
 
 const conf = require('@open-condo/config')
 
@@ -192,71 +189,6 @@ class KeystoneTracingApp {
     }
 }
 
-/**
- * @param node {require('graphql/language/ast').ExecutableDefinitionNode}
- */
-function renderExecutableDefinitionNode (node) {
-    if (!node) return ''
-    if (node.kind === 'OperationDefinition') {
-        return `${node.operation} ${node.name ? `${node.name.value}` : ''}`
-    } else if (node.kind === 'FragmentDefinition') {
-        return `Fragment_${node.name ? `${node.name.value}` : ''}`
-    }
-    return `${node.kind}`
-}
-
-/**
- * @type {import('apollo-server-plugin-base').ApolloServerPlugin}
- */
-class ApolloTracingPlugin {
-    tracer = _getTracer('@open-condo/apollo')
-
-    /**
-     * @param { import('apollo-server-types').GraphQLRequestContext } requestContext
-     * @returns {Promise<void>}
-     */
-    requestDidStart (requestContext) {
-        return {
-            /**
-             * The responseForOperation event is fired immediately before GraphQL execution would take place.
-             * If its return value resolves to a non-null GraphQLResponse, that result is used instead of executing the query.
-             * Hooks from different plugins are invoked in series, and the first non-null response is used.
-             * @param {import('apollo-server-types').WithRequired<import('apollo-server-types').GraphQLRequestContext<TContext>, 'metrics' | 'source' | 'document' | 'operationName' | 'operation' | 'logger'>} requestContext
-             * @returns {Promise<import('apollo-server-types').GraphQLResponse | null>}
-             */
-            async responseForOperation (requestContext) {
-                const operationId = get(requestContext, 'operationId') || cuid()
-                // NOTE(pahaz): log correlation id for cases where not reqId
-                requestContext.operationId = operationId
-
-                const logData = getGraphQLReqLoggerContext(requestContext)
-                logger.info(logData)
-
-                return this.tracer.startActiveSpan('grapql-request', async () => )
-            },
-
-            /**
-             * @param {import('apollo-server-types').GraphQLRequestContext} requestContext
-             * @returns {Promise<void>}
-             */
-            async didEncounterErrors (requestContext) {
-                // const logData = getGraphQLReqLoggerContext(requestContext)
-                // const errors = get(requestContext, 'errors', [])
-                //
-                // try {
-                //     for (const error of errors) {
-                //         error.uid = get(error, 'uid') || get(error, 'originalError.uid') || cuid()
-                //         logger.info({ apolloFormatError: safeFormatError(error), ...logData })
-                //     }
-                // } catch (formatErrorError) {
-                //     // NOTE(pahaz): Something went wrong with formatting above, so we log the errors
-                //     logger.error({ formatErrorError: serializeError(ensureError(formatErrorError)), ...logData })
-                //     logger.error({ serializedErrors: errors.map(error => serializeError(ensureError(error))), ...logData })
-                // }
-            },
-        }
-    }
-}
 
 module.exports = {
     KeystoneTracingApp,
