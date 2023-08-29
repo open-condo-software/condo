@@ -132,7 +132,7 @@ const MoreLinkStyle = {
 
 const StyledQuestionCircle = styled(QuestionCircle)`
     position: relative;
-    top: 3px;
+    top: 4px;
 `
 
 const PosterHeader: React.FC = (): JSX.Element => {
