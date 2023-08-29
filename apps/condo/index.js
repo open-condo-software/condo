@@ -15,7 +15,6 @@ const { HealthCheck, getRedisHealthCheck, getPostgresHealthCheck } = require('@o
 const { prepareKeystone } = require('@open-condo/keystone/KSv5v6/v5/prepareKeystone')
 const metrics = require('@open-condo/keystone/metrics')
 const { RequestCache } = require('@open-condo/keystone/requestCache')
-const { TracingMiddleware } = require('@open-condo/keystone/tracing')
 const { getWebhookModels } = require('@open-condo/webhooks/schema')
 
 const { PaymentLinkMiddleware } = require('@condo/domains/acquiring/PaymentLinkMiddleware')
@@ -30,7 +29,6 @@ dayjs.extend(timezone)
 dayjs.extend(isBetween)
 
 const IS_ENABLE_DD_TRACE = conf.NODE_ENV === 'production' && conf.DD_TRACE_ENABLED === 'true'
-const IS_ENABLE_OTEL = conf.OTEL_ENABLED === '1'
 
 const IS_BUILD_PHASE = conf.PHASE === 'build'
 
@@ -43,12 +41,6 @@ if (IS_ENABLE_DD_TRACE && !IS_BUILD_PHASE) {
     require('dd-trace').init({
         logInjection: true,
     })
-}
-
-if (IS_ENABLE_OTEL && !IS_BUILD_PHASE) {
-    require('@open-condo/keystone/tracing').init(
-        conf.OTEL_CONFIG ? JSON.parse(conf.OTEL_CONFIG) : {}
-    )
 }
 
 if (!IS_BUILD_PHASE) {
@@ -137,7 +129,6 @@ const checks = [
 const lastApp = conf.NODE_ENV === 'test' ? undefined : new NextApp({ dir: '.' })
 const apps = () => {
     return [
-        new TracingMiddleware(conf.OTEL_CONFIG && !IS_BUILD_PHASE ? JSON.parse(conf.OTEL_CONFIG) : { enabled: false }),
         new HealthCheck({ checks }),
         new RequestCache(conf.REQUEST_CACHE_CONFIG ? JSON.parse(conf.REQUEST_CACHE_CONFIG) : { enabled: false }),
         new AdapterCache(conf.ADAPTER_CACHE_CONFIG ? JSON.parse(conf.ADAPTER_CACHE_CONFIG) : { enabled: false }),

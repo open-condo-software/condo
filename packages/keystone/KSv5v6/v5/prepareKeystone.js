@@ -14,6 +14,7 @@ const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSche
 const { getKeystonePinoOptions, GraphQLLoggerPlugin } = require('@open-condo/keystone/logging')
 const { schemaDocPreprocessor, adminDocPreprocessor, escapeSearchPreprocessor, customAccessPostProcessor } = require('@open-condo/keystone/preprocessors')
 const { registerTasks } = require('@open-condo/keystone/tasks')
+const { KeystoneTracingApp, ApolloTracingPlugin } = require('@open-condo/keystone/tracing')
 
 const { parseCorsSettings } = require('../../cors.utils')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
@@ -71,6 +72,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
         cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
         pinoOptions: getKeystonePinoOptions(),
         apps: [
+            new KeystoneTracingApp(),
             ...((apps) ? apps() : []),
             new GraphQLApp({
                 apollo: {
@@ -78,7 +80,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
                     debug: IS_ENABLE_APOLLO_DEBUG,
                     introspection: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
                     playground: IS_ENABLE_DANGEROUS_GRAPHQL_PLAYGROUND,
-                    plugins: [new GraphQLLoggerPlugin()],
+                    plugins: [new GraphQLLoggerPlugin(), new ApolloTracingPlugin()],
                 },
                 ...(graphql || {}),
             }),
