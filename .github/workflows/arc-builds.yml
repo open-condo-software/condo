@@ -17,6 +17,14 @@ jobs:
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
+      - name: Install Git
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git
+
+      - name: Verify Git Installation
+        run: git --version
+    
       - name: Checkout code with submodules
         uses: actions/checkout@v2
         with:
