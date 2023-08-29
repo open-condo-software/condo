@@ -51,7 +51,9 @@ const sdk = new otelSdk.NodeSDK({
     ],
 })
 
-sdk.start()
+if (IS_OTEL_TRACING_ENABLED) {
+    sdk.start()
+}
 
 function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
     return async function (...args) {
