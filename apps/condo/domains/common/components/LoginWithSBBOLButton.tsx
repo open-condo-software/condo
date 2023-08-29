@@ -1,4 +1,3 @@
-// TODO: Restyle and refactor this button someday later
 import { useRouter } from 'next/router'
 import React from 'react'
 

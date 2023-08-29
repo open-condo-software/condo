@@ -5,6 +5,11 @@ const {
     publicRuntimeConfig,
 } = getConfig()
 
+type UseCheckSSLClientCertProps = {
+    onSuccess: () => void
+    onFail: () => void
+}
+
 interface IUseCheckSSLClientCert {
     loading: boolean
     checkSSLClientCert: () => void
