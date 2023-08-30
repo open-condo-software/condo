@@ -43,8 +43,8 @@ function randomHex() {
 }
 
 function generatePermissionKey() {
-    const action = capitalize(faker.word.verb()).replace('-', '')
-    const subject = capitalize(faker.word.noun()).replace('-', '')
+    const action = capitalize(faker.word.verb()).replace(/-/g, '')
+    const subject = capitalize(faker.word.noun()).replace(/-/g, '')
 
     return `can${action}${subject}`
 }
