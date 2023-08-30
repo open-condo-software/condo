@@ -17,6 +17,7 @@ import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
 import { QuestionCircle } from '@open-condo/icons'
+import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { Markdown, Typography } from '@open-condo/ui'
@@ -30,6 +31,7 @@ import { Logo } from '@condo/domains/common/components/Logo'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
+
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
@@ -392,12 +394,9 @@ TlsPage.container = (props) => (
 )
 
 export const getServerSideProps = ({ req }) => {
-    // Values of "accept-language" header field are far more complex and described in MDN docs
-    // Since english versions of guides will almost never be used, to avoid technical overhead
-    // handle only formats with language code only.
-    const acceptedLocale = req.headers['accept-language']
-    const detectedLocale = Object.keys(LOCALES).includes(acceptedLocale) ? acceptedLocale : defaultLocale
-    const guidesContent = GUIDES_CONTENT[detectedLocale]
+    const extractedLocale = extractReqLocale(req)
+    const locale = extractedLocale && Object.keys(LOCALES).includes(extractedLocale) ? extractedLocale : defaultLocale
+    const guidesContent = GUIDES_CONTENT[locale]
     return { props: { guidesContent } }
 }
 
