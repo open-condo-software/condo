@@ -190,7 +190,7 @@ class AdapterCache {
      * Logs cache event.
      * @param {Object} event
      */
-    logEvent ({ type, reqId, functionName, listName, key, result }) {
+    logEvent ({ type, functionName, listName, key, result }) {
         if (!this.logging) return
 
         logger.info({
@@ -198,7 +198,6 @@ class AdapterCache {
             functionName,
             listName,
             key,
-            reqId,
             result,
             context: getExecutionContext(),
         })
