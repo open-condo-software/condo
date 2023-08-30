@@ -2,6 +2,7 @@ const otelApi = require('@opentelemetry/api')
 const { OTLPMetricExporter } = require('@opentelemetry/exporter-metrics-otlp-proto')
 const { OTLPTraceExporter } = require('@opentelemetry/exporter-trace-otlp-proto')
 const { HttpInstrumentation } = require('@opentelemetry/instrumentation-http')
+const { IORedisInstrumentation } = require('@opentelemetry/instrumentation-ioredis')
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg')
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
 const otelSdk = require('@opentelemetry/sdk-node')
@@ -21,6 +22,31 @@ const { tracesUrl, metricsUrl, headers = {} } = OTEL_CONFIG
 
 const tracers = {}
 
+if (IS_OTEL_TRACING_ENABLED) {
+    const sdk = new otelSdk.NodeSDK({
+        serviceName: 'condo',
+        traceExporter: new OTLPTraceExporter({
+            url: tracesUrl,
+            headers: headers,
+        }),
+        metricReader: new PeriodicExportingMetricReader({
+            exporter: new OTLPMetricExporter({
+                url: metricsUrl,
+                headers: headers,
+                concurrencyLimit: 1,
+            }),
+        }),
+
+        instrumentations: [
+            new HttpInstrumentation(),
+            new PgInstrumentation(),
+            new IORedisInstrumentation,
+        ],
+    })
+
+    sdk.start()
+}
+
 const _getTracer = (name) => {
     if (!tracers[name]) {
         tracers[name] = otelApi.trace.getTracer(
@@ -29,30 +55,6 @@ const _getTracer = (name) => {
         )
     }
     return tracers[name]
-}
-
-const sdk = new otelSdk.NodeSDK({
-    serviceName: 'condo',
-    traceExporter: new OTLPTraceExporter({
-        url: tracesUrl,
-        headers: headers,
-    }),
-    metricReader: new PeriodicExportingMetricReader({
-        exporter: new OTLPMetricExporter({
-            url: metricsUrl,
-            headers: headers,
-            concurrencyLimit: 1,
-        }),
-    }),
-
-    instrumentations: [
-        new HttpInstrumentation(),
-        new PgInstrumentation(),
-    ],
-})
-
-if (IS_OTEL_TRACING_ENABLED) {
-    sdk.start()
 }
 
 function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
