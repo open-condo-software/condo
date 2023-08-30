@@ -132,11 +132,6 @@ const MoreLinkStyle = {
     textDecoration: 'none',
 }
 
-const StyledQuestionCircle = styled(QuestionCircle)`
-    position: relative;
-    top: 4px;
-`
-
 const PosterHeader: React.FC = (): JSX.Element => {
     const intl = useIntl()
     const MoreLinkMessage = intl.formatMessage( { id: 'pages.condo.tls.poster.more' })
@@ -147,7 +142,10 @@ const PosterHeader: React.FC = (): JSX.Element => {
                     href='#guide'
                     title={
                         <Typography.Text type='secondary' size='medium'>
-                            <Typography.Link style={MoreLinkStyle}>{MoreLinkMessage}&nbsp;<StyledQuestionCircle size='small'/></Typography.Link>
+                            <Space direction='horizontal' size={4}>
+                                <Typography.Link style={MoreLinkStyle}>{MoreLinkMessage}</Typography.Link>
+                                <QuestionCircle size='small'/>
+                            </Space>
                         </Typography.Text>
                     }
                 />
