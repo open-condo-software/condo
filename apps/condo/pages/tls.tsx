@@ -372,15 +372,14 @@ TlsPage.container = (props) => (
     />
 )
 
-const LANG_DIR_RELATED = '../lang'
-
-
 export const getServerSideProps = ({ req }) => {
     const extractedLocale = extractReqLocale(req)
-    const locale = extractedLocale && Object.keys(LOCALES).includes(extractedLocale) ? extractedLocale : defaultLocale
-    let guidesFolderPath = path.resolve(conf.PROJECT_ROOT, 'apps/condo', `lang/${locale}/pages/tls`)
+    // Ensures that locale is finally taken only from constants to prevent using kind of "user input" in file traversing
+    const localeIndex = Object.keys(LOCALES).indexOf(extractedLocale)
+    const locale = localeIndex !== -1 ? Object.keys(LOCALES)[localeIndex] : defaultLocale
+    let guidesFolderPath = path.resolve(conf.PROJECT_ROOT, 'apps/condo', 'lang', locale, 'pages/tls')
     if (!fs.existsSync(guidesFolderPath)) {
-        guidesFolderPath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${defaultLocale}/pages/tls`)
+        guidesFolderPath = path.resolve(conf.PROJECT_ROOT, 'apps/condo', 'lang',  defaultLocale, 'pages/tls')
     }
     const fileNames = fs.readdirSync(guidesFolderPath)
 
