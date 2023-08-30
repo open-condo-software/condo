@@ -283,9 +283,10 @@ const StyledCollapse = styled(Collapse)`
     }
 `
 
+type GuidesContent = { [key: string]: string }
 
 type TlsPageGuideProps = {
-    guidesContent: { [key: string]: string }
+    guidesContent: GuidesContent
 }
 
 const TlsPageGuide: React.FC<TlsPageGuideProps> = ({ guidesContent }): JSX.Element => {
@@ -348,7 +349,11 @@ const TlsPageEpilog: React.FC = (): JSX.Element => {
     )
 }
 
-function TlsPage ({ guidesContent }): React.ReactElement {
+type TlsPageProps = {
+    guidesContent: GuidesContent
+}
+
+function TlsPage ({ guidesContent }: TlsPageProps): React.ReactElement {
     return (
         <Space direction='vertical' size={20}>
             <Header/>
@@ -381,7 +386,7 @@ export const getServerSideProps = ({ req }) => {
     const fileNames = fs.readdirSync(guidesFolderPath)
 
     // Parse list of files like ['android.md', 'ios.md', 'linux.md', 'macos.md', 'windows.md']
-    const guidesContent = {}
+    const guidesContent: GuidesContent = {}
     for (const fileName of fileNames) {
         const key = fileName.match(/(\w+)\.md/)[1]
         const fileBuffer = fs.readFileSync(path.resolve(guidesFolderPath, fileName))
