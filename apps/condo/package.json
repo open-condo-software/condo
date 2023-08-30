@@ -29,7 +29,6 @@
     "@ant-design/icons": "^4.7.0",
     "@apollo/client": "3.3.20",
     "@condo/domains": "link:./domains",
-    "@condo/lang": "link:./lang",
     "@emotion/babel-plugin": "^11.10.0",
     "@emotion/core": "^10.1.1",
     "@emotion/react": "^11.9.3",
