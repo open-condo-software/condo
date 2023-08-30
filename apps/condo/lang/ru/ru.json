@@ -520,6 +520,8 @@
   "pages.condo.property.form.YearOfConstructionTitle": "Год постройки",
   "pages.condo.property.form.AddressTitle": "Улица, дом №",
   "pages.condo.property.id.PageTitle": "Объект",
+  "pages.condo.property.id.NotFound.PageTitle": "Дом не найден",
+  "pages.condo.property.id.NotFound.Message": "Дома с данным ID нет в вашей огранизации",
   "pages.condo.property.id.Square": "Площадь",
   "pages.condo.property.id.TicketsClosed": "Закрыто",
   "pages.condo.property.id.TicketsInWork": "В работе",

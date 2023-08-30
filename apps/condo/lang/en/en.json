@@ -520,6 +520,8 @@
   "pages.condo.property.form.YearOfConstructionTitle": "Year of construction",
   "pages.condo.property.form.AddressTitle": "Street, property №",
   "pages.condo.property.id.PageTitle": "Property",
+  "pages.condo.property.id.NotFound.PageTitle": "Property not found",
+  "pages.condo.property.id.NotFound.Message": "Property with this ID is not in your organization",
   "pages.condo.property.id.Square": "Square",
   "pages.condo.property.id.TicketsClosed": "Closed",
   "pages.condo.property.id.TicketsInWork": "In work",
