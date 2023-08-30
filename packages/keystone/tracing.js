@@ -79,31 +79,6 @@ class KeystoneTracingApp {
 
     tracer = _getTracer('@open-condo/tracing/keystone-tracing-app')
 
-    _getTracedQueryFunction (tracer, config, ctx, f) {
-        const { name, listKey } = config
-        return _getTracedFunction({
-            name: name + DELIMETER + listKey,
-            spanHook: (span, _) => {
-                span.setAttribute('type', 'query')
-                span.setAttribute('listKey', listKey)
-                span.setAttribute('functionName', name)
-            },
-            ctx, f, tracer,
-        })
-    }
-
-    _getTracedMutationFunction (tracer, config, ctx, f) {
-        const { name, listKey } = config
-        return _getTracedFunction({
-            name: name + DELIMETER + listKey,
-            spanHook: (span, _) => {
-                span.setAttribute('type', 'mutation')
-                span.setAttribute('listKey', listKey)
-            },
-            ctx, f, tracer,
-        })
-    }
-
     _getTracedAdapterFunction (tracer, config, ctx, f) {
         const { name, listKey } = config
 
@@ -115,28 +90,6 @@ class KeystoneTracingApp {
                 span.setAttribute('functionName', name)
             },
             ctx, f, tracer,
-        })
-    }
-
-    _patchKeystoneList (tracer, keystone) {
-        keystone.listsArray.map((list) => {
-            const patchedList = list
-
-            const listKey = list.key
-
-            patchedList.createMutation = this._getTracedMutationFunction(tracer, { listKey, name: 'createMutation' }, list, list.createMutation)
-            patchedList.createManyMutation = this._getTracedMutationFunction(tracer, { listKey, name: 'createManyMutation' }, list, list.createManyMutation)
-
-            patchedList.updateMutation = this._getTracedMutationFunction(tracer, { listKey, name: 'updateMutation' }, list, list.updateMutation)
-            patchedList.updateManyMutation = this._getTracedMutationFunction(tracer, { listKey, name: 'updateManyMutation' }, list, list.updateManyMutation)
-
-            patchedList.deleteMutation = this._getTracedMutationFunction(tracer, { listKey, name: 'deleteMutation' }, list, list.deleteMutation)
-            patchedList.deleteManyMutation = this._getTracedMutationFunction(tracer, { listKey, name: 'deleteManyMutation' }, list, list.deleteManyMutation)
-
-            patchedList.listQuery = this._getTracedQueryFunction(tracer, { listKey, name: 'listQuery' }, list, list.listQuery)
-            patchedList.itemQuery = this._getTracedQueryFunction(tracer, { listKey, name: 'itemQuery' }, list, list.itemQuery)
-
-            return patchedList
         })
     }
 
@@ -187,7 +140,6 @@ class KeystoneTracingApp {
 
         const tracer = this.tracer
         this._patchKeystoneGraphQLExecutor(tracer, keystone)
-        this._patchKeystoneList(tracer, keystone)
         this._patchKeystoneAdapter(tracer, keystone)
     }
 }
