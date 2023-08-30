@@ -35,7 +35,7 @@ class GqlToKnexBaseAdapter {
                 } else if (field.match(/_lte?$/)) {
                     this.dateRange.to = query
                 } else if (field.match(/_in$/)) {
-                    this.whereIn.push(field.replace('_in', ''), query)
+                    this.whereIn.push([field.replace('_in', ''), query])
                 } else {
                     this.where.push({ [field]: query })
                 }

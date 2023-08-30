@@ -52,6 +52,17 @@ const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
                         status
                     }
                 }
+                ticketQualityControlValue {
+                    tickets {
+                        count
+                        dayGroup
+                        qualityControlValue
+                    }
+                    translations {
+                        key
+                        value
+                    }
+                }
                 property {
                     sum
                 }

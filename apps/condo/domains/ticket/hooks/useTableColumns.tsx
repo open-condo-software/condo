@@ -302,3 +302,97 @@ export function useTableColumns<T> (
         loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading,
     }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
 }
+
+export function useTicketQualityTableColumns (): { columns: ColumnsType<Ticket> } {
+    const intl = useIntl()
+    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
+    const DateMessage = intl.formatMessage({ id: 'Date' })
+    const DescriptionMessage = intl.formatMessage({ id: 'Description' })
+    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
+    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const FeedbackMessage = intl.formatMessage({ id: 'ticket.feedback' })
+
+    const router = useRouter()
+    const { filters, sorters } = parseQuery(router.query)
+    const search = getFilteredValue(filters, 'search')
+
+    const renderAddress = useCallback(
+        (property) => getAddressRender(property, DeletedMessage, search),
+        [DeletedMessage, search])
+
+    const renderFeedback = (intl) => {
+        return function render (feedback: string, ticket: Ticket) {
+            return intl.formatMessage({ id: `ticket.feedback.${ticket.feedbackValue || feedback}` })
+        }
+    }
+
+    return useMemo(() => ({
+        columns: [
+            {
+                title: NumberMessage,
+                dataIndex: 'number',
+                key: 'number',
+                sorter: true,
+                width: COLUMNS_WIDTH.number,
+                render: getTicketNumberRender(intl, search),
+                align: 'left',
+                className: 'number-column',
+            },
+            {
+                title: DateMessage,
+                filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
+                dataIndex: 'createdAt',
+                key: 'createdAt',
+                sorter: true,
+                width: COLUMNS_WIDTH.createdAt,
+                render: getDateRender(intl, String(search)),
+            },
+            {
+                title: AddressMessage,
+                dataIndex: 'property',
+                filteredValue: getFilteredValue<IFilters>(filters, 'property'),
+                key: 'property',
+                sorter: true,
+                width: COLUMNS_WIDTH.address,
+                render: renderAddress,
+            },
+            {
+                title: UnitMessage,
+                dataIndex: 'unitName',
+                filteredValue: getFilteredValue(filters, 'unitName'),
+                key: 'unitName',
+                sorter: true,
+                width: COLUMNS_WIDTH.unitName,
+                render: getUnitRender(intl, search),
+                ellipsis: true,
+            },
+            {
+                title: DescriptionMessage,
+                dataIndex: 'details',
+                filteredValue: getFilteredValue<IFilters>(filters, 'details'),
+                key: 'details',
+                width: COLUMNS_WIDTH.details,
+                render: getTicketDetailsRender(search),
+            },
+            {
+                title: ClassifierTitle,
+                dataIndex: ['classifier', 'category', 'name'],
+                filteredValue: getFilteredValue(filters, 'categoryClassifier'),
+                key: 'categoryClassifier',
+                width: COLUMNS_WIDTH.categoryClassifier,
+                render: getClassifierRender(intl, search),
+                ellipsis: true,
+            },
+            {
+                title: FeedbackMessage,
+                dataIndex: 'qualityControlValue',
+                key: 'qualityControlValue',
+                width: '10%',
+                render: renderFeedback(intl),
+            },
+        ],
+    }), [AddressMessage, ClassifierTitle, DateMessage, DescriptionMessage, FeedbackMessage,
+        NumberMessage, UnitMessage, filters, intl, renderAddress, search])
+}

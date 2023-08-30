@@ -67,7 +67,7 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
 
         this.result = await query.groupBy(this.aggregateBy)
             .where(knexWhere)
-            .whereIn(...this.whereIn)
+            .whereIn(...this.whereIn[0])
             .whereBetween('period', [this.dateRange.from, this.dateRange.to])
             .orderBy('dayGroup', 'asc')
     }

@@ -56,7 +56,8 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
                 ))
             )
         })
-        this.whereIn = {}
+
+        this.whereIn = Object.fromEntries(this.whereIn)
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
             const [groupName, groupCondition] = Object.entries(currentFilter)[0]

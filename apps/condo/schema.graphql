@@ -66222,6 +66222,7 @@ enum TicketAnalyticsGroupBy {
   categoryClassifier
   executor
   assignee
+  qualityControlValue
 }
 
 input TicketAnalyticsReportInput {
@@ -66249,6 +66250,7 @@ type TicketGroupedCounter {
   categoryClassifier: String
   executor: String
   assignee: String
+  qualityControlValue: String
 }
 
 input TicketAnalyticsNullReplaces {
@@ -66310,8 +66312,14 @@ input GetOverviewDashboardInput {
   groupBy: GetOverviewDashboardGroupByInput!
 }
 
+type TicketOverviewTranslations {
+  key: String!
+  value: String!
+}
+
 type TicketOverviewResult {
   tickets: [TicketGroupedCounter!]
+  translations: [TicketOverviewTranslations]
 }
 
 type PaymentGroupedCounter {
@@ -66355,6 +66363,7 @@ type OverviewData {
   ticketByDay: TicketOverviewResult
   ticketByCategory: TicketOverviewResult
   ticketByExecutor: TicketOverviewResult
+  ticketQualityControlValue: TicketOverviewResult
   payment: PaymentOverviewResult
   receipt: ReceiptOverviewResult
   resident: ResidentOverviewResult

@@ -1,6 +1,11 @@
 const dayjs = require('dayjs')
 const { get, isEmpty } = require('lodash')
 
+const conf = require('@open-condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { i18n } = require('@open-condo/locales/loader')
+
 const {
     sortStatusesByType,
     TicketGqlToKnexAdapter,
@@ -9,7 +14,9 @@ const {
 } = require('@condo/domains/analytics/utils/serverSchema/analytics.helper')
 const { AbstractDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/AbstractDataLoader')
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
+const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
 const { DATE_DISPLAY_FORMAT } = require('@condo/domains/ticket/constants/common')
+const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qualityControl')
 const { TicketStatus: TicketStatusServerUtils } = require('@condo/domains/ticket/utils/serverSchema')
 
 const createPropertyRange = async (organizationWhereInput, whereIn) => {
@@ -218,4 +225,71 @@ class TicketDataLoader extends AbstractDataLoader {
     }
 }
 
-module.exports = { TicketDataLoader }
+class TicketQualityControlGqlLoader extends GqlToKnexBaseAdapter {
+    aggregateBy = []
+    constructor (where, groupBy) {
+        super('Ticket', where, groupBy)
+        this.aggregateBy = ['dayGroup', ...this.groups]
+    }
+
+    async loadData () {
+        this.result = null
+
+        const { keystone } = await getSchemaCtx(this.domainName)
+        const knex = keystone.adapter.knex
+
+        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
+            return Object.fromEntries(
+                Object.entries(condition).map(([field, query]) => (
+                    get(query, 'id') ? [field, query.id] : [field, query]
+                ))
+            )
+        })
+
+        this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
+            const [groupName] = Object.entries(currentFilter)[0]
+            const [filterEntities] = filter
+
+            if (!this.aggregateBy.includes(groupName)) {
+                this.aggregateBy.push(groupName)
+            }
+            filterEntities.push(groupName)
+        }, [[], []])
+
+        const query = knex(this.domainName).count('id')
+            .select(knex.raw(`to_char(date_trunc('${this.dayGroup}',  "createdAt"), 'DD.MM.YYYY') as "dayGroup"`))
+            .select(knex.raw('COALESCE("feedbackValue", "qualityControlValue") as "qualityControlComputedValue"'))
+            .where(where.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
+            .andWhere(function () {
+                this.whereIn('qualityControlValue', QUALITY_CONTROL_VALUES)
+                    .orWhereIn('feedbackValue', QUALITY_CONTROL_VALUES)
+            })
+
+        if (this.whereIn.length > 0) {
+            query.whereIn(this.whereIn[0])
+        }
+
+        this.result = await query
+            .groupBy(this.aggregateBy)
+            .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
+    }
+}
+
+class TicketQualityControlDataLoader extends AbstractDataLoader {
+    async get ({ where, groupBy }) {
+        const locale = extractReqLocale(this.context.req) || conf.DEFAULT_LOCALE
+        const translationMapping = Object.fromEntries(QUALITY_CONTROL_VALUES.map(value => [value, i18n(`ticket.qualityControl.${value}`, { locale })]))
+        // return QUALITY_CONTROL_VALUES.map(value => ({ value, label: i18n(`ticket.qualityControl.${value}`, { locale }) }))
+        const ticketQualityControlLoader = new TicketQualityControlGqlLoader(where, groupBy)
+
+        await ticketQualityControlLoader.loadData()
+        const tickets = await ticketQualityControlLoader.getResult(({ qualityControlComputedValue, ...searchResult }) => ({
+            ...searchResult,
+            qualityControlValue: translationMapping[qualityControlComputedValue],
+        }))
+
+        return { tickets, translations: QUALITY_CONTROL_VALUES.map(value => ({ value, key: i18n(`ticket.qualityControl.${value}`, { locale }) })) }
+    }
+}
+
+module.exports = { TicketDataLoader, TicketQualityControlDataLoader }

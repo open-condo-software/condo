@@ -12,6 +12,7 @@ const {
     expectToThrowGraphQLRequestError,
     setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
 const {
     PAYMENT_DONE_STATUS,
@@ -38,8 +39,10 @@ const {
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('@condo/domains/ticket/constants')
+const { QUALITY_CONTROL_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/qualityControl')
 const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+
 
 const dateFrom = dayjs().toISOString()
 const dateTo = dayjs().endOf('day').toISOString()
@@ -106,6 +109,13 @@ describe('GetOverviewDashboardService', () => {
             executor: { connect: { id: executor.user.id } },
             classifier: { connect: { id: classifier.id } },
         })
+        await createTestTicket(admin, organization, property, {
+            qualityControlValue: QUALITY_CONTROL_VALUES_BY_KEY.GOOD,
+        })
+        await createTestTicket(admin, organization, property, {
+            qualityControlValue: QUALITY_CONTROL_VALUES_BY_KEY.GOOD,
+            feedbackValue: QUALITY_CONTROL_VALUES_BY_KEY.BAD,
+        })
         payments = await Payment.getAll(admin, {
             organization: { id: organization.id },
             status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
@@ -131,6 +141,7 @@ describe('GetOverviewDashboardService', () => {
             expect(data.overview).toHaveProperty(['ticketByProperty', 'tickets'])
             expect(data.overview).toHaveProperty(['ticketByExecutor', 'tickets'])
             expect(data.overview).toHaveProperty(['ticketByCategory', 'tickets'])
+            expect(data.overview).toHaveProperty(['ticketQualityControlValue', 'tickets'])
         })
     })
 
@@ -216,7 +227,7 @@ describe('GetOverviewDashboardService', () => {
                     })
 
                     expect(data.overview.ticketByDay.tickets).toHaveLength(TICKET_STATUS_TYPES.length)
-                    expect(data.overview.ticketByDay.tickets.some(e => e.count === 1)).toBeTruthy()
+                    expect(data.overview.ticketByDay.tickets.some(e => e.count === 3)).toBeTruthy()
                     expect(data.overview.ticketByDay.tickets.every(e => e.dayGroup === dayjs(dateFrom).format('DD.MM.YYYY'))).toBeTruthy()
                 })
 
@@ -230,7 +241,7 @@ describe('GetOverviewDashboardService', () => {
                         groupBy: { aggregatePeriod: 'day' },
                     })
 
-                    const dataWithTicket = data.overview.ticketByDay.tickets.find(e => e.count === 1)
+                    const dataWithTicket = data.overview.ticketByDay.tickets.find(e => e.count === 3)
 
                     expect(dataWithTicket).toBeDefined()
                     expect(data.overview.ticketByDay.tickets).toHaveLength(TICKET_STATUS_TYPES.length * 8)
@@ -248,7 +259,7 @@ describe('GetOverviewDashboardService', () => {
                     })
 
                     expect(data.overview.ticketByDay.tickets).toBeDefined()
-                    expect(data.overview.ticketByDay.tickets.some(e => e.count === 1)).toBeTruthy()
+                    expect(data.overview.ticketByDay.tickets.some(e => e.count === 3)).toBeTruthy()
                 })
             })
             describe('Grouped by property', () => {
@@ -259,7 +270,7 @@ describe('GetOverviewDashboardService', () => {
 
                     expect(data.overview.ticketByProperty.tickets).toHaveLength(TICKET_STATUS_TYPES.length)
                     expect(data.overview.ticketByProperty.tickets.every(e => e.property === property.address)).toBeTruthy()
-                    expect(data.overview.ticketByProperty.tickets.some(e => e.count === 1)).toBeTruthy()
+                    expect(data.overview.ticketByProperty.tickets.some(e => e.count === 3)).toBeTruthy()
                 })
             })
             describe('Grouped by executor', () => {
@@ -284,6 +295,22 @@ describe('GetOverviewDashboardService', () => {
 
                     expect(filteredByClassifier).toHaveLength(TICKET_STATUS_TYPES.length)
                     expect(filteredByClassifier.some(e => e.count === 1)).toBeTruthy()
+                })
+            })
+            describe('Grouped by ticket quality control value', () => {
+                it('should count all tickets with quality control value', async () => {
+                    const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
+                        where: { organization: organization.id, dateFrom, dateTo }, groupBy: { aggregatePeriod: 'day' },
+                    })
+
+                    const ticketsByQualityControlValue = data.overview.ticketQualityControlValue.tickets
+
+                    const goodLabel = i18n('ticket.qualityControl.good')
+                    const badLabel = i18n('ticket.qualityControl.bad')
+
+                    expect(ticketsByQualityControlValue).toHaveLength(2)
+                    expect(ticketsByQualityControlValue.find(e => e.qualityControlValue === goodLabel)).toHaveProperty('count', 1)
+                    expect(ticketsByQualityControlValue.find(e => e.qualityControlValue === badLabel)).toHaveProperty('count', 1)
                 })
             })
         })

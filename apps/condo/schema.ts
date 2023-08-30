@@ -50108,6 +50108,7 @@ export type OverviewData = {
   ticketByDay?: Maybe<TicketOverviewResult>;
   ticketByCategory?: Maybe<TicketOverviewResult>;
   ticketByExecutor?: Maybe<TicketOverviewResult>;
+  ticketQualityControlValue?: Maybe<TicketOverviewResult>;
   payment?: Maybe<PaymentOverviewResult>;
   receipt?: Maybe<ReceiptOverviewResult>;
   resident?: Maybe<ResidentOverviewResult>;
@@ -72859,7 +72860,8 @@ export enum TicketAnalyticsGroupBy {
   Property = 'property',
   CategoryClassifier = 'categoryClassifier',
   Executor = 'executor',
-  Assignee = 'assignee'
+  Assignee = 'assignee',
+  QualityControlValue = 'qualityControlValue'
 }
 
 export type TicketAnalyticsNullReplaces = {
@@ -77601,6 +77603,7 @@ export type TicketGroupedCounter = {
   categoryClassifier?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -78823,6 +78826,13 @@ export type TicketOrganizationSettingsUpdateInput = {
 export type TicketOverviewResult = {
   __typename?: 'TicketOverviewResult';
   tickets?: Maybe<Array<TicketGroupedCounter>>;
+  translations?: Maybe<Array<Maybe<TicketOverviewTranslations>>>;
+};
+
+export type TicketOverviewTranslations = {
+  __typename?: 'TicketOverviewTranslations';
+  key: Scalars['String'];
+  value: Scalars['String'];
 };
 
 /**  Describes where the incident occurred  */

@@ -17,7 +17,7 @@ const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/d
 const { PropertyDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/property')
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
 const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
-const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
+const { TicketDataLoader, TicketQualityControlDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
 const { OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
 const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 
@@ -54,7 +54,11 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'type TicketOverviewResult { tickets: [TicketGroupedCounter!] }',
+            type: 'type TicketOverviewTranslations { key: String!, value: String! }',
+        },
+        {
+            access: true,
+            type: 'type TicketOverviewResult { tickets: [TicketGroupedCounter!], translations: [TicketOverviewTranslations] }',
         },
         {
             access: true,
@@ -86,7 +90,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult, property: PropertyOverviewResult }',
+            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, ticketQualityControlValue: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult, property: PropertyOverviewResult }',
         },
         {
             access: true,
@@ -165,6 +169,13 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                 nullReplaces: ticketNullReplaces,
                             },
                             remappingOptions: TICKET_REMAPPING_OPTIONS,
+                        },
+                        ticketQualityControlValue: {
+                            provider: new TicketQualityControlDataLoader({ context }),
+                            queryOptions: {
+                                where: ticketWhereFilter,
+                                groupBy: [groupBy.aggregatePeriod, 'qualityControlComputedValue'],
+                            },
                         },
                         property: {
                             provider: new PropertyDataLoader({ context }),

@@ -1,4 +1,7 @@
-import { TicketAnalyticsGroupBy as TicketGroupBy, TicketGroupedCounter } from '@app/condo/schema'
+import {
+    TicketAnalyticsGroupBy as TicketGroupBy,
+    TicketGroupedCounter,
+} from '@app/condo/schema'
 import dayjs from 'dayjs'
 
 import { colors } from '@open-condo/ui/dist/colors'
@@ -18,7 +21,7 @@ const COLOR_SET = [
 const DATE_FORMAT = 'DD.MM.YYYY'
 
 interface ITicketChartCard {
-    ({ data }: { data: Array<TicketGroupedCounter> }): React.ReactElement
+    ({ data, loading }: { data: Array<TicketGroupedCounter>, loading?: boolean }): React.ReactElement
 }
 
 const AllTicketChartDataMapper = new TicketChart({
@@ -51,7 +54,7 @@ const AllTicketChartDataMapper = new TicketChart({
                 legend: [],
                 axisData: {
                     xAxis: { type: 'category', data: axisLabels },
-                    yAxis: { type: 'value', data: null },
+                    yAxis: { type: 'value', data: null, minInterval: 1 },
                 },
                 tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
                 series,
@@ -72,7 +75,7 @@ const TicketByCategoryDataMapper = new TicketChart({
                 .sort((firstLabel, secondLabel) => aggregatedData.summary[secondLabel] - aggregatedData.summary[firstLabel])
                 .slice(0, TOP_VALUES)
 
-            Object.entries(aggregatedData).forEach(([groupBy, dataObj], index) => {
+            Object.entries(aggregatedData).forEach(([groupBy, dataObj]) => {
                 const seriesConfig = {
                     name: groupBy,
                     type: viewMode,
@@ -92,7 +95,7 @@ const TicketByCategoryDataMapper = new TicketChart({
                 series.push(seriesConfig)
             })
 
-            const valueData = { type: 'value', data: null, boundaryGap: [0, 0.02] }
+            const valueData = { type: 'value', data: null, boundaryGap: [0, 0.02], minInterval: 1 }
             const categoryData = {
                 type: 'category',
                 data: axisLabels,
@@ -171,7 +174,7 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
                     },
                     axisTick: { show: false },
                 },
-                xAxis: { type: 'value', data: null },
+                xAxis: { type: 'value', data: null, minInterval: 1 },
             }
             const tooltip = { trigger: 'axis', axisPointer: { type: 'line' } }
 
@@ -196,5 +199,46 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
     },
 })
 
-export { AllTicketChartDataMapper, TicketByCategoryDataMapper, TicketHorizontalBarDataMapper }
+const TicketQualityControlDataMapper = new TicketChart({
+    line: {
+        chart: (viewMode, data) => {
+            const series = []
+
+            const aggregatedData = getAggregatedData(data, [TicketGroupBy.QualityControlValue, TicketGroupBy.Day])
+            const axisLabels = Array
+                .from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
+                .sort((a, b) => dayjs(a, DATE_FORMAT).unix() - dayjs(b, DATE_FORMAT).unix())
+
+            Object.entries(aggregatedData).forEach(([groupBy, dataObj], index) => {
+                series.push({
+                    name: groupBy,
+                    type: viewMode,
+                    symbol: 'none',
+                    data: Object.entries(dataObj),
+                    smooth: true,
+                    emphasis: { focus: 'series' },
+                    color: index ? colors.green['5'] : colors.red['5'],
+                })
+            })
+
+            return {
+                legend: [],
+                axisData: {
+                    xAxis: { type: 'category', data: axisLabels },
+                    yAxis: { type: 'value', data: null, minInterval: 1, boundaryGap: [0, 0.05] },
+                },
+                tooltip: { trigger: 'axis', axisPointer: { type: 'line' } },
+                series,
+            }
+        },
+        table: () => null,
+    },
+})
+
+export {
+    AllTicketChartDataMapper,
+    TicketByCategoryDataMapper,
+    TicketHorizontalBarDataMapper,
+    TicketQualityControlDataMapper,
+}
 export type { ITicketChartCard }
