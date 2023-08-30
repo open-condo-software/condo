@@ -107,7 +107,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
             const requestIdHeaderName = 'X-Request-Id'
             app.use(function reqId (req, res, next) {
                 const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
-                _internalGetExecutionContextAsyncLocalStorage().run({ request: { id: reqId } }, () => {
+                _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
                     // we are expecting to receive reqId from client in order to have fully traced logs end to end
                     // also, property name are constant name, not a dynamic user input
                     // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
