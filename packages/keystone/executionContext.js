@@ -6,10 +6,14 @@
 
 const { AsyncLocalStorage: ExecutionContext } = require('node:async_hooks')
 
+const { v4 } = require('uuid')
+
 const { getLogger } = require('./logging')
 
 const ASYNC_LOCAL_STORAGES = {}
 const logger = getLogger('asyncLocalStorage')
+
+_internalGetExecutionContextAsyncLocalStorage().enterWith( { execId: v4(), execProcessArgv: process.argv })
 
 /**
  * Return current execution context
