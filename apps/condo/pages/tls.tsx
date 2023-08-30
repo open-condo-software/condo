@@ -387,7 +387,7 @@ export const getServerSideProps = ({ req }) => {
     // Parse list of files like ['android.md', 'ios.md', 'linux.md', 'macos.md', 'windows.md']
     const guidesContent: GuidesContent = {}
     for (const fileName of fileNames) {
-        const key = fileName.match(/(\w+)\.md/)[1]
+        const key = fileName.match(/^(\w+)\.md$/)[1]
         const fileBuffer = fs.readFileSync(path.resolve(guidesFolderPath, fileName))
         const { result: fileContent } = new ConvertToUTF8(fileBuffer).convert()
         guidesContent[key] = fileContent
