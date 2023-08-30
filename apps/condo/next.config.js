@@ -94,6 +94,7 @@ module.exports = withTM(withLess(withCSS({
         config.module.rules = [
             ...(config.module.rules || []),
             { test: /lang\/.*\.njk$/, use: 'raw-loader' },
+            { test: /lang\/.*\.md$/, use: 'raw-loader' },
         ]
 
         return config
