@@ -1,10 +1,13 @@
+import cookie from 'js-cookie'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import set from 'lodash/set'
 import getConfig from 'next/config'
 import React, { useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useOrganization } from '@open-condo/next/organization'
+
 
 const { publicRuntimeConfig:{ UseDeskWidgetId } } = getConfig()
 const useDeskFieldsIdsMap = {
@@ -30,29 +33,39 @@ const UseDeskWidget: React.FC = () => {
 
     useEffect(() => {
         try {
-            if (UseDeskWidgetId && isFunction(userIdentify)) {
+            if (UseDeskWidgetId && isFunction(userIdentify) && typeof window !== 'undefined') {
                 const name = get(link, 'name')
                 const email = get(user, 'email')
                 const phone = get(user, 'phone')
-                const token = messenger && messenger.getChatToken()
 
-                userIdentify({
-                    token,
-                    name,
-                    email,
-                    phone: typeof phone === 'string' ? phone.slice(1) : phone,
-                    additional_fields:
-                        [
-                            {
-                                id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
-                            },
-                            {
-                                id: useDeskFieldsIdsMap.organizationName, value: get(link, ['organization', 'name'], null),
-                            },
-                            {
-                                id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
-                            },
-                        ],
+                set(window, '__widgetInitCallback', (widget) => {
+                    const token = cookie.get('usedeskChatToken')
+
+                    const baseData = {
+                        name,
+                        email,
+                        phone: typeof phone === 'string' ? phone.slice(1) : phone,
+                        additional_fields:
+                            [
+                                {
+                                    id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
+                                },
+                                {
+                                    id: useDeskFieldsIdsMap.organizationName, value: get(link, ['organization', 'name'], null),
+                                },
+                                {
+                                    id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
+                                },
+                            ],
+                    }
+
+                    widget.userIdentify(token ? { ...baseData, token } : baseData)
+                })
+
+                set(window, '__usedeskWidgetFirstClientMessageCallback', () => {
+                    const token = messenger.getChatToken()
+
+                    cookie.set('usedeskChatToken', token, { expires: 2 })
                 })
             }
         } catch (e) {
