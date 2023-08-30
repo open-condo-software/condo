@@ -9,7 +9,8 @@ import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button, LoginWithSBBOLButton } from '@condo/domains/common/components/Button'
+import { Button } from '@condo/domains/common/components/Button'
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
 import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
@@ -65,7 +66,7 @@ export const SignInForm = (): React.ReactElement => {
                 errors: [PasswordOrPhoneMismatch],
             },
         }
-    }, [intl])
+    }, [PasswordOrPhoneMismatch])
 
     const onFormSubmit = useCallback((values) => {
         setIsLoading(true)
@@ -89,7 +90,7 @@ export const SignInForm = (): React.ReactElement => {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [intl, form])
+    }, [intl, form, ErrorToFormFieldMsgMapping, redirectUrl, refetch, router, signinByPhoneAndPassword])
 
     const initialValues = { password: '', phone: '' }
 
@@ -169,7 +170,7 @@ export const SignInForm = (): React.ReactElement => {
                                 </Col>
                                 <Col span={24}>
                                     <Form.Item>
-                                        <LoginWithSBBOLButton block/>
+                                        <LoginWithSBBOLButton block checkTlsCert/>
                                     </Form.Item>
                                 </Col>
                             </>
