@@ -1,13 +1,6 @@
-import enAndroid from '@condo/lang/en/pages/tls/android.md'
-import enIos from '@condo/lang/en/pages/tls/ios.md'
-import enLinux from '@condo/lang/en/pages/tls/linux.md'
-import enMacos from '@condo/lang/en/pages/tls/macos.md'
-import enWindows from '@condo/lang/en/pages/tls/windows.md'
-import ruAndroid from '@condo/lang/ru/pages/tls/android.md'
-import ruIos from '@condo/lang/ru/pages/tls/ios.md'
-import ruLinux from '@condo/lang/ru/pages/tls/linux.md'
-import ruMacos from '@condo/lang/ru/pages/tls/macos.md'
-import ruWindows from '@condo/lang/ru/pages/tls/windows.md'
+import fs from 'fs'
+import path from 'path'
+
 import styled from '@emotion/styled'
 import { Anchor, Col, Collapse, Image, Row } from 'antd'
 import get from 'lodash/get'
@@ -16,6 +9,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback } from 'react'
 
+import conf from '@open-condo/config'
 import { QuestionCircle } from '@open-condo/icons'
 import { extractReqLocale } from '@open-condo/locales/extractReqLocale'
 import { useAuth } from '@open-condo/next/auth'
@@ -24,6 +18,7 @@ import { Markdown, Typography } from '@open-condo/ui'
 import { Button, Card, Space } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { ConvertToUTF8 } from '../domains/banking/utils/serverSchema/converters/convertToUTF8'
 import EmptyLayout from '@condo/domains/common/components/containers/EmptyLayout'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
@@ -32,29 +27,11 @@ import { Poster } from '@condo/domains/common/components/Poster'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
-
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 
 const { publicRuntimeConfig: { defaultLocale } } = getConfig()
-
-const GUIDES_CONTENT = {
-    ru: {
-        windows: ruWindows,
-        macos: ruMacos,
-        linux: ruLinux,
-        android: ruAndroid,
-        ios: ruIos,
-    },
-    en: {
-        windows: enWindows,
-        macos: enMacos,
-        linux: enLinux,
-        android: enAndroid,
-        ios: enIos,
-    },
-}
 
 export const Header: React.FC = (): JSX.Element => {
     const intl = useIntl()
@@ -391,10 +368,26 @@ TlsPage.container = (props) => (
     />
 )
 
+const LANG_DIR_RELATED = '../lang'
+
+
 export const getServerSideProps = ({ req }) => {
     const extractedLocale = extractReqLocale(req)
     const locale = extractedLocale && Object.keys(LOCALES).includes(extractedLocale) ? extractedLocale : defaultLocale
-    const guidesContent = GUIDES_CONTENT[locale]
+    let guidesFolderPath = path.resolve(conf.PROJECT_ROOT, 'apps/condo', `lang/${locale}/pages/tls`)
+    if (!fs.existsSync(guidesFolderPath)) {
+        guidesFolderPath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${defaultLocale}/pages/tls`)
+    }
+    const fileNames = fs.readdirSync(guidesFolderPath)
+
+    // Parse list of files like ['android.md', 'ios.md', 'linux.md', 'macos.md', 'windows.md']
+    const guidesContent = {}
+    for (const fileName of fileNames) {
+        const key = fileName.match(/(\w+)\.md/)[1]
+        const fileBuffer = fs.readFileSync(path.resolve(guidesFolderPath, fileName))
+        const { result: fileContent } = new ConvertToUTF8(fileBuffer).convert()
+        guidesContent[key] = fileContent
+    }
     return { props: { guidesContent } }
 }
 
