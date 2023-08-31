@@ -17,6 +17,7 @@ const { registerTasks } = require('@open-condo/keystone/tasks')
 const { KeystoneTracingApp } = require('@open-condo/keystone/tracing')
 
 const { parseCorsSettings } = require('../../cors.utils')
+const { _internalGetExecutionContextAsyncLocalStorage } = require('../../executionContext')
 const { expressErrorHandler } = require('../../logging/expressErrorHandler')
 const { prepareDefaultKeystoneConfig } = require('../../setup.utils')
 
@@ -95,6 +96,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
 
         /** @type {(app: import('express').Application) => void} */
         configureExpress: (app) => {
+
             // NOTE(pahaz): we are always behind reverse proxy
             app.set('trust proxy', true)
 
@@ -105,12 +107,14 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
             const requestIdHeaderName = 'X-Request-Id'
             app.use(function reqId (req, res, next) {
                 const reqId = req.headers[requestIdHeaderName.toLowerCase()] || v4()
-                // we are expecting to receive reqId from client in order to have fully traced logs end to end
-                // also, property name are constant name, not a dynamic user input
-                // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
-                req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
-                res.setHeader(requestIdHeaderName, reqId)
-                next()
+                _internalGetExecutionContextAsyncLocalStorage().run({ reqId }, () => {
+                    // we are expecting to receive reqId from client in order to have fully traced logs end to end
+                    // also, property name are constant name, not a dynamic user input
+                    // nosemgrep: javascript.express.security.audit.remote-property-injection.remote-property-injection
+                    req['id'] = req.headers[requestIdHeaderName.toLowerCase()] = reqId
+                    res.setHeader(requestIdHeaderName, reqId)
+                    next()
+                })
             })
 
             app.use('/admin/', (req, res, next) => {

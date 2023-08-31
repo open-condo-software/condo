@@ -52,6 +52,7 @@
 const { get, cloneDeep, floor, isEqual } = require('lodash')
 const LRUCache = require('lru-cache')
 
+const { getExecutionContext } = require('./executionContext')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
@@ -198,6 +199,7 @@ class AdapterCache {
             listName,
             key,
             result,
+            context: getExecutionContext(),
         })
     }
 
@@ -416,6 +418,7 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
  */
 function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async (...args) => {
+
         cacheAPI.incrementTotal()
 
         let key = getKey(args)
@@ -438,6 +441,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                     listName,
                     key,
                     result: cachedItem,
+
                 })
 
                 const cachedResponse = cloneDeep(cachedItem.response)
