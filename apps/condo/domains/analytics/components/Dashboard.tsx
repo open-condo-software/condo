@@ -27,20 +27,18 @@ import {
     PaymentTotalChart,
 } from '@condo/domains/analytics/components/charts'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
-import { MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { usePropertyFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { parseQuery, getPageIndexFromOffset } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { QUALITY_CONTROL_VALUES } from '@condo/domains/ticket/constants/qualityControl'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { useTicketQualityTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { Incident } from '@condo/domains/ticket/utils/clientSchema'
-import { GET_TICKETS_COUNT_QUERY, searchOrganizationProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-
-import { parseQuery, getPageIndexFromOffset } from '../../common/utils/tables.utils'
+import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
@@ -372,12 +370,9 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
 }
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
-    const intl = useIntl()
-    const AllAddressesPlaceholder = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
-
     const [overview, setOverview] = useState<OverviewData>(null)
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
-    const [addressList, setAddressList] = useState<string[]>([])
+    const { values: propertyIds, SearchInput: OrganizationPropertySearch } = usePropertyFilter({ organizationId })
 
     const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
@@ -394,20 +389,17 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     organization: organizationId,
                     dateFrom: dateRange[0].toISOString(),
                     dateTo: dayjs(dateRange[1]).endOf('day').toISOString(),
-                    propertyIds: addressList,
+                    propertyIds,
                 },
                 groupBy: {
                     aggregatePeriod: 'day',
                 },
             },
         } })
-    }, [organizationId, loadDashboardData, dateRange, addressList])
+    }, [organizationId, loadDashboardData, dateRange, propertyIds])
 
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
-    }, [])
-    const onAddressChange = useCallback(labelsList => {
-        setAddressList(labelsList)
     }, [])
 
     const newTickets = get(overview, 'ticketByDay.tickets', [])
@@ -438,18 +430,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             />
                         </Col>
                         <Col span={10}>
-                            <GraphQlSearchInput
-                                allowClear
-                                search={searchOrganizationProperty(organizationId)}
-                                mode='multiple'
-                                infinityScroll
-                                value={addressList}
-                                onChange={onAddressChange}
-                                maxTagCount='responsive'
-                                maxTagTextLength={MAX_TAG_TEXT_LENGTH}
-                                placeholder={AllAddressesPlaceholder}
-                                style={{ width: '100%' }}
-                            />
+                            {OrganizationPropertySearch}
                         </Col>
                     </Row>
 
@@ -460,7 +441,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     organizationId={organizationId}
                     paymentSum={paymentSum}
                     residentsData={residentsData}
-                    propertyIds={addressList}
+                    propertyIds={propertyIds}
                     propertyData={propertyData}
                     loading={loading}
                     dateRange={dateRange}

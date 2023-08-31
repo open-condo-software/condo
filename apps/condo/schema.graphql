@@ -66303,6 +66303,19 @@ input GetOverviewDashboardWhereInput {
   dateFrom: String!
   dateTo: String!
   propertyIds: [ID]
+  executorIds: [ID]
+}
+
+enum OverviewDashboardEntities {
+  ticketByDay
+  ticketByProperty
+  ticketByCategory
+  ticketByExecutor
+  ticketQualityControlValue
+  payment
+  receipt
+  resident
+  property
 }
 
 input GetOverviewDashboardInput {
@@ -66310,6 +66323,7 @@ input GetOverviewDashboardInput {
   sender: JSON!
   where: GetOverviewDashboardWhereInput!
   groupBy: GetOverviewDashboardGroupByInput!
+  entities: [OverviewDashboardEntities]
 }
 
 type TicketOverviewTranslations {

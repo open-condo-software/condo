@@ -223,7 +223,9 @@ describe('GetOverviewDashboardService', () => {
             describe('Grouped by date', () => {
                 it('should return tickets aggregated by day', async () => {
                     const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
-                        where: { organization: organization.id, dateFrom, dateTo }, groupBy: { aggregatePeriod: 'day' },
+                        where: { organization: organization.id, dateFrom, dateTo },
+                        groupBy: { aggregatePeriod: 'day' },
+                        entities: ['ticketByDay'],
                     })
 
                     expect(data.overview.ticketByDay.tickets).toHaveLength(TICKET_STATUS_TYPES.length)

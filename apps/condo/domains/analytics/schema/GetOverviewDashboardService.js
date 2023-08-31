@@ -3,7 +3,7 @@
  */
 
 const dayjs = require('dayjs')
-const { get } = require('lodash')
+const { get, isEmpty } = require('lodash')
 
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
@@ -46,11 +46,15 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'input GetOverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String!, propertyIds: [ID] }',
+            type: 'input GetOverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String!, propertyIds: [ID], executorIds: [ID] }',
         },
         {
             access: true,
-            type: 'input GetOverviewDashboardInput { dv: Int!, sender: JSON!, where: GetOverviewDashboardWhereInput!, groupBy: GetOverviewDashboardGroupByInput! }',
+            type: 'enum OverviewDashboardEntities { ticketByDay, ticketByProperty, ticketByCategory, ticketByExecutor, ticketQualityControlValue, payment, receipt, resident, property }',
+        },
+        {
+            access: true,
+            type: 'input GetOverviewDashboardInput { dv: Int!, sender: JSON!, where: GetOverviewDashboardWhereInput!, groupBy: GetOverviewDashboardGroupByInput!, entities: [OverviewDashboardEntities] }',
         },
         {
             access: true,
@@ -103,7 +107,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
             access: access.canGetOverviewDashboard,
             schema: 'getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput',
             resolver: async (parent, args, context) => {
-                const { data: { where, groupBy } } = args
+                const { data: { where, groupBy, entities = [] } } = args
 
                 const hasFeature = await featureToggleManager.getFeatureValue(context, ANALYTICS_V3, false, {
                     organization: where.organization,
@@ -233,7 +237,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                     },
                 })
 
-                const overview = await dataProvider.loadAll()
+                const overview = isEmpty(entities) ? await dataProvider.loadAll() : await dataProvider.loadSelected(entities)
 
                 return { overview }
             },

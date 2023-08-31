@@ -22100,6 +22100,7 @@ export type GetOverviewDashboardInput = {
   sender: Scalars['JSON'];
   where: GetOverviewDashboardWhereInput;
   groupBy: GetOverviewDashboardGroupByInput;
+  entities?: Maybe<Array<Maybe<OverviewDashboardEntities>>>;
 };
 
 export type GetOverviewDashboardOutput = {
@@ -22112,6 +22113,7 @@ export type GetOverviewDashboardWhereInput = {
   dateFrom: Scalars['String'];
   dateTo: Scalars['String'];
   propertyIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  executorIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 export type GetPhoneByConfirmPhoneActionTokenInput = {
@@ -50101,6 +50103,18 @@ export type OrganizationsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<OrganizationUpdateInput>;
 };
+
+export enum OverviewDashboardEntities {
+  TicketByDay = 'ticketByDay',
+  TicketByProperty = 'ticketByProperty',
+  TicketByCategory = 'ticketByCategory',
+  TicketByExecutor = 'ticketByExecutor',
+  TicketQualityControlValue = 'ticketQualityControlValue',
+  Payment = 'payment',
+  Receipt = 'receipt',
+  Resident = 'resident',
+  Property = 'property'
+}
 
 export type OverviewData = {
   __typename?: 'OverviewData';
