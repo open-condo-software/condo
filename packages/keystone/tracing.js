@@ -10,6 +10,7 @@ const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
+const { getExecutionContext } = require('./executionContext')
 const { getLogger } = require('./logging')
 
 const DELIMETER = ':'
@@ -25,7 +26,7 @@ const tracers = {}
 
 if (IS_OTEL_TRACING_ENABLED) {
     const sdk = new otelSdk.NodeSDK({
-        serviceName: `condo${DELIMETER}${SERVER_URL.replace(/^(https?:\/)+/, '')}`,
+        serviceName: `condo${DELIMETER}${SERVER_URL.replace(/^(https?:\/\/)/, '')}`,
         traceExporter: new OTLPTraceExporter({
             url: tracesUrl,
             headers: headers,
@@ -64,6 +65,17 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
         const parsedName = typeof name === 'function' ? name(...args) : name
 
         return tracer.startActiveSpan(parsedName, async (span) => {
+            const executionContext = getExecutionContext()
+            if (executionContext.reqId) {
+                span.setAttribute('reqId', executionContext.reqId)
+            } else if (executionContext.execId) {
+                span.setAttribute('execId', executionContext.execId)
+                span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
+            } else if (executionContext.taskId) {
+                span.setAttribute('taskId', executionContext.taskId)
+                span.setAttribute('taskName', executionContext.taskName)
+            }
+
             spanHook(span, ...args)
 
             const res = await f.call(ctx, ...args)
