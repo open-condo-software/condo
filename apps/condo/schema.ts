@@ -31158,6 +31158,30 @@ export type Mutation = {
   deleteExternalTokenAccessRight?: Maybe<ExternalTokenAccessRight>;
   /**  Delete multiple ExternalTokenAccessRight items by ID.  */
   deleteExternalTokenAccessRights?: Maybe<Array<Maybe<ExternalTokenAccessRight>>>;
+  /**  Create a single UserRightsSetHistoryRecord item.  */
+  createUserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Create multiple UserRightsSetHistoryRecord items.  */
+  createUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Update a single UserRightsSetHistoryRecord item by ID.  */
+  updateUserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Update multiple UserRightsSetHistoryRecord items by ID.  */
+  updateUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Delete a single UserRightsSetHistoryRecord item by ID.  */
+  deleteUserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Delete multiple UserRightsSetHistoryRecord items by ID.  */
+  deleteUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Create a single UserRightsSet item.  */
+  createUserRightsSet?: Maybe<UserRightsSet>;
+  /**  Create multiple UserRightsSet items.  */
+  createUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
+  /**  Update a single UserRightsSet item by ID.  */
+  updateUserRightsSet?: Maybe<UserRightsSet>;
+  /**  Update multiple UserRightsSet items by ID.  */
+  updateUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
+  /**  Delete a single UserRightsSet item by ID.  */
+  deleteUserRightsSet?: Maybe<UserRightsSet>;
+  /**  Delete multiple UserRightsSet items by ID.  */
+  deleteUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
   /**  Create a single OrganizationHistoryRecord item.  */
   createOrganizationHistoryRecord?: Maybe<OrganizationHistoryRecord>;
   /**  Create multiple OrganizationHistoryRecord items.  */
@@ -36442,6 +36466,68 @@ export type MutationDeleteExternalTokenAccessRightArgs = {
 
 
 export type MutationDeleteExternalTokenAccessRightsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserRightsSetHistoryRecordArgs = {
+  data?: Maybe<UserRightsSetHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateUserRightsSetHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserRightsSetHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateUserRightsSetHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserRightsSetHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserRightsSetHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserRightsSetArgs = {
+  data?: Maybe<UserRightsSetCreateInput>;
+};
+
+
+export type MutationCreateUserRightsSetsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserRightsSetArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetUpdateInput>;
+};
+
+
+export type MutationUpdateUserRightsSetsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserRightsSetArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserRightsSetsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -53950,6 +54036,22 @@ export type Query = {
   _allExternalTokenAccessRightsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ExternalTokenAccessRight list.  */
   _ExternalTokenAccessRightsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserRightsSetHistoryRecord items which match the where clause.  */
+  allUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Search for the UserRightsSetHistoryRecord item with the matching ID.  */
+  UserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Perform a meta-query on all UserRightsSetHistoryRecord items which match the where clause.  */
+  _allUserRightsSetHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserRightsSetHistoryRecord list.  */
+  _UserRightsSetHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserRightsSet items which match the where clause.  */
+  allUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
+  /**  Search for the UserRightsSet item with the matching ID.  */
+  UserRightsSet?: Maybe<UserRightsSet>;
+  /**  Perform a meta-query on all UserRightsSet items which match the where clause.  */
+  _allUserRightsSetsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserRightsSet list.  */
+  _UserRightsSetsMeta?: Maybe<_ListMeta>;
   /**  Search for all OrganizationHistoryRecord items which match the where clause.  */
   allOrganizationHistoryRecords?: Maybe<Array<Maybe<OrganizationHistoryRecord>>>;
   /**  Search for the OrganizationHistoryRecord item with the matching ID.  */
@@ -56100,6 +56202,56 @@ export type Query_AllExternalTokenAccessRightsMetaArgs = {
   where?: Maybe<ExternalTokenAccessRightWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortExternalTokenAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserRightsSetHistoryRecordsArgs = {
+  where?: Maybe<UserRightsSetHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserRightsSetHistoryRecordArgs = {
+  where: UserRightsSetHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllUserRightsSetHistoryRecordsMetaArgs = {
+  where?: Maybe<UserRightsSetHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserRightsSetsArgs = {
+  where?: Maybe<UserRightsSetWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserRightsSetArgs = {
+  where: UserRightsSetWhereUniqueInput;
+};
+
+
+export type Query_AllUserRightsSetsMetaArgs = {
+  where?: Maybe<UserRightsSetWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -72087,6 +72239,48 @@ export enum SortUserHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortUserRightsSetHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortUserRightsSetsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortUserTicketCommentReadTimeHistoryRecordsBy {
   ReadCommentAtAsc = 'readCommentAt_ASC',
   ReadCommentAtDesc = 'readCommentAt_DESC',
@@ -72158,6 +72352,8 @@ export enum SortUsersBy {
   LocaleDesc = 'locale_DESC',
   ShowGlobalHintsAsc = 'showGlobalHints_ASC',
   ShowGlobalHintsDesc = 'showGlobalHints_DESC',
+  RightsSetAsc = 'rightsSet_ASC',
+  RightsSetDesc = 'rightsSet_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -81237,6 +81433,8 @@ export type User = {
   customAccess?: Maybe<CustomAccess>;
   /**  Show global hints in CRM or not  */
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  /**  A set of permissions that allow the user to directly read or manage certain schemas as well as run certain mutations.  */
+  rightsSet?: Maybe<UserRightsSet>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -81274,6 +81472,7 @@ export type UserCreateInput = {
   locale?: Maybe<UserLocaleType>;
   customAccess?: Maybe<CustomAccessInput>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<UserRightsSetRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82016,6 +82215,7 @@ export type UserHistoryRecord = {
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -82047,6 +82247,7 @@ export type UserHistoryRecordCreateInput = {
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82083,6 +82284,7 @@ export type UserHistoryRecordUpdateInput = {
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82234,6 +82436,10 @@ export type UserHistoryRecordWhereInput = {
   customAccess_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
   showGlobalHints_not?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
+  rightsSet_not?: Maybe<Scalars['String']>;
+  rightsSet_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  rightsSet_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -82335,6 +82541,337 @@ export type UserRelateToOneInput = {
   connect?: Maybe<UserWhereUniqueInput>;
   disconnect?: Maybe<UserWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+/**  A set of rights that allows one user or a group of users to gain direct access to objects of a particular schema and to perform certain mutations  */
+export type UserRightsSet = {
+  __typename?: 'UserRightsSet';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserRightsSet List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserRightsSet List config, or
+   *  3. As an alias to a 'name' field on the UserRightsSet List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserRightsSet List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  A name that distinguishes this group of rights from others and describes the set of rights that users of this group receive. For example: "Full access to mini-applications", "Level 1 Support", "Read all organizations", etc  */
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type UserRightsSetCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type UserRightsSetHistoryRecord = {
+  __typename?: 'UserRightsSetHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserRightsSetHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserRightsSetHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the UserRightsSetHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserRightsSetHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserRightsSetHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum UserRightsSetHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type UserRightsSetHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserRightsSetHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<UserRightsSetHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserRightsSetHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<UserRightsSetHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<UserRightsSetHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type UserRightsSetHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserRightsSetHistoryRecordsCreateInput = {
+  data?: Maybe<UserRightsSetHistoryRecordCreateInput>;
+};
+
+export type UserRightsSetHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetHistoryRecordUpdateInput>;
+};
+
+export type UserRightsSetRelateToOneInput = {
+  create?: Maybe<UserRightsSetCreateInput>;
+  connect?: Maybe<UserRightsSetWhereUniqueInput>;
+  disconnect?: Maybe<UserRightsSetWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type UserRightsSetUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type UserRightsSetWhereInput = {
+  AND?: Maybe<Array<Maybe<UserRightsSetWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserRightsSetWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type UserRightsSetWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserRightsSetsCreateInput = {
+  data?: Maybe<UserRightsSetCreateInput>;
+};
+
+export type UserRightsSetsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetUpdateInput>;
 };
 
 /**  Time when a comment from a resident was last read by a specific user in a specific ticket  */
@@ -82711,6 +83248,7 @@ export type UserUpdateInput = {
   locale?: Maybe<UserLocaleType>;
   customAccess?: Maybe<CustomAccessInput>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<UserRightsSetRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82810,6 +83348,8 @@ export type UserWhereInput = {
   customAccess_not_in?: Maybe<Array<Maybe<CustomAccessInput>>>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
   showGlobalHints_not?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<UserRightsSetWhereInput>;
+  rightsSet_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;

@@ -1,7 +1,7 @@
 /**
  * Set of schemas available for direct access by specific users, similar to support / admin.
  *
- * Note that adding a schema to this config will automatically add the required fields to the UserRightSet schema,
+ * Note that adding a schema to this config will automatically add the required fields to the UserRightsSet schema,
  * but accesses will not work automatically!
  * To do this, you need to explicitly add one of the utilities from "@condo/domains/user/utils/access" to the model accesses.
  *

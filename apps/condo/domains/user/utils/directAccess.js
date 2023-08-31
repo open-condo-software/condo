@@ -61,7 +61,7 @@ function generateFieldNames (config) {
 }
 
 /**
- * Generates a set of Keystone fields based on provided config. Obtained fields are used to form UserRightSet schema.
+ * Generates a set of Keystone fields based on provided config. Obtained fields are used to form UserRightsSet schema.
  * @typedef {{ schemaDoc: string, type: 'Checkbox', defaultValue: false, isRequired: true }} CheckboxField
  * @param {DirectAccessConfig} config
  * @return {Record<string, CheckboxField>}
@@ -74,14 +74,14 @@ function generateRightSetFields (config) {
         fields[generateReadSchemaField(listConfig.schemaName)] = {
             ...DEFAULT_CHECKBOX_FIELD,
             schemaDoc:
-                `Enables a user with the given UserRightSet to view all entities of model "${listConfig.schemaName}" ` +
+                `Enables a user with the given UserRightsSet to view all entities of model "${listConfig.schemaName}" ` +
                 'as support / admin users do',
         }
         if (!listConfig.readonly) {
             fields[generateManageSchemaField(listConfig.schemaName)] = {
                 ...DEFAULT_CHECKBOX_FIELD,
                 schemaDoc:
-                    'Enables a user with the given UserRightSet to ' +
+                    'Enables a user with the given UserRightsSet to ' +
                     `create, update or soft-delete entities of model "${listConfig.schemaName}" ` +
                     'similar to support users',
             }
@@ -91,7 +91,7 @@ function generateRightSetFields (config) {
     for (const serviceName of config.services) {
         fields[generateExecuteServiceField(serviceName)] = {
             ...DEFAULT_CHECKBOX_FIELD,
-            schemaDoc: `Enables a user with the given UserRightSet to execute "${serviceName}" query/mutation`,
+            schemaDoc: `Enables a user with the given UserRightsSet to execute "${serviceName}" query/mutation`,
         }
     }
 
