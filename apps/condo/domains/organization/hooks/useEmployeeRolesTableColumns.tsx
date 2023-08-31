@@ -19,16 +19,7 @@ import {
     PROPERTY_TICKET_VISIBILITY,
 } from '../constants/common'
 
-
-interface IRolePermissionsData {
-    roleID: string
-    roleName: string
-
-}
-
-export function useEmployeeRolesTableColumns (roles): Array<Record<string, unknown>> {
-    const intl = useIntl()
-
+export function useEmployeeRolesTableColumns (roles: OrganizationEmployeeRole[]): Array<Record<string, unknown>> {
     return [
         {
             dataIndex: 'groupName',
