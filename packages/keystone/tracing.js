@@ -13,6 +13,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('./logging')
 
 const DELIMETER = ':'
+const SERVER_URL = conf.SERVER_URL
 const KEYSTONE_MUTATION_QUERY_REGEX = /(?:mutation|query)\s+(\w+)/
 
 const IS_OTEL_TRACING_ENABLED = conf.IS_OTEL_TRACING_ENABLED === '1'
@@ -24,7 +25,7 @@ const tracers = {}
 
 if (IS_OTEL_TRACING_ENABLED) {
     const sdk = new otelSdk.NodeSDK({
-        serviceName: 'condo',
+        serviceName: `condo${DELIMETER}${SERVER_URL.replace(/^(https?:\/)+/, '')}`,
         traceExporter: new OTLPTraceExporter({
             url: tracesUrl,
             headers: headers,
@@ -40,7 +41,7 @@ if (IS_OTEL_TRACING_ENABLED) {
         instrumentations: [
             new HttpInstrumentation(),
             new PgInstrumentation(),
-            new IORedisInstrumentation,
+            new IORedisInstrumentation(),
         ],
     })
 
