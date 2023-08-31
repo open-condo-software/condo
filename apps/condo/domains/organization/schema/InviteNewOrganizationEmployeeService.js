@@ -1,6 +1,7 @@
 const passwordGenerator = require('generate-password')
 const get = require('lodash/get')
 
+const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 const { getById } = require('@open-condo/keystone/schema')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
@@ -11,6 +12,7 @@ const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE, DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 
@@ -179,6 +181,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const organizationName = get(userOrganization, 'name')
                 const organizationId = get(userOrganization, 'id')
                 const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
+                const serverUrl = userOrganization.type === HOLDING_TYPE && get(conf, 'CC_DOMAIN') ? conf['CC_DOMAIN'] : conf['SERVER_URL']
 
                 await sendMessage(context, {
                     lang: organizationCountry,
@@ -189,6 +192,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     },
                     type,
                     meta: {
+                        serverUrl,
                         organizationName,
                         dv: 1,
                     },
@@ -239,6 +243,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const organizationName = get(employeeOrganization, 'name')
                 const organizationId = get(employeeOrganization, 'id')
                 const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
+                const serverUrl = employeeOrganization.type === HOLDING_TYPE && get(conf, 'CC_DOMAIN') ? conf['CC_DOMAIN'] : conf['SERVER_URL']
 
                 await sendMessage(context, {
                     lang: organizationCountry,
@@ -249,6 +254,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     },
                     type,
                     meta: {
+                        serverUrl,
                         organizationName,
                         dv: 1,
                     },
