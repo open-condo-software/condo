@@ -26,6 +26,8 @@ import { Poster } from '@condo/domains/common/components/Poster'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { PosterWrapper } from '@condo/domains/user/components/containers/styles'
 
+import type { GetServerSideProps } from 'next'
+
 
 const LOGO_HEADER_STYLES = { width: '100%', justifyContent: 'space-between' }
 const HEADER_LOGO_STYLE: React.CSSProperties = { cursor: 'pointer' }
@@ -438,7 +440,11 @@ TlsPage.container = (props) => (
     />
 )
 
-export const getServerSideProps = ({ req }) => {
+type Result = {
+    guidesContent: GuidesContent
+}
+
+export const getServerSideProps: GetServerSideProps<Result> = async ({ req }) => {
     const extractedLocale = extractReqLocale(req)
     // Ensures that locale is finally taken only from constants to prevent using kind of "user input" in file traversing
     const localeIndex = Object.keys(LOCALES).indexOf(extractedLocale)
