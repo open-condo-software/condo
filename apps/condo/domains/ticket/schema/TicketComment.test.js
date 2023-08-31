@@ -1162,9 +1162,10 @@ describe('TicketComment', () => {
                 expect(objUpdated.v).toEqual(2)
 
                 const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-                const messages = await Message.getAll(admin, messageWhere)
 
                 await waitFor(async () => {
+                    const messages = await Message.getAll(admin, messageWhere)
+
                     expect(messages).toHaveLength(1)
                     expect(messages[0].organization.id).toEqual(ticket.organization.id)
                 })
@@ -1227,7 +1228,7 @@ describe('TicketComment', () => {
                 expect(ticketComment.id).toMatch(UUID_RE)
                 expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
                 expect(ticketComment.content).toMatch(content)
-                
+
                 await waitFor(async () => {
                     const messageForExecutor = await Message.getOne(admin, { user: { id: executorUserId }, type: TICKET_COMMENT_ADDED_TYPE })
                     expect(messageForExecutor.status).toEqual(MESSAGE_SENT_STATUS)
