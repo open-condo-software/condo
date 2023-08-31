@@ -801,16 +801,11 @@ describe('DiscoverServiceConsumersService', () => {
             // Billings accounts numbers for managing organization
             const resident1ManagingAccountNumber = `resident1Managing_${faker.random.alphaNumeric(10)}`
             const resident2ManagingAccountNumber = `resident2Managing_${faker.random.alphaNumeric(10)}`
-            const resident3ManagingAccountNumber = `resident3Managing_${faker.random.alphaNumeric(10)}`
-            const resident4ManagingAccountNumber = `resident4Managing_${faker.random.alphaNumeric(10)}`
-            const resident5ManagingAccountNumber = `resident5Managing_${faker.random.alphaNumeric(10)}`
 
             // Billings accounts numbers for service organization
             const resident1ServiceAccountNumber = `resident1Service_${faker.random.alphaNumeric(10)}`
             const resident2ServiceAccountNumber = `resident2Service_${faker.random.alphaNumeric(10)}`
             const resident3ServiceAccountNumber = `resident3Service_${faker.random.alphaNumeric(10)}`
-            const resident4ServiceAccountNumber = `resident4Service_${faker.random.alphaNumeric(10)}`
-            const resident5ServiceAccountNumber = `resident5Service_${faker.random.alphaNumeric(10)}`
 
             // List of categories for receipts
             const category0 = { id: PAYMENT_CATEGORIES_META[0].uuid }
