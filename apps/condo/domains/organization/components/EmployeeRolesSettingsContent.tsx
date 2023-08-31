@@ -34,18 +34,18 @@ const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
 type TableCheckboxProps = {
     tableData: PermissionsGroup[]
-    setTableData: Dispatch<SetStateAction<PermissionsGroup>>
-    outerRecord: PermissionsGroup
-    innerRecord: PermissionRow
+    setTableData: Dispatch<SetStateAction<PermissionsGroup[]>>
+    permissionsGroup: PermissionsGroup
+    permissionRow: PermissionRow
     employeeRole: OrganizationEmployeeRoleType
 }
 
-const Check: React.FC<TableCheckboxProps> = ({ tableData, setTableData, outerRecord, innerRecord, employeeRole }) => {
+const Check: React.FC<TableCheckboxProps> = ({ tableData, setTableData, permissionsGroup, permissionRow, employeeRole }) => {
     const permissionsFromState: PermissionsGroup = tableData.find(
-        rowGroup => rowGroup.id === outerRecord.id
+        rowGroup => rowGroup.id === permissionsGroup.id
     )
     const permissions = permissionsFromState.permissions.find(
-        permission => permission.id === innerRecord.id
+        permission => permission.id === permissionRow.id
     )
     const permission = permissions.employeeRolesPermission.find(
         permission => permission.employeeRoleId === employeeRole.id
@@ -57,7 +57,6 @@ const Check: React.FC<TableCheckboxProps> = ({ tableData, setTableData, outerRec
 
         setTableData(prevData => ({
             ...prevData,
-
         }))
 
         // if (permission.isReadPermission) {
@@ -93,17 +92,13 @@ type PermissionRow = {
     key: string,
     name: string,
     relatedPermissionKeys?: string[]
-    employeeRolesPermission: {
-        [employeeRoleId: string]: PermissionCell
-    }
+    employeeRolesPermission: PermissionCell[]
 }
 
 type PermissionsGroup = {
     id: string,
     groupName: string
-    permissions: {
-        [permissionKey: string]: PermissionRow,
-    }
+    permissions: PermissionRow[],
 }
 
 type EmployeeRolesTableProps = {
@@ -125,9 +120,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
     const initialTableData: PermissionsGroup[] = useMemo(() => connectedB2BApps.map((b2bApp): PermissionsGroup => ({
         id: b2bApp.id,
         groupName: b2bApp.name,
-        permissions: {
+        permissions: [
             // фейковое право `canRead${b2bApp.id}` через b2bAppRole
-            [`canRead${b2bApp.id}`]: {
+            {
                 groupId: b2bApp.id,
                 id: `canRead${b2bApp.id}`,
                 key: `canRead${b2bApp.id}`,
@@ -146,12 +141,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                         }
 
                         return result
-                    })
-                    .reduce((acc, permissionCell) =>
-                        ({ ...acc, [permissionCell.employeeRoleId]: permissionCell }), {}
-                    ),
+                    }),
             },
-            ...(b2BAppPermissions.map((permission): PermissionRow => ({
+            ...b2BAppPermissions.map((permission): PermissionRow => ({
                 groupId: b2bApp.id,
                 id: permission.id,
                 key: permission.key,
@@ -170,15 +162,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                         }
 
                         return result
-                    })
-                    .reduce((acc, permissionCell) =>
-                        ({ ...acc, [permissionCell.employeeRoleId]: permissionCell }), {}
-                    ),
-            }))
-                .reduce((acc, permission) =>
-                    ({ ...acc, [permission.key]: permission }), {}
-                )),
-        },
+                    }),
+            })),
+        ],
     })), [b2BAppPermissions, b2BAppRoles, connectedB2BApps, employeeRoles])
 
     const [tableData, setTableData] = useState<PermissionsGroup[]>(initialTableData)
@@ -187,6 +173,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
             setTableData(initialTableData)
         }
     }, [initialTableData])
+
+    console.log('tableData', tableData)
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -230,9 +218,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                             ) : (
                                 <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
                             ),
-                        expandedRowRender: (outerRecord: PermissionsGroup) => {
-                            const permissionRows = outerRecord.permissions
-                            const permissionsList = outerRecord.permissions
+                        expandedRowRender: (permissionsGroup: PermissionsGroup) => {
+                            const permissionRows = permissionsGroup.permissions
 
                             console.log('permissionRows', permissionRows)
 
@@ -243,9 +230,15 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                                 },
                                 ...employeeRoles.map(employeeRole => {
                                     return {
-                                        render: (innerRecord: PermissionRow) => {
-                                            console.log('innerRecord', innerRecord)
-                                            return <Check/>
+                                        render: (permissionRow: PermissionRow) => {
+                                            console.log('permissionRow', permissionRow)
+                                            return <Check
+                                                tableData={tableData}
+                                                setTableData={setTableData}
+                                                permissionsGroup={permissionsGroup}
+                                                permissionRow={permissionRow}
+                                                employeeRole={employeeRole}
+                                            />
                                         },
                                     }
                                 }),
