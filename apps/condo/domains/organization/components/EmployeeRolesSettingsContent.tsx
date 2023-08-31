@@ -8,7 +8,8 @@ import {
 import { Col, Row, Typography } from 'antd'
 import { Table as AntdTable } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { set } from 'lodash'
+import { mergeWith, set } from 'lodash'
+import { isEqual } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
@@ -74,17 +75,18 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
 
     if (isB2bPermission) {
         pathToPermissions = [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions']
-        value = get(permissionState, [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions', permissionKey], false)
+        value = get(permissionState, [...pathToPermissions, permissionKey], false)
     } else {
         pathToPermissions = [employeeRoleId, 'organizationPermissions']
-        value = get(permissionState, [employeeRoleId, 'organizationPermissions', permissionKey], false)
+        value = get(permissionState, [...pathToPermissions, permissionKey], false)
     }
 
     const onChange = useCallback((e) => {
         const newValue = e.target.checked
-        const newState = Object.assign({}, permissionState)
+        const newState = cloneDeep(permissionState)
         const oldPermissions = get(newState, pathToPermissions)
         let newPermissions
+        let removedPermissionsToCheck = [permissionKey]
 
         if (isReadPermission) {
             if (newValue) {
@@ -94,6 +96,7 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
                 // drop all checkboxes in app group and delete role after save click
                 newPermissions = Object.keys(oldPermissions)
                     .reduce((acc, permission) => ({ ...acc, [permission]: false }), {})
+                removedPermissionsToCheck = Object.keys(oldPermissions)
             }
         } else {
             if (newValue) {
@@ -104,9 +107,25 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
             }
         }
 
-        //TODO: add check that at least one employee role has permission (take permissionKey and find it's in permissionState)
-
         set(newState, pathToPermissions, newPermissions)
+
+        // check that at least one employee role has permission
+        if (!newValue) {
+            const pathToPermissionsFromEmployeeRole = pathToPermissions.splice(1)
+
+            for (const removedPermissionKey of removedPermissionsToCheck) {
+                const hasAtLeastOneActiveCheckboxInRow = Object.keys(newState).find(employeeRoleId => {
+                    const employeePermission = get(newState, [employeeRoleId, ...pathToPermissionsFromEmployeeRole, removedPermissionKey], false)
+
+                    return employeePermission === true
+                })
+
+                if (!hasAtLeastOneActiveCheckboxInRow) {
+                    return
+                }
+            }
+        }
+
         setPermissionState(newState)
     }, [isReadPermission, pathToPermissions, permissionKey, permissionState, setPermissionState])
 
@@ -254,10 +273,26 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
     const [permissionState, setPermissionState] = useState<PermissionState>(cloneDeep(initialPermissionState))
 
     const handleCancel = useCallback(() => {
-        setPermissionState(initialPermissionState)
+        setPermissionState(cloneDeep(initialPermissionState))
     }, [initialPermissionState])
 
-    console.log('permissionState', initialPermissionState, permissionState)
+    const handleSave = useCallback(() => {
+        // type PermissionState = {
+        //     [roleId: string]: {
+        //         organizationPermissions: PermissionsType,
+        //         b2bAppRoles: {
+        //             [b2bAppId: string]: {
+        //                 roleId: string,
+        //                 permissions: PermissionsType
+        //             }
+        //         }
+        //     }
+        // }
+
+
+    }, [])
+
+    // console.log('permissionState', initialPermissionState, permissionState)
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -344,7 +379,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                 actions={[
                     <Button
                         key='submit'
-                        // onClick={handleSave}
+                        onClick={handleSave}
                         type='primary'
                     >
                         Сохранить
