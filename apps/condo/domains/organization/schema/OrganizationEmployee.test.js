@@ -91,6 +91,20 @@ describe('OrganizationEmployee', () => {
         })
     })
 
+    test('support: cannot create OrganizationEmployee if role from other organization', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        const [organization2] = await createTestOrganization(admin)
+        const [roleFromOtherOrganization] = await createTestOrganizationEmployeeRole(admin, organization2)
+        const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const support = await makeClientWithSupportUser()
+
+        await expectToThrowAccessDeniedErrorToObj(async () => {
+            await createTestOrganizationEmployee(support, organization, user, roleFromOtherOrganization)
+        })
+    })
+
     test('user: cannot create OrganizationEmployee', async () => {
         const { userClient, organization, role } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee({
             canManageEmployees: true,
