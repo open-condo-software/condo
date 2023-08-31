@@ -257,7 +257,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
     // Step 1: Preprocess lists.
-    const relations = {}        // list -> [{list, path, many}]
+    const relations = {}               // list -> [{list, path, many}]
     const manyRefs = new Set()  // lists that are referenced in many: true relations
     const manyLists = new Set() // lists that have many: true relations
 
