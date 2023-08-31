@@ -11,16 +11,22 @@ const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const {
+    CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS,
+} = require('@condo/domains/acquiring/constants/context')
+const {
     completeTestPayment,
     createTestAcquiringIntegrationContext,
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
-const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, makeClientWithResidentAndServiceConsumer } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestContact,
     updateTestContact,
 } = require('@condo/domains/contact/utils/testSchema')
+const {
+    CONTEXT_FINISHED_STATUS: BILLING_CONTEXT_FINISHED_STATUS,
+} = require('@condo/domains/miniapp/constants')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerServiceConsumerByTestClient, updateTestServiceConsumer, registerResidentByTestClient, createTestResident, ServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -30,6 +36,43 @@ const { createTestBillingIntegration, createTestBillingReceipt, updateTestBillin
     generateServicesData, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE,
 } = require('../utils/testSchema')
 
+const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
+const OVERHAUL_CATEGORY = 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195'
+
+// TODO(zuch): After hotfix rewrite tests using beforeAll with this function
+async function init () {
+    const data = {
+        admin: null,
+        userClient: null,
+        supportClient: null,
+        integrationClient: null,
+        organization: null,
+        property: null,
+        billingContext: null,
+        acquiringContext: null,
+    }
+    data.admin = await makeLoggedInAdminClient()
+    const { organization, property, ...userClient } =  await makeClientWithProperty()
+    data.userClient = userClient
+    data.organization = organization
+    data.property = property
+    data.supportClient = await makeClientWithSupportUser()
+    const [integration] = await createTestBillingIntegration(data.supportClient, { isTrustedBankAccountSource: true })
+    const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, organization, integration, {
+        status: BILLING_CONTEXT_FINISHED_STATUS,
+    })
+    data.billingContext = billingContext
+    const [acquiringIntegration] = await createTestAcquiringIntegration(data.supportClient, {
+        canGroupReceipts: true,
+    })
+    const [acquiringContext] = await createTestAcquiringIntegrationContext(userClient, organization, acquiringIntegration, {
+        status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+    })
+    data.acquiringContext = acquiringContext
+    data.integrationClient = await makeClientWithServiceUser()
+    await createTestBillingIntegrationAccessRight(data.supportClient, integration, data.integrationClient.user)
+    return data
+}
 
 describe('AllResidentBillingReceiptsService', () => {
 
@@ -95,6 +138,58 @@ describe('AllResidentBillingReceiptsService', () => {
                 expect(receipt).toHaveProperty('services')
                 expect(receipt.services).not.toBeNull()
             })
+        })
+
+        it('should correctly set serviceConsumer to output result for several organizations on the same address with equal account number', async () => {
+            const data = await init()
+            const [dataProperty] = await createTestProperty(data.userClient, data.organization)
+            const [dataBillingProperty] = await createTestBillingProperty(data.integrationClient, data.billingContext, {
+                address: dataProperty.address,
+            })
+            const [dataBillingAccount] = await createTestBillingAccount(data.integrationClient, data.billingContext, dataBillingProperty)
+            const [overhaulReceipt] = await createTestBillingReceipt(data.integrationClient, data.billingContext, dataBillingProperty, dataBillingAccount, {
+                category: { connect: { id: OVERHAUL_CATEGORY } },
+            })
+            const { organization, ...userClient } =  await makeClientWithProperty()
+            const [integration] = await createTestBillingIntegration(data.supportClient, { isTrustedBankAccountSource: true })
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(userClient, organization, integration, {
+                status: BILLING_CONTEXT_FINISHED_STATUS,
+            })
+            const [acquiringIntegration] = await createTestAcquiringIntegration(data.supportClient, {
+                canGroupReceipts: true,
+            })
+            await createTestAcquiringIntegrationContext(userClient, organization, acquiringIntegration, {
+                status: ACQUIRING_CONTEXT_FINISHED_STATUS,
+            })
+            await createTestBillingIntegrationAccessRight(data.supportClient, integration, data.integrationClient.user)
+            const [property] = await createTestProperty(userClient, organization, {
+                address: dataProperty.address,
+            })
+            const [billingProperty] = await createTestBillingProperty(data.integrationClient, billingContext, {
+                address: property.address,
+            })
+            const [billingAccount] = await createTestBillingAccount(data.integrationClient, billingContext, billingProperty, {
+                number: dataBillingAccount.number,
+                unitName: dataBillingAccount.unitName,
+                unitType: dataBillingAccount.unitType,
+            })
+            const [housingReceipt] = await createTestBillingReceipt(data.integrationClient, billingContext, billingProperty, billingAccount, {
+                category: { connect: { id: HOUSING_CATEGORY } },
+            })
+            const { serviceConsumer: serviceConsumer1, ...residentClient } = await makeClientWithResidentAndServiceConsumer(dataProperty, dataBillingAccount, data.organization)
+            const [anotherResident] = await registerResidentByTestClient(residentClient, {
+                address: property.address,
+                addressMeta: property.addressMeta,
+                unitName: billingAccount.unitName,
+            })
+            const [serviceConsumer2] = await registerServiceConsumerByTestClient(residentClient, {
+                residentId: anotherResident.id,
+                accountNumber: billingAccount.number,
+                organizationId: organization.id,
+            })
+            const receipts = await ResidentBillingReceipt.getAll(residentClient)
+            expect(receipts.some(({ id, serviceConsumer }) => id === overhaulReceipt.id && serviceConsumer.id === serviceConsumer1.id )).toBeTruthy()
+            expect(receipts.some(({ id, serviceConsumer }) => id === housingReceipt.id && serviceConsumer.id === serviceConsumer2.id)).toBeTruthy()
         })
 
         it('returns public file', async () => {
