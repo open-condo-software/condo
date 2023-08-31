@@ -1860,6 +1860,7 @@
   "api.organization.reInviteOrganizationEmployee.USER_NOT_FOUND": "Could not find user using specified contacts",
   "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND": "Could not employee using specified contacts",
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Specified employee has already accepted invitation",
+  "api.organizationEmployee.NOT_FOUND_ROLE": "Role not found for your organization",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Invalid phone number format",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Incorrect propertyId was provided. Please check that this id related to passed organizationId",
   "api.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED": "The end of the work cannot be earlier than the start",

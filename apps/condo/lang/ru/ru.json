@@ -1860,6 +1860,7 @@
   "api.organization.reInviteOrganizationEmployee.USER_NOT_FOUND": "Не найден пользователь по указанным контактам",
   "api.organization.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND": "Не найден сотрудник по указанным контактам",
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Указанный сотрудник уже принял приглашение",
+  "api.organizationEmployee.NOT_FOUND_ROLE": "Роль не найдена в вашей организаии",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Некорректный формат номера телефона",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Неверное значение propertyId. Данный дом не принадлежит выбранной организации",
   "api.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED": "Окончание работ не может быть раньше начала",

@@ -8,10 +8,9 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
-    expectToThrowInternalError,
+    expectToThrowUniqueConstraintViolationError, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
-const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     OrganizationEmployee,
     createTestOrganizationEmployee,
@@ -75,33 +74,21 @@ describe('OrganizationEmployee', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
     })
 
-    test('support: cannot create OrganizationEmployee for one user in one organization twice', async () => {
+    test('support: cannot create OrganizationEmployee without user', async () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
         const [role] = await createTestOrganizationEmployeeRole(admin, organization)
-        const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
-
-        const support = await makeClientWithSupportUser()
-        const [obj] = await createTestOrganizationEmployee(support, organization, user, role)
-
-        expect(obj.id).toBeDefined()
-
-        await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestOrganizationEmployee(support, organization, user, role)
-        })
-    })
-
-    test('support: cannot create OrganizationEmployee if role from other organization', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [organization] = await createTestOrganization(admin)
-        const [organization2] = await createTestOrganization(admin)
-        const [roleFromOtherOrganization] = await createTestOrganizationEmployeeRole(admin, organization2)
-        const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
 
         const support = await makeClientWithSupportUser()
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await createTestOrganizationEmployee(support, organization, user, roleFromOtherOrganization)
+            await OrganizationEmployee.create(support, {
+                dv: 1,
+                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                email: faker.internet.email(),
+                organization: { connect: { id: organization.id } },
+                role: { connect: { id: role.id } },
+            })
         })
     })
 
@@ -583,6 +570,70 @@ describe('OrganizationEmployee', () => {
         })
     })
 
+    describe('Validations', () => {
+        test('cannot create employee with role from other organization', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [organization2] = await createTestOrganization(admin)
+            const [roleFromOtherOrganization] = await createTestOrganizationEmployeeRole(admin, organization2)
+            const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            await expectToThrowGQLError(async () => {
+                await createTestOrganizationEmployee(admin, organization, user, roleFromOtherOrganization)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'NOT_FOUND',
+                variable: ['data', 'role'],
+                message: 'Role not found for the specified organization',
+                messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+            })
+        })
+        test('cannot update an employee\'s role to a role from another organization', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [organization2] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+            const [roleFromOtherOrganization] = await createTestOrganizationEmployeeRole(admin, organization2)
+            const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user, role)
+
+            expect(employee.id).toBeDefined()
+            expect(employee.role.id).toEqual(role.id)
+
+            await expectToThrowGQLError(async () => {
+                await updateTestOrganizationEmployee(admin, employee.id, {
+                    role: { connect: { id: roleFromOtherOrganization.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'NOT_FOUND',
+                variable: ['data', 'role'],
+                message: 'Role not found for the specified organization',
+                messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+            })
+        })
+        test('can update an employee\'s role to a role from current organization', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+            const [role2] = await createTestOrganizationEmployeeRole(admin, organization)
+            const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user, role)
+
+            expect(employee.id).toBeDefined()
+            expect(employee.role.id).toEqual(role.id)
+
+            const [updatedEmployee] = await updateTestOrganizationEmployee(admin, employee.id, {
+                role: { connect: { id: role2.id } },
+            })
+
+            expect(updatedEmployee.id).toBeDefined()
+            expect(updatedEmployee.role.id).toEqual(role2.id)
+        })
+    })
+
     describe('Constraint', () => {
         describe('OrganizationEmployee_unique_user_and_organization constraint', () => {
             test('cannot create 2 organization employees with same user and organization fields', async () => {
@@ -593,9 +644,9 @@ describe('OrganizationEmployee', () => {
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
                 await createTestOrganizationEmployee(admin, organization, user.user, role)
 
-                await expectToThrowInternalError(async () => {
+                await expectToThrowUniqueConstraintViolationError(async () => {
                     await createTestOrganizationEmployee(admin, organization, user.user, role)
-                }, `${UNIQUE_CONSTRAINT_ERROR} "OrganizationEmployee_unique_user_and_organization"`)
+                }, 'OrganizationEmployee_unique_user_and_organization')
 
             })
 
