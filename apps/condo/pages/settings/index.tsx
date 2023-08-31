@@ -38,7 +38,7 @@ import {
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_EMPLOYEE_ROLES, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
@@ -58,15 +58,20 @@ const SettingsPage: React.FC = () => {
     
     const userOrganization = useOrganization()
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
+    const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles']), [userOrganization])
+    // NOTE: canManageContactRoles check in canManageMobileFeatureConfigsRoles???
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
 
     const tabKeysToDisplay = useMemo(() => {
-        const result = ALWAYS_AVAILABLE_TABS
-        if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
-        if (canManageContactRoles) result.push(SETTINGS_TAB_CONTACT_ROLES)
-        if (canManageMobileFeatureConfigsRoles) result.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
-        return result
-    }, [hasSubscriptionFeature, canManageContactRoles, canManageMobileFeatureConfigsRoles])
+        const availableTabs = ALWAYS_AVAILABLE_TABS
+
+        if (hasSubscriptionFeature) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
+        if (canManageContactRoles) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
+        if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
+        if (canManageEmployeeRoles) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
+
+        return availableTabs
+    }, [hasSubscriptionFeature, canManageContactRoles, canManageEmployeeRoles, canManageMobileFeatureConfigsRoles])
 
     const settingsTabs: TabItem[] = useMemo(
         () => [
