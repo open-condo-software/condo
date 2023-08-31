@@ -11,7 +11,6 @@ const { get } = require('lodash')
 const conf = require('@open-condo/config')
 
 const { getExecutionContext } = require('./executionContext')
-const { getLogger } = require('./logging')
 
 const DELIMETER = ':'
 const SERVER_URL = conf.SERVER_URL
@@ -156,7 +155,6 @@ class KeystoneTracingApp {
         this._patchKeystoneAdapter(tracer, keystone)
     }
 }
-
 
 module.exports = {
     KeystoneTracingApp,
