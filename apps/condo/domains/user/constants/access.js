@@ -1,0 +1,20 @@
+/**
+ * Set of schemas available for direct access by specific users, similar to support / admin.
+ *
+ * Note that adding a schema to this config will automatically add the required fields to the UserRightSet schema,
+ * but accesses will not work automatically!
+ * To do this, you need to explicitly add one of the utilities from "@condo/domains/user/utils/access" to the model accesses.
+ *
+ * Also note that changing this config always generates a new migration!
+ * @typedef {{schemaName: string, readonly?: boolean}} DirectAccessList
+ * @typedef {{lists: Array<DirectAccessList | string>, services: Array<string>}} DirectAccessConfig
+ * @type {DirectAccessConfig}
+ */
+const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
+    lists: [],
+    services: [],
+}
+
+module.exports = {
+    DIRECT_ACCESS_AVAILABLE_SCHEMAS,
+}
