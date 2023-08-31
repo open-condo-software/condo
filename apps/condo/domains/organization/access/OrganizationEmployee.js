@@ -4,7 +4,7 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const {
     queryOrganizationEmployeeFor, checkOrganizationPermission, queryOrganizationEmployeeFromRelatedOrganizationFor,
@@ -40,29 +40,7 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
     if (user.isSupport) {
         if (operation === 'create') {
             const userId = get(originalInput, ['user', 'connect', 'id'])
-            const organizationId = get(originalInput, ['organization', 'connect', 'id'])
-            const roleId = get(originalInput, ['role', 'connect', 'id'])
-
-            if (!userId || !organizationId || !roleId) {
-                return false
-            }
-
-            const existingEmployeeForUser = await getByCondition('OrganizationEmployee', {
-                organization: { id: organizationId },
-                user: { id: userId },
-                deletedAt: null,
-            })
-
-            if (existingEmployeeForUser) {
-                return false
-            }
-
-            const employeeRole = await getByCondition('OrganizationEmployeeRole', {
-                id: roleId,
-                organization: { id: organizationId },
-            })
-
-            return !!employeeRole
+            return !!userId
         } else {
             return true
         }
