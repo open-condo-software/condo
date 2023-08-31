@@ -17,6 +17,7 @@ const SUBMIT_ONLY_PROGRESSION_METER_READINGS = 'submit-only-progression-meter-re
 const SETTINGS_NEW_EMPLOYEE_ROLE_TABLE = 'settings-new-employee-role-table'
 const ANALYTICS_V3 = 'analytics-v3'
 const BIGGER_LIMIT_FOR_IMPORT = 'bigger-limit-for-import'
+const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK = 'send-billing-receipts-on-payday-remainder-task'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -38,4 +39,5 @@ module.exports = {
     ANALYTICS_V3,
     SETTINGS_NEW_EMPLOYEE_ROLE_TABLE,
     BIGGER_LIMIT_FOR_IMPORT,
+    SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK,
 }
