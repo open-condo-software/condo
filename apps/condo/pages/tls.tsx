@@ -147,7 +147,7 @@ const PosterFooterCard: React.FC<PosterFooterCardProps> = ({ logoSrc, descriptio
     <Card>
         <Space size={24} direction='horizontal'>
             <Image src={logoSrc} preview={false}/>
-            <Space size={8} direction='vertical'>
+            <Space size={16} direction='vertical'>
                 <Typography.Paragraph>
                     {description}
                 </Typography.Paragraph>
