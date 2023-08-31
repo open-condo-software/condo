@@ -20,7 +20,17 @@ import pickBy from 'lodash/pickBy'
 import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+import React, {
+    Dispatch,
+    MutableRefObject,
+    RefObject,
+    SetStateAction,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+} from 'react'
 
 import { ChevronDown, ChevronUp, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -131,7 +141,7 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
 
     return (
         <div style={{ width: '100px' }}>
-            <Checkbox checked={Boolean(value)} onChange={onChange}/>
+            <Checkbox checked={Boolean(value)} onChange={onChange} />
         </div>
     )
 }
@@ -171,17 +181,18 @@ type EmployeeRolesTableProps = {
     employeeRoles: OrganizationEmployeeRoleType[],
     b2BAppRoles: B2BAppRoleType[],
     b2BAppPermissions: B2BAppPermissionType[],
+    loading: boolean,
+    createB2BAppRoleAction,
+    softDeleteB2BAppRoleAction,
+    updateB2BAppRoleAction,
 }
 
 export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
-    { connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions }
+    { connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
+        loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction }
 ) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
-
-    const createB2BAppRoleAction = B2BAppRole.useCreate({})
-    const softDeleteB2BAppRoleAction = B2BAppRole.useSoftDelete()
-    const updateB2BAppRoleAction = B2BAppRole.useUpdate({})
 
     const totalRows = connectedB2BApps.length
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
@@ -236,53 +247,60 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
         ],
     })), [b2BAppPermissions, b2BAppRoles, connectedB2BApps, employeeRoles])
 
-    const initialPermissionState: PermissionState = useMemo(() =>
-        employeeRoles.reduce(
-            (acc, employeeRole) => {
-                const organizationPermissionsToPick = Object.keys(employeeRole).filter(key => key.startsWith('can'))
+    const [initialPermissionState, setInitialPermissionState] = useState<PermissionState>()
+    const [permissionState, setPermissionState] = useState<PermissionState>()
+    const [submitActionProcessing, setSubmitActionProcessing] = useState<boolean>(false)
+    const loadingState = loading || submitActionProcessing
 
-                return {
-                    ...acc, [employeeRole.id]: {
-                        organizationPermissions: pick(employeeRole, organizationPermissionsToPick),
-                        b2bAppRoles: connectedB2BApps.reduce((acc, b2bApp) => {
-                            const b2bRole = b2BAppRoles.find(b2bAppRole =>
-                                get(b2bAppRole, 'role.id') === employeeRole.id && get(b2bAppRole, 'app.id') === b2bApp.id)
+    useEffect(() => {
+        if (!loadingState) {
+            setInitialPermissionState(employeeRoles.reduce(
+                (acc, employeeRole) => {
+                    const organizationPermissionsToPick = Object.keys(employeeRole).filter(key => key.startsWith('can'))
 
-                            if (b2bRole) {
+                    return {
+                        ...acc, [employeeRole.id]: {
+                            organizationPermissions: pick(employeeRole, organizationPermissionsToPick),
+                            b2bAppRoles: connectedB2BApps.reduce((acc, b2bApp) => {
+                                const b2bRole = b2BAppRoles.find(b2bAppRole =>
+                                    get(b2bAppRole, 'role.id') === employeeRole.id && get(b2bAppRole, 'app.id') === b2bApp.id)
+
+                                if (b2bRole) {
+                                    return {
+                                        ...acc,
+                                        [b2bApp.id]: {
+                                            roleId: b2bRole.id,
+                                            permissions: { ...b2bRole.permissions, [`canRead${b2bApp.id}`]: true },
+                                        },
+                                    }
+                                }
+
                                 return {
                                     ...acc,
                                     [b2bApp.id]: {
-                                        roleId: b2bRole.id,
-                                        permissions: { ...b2bRole.permissions, [`canRead${b2bApp.id}`]: true },
+                                        permissions: {
+                                            ...b2BAppPermissions
+                                                .filter(permission => permission.app.id === b2bApp.id)
+                                                .reduce((acc, permission) => ({ ...acc, [permission.key]: false }), {}),
+                                            [`canRead${b2bApp.id}`]: false,
+                                        },
                                     },
                                 }
-                            }
-
-                            return {
-                                ...acc,
-                                [b2bApp.id]: {
-                                    permissions: {
-                                        ...b2BAppPermissions
-                                            .filter(permission => permission.app.id === b2bApp.id)
-                                            .reduce((acc, permission) => ({ ...acc, [permission.key]: false }), {}),
-                                        [`canRead${b2bApp.id}`]: false,
-                                    },
-                                },
-                            }
-                        }, {}),
-                    },
+                            }, {}),
+                        },
+                    }
                 }
-            }
-            , {})
-    , [b2BAppPermissions, b2BAppRoles, connectedB2BApps, employeeRoles])
+                , {}))
+        }
+    }, [b2BAppPermissions, b2BAppRoles, connectedB2BApps, employeeRoles, loadingState])
 
-    const [permissionState, setPermissionState] = useState<PermissionState>(cloneDeep(initialPermissionState))
+    useEffect(() => {
+        setPermissionState(cloneDeep(initialPermissionState))
+    }, [initialPermissionState])
 
     const handleCancel = useCallback(() => {
         setPermissionState(cloneDeep(initialPermissionState))
     }, [initialPermissionState])
-
-    const [submitActionProcessing, setSubmitActionProcessing] = useState<boolean>(false)
 
     const handleSave = useCallback(async () => {
         setSubmitActionProcessing(true)
@@ -344,6 +362,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
             }
         }
 
+        setInitialPermissionState(cloneDeep(permissionState))
         setSubmitActionProcessing(false)
     }, [
         b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionState, permissionState,
@@ -357,6 +376,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
             </Col>
             <Col span={24}>
                 <Table
+                    loading={loading}
                     id={OUTER_TABLE_ID}
                     sticky
                     pagination={false}
@@ -426,6 +446,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                                 dataSource={permissionRows}
                                 columns={columns}
                                 getPopupContainer={getPopupContainer}
+                                loading={loadingState}
                             />
                         },
                     }}
@@ -471,9 +492,14 @@ export const EmployeeRolesSettingsContent = () => {
     const {
         loading: isB2BAppRolesLoading,
         objs: b2BAppRoles,
+        refetch: refetchB2BAppRoles,
     } = B2BAppRole.useObjects({
         where: { role: { id_in: employeeRoles.map(role => role.id) } },
     })
+
+    const createB2BAppRoleAction = B2BAppRole.useCreate({}, () => refetchB2BAppRoles())
+    const softDeleteB2BAppRoleAction = B2BAppRole.useSoftDelete(() => refetchB2BAppRoles())
+    const updateB2BAppRoleAction = B2BAppRole.useUpdate({}, () => refetchB2BAppRoles())
 
     const connectedB2BApps = uniqBy(b2BAppRoles.map(b2BAppRole => get(b2BAppRole, 'app')), 'id')
 
@@ -486,9 +512,11 @@ export const EmployeeRolesSettingsContent = () => {
 
     const loading = isEmployeeRolesLoading || isB2BAppRolesLoading || isB2BAppPermissionsLoading
 
-    if (loading) return <Loader/>
-
     return <EmployeeRolesTable
+        loading={loading}
+        createB2BAppRoleAction={createB2BAppRoleAction}
+        softDeleteB2BAppRoleAction={softDeleteB2BAppRoleAction}
+        updateB2BAppRoleAction={updateB2BAppRoleAction}
         connectedB2BApps={connectedB2BApps}
         employeeRoles={employeeRoles}
         b2BAppRoles={b2BAppRoles}
