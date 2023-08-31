@@ -56,16 +56,35 @@ describe('OrganizationEmployee', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
     })
 
-    test('support: cannot create OrganizationEmployee', async () => {
+    test('support: can create OrganizationEmployee', async () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-            canManageEmployees: true,
-        })
-        const support = await makeClientWithSupportUser()
-        await createTestOrganizationEmployee(admin, organization, support.user, role)
-
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
         const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const support = await makeClientWithSupportUser()
+        const [obj, attrs] = await createTestOrganizationEmployee(support, organization, user, role)
+
+        expect(obj.id).toBeDefined()
+        expect(obj.dv).toEqual(1)
+        expect(obj.sender).toEqual(attrs.sender)
+        expect(obj.v).toEqual(1)
+        expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
+        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
+        expect(obj.createdAt).toMatch(DATETIME_RE)
+        expect(obj.updatedAt).toMatch(DATETIME_RE)
+    })
+
+    test('support: cannot create OrganizationEmployee for one user in one organization twice', async () => {
+        const admin = await makeLoggedInAdminClient()
+        const [organization] = await createTestOrganization(admin)
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
+        const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
+
+        const support = await makeClientWithSupportUser()
+        const [obj] = await createTestOrganizationEmployee(support, organization, user, role)
+
+        expect(obj.id).toBeDefined()
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
             await createTestOrganizationEmployee(support, organization, user, role)
