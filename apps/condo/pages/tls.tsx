@@ -254,7 +254,7 @@ const POSTER_CONTENT_STYLE: CSSProperties = { padding: '24px', height: '100%', d
 const TlsPagePoster: React.FC = (): JSX.Element => (
     <PosterWrapper>
         <Poster
-            src='/dino/searching.png'
+            src='/dino/searching@2x.png'
             placeholderSrc='/404PosterPlaceholder.png'
             imageStyle={IMAGE_STYLE}
             imageWrapperStyle={IMAGE_WRAPPER_STYLE}
