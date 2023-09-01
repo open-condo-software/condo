@@ -29,7 +29,7 @@ export function useEmployeeRolesTableColumns (roles: OrganizationEmployeeRole[])
         ...roles.map(role => ({
             title: role.name,
             key: role.id,
-            render: (text, record, index) => {
+            render: () => {
                 return <div style={{ width: '100px' }} />
             },
         })),

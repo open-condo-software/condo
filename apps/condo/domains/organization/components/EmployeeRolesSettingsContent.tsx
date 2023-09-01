@@ -1,5 +1,10 @@
 import { MinusCircleTwoTone } from '@ant-design/icons'
-import { B2BApp, SortOrganizationEmployeeRolesBy } from '@app/condo/schema'
+import {
+    B2BApp,
+    B2BAppRoleCreateInput,
+    B2BAppRoleUpdateInput, QueryAllB2BAppRolesArgs,
+    SortOrganizationEmployeeRolesBy,
+} from '@app/condo/schema'
 import {
     OrganizationEmployeeRole as OrganizationEmployeeRoleType,
     B2BAppPermission as B2BAppPermissionType,
@@ -32,6 +37,11 @@ import React, {
     useState,
 } from 'react'
 
+import {
+    IGenerateHooksResult,
+    IUseCreateActionType,
+    IUseSoftDeleteActionType, IUseUpdateActionType,
+} from '@open-condo/codegen/generate.hooks'
 import { ChevronDown, ChevronUp, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -45,15 +55,31 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 import { Loader } from '../../common/components/Loader'
 import { B2BAppPermission, B2BAppRole } from '../../miniapp/utils/clientSchema'
 
+
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
-// type TableCheckboxProps = {
-//     tableData: PermissionsGroup[]
-//     setTableData: Dispatch<SetStateAction<PermissionsGroup[]>>
-//     permissionsGroup: PermissionsGroup
-//     permissionRow: PermissionRow
-//     employeeRole: OrganizationEmployeeRoleType
-// }
+type PermissionRow = {
+    id: string,
+    key: string,
+    name: string,
+}
+
+type PermissionsGroup = {
+    id: string,
+    groupName: string
+    permissions: PermissionRow[],
+}
+
+type EmployeeRolesTableProps = {
+    connectedB2BApps: B2BApp[],
+    employeeRoles: OrganizationEmployeeRoleType[],
+    b2BAppRoles: B2BAppRoleType[],
+    b2BAppPermissions: B2BAppPermissionType[],
+    loading: boolean,
+    createB2BAppRoleAction: IUseCreateActionType<B2BAppRoleType, B2BAppRoleCreateInput>,
+    softDeleteB2BAppRoleAction: IUseSoftDeleteActionType<B2BAppRoleType>,
+    updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>,
+}
 
 type PermissionsType = { [permissionKey: string]: boolean }
 
@@ -76,6 +102,7 @@ type TableCheckboxProps = {
     permissionState: PermissionState
     setPermissionState: Dispatch<SetStateAction<PermissionState>>
 }
+
 
 const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId, permissionKey, permissionState, setPermissionState }) => {
     let value
@@ -146,105 +173,34 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
     )
 }
 
-const OUTER_TABLE_ID = 'outer-table'
-
-function getPopupContainer (): HTMLElement {
-    if (typeof document !== 'undefined') {
-        return document.getElementById(OUTER_TABLE_ID)
-    }
-}
-
-type PermissionCell = {
-    employeeRoleId: string,
-    b2bAppRoleId?: string,
-    isReadPermission: boolean,
-    value: boolean,
-}
-
-type PermissionRow = {
-    groupId: string,
-    id: string,
-    key: string,
-    name: string,
-    relatedPermissionKeys?: string[]
-    employeeRolesPermission: PermissionCell[]
-}
-
-type PermissionsGroup = {
-    id: string,
-    groupName: string
-    permissions: PermissionRow[],
-}
-
-type EmployeeRolesTableProps = {
-    connectedB2BApps: B2BApp[],
-    employeeRoles: OrganizationEmployeeRoleType[],
-    b2BAppRoles: B2BAppRoleType[],
-    b2BAppPermissions: B2BAppPermissionType[],
-    loading: boolean,
-    createB2BAppRoleAction,
-    softDeleteB2BAppRoleAction,
-    updateB2BAppRoleAction,
-}
-
-export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
-    { connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
-        loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction }
-) => {
+export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
+    connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
+    loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction,
+}) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
 
     const totalRows = connectedB2BApps.length
-    const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
 
+    const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
     const tableData: PermissionsGroup[] = useMemo(() => connectedB2BApps.map((b2bApp): PermissionsGroup => ({
         id: b2bApp.id,
         groupName: b2bApp.name,
         permissions: [
             {
-                groupId: b2bApp.id,
                 id: `canRead${b2bApp.id}`,
                 key: `canRead${b2bApp.id}`,
                 name: 'Просмотр сервиса',
-                employeeRolesPermission: employeeRoles
-                    .map(employeeRole => {
-                        const b2bRole = b2BAppRoles.find(
-                            b2bRole => get(b2bRole, 'role.id') === employeeRole.id && get(b2bRole, 'app.id') === b2bApp.id
-                        )
-
-                        const result: PermissionCell = {
-                            employeeRoleId: employeeRole.id,
-                            b2bAppRoleId: get(b2bRole, 'id'),
-                            isReadPermission: true,
-                            value: !!b2bRole,
-                        }
-
-                        return result
-                    }),
             },
-            ...b2BAppPermissions.filter(permission => permission.app.id === b2bApp.id).map((permission): PermissionRow => ({
-                groupId: b2bApp.id,
-                id: permission.id,
-                key: permission.key,
-                name: permission.name,
-                employeeRolesPermission: employeeRoles
-                    .map(employeeRole => {
-                        const b2bRole = b2BAppRoles.find(
-                            b2bRole => get(b2bRole, 'role.id') === employeeRole.id && get(b2bRole, 'app.id') === b2bApp.id
-                        )
-
-                        const result: PermissionCell = {
-                            employeeRoleId: employeeRole.id,
-                            b2bAppRoleId: get(b2bRole, 'id'),
-                            isReadPermission: false,
-                            value: b2bRole ? !!b2bRole.permissions[permission.key] : false,
-                        }
-
-                        return result
-                    }),
-            })),
+            ...b2BAppPermissions
+                .filter(permission => permission.app.id === b2bApp.id)
+                .map((permission): PermissionRow => ({
+                    id: permission.id,
+                    key: permission.key,
+                    name: permission.name,
+                })),
         ],
-    })), [b2BAppPermissions, b2BAppRoles, connectedB2BApps, employeeRoles])
+    })), [b2BAppPermissions, connectedB2BApps])
 
     const [initialPermissionState, setInitialPermissionState] = useState<PermissionState>()
     const [permissionState, setPermissionState] = useState<PermissionState>()
@@ -404,7 +360,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                 ...employeeRoles.map(employeeRole => ({
                     render: (permissionRow: PermissionRow) => {
                         return <TableCheckbox
-                            b2bAppId={permissionRow.groupId}
+                            b2bAppId={permissionsGroup.id}
                             permissionKey={permissionRow.key}
                             employeeRoleId={employeeRole.id}
                             permissionState={permissionState}
@@ -424,7 +380,6 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                 pagination={false}
                 dataSource={permissionRows}
                 columns={columns}
-                getPopupContainer={getPopupContainer}
                 loading={loadingState}
             />
         },
@@ -458,7 +413,6 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
             <Col span={24}>
                 <Table
                     loading={loading}
-                    id={OUTER_TABLE_ID}
                     sticky
                     pagination={false}
                     totalRows={totalRows}
