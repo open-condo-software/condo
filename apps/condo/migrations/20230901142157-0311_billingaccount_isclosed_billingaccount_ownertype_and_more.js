@@ -4,6 +4,12 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+--
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
+--
+SET statement_timeout = '1500s';
+
 --
 -- Add field isClosed to billingaccount
 --
@@ -22,6 +28,12 @@ ALTER TABLE "BillingAccountHistoryRecord" ADD COLUMN "isClosed" boolean NULL;
 -- Add field ownerType to billingaccounthistoryrecord
 --
 ALTER TABLE "BillingAccountHistoryRecord" ADD COLUMN "ownerType" text NULL;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
