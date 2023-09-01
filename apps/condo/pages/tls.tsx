@@ -133,6 +133,10 @@ const BlankAnchor = styled(Anchor)`
     .ant-anchor-link {
         padding: 0;
     }
+    /* This is a redundant element, that adds visual artefacts to the button */
+    .ant-anchor-ink {
+      display: none;
+    }
 `
 
 type PosterFooterCardProps = {
