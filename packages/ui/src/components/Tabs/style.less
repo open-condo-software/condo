@@ -57,11 +57,16 @@
     font-family: "Open Sans", var(--condo-font-fallback);
 
     &-menu {
-      border-radius: 8px;
+      border-radius: @condo-global-border-radius-medium;
+
+      &-item-disabled {
+        opacity: @condo-global-opacity-disabled;
+      }
     }
 
     & .condo-tabs-tab-label {
-      font-weight: 600;
+      color: @condo-global-color-gray-7;
+      font-weight: @condo-global-font-weight-semibold;
     }
   }
 }
