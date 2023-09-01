@@ -34659,6 +34659,10 @@ export type Mutation = {
    * 		"organizationName": {
    * 			"defaultValue": "ORGANIZATION",
    * 			"required": false
+   * 		},
+   * 		"serverUrl": {
+   * 			"defaultValue": "",
+   * 			"required": false
    * 		}
    * 	},
    * 	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
@@ -34668,6 +34672,10 @@ export type Mutation = {
    * 		},
    * 		"organizationName": {
    * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		},
+   * 		"serverUrl": {
+   * 			"defaultValue": "",
    * 			"required": false
    * 		}
    * 	},

@@ -128,12 +128,12 @@ const MESSAGE_META = {
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
-        serverUrl: { defaultValue: conf.SERVER_URL, required: false },
+        serverUrl: { defaultValue: '', required: false },
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
-        serverUrl: { defaultValue: conf.SERVER_URL, required: false },
+        serverUrl: { defaultValue: '', required: false },
     },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
