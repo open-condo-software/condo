@@ -10,9 +10,10 @@ const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
-const { getLogger } = require('./logging')
+const { getExecutionContext } = require('./executionContext')
 
 const DELIMETER = ':'
+const SERVER_URL = conf.SERVER_URL
 const KEYSTONE_MUTATION_QUERY_REGEX = /(?:mutation|query)\s+(\w+)/
 
 const IS_OTEL_TRACING_ENABLED = conf.IS_OTEL_TRACING_ENABLED === '1'
@@ -24,7 +25,7 @@ const tracers = {}
 
 if (IS_OTEL_TRACING_ENABLED) {
     const sdk = new otelSdk.NodeSDK({
-        serviceName: 'condo',
+        serviceName: `condo${DELIMETER}${SERVER_URL.replace(/^(https?:\/\/)/, '')}`,
         traceExporter: new OTLPTraceExporter({
             url: tracesUrl,
             headers: headers,
@@ -40,7 +41,7 @@ if (IS_OTEL_TRACING_ENABLED) {
         instrumentations: [
             new HttpInstrumentation(),
             new PgInstrumentation(),
-            new IORedisInstrumentation,
+            new IORedisInstrumentation(),
         ],
     })
 
@@ -63,6 +64,17 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
         const parsedName = typeof name === 'function' ? name(...args) : name
 
         return tracer.startActiveSpan(parsedName, async (span) => {
+            const executionContext = getExecutionContext()
+            if (executionContext.reqId) {
+                span.setAttribute('reqId', executionContext.reqId)
+            } else if (executionContext.execId) {
+                span.setAttribute('execId', executionContext.execId)
+                span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
+            } else if (executionContext.taskId) {
+                span.setAttribute('taskId', executionContext.taskId)
+                span.setAttribute('taskName', executionContext.taskName)
+            }
+
             spanHook(span, ...args)
 
             const res = await f.call(ctx, ...args)
@@ -143,7 +155,6 @@ class KeystoneTracingApp {
         this._patchKeystoneAdapter(tracer, keystone)
     }
 }
-
 
 module.exports = {
     KeystoneTracingApp,
