@@ -10222,6 +10222,8 @@ type BillingAccountHistoryRecord {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: String
   meta: JSON
   id: ID!
   v: Int
@@ -10361,6 +10363,26 @@ input BillingAccountHistoryRecordWhereInput {
   fullName_not_ends_with_i: String
   fullName_in: [String]
   fullName_not_in: [String]
+  isClosed: Boolean
+  isClosed_not: Boolean
+  ownerType: String
+  ownerType_not: String
+  ownerType_contains: String
+  ownerType_not_contains: String
+  ownerType_starts_with: String
+  ownerType_not_starts_with: String
+  ownerType_ends_with: String
+  ownerType_not_ends_with: String
+  ownerType_i: String
+  ownerType_not_i: String
+  ownerType_contains_i: String
+  ownerType_not_contains_i: String
+  ownerType_starts_with_i: String
+  ownerType_not_starts_with_i: String
+  ownerType_ends_with_i: String
+  ownerType_not_ends_with_i: String
+  ownerType_in: [String]
+  ownerType_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -10460,6 +10482,10 @@ enum SortBillingAccountHistoryRecordsBy {
   unitType_DESC
   fullName_ASC
   fullName_DESC
+  isClosed_ASC
+  isClosed_DESC
+  ownerType_ASC
+  ownerType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -10488,6 +10514,8 @@ input BillingAccountHistoryRecordUpdateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: String
   meta: JSON
   v: Int
   createdAt: String
@@ -10518,6 +10546,8 @@ input BillingAccountHistoryRecordCreateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: String
   meta: JSON
   v: Int
   createdAt: String
@@ -10542,6 +10572,11 @@ input BillingPropertyRelateToOneInput {
   connect: BillingPropertyWhereUniqueInput
   disconnect: BillingPropertyWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum BillingAccountOwnerTypeType {
+  person
+  company
 }
 
 """ All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted 
@@ -10585,6 +10620,13 @@ type BillingAccount {
 
   """ Full name of the account holder """
   fullName: String
+
+  """ Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account. 
+  """
+  isClosed: Boolean
+
+  """ The account owner's type """
+  ownerType: BillingAccountOwnerTypeType
 
   """ Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking` 
   """
@@ -10717,6 +10759,12 @@ input BillingAccountWhereInput {
   fullName_not_ends_with_i: String
   fullName_in: [String]
   fullName_not_in: [String]
+  isClosed: Boolean
+  isClosed_not: Boolean
+  ownerType: BillingAccountOwnerTypeType
+  ownerType_not: BillingAccountOwnerTypeType
+  ownerType_in: [BillingAccountOwnerTypeType]
+  ownerType_not_in: [BillingAccountOwnerTypeType]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -10800,6 +10848,10 @@ enum SortBillingAccountsBy {
   unitType_DESC
   fullName_ASC
   fullName_DESC
+  isClosed_ASC
+  isClosed_DESC
+  ownerType_ASC
+  ownerType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -10828,6 +10880,8 @@ input BillingAccountUpdateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: BillingAccountOwnerTypeType
   meta: JSON
   v: Int
   createdAt: String
@@ -10855,6 +10909,8 @@ input BillingAccountCreateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: BillingAccountOwnerTypeType
   meta: JSON
   v: Int
   createdAt: String
