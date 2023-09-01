@@ -127,10 +127,8 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
 
         if (isReadPermission) {
             if (newValue) {
-                // createB2BRole after save click
                 newPermissions = { ...oldPermissions, [permissionKey]: newValue }
             } else if (!newValue) {
-                // drop all checkboxes in app group and delete role after save click
                 newPermissions = Object.keys(oldPermissions)
                     .reduce((acc, permission) => ({ ...acc, [permission]: false }), {})
                 removedPermissionsToCheck = Object.keys(oldPermissions)
@@ -250,8 +248,10 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     }, [b2BAppPermissions, b2BAppRoles, connectedB2BApps, employeeRoles, loadingState])
 
     useEffect(() => {
-        setPermissionState(cloneDeep(initialPermissionState))
-    }, [initialPermissionState])
+        if (!loadingState) {
+            setPermissionState(cloneDeep(initialPermissionState))
+        }
+    }, [initialPermissionState, loadingState])
 
     const handleCancel = useCallback(() => {
         setPermissionState(cloneDeep(initialPermissionState))
@@ -272,6 +272,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
 
             const initialB2bRolePermissions = initialRolePermissions.b2bAppRoles
             const newB2bRolePermissions = newRolePermissions.b2bAppRoles
+            let notificationType: 'create' | 'update' | 'delete'
 
             for (const appId of Object.keys(newB2bRolePermissions)) {
                 const initialEmployeePermissionsInB2BApp = initialB2bRolePermissions[appId]
@@ -380,10 +381,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 pagination={false}
                 dataSource={permissionRows}
                 columns={columns}
-                loading={loadingState}
             />
         },
-    }), [employeeRoles, loadingState, permissionState])
+    }), [employeeRoles, permissionState])
 
     const test: ActionBarProps['actions'] = useMemo(() => [
         <Button
