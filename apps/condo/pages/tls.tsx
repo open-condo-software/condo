@@ -354,6 +354,7 @@ const StyledCollapse = styled(Collapse)`
     .ant-collapse-item {
       border: 1px solid #d9d9d9;
       border-radius: 12px !important;
+      overflow: hidden;
       
       &.ant-collapse-item-active {
         .ant-collapse-content {
