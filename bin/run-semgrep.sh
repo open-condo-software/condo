@@ -19,10 +19,11 @@ runScan () {
   if [[ $use_sarif == *true* ]]
   then
     echo "USE SARIF OUTPUT FORMAT"
-    export ext_flags="--sarif --output=semgrep_results/${1//\//_}.sarif"
+    mkdir -p semgrep_results
+    semgrep $1 --error --sarif > semgrep_results/${1//\//_}.sarif
+  else
+    semgrep $1 --error
   fi
-
-  semgrep $1 --error $ext_flags
 }
 
 # run a scan cases
