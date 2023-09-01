@@ -351,6 +351,12 @@ const StyledCollapse = styled(Collapse)`
       border: 1px solid #d9d9d9;
       border-radius: 12px !important;
       
+      &.ant-collapse-item-active {
+        .ant-collapse-content {
+          border-top: none;
+        }
+      }
+      
       .ant-collapse-header {
         padding: 24px !important;
 
