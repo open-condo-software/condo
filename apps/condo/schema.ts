@@ -12184,6 +12184,10 @@ export type BillingAccount = {
   unitType?: Maybe<Scalars['String']>;
   /**  Full name of the account holder  */
   fullName?: Maybe<Scalars['String']>;
+  /**  Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.  */
+  isClosed?: Maybe<Scalars['Boolean']>;
+  /**  The account owner's type  */
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
   /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -12212,6 +12216,8 @@ export type BillingAccountCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12244,6 +12250,8 @@ export type BillingAccountHistoryRecord = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -12270,6 +12278,8 @@ export type BillingAccountHistoryRecordCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12301,6 +12311,8 @@ export type BillingAccountHistoryRecordUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12439,6 +12451,26 @@ export type BillingAccountHistoryRecordWhereInput = {
   fullName_not_ends_with_i?: Maybe<Scalars['String']>;
   fullName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   fullName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  isClosed_not?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
+  ownerType_not?: Maybe<Scalars['String']>;
+  ownerType_contains?: Maybe<Scalars['String']>;
+  ownerType_not_contains?: Maybe<Scalars['String']>;
+  ownerType_starts_with?: Maybe<Scalars['String']>;
+  ownerType_not_starts_with?: Maybe<Scalars['String']>;
+  ownerType_ends_with?: Maybe<Scalars['String']>;
+  ownerType_not_ends_with?: Maybe<Scalars['String']>;
+  ownerType_i?: Maybe<Scalars['String']>;
+  ownerType_not_i?: Maybe<Scalars['String']>;
+  ownerType_contains_i?: Maybe<Scalars['String']>;
+  ownerType_not_contains_i?: Maybe<Scalars['String']>;
+  ownerType_starts_with_i?: Maybe<Scalars['String']>;
+  ownerType_not_starts_with_i?: Maybe<Scalars['String']>;
+  ownerType_ends_with_i?: Maybe<Scalars['String']>;
+  ownerType_not_ends_with_i?: Maybe<Scalars['String']>;
+  ownerType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ownerType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -12534,6 +12566,11 @@ export type BillingAccountHistoryRecordsUpdateInput = {
   data?: Maybe<BillingAccountHistoryRecordUpdateInput>;
 };
 
+export enum BillingAccountOwnerTypeType {
+  Person = 'person',
+  Company = 'company'
+}
+
 export type BillingAccountRelateToOneInput = {
   create?: Maybe<BillingAccountCreateInput>;
   connect?: Maybe<BillingAccountWhereUniqueInput>;
@@ -12551,6 +12588,8 @@ export type BillingAccountUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12668,6 +12707,12 @@ export type BillingAccountWhereInput = {
   fullName_not_ends_with_i?: Maybe<Scalars['String']>;
   fullName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   fullName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  isClosed_not?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
+  ownerType_not?: Maybe<BillingAccountOwnerTypeType>;
+  ownerType_in?: Maybe<Array<Maybe<BillingAccountOwnerTypeType>>>;
+  ownerType_not_in?: Maybe<Array<Maybe<BillingAccountOwnerTypeType>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -66726,6 +66771,10 @@ export enum SortBillingAccountHistoryRecordsBy {
   UnitTypeDesc = 'unitType_DESC',
   FullNameAsc = 'fullName_ASC',
   FullNameDesc = 'fullName_DESC',
+  IsClosedAsc = 'isClosed_ASC',
+  IsClosedDesc = 'isClosed_DESC',
+  OwnerTypeAsc = 'ownerType_ASC',
+  OwnerTypeDesc = 'ownerType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -66761,6 +66810,10 @@ export enum SortBillingAccountsBy {
   UnitTypeDesc = 'unitType_DESC',
   FullNameAsc = 'fullName_ASC',
   FullNameDesc = 'fullName_DESC',
+  IsClosedAsc = 'isClosed_ASC',
+  IsClosedDesc = 'isClosed_DESC',
+  OwnerTypeAsc = 'ownerType_ASC',
+  OwnerTypeDesc = 'ownerType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

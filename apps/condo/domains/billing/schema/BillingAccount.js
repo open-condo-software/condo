@@ -9,6 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingAccount')
+const { BILLING_ACCOUNT_OWNER_TYPES, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
 const {
     JSON_EXPECT_OBJECT_ERROR,
     UNEQUAL_CONTEXT_ERROR,
@@ -63,6 +64,21 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             schemaDoc: 'Full name of the account holder',
             type: Text,
             isRequired: false,
+        },
+
+        isClosed: {
+            schemaDoc: 'Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+        },
+
+        ownerType: {
+            schemaDoc: 'The account owner\'s type',
+            type: 'Select',
+            options: BILLING_ACCOUNT_OWNER_TYPES,
+            defaultValue: BILLING_ACCOUNT_OWNER_TYPE_PERSON,
+            kmigratorOptions: { default: `'${BILLING_ACCOUNT_OWNER_TYPE_PERSON}'` },
         },
 
         meta: {
