@@ -9,6 +9,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingAccount')
+const { BILLING_ACCOUNT_OWNER_TYPES, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
 const {
     JSON_EXPECT_OBJECT_ERROR,
     UNEQUAL_CONTEXT_ERROR,
@@ -18,7 +19,6 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
-const { BILLING_ACCOUNT_OWNER_TYPES, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('../constants/constants')
 
 const BillingAccount = new GQLListSchema('BillingAccount', {
     schemaDoc: 'All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted',
