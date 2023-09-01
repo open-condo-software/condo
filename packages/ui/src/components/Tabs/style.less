@@ -54,20 +54,24 @@
   }
 
   &-dropdown {
-    font-family: "Open Sans", var(--condo-font-fallback);
-
     &-menu {
       border-radius: @condo-global-border-radius-medium;
 
+      &-item:hover {
+        background-color: @condo-global-color-gray-1;
+      }
+
       &-item-disabled {
-        opacity: @condo-global-opacity-disabled;
+        .condo-tabs-tab-label > span {
+          opacity: @condo-global-opacity-disabled;
+        }
       }
     }
 
     & .condo-tabs-tab-label {
       justify-content: start;
       color: @condo-global-color-gray-7;
-      font-weight: @condo-global-font-weight-semibold;
+      .condo-typography-h5();
     }
   }
 }
