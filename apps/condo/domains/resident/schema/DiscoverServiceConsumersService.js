@@ -9,6 +9,7 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
+const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY } = require('@condo/domains/billing/constants/constants')
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { ENABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -70,6 +71,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         deletedAt: null,
                         context: { status: CONTEXT_FINISHED_STATUS, deletedAt: null },
                         id_in: billingAccountsIds,
+                        isClosed: false,
+                        ownerType_not: BILLING_ACCOUNT_OWNER_TYPE_COMPANY,
                     },
                 )
 

@@ -18,6 +18,7 @@ const { hasValidJsonStructure } = require('@condo/domains/common/utils/validatio
 
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
+const { BILLING_ACCOUNT_OWNER_TYPES, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('../constants/constants')
 
 const BillingAccount = new GQLListSchema('BillingAccount', {
     schemaDoc: 'All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted',
@@ -63,6 +64,21 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             schemaDoc: 'Full name of the account holder',
             type: Text,
             isRequired: false,
+        },
+
+        isClosed: {
+            schemaDoc: 'Shows whether the billing account closed or not',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+        },
+
+        ownerType: {
+            schemaDoc: 'The account owner\'s type',
+            type: 'Select',
+            options: BILLING_ACCOUNT_OWNER_TYPES,
+            defaultValue: BILLING_ACCOUNT_OWNER_TYPE_PERSON,
+            kmigratorOptions: { default: `'${BILLING_ACCOUNT_OWNER_TYPE_PERSON}'` },
         },
 
         meta: {
