@@ -67,7 +67,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
         },
 
         isClosed: {
-            schemaDoc: 'Shows whether the billing account closed or not',
+            schemaDoc: 'Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.',
             type: 'Checkbox',
             defaultValue: false,
             kmigratorOptions: { default: false },

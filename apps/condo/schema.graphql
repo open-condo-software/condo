@@ -10621,7 +10621,8 @@ type BillingAccount {
   """ Full name of the account holder """
   fullName: String
 
-  """ Shows whether the billing account closed or not """
+  """ Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account. 
+  """
   isClosed: Boolean
 
   """ The account owner's type """

@@ -12184,7 +12184,7 @@ export type BillingAccount = {
   unitType?: Maybe<Scalars['String']>;
   /**  Full name of the account holder  */
   fullName?: Maybe<Scalars['String']>;
-  /**  Shows whether the billing account closed or not  */
+  /**  Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.  */
   isClosed?: Maybe<Scalars['Boolean']>;
   /**  The account owner's type  */
   ownerType?: Maybe<BillingAccountOwnerTypeType>;
