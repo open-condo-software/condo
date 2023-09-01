@@ -69,6 +69,8 @@ describe('BillingAccount', () => {
                     expect(account).toBeDefined()
                     expect(account).toHaveProperty(['context', 'id'], context.id)
                     expect(account).toHaveProperty(['property', 'id'], property.id)
+                    expect(account.isClosed).toEqual(false)
+                    expect(account.ownerType).toEqual('person')
                 })
                 test('Support cannot', async () => {
                     await expectToThrowAccessDeniedErrorToObj(async () => {
