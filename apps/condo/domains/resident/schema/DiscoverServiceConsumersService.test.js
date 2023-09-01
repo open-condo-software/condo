@@ -15,6 +15,7 @@ const {
     createTestAcquiringIntegrationContext,
     createTestAcquiringIntegration, addAcquiringIntegrationAndContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY } = require('@condo/domains/billing/constants/constants')
 const {
     createTestBillingProperty,
     createTestBillingAccount,
@@ -115,6 +116,62 @@ describe('DiscoverServiceConsumersService', () => {
                 unitName: resident.unitName,
                 unitType: resident.unitType,
             })
+
+            // wait for the task to finish
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident.id },
+                    deletedAt: null,
+                })
+
+                expect(createdServiceConsumers).toHaveLength(0)
+            }, { delay: 500 })
+        })
+
+        test('must not discover service consumer if billingAccount.isClosed=true', async () => {
+            const user = await makeClientWithProperty()
+
+            await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
+            const [resident] = await createTestResident(admin, user.user, user.property, { address: billingProperty.address })
+
+            await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+                isClosed: true,
+            })
+
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+
+            // wait for the task to finish
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident.id },
+                    deletedAt: null,
+                })
+
+                expect(createdServiceConsumers).toHaveLength(0)
+            }, { delay: 500 })
+        })
+
+        test('must not discover service consumer if billingAccount.ownerType=company', async () => {
+            const user = await makeClientWithProperty()
+
+            await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
+            const [resident] = await createTestResident(admin, user.user, user.property, { address: billingProperty.address })
+
+            await createTestBillingAccount(admin, billingIntegrationContext, billingProperty, {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+                ownerType: BILLING_ACCOUNT_OWNER_TYPE_COMPANY,
+            })
+
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
 
             // wait for the task to finish
             await waitFor(async () => {
