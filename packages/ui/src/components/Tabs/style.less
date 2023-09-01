@@ -53,7 +53,25 @@
     }
   }
 
-  &-nav-operations {
-    display: none !important;
+  &-dropdown {
+    &-menu {
+      border-radius: @condo-global-border-radius-medium;
+
+      &-item:hover {
+        background-color: @condo-global-color-gray-1;
+      }
+
+      &-item-disabled {
+        .condo-tabs-tab-label > span {
+          opacity: @condo-global-opacity-disabled;
+        }
+      }
+    }
+
+    & .condo-tabs-tab-label {
+      justify-content: start;
+      color: @condo-global-color-gray-7;
+      .condo-typography-h5();
+    }
   }
 }
