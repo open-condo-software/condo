@@ -11,7 +11,21 @@
  * @type {DirectAccessConfig}
  */
 const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
-    lists: [],
+    lists: [
+        // Miniapps domain
+        'B2BApp',
+        'B2BAppAccessRight',
+        'B2BAppAccessRightSet',
+        'B2BAppContext',
+        'B2BAppPermission',
+        'B2BAppPromoBlock',
+        'B2CApp',
+        'B2CAppAccessRight',
+        'B2CAppBuild',
+        'B2CAppProperty',
+        // Organization domain
+        { schemaName: 'Organization', readonly: true },
+    ],
     services: [],
 }
 

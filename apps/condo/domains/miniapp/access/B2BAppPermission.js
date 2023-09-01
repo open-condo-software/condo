@@ -9,32 +9,43 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const { checkB2BAppAccessRight } = require('@condo/domains/miniapp/utils/accessSchema')
 const { SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 /**
  * B2B App permissions may only be read:
  * 1. Admin / support
  * 2. Integration service account
+ * 3. Users with direct access
  * Employee cannot access permissions, since they interact only with their B2B app roles
  */
-async function canReadB2BAppPermissions ({ authentication: { item: user } }) {
+async function canReadB2BAppPermissions ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
     if (user.isAdmin || user.isSupport) return {}
 
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
-    return { app: { accessRights_some: { user: { id: user.id }, deletedAt: null } } }
+    if (user.type === SERVICE) {
+        return { app: { accessRights_some: { user: { id: user.id }, deletedAt: null } } }
+    }
+
+    return false
 }
 
 /**
  * B2B App permissions may only be created or modified by:
  * 1. Admin / support
  * 2. Integration service account
+ * 3. Users with direct access
  */
-async function canManageB2BAppPermissions ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageB2BAppPermissions ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
     if (user.type !== SERVICE) {
         return false

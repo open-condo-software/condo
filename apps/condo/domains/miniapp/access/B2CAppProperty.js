@@ -8,23 +8,45 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 const { checkB2CAppAccessRight } = require('../utils/accessSchema')
 
-async function canReadB2CAppProperties ({ authentication: { item: user } }) {
+/**
+ * B2CAppProperties can be read by:
+ * 1. Admin / support
+ * 2. Users with direct access
+ * 4. Service users with AccessRights to specific app
+ */
+async function canReadB2CAppProperties ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
     if (user.isAdmin || user.isSupport) return {}
-    if (user.type === RESIDENT) return {}
 
-    return { app: { accessRights_some: { deletedAt: null, user: { id: user.id } } } }
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
+
+    if (user.type === RESIDENT) return {}
+    if (user.type === SERVICE) {
+        return { app: { accessRights_some: { deletedAt: null, user: { id: user.id } } } }
+    }
+
+    return false
 }
 
-async function canManageB2CAppProperties ({ authentication: { item: user }, originalInput, operation, itemId }) {
+/**
+ * B2CAppProperties can be managed by:
+ * 1. Admin / support
+ * 2. Users with direct access
+ * 4. (TODO(DOMA-7062): remove this part) Service users with AccessRights to specific app
+ */
+async function canManageB2CAppProperties ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
     if (operation === 'create') {
         return await checkB2CAppAccessRight(user.id, get(originalInput, ['app', 'connect', 'id']))
