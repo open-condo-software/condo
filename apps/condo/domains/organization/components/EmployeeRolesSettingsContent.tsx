@@ -22,7 +22,7 @@ import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, {
     Dispatch,
-    MutableRefObject,
+    MutableRefObject, ReactElement,
     RefObject,
     SetStateAction,
     useCallback,
@@ -35,7 +35,7 @@ import React, {
 import { ChevronDown, ChevronUp, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Checkbox } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Checkbox } from '@open-condo/ui'
 
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -201,7 +201,6 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
         id: b2bApp.id,
         groupName: b2bApp.name,
         permissions: [
-            // фейковое право `canRead${b2bApp.id}` через b2bAppRole
             {
                 groupId: b2bApp.id,
                 id: `canRead${b2bApp.id}`,
@@ -369,6 +368,88 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
         softDeleteB2BAppRoleAction, updateB2BAppRoleAction,
     ])
 
+    const getRowClassName = useCallback((record, index) => {
+        const classNames = ['condo-table-expandable-row']
+
+        if (record.expanded) {
+            classNames.push('condo-table-expandable-row-expanded')
+        }
+        if (index === tableData.length - 1) {
+            classNames.push('condo-table-expandable-row-last-row')
+        }
+
+        return classNames.join(' ')
+    }, [tableData.length])
+
+    const expandableConfig = useMemo(() => ({
+        indentSize: 0,
+        expandRowByClick: true,
+        columnWidth: '60px',
+        expandedRowClassName: () => 'condo-table-expandable-row-inner-row',
+        onExpand: (expanded, record) => record.expanded = expanded,
+        expandIcon: ({ expanded, onExpand, record }) =>
+            expanded ? (
+                <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
+            ) : (
+                <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
+            ),
+        expandedRowRender: (permissionsGroup: PermissionsGroup) => {
+            const permissionRows = permissionsGroup.permissions
+
+            const columns = [
+                {
+                    dataIndex: 'name',
+                    width: '20%',
+                },
+                ...employeeRoles.map(employeeRole => ({
+                    render: (permissionRow: PermissionRow) => {
+                        return <TableCheckbox
+                            b2bAppId={permissionRow.groupId}
+                            permissionKey={permissionRow.key}
+                            employeeRoleId={employeeRole.id}
+                            permissionState={permissionState}
+                            setPermissionState={setPermissionState}
+                        />
+                    },
+                })),
+                {
+                    width: '60px',
+                },
+            ]
+
+            return <Table
+                tableLayout='auto'
+                rowClassName='inner-table-row'
+                showHeader={false}
+                pagination={false}
+                dataSource={permissionRows}
+                columns={columns}
+                getPopupContainer={getPopupContainer}
+                loading={loadingState}
+            />
+        },
+    }), [employeeRoles, loadingState, permissionState])
+
+    const test: ActionBarProps['actions'] = useMemo(() => [
+        <Button
+            key='submit'
+            onClick={handleSave}
+            type='primary'
+            loading={submitActionProcessing}
+        >
+            Сохранить
+        </Button>,
+        <Button
+            icon={<Close size='medium' />}
+            key='close'
+            onClick={handleCancel}
+            type='secondary'
+            disabled={submitActionProcessing}
+        >
+            Отменить выделение
+        </Button>,
+    ], [handleCancel, handleSave, submitActionProcessing])
+
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
@@ -384,94 +465,12 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = (
                     dataSource={tableData}
                     columns={tableColumns}
                     data-cy='employeeRoles__table'
-                    rowClassName={(record, index) => {
-                        const classNames = ['condo-table-expandable-row']
-
-                        if (record.expanded) {
-                            classNames.push('condo-table-expandable-row-expanded')
-                        }
-                        if (index === tableData.length - 1) {
-                            classNames.push('condo-table-expandable-row-last-row')
-                        }
-
-                        return classNames.join(' ')
-                    }}
-                    expandable={{
-                        indentSize: 0,
-                        expandRowByClick: true,
-                        columnWidth: '60px',
-                        expandedRowClassName: (record, index, indent) => {
-                            return 'condo-table-expandable-row-inner-row'
-                        },
-                        onExpand: (expanded, record) => {
-                            record.expanded = expanded
-                        },
-                        expandIcon: ({ expanded, onExpand, record }) =>
-                            expanded ? (
-                                <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
-                            ) : (
-                                <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
-                            ),
-                        expandedRowRender: (permissionsGroup: PermissionsGroup) => {
-                            const permissionRows = permissionsGroup.permissions
-
-                            const columns = [
-                                {
-                                    dataIndex: 'name',
-                                    width: '20%',
-                                },
-                                ...employeeRoles.map(employeeRole => {
-                                    return {
-                                        render: (permissionRow: PermissionRow) => {
-                                            return <TableCheckbox
-                                                b2bAppId={permissionRow.groupId}
-                                                permissionKey={permissionRow.key}
-                                                employeeRoleId={employeeRole.id}
-                                                permissionState={permissionState}
-                                                setPermissionState={setPermissionState}
-                                            />
-                                        },
-                                    }
-                                }),
-                                {
-                                    width: '60px',
-                                },
-                            ]
-
-                            return <Table
-                                tableLayout='auto'
-                                rowClassName='inner-table-row'
-                                showHeader={false}
-                                pagination={false}
-                                dataSource={permissionRows}
-                                columns={columns}
-                                getPopupContainer={getPopupContainer}
-                                loading={loadingState}
-                            />
-                        },
-                    }}
+                    rowClassName={getRowClassName}
+                    expandable={expandableConfig}
                 />
             </Col>
             <ActionBar
-                actions={[
-                    <Button
-                        key='submit'
-                        onClick={handleSave}
-                        type='primary'
-                        loading={submitActionProcessing}
-                    >
-                        Сохранить
-                    </Button>,
-                    <Button
-                        icon={<Close size='medium' />}
-                        key='close'
-                        onClick={handleCancel}
-                        type='secondary'
-                        disabled={submitActionProcessing}
-                    >
-                        Отменить выделение
-                    </Button>,
-                ]}
+                actions={test}
             />
         </Row>
     )
