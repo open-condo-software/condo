@@ -133,6 +133,10 @@ const BlankAnchor = styled(Anchor)`
     .ant-anchor-link {
         padding: 0;
     }
+    /* This is a redundant element, that adds visual artefacts to the button */
+    .ant-anchor-ink {
+      display: none;
+    }
 `
 
 type PosterFooterCardProps = {
@@ -350,6 +354,12 @@ const StyledCollapse = styled(Collapse)`
     .ant-collapse-item {
       border: 1px solid #d9d9d9;
       border-radius: 12px !important;
+      
+      &.ant-collapse-item-active {
+        .ant-collapse-content {
+          border-top: none;
+        }
+      }
       
       .ant-collapse-header {
         padding: 24px !important;
