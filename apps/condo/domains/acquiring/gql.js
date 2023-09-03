@@ -68,6 +68,9 @@ const RecurrentPaymentContext = generateGqlQueries('RecurrentPaymentContext', RE
 const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state payAfter billingReceipts { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
 const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMENT_FIELDS)
 
+const ORDER_FIELDS = `{ property { id } unitName unitType accountNumber toPay toPayDetails services number ticket { id } ${COMMON_FIELDS} }`
+const Order = generateGqlQueries('Order', ORDER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -91,5 +94,6 @@ module.exports = {
     SUM_PAYMENTS_QUERY,
     RecurrentPaymentContext,
     RecurrentPayment,
+    Order,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

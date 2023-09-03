@@ -50176,11 +50176,13 @@ type PaymentHistoryRecord {
   purpose: String
   receipt: String
   frozenReceipt: JSON
+  order: String
+  frozenOrder: JSON
   multiPayment: String
   context: String
   organization: String
   status: String
-  order: String
+  paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
   importId: String
@@ -50320,6 +50322,14 @@ input PaymentHistoryRecordWhereInput {
   frozenReceipt_not: JSON
   frozenReceipt_in: [JSON]
   frozenReceipt_not_in: [JSON]
+  order: String
+  order_not: String
+  order_in: [String]
+  order_not_in: [String]
+  frozenOrder: JSON
+  frozenOrder_not: JSON
+  frozenOrder_in: [JSON]
+  frozenOrder_not_in: [JSON]
   multiPayment: String
   multiPayment_not: String
   multiPayment_in: [String]
@@ -50350,24 +50360,24 @@ input PaymentHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
-  order: String
-  order_not: String
-  order_contains: String
-  order_not_contains: String
-  order_starts_with: String
-  order_not_starts_with: String
-  order_ends_with: String
-  order_not_ends_with: String
-  order_i: String
-  order_not_i: String
-  order_contains_i: String
-  order_not_contains_i: String
-  order_starts_with_i: String
-  order_not_starts_with_i: String
-  order_ends_with_i: String
-  order_not_ends_with_i: String
-  order_in: [String]
-  order_not_in: [String]
+  paymentTransaction: String
+  paymentTransaction_not: String
+  paymentTransaction_contains: String
+  paymentTransaction_not_contains: String
+  paymentTransaction_starts_with: String
+  paymentTransaction_not_starts_with: String
+  paymentTransaction_ends_with: String
+  paymentTransaction_not_ends_with: String
+  paymentTransaction_i: String
+  paymentTransaction_not_i: String
+  paymentTransaction_contains_i: String
+  paymentTransaction_not_contains_i: String
+  paymentTransaction_starts_with_i: String
+  paymentTransaction_not_starts_with_i: String
+  paymentTransaction_ends_with_i: String
+  paymentTransaction_not_ends_with_i: String
+  paymentTransaction_in: [String]
+  paymentTransaction_not_in: [String]
   recipientBic: String
   recipientBic_not: String
   recipientBic_contains: String
@@ -50527,8 +50537,8 @@ enum SortPaymentHistoryRecordsBy {
   purpose_DESC
   status_ASC
   status_DESC
-  order_ASC
-  order_DESC
+  paymentTransaction_ASC
+  paymentTransaction_DESC
   recipientBic_ASC
   recipientBic_DESC
   recipientBankAccount_ASC
@@ -50566,11 +50576,13 @@ input PaymentHistoryRecordUpdateInput {
   purpose: String
   receipt: String
   frozenReceipt: JSON
+  order: String
+  frozenOrder: JSON
   multiPayment: String
   context: String
   organization: String
   status: String
-  order: String
+  paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
   importId: String
@@ -50606,11 +50618,13 @@ input PaymentHistoryRecordCreateInput {
   purpose: String
   receipt: String
   frozenReceipt: JSON
+  order: String
+  frozenOrder: JSON
   multiPayment: String
   context: String
   organization: String
   status: String
-  order: String
+  paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
   importId: String
@@ -50630,6 +50644,13 @@ input PaymentHistoryRecordCreateInput {
 
 input PaymentHistoryRecordsCreateInput {
   data: PaymentHistoryRecordCreateInput
+}
+
+input OrderRelateToOneInput {
+  create: OrderCreateInput
+  connect: OrderWhereUniqueInput
+  disconnect: OrderWhereUniqueInput
+  disconnectAll: Boolean
 }
 
 input MultiPaymentRelateToOneInput {
@@ -50694,6 +50715,12 @@ type Payment {
   """ Frozen billing receipt, used to resolving conflicts """
   frozenReceipt: JSON
 
+  """ Link to the order that the user paid for """
+  order: Order
+
+  """ Frozen order, used to resolving conflicts """
+  frozenOrder: JSON
+
   """ Link to a payment related MultiPayment. Required field to update, but initially created unlinked 
   """
   multiPayment: MultiPayment
@@ -50710,9 +50737,9 @@ type Payment {
   """
   status: String
 
-  """ Payment order. A directive to a bank from a bank account holder instructing the bank to make a payment or series of payments to a third party 
+  """ Payment transaction. A directive to a bank from a bank account holder instructing the bank to make a payment or series of payments to a third party 
   """
-  order: String
+  paymentTransaction: String
 
   """ Bic of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address 
   """
@@ -50853,6 +50880,12 @@ input PaymentWhereInput {
   frozenReceipt_not: JSON
   frozenReceipt_in: [JSON]
   frozenReceipt_not_in: [JSON]
+  order: OrderWhereInput
+  order_is_null: Boolean
+  frozenOrder: JSON
+  frozenOrder_not: JSON
+  frozenOrder_in: [JSON]
+  frozenOrder_not_in: [JSON]
   multiPayment: MultiPaymentWhereInput
   multiPayment_is_null: Boolean
   context: AcquiringIntegrationContextWhereInput
@@ -50863,24 +50896,24 @@ input PaymentWhereInput {
   status_not: String
   status_in: [String]
   status_not_in: [String]
-  order: String
-  order_not: String
-  order_contains: String
-  order_not_contains: String
-  order_starts_with: String
-  order_not_starts_with: String
-  order_ends_with: String
-  order_not_ends_with: String
-  order_i: String
-  order_not_i: String
-  order_contains_i: String
-  order_not_contains_i: String
-  order_starts_with_i: String
-  order_not_starts_with_i: String
-  order_ends_with_i: String
-  order_not_ends_with_i: String
-  order_in: [String]
-  order_not_in: [String]
+  paymentTransaction: String
+  paymentTransaction_not: String
+  paymentTransaction_contains: String
+  paymentTransaction_not_contains: String
+  paymentTransaction_starts_with: String
+  paymentTransaction_not_starts_with: String
+  paymentTransaction_ends_with: String
+  paymentTransaction_not_ends_with: String
+  paymentTransaction_i: String
+  paymentTransaction_not_i: String
+  paymentTransaction_contains_i: String
+  paymentTransaction_not_contains_i: String
+  paymentTransaction_starts_with_i: String
+  paymentTransaction_not_starts_with_i: String
+  paymentTransaction_ends_with_i: String
+  paymentTransaction_not_ends_with_i: String
+  paymentTransaction_in: [String]
+  paymentTransaction_not_in: [String]
   recipientBic: String
   recipientBic_not: String
   recipientBic_contains: String
@@ -51020,6 +51053,8 @@ enum SortPaymentsBy {
   purpose_DESC
   receipt_ASC
   receipt_DESC
+  order_ASC
+  order_DESC
   multiPayment_ASC
   multiPayment_DESC
   context_ASC
@@ -51028,8 +51063,8 @@ enum SortPaymentsBy {
   organization_DESC
   status_ASC
   status_DESC
-  order_ASC
-  order_DESC
+  paymentTransaction_ASC
+  paymentTransaction_DESC
   recipientBic_ASC
   recipientBic_DESC
   recipientBankAccount_ASC
@@ -51067,11 +51102,13 @@ input PaymentUpdateInput {
   purpose: String
   receipt: BillingReceiptRelateToOneInput
   frozenReceipt: JSON
+  order: OrderRelateToOneInput
+  frozenOrder: JSON
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
   status: String
-  order: String
+  paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
   importId: String
@@ -51104,11 +51141,13 @@ input PaymentCreateInput {
   purpose: String
   receipt: BillingReceiptRelateToOneInput
   frozenReceipt: JSON
+  order: OrderRelateToOneInput
+  frozenOrder: JSON
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
   status: String
-  order: String
+  paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
   importId: String
@@ -51343,7 +51382,7 @@ type PaymentsFilter {
   accountNumber: String
   address: [String]
   type: [String]
-  order: String
+  paymentTransaction: String
   status: [String]
 }
 
@@ -51352,7 +51391,7 @@ input PaymentsFilterInput {
   accountNumber: String
   address: [String]
   type: [String]
-  order: String
+  paymentTransaction: String
   status: [String]
 }
 
@@ -52506,6 +52545,602 @@ input RecurrentPaymentCreateInput {
 
 input RecurrentPaymentsCreateInput {
   data: RecurrentPaymentCreateInput
+}
+
+enum OrderHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type OrderHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the OrderHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the OrderHistoryRecord List config, or
+   3. As an alias to a 'name' field on the OrderHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the OrderHistoryRecord List.
+  """
+  _label_: String
+  property: String
+  ticket: String
+  unitName: String
+  unitType: String
+  accountNumber: String
+  toPay: String
+  toPayDetails: JSON
+  services: JSON
+  number: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrderHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrderHistoryRecordWhereInput {
+  AND: [OrderHistoryRecordWhereInput]
+  OR: [OrderHistoryRecordWhereInput]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
+  ticket: String
+  ticket_not: String
+  ticket_in: [String]
+  ticket_not_in: [String]
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  unitType: String
+  unitType_not: String
+  unitType_contains: String
+  unitType_not_contains: String
+  unitType_starts_with: String
+  unitType_not_starts_with: String
+  unitType_ends_with: String
+  unitType_not_ends_with: String
+  unitType_i: String
+  unitType_not_i: String
+  unitType_contains_i: String
+  unitType_not_contains_i: String
+  unitType_starts_with_i: String
+  unitType_not_starts_with_i: String
+  unitType_ends_with_i: String
+  unitType_not_ends_with_i: String
+  unitType_in: [String]
+  unitType_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
+  toPay: String
+  toPay_not: String
+  toPay_lt: String
+  toPay_lte: String
+  toPay_gt: String
+  toPay_gte: String
+  toPay_in: [String]
+  toPay_not_in: [String]
+  toPayDetails: JSON
+  toPayDetails_not: JSON
+  toPayDetails_in: [JSON]
+  toPayDetails_not_in: [JSON]
+  services: JSON
+  services_not: JSON
+  services_in: [JSON]
+  services_not_in: [JSON]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: OrderHistoryRecordHistoryActionType
+  history_action_not: OrderHistoryRecordHistoryActionType
+  history_action_in: [OrderHistoryRecordHistoryActionType]
+  history_action_not_in: [OrderHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input OrderHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOrderHistoryRecordsBy {
+  unitName_ASC
+  unitName_DESC
+  unitType_ASC
+  unitType_DESC
+  accountNumber_ASC
+  accountNumber_DESC
+  toPay_ASC
+  toPay_DESC
+  number_ASC
+  number_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input OrderHistoryRecordUpdateInput {
+  property: String
+  ticket: String
+  unitName: String
+  unitType: String
+  accountNumber: String
+  toPay: String
+  toPayDetails: JSON
+  services: JSON
+  number: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrderHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrderHistoryRecordsUpdateInput {
+  id: ID!
+  data: OrderHistoryRecordUpdateInput
+}
+
+input OrderHistoryRecordCreateInput {
+  property: String
+  ticket: String
+  unitName: String
+  unitType: String
+  accountNumber: String
+  toPay: String
+  toPayDetails: JSON
+  services: JSON
+  number: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: OrderHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input OrderHistoryRecordsCreateInput {
+  data: OrderHistoryRecordCreateInput
+}
+
+""" TODO DOC! """
+type Order {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the Order List config, or
+   2. As an alias to the field set on 'labelField' in the Order List config, or
+   3. As an alias to a 'name' field on the Order List (if one exists), or
+   4. As an alias to the 'id' field on the Order List.
+  """
+  _label_: String
+
+  """ Billing property """
+  property: BillingProperty
+
+  """ Ticket """
+  ticket: Ticket
+
+  """ Flat number / door number of an apartment building (property) """
+  unitName: String
+
+  """ Type of unit, such as parking lot or flat """
+  unitType: String
+
+  """ Account number of the resident who placed an Order """
+  accountNumber: String
+
+  """ Total sum to pay. Usually counts as the sum of all services. """
+  toPay: String
+
+  """ @deprecated Sum to pay details. Detail level 2. This field will be removed in the future. All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). After toPayDetails field removal you should update it content explicitly 
+  """
+  toPayDetails: BillingReceiptToPayDetailsField
+
+  """ Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4 
+  """
+  services: [BillingReceiptServiceField!]
+
+  """ Order number """
+  number: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input OrderWhereInput {
+  AND: [OrderWhereInput]
+  OR: [OrderWhereInput]
+  property: BillingPropertyWhereInput
+  property_is_null: Boolean
+  ticket: TicketWhereInput
+  ticket_is_null: Boolean
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  unitType: String
+  unitType_not: String
+  unitType_in: [String]
+  unitType_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
+  toPay: String
+  toPay_not: String
+  toPay_lt: String
+  toPay_lte: String
+  toPay_gt: String
+  toPay_gte: String
+  toPay_in: [String]
+  toPay_not_in: [String]
+  toPayDetails: BillingReceiptToPayDetailsFieldInput
+  toPayDetails_not: BillingReceiptToPayDetailsFieldInput
+  toPayDetails_in: [BillingReceiptToPayDetailsFieldInput]
+  toPayDetails_not_in: [BillingReceiptToPayDetailsFieldInput]
+  services: [BillingReceiptServiceFieldInput!]
+  services_not: [BillingReceiptServiceFieldInput!]
+  services_in: [[BillingReceiptServiceFieldInput!]]
+  services_not_in: [[BillingReceiptServiceFieldInput!]]
+  number: String
+  number_not: String
+  number_contains: String
+  number_not_contains: String
+  number_starts_with: String
+  number_not_starts_with: String
+  number_ends_with: String
+  number_not_ends_with: String
+  number_i: String
+  number_not_i: String
+  number_contains_i: String
+  number_not_contains_i: String
+  number_starts_with_i: String
+  number_not_starts_with_i: String
+  number_ends_with_i: String
+  number_not_ends_with_i: String
+  number_in: [String]
+  number_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input OrderWhereUniqueInput {
+  id: ID!
+}
+
+enum SortOrdersBy {
+  property_ASC
+  property_DESC
+  ticket_ASC
+  ticket_DESC
+  unitName_ASC
+  unitName_DESC
+  unitType_ASC
+  unitType_DESC
+  accountNumber_ASC
+  accountNumber_DESC
+  toPay_ASC
+  toPay_DESC
+  number_ASC
+  number_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input OrderUpdateInput {
+  property: BillingPropertyRelateToOneInput
+  ticket: TicketRelateToOneInput
+  unitName: String
+  unitType: String
+  accountNumber: String
+  toPay: String
+  toPayDetails: BillingReceiptToPayDetailsFieldInput
+  services: [BillingReceiptServiceFieldInput!]
+  number: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input OrdersUpdateInput {
+  id: ID!
+  data: OrderUpdateInput
+}
+
+input OrderCreateInput {
+  property: BillingPropertyRelateToOneInput
+  ticket: TicketRelateToOneInput
+  unitName: String
+  unitType: String
+  accountNumber: String
+  toPay: String
+  toPayDetails: BillingReceiptToPayDetailsFieldInput
+  services: [BillingReceiptServiceFieldInput!]
+  number: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input OrdersCreateInput {
+  data: OrderCreateInput
 }
 
 enum ExternalReportHistoryRecordHistoryActionType {
@@ -68194,6 +68829,33 @@ type Query {
   """ Retrieve the meta-data for the RecurrentPayment list. """
   _RecurrentPaymentsMeta: _ListMeta
 
+  """ Search for all OrderHistoryRecord items which match the where clause. 
+  """
+  allOrderHistoryRecords(where: OrderHistoryRecordWhereInput, search: String, sortBy: [SortOrderHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrderHistoryRecord]
+
+  """ Search for the OrderHistoryRecord item with the matching ID. """
+  OrderHistoryRecord(where: OrderHistoryRecordWhereUniqueInput!): OrderHistoryRecord
+
+  """ Perform a meta-query on all OrderHistoryRecord items which match the where clause. 
+  """
+  _allOrderHistoryRecordsMeta(where: OrderHistoryRecordWhereInput, search: String, sortBy: [SortOrderHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the OrderHistoryRecord list. """
+  _OrderHistoryRecordsMeta: _ListMeta
+
+  """ Search for all Order items which match the where clause. """
+  allOrders(where: OrderWhereInput, search: String, sortBy: [SortOrdersBy!], orderBy: String, first: Int, skip: Int): [Order]
+
+  """ Search for the Order item with the matching ID. """
+  Order(where: OrderWhereUniqueInput!): Order
+
+  """ Perform a meta-query on all Order items which match the where clause. 
+  """
+  _allOrdersMeta(where: OrderWhereInput, search: String, sortBy: [SortOrdersBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the Order list. """
+  _OrdersMeta: _ListMeta
+
   """ Search for all ExternalReportHistoryRecord items which match the where clause. 
   """
   allExternalReportHistoryRecords(where: ExternalReportHistoryRecordWhereInput, search: String, sortBy: [SortExternalReportHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ExternalReportHistoryRecord]
@@ -72282,6 +72944,42 @@ type Mutation {
 
   """ Delete multiple RecurrentPayment items by ID. """
   deleteRecurrentPayments(ids: [ID!]): [RecurrentPayment]
+
+  """ Create a single OrderHistoryRecord item. """
+  createOrderHistoryRecord(data: OrderHistoryRecordCreateInput): OrderHistoryRecord
+
+  """ Create multiple OrderHistoryRecord items. """
+  createOrderHistoryRecords(data: [OrderHistoryRecordsCreateInput]): [OrderHistoryRecord]
+
+  """ Update a single OrderHistoryRecord item by ID. """
+  updateOrderHistoryRecord(id: ID!, data: OrderHistoryRecordUpdateInput): OrderHistoryRecord
+
+  """ Update multiple OrderHistoryRecord items by ID. """
+  updateOrderHistoryRecords(data: [OrderHistoryRecordsUpdateInput]): [OrderHistoryRecord]
+
+  """ Delete a single OrderHistoryRecord item by ID. """
+  deleteOrderHistoryRecord(id: ID!): OrderHistoryRecord
+
+  """ Delete multiple OrderHistoryRecord items by ID. """
+  deleteOrderHistoryRecords(ids: [ID!]): [OrderHistoryRecord]
+
+  """ Create a single Order item. """
+  createOrder(data: OrderCreateInput): Order
+
+  """ Create multiple Order items. """
+  createOrders(data: [OrdersCreateInput]): [Order]
+
+  """ Update a single Order item by ID. """
+  updateOrder(id: ID!, data: OrderUpdateInput): Order
+
+  """ Update multiple Order items by ID. """
+  updateOrders(data: [OrdersUpdateInput]): [Order]
+
+  """ Delete a single Order item by ID. """
+  deleteOrder(id: ID!): Order
+
+  """ Delete multiple Order items by ID. """
+  deleteOrders(ids: [ID!]): [Order]
 
   """ Create a single ExternalReportHistoryRecord item. """
   createExternalReportHistoryRecord(data: ExternalReportHistoryRecordCreateInput): ExternalReportHistoryRecord

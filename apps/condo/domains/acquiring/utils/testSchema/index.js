@@ -49,6 +49,7 @@ const {
 const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY  } = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { Order: OrderGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -59,6 +60,7 @@ const Payment = generateGQLTestUtils(PaymentGQL)
 const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
+const Order = generateGQLTestUtils(OrderGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 function getRandomHiddenCard() {
@@ -493,6 +495,37 @@ async function updateTestRecurrentPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestOrder (client, property, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!property || !property.id) throw new Error('no property.id')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        property: { connect: { id: property.id } },
+        ticket: { connect: { id: ticket.id } },
+        ...extraAttrs,
+    }
+    const obj = await Order.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOrder (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await Order.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -720,5 +753,6 @@ module.exports = {
     sumPaymentsByTestClient,
     RecurrentPaymentContext, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
+    Order, createTestOrder, updateTestOrder,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

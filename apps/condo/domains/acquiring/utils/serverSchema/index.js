@@ -20,6 +20,7 @@ const {
 const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { Order: OrderGQL } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -83,6 +84,7 @@ async function allPaymentsSum (context, data) {
 
 const RecurrentPaymentContext = generateServerUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateServerUtils(RecurrentPaymentGQL)
+const Order = generateServerUtils(OrderGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -98,5 +100,6 @@ module.exports = {
     allPaymentsSum,
     RecurrentPaymentContext,
     RecurrentPayment,
+    Order,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
