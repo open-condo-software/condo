@@ -442,8 +442,11 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
         describe('for organization with holding type', () => {
             it('should send message with special serverUrl from env (CC_DOMAIN)', async () => {
+                // Set CC_DOMAIN env variable
                 const CC_DOMAIN = faker.internet.url()
                 process.env['CC_DOMAIN'] = CC_DOMAIN
+                // Update conf module to be consistent with new env variable
+                const { inviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
 
                 const userAttrs = {
                     name: faker.name.firstName(),
@@ -580,8 +583,11 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
             describe('for organization with holding type', () => {
                 it('should send message with special serverUrl from env (CC_DOMAIN)', async () => {
+                    // Set CC_DOMAIN env variable
                     const CC_DOMAIN = faker.internet.url()
                     process.env['CC_DOMAIN'] = CC_DOMAIN
+                    // Update conf module to be consistent with new env variable
+                    const { inviteNewOrganizationEmployee, reInviteNewOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema/Organization')
 
                     const userAttrs = {
                         name: faker.name.firstName(),
