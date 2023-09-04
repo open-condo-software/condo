@@ -8,8 +8,8 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/constants/access')
-const { generateFieldNames } = require('@condo/domains/user/utils/directAccess')
+const { generateFieldNames } = require('@condo/domains/user/utils/directAccess/common.utils')
+const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/utils/directAccess/config')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 

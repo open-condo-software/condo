@@ -1,4 +1,5 @@
-const { generateFieldNames, generateRightSetFields } = require('./directAccess')
+const { generateFieldNames } = require('./common.utils')
+const { generateRightSetFields } = require('./server.utils')
 
 describe('Direct access utils specs', () => {
     const TEST_CONFIGS = [

@@ -10,8 +10,8 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/user/access/UserRightsSet')
-const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/constants/access')
-const { generateRightSetFields } = require('@condo/domains/user/utils/directAccess')
+const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/utils/directAccess/config')
+const { generateRightSetFields } = require('@condo/domains/user/utils/directAccess/server.utils')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const USER_UPDATE_CHUNK_SIZE = 100

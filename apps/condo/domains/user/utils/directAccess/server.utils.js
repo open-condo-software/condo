@@ -1,66 +1,20 @@
 const get = require('lodash/get')
-const pluralize = require('pluralize')
 
 const { getByCondition } = require('@open-condo/keystone/schema')
+
+const {
+    getListConfig,
+    generateReadSchemaFieldName,
+    generateManageSchemaFieldName,
+    generateExecuteServiceFieldName,
+} = require('./common.utils')
+
 
 
 const DEFAULT_CHECKBOX_FIELD = {
     type: 'Checkbox',
     isRequired: true,
     defaultValue: false,
-}
-
-function _capitalize (input) {
-    return `${input.charAt(0).toUpperCase()}${input.slice(1)}`
-}
-
-
-/**
- * Fills default values in case when list is passed as string
- * @param {DirectAccessList | string} directListConfig
- * @return {DirectAccessList}
- * @private
- */
-function _getListConfig (directListConfig) {
-    if (typeof directListConfig === 'string') {
-        return { schemaName: directListConfig, readonly: false }
-    } else {
-        return directListConfig
-    }
-}
-
-function generateReadSchemaFieldName (schemaName) {
-    return `canRead${pluralize.plural(schemaName)}`
-}
-
-function generateManageSchemaFieldName (schemaName) {
-    return `canManage${pluralize.plural(schemaName)}`
-}
-
-function generateExecuteServiceFieldName (serviceName) {
-    return `canExecute${_capitalize(serviceName)}`
-}
-
-/**
- * Based on provided config generates all field names,
- * which are used in gql.js as well as in field generation
- * @param {DirectAccessConfig} config
- * @return {string[]}
- */
-function generateFieldNames (config) {
-    const fields = []
-    for (const listSchema of config.lists) {
-        const listConfig = _getListConfig(listSchema)
-        fields.push(generateReadSchemaFieldName(listConfig.schemaName))
-        if (!listConfig.readonly) {
-            fields.push(generateManageSchemaFieldName(listConfig.schemaName))
-        }
-    }
-    for (const serviceName of config.services) {
-        fields.push(generateExecuteServiceFieldName(serviceName))
-    }
-
-    return fields
 }
 
 /**
@@ -73,7 +27,7 @@ function generateRightSetFields (config) {
     const fields = {}
 
     for (const listSchema of config.lists) {
-        const listConfig = _getListConfig(listSchema)
+        const listConfig = getListConfig(listSchema)
         fields[generateReadSchemaFieldName(listConfig.schemaName)] = {
             ...DEFAULT_CHECKBOX_FIELD,
             schemaDoc:
@@ -152,7 +106,6 @@ async function canDirectlyExecuteService (user, serviceName) {
 
 module.exports = {
     generateRightSetFields,
-    generateFieldNames,
     canDirectlyReadSchemaObjects,
     canDirectlyManageSchemaObjects,
     canDirectlyExecuteService,
