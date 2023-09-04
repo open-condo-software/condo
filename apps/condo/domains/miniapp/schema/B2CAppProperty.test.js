@@ -8,6 +8,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowValidationFailureError,
 } = require('@open-condo/keystone/test.utils')
 
@@ -181,9 +182,9 @@ describe('B2CAppProperty', () => {
                     expect(properties[0]).toHaveProperty('id', property.id)
                 })
                 test('Otherwise cannot', async () => {
-                    const properties = await B2CAppProperty.getAll(user, { id: property.id })
-                    expect(properties).toBeDefined()
-                    expect(properties).toHaveLength(0)
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await B2CAppProperty.getAll(user, { id: property.id })
+                    })
                 })
             })
             test('Anonymous cannot', async () => {

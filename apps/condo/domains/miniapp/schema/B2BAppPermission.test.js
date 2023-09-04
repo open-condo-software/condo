@@ -10,6 +10,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObjects,
     expectToThrowGQLError,
     catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
@@ -189,8 +190,9 @@ describe('B2BAppPermission', () => {
                 })
             })
             test('No one in the organization can, including the administrator', async () => {
-                const allPermissions = await B2BAppPermission.getAll(manager, { id: permission.id })
-                expect(allPermissions).toHaveLength(0)
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await B2BAppPermission.getAll(manager, { id: permission.id })
+                })
             })
             test('Anonymous cannot read anything', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
