@@ -10,7 +10,7 @@ import {
     B2BAppPermission as B2BAppPermissionType,
     B2BAppRole as B2BAppRoleType,
 } from '@app/condo/schema'
-import { Col, Row, Typography } from 'antd'
+import { Col, notification, Row, Typography } from 'antd'
 import { Table as AntdTable } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { mergeWith, set } from 'lodash'
@@ -259,6 +259,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
 
     const handleSave = useCallback(async () => {
         setSubmitActionProcessing(true)
+        let notificationType: 'create' | 'delete'
 
         for (const employeeRole of employeeRoles) {
             const employeeRoleId = employeeRole.id
@@ -272,7 +273,6 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
 
             const initialB2bRolePermissions = initialRolePermissions.b2bAppRoles
             const newB2bRolePermissions = newRolePermissions.b2bAppRoles
-            let notificationType: 'create' | 'update' | 'delete'
 
             for (const appId of Object.keys(newB2bRolePermissions)) {
                 const initialEmployeePermissionsInB2BApp = initialB2bRolePermissions[appId]
@@ -282,15 +282,27 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                     const canReadAppKey = `canRead${appId}`
                     const initialPermissions = initialEmployeePermissionsInB2BApp.permissions
                     const newPermissions = newEmployeePermissionsInB2BApp.permissions
+                    const b2bAppPermissionsKeys = b2BAppPermissions
+                        .filter(permission => permission.app.id === appId)
+                        .map(permission => permission.key)
+
+                    for (const key of b2bAppPermissionsKeys) {
+                        // if only delete permissions then notification will has delete text
+                        if (isEmpty(notificationType) && initialPermissions[key] && !newPermissions[key]) {
+                            notificationType = 'delete'
+                        }
+                        // if at least one create permission then notification will has create text
+                        if (!initialPermissions[key] && newPermissions[key]) {
+                            notificationType = 'create'
+                        }
+                    }
+
                     // create if no canReadApp in initialB2bRolePermissions and has canReadApp in newB2bRolePermissions
                     const isCreateB2BAppRoleOperation = !initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
                     // delete if canReadApp in newB2bRolePermissions and no canReadApp in newB2bRolePermissions
                     const isDeleteB2BAppRoleOperation = initialPermissions[canReadAppKey] && !newPermissions[canReadAppKey]
                     // update permissions field if canReadApp doesn't change
                     const isUpdateB2BAppRoleOperation = initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
-                    const b2bAppPermissionsKeys = b2BAppPermissions
-                        .filter(permission => permission.app.id === appId)
-                        .map(permission => permission.key)
                     const newPermissionsToMutations = pick(newPermissions, b2bAppPermissionsKeys)
 
                     if (isCreateB2BAppRoleOperation) {
@@ -318,6 +330,10 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             }
         }
 
+        notification.info({
+            message: notificationType === 'delete' ? 'Права отозваны' : 'Права предоставлены',
+        })
+        
         setInitialPermissionState(cloneDeep(permissionState))
         setSubmitActionProcessing(false)
     }, [
