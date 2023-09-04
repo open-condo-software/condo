@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -43,12 +44,13 @@ const {
 
 describe('InviteNewOrganizationEmployeeService', () => {
     let admin
-    let CC_DOMAIN
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
-        CC_DOMAIN = faker.internet.url()
-        process.env.CC_DOMAIN = CC_DOMAIN
+
+        if (!conf.CC_DOMAIN) {
+            process.env.CC_DOMAIN = faker.internet.url()
+        }
     })
 
     describe('inviteNewOrganizationEmployee', () => {
@@ -474,7 +476,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     expect(message.status).toEqual(MESSAGE_SENT_STATUS)
                     expect(transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
                     expect(message.organization.id).toEqual(client.organization.id)
-                    expect(message).toHaveProperty(['meta', 'serverUrl'], CC_DOMAIN)
+                    expect(message).toHaveProperty(['meta', 'serverUrl'], conf.CC_DOMAIN)
                 })
             })
         })
@@ -610,11 +612,11 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         const messages = await Message.getAll(admin, messageWhere)
 
                         expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
-                        expect(messages[0]).toHaveProperty(['meta', 'serverUrl'], CC_DOMAIN)
+                        expect(messages[0]).toHaveProperty(['meta', 'serverUrl'], conf.CC_DOMAIN)
                         expect(messages[0].processingMeta.transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
                         expect(messages[1].status).toEqual(MESSAGE_SENT_STATUS)
                         expect(messages[1].processingMeta.transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
-                        expect(messages[1]).toHaveProperty(['meta', 'serverUrl'], CC_DOMAIN)
+                        expect(messages[1]).toHaveProperty(['meta', 'serverUrl'], conf.CC_DOMAIN)
                         expect(messages[1].organization.id).toEqual(client.organization.id)
                     })
                 })
