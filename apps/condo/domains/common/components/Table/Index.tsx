@@ -9,6 +9,8 @@ import { GetRowKey } from 'rc-table/lib/interface'
 import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import React, { useCallback, useMemo } from 'react'
 
+import { ChevronDown, ChevronUp } from '@open-condo/icons'
+
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import {
@@ -150,4 +152,44 @@ export const Table: React.FC<ITableProps> = ({
             {...otherTableProps}
         />
     )
+}
+
+export const ExpandableTable: React.FC<ITableProps> = (props) => {
+    const { expandable, ...tableProps } = props
+    const dataSource = props.dataSource
+
+    const getRowClassName = useCallback((record, index) => {
+        const classNames = ['condo-table-expandable-row']
+
+        if (record.expanded) {
+            classNames.push('condo-table-expandable-row-expanded')
+        }
+        if (index === dataSource.length - 1) {
+            classNames.push('condo-table-expandable-row-last-row')
+        }
+
+        return classNames.join(' ')
+    }, [dataSource.length])
+
+    const expandableConfig = useMemo(() => ({
+        indentSize: 0,
+        expandRowByClick: true,
+        columnWidth: '60px',
+        expandedRowClassName: () => 'condo-table-expandable-row-inner-row',
+        onExpand: (expanded, record) => record.expanded = expanded,
+        expandIcon: ({ expanded, onExpand, record }) =>
+            expanded ? (
+                <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
+            ) : (
+                <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
+            ),
+        ...expandable,
+    }), [expandable])
+
+    return <Table
+        sticky
+        rowClassName={getRowClassName}
+        expandable={expandableConfig}
+        {...tableProps}
+    />
 }

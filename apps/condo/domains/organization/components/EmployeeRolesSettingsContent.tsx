@@ -33,12 +33,12 @@ import {
     IUseCreateActionType,
     IUseSoftDeleteActionType, IUseUpdateActionType,
 } from '@open-condo/codegen/generate.hooks'
-import { ChevronDown, ChevronUp, Close } from '@open-condo/icons'
+import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
-import { Table, TableRecord } from '@condo/domains/common/components/Table/Index'
+import { ExpandableTable, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
 import { B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 import {
     useEmployeeRolesTableColumns,
@@ -96,6 +96,9 @@ type TableCheckboxProps = {
 
 
 const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId, permissionKey, permissionState, setPermissionState }) => {
+    const intl = useIntl()
+    const DisabledTooltipTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.disabledCheckboxTitle' })
+
     let value
     let pathToPermissionsGroup
     const isReadPermission = permissionKey.startsWith('canRead')
@@ -151,7 +154,6 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
         }
 
         if (isReadPermission) {
-            // disable if this employee role has last manage permission of permissions group
             const permissionsGroup = get(permissionState, pathToPermissionsGroup)
             isCheckboxDisabled = false
 
@@ -171,13 +173,11 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
         }
     }
 
-    const tooltipTitle = 'Нельзя выключить права у всех ролей, для корректной работы у кого-то они должны быть доступны'
-
     return (
         <div style={{ width: '100px' }}>
             {
                 isCheckboxDisabled ? (
-                    <Tooltip title={tooltipTitle}>
+                    <Tooltip title={DisabledTooltipTitle}>
                         <Checkbox checked={Boolean(value)} onChange={onChange} disabled={true} />
                     </Tooltip>
                 ) : (
@@ -194,8 +194,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
-
-    const totalRows = connectedB2BApps.length
+    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
 
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
     const tableData: PermissionsGroup[] = useMemo(() => connectedB2BApps.map((b2bApp): PermissionsGroup => ({
@@ -205,7 +206,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             {
                 id: `canRead${b2bApp.id}`,
                 key: `canRead${b2bApp.id}`,
-                name: 'Просмотр сервиса',
+                name: CanReadServiceTitle,
             },
             ...b2BAppPermissions
                 .filter(permission => permission.app.id === b2bApp.id)
@@ -215,7 +216,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                     name: permission.name,
                 })),
         ],
-    })), [b2BAppPermissions, connectedB2BApps])
+    })), [CanReadServiceTitle, b2BAppPermissions, connectedB2BApps])
 
     const [initialPermissionState, setInitialPermissionState] = useState<PermissionState>()
     const [permissionState, setPermissionState] = useState<PermissionState>()
@@ -314,11 +315,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                         }
                     }
 
-                    // create if no canReadApp in initialB2bRolePermissions and has canReadApp in newB2bRolePermissions
                     const isCreateB2BAppRoleOperation = !initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
-                    // delete if canReadApp in newB2bRolePermissions and no canReadApp in newB2bRolePermissions
                     const isDeleteB2BAppRoleOperation = initialPermissions[canReadAppKey] && !newPermissions[canReadAppKey]
-                    // update permissions field if canReadApp doesn't change
                     const isUpdateB2BAppRoleOperation = initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
                     const newPermissionsToMutations = pick(newPermissions, b2bAppPermissionsKeys)
 
@@ -358,31 +356,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         softDeleteB2BAppRoleAction, updateB2BAppRoleAction,
     ])
 
-    const getRowClassName = useCallback((record, index) => {
-        const classNames = ['condo-table-expandable-row']
-
-        if (record.expanded) {
-            classNames.push('condo-table-expandable-row-expanded')
-        }
-        if (index === tableData.length - 1) {
-            classNames.push('condo-table-expandable-row-last-row')
-        }
-
-        return classNames.join(' ')
-    }, [tableData.length])
-
     const expandableConfig = useMemo(() => ({
-        indentSize: 0,
-        expandRowByClick: true,
-        columnWidth: '60px',
-        expandedRowClassName: () => 'condo-table-expandable-row-inner-row',
-        onExpand: (expanded, record) => record.expanded = expanded,
-        expandIcon: ({ expanded, onExpand, record }) =>
-            expanded ? (
-                <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
-            ) : (
-                <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
-            ),
         expandedRowRender: (permissionsGroup: PermissionsGroup) => {
             const permissionRows = permissionsGroup.permissions
 
@@ -419,14 +393,14 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         },
     }), [employeeRoles, permissionState])
 
-    const test: ActionBarProps['actions'] = useMemo(() => [
+    const actionBarItems: ActionBarProps['actions'] = useMemo(() => [
         <Button
             key='submit'
             onClick={handleSave}
             type='primary'
             loading={submitActionProcessing}
         >
-            Сохранить
+            {SaveLabel}
         </Button>,
         <Button
             icon={<Close size='medium' />}
@@ -435,9 +409,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             type='secondary'
             disabled={submitActionProcessing}
         >
-            Отменить выделение
+            {CancelSelectionLabel}
         </Button>,
-    ], [handleCancel, handleSave, submitActionProcessing])
+    ], [CancelSelectionLabel, SaveLabel, handleCancel, handleSave, submitActionProcessing])
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -445,20 +419,18 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 <Typography.Title level={3}>{TitleMessage}</Typography.Title>
             </Col>
             <Col span={24}>
-                <Table
+                <ExpandableTable
                     loading={loading}
-                    sticky
                     pagination={false}
-                    totalRows={totalRows}
+                    totalRows={connectedB2BApps.length}
                     dataSource={tableData}
                     columns={tableColumns}
                     data-cy='employeeRoles__table'
-                    rowClassName={getRowClassName}
                     expandable={expandableConfig}
                 />
             </Col>
             <ActionBar
-                actions={test}
+                actions={actionBarItems}
             />
         </Row>
     )
