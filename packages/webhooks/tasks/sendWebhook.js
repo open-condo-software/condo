@@ -1,5 +1,6 @@
 const dayjs = require('dayjs')
 const { default: RedLock } = require('redlock')
+const { v4: uuid } = require('uuid')
 
 const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
@@ -22,11 +23,11 @@ const logger = getLogger('sendWebhook')
 
 
 async function sendWebhook (subscriptionId) {
+    const taskId = this.id || uuid()
     const { keystone } = await getSchemaCtx('WebhookSubscription')
 
     const lockKey = `sendWebhook:${subscriptionId}`
     const lock = await rLock.acquire([lockKey], LOCK_DURATION)
-    logger.info({ message: 'Lock acquired', subscriptionId })
 
     try {
         const subscription = await WebhookSubscription.getOne(keystone, { id: subscriptionId })
@@ -67,13 +68,10 @@ async function sendWebhook (subscriptionId) {
 
         while (lastLoaded === packSize) {
             // Step 1: Receive another batch
+            const variables = { first: maxPackSize || DEFAULT_MAX_PACK_SIZE, skip: totalLoaded, where }
             const objs = await execGqlAsUser(keystone, user, {
                 query,
-                variables: {
-                    first: maxPackSize || DEFAULT_MAX_PACK_SIZE,
-                    skip: totalLoaded,
-                    where,
-                },
+                variables,
                 dataPath: 'objs',
                 deleted: true,
             })
@@ -86,8 +84,13 @@ async function sendWebhook (subscriptionId) {
             if (lastLoaded === 0) {
                 break
             }
+
             // Step 2: Send batch to specified url
+            const opts = { model, fields, variables, lastLoaded, totalLoaded, user }
+            logger.info({ msg: 'trySendData', url, data: objs, opts, subscriptionId, taskId })
             const response = await trySendData(url, objs)
+            logger.info({ msg: 'trySendResult', url, status: response.status, subscriptionId, taskId })
+
             lastSendSuccess = response.ok
 
             // If not succeed - log and finish task
@@ -95,7 +98,7 @@ async function sendWebhook (subscriptionId) {
                 const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
                 const lastUpdate = dayjs(lastSubscriptionUpdate)
                 // NOTE: If no failures before or > 1 hour since last failure passed -> increment failuresCount
-                if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
+                if (noFailureIncrementInterval.isAfter(lastUpdate)) {
                     await WebhookSubscription.update(keystone, subscriptionId, {
                         failuresCount: failuresCount + 1,
                         dv: 1,
@@ -104,16 +107,13 @@ async function sendWebhook (subscriptionId) {
                 }
 
                 if (response.status === 523) {
-                    logger.error({ message: 'Data was not sent. Reason: Unreachable resource', subscriptionId })
                     return { status: NO_RESPONSE_STATUS }
                 } else {
-                    logger.error({ message: 'Data was sent, but server response was not ok', status: response.status, subscriptionId })
                     return { status: BAD_RESPONSE_STATUS }
                 }
 
             } else {
                 totalLoaded += lastLoaded
-                logger.info({ message: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
             }
 
             // Step 3: Update subscription state if full batch received. Else condition will lead to final update
@@ -126,6 +126,7 @@ async function sendWebhook (subscriptionId) {
             }
         }
 
+        // NOTE: we don't need to update WebhookSubscription if no any updates found!
         await WebhookSubscription.update(keystone, subscriptionId, {
             syncedAt: lastSyncTime,
             dv: 1,
@@ -135,7 +136,7 @@ async function sendWebhook (subscriptionId) {
         return { status: OK_STATUS }
 
     } finally {
-        logger.info({ message: 'Lock released', subscriptionId })
+        logger.info({ message: 'Lock released', subscriptionId, taskId })
         await lock.release()
     }
 }
