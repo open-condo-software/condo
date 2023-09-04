@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
@@ -132,6 +133,7 @@ describe('CreatePaymentByLinkService', () => {
             recipient: createTestRecipient({
                 bic: billingRecipient.bic,
             }),
+            toPay: Big(qrCodeAttrs.Sum).div(100),
         })
 
         const [data] = await createPaymentByLinkByTestClient(admin, { qrCode })
@@ -152,6 +154,7 @@ describe('CreatePaymentByLinkService', () => {
         expect(payments[0].receipt).toBeDefined()
         expect(payments[0].accountNumber).toBe(billingReceipt.account.number)
         expect(payments[0].recipientBic).toBe(billingReceipt.receiver.bic)
+        expect(payments[0].amount).toBe(Big(qrCodeAttrs.Sum).div(100).toFixed(8))
     })
 
     test('user: create multiPayment when scanned receipt is older than the last receipt in our database', async () => {
