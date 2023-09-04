@@ -11,6 +11,7 @@ jobs:
   converge:
     name: "[production] Deploy"
     runs-on: self-hosted
+    if: startsWith(github.ref, 'refs/tags/release-v')
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
       PULL_USER: ${{ secrets.PULL_USER }}
