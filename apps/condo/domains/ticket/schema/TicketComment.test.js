@@ -1164,7 +1164,7 @@ describe('TicketComment', () => {
                 const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
                 const messages = await Message.getAll(admin, messageWhere)
 
-                waitFor(async () => {
+                await waitFor(async () => {
                     expect(messages).toHaveLength(1)
                     expect(messages[0].organization.id).toEqual(ticket.organization.id)
                 })
