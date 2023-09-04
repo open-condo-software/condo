@@ -136,7 +136,7 @@ async function sendWebhook (subscriptionId) {
         return { status: OK_STATUS }
 
     } finally {
-        logger.info({ message: 'Lock released', subscriptionId, taskId })
+        logger.info({ msg: 'Lock released', subscriptionId, taskId })
         await lock.release()
     }
 }
