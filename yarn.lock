@@ -348,7 +348,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollographql/graphql-playground-html@npm:^1.6.28, @apollographql/graphql-playground-html@npm:^1.6.29":
+"@apollographql/graphql-playground-html@npm:^1.6.28":
   version: 1.6.29
   resolution: "@apollographql/graphql-playground-html@npm:1.6.29"
   dependencies:
@@ -357,7 +357,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@apollographql/graphql-playground-react@npm:^1.7.40, @apollographql/graphql-playground-react@npm:^1.7.41":
+"@apollographql/graphql-playground-react@npm:^1.7.40":
   version: 1.7.42
   resolution: "@apollographql/graphql-playground-react@npm:1.7.42"
   dependencies:
@@ -8540,31 +8540,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/app-graphql-playground@npm:^5.2.3":
-  version: 5.2.3
-  resolution: "@keystonejs/app-graphql-playground@npm:5.2.3"
+"@keystonejs/app-graphql@npm:6.3.2":
+  version: 6.3.2
+  resolution: "@keystonejs/app-graphql@npm:6.3.2"
   dependencies:
-    "@apollographql/graphql-playground-html": ^1.6.29
-    "@apollographql/graphql-playground-react": ^1.7.41
-    "@keystonejs/session": ^8.3.2
-    "@keystonejs/utils": ^6.1.2
-    body-parser: ^1.19.0
-    chalk: ^4.1.1
-    falsey: ^1.0.0
-    graphql-tag: ^2.11.0
-    object-hash: ^2.2.0
-    terminal-link: ^2.1.1
-  peerDependencies:
-    express: ^4.17.1
-  checksum: dc57806b8a0192701a8d7752e186100280343dee1c517869acd8e9776e8437ab2b6043edda17eebbda0809dda43e60d0597bade7d6f132aacbfabe535f94d8b2
-  languageName: node
-  linkType: hard
-
-"@keystonejs/app-graphql@npm:^6.3.0, @keystonejs/app-graphql@npm:^6.3.2":
-  version: 6.3.3
-  resolution: "@keystonejs/app-graphql@npm:6.3.3"
-  dependencies:
-    "@keystonejs/app-graphql-playground": ^5.2.3
+    "@keystonejs/app-graphql-playground": ^5.2.2
     "@keystonejs/session": ^8.3.2
     "@keystonejs/utils": ^6.1.2
     graphql: ^15.5.0
@@ -8572,7 +8552,23 @@ __metadata:
     nanoassert: ^2.0.0
   peerDependencies:
     express: ^4.17.1
-  checksum: c39c1a341998e5ee5f08c45a2e410e95aa7c23d9a85c936ffa93921d96987f877f7014a4777c0346e08782c17a3b21ccd330c077078b09198242f1f1f2e6b8b5
+  checksum: a6987f5367a1e42bb4b996e7230802f3f6411dd6748223f834ee8c20215a9bb0098d53a73697d488338d6a7def82a36a17f566b515d42044cf767fc1586d753a
+  languageName: node
+  linkType: hard
+
+"@keystonejs/app-graphql@patch:@keystonejs/app-graphql@npm:6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch::locator=root%40workspace%3A.":
+  version: 6.3.2
+  resolution: "@keystonejs/app-graphql@patch:@keystonejs/app-graphql@npm%3A6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch::version=6.3.2&hash=c39a71&locator=root%40workspace%3A."
+  dependencies:
+    "@keystonejs/app-graphql-playground": ^5.2.2
+    "@keystonejs/session": ^8.3.2
+    "@keystonejs/utils": ^6.1.2
+    graphql: ^15.5.0
+    graphql-upload: ^11.0.0
+    nanoassert: ^2.0.0
+  peerDependencies:
+    express: ^4.17.1
+  checksum: c048205b0234ca75ffc96ed4420caf4ea082681e005befe54a3ab0afcd31918afa7e8abfa183a5c9401a462d6c95512ebbd7d4816a1d44ef59c3474645d13180
   languageName: node
   linkType: hard
 
@@ -8853,7 +8849,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@keystonejs/keystone@npm:19.3.4, @keystonejs/keystone@npm:^19.3.1, @keystonejs/keystone@npm:^19.3.3, @keystonejs/keystone@npm:^19.3.4":
+"@keystonejs/keystone@npm:19.3.4":
   version: 19.3.4
   resolution: "@keystonejs/keystone@npm:19.3.4"
   dependencies:
@@ -8890,6 +8886,46 @@ __metadata:
   bin:
     keystone: bin/cli.js
   checksum: e975c4229bc73b433a4900ed40b717fc9ca9014e531d4c10a535f191caefc9b19223001650ce5ee94ecc278e9bbf1d9b3824ce5367ea517e319c871d962a259e
+  languageName: node
+  linkType: hard
+
+"@keystonejs/keystone@patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::locator=root%40workspace%3A.":
+  version: 19.3.4
+  resolution: "@keystonejs/keystone@patch:@keystonejs/keystone@npm%3A19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch::version=19.3.4&hash=e3b25e&locator=root%40workspace%3A."
+  dependencies:
+    "@keystonejs/access-control": ^7.1.2
+    "@keystonejs/app-version": ^2.1.2
+    "@keystonejs/session": ^8.3.2
+    "@keystonejs/utils": ^6.1.2
+    apollo-errors: ^1.9.0
+    apollo-server-express: ^2.23.0
+    arg: ^5.0.0
+    chalk: ^4.1.1
+    ci-info: ^3.2.0
+    cors: ^2.8.5
+    cuid: ^2.1.8
+    endent: ^2.1.0
+    ensure-error: ^3.0.1
+    express: ^4.17.1
+    express-pino-logger: ^6.0.0
+    falsey: ^1.0.0
+    fs-extra: ^9.1.0
+    globby: ^11.0.3
+    graphql: ^15.5.0
+    graphql-type-json: ^0.3.2
+    graphql-upload: ^11.0.0
+    lodash.flattendeep: ^4.4.0
+    micro-memoize: ^4.0.9
+    ora: ^5.4.1
+    p-waterfall: ^2.1.1
+    pino: ^6.13.3
+    pluralize: ^8.0.0
+    serialize-error: ^8.1.0
+    stack-utils: ^2.0.3
+    terminal-link: ^2.1.1
+  bin:
+    keystone: bin/cli.js
+  checksum: 07b4962c7c070cbcc93b94997a418e5b91f4a2f2c587d7051478e709d2e46dc29760317eb0b6b3495c924e5ec833a1a376fb1e82fd8824c971d8b75a7ac85a60
   languageName: node
   linkType: hard
 
@@ -25334,7 +25370,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"graphql@npm:15.8.0":
+"graphql@npm:^15.5.0, graphql@npm:^15.6.1":
   version: 15.8.0
   resolution: "graphql@npm:15.8.0"
   checksum: 423325271db8858428641b9aca01699283d1fe5b40ef6d4ac622569ecca927019fce8196208b91dd1d8eb8114f00263fe661d241d0eb40c10e5bfd650f86ec5e
@@ -33436,7 +33472,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"object-hash@npm:^2.0.1, object-hash@npm:^2.1.1, object-hash@npm:^2.2.0":
+"object-hash@npm:^2.0.1, object-hash@npm:^2.1.1":
   version: 2.2.0
   resolution: "object-hash@npm:2.2.0"
   checksum: 55ba841e3adce9c4f1b9b46b41983eda40f854e0d01af2802d3ae18a7085a17168d6b81731d43fdf1d6bcbb3c9f9c56d22c8fea992203ad90a38d7d919bc28f1
