@@ -36,7 +36,7 @@ const {
     makeClientWithProperty, createTestProperty, updateTestProperty,
 } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
-const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC, PAYMENT_CATEGORIES_META } = require('@condo/domains/resident/constants/constants')
+const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC } = require('@condo/domains/resident/constants/constants')
 const { REDIS_KEY } = require('@condo/domains/resident/tasks/discoverServiceConsumersCron.task')
 const {
     createTestResident,
@@ -808,12 +808,12 @@ describe('DiscoverServiceConsumersService', () => {
             const resident3ServiceAccountNumber = `resident3Service_${faker.random.alphaNumeric(10)}`
 
             // List of categories for receipts
-            const category0 = { id: PAYMENT_CATEGORIES_META[0].uuid }
-            const category1 = { id: PAYMENT_CATEGORIES_META[1].uuid }
-            const category2 = { id: PAYMENT_CATEGORIES_META[2].uuid }
-            const category3 = { id: PAYMENT_CATEGORIES_META[3].uuid }
-            const category4 = { id: PAYMENT_CATEGORIES_META[4].uuid }
-            const category5 = { id: PAYMENT_CATEGORIES_META[5].uuid }
+            const category0 = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
+            const category1 = { id: '11bb27ce-3f11-40f2-8fdf-f6aa1364df08' }
+            const category2 = { id: '9c29b499-6594-4479-a2a7-b6553587d6e2' }
+            const category3 = { id: '40053ebf-7a67-4b9d-8637-a6f398ad7d3c' }
+            const category4 = { id: 'b84acc8b-ee9d-401c-bde6-75a284d84789' }
+            const category5 = { id: 'ebf9524e-b5ad-44ef-9343-01ab6147d400' }
 
             const [managingOrg1] = await registerNewOrganization(user1)
             const [serviceOrg1] = await registerNewOrganization(user2, { type: SERVICE_PROVIDER_TYPE })
