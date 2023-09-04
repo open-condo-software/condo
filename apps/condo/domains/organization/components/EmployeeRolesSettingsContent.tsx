@@ -1,8 +1,7 @@
-import { MinusCircleTwoTone } from '@ant-design/icons'
 import {
     B2BApp,
     B2BAppRoleCreateInput,
-    B2BAppRoleUpdateInput, QueryAllB2BAppRolesArgs,
+    B2BAppRoleUpdateInput,
     SortOrganizationEmployeeRolesBy,
 } from '@app/condo/schema'
 import {
@@ -11,49 +10,41 @@ import {
     B2BAppRole as B2BAppRoleType,
 } from '@app/condo/schema'
 import { Col, notification, Row, Typography } from 'antd'
-import { Table as AntdTable } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { mergeWith, set } from 'lodash'
+import { set } from 'lodash'
 import { isEqual } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
-import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
-import pickBy from 'lodash/pickBy'
-import uniq from 'lodash/uniq'
 import uniqBy from 'lodash/uniqBy'
-import { useRouter } from 'next/router'
+import { TableComponents } from 'rc-table/lib/interface'
 import React, {
     Dispatch,
-    MutableRefObject, ReactElement,
-    RefObject,
     SetStateAction,
     useCallback,
     useEffect,
     useMemo,
-    useRef,
     useState,
 } from 'react'
 
 import {
-    IGenerateHooksResult,
     IUseCreateActionType,
     IUseSoftDeleteActionType, IUseUpdateActionType,
 } from '@open-condo/codegen/generate.hooks'
 import { ChevronDown, ChevronUp, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ActionBarProps, Button, Checkbox } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
-import { Table } from '@condo/domains/common/components/Table/Index'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useEmployeeRolesTableColumns } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
+import { Table, TableRecord } from '@condo/domains/common/components/Table/Index'
+import { B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
+import {
+    useEmployeeRolesTableColumns,
+    useEmployeeRoleTicketVisibilityInfoTableColumns,
+} from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
-
-import { Loader } from '../../common/components/Loader'
-import { B2BAppPermission, B2BAppRole } from '../../miniapp/utils/clientSchema'
 
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
@@ -106,24 +97,23 @@ type TableCheckboxProps = {
 
 const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId, permissionKey, permissionState, setPermissionState }) => {
     let value
-    let pathToPermissions
+    let pathToPermissionsGroup
     const isReadPermission = permissionKey.startsWith('canRead')
     const isB2bPermission = !!b2bAppId
 
     if (isB2bPermission) {
-        pathToPermissions = [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions']
-        value = get(permissionState, [...pathToPermissions, permissionKey], false)
+        pathToPermissionsGroup = [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions']
+        value = get(permissionState, [...pathToPermissionsGroup, permissionKey], false)
     } else {
-        pathToPermissions = [employeeRoleId, 'organizationPermissions']
-        value = get(permissionState, [...pathToPermissions, permissionKey], false)
+        pathToPermissionsGroup = [employeeRoleId, 'organizationPermissions']
+        value = get(permissionState, [...pathToPermissionsGroup, permissionKey], false)
     }
 
     const onChange = useCallback((e) => {
         const newValue = e.target.checked
         const newState = cloneDeep(permissionState)
-        const oldPermissions = get(newState, pathToPermissions)
+        const oldPermissions = get(newState, pathToPermissionsGroup)
         let newPermissions
-        let removedPermissionsToCheck = [permissionKey]
 
         if (isReadPermission) {
             if (newValue) {
@@ -131,7 +121,6 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
             } else if (!newValue) {
                 newPermissions = Object.keys(oldPermissions)
                     .reduce((acc, permission) => ({ ...acc, [permission]: false }), {})
-                removedPermissionsToCheck = Object.keys(oldPermissions)
             }
         } else {
             if (newValue) {
@@ -142,31 +131,59 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
             }
         }
 
-        set(newState, pathToPermissions, newPermissions)
+        set(newState, pathToPermissionsGroup, newPermissions)
 
-        // check that at least one employee role has permission
-        if (!newValue) {
-            const pathToPermissionsFromEmployeeRole = pathToPermissions.splice(1)
+        setPermissionState(newState)
+    }, [isReadPermission, pathToPermissionsGroup, permissionKey, permissionState, setPermissionState])
 
-            for (const removedPermissionKey of removedPermissionsToCheck) {
-                const hasAtLeastOneActiveCheckboxInRow = Object.keys(newState).find(employeeRoleId => {
-                    const employeePermission = get(newState, [employeeRoleId, ...pathToPermissionsFromEmployeeRole, removedPermissionKey], false)
+    let isCheckboxDisabled = value
+    if (value) {
+        const otherEmployeeRoleIds = Object.keys(omit(permissionState, employeeRoleId))
+        const pathToPermissionsGroupFromEmployeeRole = pathToPermissionsGroup.slice(1)
 
-                    return employeePermission === true
-                })
+        for (const roleId of otherEmployeeRoleIds) {
+            const isOtherEmployeeHasPermission = get(permissionState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permissionKey], false)
 
-                if (!hasAtLeastOneActiveCheckboxInRow) {
-                    return
-                }
+            if (isOtherEmployeeHasPermission) {
+                isCheckboxDisabled = false
+                break
             }
         }
 
-        setPermissionState(newState)
-    }, [isReadPermission, pathToPermissions, permissionKey, permissionState, setPermissionState])
+        if (isReadPermission) {
+            // disable if this employee role has last manage permission of permissions group
+            const permissionsGroup = get(permissionState, pathToPermissionsGroup)
+            isCheckboxDisabled = false
+
+            for (const permission of Object.keys(permissionsGroup)) {
+                let otherEmployeeHasPermission = false
+
+                for (const roleId of otherEmployeeRoleIds) {
+                    if (get(permissionState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permission])) {
+                        otherEmployeeHasPermission = true
+                    }
+                }
+
+                if (!otherEmployeeHasPermission) {
+                    isCheckboxDisabled = true
+                }
+            }
+        }
+    }
+
+    const tooltipTitle = 'Нельзя выключить права у всех ролей, для корректной работы у кого-то они должны быть доступны'
 
     return (
         <div style={{ width: '100px' }}>
-            <Checkbox checked={Boolean(value)} onChange={onChange} />
+            {
+                isCheckboxDisabled ? (
+                    <Tooltip title={tooltipTitle}>
+                        <Checkbox checked={Boolean(value)} onChange={onChange} disabled={true} />
+                    </Tooltip>
+                ) : (
+                    <Checkbox checked={Boolean(value)} onChange={onChange} />
+                )
+            }
         </div>
     )
 }
@@ -491,4 +508,52 @@ export const EmployeeRolesSettingsContent = () => {
         b2BAppRoles={b2BAppRoles}
         b2BAppPermissions={b2BAppPermissions}
     />
+}
+
+export const EmployeeRoleTicketVisibilityInfo = () => {
+    const intl = useIntl()
+    const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
+    const EditProhibitedMessage = intl.formatMessage({ id: 'EditProhibited' })
+
+    const userOrganization = useOrganization()
+    const userOrganizationId = useMemo(() => get(userOrganization, ['organization', 'id']), [userOrganization])
+
+    const {
+        loading: isRolesLoading,
+        count: totalRoles,
+        objs: roles,
+    } = OrganizationEmployeeRole.useObjects({
+        where: { organization: { id: userOrganizationId } },
+    })
+
+    const tableColumns = useEmployeeRoleTicketVisibilityInfoTableColumns([])
+
+    const tableComponents: TableComponents<TableRecord> = useMemo(() => ({
+        body: {
+            row: (props) => (
+                <Tooltip title={EditProhibitedMessage}>
+                    <tr {...props} />
+                </Tooltip>
+            ),
+        },
+    }), [EditProhibitedMessage])
+
+    return (
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+            <Col span={24}>
+                <Typography.Title level={3}>{TitleMessage}</Typography.Title>
+            </Col>
+            <Col span={24}>
+                <Table
+                    pagination={false}
+                    totalRows={totalRoles}
+                    loading={isRolesLoading}
+                    dataSource={roles}
+                    columns={tableColumns}
+                    data-cy='employeeRoles__table'
+                    components={tableComponents}
+                />
+            </Col>
+        </Row>
+    )
 }
