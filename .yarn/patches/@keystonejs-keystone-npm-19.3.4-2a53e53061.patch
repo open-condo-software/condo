@@ -1,0 +1,13 @@
+diff --git a/lib/Keystone/index.js b/lib/Keystone/index.js
+index 5f76cf925886570bc5416d50d7335923d3992ae7..d7b88fc338bde487b7427a85798879111aef6311 100644
+--- a/lib/Keystone/index.js
++++ b/lib/Keystone/index.js
+@@ -4,7 +4,7 @@ const memoize = require('micro-memoize');
+ const falsey = require('falsey');
+ const createCorsMiddleware = require('cors');
+ const { execute, print } = require('graphql');
+-const { GraphQLUpload } = require('graphql-upload');
++const GraphQLUpload= require('graphql-upload/GraphQLUpload.js');
+ const { arrayToObject, objMerge, flatten, unique, filterValues } = require('@keystonejs/utils');
+ const {
+   validateFieldAccessControl,
