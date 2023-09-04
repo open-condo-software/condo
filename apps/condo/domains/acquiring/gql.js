@@ -24,7 +24,13 @@ const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationCont
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status paymentTransaction ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount order frozenOrder }`
+const ORDER_TO_PAY_DETAILS_FIELDS = 'charge formula balance recalculation privilege penalty paid'
+const ORDER_SERVICES_TO_PAY_DETAILS_FIELDS = `toPayDetails { ${ORDER_TO_PAY_DETAILS_FIELDS} }`
+const BILLING_RECEIPT_SERVICES_FIELDS = `services { id name toPay ${ORDER_SERVICES_TO_PAY_DETAILS_FIELDS} }`
+const ORDER_FIELDS = `{ property { id } unitName unitType accountNumber toPay ${ORDER_SERVICES_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICES_FIELDS} number ticket { id } ${COMMON_FIELDS} }`
+const Order = generateGqlQueries('Order', ORDER_FIELDS)
+
+const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status paymentTransaction ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount order { id } frozenOrder type }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
@@ -68,8 +74,6 @@ const RecurrentPaymentContext = generateGqlQueries('RecurrentPaymentContext', RE
 const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state payAfter billingReceipts { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
 const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMENT_FIELDS)
 
-const ORDER_FIELDS = `{ property { id } unitName unitType accountNumber toPay toPayDetails services number ticket { id } ${COMMON_FIELDS} }`
-const Order = generateGqlQueries('Order', ORDER_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 

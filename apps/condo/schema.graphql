@@ -50185,6 +50185,7 @@ type PaymentHistoryRecord {
   paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
+  type: JSON
   importId: String
   id: ID!
   v: Int
@@ -50414,6 +50415,10 @@ input PaymentHistoryRecordWhereInput {
   recipientBankAccount_not_ends_with_i: String
   recipientBankAccount_in: [String]
   recipientBankAccount_not_in: [String]
+  type: JSON
+  type_not: JSON
+  type_in: [JSON]
+  type_not_in: [JSON]
   importId: String
   importId_not: String
   importId_contains: String
@@ -50585,6 +50590,7 @@ input PaymentHistoryRecordUpdateInput {
   paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
+  type: JSON
   importId: String
   v: Int
   createdAt: String
@@ -50627,6 +50633,7 @@ input PaymentHistoryRecordCreateInput {
   paymentTransaction: String
   recipientBic: String
   recipientBankAccount: String
+  type: JSON
   importId: String
   v: Int
   createdAt: String
@@ -50748,6 +50755,9 @@ type Payment {
   """ Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address 
   """
   recipientBankAccount: String
+
+  """ Indicates the type of Payment """
+  type: String
 
   """ Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs 
   """
@@ -52865,8 +52875,8 @@ type Order {
   """
   _label_: String
 
-  """ Billing property """
-  property: BillingProperty
+  """ Property """
+  property: Property
 
   """ Ticket """
   ticket: Ticket
@@ -52919,7 +52929,7 @@ type Order {
 input OrderWhereInput {
   AND: [OrderWhereInput]
   OR: [OrderWhereInput]
-  property: BillingPropertyWhereInput
+  property: PropertyWhereInput
   property_is_null: Boolean
   ticket: TicketWhereInput
   ticket_is_null: Boolean
@@ -53093,7 +53103,7 @@ enum SortOrdersBy {
 }
 
 input OrderUpdateInput {
-  property: BillingPropertyRelateToOneInput
+  property: PropertyRelateToOneInput
   ticket: TicketRelateToOneInput
   unitName: String
   unitType: String
@@ -53119,7 +53129,7 @@ input OrdersUpdateInput {
 }
 
 input OrderCreateInput {
-  property: BillingPropertyRelateToOneInput
+  property: PropertyRelateToOneInput
   ticket: TicketRelateToOneInput
   unitName: String
   unitType: String

@@ -47352,8 +47352,8 @@ export type Order = {
    *  4. As an alias to the 'id' field on the Order List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Billing property  */
-  property?: Maybe<BillingProperty>;
+  /**  Property  */
+  property?: Maybe<Property>;
   /**  Ticket  */
   ticket?: Maybe<Ticket>;
   /**  Flat number / door number of an apartment building (property)  */
@@ -47387,7 +47387,7 @@ export type Order = {
 };
 
 export type OrderCreateInput = {
-  property?: Maybe<BillingPropertyRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -47694,7 +47694,7 @@ export type OrderRelateToOneInput = {
 };
 
 export type OrderUpdateInput = {
-  property?: Maybe<BillingPropertyRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
   ticket?: Maybe<TicketRelateToOneInput>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
@@ -47717,7 +47717,7 @@ export type OrderUpdateInput = {
 export type OrderWhereInput = {
   AND?: Maybe<Array<Maybe<OrderWhereInput>>>;
   OR?: Maybe<Array<Maybe<OrderWhereInput>>>;
-  property?: Maybe<BillingPropertyWhereInput>;
+  property?: Maybe<PropertyWhereInput>;
   property_is_null?: Maybe<Scalars['Boolean']>;
   ticket?: Maybe<TicketWhereInput>;
   ticket_is_null?: Maybe<Scalars['Boolean']>;
@@ -50612,6 +50612,8 @@ export type Payment = {
   recipientBic?: Maybe<Scalars['String']>;
   /**  Bank account number of recipient organization, used for matching payments with receipts in case of multiple receipts per account + address  */
   recipientBankAccount?: Maybe<Scalars['String']>;
+  /**  Indicates the type of Payment  */
+  type?: Maybe<Scalars['String']>;
   /**  Id of object in external service which represents current item. Mostly used for internal needs of integration services for matching our objects with theirs  */
   importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -50712,6 +50714,7 @@ export type PaymentHistoryRecord = {
   paymentTransaction?: Maybe<Scalars['String']>;
   recipientBic?: Maybe<Scalars['String']>;
   recipientBankAccount?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -50750,6 +50753,7 @@ export type PaymentHistoryRecordCreateInput = {
   paymentTransaction?: Maybe<Scalars['String']>;
   recipientBic?: Maybe<Scalars['String']>;
   recipientBankAccount?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -50793,6 +50797,7 @@ export type PaymentHistoryRecordUpdateInput = {
   paymentTransaction?: Maybe<Scalars['String']>;
   recipientBic?: Maybe<Scalars['String']>;
   recipientBankAccount?: Maybe<Scalars['String']>;
+  type?: Maybe<Scalars['JSON']>;
   importId?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -51021,6 +51026,10 @@ export type PaymentHistoryRecordWhereInput = {
   recipientBankAccount_not_ends_with_i?: Maybe<Scalars['String']>;
   recipientBankAccount_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   recipientBankAccount_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  type?: Maybe<Scalars['JSON']>;
+  type_not?: Maybe<Scalars['JSON']>;
+  type_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  type_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   importId?: Maybe<Scalars['String']>;
   importId_not?: Maybe<Scalars['String']>;
   importId_contains?: Maybe<Scalars['String']>;

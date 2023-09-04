@@ -16,9 +16,9 @@ const Order = new GQLListSchema('Order', {
     schemaDoc: 'TODO DOC!',
     fields: {
         property: {
-            schemaDoc: 'Billing property',
+            schemaDoc: 'Property',
             type: Relationship,
-            ref: 'BillingProperty',
+            ref: 'Property',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },

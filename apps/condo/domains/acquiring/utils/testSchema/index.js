@@ -50,6 +50,7 @@ const { PaymentsFilterTemplate: PaymentsFilterTemplateGQL, SUM_PAYMENTS_QUERY  }
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { Order: OrderGQL } = require('@condo/domains/acquiring/gql')
+const { createTestTicket } = require("@condo/domains/ticket/utils/testSchema");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -506,6 +507,11 @@ async function createTestOrder (client, property, ticket, extraAttrs = {}) {
         sender,
         property: { connect: { id: property.id } },
         ticket: { connect: { id: ticket.id } },
+        unitName: faker.random.alphaNumeric(8),
+        unitType: faker.random.alphaNumeric(8),
+        toPay: faker.random.numeric(4),
+        number: faker.random.numeric(8),
+        accountNumber: faker.random.numeric(8),
         ...extraAttrs,
     }
     const obj = await Order.create(client, attrs)
@@ -546,6 +552,8 @@ async function makePayer (receiptsAmount = 1) {
         billingReceipts.push(receipt)
     }
 
+    const [ticket] = await createTestTicket(admin, organization, property)
+    const [order] = await createTestOrder(admin, property, ticket)
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
@@ -574,6 +582,7 @@ async function makePayer (receiptsAmount = 1) {
         billingReceipts,
         resident,
         serviceConsumer,
+        order,
     }
 }
 

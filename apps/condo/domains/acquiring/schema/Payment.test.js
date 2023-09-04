@@ -27,6 +27,9 @@ const {
     PAYMENT_NO_SUPPORTED_CONTEXT,
     PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
     PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
+    PAYMENT_NO_PAIRED_FROZEN_ORDER,
+    PAYMENT_NO_PAIRED_ORDER,
+    PAYMENT_RECEIPT_IS_LINKED,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_ERROR_STATUS,
@@ -36,6 +39,9 @@ const {
     PAYMENT_PROCESSING_STATUS,
     PAYMENT_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELDS,
+    ORDER_PAYMENT_TYPE,
+    RECEIPT_PAYMENT_TYPE,
+    UNDEFINED_PAYMENT_TYPE,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
     Payment,
@@ -409,34 +415,40 @@ describe('Payment', () => {
                 }, PAYMENT_NO_PAIRED_RECEIPT)
             })
             test('Order and frozen order should be updated at the same time', async () => {
-                const { admin, organization, billingReceipts } = await makePayer()
+                const { admin, organization, order } = await makePayer()
 
-                await expectToThrowGQLError(
-                    async () => {
-                        await createTestPayment(admin, organization, {
-                            order: orders[0],
-                            frozenOrder: null,
-                        })
-                    },
-                    {
-                        code: 'BAD_USER_INPUT',
-                        type: 'PAYMENT_NO_PAIRED_FROZEN_ORDER',
-                        message: 'Input is containing "order", but no "frozenOrder" is not specified',
-                    },
-                )
-
-                await expectToThrowGQLError(
-                    async () => {
-                        await createTestPayment(admin, organization, {
-                            frozenOrder: { dv: 1, data: orders[0] },
-                        })
-                    },
-                    {
-                        code: 'BAD_USER_INPUT',
-                        type: 'PAYMENT_NO_PAIRED_ORDER',
-                        message: 'Input is containing "frozenOrder", but no "order" is not specified',
-                    },
-                )
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, null, null, {
+                        order: { connect: { id: order.id } },
+                        frozenOrder: null,
+                    })
+                }, PAYMENT_NO_PAIRED_FROZEN_ORDER)
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, null, null, {
+                        frozenOrder: { dv: 1, data: order },
+                    })
+                }, PAYMENT_NO_PAIRED_ORDER)
+            })
+            test('Payment should not have both order and receipt',  async () => {
+                const { admin, organization, order, billingReceipts } = await makePayer()
+                await expectToThrowValidationFailureError(async () => {
+                    await createTestPayment(admin, organization, billingReceipts[0], null, {
+                        order: { connect: { id: order.id } },
+                    })
+                }, PAYMENT_RECEIPT_IS_LINKED)
+            })
+            test('Payment should have correct type',  async () => {
+                const { admin, organization, order, billingReceipts, acquiringContext } = await makePayer()
+                const [payment] = await createTestPayment(admin, organization, null, null, {
+                    order: { connect: { id: order.id } },
+                    frozenOrder: { dv: 1, data: order },
+                })
+                const [payment2] = await createTestPayment(admin, organization, billingReceipts[0], acquiringContext)
+                const [payment3] = await createTestPayment(admin, organization, null, null)
+                expect(payment).toHaveProperty('id')
+                expect(payment.type).toEqual(ORDER_PAYMENT_TYPE)
+                expect(payment2.type).toEqual(RECEIPT_PAYMENT_TYPE)
+                expect(payment3.type).toEqual(UNDEFINED_PAYMENT_TYPE)
             })
             test('context should should have same organization as payment',  async () => {
                 const { admin, acquiringContext } = await makePayer()
