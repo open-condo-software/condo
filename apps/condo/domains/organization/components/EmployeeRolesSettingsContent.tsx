@@ -404,6 +404,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 })),
                 {
                     width: '60px',
+                    render: () => <div style={{ width: '20px' }} />,
                 },
             ]
 
