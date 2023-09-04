@@ -113,6 +113,8 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
             const res = await prepareKeystoneExpressApp(entryPoint, prepareKeystoneOptions)
             __expressApp = res.app
             __keystone = res.keystone
+            // tests express for a fake gql client
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
             __expressServer = http.createServer(__expressApp).listen(0)
         })
         afterAll(async () => {
@@ -140,6 +142,9 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
     const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
     const { middlewares } = await keystone.prepare({ apps: newApps, dev, cors, pinoOptions })
     await keystone.connect()
+
+    // not a csrf case: used for test & development scripts purposes
+    // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
     const app = express()
     if (configureExpress) configureExpress(app)
     app.use(middlewares)
@@ -235,6 +240,8 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         }
     }
 
+    // test apollo client with disabled tls
+    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
 
     const apolloLinks = []
@@ -325,6 +332,8 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     const cookieJar = new CookieJar()
     const domain = (urlParse(cookieDomain).protocol || 'http:') + '//' + urlParse(cookieDomain).host
     cookies.forEach((cookie) => cookieJar.setCookieSync(cookie, domain))
+    // test axios client with disabled tls
+    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
     if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
     const client = axios.create({

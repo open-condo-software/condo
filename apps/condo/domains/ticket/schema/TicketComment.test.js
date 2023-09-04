@@ -14,9 +14,10 @@ const {
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     MESSAGE_SENT_STATUS,
-    TICKET_COMMENT_ADDED_TYPE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID,
+    TICKET_COMMENT_ADDED_TYPE, DEVICE_PLATFORM_ANDROID, APP_RESIDENT_ID_ANDROID, APP_MASTER_ID_ANDROID,
 } = require('@condo/domains/notification/constants/constants')
 const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { syncRemoteClientWithPushTokenByTestClient, updateTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { getRandomTokenData, getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
 const { updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -27,13 +28,13 @@ const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty, makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, updateTestResident } = require('@condo/domains/resident/utils/testSchema')
+const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { createTestTicket, Ticket } = require('@condo/domains/ticket/utils/testSchema')
 const { TicketComment, createTestTicketComment, updateTestTicketComment } = require('@condo/domains/ticket/utils/testSchema')
+const { updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
-const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('../constants')
-const { STATUS_IDS } = require('../constants/statusTransitions')
-const { updateTestTicket } = require('../utils/testSchema')
 
 describe('TicketComment', () => {
     describe('employee', () => {
@@ -1060,118 +1061,221 @@ describe('TicketComment', () => {
     })
 
     describe('notifications', () => {
-        it('checks that resident user receives push notification when employee comments his ticket', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const residentClient = await makeClientWithResidentAccessAndProperty()
-            const unitName = faker.random.alphaNumeric(5)
-            const unitName1 = faker.random.alphaNumeric(5)
-            const content = faker.lorem.sentence()
+        describe('Create resident visible comment by staff', () => {
+            it('checks that resident user receives push notification when employee comments his ticket', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const unitName1 = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
 
-            const payload = getRandomTokenData({
-                devicePlatform: DEVICE_PLATFORM_ANDROID,
-                appId: APP_RESIDENT_ID_ANDROID,
-                pushToken: getRandomFakeSuccessToken(),
+                const payload = getRandomTokenData({
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_RESIDENT_ID_ANDROID,
+                    pushToken: getRandomFakeSuccessToken(),
+                })
+
+                await syncRemoteClientByTestClient(residentClient, payload)
+
+                const [resident] = await createTestResident(admin, residentClient.user, residentClient.property, { unitName })
+
+                // NOTE: this needed for checking that proper resident will be picked when same user + organization + property can has multiple residents
+                await createTestResident(admin, residentClient.user, residentClient.property, { unitName: unitName1 })
+
+                const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
+                const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)
+
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
+                expect(ticketComment.content).toMatch(content)
+
+                await waitFor(async () => {
+                    const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+                    const message = await Message.getOne(admin, messageWhere)
+
+                    expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(message.meta.data.ticketId).toEqual(ticket.id)
+                    expect(message.meta.data.commentId).toEqual(ticketComment.id)
+                    expect(message.meta.data.residentId).toEqual(resident.id)
+                    expect(message.meta.data.userId).toEqual(residentClient.user.id)
+                    /** old way check */
+                    expect(message.processingMeta.transport).toEqual('push')
+                    /** ADR-7 way check */
+                    expect(message.processingMeta.transportsMeta[0].transport).toEqual('push')
+                })
             })
 
-            await syncRemoteClientByTestClient(residentClient, payload)
+            it('checks that notification is not being sent on employee comment create if there is no resident connected to ticket', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
 
-            const [resident] = await createTestResident(admin, residentClient.user, residentClient.property, { unitName })
+                expect(ticket.client).toEqual(null)
 
-            // NOTE: this needed for checking that proper resident will be picked when same user + organization + property can has multiple residents
-            await createTestResident(admin, residentClient.user, residentClient.property, { unitName: unitName1 })
+                await createTestTicketComment(admin, ticket, userClient.user)
 
-            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
-            const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
-            const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)
+                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+                const messageCount = await Message.count(admin, messageWhere)
+                expect(messageCount).toEqual(0)
+            })
 
-            expect(ticketComment.id).toMatch(UUID_RE)
-            expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
-            expect(ticketComment.content).toMatch(content)
+            it('checks that notifications is not being sent when resident adds comment to ticket', async () => {
+                const adminClient = await makeLoggedInAdminClient()
+                const userClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const [organization] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, organization)
+                const employeeRoleAttrs = { canManageTickets: true, canManageTicketComments: true }
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, employeeRoleAttrs)
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+                await createTestResident(adminClient, userClient.user, property, { unitName })
+                const [ticket] = await createTestTicket(userClient, organization, property, { unitName })
+                await createTestTicketComment(userClient, ticket, userClient.user, { type: RESIDENT_COMMENT_TYPE })
+                const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+                const messageCount = await Message.count(userClient, messageWhere)
 
-            const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-            const message = await Message.getOne(admin, messageWhere)
+                expect(messageCount).toEqual(0)
+            })
 
-            expect(message).toBeDefined()
-            expect(message.id).toMatch(UUID_RE)
-            expect(message.organization.id).toEqual(ticket.organization.id)
+            it('checks that notifications is not being sent on comment edit', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                const content = faker.lorem.sentence()
 
-            await waitFor(async () => {
-                const message1 = await Message.getOne(admin, messageWhere)
+                await createTestResident(admin, residentClient.user, residentClient.property, { unitName })
 
-                expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
-                expect(message1.meta.data.ticketId).toEqual(ticket.id)
-                expect(message1.meta.data.commentId).toEqual(ticketComment.id)
-                expect(message1.meta.data.residentId).toEqual(resident.id)
-                expect(message1.meta.data.userId).toEqual(residentClient.user.id)
-                /** old way check */
-                expect(message1.processingMeta.transport).toEqual('push')
-                /** ADR-7 way check */
-                expect(message1.processingMeta.transportsMeta[0].transport).toEqual('push')
+                const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
+                const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)
+
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
+                expect(ticketComment.content).toMatch(content)
+
+                const payload1 = { content: faker.random.alphaNumeric(10) }
+                const [objUpdated] = await updateTestTicketComment(admin, ticketComment.id, payload1)
+
+                expect(objUpdated.id).toEqual(ticketComment.id)
+                expect(objUpdated.v).toEqual(2)
+
+                const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
+                const messages = await Message.getAll(admin, messageWhere)
+
+                waitFor(async () => {
+                    expect(messages).toHaveLength(1)
+                    expect(messages[0].organization.id).toEqual(ticket.organization.id)
+                })
             })
         })
 
-        it('checks that notification is not being sent on employee comment create if there is no resident connected to ticket', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithProperty()
-            const unitName = faker.random.alphaNumeric(5)
-            const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property, { unitName })
+        describe('Create resident comment by resident', () => {
+            let admin, employeeClient1, employeeClient2, residentClient,
+                organization, property, resident, residentUnitName
 
-            expect(ticket.client).toEqual(null)
+            beforeAll(async () => {
+                admin = await makeLoggedInAdminClient()
+                employeeClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
+                employeeClient2 = await makeClientWithNewRegisteredAndLoggedInUser()
+                residentClient = await makeClientWithResidentAccessAndProperty()
 
-            await createTestTicketComment(admin, ticket, userClient.user)
+                organization = residentClient.organization
+                property = residentClient.property
 
-            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-            const messageCount = await Message.count(admin, messageWhere)
-            expect(messageCount).toEqual(0)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageTickets: true })
+                await createTestOrganizationEmployee(admin, organization, employeeClient1.user, role)
+                await createTestOrganizationEmployee(admin, organization, employeeClient2.user, role)
+
+                const unitName = faker.random.alphaNumeric(5)
+                const [testResident] = await createTestResident(admin, residentClient.user, property, { unitName })
+                residentUnitName = unitName
+                resident = testResident
+
+                const payload = {
+                    devicePlatform: DEVICE_PLATFORM_ANDROID,
+                    appId: APP_MASTER_ID_ANDROID,
+                }
+                await syncRemoteClientWithPushTokenByTestClient(employeeClient1, payload)
+                await syncRemoteClientWithPushTokenByTestClient(employeeClient2, payload)
+            })
+
+            beforeEach(async () => {
+                const messages = await Message.getAll(admin, { user: { id_in: [employeeClient1.user.id, employeeClient2.user.id] } })
+
+                for (const message of messages) {
+                    await updateTestMessage(admin, message.id, {
+                        deletedAt: 'true',
+                    })
+                }
+            })
+
+            it('sent notifications to assignee and executor of ticket', async () => {
+                const assigneeUserId = employeeClient1.user.id
+                const executorUserId = employeeClient2.user.id
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName: residentUnitName,
+                    assignee: { connect: { id: assigneeUserId } },
+                    executor: { connect: { id: executorUserId } },
+                })
+
+                const content = faker.lorem.sentence()
+                const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, extraAttrs)
+
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
+                expect(ticketComment.content).toMatch(content)
+                
+                await waitFor(async () => {
+                    const messageForExecutor = await Message.getOne(admin, { user: { id: executorUserId }, type: TICKET_COMMENT_ADDED_TYPE })
+                    expect(messageForExecutor.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(messageForExecutor.meta.data.ticketId).toEqual(ticket.id)
+                    expect(messageForExecutor.meta.data.commentId).toEqual(ticketComment.id)
+                    expect(messageForExecutor.meta.data.residentId).toEqual(resident.id)
+                    expect(messageForExecutor.meta.data.userId).toEqual(executorUserId)
+                    expect(messageForExecutor.processingMeta.transportsMeta[0].transport).toEqual('push')
+
+                    const messageForAssignee = await Message.getOne(admin, { user: { id: assigneeUserId }, type: TICKET_COMMENT_ADDED_TYPE })
+                    expect(messageForAssignee.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(messageForAssignee.meta.data.ticketId).toEqual(ticket.id)
+                    expect(messageForAssignee.meta.data.commentId).toEqual(ticketComment.id)
+                    expect(messageForAssignee.meta.data.residentId).toEqual(resident.id)
+                    expect(messageForAssignee.meta.data.userId).toEqual(assigneeUserId)
+                    expect(messageForAssignee.processingMeta.transportsMeta[0].transport).toEqual('push')
+                })
+            })
+
+            it('doesn\'t sent notifications to employee who not assignee or executor of ticket', async () => {
+                const assigneeUserId = employeeClient1.user.id
+                const [ticket] = await createTestTicket(residentClient, organization, property, {
+                    unitName: residentUnitName,
+                    assignee: { connect: { id: assigneeUserId } },
+                })
+
+                const content = faker.lorem.sentence()
+                const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
+                const [ticketComment] = await createTestTicketComment(residentClient, ticket, residentClient.user, extraAttrs)
+
+                expect(ticketComment.id).toMatch(UUID_RE)
+                expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
+                expect(ticketComment.content).toMatch(content)
+
+                await waitFor(async () => {
+                    const messageForAssignee = await Message.getOne(admin, { user: { id: assigneeUserId }, type: TICKET_COMMENT_ADDED_TYPE })
+                    expect(messageForAssignee.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(messageForAssignee.meta.data.ticketId).toEqual(ticket.id)
+                    expect(messageForAssignee.meta.data.commentId).toEqual(ticketComment.id)
+                    expect(messageForAssignee.meta.data.residentId).toEqual(resident.id)
+                    expect(messageForAssignee.meta.data.userId).toEqual(assigneeUserId)
+                    expect(messageForAssignee.processingMeta.transportsMeta[0].transport).toEqual('push')
+
+                    const messageForExecutor = await Message.getOne(admin, { user: { id: employeeClient2.user.id }, type: TICKET_COMMENT_ADDED_TYPE })
+                    expect(messageForExecutor).toBeUndefined()
+                })
+            })
         })
-
-        it('checks that notifications is not being sent when resident adds comment to ticket', async () => {
-            const adminClient = await makeLoggedInAdminClient()
-            const userClient = await makeClientWithResidentAccessAndProperty()
-            const unitName = faker.random.alphaNumeric(5)
-            const [organization] = await createTestOrganization(adminClient)
-            const [property] = await createTestProperty(adminClient, organization)
-            const employeeRoleAttrs = { canManageTickets: true, canManageTicketComments: true }
-            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, employeeRoleAttrs)
-            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
-            await createTestResident(adminClient, userClient.user, property, { unitName })
-            const [ticket] = await createTestTicket(userClient, organization, property, { unitName })
-            await createTestTicketComment(userClient, ticket, userClient.user, { type: RESIDENT_COMMENT_TYPE })
-            const messageWhere = { user: { id: userClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-            const messageCount = await Message.count(userClient, messageWhere)
-
-            expect(messageCount).toEqual(0)
-        })
-
-        it('checks that notifications is not being sent on comment edit', async () => {
-            const admin = await makeLoggedInAdminClient()
-            const residentClient = await makeClientWithResidentAccessAndProperty()
-            const unitName = faker.random.alphaNumeric(5)
-            const content = faker.lorem.sentence()
-
-            await createTestResident(admin, residentClient.user, residentClient.property, { unitName })
-
-            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, { unitName })
-            const extraAttrs = { type: RESIDENT_COMMENT_TYPE, content }
-            const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user, extraAttrs)
-
-            expect(ticketComment.id).toMatch(UUID_RE)
-            expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
-            expect(ticketComment.content).toMatch(content)
-
-            const payload1 = { content: faker.random.alphaNumeric(10) }
-            const [objUpdated] = await updateTestTicketComment(admin, ticketComment.id, payload1)
-
-            expect(objUpdated.id).toEqual(ticketComment.id)
-            expect(objUpdated.v).toEqual(2)
-
-            const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-            const messages = await Message.getAll(admin, messageWhere)
-
-            expect(messages).toHaveLength(1)
-            expect(messages[0].organization.id).toEqual(ticket.organization.id)
-        })
-
     })
 
 })

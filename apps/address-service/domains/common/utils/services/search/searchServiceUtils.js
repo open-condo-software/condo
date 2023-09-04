@@ -1,8 +1,7 @@
-const { createHash } = require('crypto')
-
 const { isEmpty, isObject } = require('lodash')
 
 const { AddressSource } = require('@address-service/domains/address/utils/serverSchema')
+const { md5 } = require('@condo/domains/common/utils/crypto')
 
 /**
  * @param context Keystone context
@@ -114,8 +113,7 @@ function sortObject (obj) {
 function hashJSON (obj) {
     const sortedObj = sortObject(obj)
     const jsonStr = JSON.stringify(sortedObj)
-    const hash = createHash('md5')
-    return hash.update(jsonStr).digest('hex')
+    return md5(jsonStr)
 }
 
 /**

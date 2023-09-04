@@ -34,11 +34,11 @@ interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManage
 
 export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map, canManageProperties = false }) => {
     const mapView = new MapView(map)
-    const [Map, setMap] = useState(mapView)
+    const [builderMap, setBuilderMap] = useState(mapView)
     // TODO(zuch): Ask for a better solution
-    const refresh = () => setMap(cloneDeep(Map))
+    const refresh = () => setBuilderMap(cloneDeep(builderMap))
     return (
-        <PropertyMapView builder={Map} refresh={refresh} canManageProperties={canManageProperties} />
+        <PropertyMapView builder={builderMap} refresh={refresh} canManageProperties={canManageProperties} />
     )
 }
 
@@ -112,7 +112,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
 
     return (
-        <FullscreenWrapper mode='view' className={isFullscreen ? 'fullscreen' : '' }>
+        <FullscreenWrapper className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
                 <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!showViewModeSelect}>
                     {

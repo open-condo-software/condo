@@ -43,8 +43,8 @@ function randomHex() {
 }
 
 function generatePermissionKey() {
-    const action = capitalize(faker.word.verb()).replace('-', '')
-    const subject = capitalize(faker.word.noun()).replace('-', '')
+    const action = capitalize(faker.word.verb()).replace(/-/g, '')
+    const subject = capitalize(faker.word.noun()).replace(/-/g, '')
 
     return `can${action}${subject}`
 }
@@ -405,12 +405,14 @@ async function createTestB2BAppPermission (client, app, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const key = generatePermissionKey()
+    const name = `${faker.word.noun()} management`
 
     const attrs = {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
         key,
+        name,
         ...extraAttrs,
     }
     const obj = await B2BAppPermission.create(client, attrs)

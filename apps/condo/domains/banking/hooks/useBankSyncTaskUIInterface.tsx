@@ -8,7 +8,7 @@ import { Button } from '@open-condo/ui'
 
 import { SBBOL } from '@condo/domains/banking/constants'
 import { BankSyncTask } from '@condo/domains/banking/utils/clientSchema'
-import { ITask, TASK_REMOVE_STRATEGY } from '@condo/domains/common/components/tasks'
+import { ITask, TASK_REMOVE_STRATEGY, TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksCondoStorage } from '@condo/domains/common/components/tasks/storage/TasksCondoStorage'
 import { TASK_COMPLETED_STATUS } from '@condo/domains/common/constants/tasks'
 
@@ -23,10 +23,11 @@ export const useBankSyncTaskUIInterface = () => {
     const BankSyncTaskProgressDescriptionPreparing = intl.formatMessage({ id: 'tasks.BankSyncTask.progress.description.preparing' })
     const BankSyncTaskProgressDescriptionProcessing = intl.formatMessage({ id: 'tasks.BankSyncTask.progress.description.processing' })
     const BankSyncTaskProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.BankSyncTask.file.progress.description.completed' })
+    const BankSyncTaskProgressDescriptionError = intl.formatMessage({ id: 'tasks.BankSyncTask.progress.description.error' })
     const BankSyncTaskExternalSystemProgressDescriptionCompleted = intl.formatMessage({ id: 'tasks.BankSyncTask.externalSystem.progress.description.completed' })
     const UpdateTitle = intl.formatMessage({ id: 'Update' })
 
-    const { reload, push, pathname } = useRouter()
+    const { reload, push, pathname, query: { id } } = useRouter()
 
     const getCompleteButtonClickHandler = useCallback((taskRecord) => () => {
         const propertyId = get(taskRecord, 'property.id')
@@ -50,6 +51,10 @@ export const useBankSyncTaskUIInterface = () => {
                     : BankSyncTaskProgressTitle
             },
             description: (taskRecord) => {
+                if (taskRecord.status === TASK_STATUS.ERROR) {
+                    return get(taskRecord, 'meta.errorMessage', BankSyncTaskProgressDescriptionError)
+                }
+
                 const completedMessage = get(taskRecord, 'options.type') === SBBOL
                     ? BankSyncTaskExternalSystemProgressDescriptionCompleted
                     : BankSyncTaskProgressDescriptionCompleted
@@ -69,17 +74,22 @@ export const useBankSyncTaskUIInterface = () => {
             return Math.floor(task.processedCount / task.totalCount) * 100
         },
         onComplete: (taskRecord) => {
-            const propertyId = get(taskRecord, 'property.id')
-            if (pathname === BANK_ACCOUNT_REPORT_PAGE_PATHNAME || propertyId) {
-                const message = get(taskRecord, 'options.type') === SBBOL
-                    ? BankSyncTaskExternalSystemProgressDescriptionCompleted
-                    : BankSyncTaskProgressDescriptionCompleted
-                // TODO(antonal): move it to translations, since now it is possible to return ReactNode as a value of `translations.description`
-                notification.success({
-                    message,
-                    btn: <Button onClick={getCompleteButtonClickHandler(taskRecord)} type='primary'>{UpdateTitle}</Button>,
-                    duration: 0,
-                })
+            const propertyId = get(taskRecord, 'property.id', null)
+
+            if (get(taskRecord, 'status') === TASK_COMPLETED_STATUS) {
+                if (pathname === BANK_ACCOUNT_REPORT_PAGE_PATHNAME && propertyId === id) {
+                    reload()
+                } else if (propertyId) {
+                    const message = get(taskRecord, 'options.type') === SBBOL
+                        ? BankSyncTaskExternalSystemProgressDescriptionCompleted
+                        : BankSyncTaskProgressDescriptionCompleted
+                    // TODO(antonal): move it to translations, since now it is possible to return ReactNode as a value of `translations.description`
+                    notification.success({
+                        message,
+                        btn: <Button onClick={getCompleteButtonClickHandler(taskRecord)} type='primary'>{UpdateTitle}</Button>,
+                        duration: 0,
+                    })
+                }
             }
         },
         onCancel: () => null,

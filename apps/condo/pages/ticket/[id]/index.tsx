@@ -1,12 +1,13 @@
 /** @jsx jsx */
 import {
+    B2BAppGlobalFeature,
     SortTicketChangesBy,
     SortTicketCommentFilesBy,
     SortTicketCommentsBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Affix, Col, ColProps, Row, RowProps, Space, Typography } from 'antd'
+import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
@@ -14,7 +15,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
-import { Edit } from '@open-condo/icons'
+import { Edit, Link as LinkIcon } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
@@ -27,6 +28,7 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -50,6 +52,7 @@ import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { FavoriteTicketsContextProvider } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
 import { TicketQualityControlProvider, useTicketQualityControl } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -343,6 +346,9 @@ const TicketActionBar = ({
 }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const AttachCallToTicketMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket' })
+    const NotificationMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.message' })
+    const NotificationDescription = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.description' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
@@ -350,14 +356,18 @@ const TicketActionBar = ({
     const user = get(auth, 'user')
 
     const { breakpoints } = useLayoutContext()
+    const { requestFeature } = useGlobalAppsFeaturesContext()
+    const { isCallActive, connectedTickets } = useActiveCall()
 
     const id = get(ticket, 'id')
+    const ticketOrganizationId = get(ticket, 'organization.id')
     const canShareTickets = get(employee, 'role.canShareTickets')
 
     const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
     const disabledEditTicketButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
     const disabledEditQualityControlButton = ticket.status.id !== STATUS_IDS.COMPLETED && ticket.status.id !== STATUS_IDS.CLOSED
+    const showAttachCallToTicketButton = isCallActive && !connectedTickets.find(ticketId => ticketId === id)
 
     const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
         ticketId: id,
@@ -375,9 +385,30 @@ const TicketActionBar = ({
 
     const { EditButton: EditQualityControlButton } = useTicketQualityControl()
 
+    const handleAttachCallRecordClick = useCallback(() => {
+        requestFeature({
+            feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
+            ticketId: id,
+            ticketOrganizationId,
+        })
+
+        notification.info({ message: NotificationMessage, description: NotificationDescription })
+    }, [NotificationDescription, NotificationMessage, id, requestFeature, ticketOrganizationId])
+
     return (
         <ActionBar
             actions={[
+                showAttachCallToTicketButton && (
+                    <Button
+                        key='attachCallRecord'
+                        id='TicketIndexAttachCallRecord'
+                        icon={<LinkIcon size='medium'/>}
+                        type='primary'
+                        onClick={handleAttachCallRecordClick}
+                    >
+                        {AttachCallToTicketMessage}
+                    </Button>
+                ),
                 <Link key='update' href={`/ticket/${ticket.id}/update`}>
                     <Button
                         disabled={disabledEditTicketButton}

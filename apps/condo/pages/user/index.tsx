@@ -17,17 +17,20 @@ import { ActionBar, Button, Select } from '@open-condo/ui'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
+import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
 import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
 import { User } from '@condo/domains/user/utils/clientSchema'
+
+import type { OrganizationEmployeeWhereInput } from '@app/condo/schema'
 
 const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
 const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
 const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
 
 interface IUserInfoPageContentProps {
-    organizationEmployeesQuery: { where: { user: { id: string }, isAccepted: boolean } },
+    organizationEmployeesQuery: { where: OrganizationEmployeeWhereInput },
 }
 
 export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organizationEmployeesQuery }) => {
@@ -232,7 +235,13 @@ export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organ
 const UserInfoPage: React.FC & { requiredAccess?: React.FC } = () => {
     const { user } = useAuth()
     const userId = useMemo(() => get(user, 'id', null), [user])
-    const organizationEmployeesQuery = useMemo(() => ({ where: { user: { id: userId }, isAccepted: true } }), [userId])
+    const organizationEmployeesQuery = useMemo(() => ({
+        where: {
+            user: { id: userId },
+            isAccepted: true,
+            organization: { type_not: HOLDING_TYPE },
+        },
+    }), [userId])
 
     return (
         <UserInfoPageContent organizationEmployeesQuery={organizationEmployeesQuery}/>

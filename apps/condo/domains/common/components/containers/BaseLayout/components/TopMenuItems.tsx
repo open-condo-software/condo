@@ -9,7 +9,6 @@ import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndi
 import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
-
 export interface ITopMenuItemsProps {
     headerAction?: React.ElementType
 }
@@ -21,7 +20,7 @@ export const TopMenuItems: React.FC<ITopMenuItemsProps> = (props) => {
     if (!isLoading && !auth.isLoading) {
         return (
             <>
-                {props.headerAction && props.headerAction}
+                { props.headerAction ? props.headerAction : null }
                 <Space direction='horizontal' size={12} className='top-menu-items'>
                     <SBBOLIndicator organization={organization} />
                     <ServiceSubscriptionIndicator/>

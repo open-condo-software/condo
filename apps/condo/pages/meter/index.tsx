@@ -14,11 +14,11 @@ import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo, useRef, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
-import { FileDown, Filter, QuestionCircle } from '@open-condo/icons'
+import { FileDown, Filter, QuestionCircle, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Space, Tooltip } from '@open-condo/ui'
@@ -86,6 +86,7 @@ export const MetersPageContent = ({
     const intl = useIntl()
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
     const CreateMeter = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterButtonLabel' })
+    const CreateMeterReadingsButtonLabel = intl.formatMessage({ id: 'pages.condo.meter.index.CreateMeterReadingsButtonLabel' })
     const OnlyLatestMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatest' })
     const OnlyLatestDescMessage = intl.formatMessage({ id: 'pages.condo.meter.index.QuickFilterOnlyLatestDescription' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -156,6 +157,8 @@ export const MetersPageContent = ({
     }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage])
 
     const exampleTemplateLink = useMemo(() => `/meter-import-example-${intl.locale}.xlsx`, [intl.locale])
+
+    const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
 
     return (
         <>
@@ -268,6 +271,16 @@ export const MetersPageContent = ({
                             exportToExcelQuery={EXPORT_METER_READINGS_QUERY}
                             sortBy={sortBy}
                             actions={[
+                                canManageMeterReadings && (
+                                    <Button
+                                        key='create'
+                                        type='primary'
+                                        icon={<PlusCircle size='medium' />}
+                                        onClick={handleCreateMeterReadings}
+                                    >
+                                        {CreateMeterReadingsButtonLabel}
+                                    </Button>
+                                ),
                                 canManageMeterReadings && (
                                     <ImportWrapper
                                         key='import'
@@ -408,7 +421,7 @@ export const MeterReportingPeriodPageContent = ({
     loading,
 }) => {
     const intl = useIntl()
-    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.index.EmptyList.header' })
+    const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.meter.reportingPeriod.EmptyList.header' })
     const CreateReportingPeriodLabel = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.EmptyList.create' })
     const DeleteLabel = intl.formatMessage({ id: 'Delete' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
@@ -596,6 +609,19 @@ interface IMeterIndexPage extends React.FC {
 
 const sortableProperties = ['date', 'clientName', 'source']
 
+function MeterPageTypeFromQuery (tabFromQuery) {
+    switch (tabFromQuery) {
+        case METER_PAGE_TYPES.meter:
+            return METER_PAGE_TYPES.meter
+        case METER_PAGE_TYPES.propertyMeter:
+            return METER_PAGE_TYPES.propertyMeter
+        case METER_PAGE_TYPES.reportingPeriod:
+            return METER_PAGE_TYPES.reportingPeriod
+        default:
+            return undefined
+    }
+}
+
 const MetersPage: IMeterIndexPage = () => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.meter.index.PageTitle' })
@@ -606,6 +632,7 @@ const MetersPage: IMeterIndexPage = () => {
     const { organization, link, isLoading } = useOrganization()
     const userOrganizationId = get(organization, 'id')
     const role = get(link, 'role')
+    const router = useRouter()
 
     const { useFlag } = useFeatureFlags()
     const isMeterReportingPeriodEnabled = useFlag(METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG)
@@ -613,10 +640,16 @@ const MetersPage: IMeterIndexPage = () => {
     const { GlobalHints } = useGlobalHints()
 
     const [tab, setTab] = useState<MeterPageTypes>(METER_PAGE_TYPES.meter)
+    useEffect(() => {
+        const tabFromRoute = MeterPageTypeFromQuery(router.query.tab ? router.query.tab : METER_PAGE_TYPES.meter)
+        if (tabFromRoute) {
+            setTab(tabFromRoute)
+            router.replace({ query: { ...router.query, tab: tabFromRoute } })
+        }
+    }, [])
 
     const filterMetas = useFilters(tab)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
-    const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const tableColumns = useTableColumns(filterMetas, tab)
     const searchMeterReadingsQuery = useMemo(() => ({
@@ -642,7 +675,8 @@ const MetersPage: IMeterIndexPage = () => {
 
     const handleTabChange = useCallback((tab: MeterPageTypes) => {
         setTab(tab)
-    }, [])
+        router.replace({ query: { ...router.query, tab } })
+    }, [tab])
 
     return (
         <MultipleFilterContextProvider>

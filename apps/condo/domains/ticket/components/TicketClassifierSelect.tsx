@@ -215,7 +215,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         SelectComponent: ProblemSelect,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.problem),
-        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.problem),
+        onSearch: (id) => { onUserSearch(id, TicketClassifierTypes.problem) },
         initialValue: problemClassifier,
     })
 
@@ -225,7 +225,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         ref: categoryRef,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.category),
-        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.category),
+        onSearch: (id) => { onUserSearch(id, TicketClassifierTypes.category) },
         initialValue: categoryClassifier,
     })
 
@@ -235,7 +235,7 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
         ref: placeRef,
     } = useTicketClassifierSelectHook({
         onChange: (id) => onUserSelect(id, TicketClassifierTypes.place),
-        onSearch: (id) => onUserSearch(id, TicketClassifierTypes.place),
+        onSearch: (id) => { onUserSearch(id, TicketClassifierTypes.place) },
         initialValue: placeClassifier,
     })
 
@@ -424,6 +424,6 @@ export const useTicketThreeLevelsClassifierHook = ({ initialValues: {
 
     return {
         ClassifiersEditorComponent,
-        predictTicketClassifier,
+        predictTicketClassifier, // NOSONAR
     }
 }

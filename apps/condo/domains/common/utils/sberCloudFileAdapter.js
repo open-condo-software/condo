@@ -3,7 +3,7 @@ const path = require('path')
 const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
-const { isEmpty, isString } = require('lodash')
+const { get, isEmpty, isString, isNil } = require('lodash')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
 
@@ -187,7 +187,15 @@ const obsRouterHandler = ({ keystone }) => {
             res.status(404)
             return next()
         }
-        const { id: itemId, ids: stringItemIds, listkey: listKey } = meta
+        const {
+            id: itemId,
+            ids: stringItemIds,
+            listkey: listKey,
+            propertyquery: encodedPropertyQuery,
+            propertyvalue: encodedPropertyValue,
+        } = meta
+        const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
+        const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
         if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
             res.status(404)
@@ -214,13 +222,33 @@ const obsRouterHandler = ({ keystone }) => {
         }
 
         if (itemId && !hasAccessToReadFile) {
-            hasAccessToReadFile = await getItem({
+            let returnFields = 'id'
+
+            // for checking property we have to include property name in the return fields list
+            if (isString(propertyQuery)) {
+                returnFields += `, ${propertyQuery}`
+            }
+
+            const item = await getItem({
                 keystone,
                 listKey,
                 itemId,
                 context,
-                returnFields: 'id',
+                returnFields,
             })
+
+            // item accessible
+            hasAccessToReadFile = !isNil(item)
+
+            // check property access case
+            if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
+                const propertyPath = propertyQuery
+                    .replaceAll('}', '') // remove close brackets of sub props querying
+                    .split('{') // work with each path parts separately
+                    .map(path => path.trim()) // since gql allow to have spaces in querying - let's remove them
+                    .join('.') // join by . for lodash get utility
+                hasAccessToReadFile = get(item, propertyPath) == propertyValue
+            }
         }
 
         if (!hasAccessToReadFile) {
@@ -251,6 +279,9 @@ const obsRouterHandler = ({ keystone }) => {
 
 class OBSFilesMiddleware {
     prepareMiddleware ({ keystone }) {
+        // this route does not have any system change operation and used only for serving files to end user browser
+        // this mean no csrf attacking possible - since no data change operation going to be made by opening a link
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
         return app
@@ -261,4 +292,5 @@ class OBSFilesMiddleware {
 module.exports = {
     SberCloudFileAdapter,
     OBSFilesMiddleware,
+    obsRouterHandler,
 }

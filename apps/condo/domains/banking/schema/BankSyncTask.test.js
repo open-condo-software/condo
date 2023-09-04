@@ -16,8 +16,14 @@ const {
     expectToThrowAccessDeniedErrorToObj,
     UploadingFile,
 } = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
 
-const { _1C_CLIENT_BANK_EXCHANGE } = require('@condo/domains/banking/constants')
+const {
+    _1C_CLIENT_BANK_EXCHANGE,
+    TRANSACTIONS_NOT_ADDED,
+    BANK_INTEGRATION_IDS,
+    BANK_SYNC_TASK_STATUS,
+} = require('@condo/domains/banking/constants')
 const {
     BankSyncTask,
     BankIntegrationAccountContext,
@@ -27,6 +33,9 @@ const {
     updateTestBankIntegrationOrganizationContext, updateTestBankIntegrationAccountContext,
 } = require('@condo/domains/banking/utils/testSchema')
 const { createTestBankIntegrationAccountContext, createTestBankAccount, BankIntegration } = require('@condo/domains/banking/utils/testSchema')
+const { BankAccount, BankTransaction, createTestBankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/testSchema')
+const { PARSED_TRANSACTIONS_TO_COMPARE } = require('@condo/domains/banking/utils/testSchema/assets/1CClientBankExchangeToKeystoneObjects')
+const { TASK_ERROR_STATUS } = require('@condo/domains/common/constants/tasks')
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     createTestOrganization,
@@ -38,9 +47,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 
 const { errors } = require('./BankSyncTask')
 
-const { BANK_INTEGRATION_IDS, BANK_SYNC_TASK_STATUS } = require('../constants')
-const { BankAccount, BankTransaction, createTestBankIntegrationOrganizationContext } = require('../utils/testSchema')
-const { PARSED_TRANSACTIONS_TO_COMPARE } = require('../utils/testSchema/assets/1CClientBankExchangeToKeystoneObjects')
 
 const pathToCorrectFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange.txt')
 const pathToInvalidFile = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/banking/utils/testSchema/assets/1CClientBankExchange-Invalid.txt')
@@ -893,6 +899,8 @@ describe('BankSyncTask', () => {
                 expect(createdTransactions).toHaveLength(0)
 
                 const updatedTask2 = await BankSyncTask.getOne(adminClient, { id: task2.id })
+                expect(updatedTask2.status).toEqual(TASK_ERROR_STATUS)
+                expect(updatedTask2.meta.errorMessage).toEqual(i18n(TRANSACTIONS_NOT_ADDED.messageForUser))
                 expect(updatedTask2.meta).toBeTruthy()
                 expect(updatedTask2.meta).toMatchObject({
                     duplicatedTransactions: ['2022-04-15_61298', '2022-04-15_6032', '2022-04-18_656731', '2022-04-18_239'],

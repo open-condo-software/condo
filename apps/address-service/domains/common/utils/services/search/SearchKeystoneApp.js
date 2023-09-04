@@ -48,6 +48,8 @@ class SearchKeystoneApp {
 
         let keystoneContext
 
+        // this route can not be used for csrf attack (because no cookies and tokens are used in a public route)
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         const addressParser = new AddressFromStringParser()
 

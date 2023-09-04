@@ -30,7 +30,9 @@ export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
     if (isEmpty(text)) return null
 
     let result
-    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig')
+    // not a ReDoS issue: running on end user browser
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig') // NOSONAR
 
     if (isEmpty(search) || !searchRegexp.test(text)) {
         result = renderPart(text, 0, false, type, style)

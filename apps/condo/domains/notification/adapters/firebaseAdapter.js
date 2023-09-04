@@ -42,6 +42,8 @@ class FirebaseAdapter {
         }
 
         this.projectId = get(config, 'project_id', null)
+        // not an user input. No ReDoS regexp expected
+        // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         this.messageIdPrefixRegexp = new RegExp(`projects/${this.projectId}/messages`)
     }
 

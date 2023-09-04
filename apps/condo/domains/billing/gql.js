@@ -25,7 +25,7 @@ const BillingIntegrationProblem = generateGqlQueries('BillingIntegrationProblem'
 const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id address addressKey } importId address addressKey raw globalId meta ${COMMON_FIELDS} }`
 const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 
-const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } number unitName unitType raw globalId meta fullName ${COMMON_FIELDS} }`
+const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } number unitName unitType raw globalId meta fullName isClosed ownerType ${COMMON_FIELDS} }`
 const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 
 const BILLING_RECIPIENT_FIELDS = `{ context { id } importId tin iec bic bankAccount purpose isApproved meta name ${COMMON_FIELDS} }`
@@ -34,14 +34,14 @@ const BillingRecipient = generateGqlQueries('BillingRecipient', BILLING_RECIPIEN
 const BILLING_CATEGORY_FIELDS = `{ name nameNonLocalized ${COMMON_FIELDS} }`
 const BillingCategory = generateGqlQueries('BillingCategory', BILLING_CATEGORY_FIELDS)
 
-const BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS = 'toPayDetails { charge formula balance recalculation privilege penalty paid }'
-const BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS = BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS.replace('}', 'volume tariff measure }')
+const BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS = 'charge formula balance recalculation privilege penalty paid'
+const BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS = `toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} volume tariff measure }`
 const BILLING_RECEIPT_SERVICE_FIELDS = `services { id name toPay ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS} }`
 const BILLING_RECEIPT_RECIPIENT_FIELDS = 'recipient { tin iec bic bankAccount }'
-const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } account { id, number, unitType, unitName, fullName } period toPay printableNumber ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} charge formula balance recalculation privilege penalty paid receiver { id tin iec bic bankAccount isApproved } ${BILLING_RECEIPT_RECIPIENT_FIELDS} ${COMMON_FIELDS} category ${BILLING_CATEGORY_FIELDS} invalidServicesError file { id sensitiveDataFile { id filename originalFilename publicUrl mimetype } publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } }`
+const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } account { id, number, unitType, unitName, fullName } period toPay printableNumber toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} charge formula balance recalculation privilege penalty paid receiver { id tin iec bic bankAccount isApproved } ${BILLING_RECEIPT_RECIPIENT_FIELDS} ${COMMON_FIELDS} category ${BILLING_CATEGORY_FIELDS} invalidServicesError file { id sensitiveDataFile { id filename originalFilename publicUrl mimetype } publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } }`
 const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
 
-const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } }`
+const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
 
 const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`

@@ -1,5 +1,3 @@
-const { createHash } = require('crypto')
-
 const dayjs = require('dayjs')
 const compact = require('lodash/compact')
 const filter = require('lodash/filter')
@@ -18,6 +16,7 @@ const { i18n } = require('@open-condo/locales/loader')
 const { ERROR, COMPLETED } = require('@condo/domains/common/constants/export')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
 const { buildExportFile: buildExportExcelFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { md5 } = require('@condo/domains/common/utils/crypto')
 const { getHeadersTranslations, EXPORT_TYPE_NEWS_RECIPIENTS } = require('@condo/domains/common/utils/exportToExcel')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { buildUploadInputFrom } = require('@condo/domains/common/utils/serverSchema/export')
@@ -59,7 +58,7 @@ const buildExportFile = async ({ rows, locale }) => {
         encoding: EXCEL_FILE_META.encoding,
         meta: {
             listkey: 'NewsRecipients',
-            id: createHash('md5').update(JSON.stringify(rows)).digest('hex'),
+            id: md5(JSON.stringify(rows)),
         },
     }
 }

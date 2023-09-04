@@ -111,7 +111,7 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
                     },
                 ]
             }
-            case METER_PAGE_TYPES.meter || METER_PAGE_TYPES.propertyMeter: {
+            default: {
                 return compact([
                     {
                         keyword: 'address',
@@ -341,5 +341,5 @@ export function useFilters (meterPageType: MeterPageTypes): Array<FiltersMeta<Me
             }
         }
 
-    }, [sources, resources])
+    }, [sources, resources, isPropertyMeter, meterPageType])
 }

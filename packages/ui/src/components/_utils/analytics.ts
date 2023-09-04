@@ -87,6 +87,8 @@ export function sendAnalyticsClickEvent<Component extends ComponentNames['click'
             component,
             ...data,
         }
+
+        // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
             params,
@@ -109,6 +111,7 @@ export function sendAnalyticsCheckEvent<Component extends ComponentNames['check'
             ...data,
         }
 
+        // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
             params,
@@ -130,6 +133,8 @@ export function sendAnalyticsChangeEvent<Component extends ComponentNames['chang
             component,
             ...data,
         }
+
+        // nosemgrep: javascript.browser.security.wildcard-postmessage-configuration.wildcard-postmessage-configuration
         parent.postMessage({
             handler: ANALYTICS_HANDLER_NAME,
             params,

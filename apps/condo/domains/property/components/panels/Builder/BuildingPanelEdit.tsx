@@ -297,7 +297,7 @@ export const BuildingPanelEdit: React.FC<IBuildingPanelEditProps> = (props) => {
     const showParkingFilter = mapEdit.viewMode === MapViewMode.parking && mapEdit.parking.length >= MIN_SECTIONS_TO_SHOW_FILTER
 
     return (
-        <FullscreenWrapper mode='edit' className='fullscreen'>
+        <FullscreenWrapper className='fullscreen'>
             <FullscreenHeader edit={true}>
                 <Row css={TopRowCss} justify='space-between'>
                     {address && (
@@ -488,7 +488,7 @@ const ChessBoard: React.FC<IChessBoardProps> = (props) => {
                 || editParkingUnitAtLastSection) {
                 const { scrollWidth, clientWidth, scrollHeight, clientHeight } = container.current
 
-                if (lastParkingSelected || lastParkingSelected) {
+                if (lastSectionSelected || lastParkingSelected) {
                     container.current.scrollTo(scrollWidth - clientWidth, scrollHeight - clientHeight)
                     return
                 }

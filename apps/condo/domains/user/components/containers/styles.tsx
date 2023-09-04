@@ -27,10 +27,13 @@ export const ActionContainer = styled.div`
 `
 
 export const PosterWrapper = styled.div`
-  height: 100%;
   width: 100%;
   background-color: ${colors.backgroundLightGrey};
   border-radius: 22px;
+`
+
+export const PosterWrapperFullHeight = styled(PosterWrapper)`
+  height: 100%;
 `
 
 export const PageContent = styled.div`

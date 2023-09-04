@@ -34,7 +34,8 @@ const integration = new AppleIdIdentityIntegration()
 const logger = getLogger('appleid/routes')
 
 
-async function getIdTokenByCode (req, reqId) {
+async function getIdTokenByCode (req) {
+    const reqId = req.id
     const code = getCode(req)
 
     // complete auth with code + state

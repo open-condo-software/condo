@@ -21,7 +21,8 @@ const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, co
         ...fieldsChanges,
     }
 
-    if (newItem.statusUpdatedAt) {
+    // If status was changed
+    if (newItem.statusUpdatedAt && (fieldsChanges.statusIdFrom && fieldsChanges.statusIdTo)) {
         payload.actualCreationDate = dayjs(newItem.statusUpdatedAt).toISOString()
     }
 
@@ -143,6 +144,10 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
         variables: { id: existingItem.id },
     })
     if (updatedResult.errors) {
+        // this log entry for development & support purposes only
+        // no important logs can be hided by injected external console.log formatters
+        // no logs formatters can be injected
+        // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
         console.error(`Error while fetching related ${fieldName} in manyToManyResolver of changeTrackable for a Ticket`, updatedResult.errors)
         return {}
     }

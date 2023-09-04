@@ -56,9 +56,11 @@ export const useTableColumns = (
     const renderSpecializations = useCallback((employee) => {
         const { SpecializationsMessage } = getEmployeeSpecializationsMessage(intl, employee, organizationEmployeeSpecializations)
 
+        if (!SpecializationsMessage) return null
+
         return (
             <Typography.Paragraph key={employee.id} style={TEXT_STYLES}>
-                {SpecializationsMessage && SpecializationsMessage}
+                {SpecializationsMessage}
             </Typography.Paragraph>
         )
     }, [intl, organizationEmployeeSpecializations])

@@ -1,24 +1,14 @@
-import { Tabs } from 'antd'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import {
-    SettingsTabPaneDescriptor,
-} from '@condo/domains/common/components/settings/Tabs'
-import {
-    Tab,
-    TopRowTabs,
-    SideBlockTabs,
-} from '@condo/domains/common/components/Tabs'
+import { Tabs, TabItem } from '@open-condo/ui'
+
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 type PageContentProps = {
-    settingsTabs: SettingsTabPaneDescriptor[]
+    settingsTabs: TabItem[]
     availableTabs: string[]
 }
-
-const SETTINGS_TABS_STYLES: CSSProperties = { overflow: 'visible' }
 
 export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, availableTabs }) => {
     const router = useRouter()
@@ -31,33 +21,10 @@ export const SettingsPageContent: React.FC<PageContentProps> = ({ settingsTabs, 
         return router.push(newRoute)
     }, [router])
 
-    const settingsTabPanes = useMemo(() => settingsTabs.map(tab => (
-        <Tabs.TabPane
-            key={tab.key}
-            tab={<Tab title={tab.title} eventName={tab.eventName}/>}
-            {...tab}
-        >
-            {tab.content}
-        </Tabs.TabPane>
-    )), [settingsTabs])
-
-    const { breakpoints } = useLayoutContext()
-
-    const SettingsTabsComponent = !breakpoints.DESKTOP_SMALL ? TopRowTabs : SideBlockTabs
-
-    return settingsTabs.length === 1 ? (
-        settingsTabs[0].content
-    ) : (
-        <SettingsTabsComponent
-            tabPosition={!breakpoints.DESKTOP_SMALL ? 'top' : 'right'}
-            type='card'
-            defaultActiveKey={defaultTab}
-            activeKey={defaultTab}
-            tabBarGutter={8}
-            style={SETTINGS_TABS_STYLES}
-            onChange={handleTabChange}
-        >
-            {settingsTabPanes}
-        </SettingsTabsComponent>
-    )
+    return <Tabs
+        defaultActiveKey={defaultTab}
+        activeKey={defaultTab}
+        onChange={handleTabChange}
+        items={settingsTabs}
+    />
 }

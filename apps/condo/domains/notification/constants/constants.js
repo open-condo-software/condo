@@ -39,6 +39,8 @@ const TICKET_STATUS_DECLINED_TYPE = 'TICKET_STATUS_DECLINED'
 const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
 const METER_VERIFICATION_DATE_REMINDER_TYPE = 'METER_VERIFICATION_DATE_REMINDER'
 const METER_SUBMIT_READINGS_REMINDER_TYPE = 'METER_SUBMIT_READINGS_REMINDER'
+const METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE = 'METER_SUBMIT_READINGS_REMINDER_START_PERIOD'
+const METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE = 'METER_SUBMIT_READINGS_REMINDER_END_PERIOD'
 const METER_VERIFICATION_DATE_EXPIRED_TYPE = 'METER_VERIFICATION_DATE_EXPIRED'
 const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
 const BILLING_RECEIPT_AVAILABLE_TYPE = 'BILLING_RECEIPT_AVAILABLE'
@@ -171,6 +173,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [TICKET_EXECUTOR_CONNECTED_TYPE]: {
@@ -180,6 +183,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [TRACK_TICKET_IN_DOMA_APP_TYPE]: {
@@ -247,6 +251,7 @@ const MESSAGE_META = {
             commentId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
             residentId: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [METER_VERIFICATION_DATE_REMINDER_TYPE]: {
@@ -344,6 +349,26 @@ const MESSAGE_META = {
     [METER_SUBMIT_READINGS_REMINDER_TYPE]: {
         dv: { required: true },
         data: {
+            meterId: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
+    [METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE]: {
+        dv: { required: true },
+        data: {
+            monthName: { defaultValue: '', required: true },
+            meterId: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
+    [METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE]: {
+        dv: { required: true },
+        data: {
+            monthName: { defaultValue: '', required: true },
             meterId: { required: true },
             userId: { required: true },
             residentId: { required: true },
@@ -814,6 +839,8 @@ module.exports = {
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
     METER_SUBMIT_READINGS_REMINDER_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
     BILLING_RECEIPT_AVAILABLE_TYPE,
     BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,

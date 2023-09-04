@@ -17,7 +17,8 @@ export type TypographyTextProps = Omit<DefaultTextProps,
 | 'mark'
 | 'className'
 | 'prefixCls'
-| 'style'> & {
+| 'style'
+| 'id'> & {
     type?: typeof TEXT_TYPES[number]
     size?: typeof TEXT_SIZES[number]
     lineWrapping?: 'break-spaces'
