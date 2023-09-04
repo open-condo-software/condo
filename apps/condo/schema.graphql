@@ -3121,6 +3121,28 @@ type UserRightsSetHistoryRecord {
   """
   _label_: String
   name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3157,6 +3179,50 @@ input UserRightsSetHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  canReadB2BApps: Boolean
+  canReadB2BApps_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRights_not: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights_not: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canReadB2BAppAccessRightSets_not: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets_not: Boolean
+  canReadB2BAppContexts: Boolean
+  canReadB2BAppContexts_not: Boolean
+  canManageB2BAppContexts: Boolean
+  canManageB2BAppContexts_not: Boolean
+  canReadB2BAppPermissions: Boolean
+  canReadB2BAppPermissions_not: Boolean
+  canManageB2BAppPermissions: Boolean
+  canManageB2BAppPermissions_not: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canReadB2BAppPromoBlocks_not: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks_not: Boolean
+  canReadB2CApps: Boolean
+  canReadB2CApps_not: Boolean
+  canManageB2CApps: Boolean
+  canManageB2CApps_not: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canReadB2CAppAccessRights_not: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights_not: Boolean
+  canReadB2CAppBuilds: Boolean
+  canReadB2CAppBuilds_not: Boolean
+  canManageB2CAppBuilds: Boolean
+  canManageB2CAppBuilds_not: Boolean
+  canReadB2CAppProperties: Boolean
+  canReadB2CAppProperties_not: Boolean
+  canManageB2CAppProperties: Boolean
+  canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteRegisterNewServiceUser_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3242,6 +3308,50 @@ input UserRightsSetHistoryRecordWhereUniqueInput {
 enum SortUserRightsSetHistoryRecordsBy {
   name_ASC
   name_DESC
+  canReadB2BApps_ASC
+  canReadB2BApps_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadB2BAppAccessRights_ASC
+  canReadB2BAppAccessRights_DESC
+  canManageB2BAppAccessRights_ASC
+  canManageB2BAppAccessRights_DESC
+  canReadB2BAppAccessRightSets_ASC
+  canReadB2BAppAccessRightSets_DESC
+  canManageB2BAppAccessRightSets_ASC
+  canManageB2BAppAccessRightSets_DESC
+  canReadB2BAppContexts_ASC
+  canReadB2BAppContexts_DESC
+  canManageB2BAppContexts_ASC
+  canManageB2BAppContexts_DESC
+  canReadB2BAppPermissions_ASC
+  canReadB2BAppPermissions_DESC
+  canManageB2BAppPermissions_ASC
+  canManageB2BAppPermissions_DESC
+  canReadB2BAppPromoBlocks_ASC
+  canReadB2BAppPromoBlocks_DESC
+  canManageB2BAppPromoBlocks_ASC
+  canManageB2BAppPromoBlocks_DESC
+  canReadB2CApps_ASC
+  canReadB2CApps_DESC
+  canManageB2CApps_ASC
+  canManageB2CApps_DESC
+  canReadB2CAppAccessRights_ASC
+  canReadB2CAppAccessRights_DESC
+  canManageB2CAppAccessRights_ASC
+  canManageB2CAppAccessRights_DESC
+  canReadB2CAppBuilds_ASC
+  canReadB2CAppBuilds_DESC
+  canManageB2CAppBuilds_ASC
+  canManageB2CAppBuilds_DESC
+  canReadB2CAppProperties_ASC
+  canReadB2CAppProperties_DESC
+  canManageB2CAppProperties_ASC
+  canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canExecuteRegisterNewServiceUser_ASC
+  canExecuteRegisterNewServiceUser_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3262,6 +3372,28 @@ enum SortUserRightsSetHistoryRecordsBy {
 
 input UserRightsSetHistoryRecordUpdateInput {
   name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3283,6 +3415,28 @@ input UserRightsSetHistoryRecordsUpdateInput {
 
 input UserRightsSetHistoryRecordCreateInput {
   name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3316,6 +3470,94 @@ type UserRightsSet {
   """ A name that distinguishes this group of rights from others and describes the set of rights that users of this group receive. For example: "Full access to mini-applications", "Level 1 Support", "Read all organizations", etc 
   """
   name: String
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BApp" as support / admin users do 
+  """
+  canReadB2BApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BApp" similar to support users 
+  """
+  canManageB2BApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do 
+  """
+  canReadB2BAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRight" similar to support users 
+  """
+  canManageB2BAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRightSet" as support / admin users do 
+  """
+  canReadB2BAppAccessRightSets: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRightSet" similar to support users 
+  """
+  canManageB2BAppAccessRightSets: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppContext" as support / admin users do 
+  """
+  canReadB2BAppContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppContext" similar to support users 
+  """
+  canManageB2BAppContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppPermission" as support / admin users do 
+  """
+  canReadB2BAppPermissions: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPermission" similar to support users 
+  """
+  canManageB2BAppPermissions: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppPromoBlock" as support / admin users do 
+  """
+  canReadB2BAppPromoBlocks: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPromoBlock" similar to support users 
+  """
+  canManageB2BAppPromoBlocks: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CApp" as support / admin users do 
+  """
+  canReadB2CApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CApp" similar to support users 
+  """
+  canManageB2CApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppAccessRight" as support / admin users do 
+  """
+  canReadB2CAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppAccessRight" similar to support users 
+  """
+  canManageB2CAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppBuild" as support / admin users do 
+  """
+  canReadB2CAppBuilds: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppBuild" similar to support users 
+  """
+  canManageB2CAppBuilds: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppProperty" as support / admin users do 
+  """
+  canReadB2CAppProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users 
+  """
+  canManageB2CAppProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
+  """
+  canReadOrganizations: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
+  """
+  canExecuteRegisterNewServiceUser: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3360,6 +3602,50 @@ input UserRightsSetWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  canReadB2BApps: Boolean
+  canReadB2BApps_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRights_not: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights_not: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canReadB2BAppAccessRightSets_not: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets_not: Boolean
+  canReadB2BAppContexts: Boolean
+  canReadB2BAppContexts_not: Boolean
+  canManageB2BAppContexts: Boolean
+  canManageB2BAppContexts_not: Boolean
+  canReadB2BAppPermissions: Boolean
+  canReadB2BAppPermissions_not: Boolean
+  canManageB2BAppPermissions: Boolean
+  canManageB2BAppPermissions_not: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canReadB2BAppPromoBlocks_not: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks_not: Boolean
+  canReadB2CApps: Boolean
+  canReadB2CApps_not: Boolean
+  canManageB2CApps: Boolean
+  canManageB2CApps_not: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canReadB2CAppAccessRights_not: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights_not: Boolean
+  canReadB2CAppBuilds: Boolean
+  canReadB2CAppBuilds_not: Boolean
+  canManageB2CAppBuilds: Boolean
+  canManageB2CAppBuilds_not: Boolean
+  canReadB2CAppProperties: Boolean
+  canReadB2CAppProperties_not: Boolean
+  canManageB2CAppProperties: Boolean
+  canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteRegisterNewServiceUser_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3425,6 +3711,50 @@ input UserRightsSetWhereUniqueInput {
 enum SortUserRightsSetsBy {
   name_ASC
   name_DESC
+  canReadB2BApps_ASC
+  canReadB2BApps_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadB2BAppAccessRights_ASC
+  canReadB2BAppAccessRights_DESC
+  canManageB2BAppAccessRights_ASC
+  canManageB2BAppAccessRights_DESC
+  canReadB2BAppAccessRightSets_ASC
+  canReadB2BAppAccessRightSets_DESC
+  canManageB2BAppAccessRightSets_ASC
+  canManageB2BAppAccessRightSets_DESC
+  canReadB2BAppContexts_ASC
+  canReadB2BAppContexts_DESC
+  canManageB2BAppContexts_ASC
+  canManageB2BAppContexts_DESC
+  canReadB2BAppPermissions_ASC
+  canReadB2BAppPermissions_DESC
+  canManageB2BAppPermissions_ASC
+  canManageB2BAppPermissions_DESC
+  canReadB2BAppPromoBlocks_ASC
+  canReadB2BAppPromoBlocks_DESC
+  canManageB2BAppPromoBlocks_ASC
+  canManageB2BAppPromoBlocks_DESC
+  canReadB2CApps_ASC
+  canReadB2CApps_DESC
+  canManageB2CApps_ASC
+  canManageB2CApps_DESC
+  canReadB2CAppAccessRights_ASC
+  canReadB2CAppAccessRights_DESC
+  canManageB2CAppAccessRights_ASC
+  canManageB2CAppAccessRights_DESC
+  canReadB2CAppBuilds_ASC
+  canReadB2CAppBuilds_DESC
+  canManageB2CAppBuilds_ASC
+  canManageB2CAppBuilds_DESC
+  canReadB2CAppProperties_ASC
+  canReadB2CAppProperties_DESC
+  canManageB2CAppProperties_ASC
+  canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canExecuteRegisterNewServiceUser_ASC
+  canExecuteRegisterNewServiceUser_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3445,6 +3775,28 @@ enum SortUserRightsSetsBy {
 
 input UserRightsSetUpdateInput {
   name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3463,6 +3815,28 @@ input UserRightsSetsUpdateInput {
 
 input UserRightsSetCreateInput {
   name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
   v: Int
   createdAt: String
   updatedAt: String

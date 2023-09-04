@@ -72242,6 +72242,50 @@ export enum SortUserHistoryRecordsBy {
 export enum SortUserRightsSetHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  CanReadB2BAppsAsc = 'canReadB2BApps_ASC',
+  CanReadB2BAppsDesc = 'canReadB2BApps_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
+  CanReadB2BAppAccessRightsDesc = 'canReadB2BAppAccessRights_DESC',
+  CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
+  CanManageB2BAppAccessRightsDesc = 'canManageB2BAppAccessRights_DESC',
+  CanReadB2BAppAccessRightSetsAsc = 'canReadB2BAppAccessRightSets_ASC',
+  CanReadB2BAppAccessRightSetsDesc = 'canReadB2BAppAccessRightSets_DESC',
+  CanManageB2BAppAccessRightSetsAsc = 'canManageB2BAppAccessRightSets_ASC',
+  CanManageB2BAppAccessRightSetsDesc = 'canManageB2BAppAccessRightSets_DESC',
+  CanReadB2BAppContextsAsc = 'canReadB2BAppContexts_ASC',
+  CanReadB2BAppContextsDesc = 'canReadB2BAppContexts_DESC',
+  CanManageB2BAppContextsAsc = 'canManageB2BAppContexts_ASC',
+  CanManageB2BAppContextsDesc = 'canManageB2BAppContexts_DESC',
+  CanReadB2BAppPermissionsAsc = 'canReadB2BAppPermissions_ASC',
+  CanReadB2BAppPermissionsDesc = 'canReadB2BAppPermissions_DESC',
+  CanManageB2BAppPermissionsAsc = 'canManageB2BAppPermissions_ASC',
+  CanManageB2BAppPermissionsDesc = 'canManageB2BAppPermissions_DESC',
+  CanReadB2BAppPromoBlocksAsc = 'canReadB2BAppPromoBlocks_ASC',
+  CanReadB2BAppPromoBlocksDesc = 'canReadB2BAppPromoBlocks_DESC',
+  CanManageB2BAppPromoBlocksAsc = 'canManageB2BAppPromoBlocks_ASC',
+  CanManageB2BAppPromoBlocksDesc = 'canManageB2BAppPromoBlocks_DESC',
+  CanReadB2CAppsAsc = 'canReadB2CApps_ASC',
+  CanReadB2CAppsDesc = 'canReadB2CApps_DESC',
+  CanManageB2CAppsAsc = 'canManageB2CApps_ASC',
+  CanManageB2CAppsDesc = 'canManageB2CApps_DESC',
+  CanReadB2CAppAccessRightsAsc = 'canReadB2CAppAccessRights_ASC',
+  CanReadB2CAppAccessRightsDesc = 'canReadB2CAppAccessRights_DESC',
+  CanManageB2CAppAccessRightsAsc = 'canManageB2CAppAccessRights_ASC',
+  CanManageB2CAppAccessRightsDesc = 'canManageB2CAppAccessRights_DESC',
+  CanReadB2CAppBuildsAsc = 'canReadB2CAppBuilds_ASC',
+  CanReadB2CAppBuildsDesc = 'canReadB2CAppBuilds_DESC',
+  CanManageB2CAppBuildsAsc = 'canManageB2CAppBuilds_ASC',
+  CanManageB2CAppBuildsDesc = 'canManageB2CAppBuilds_DESC',
+  CanReadB2CAppPropertiesAsc = 'canReadB2CAppProperties_ASC',
+  CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
+  CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
+  CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
+  CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -72263,6 +72307,50 @@ export enum SortUserRightsSetHistoryRecordsBy {
 export enum SortUserRightsSetsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  CanReadB2BAppsAsc = 'canReadB2BApps_ASC',
+  CanReadB2BAppsDesc = 'canReadB2BApps_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
+  CanReadB2BAppAccessRightsDesc = 'canReadB2BAppAccessRights_DESC',
+  CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
+  CanManageB2BAppAccessRightsDesc = 'canManageB2BAppAccessRights_DESC',
+  CanReadB2BAppAccessRightSetsAsc = 'canReadB2BAppAccessRightSets_ASC',
+  CanReadB2BAppAccessRightSetsDesc = 'canReadB2BAppAccessRightSets_DESC',
+  CanManageB2BAppAccessRightSetsAsc = 'canManageB2BAppAccessRightSets_ASC',
+  CanManageB2BAppAccessRightSetsDesc = 'canManageB2BAppAccessRightSets_DESC',
+  CanReadB2BAppContextsAsc = 'canReadB2BAppContexts_ASC',
+  CanReadB2BAppContextsDesc = 'canReadB2BAppContexts_DESC',
+  CanManageB2BAppContextsAsc = 'canManageB2BAppContexts_ASC',
+  CanManageB2BAppContextsDesc = 'canManageB2BAppContexts_DESC',
+  CanReadB2BAppPermissionsAsc = 'canReadB2BAppPermissions_ASC',
+  CanReadB2BAppPermissionsDesc = 'canReadB2BAppPermissions_DESC',
+  CanManageB2BAppPermissionsAsc = 'canManageB2BAppPermissions_ASC',
+  CanManageB2BAppPermissionsDesc = 'canManageB2BAppPermissions_DESC',
+  CanReadB2BAppPromoBlocksAsc = 'canReadB2BAppPromoBlocks_ASC',
+  CanReadB2BAppPromoBlocksDesc = 'canReadB2BAppPromoBlocks_DESC',
+  CanManageB2BAppPromoBlocksAsc = 'canManageB2BAppPromoBlocks_ASC',
+  CanManageB2BAppPromoBlocksDesc = 'canManageB2BAppPromoBlocks_DESC',
+  CanReadB2CAppsAsc = 'canReadB2CApps_ASC',
+  CanReadB2CAppsDesc = 'canReadB2CApps_DESC',
+  CanManageB2CAppsAsc = 'canManageB2CApps_ASC',
+  CanManageB2CAppsDesc = 'canManageB2CApps_DESC',
+  CanReadB2CAppAccessRightsAsc = 'canReadB2CAppAccessRights_ASC',
+  CanReadB2CAppAccessRightsDesc = 'canReadB2CAppAccessRights_DESC',
+  CanManageB2CAppAccessRightsAsc = 'canManageB2CAppAccessRights_ASC',
+  CanManageB2CAppAccessRightsDesc = 'canManageB2CAppAccessRights_DESC',
+  CanReadB2CAppBuildsAsc = 'canReadB2CAppBuilds_ASC',
+  CanReadB2CAppBuildsDesc = 'canReadB2CAppBuilds_DESC',
+  CanManageB2CAppBuildsAsc = 'canManageB2CAppBuilds_ASC',
+  CanManageB2CAppBuildsDesc = 'canManageB2CAppBuilds_DESC',
+  CanReadB2CAppPropertiesAsc = 'canReadB2CAppProperties_ASC',
+  CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
+  CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
+  CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
+  CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -82556,6 +82644,50 @@ export type UserRightsSet = {
   _label_?: Maybe<Scalars['String']>;
   /**  A name that distinguishes this group of rights from others and describes the set of rights that users of this group receive. For example: "Full access to mini-applications", "Level 1 Support", "Read all organizations", etc  */
   name?: Maybe<Scalars['String']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BApp" as support / admin users do  */
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BApp" similar to support users  */
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do  */
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRight" similar to support users  */
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRightSet" as support / admin users do  */
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRightSet" similar to support users  */
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppContext" as support / admin users do  */
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppContext" similar to support users  */
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppPermission" as support / admin users do  */
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPermission" similar to support users  */
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppPromoBlock" as support / admin users do  */
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPromoBlock" similar to support users  */
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CApp" as support / admin users do  */
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CApp" similar to support users  */
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CAppAccessRight" as support / admin users do  */
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppAccessRight" similar to support users  */
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CAppBuild" as support / admin users do  */
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppBuild" similar to support users  */
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CAppProperty" as support / admin users do  */
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users  */
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do  */
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -82574,6 +82706,28 @@ export type UserRightsSet = {
 
 export type UserRightsSetCreateInput = {
   name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82597,6 +82751,28 @@ export type UserRightsSetHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -82614,6 +82790,28 @@ export type UserRightsSetHistoryRecord = {
 
 export type UserRightsSetHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82636,6 +82834,28 @@ export enum UserRightsSetHistoryRecordHistoryActionType {
 
 export type UserRightsSetHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82671,6 +82891,50 @@ export type UserRightsSetHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -82771,6 +83035,28 @@ export type UserRightsSetRelateToOneInput = {
 
 export type UserRightsSetUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -82803,6 +83089,50 @@ export type UserRightsSetWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
