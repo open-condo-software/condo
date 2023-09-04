@@ -26,7 +26,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         // Organization domain
         { schemaName: 'Organization', readonly: true },
     ],
-    services: [],
+    services: ['registerNewServiceUser'],
 }
 
 module.exports = {

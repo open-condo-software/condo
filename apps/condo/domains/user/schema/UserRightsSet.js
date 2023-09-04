@@ -15,6 +15,7 @@ const { generateRightSetFields } = require('@condo/domains/user/utils/directAcce
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const USER_UPDATE_CHUNK_SIZE = 100
+const USER_UPDATE_FINGERPRINT = 'rights-set-delete-mutation'
 
 const UserRightsSet = new GQLListSchema('UserRightsSet', {
     schemaDoc:
@@ -38,8 +39,20 @@ const UserRightsSet = new GQLListSchema('UserRightsSet', {
 
             if (isSoftDelete) {
                 // Basically implementing SET_NULL policy, to keep consistent behaviour (see Read/User test)
+                // NOTE 1: it's important to SET_NULL this field, since in access checks we get flat user record
+                // (similar as find/getByConditions returns), so there's no softDeleted filter in it.
+                // NOTE 2: Yes, we're checking deletedAt in direct accesses, but the presence of a field "rightsSet" in user record
+                // is our sign to check it (do a sub-query).
+                // That's why we're clearing this fields now once to avoid extra sub-queries later.
                 const relatedUsers = await find('User', { rightsSet: { id: itemId } })
-                const updateData = relatedUsers.map(user => ({ id: user.id, data: { rightsSet: { disconnectAll: true } } }))
+                const updateData = relatedUsers.map(user => ({
+                    id: user.id,
+                    data: {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: USER_UPDATE_FINGERPRINT },
+                        rightsSet: { disconnectAll: true },
+                    },
+                }))
                 const usersChunks = chunk(updateData, USER_UPDATE_CHUNK_SIZE)
                 for (const usersChunk of usersChunks) {
                     await User.updateMany(context, usersChunk)
