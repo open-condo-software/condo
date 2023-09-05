@@ -882,6 +882,46 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@app/dev-api@workspace:apps/dev-api":
+  version: 0.0.0-use.local
+  resolution: "@app/dev-api@workspace:apps/dev-api"
+  dependencies:
+    "@dev-api/domains": "link:./domains"
+    "@keystonejs/adapter-knex": ^13.2.0
+    "@keystonejs/adapter-mongoose": ^11.2.0
+    "@keystonejs/adapter-prisma": ^3.2.0
+    "@keystonejs/app-admin-ui": ^7.5.0
+    "@keystonejs/app-graphql": ^6.3.0
+    "@keystonejs/app-graphql-playground": ^5.2.2
+    "@keystonejs/auth-password": ^6.1.0
+    "@keystonejs/fields": ^22.1.3
+    "@keystonejs/fields-color": ^1.1.0
+    "@keystonejs/fields-content": ^9.1.0
+    "@keystonejs/fields-markdown": ^5.3.2
+    "@keystonejs/fields-wysiwyg-tinymce": ^5.4.0
+    "@keystonejs/file-adapters": ^7.1.0
+    "@keystonejs/keystone": ^19.3.1
+    "@keystonejs/list-plugins": ^8.1.0
+    "@keystonejs/server-side-graphql-client": ^2.1.0
+    "@keystonejs/utils": ^6.1.0
+    "@open-condo/codegen": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/keystone": "workspace:^"
+    "@types/jest": ^29.4.0
+    "@types/node": ^16
+    babel-jest: ^29.4.0
+    dayjs: ^1.10.6
+    express: ^4.17.1
+    identity-obj-proxy: ^3.0.0
+    jest: ^29.4.0
+    jest-environment-jsdom: ^29.4.0
+    jest-jasmine2: ^29.4.0
+    jest-watch-typeahead: ^0.6.1
+    lodash: ^4.17.21
+    uuid: ^8.3.0
+  languageName: unknown
+  linkType: soft
+
 "@app/dev-portal@workspace:apps/dev-portal":
   version: 0.0.0-use.local
   resolution: "@app/dev-portal@workspace:apps/dev-portal"
@@ -5730,6 +5770,12 @@ __metadata:
   checksum: 6659eadb485b55d25d465b0b262c22e7d196f35b27aa1f8f7b6f3bacda9d7c5f6186a46afe56dd223c70f91c61392c81a541ea7dec588960499d049a8c06f3b7
   languageName: node
   linkType: hard
+
+"@dev-api/domains@link:./domains::locator=%40app%2Fdev-api%40workspace%3Aapps%2Fdev-api":
+  version: 0.0.0-use.local
+  resolution: "@dev-api/domains@link:./domains::locator=%40app%2Fdev-api%40workspace%3Aapps%2Fdev-api"
+  languageName: node
+  linkType: soft
 
 "@dev-portal/domains@link:./domains::locator=%40app%2Fdev-portal%40workspace%3Aapps%2Fdev-portal":
   version: 0.0.0-use.local
