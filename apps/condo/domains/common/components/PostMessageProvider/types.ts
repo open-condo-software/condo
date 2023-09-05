@@ -16,14 +16,26 @@ export type RequestParamsMap = {
     [Method in BridgeRequestMethodsName]: BridgeRequestParams<Method>
 } & {
     CondoWebSendAnalyticsEvent: AnalyticsParams,
-    CondoWebSetActiveCall: { isCallActive: boolean, connectedTickets: Array<string>, error?: string }
+    CondoWebSetActiveCall: { isCallActive: boolean, connectedTickets: Array<string>, error?: string },
+    CondoWebAppSetActiveCall: { callId: string },
+    CondoWebAppSaveCallRecord: {
+        callId: string,
+        fileUrl: string,
+        startedAt: string,
+        callerPhone: string,
+        destCallerPhone: string,
+        talkTime: number,
+        isIncomingCall: boolean,
+    },
 }
 
 export type HandlerResultsMap = {
     [Method in BridgeResponseMethodsName]: BridgeResponseData<Method>
 } & {
     CondoWebSendAnalyticsEvent: { sent: boolean },
-    CondoWebSetActiveCall: { sent: boolean }
+    CondoWebSetActiveCall: { sent: boolean },
+    CondoWebAppSetActiveCall: { sent: boolean },
+    CondoWebAppSaveCallRecord: { sent: boolean },
 }
 
 export type AllRequestMethods = keyof RequestParamsMap
@@ -39,7 +51,9 @@ type ResponseEventNames<Method extends AllRequestMethods> = Record<Method, {
 }>
 export type ResponseEventNamesMap = BridgeEventNamesMap &
 ResponseEventNames<'CondoWebSendAnalyticsEvent'> &
-ResponseEventNames<'CondoWebSetActiveCall'>
+ResponseEventNames<'CondoWebSetActiveCall'> &
+ResponseEventNames<'CondoWebAppSetActiveCall'> &
+ResponseEventNames<'CondoWebAppSaveCallRecord'>
 
 export type ClientErrorResponse<Method extends AllRequestMethods, Reason extends ErrorReason> = {
     type: ResponseEventNamesMap[Method]['error'] | typeof COMMON_ERROR_PREFIX

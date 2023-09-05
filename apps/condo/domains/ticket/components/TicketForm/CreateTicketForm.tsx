@@ -20,6 +20,7 @@ import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
+import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
@@ -97,6 +98,8 @@ export const CreateTicketForm: React.FC = () => {
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
+    const { attachTicketToActiveCall } = useActiveCall()
+
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
@@ -131,6 +134,8 @@ export const CreateTicketForm: React.FC = () => {
         })
 
         if (attachCallRecord) {
+            attachTicketToActiveCall(ticket.id)
+
             requestFeature({
                 feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
                 ticketId: ticket.id,
@@ -139,7 +144,7 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [action, organization.id, requestFeature])
+    }, [action, attachTicketToActiveCall, organization.id, requestFeature])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,

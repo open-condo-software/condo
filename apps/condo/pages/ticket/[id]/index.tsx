@@ -357,7 +357,7 @@ const TicketActionBar = ({
 
     const { breakpoints } = useLayoutContext()
     const { requestFeature } = useGlobalAppsFeaturesContext()
-    const { isCallActive, connectedTickets } = useActiveCall()
+    const { isCallActive, connectedTickets, attachTicketToActiveCall } = useActiveCall()
 
     const id = get(ticket, 'id')
     const ticketOrganizationId = get(ticket, 'organization.id')
@@ -386,6 +386,8 @@ const TicketActionBar = ({
     const { EditButton: EditQualityControlButton } = useTicketQualityControl()
 
     const handleAttachCallRecordClick = useCallback(() => {
+        attachTicketToActiveCall(id)
+
         requestFeature({
             feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
             ticketId: id,
@@ -393,7 +395,7 @@ const TicketActionBar = ({
         })
 
         notification.info({ message: NotificationMessage, description: NotificationDescription })
-    }, [NotificationDescription, NotificationMessage, id, requestFeature, ticketOrganizationId])
+    }, [NotificationDescription, NotificationMessage, attachTicketToActiveCall, id, requestFeature, ticketOrganizationId])
 
     return (
         <ActionBar

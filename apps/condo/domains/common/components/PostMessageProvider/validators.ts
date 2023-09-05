@@ -76,6 +76,30 @@ const CondoWebSetActiveCallParamsSchema = {
     additionalProperties: false,
 }
 
+const CondoWebAppSetActiveCallParamsSchema = {
+    type: 'object',
+    properties: {
+        callId: { type: 'string' },
+    },
+    required: ['callId'],
+    additionalProperties: false,
+}
+
+const CondoWebAppSaveCallRecordParamsSchema = {
+    type: 'object',
+    properties: {
+        callId: { type: 'string' },
+        fileUrl: { type: 'string' },
+        startedAt: { type: 'string' },
+        callerPhone: { type: 'string' },
+        destCallerPhone: { type: 'string' },
+        talkTime: { type: 'number' },
+        isIncomingCall: { type: 'boolean' },
+    },
+    // required: ['callId', 'fileUrl', 'startedAt', 'callerPhone', 'destCallerPhone', 'talkTime', 'isIncomingCall'],
+    additionalProperties: true,
+}
+
 const CondoWebAppShowModalWindowParamsSchema = {
     type: 'object',
     properties: {
@@ -153,6 +177,8 @@ export type ValidatorsType = { [Method in AllRequestMethods]: RequestParamValida
 
 export const validators: ValidatorsType = {
     CondoWebSetActiveCall: ajv.compile(CondoWebSetActiveCallParamsSchema),
+    CondoWebAppSetActiveCall: ajv.compile(CondoWebAppSetActiveCallParamsSchema),
+    CondoWebAppSaveCallRecord: ajv.compile(CondoWebAppSaveCallRecordParamsSchema),
     CondoWebSendAnalyticsEvent: ajv.compile(CondoWebSendAnalyticsEventParamsSchema),
     CondoWebAppCloseModalWindow: ajv.compile(CondoWebAppCloseModalWindowParamsSchema),
     CondoWebAppGetActiveProgressBars: NoParamsValidator,
