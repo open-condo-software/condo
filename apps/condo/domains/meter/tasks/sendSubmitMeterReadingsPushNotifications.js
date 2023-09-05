@@ -181,19 +181,14 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             const notifyStartDate = dayjs(state.startTime).set('date', notifyStartDay).format('YYYY-MM-DD')
             const notifyEndDate = createEndDate(state.startTime, notifyEndDay)
 
-            const readingsOfCurrentMeter = meterReadings.filter(reading => {
-                console.log('isCurMeterReading', reading.meter.id === meter.id, 'isInPeriod', dayjs(reading.date).isBetween(notifyStartDate, notifyEndDate, 'day', '[]'))
-                return (
-                    (reading.meter.id === meter.id &&
-                        dayjs(reading.date).isBetween(notifyStartDate, notifyEndDate, 'day', '[]'))
-                )
-            })
+            const readingsOfCurrentMeter = meterReadings.filter(reading => (
+                reading.meter.id === meter.id &&
+                dayjs(reading.date).isBetween(notifyStartDate, notifyEndDate, 'day', '[]')
+            ))
 
             const isTodayStartOrEndOfPeriod = checkIsDateStartOrEndOfPeriod(state.startTime, state.startTime, notifyStartDay, notifyEndDay)
             const isEndPeriodNotification = dayjs(state.startTime).format('YYYY-MM-DD') === dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')
             const periodKey = `${dayjs(state.startTime).set('date', notifyStartDay).format('YYYY-MM-DD')}-${dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')}`
-
-            logger.info({ meter, readingsOfCurrentMeter, readMeterReadings, period,  isTodayStartOrEndOfPeriod, isEndPeriodNotification, periodKey, isEmptyReadings: isEmpty(readingsOfCurrentMeter) })
 
             if (isTodayStartOrEndOfPeriod && isEmpty(readingsOfCurrentMeter)) metersWithoutReadings.push({ meter, periodKey, isEndPeriodNotification })
         }
@@ -257,11 +252,8 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 
 const sendMessageSafely = async ({ context, message }) => {
     try {
-        logger.info({ msg: 'sendMessageSafely', message })
         await sendMessage(context, message)
     } catch (error) {
-        logger.info({ msg: 'sendMessageSafelyError', error, message })
-
         logger.error({ msg: 'sendMessage error', error })
     }
 }

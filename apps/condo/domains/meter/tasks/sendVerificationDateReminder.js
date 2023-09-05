@@ -93,9 +93,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         (meter, servicesConsumers) => ({ meter, servicesConsumers })
     )
         .filter(item => item.servicesConsumers != null && item.servicesConsumers.length > 0)
-    console.log('joinResidentsToMeters', {
-        metersWithServiceConsumers,
-    })
+
     return metersWithServiceConsumers
         .map(meterWithServiceConsumers => {
             const { meter, servicesConsumers } = meterWithServiceConsumers
