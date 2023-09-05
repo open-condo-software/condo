@@ -24,7 +24,6 @@ const { Message: MessageApi } = require('@condo/domains/notification/utils/serve
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
 
-
 const { keystone } = index
 
 const prepareUserAndMeter = async ({ nextVerificationDate }) => {
@@ -84,7 +83,7 @@ describe('Submit meter readings push notification', () => {
         [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
     })
 
-    it('should not send messages for exists this month readings and valid nextVerificationDate', async () => {
+    it('should not send messages for exists readings in this period and valid nextVerificationDate', async () => {
         // arrange
         const client = await prepareUserAndMeter({
             nextVerificationDate: dayjs().add(1, 'day').toISOString(),
@@ -102,7 +101,24 @@ describe('Submit meter readings push notification', () => {
         expect(messages).toHaveLength(0)
     })
 
-    it('should not send messages for exists this month readings and not valid nextVerificationDate', async () => {
+    it('should send messages for not exists readings in this period and valid nextVerificationDate', async () => {
+        // arrange
+        const client = await prepareUserAndMeter({
+            nextVerificationDate: dayjs().add(1, 'day').toISOString(),
+        })
+
+        // act
+        await sendSubmitMeterReadingsPushNotifications()
+
+        // assert
+        const messages = await getNewMessages({
+            userId: client.user.id,
+            meterId: client.meter.id,
+        })
+        expect(messages).toHaveLength(1)
+    })
+
+    it('should send messages for not exists readings in this period and not valid nextVerificationDate', async () => {
         // arrange
         const client = await prepareUserAndMeter({
             nextVerificationDate: dayjs().add(-1, 'day').toISOString(),
@@ -258,7 +274,7 @@ describe('Submit meter readings push notification', () => {
         )
 
         await createTestMeterReportingPeriod(adminClient, organization, {
-            notifyStartDay: Number(dayjs().subtract(3, 'day').format('DD')),
+            notifyStartDay: 1,
             notifyEndDay: Number(dayjs().format('DD')),
         })
         // act

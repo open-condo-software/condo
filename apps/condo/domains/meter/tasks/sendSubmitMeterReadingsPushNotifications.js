@@ -49,7 +49,7 @@ const readMeterReadings = async ({ context, meters }) => {
     // then calculate current period window
     const now = dayjs()
     const startWindowDate = `${now.format('YYYY-MM')}-01`
-    const endWindowDate = now.toISOString()
+    const endWindowDate = now.set('hour', 23).set('minute', 59).set('second', 59).toISOString()
 
     // load all pages for entity
     return await loadListByChunks({
@@ -100,6 +100,14 @@ const checkIsDateStartOrEndOfPeriod = (date, today, start, end) => (
     dayjs(date).format('YYYY-MM-DD') === dayjs(today).set('date', start).format('YYYY-MM-DD') ||
     dayjs(date).format('YYYY-MM-DD') === dayjs(today).set('date', end).format('YYYY-MM-DD')
 )
+
+const createEndDate = (date, notifyEndDay) => {
+    let currentDate = dayjs(date.startTime).set('date', notifyEndDay)
+    while (date.get('month') < currentDate.get('month')) {
+        currentDate = currentDate.subtract(1, 'd')
+    }
+    return currentDate.format('YYYY-MM-DD')
+}
 
 const sendSubmitMeterReadingsPushNotifications = async () => {
     // task implementation algorithm
@@ -171,7 +179,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
             const notifyStartDay = get(period, 'notifyStartDay')
             const notifyEndDay = get(period, 'notifyEndDay')
             const notifyStartDate = dayjs(state.startTime).set('date', notifyStartDay).format('YYYY-MM-DD')
-            const notifyEndDate = dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')
+            const notifyEndDate = createEndDate(state.startTime, notifyEndDay)
 
             const readingsOfCurrentMeter = meterReadings.filter(reading => {
                 console.log('isCurMeterReading', reading.meter.id === meter.id, 'isInPeriod', dayjs(reading.date).isBetween(notifyStartDate, notifyEndDate, 'day', '[]'))
