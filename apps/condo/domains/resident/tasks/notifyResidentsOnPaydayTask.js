@@ -11,7 +11,7 @@ const { notifyResidentsOnPayday } = require('./notifyResidentsOnPayday')
 
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
-module.exports = createCronTask('notifyResidentsOnPayday', '0 13 * * *', async(context = null) => {
+module.exports = createCronTask('notifyResidentsOnPayday', '0 13 * * *', async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK)
 
     if (!isFeatureEnabled) {
@@ -22,18 +22,16 @@ module.exports = createCronTask('notifyResidentsOnPayday', '0 13 * * *', async(c
 
     const today = dayjs()
     const targetDayOfSendingThePush = dayjs().set('date', 20).day()
-    const isTargetDayWeekday = !(targetDayOfSendingThePush === 0 || targetDayOfSendingThePush === 6)
+    const isTargetDayWeekend = targetDayOfSendingThePush === 0 || targetDayOfSendingThePush === 6
+    const isTargetDayWeekendAndTodayIsFriday = isTargetDayWeekend && Number(today.format('DD')) >= 18 && Number(today.format('DD')) < 20 && today.day() === 5
+    const isTargetDayWeekday = !isTargetDayWeekend && today.format('DD') === '20'
 
-    /*
-        The 20th of the month from the passed date must be a weekday.
-        Below is a check for compliance with the ordinal number of the day of the week 6 (Saturday) and 0 (Sunday).
-        Also, the date must be no later than the 16th of the month and the day of the week must be Friday.
-        These checks are required if the 20th of the month is not a weekday. If the 20th is a weekday, then just return true.
-        https://day.js.org/docs/en/get-set/day
+    /**
+     * Pay date is:
+     * either a 20-th day workday of month
+     * or Friday coming before weekend 20-th day
      */
-    if (isTargetDayWeekday) {
-        return today.format('DD') === '20' && await notifyResidentsOnPayday()
-    } else if (Number(today.format('DD')) >= 18 && Number(today.format('DD')) < 20 && today.day() === 5) {
+    if (isTargetDayWeekendAndTodayIsFriday || isTargetDayWeekday) {
         return await notifyResidentsOnPayday()
     } else {
         logger.info({ msg: 'Push should be sent only on weekdays.' })

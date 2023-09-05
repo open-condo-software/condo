@@ -78,7 +78,6 @@ async function sendNotification (context, receipt) {
 async function notifyResidentsOnPayday () {
     const { keystone: context } = await getSchemaCtx('User')
     const now = dayjs()
-    const currentPeriod = now.set('date', 1).format('YYYY-MM-DD')
     const previousPeriod = now.set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
     logger.info({ msg: 'Start processing', startAt: now.format() })
 
@@ -89,12 +88,12 @@ async function notifyResidentsOnPayday () {
         chunkSize: 20,
         where: {
             period_in: [
-                currentPeriod,
                 previousPeriod,
             ],
+            toPay_gt: 0,
             deletedAt: null,
         },
-    })).filter(receipt => receipt.toPay > 0)
+    }))
 
     for (const receipt of allBillingReceipts) {
         const organizationId = get(receipt, ['context', 'organization', 'id'])
