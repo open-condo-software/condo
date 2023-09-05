@@ -14,6 +14,7 @@ const useDeskFieldsIdsMap = {
     tin: 20560,
     role: 20574,
     organizationName: 20572,
+    userId: 22460,
 }
 
 const getUsedeskMessenger = () => {
@@ -37,6 +38,7 @@ const UseDeskWidget: React.FC = () => {
                 const name = get(link, 'name')
                 const email = get(user, 'email')
                 const phone = get(user, 'phone')
+                const userId = get(user, 'id')
 
                 set(window, '__widgetInitCallback', (widget) => {
                     const token = cookie.get('usedeskChatToken')
@@ -55,6 +57,9 @@ const UseDeskWidget: React.FC = () => {
                                 },
                                 {
                                     id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
+                                },
+                                {
+                                    id: useDeskFieldsIdsMap.userId, value: userId,
                                 },
                             ],
                     }
