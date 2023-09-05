@@ -11,17 +11,18 @@ const { notifyResidentsOnPayday } = require('./notifyResidentsOnPayday')
 
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
-const notifyResidentsOnPaydayTaskFn = async (context = null) => {
+module.exports = createCronTask('notifyResidentsOnPayday', '0 13 * * *', async(context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK)
-    const today = dayjs()
-    const targetDayOfSendingThePush = dayjs().set('date', 20).day()
-    const isTargetDayWeekday = !(targetDayOfSendingThePush === 0 || targetDayOfSendingThePush === 6)
 
     if (!isFeatureEnabled) {
-        logger.info(`notifyResidentsOnPayday task was skipped due to disabled growthbook feature flag [${SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK}]`)
+        logger.info(`Skip notifyResidentsOnPayday task due to disabled GrowthBook feature flag [${SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK}]`)
 
         return 'disabled'
     }
+
+    const today = dayjs()
+    const targetDayOfSendingThePush = dayjs().set('date', 20).day()
+    const isTargetDayWeekday = !(targetDayOfSendingThePush === 0 || targetDayOfSendingThePush === 6)
 
     /*
         The 20th of the month from the passed date must be a weekday.
@@ -37,11 +38,4 @@ const notifyResidentsOnPaydayTaskFn = async (context = null) => {
     } else {
         logger.info({ msg: 'Push should be sent only on weekdays.' })
     }
-}
-
-/**
- * Syncs new and cancelled subscriptions
- */
-const notifyResidentsOnPaydayTask = createCronTask('notifyResidentsOnPayday', '0 13 * * *', notifyResidentsOnPaydayTaskFn)
-
-module.exports = notifyResidentsOnPaydayTask
+})

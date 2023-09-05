@@ -80,7 +80,7 @@ async function notifyResidentsOnPayday () {
     const now = dayjs()
     const currentPeriod = now.set('date', 1).format('YYYY-MM-DD')
     const previousPeriod = now.set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
-    logger.info({ msg: 'Start proceeding', startAt: now.format() })
+    logger.info({ msg: 'Start processing', startAt: now.format() })
 
     // get all BillingReceipts with positive toPay field
     const allBillingReceipts = (await loadListByChunks({
@@ -99,17 +99,17 @@ async function notifyResidentsOnPayday () {
     for (const receipt of allBillingReceipts) {
         const organizationId = get(receipt, ['context', 'organization', 'id'])
         const accountNumber = get(receipt, ['account', 'number'])
-        const toPay = get(receipt, ['toPay'])
-        const paid = await getPaymentsSum(
+        const toPay = Number(get(receipt, ['toPay']))
+        const paid = Number(await getPaymentsSum(
             context,
             organizationId,
             accountNumber,
             get(receipt, 'period', null),
             get(receipt, ['recipient', 'bic'], null),
             get(receipt, ['recipient', 'bankAccount'], null)
-        )
+        ))
 
-        if (Number(paid) < Number(toPay)) {
+        if (paid < toPay) {
 
             await sendNotification(context, receipt)
         }
