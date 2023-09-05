@@ -158,6 +158,13 @@ export const ExpandableTable: React.FC<ITableProps> = (props) => {
     const { expandable, ...tableProps } = props
     const dataSource = props.dataSource
 
+    const getExpandIcon = useCallback(({ expanded, onExpand, record }) =>
+        expanded ? (
+            <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
+        ) : (
+            <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
+        ), [])
+
     const getRowClassName = useCallback((record, index) => {
         const classNames = ['condo-table-expandable-row']
 
@@ -171,20 +178,19 @@ export const ExpandableTable: React.FC<ITableProps> = (props) => {
         return classNames.join(' ')
     }, [dataSource.length])
 
+    const getExpandedRowClassName = useCallback(() => 'condo-table-expandable-row-inner-row', [])
+
+    const handleExpand = useCallback((expanded, record) => record.expanded = expanded, [])
+
     const expandableConfig = useMemo(() => ({
         indentSize: 0,
         expandRowByClick: true,
         columnWidth: '60px',
-        expandedRowClassName: () => 'condo-table-expandable-row-inner-row',
-        onExpand: (expanded, record) => record.expanded = expanded,
-        expandIcon: ({ expanded, onExpand, record }) =>
-            expanded ? (
-                <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
-            ) : (
-                <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
-            ),
+        expandedRowClassName: getExpandedRowClassName,
+        onExpand: handleExpand,
+        expandIcon: getExpandIcon,
         ...expandable,
-    }), [expandable])
+    }), [expandable, getExpandIcon, getExpandedRowClassName, handleExpand])
 
     return <Table
         sticky

@@ -3,21 +3,18 @@ import {
     B2BAppRoleCreateInput,
     B2BAppRoleUpdateInput,
     SortOrganizationEmployeeRolesBy,
-} from '@app/condo/schema'
-import {
     OrganizationEmployeeRole as OrganizationEmployeeRoleType,
     B2BAppPermission as B2BAppPermissionType,
     B2BAppRole as B2BAppRoleType,
 } from '@app/condo/schema'
 import { Col, notification, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
-import { set } from 'lodash'
-import { isEqual } from 'lodash'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
-import isEmpty from 'lodash/isEmpty'
+import isEqual from 'lodash/isEqual'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
+import set from 'lodash/set'
 import uniqBy from 'lodash/uniqBy'
 import { TableComponents } from 'rc-table/lib/interface'
 import React, {
@@ -94,6 +91,140 @@ type TableCheckboxProps = {
     setPermissionState: Dispatch<SetStateAction<PermissionState>>
 }
 
+type SaveNotificationType = 'create' | 'delete'
+
+const getPermissionsWithNewValue = ({ permissionKey, newValue, oldPermissions, isReadPermission }) => {
+    let newPermissions
+
+    if (isReadPermission) {
+        if (newValue) {
+            newPermissions = { ...oldPermissions, [permissionKey]: newValue }
+        } else if (!newValue) {
+            newPermissions = Object.keys(oldPermissions)
+                .reduce((acc, permission) => ({ ...acc, [permission]: false }), {})
+        }
+    } else {
+        if (newValue) {
+            const readPermissionKey = Object.keys(oldPermissions).find(permission => permission.startsWith('canRead'))
+            newPermissions = { ...oldPermissions, [permissionKey]: newValue, [readPermissionKey]: true }
+        } else {
+            newPermissions = { ...oldPermissions, [permissionKey]: newValue }
+        }
+    }
+
+    return newPermissions
+}
+
+const isCheckboxDisabled = ({ checkboxValue, employeeRoleId, permissionKey, isReadPermission, permissionState, pathToPermissionsGroup }) => {
+    const otherEmployeeRoleIds = Object.keys(omit(permissionState, employeeRoleId))
+    const pathToPermissionsGroupFromEmployeeRole = pathToPermissionsGroup.slice(1)
+    let checkboxDisabled = checkboxValue
+
+    for (const roleId of otherEmployeeRoleIds) {
+        const isOtherEmployeeHasPermission = get(permissionState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permissionKey], false)
+
+        if (isOtherEmployeeHasPermission) {
+            checkboxDisabled = false
+            break
+        }
+    }
+
+    if (isReadPermission) {
+        const permissionsGroup = get(permissionState, pathToPermissionsGroup)
+        checkboxDisabled = false
+
+        for (const permission of Object.keys(permissionsGroup)) {
+            let otherEmployeeHasPermission = false
+
+            for (const roleId of otherEmployeeRoleIds) {
+                const isEmployeeHasPermission = get(permissionState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permission], false)
+
+                if (isEmployeeHasPermission) {
+                    otherEmployeeHasPermission = true
+                    break
+                }
+            }
+
+            checkboxDisabled = !otherEmployeeHasPermission
+        }
+    }
+
+    return checkboxDisabled
+}
+
+const getSaveNotificationType = ({ initialPermissionState, permissionState }): SaveNotificationType => {
+    let notificationType: SaveNotificationType = 'delete'
+
+    for (const roleId of Object.keys(initialPermissionState)) {
+        const initialAppsPermissions = initialPermissionState[roleId].b2bAppRoles
+        const newAppsPermissions = permissionState[roleId].b2bAppRoles
+
+        for (const appId of Object.keys(initialAppsPermissions)) {
+            const initialAppPermissions = initialAppsPermissions[appId].permissions
+            const newAppPermissions = newAppsPermissions[appId].permissions
+
+            for (const permission of Object.keys(initialAppPermissions)) {
+                if (!initialAppPermissions[permission] && newAppPermissions[permission]) {
+                    notificationType = 'create'
+                }
+            }
+        }
+    }
+
+    return notificationType
+}
+
+const updateB2BAppRolePermissions = async ({
+    employeeRoleId,
+    initialB2bRolePermissions,
+    newB2bRolePermissions,
+    b2BAppPermissions,
+    b2BAppRoles,
+    createB2BAppRoleAction,
+    softDeleteB2BAppRoleAction,
+    updateB2BAppRoleAction,
+}) => {
+    for (const appId of Object.keys(newB2bRolePermissions)) {
+        const initialEmployeePermissionsInB2BApp = initialB2bRolePermissions[appId]
+        const newEmployeePermissionsInB2BApp = newB2bRolePermissions[appId]
+
+        if (!isEqual(initialEmployeePermissionsInB2BApp, newEmployeePermissionsInB2BApp)) {
+            const canReadAppKey = `canRead${appId}`
+            const initialPermissions = initialEmployeePermissionsInB2BApp.permissions
+            const newPermissions = newEmployeePermissionsInB2BApp.permissions
+            const b2bAppPermissionsKeys = b2BAppPermissions
+                .filter(permission => permission.app.id === appId)
+                .map(permission => permission.key)
+
+            const isCreateB2BAppRoleOperation = !initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
+            const isDeleteB2BAppRoleOperation = initialPermissions[canReadAppKey] && !newPermissions[canReadAppKey]
+            const isUpdateB2BAppRoleOperation = initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
+            const newPermissionsToMutations = pick(newPermissions, b2bAppPermissionsKeys)
+
+            if (isCreateB2BAppRoleOperation) {
+                const permissionsToCreateAction = pick(newPermissions, b2bAppPermissionsKeys)
+
+                await createB2BAppRoleAction({
+                    app: { connect: { id: appId } },
+                    role: { connect: { id: employeeRoleId } },
+                    permissions: permissionsToCreateAction,
+                })
+            } else if (isDeleteB2BAppRoleOperation) {
+                const b2bAppRoleToDelete = b2BAppRoles
+                    .find(role => role.id === initialEmployeePermissionsInB2BApp.roleId)
+
+                await softDeleteB2BAppRoleAction(b2bAppRoleToDelete)
+            } else if (isUpdateB2BAppRoleOperation) {
+                const b2bAppRoleToUpdate = b2BAppRoles
+                    .find(role => role.id === initialEmployeePermissionsInB2BApp.roleId)
+
+                await updateB2BAppRoleAction({
+                    permissions: newPermissionsToMutations,
+                }, b2bAppRoleToUpdate)
+            }
+        }
+    }
+}
 
 const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId, permissionKey, permissionState, setPermissionState }) => {
     const intl = useIntl()
@@ -116,67 +247,30 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
         const newValue = e.target.checked
         const newState = cloneDeep(permissionState)
         const oldPermissions = get(newState, pathToPermissionsGroup)
-        let newPermissions
-
-        if (isReadPermission) {
-            if (newValue) {
-                newPermissions = { ...oldPermissions, [permissionKey]: newValue }
-            } else if (!newValue) {
-                newPermissions = Object.keys(oldPermissions)
-                    .reduce((acc, permission) => ({ ...acc, [permission]: false }), {})
-            }
-        } else {
-            if (newValue) {
-                const readPermissionKey = Object.keys(oldPermissions).find(permission => permission.startsWith('canRead'))
-                newPermissions = { ...oldPermissions, [permissionKey]: newValue, [readPermissionKey]: true }
-            } else {
-                newPermissions = { ...oldPermissions, [permissionKey]: newValue }
-            }
-        }
+        const newPermissions = getPermissionsWithNewValue({
+            permissionKey,
+            newValue,
+            oldPermissions,
+            isReadPermission,
+        })
 
         set(newState, pathToPermissionsGroup, newPermissions)
-
         setPermissionState(newState)
     }, [isReadPermission, pathToPermissionsGroup, permissionKey, permissionState, setPermissionState])
 
-    let isCheckboxDisabled = value
-    if (value) {
-        const otherEmployeeRoleIds = Object.keys(omit(permissionState, employeeRoleId))
-        const pathToPermissionsGroupFromEmployeeRole = pathToPermissionsGroup.slice(1)
-
-        for (const roleId of otherEmployeeRoleIds) {
-            const isOtherEmployeeHasPermission = get(permissionState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permissionKey], false)
-
-            if (isOtherEmployeeHasPermission) {
-                isCheckboxDisabled = false
-                break
-            }
-        }
-
-        if (isReadPermission) {
-            const permissionsGroup = get(permissionState, pathToPermissionsGroup)
-            isCheckboxDisabled = false
-
-            for (const permission of Object.keys(permissionsGroup)) {
-                let otherEmployeeHasPermission = false
-
-                for (const roleId of otherEmployeeRoleIds) {
-                    if (get(permissionState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permission])) {
-                        otherEmployeeHasPermission = true
-                    }
-                }
-
-                if (!otherEmployeeHasPermission) {
-                    isCheckboxDisabled = true
-                }
-            }
-        }
-    }
+    const checkboxDisabled = isCheckboxDisabled({
+        checkboxValue: value,
+        employeeRoleId,
+        permissionKey,
+        isReadPermission,
+        permissionState,
+        pathToPermissionsGroup,
+    })
 
     return (
         <div style={{ width: '100px' }}>
             {
-                isCheckboxDisabled ? (
+                checkboxDisabled ? (
                     <Tooltip title={DisabledTooltipTitle}>
                         <Checkbox checked={Boolean(value)} onChange={onChange} disabled={true} />
                     </Tooltip>
@@ -188,6 +282,41 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
     )
 }
 
+const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionState, setPermissionState }) => {
+    const permissionRows = permissionsGroup.permissions
+
+    const columns = useMemo(() => [
+        {
+            dataIndex: 'name',
+            width: '20%',
+        },
+        ...employeeRoles.map(employeeRole => ({
+            render: (permissionRow: PermissionRow) => {
+                return <TableCheckbox
+                    b2bAppId={permissionsGroup.id}
+                    permissionKey={permissionRow.key}
+                    employeeRoleId={employeeRole.id}
+                    permissionState={permissionState}
+                    setPermissionState={setPermissionState}
+                />
+            },
+        })),
+        {
+            width: '60px',
+            render: () => <div style={{ width: '20px' }} />,
+        },
+    ], [employeeRoles, permissionState, permissionsGroup.id, setPermissionState])
+
+    return <Table
+        tableLayout='auto'
+        rowClassName='inner-table-row'
+        showHeader={false}
+        pagination={false}
+        dataSource={permissionRows}
+        columns={columns}
+    />
+}
+
 export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
     loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction,
@@ -197,6 +326,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
+    const UpdatePermissionsMessage = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.notification.updatePermissions' })
+    const DeletePermissionsMessage = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.notification.deletePermissions' })
 
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
     const tableData: PermissionsGroup[] = useMemo(() => connectedB2BApps.map((b2bApp): PermissionsGroup => ({
@@ -277,11 +408,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
 
     const handleSave = useCallback(async () => {
         setSubmitActionProcessing(true)
-        let notificationType: 'create' | 'delete'
 
         for (const employeeRole of employeeRoles) {
             const employeeRoleId = employeeRole.id
-
             const initialRolePermissions = initialPermissionState[employeeRoleId]
             const newRolePermissions = permissionState[employeeRoleId]
 
@@ -292,106 +421,46 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             const initialB2bRolePermissions = initialRolePermissions.b2bAppRoles
             const newB2bRolePermissions = newRolePermissions.b2bAppRoles
 
-            for (const appId of Object.keys(newB2bRolePermissions)) {
-                const initialEmployeePermissionsInB2BApp = initialB2bRolePermissions[appId]
-                const newEmployeePermissionsInB2BApp = newB2bRolePermissions[appId]
-
-                if (!isEqual(initialEmployeePermissionsInB2BApp, newEmployeePermissionsInB2BApp)) {
-                    const canReadAppKey = `canRead${appId}`
-                    const initialPermissions = initialEmployeePermissionsInB2BApp.permissions
-                    const newPermissions = newEmployeePermissionsInB2BApp.permissions
-                    const b2bAppPermissionsKeys = b2BAppPermissions
-                        .filter(permission => permission.app.id === appId)
-                        .map(permission => permission.key)
-
-                    for (const key of b2bAppPermissionsKeys) {
-                        // if only delete permissions then notification will has delete text
-                        if (isEmpty(notificationType) && initialPermissions[key] && !newPermissions[key]) {
-                            notificationType = 'delete'
-                        }
-                        // if at least one create permission then notification will has create text
-                        if (!initialPermissions[key] && newPermissions[key]) {
-                            notificationType = 'create'
-                        }
-                    }
-
-                    const isCreateB2BAppRoleOperation = !initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
-                    const isDeleteB2BAppRoleOperation = initialPermissions[canReadAppKey] && !newPermissions[canReadAppKey]
-                    const isUpdateB2BAppRoleOperation = initialPermissions[canReadAppKey] && newPermissions[canReadAppKey]
-                    const newPermissionsToMutations = pick(newPermissions, b2bAppPermissionsKeys)
-
-                    if (isCreateB2BAppRoleOperation) {
-                        const permissionsToCreateAction = pick(newPermissions, b2bAppPermissionsKeys)
-
-                        await createB2BAppRoleAction({
-                            app: { connect: { id: appId } },
-                            role: { connect: { id: employeeRoleId } },
-                            permissions: permissionsToCreateAction,
-                        })
-                    } else if (isDeleteB2BAppRoleOperation) {
-                        const b2bAppRoleToDelete = b2BAppRoles
-                            .find(role => role.id === initialEmployeePermissionsInB2BApp.roleId)
-
-                        await softDeleteB2BAppRoleAction(b2bAppRoleToDelete)
-                    } else if (isUpdateB2BAppRoleOperation) {
-                        const b2bAppRoleToUpdate = b2BAppRoles
-                            .find(role => role.id === initialEmployeePermissionsInB2BApp.roleId)
-
-                        await updateB2BAppRoleAction({
-                            permissions: newPermissionsToMutations,
-                        }, b2bAppRoleToUpdate)
-                    }
-                }
+            if (!isEqual(initialB2bRolePermissions, newB2bRolePermissions)) {
+                await updateB2BAppRolePermissions({
+                    employeeRoleId,
+                    initialB2bRolePermissions,
+                    newB2bRolePermissions,
+                    b2BAppPermissions,
+                    b2BAppRoles,
+                    createB2BAppRoleAction,
+                    updateB2BAppRoleAction,
+                    softDeleteB2BAppRoleAction,
+                })
             }
         }
 
+        const notificationType = getSaveNotificationType({
+            initialPermissionState,
+            permissionState,
+        })
+
         notification.info({
-            message: notificationType === 'delete' ? 'Права отозваны' : 'Права предоставлены',
+            message: notificationType === 'delete' ? DeletePermissionsMessage : UpdatePermissionsMessage,
         })
         
         setInitialPermissionState(cloneDeep(permissionState))
         setSubmitActionProcessing(false)
     }, [
-        b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionState, permissionState,
-        softDeleteB2BAppRoleAction, updateB2BAppRoleAction,
+        DeletePermissionsMessage, UpdatePermissionsMessage, b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction,
+        employeeRoles, initialPermissionState, permissionState, softDeleteB2BAppRoleAction, updateB2BAppRoleAction,
     ])
 
+    const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => <ExpandableRow
+        permissionState={permissionState}
+        employeeRoles={employeeRoles}
+        setPermissionState={setPermissionState}
+        permissionsGroup={permissionsGroup}
+    />, [employeeRoles, permissionState])
+
     const expandableConfig = useMemo(() => ({
-        expandedRowRender: (permissionsGroup: PermissionsGroup) => {
-            const permissionRows = permissionsGroup.permissions
-
-            const columns = [
-                {
-                    dataIndex: 'name',
-                    width: '20%',
-                },
-                ...employeeRoles.map(employeeRole => ({
-                    render: (permissionRow: PermissionRow) => {
-                        return <TableCheckbox
-                            b2bAppId={permissionsGroup.id}
-                            permissionKey={permissionRow.key}
-                            employeeRoleId={employeeRole.id}
-                            permissionState={permissionState}
-                            setPermissionState={setPermissionState}
-                        />
-                    },
-                })),
-                {
-                    width: '60px',
-                    render: () => <div style={{ width: '20px' }} />,
-                },
-            ]
-
-            return <Table
-                tableLayout='auto'
-                rowClassName='inner-table-row'
-                showHeader={false}
-                pagination={false}
-                dataSource={permissionRows}
-                columns={columns}
-            />
-        },
-    }), [employeeRoles, permissionState])
+        expandedRowRender: getExpandedRowRender,
+    }), [getExpandedRowRender])
 
     const actionBarItems: ActionBarProps['actions'] = useMemo(() => [
         <Button
