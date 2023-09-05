@@ -1,5 +1,8 @@
-const { faker } = require('@faker-js/faker')
+const { createHash } = require('crypto')
+
 const get = require('lodash/get')
+
+const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils')
 
 class MockedAddressServiceClient {
     DEFAULT_META_DATA = {
@@ -109,13 +112,28 @@ class MockedAddressServiceClient {
      */
     async search (s, params = {}) {
         const item = this.existingItem
+        let unitType, unitName, address
+        address = get(item, 'address', s)
 
+        const addressParser = new AddressFromStringParser()
+
+        // Extract unitType and unitName
+        if (params.extractUnit) {
+            const { address: parsedAddress, unitType: ut, unitName: un } = addressParser.parse(s)
+            address = parsedAddress
+            if (!!ut && !!un) {
+                unitType = ut
+                unitName = un
+            }
+        }
         return {
             addressSources: [s],
-            address: get(item, 'address', s),
-            addressKey: get(item, 'addressKey', faker.random.alphaNumeric(32)),
+            address,
+            addressKey: get(item, 'addressKey', createHash('sha512').update(address).digest('hex')),
             addressMeta: {
                 data: get(item, ['addressMeta', 'data'], this.DEFAULT_META_DATA),
+                unitType,
+                unitName,
                 provider: {
                     name: 'dadata',
                     rawData: get(

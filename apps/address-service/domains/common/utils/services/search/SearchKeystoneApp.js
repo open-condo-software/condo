@@ -1,10 +1,10 @@
 const express = require('express')
 const { isArray, get, set, isEmpty } = require('lodash')
 
+const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { OVERRIDING_ROOT } = require('@address-service/domains/address/constants')
-const { AddressFromStringParser } = require('@address-service/domains/common/utils/parseAddressesFromString')
 const { getSearchProvider } = require('@address-service/domains/common/utils/services/providerDetectors')
 
 const { createReturnObject } = require('./searchServiceUtils')
@@ -171,7 +171,7 @@ class SearchKeystoneApp {
                 const extractUnit = Boolean(get(req, ['query', 'extractUnit'], false))
 
                 if (!s) {
-                    res.send(400)
+                    res.sendStatus(400)
                     return
                 }
 

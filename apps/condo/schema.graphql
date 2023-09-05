@@ -64934,6 +64934,16 @@ type SendNewReceiptMessagesToResidentScopesOutput {
   status: String!
 }
 
+input ValidateQRCodeInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  qrCode: String!
+}
+
+type ValidateQRCodeOutput {
+  qrCodeFields: JSON!
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -65352,6 +65362,19 @@ type GeneratePaymentLinkOutput {
 
 type PaymentsSumOutput {
   sum: String!
+}
+
+input CreatePaymentByLinkInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  qrCode: String!
+}
+
+type CreatePaymentByLinkOutput {
+  multiPaymentId: ID!
+  address: String!
+  unitName: String!
+  accountNumber: String!
 }
 
 enum TicketReportPeriodType {
@@ -74002,6 +74025,7 @@ type Mutation {
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
+  validateQRCode(data: ValidateQRCodeInput!): ValidateQRCodeOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
   ticketMultipleUpdate(data: TicketMultipleUpdateInput!): Ticket!
@@ -75513,6 +75537,7 @@ type Mutation {
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
+  createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 

@@ -104,7 +104,7 @@ class SuggestionKeystoneApp {
 
             if (!s) {
                 this.logger.warn({ msg: 'No string to search suggestions', reqId: req.id })
-                res.send(400)
+                res.sendStatus(400)
                 return
             }
 

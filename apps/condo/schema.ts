@@ -20639,6 +20639,20 @@ export type CreateOnBoardingInput = {
   userId: Scalars['ID'];
 };
 
+export type CreatePaymentByLinkInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  qrCode: Scalars['String'];
+};
+
+export type CreatePaymentByLinkOutput = {
+  __typename?: 'CreatePaymentByLinkOutput';
+  multiPaymentId: Scalars['ID'];
+  address: Scalars['String'];
+  unitName: Scalars['String'];
+  accountNumber: Scalars['String'];
+};
+
 export type CustomAccess = {
   __typename?: 'CustomAccess';
   accessRules?: Maybe<Array<Maybe<CustomAccessListRule>>>;
@@ -34559,6 +34573,7 @@ export type Mutation = {
    * }`
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
+  validateQRCode?: Maybe<ValidateQrCodeOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
   ticketMultipleUpdate: Ticket;
@@ -36066,6 +36081,7 @@ export type Mutation = {
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
+  createPaymentByLink?: Maybe<CreatePaymentByLinkOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
@@ -43285,6 +43301,11 @@ export type MutationSendNewReceiptMessagesToResidentScopesArgs = {
 };
 
 
+export type MutationValidateQrCodeArgs = {
+  data: ValidateQrCodeInput;
+};
+
+
 export type MutationCreateBankAccountRequestArgs = {
   data: CreateBankAccountRequestInput;
 };
@@ -43372,6 +43393,11 @@ export type MutationRegisterMultiPaymentForOneReceiptArgs = {
 
 export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
   data: RegisterMultiPaymentForVirtualReceiptInput;
+};
+
+
+export type MutationCreatePaymentByLinkArgs = {
+  data: CreatePaymentByLinkInput;
 };
 
 
@@ -82879,6 +82905,17 @@ export type UsersCreateInput = {
 export type UsersUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<UserUpdateInput>;
+};
+
+export type ValidateQrCodeInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  qrCode: Scalars['String'];
+};
+
+export type ValidateQrCodeOutput = {
+  __typename?: 'ValidateQRCodeOutput';
+  qrCodeFields: Scalars['JSON'];
 };
 
 /** Technical map of the 'village' type Property object. We assume that there will be different maps for different property types.  */
