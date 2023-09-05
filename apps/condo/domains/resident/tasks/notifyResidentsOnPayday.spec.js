@@ -11,7 +11,7 @@ const { PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingReceipt, createTestBillingProperty, createTestBillingAccount, createTestBillingIntegration, createTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { NEED_TO_PAY_RECEIPT_ON_PAYDAY_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
@@ -25,7 +25,7 @@ const { keystone } = index
 const getNewMessages = async ({ userId }) => {
     return await Message.getAll(keystone, {
         user: { id: userId },
-        type: NEED_TO_PAY_RECEIPT_ON_PAYDAY_MESSAGE_TYPE,
+        type: SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
     })
 }
 
