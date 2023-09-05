@@ -40,7 +40,7 @@ async function discoverServiceConsumersCronTask () {
     await loadListByChunks({
         context,
         list: BillingAccount,
-        chunkSize: 100,
+        chunkSize: 50,
         where: {
             createdAt_gt: dayjs(lastDate).toISOString(),
             deletedAt: null,

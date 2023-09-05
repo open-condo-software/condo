@@ -258,7 +258,9 @@ describe('DiscoverServiceConsumersService', () => {
             const { acquiringIntegrationContext: acquiringIntegrationContext1 } = await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
             const { billingIntegrationContext: billingIntegrationContext1 } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
+            // other organization adds same property
             const [organization] = await createTestOrganization(admin)
+            await createTestProperty(admin, organization, { address: user.property.address }, false, user.property.addressMeta)
             const { acquiringIntegrationContext: acquiringIntegrationContext2 } = await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
             const { billingIntegrationContext: billingIntegrationContext2 } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
@@ -377,6 +379,9 @@ describe('DiscoverServiceConsumersService', () => {
                 unitName: unitName2,
             })
 
+            await createTestProperty(admin, user2.organization, { address: user2a.property.address }, false, user2a.property.addressMeta)
+            await createTestProperty(admin, user2a.organization, { address: user2.property.address }, false, user2.property.addressMeta)
+
             // no consumers should be created after billing accounts appeared in database
             // because of there are no residents yet
             await waitFor(async () => {
@@ -464,7 +469,7 @@ describe('DiscoverServiceConsumersService', () => {
             ]))
         })
 
-        test('Two residents within same property: only one can see receipts', async () => {
+        test('Two residents within same property and different flats: only one can see receipts', async () => {
             const user1 = await makeClientWithProperty()
             const serviceUser = await makeClientWithServiceUser()
 
@@ -488,6 +493,7 @@ describe('DiscoverServiceConsumersService', () => {
             const [billingAccount1] = await createTestBillingAccount(admin, billingIntegrationContext1, billingProperty1, {
                 unitType: unitType1,
                 unitName: unitName1,
+                number: `billingAccount1_${faker.random.alphaNumeric(8)}`,
             })
 
             // no consumers should be created after billing accounts appeared in database
@@ -551,6 +557,7 @@ describe('DiscoverServiceConsumersService', () => {
                         address: billingProperty1.address,
                         unitType: unitType1,
                         unitName: unitName1,
+                        accountNumber: billingAccount1.number,
                     }),
                 ],
             }
@@ -791,6 +798,23 @@ describe('DiscoverServiceConsumersService', () => {
             const residentClient4 = await makeClientWithResidentUser()
             const residentClient5 = await makeClientWithResidentUser()
 
+            // Billings accounts numbers for managing organization
+            const resident1ManagingAccountNumber = `resident1Managing_${faker.random.alphaNumeric(10)}`
+            const resident2ManagingAccountNumber = `resident2Managing_${faker.random.alphaNumeric(10)}`
+
+            // Billings accounts numbers for service organization
+            const resident1ServiceAccountNumber = `resident1Service_${faker.random.alphaNumeric(10)}`
+            const resident2ServiceAccountNumber = `resident2Service_${faker.random.alphaNumeric(10)}`
+            const resident3ServiceAccountNumber = `resident3Service_${faker.random.alphaNumeric(10)}`
+
+            // List of categories for receipts
+            const category0 = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
+            const category1 = { id: '11bb27ce-3f11-40f2-8fdf-f6aa1364df08' }
+            const category2 = { id: '9c29b499-6594-4479-a2a7-b6553587d6e2' }
+            const category3 = { id: '40053ebf-7a67-4b9d-8637-a6f398ad7d3c' }
+            const category4 = { id: 'b84acc8b-ee9d-401c-bde6-75a284d84789' }
+            const category5 = { id: 'ebf9524e-b5ad-44ef-9343-01ab6147d400' }
+
             const [managingOrg1] = await registerNewOrganization(user1)
             const [serviceOrg1] = await registerNewOrganization(user2, { type: SERVICE_PROVIDER_TYPE })
 
@@ -822,6 +846,8 @@ describe('DiscoverServiceConsumersService', () => {
                         address: address1,
                         unitType: unitType1,
                         unitName: unitName1,
+                        accountNumber: resident1ManagingAccountNumber,
+                        category: category0,
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -860,12 +886,15 @@ describe('DiscoverServiceConsumersService', () => {
                         address: address1,
                         unitType: unitType1,
                         unitName: unitName1,
+                        accountNumber: resident1ManagingAccountNumber,
+                        category: category2,
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
             }
             const [registeredReceipts1a] = await registerBillingReceiptsByTestClient(serviceUser1, payload1a)
 
+            // start cron job
             await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
 
             // resident1 should see 2 receipts
@@ -916,12 +945,16 @@ describe('DiscoverServiceConsumersService', () => {
                         address: address1,
                         unitType: unitType1,
                         unitName: unitName1,
+                        accountNumber: resident1ManagingAccountNumber,
+                        category: category3,
                     }),
                     // Another is for resident2
                     createRegisterBillingReceiptsPayload({
                         address: address2,
                         unitType: unitType2,
                         unitName: unitName2,
+                        accountNumber: resident2ManagingAccountNumber,
+                        category: category1,
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -943,6 +976,8 @@ describe('DiscoverServiceConsumersService', () => {
                         address: address2,
                         unitType: unitType2,
                         unitName: unitName2,
+                        accountNumber: resident2ServiceAccountNumber,
+                        category: category2,
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1021,7 +1056,7 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
             })
 
-            // Now managingOrg1 add receipt for flat where 1st and 3rd lives
+            // Now managingOrg1 add receipt for flat where 1st and 3rd live
             // and one receipt for the 2nd
             const payload1c = {
                 context: { id: billingContext1.id },
@@ -1031,12 +1066,16 @@ describe('DiscoverServiceConsumersService', () => {
                         address: address1,
                         unitType: unitType1,
                         unitName: unitName1,
+                        accountNumber: resident1ManagingAccountNumber,
+                        category: category4,
                     }),
                     // Another is for resident2
                     createRegisterBillingReceiptsPayload({
                         address: address2,
                         unitType: unitType2,
                         unitName: unitName2,
+                        accountNumber: resident2ManagingAccountNumber,
+                        category: category3,
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1045,7 +1084,8 @@ describe('DiscoverServiceConsumersService', () => {
 
             await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
 
-            // After that the 1st and the 3rd residents must see 4 receipts each
+            // After that the 1st resident must see 4 receipts
+            // The 3rd one must see only 1 receipt
             // The 2nd see the same, cause their property is not added to managingOrg1
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
@@ -1067,9 +1107,6 @@ describe('DiscoverServiceConsumersService', () => {
                 expect(receipts3).toHaveLength(4)
                 expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
-                    expect.objectContaining({ id: receipts3[1].id }),
-                    expect.objectContaining({ id: receipts3[2].id }),
-                    expect.objectContaining({ id: receipts3[3].id }),
                 ]))
             }, { delay: 500 })
 
@@ -1124,7 +1161,7 @@ describe('DiscoverServiceConsumersService', () => {
             }, { delay: 500 })
 
             // Now serviceOrg1 add receipts for the flat where 2nd and 4th lives
-            // and one receipt for the 2nd
+            // and two receipts for the 1st
             const payload2a = {
                 context: { id: billingContext2.id },
                 receipts: [
@@ -1134,16 +1171,20 @@ describe('DiscoverServiceConsumersService', () => {
                         unitType: unitType2,
                         unitName: unitName2,
                     }),
-                    // Another ones are for resident1
+                    // Another ones are for resident1 and resident3
                     createRegisterBillingReceiptsPayload({
                         address: address1,
                         unitType: unitType1,
                         unitName: unitName1,
+                        category: category5,
+                        accountNumber: resident1ServiceAccountNumber,
                     }),
                     createRegisterBillingReceiptsPayload({
                         address: address1,
                         unitType: unitType1,
                         unitName: unitName1,
+                        category: category5,
+                        accountNumber: resident3ServiceAccountNumber,
                     }),
                 ],
             }
@@ -1152,17 +1193,15 @@ describe('DiscoverServiceConsumersService', () => {
             await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
 
             // The 2nd and 4th residents must see +1 receipt from serviceOrg1
-            // The 1st and 3rd residents must see +2 receipt from serviceOrg1
+            // The 1st and 3rd residents won't see new receipts, because the last two receipts have the same flat, category, and period
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(6)
-                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                expect(receipts1).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
                     expect.objectContaining({ id: receipts1[3].id }),
-                    expect.objectContaining({ id: receipts1[4].id }),
-                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -1175,14 +1214,12 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(6)
-                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                expect(receipts3).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
-                    expect.objectContaining({ id: receipts3[4].id }),
-                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
@@ -1222,14 +1259,12 @@ describe('DiscoverServiceConsumersService', () => {
             // TODO(DOMA-6674) this test will fail after 6674 will be merged
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(6)
-                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                expect(receipts1).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
                     expect.objectContaining({ id: receipts1[3].id }),
-                    expect.objectContaining({ id: receipts1[4].id }),
-                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -1242,14 +1277,12 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(6)
-                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                expect(receipts3).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
-                    expect.objectContaining({ id: receipts3[4].id }),
-                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
@@ -1273,14 +1306,12 @@ describe('DiscoverServiceConsumersService', () => {
             // TODO(DOMA-6674) this test will fail after 6674 will be merged
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(6)
-                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                expect(receipts1).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
                     expect.objectContaining({ id: receipts1[1].id }),
                     expect.objectContaining({ id: receipts1[2].id }),
                     expect.objectContaining({ id: receipts1[3].id }),
-                    expect.objectContaining({ id: receipts1[4].id }),
-                    expect.objectContaining({ id: receipts1[5].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -1293,14 +1324,12 @@ describe('DiscoverServiceConsumersService', () => {
                 ]))
 
                 const receipts3 = await ResidentBillingReceipt.getAll(residentClient3, {})
-                expect(receipts3).toHaveLength(6)
-                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c, ...registeredReceipts2a]).toEqual(expect.arrayContaining([
+                expect(receipts3).toHaveLength(4)
+                expect([...registeredReceipts1, ...registeredReceipts1a, ...registeredReceipts1b, ...registeredReceipts1c]).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts3[0].id }),
                     expect.objectContaining({ id: receipts3[1].id }),
                     expect.objectContaining({ id: receipts3[2].id }),
                     expect.objectContaining({ id: receipts3[3].id }),
-                    expect.objectContaining({ id: receipts3[4].id }),
-                    expect.objectContaining({ id: receipts3[5].id }),
                 ]))
 
                 const receipts4 = await ResidentBillingReceipt.getAll(residentClient4, {})
