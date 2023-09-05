@@ -223,7 +223,7 @@ function createapp (argv) {
         .coerce('name', opt => {
             let name = opt.toLowerCase()
             if (name.length < 3) throw new Error('<name> is too short!')
-            if (!/^[a-z_][a-z0-9_]+$/.test(name)) throw new Error('<name> should be [a-z0-9_]+ string')
+            if (!/^[a-z_][a-z0-9-]+$/.test(name)) throw new Error('<name> should be [a-z0-9-]+ string')
             return name
         })
         .options({
