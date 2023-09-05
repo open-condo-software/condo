@@ -14,7 +14,7 @@ const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domain
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
-const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
@@ -134,7 +134,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     'OR': receiptsQuery,
                 }
 
-                const receiptsForConsumer = await BillingReceipt.getAll(
+                const receiptsForConsumer = await BillingReceiptAdmin.getAll(
                     context,
                     joinedReceiptsQuery,
                     {

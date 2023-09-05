@@ -18,6 +18,7 @@ const { BillingIntegrationProblem: BillingIntegrationProblemGQL } = require('@co
 const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
 const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { BillingReceiptAdmin: BillingReceiptAdminGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
@@ -34,6 +35,7 @@ const BillingIntegrationProblem = generateServerUtils(BillingIntegrationProblemG
 const BillingProperty = generateServerUtils(BillingPropertyGQL)
 const BillingAccount = generateServerUtils(BillingAccountGQL)
 const BillingReceipt = generateServerUtils(BillingReceiptGQL)
+const BillingReceiptAdmin = generateServerUtils(BillingReceiptAdminGQL)
 const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
 const BillingRecipient = generateServerUtils(BillingRecipientGQL)
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
@@ -116,6 +118,7 @@ module.exports = {
     BillingProperty,
     BillingAccount,
     BillingReceipt,
+    BillingReceiptAdmin,
     ResidentBillingReceipt,
     BillingRecipient,
     BillingCategory,
