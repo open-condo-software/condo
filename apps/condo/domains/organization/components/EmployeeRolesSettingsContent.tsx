@@ -7,8 +7,7 @@ import {
     B2BAppPermission as B2BAppPermissionType,
     B2BAppRole as B2BAppRoleType,
 } from '@app/condo/schema'
-import { Col, notification, Row, Typography } from 'antd'
-import { Gutter } from 'antd/es/grid/row'
+import { Col, notification, Row, RowProps, Typography } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
@@ -35,16 +34,23 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
-import { ExpandableTable, Table, TableRecord } from '@condo/domains/common/components/Table/Index'
+import {
+    EXPANDABLE_COLUMN_STUB,
+    ExpandableTable,
+    Table,
+    TableRecord,
+} from '@condo/domains/common/components/Table/Index'
 import { B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 import {
+    GROUP_NAME_COLUMN_WIDTH,
+    ROLE_COLUMN_STYLE,
     useEmployeeRolesTableColumns,
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 
 
-const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
+const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 
 type PermissionRow = {
     id: string,
@@ -268,7 +274,7 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
     })
 
     return (
-        <div style={{ width: '100px' }}>
+        <div style={ROLE_COLUMN_STYLE}>
             {
                 checkboxDisabled ? (
                     <Tooltip title={DisabledTooltipTitle}>
@@ -288,7 +294,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionState, setPe
     const columns = useMemo(() => [
         {
             dataIndex: 'name',
-            width: '20%',
+            width: GROUP_NAME_COLUMN_WIDTH,
         },
         ...employeeRoles.map(employeeRole => ({
             render: (permissionRow: PermissionRow) => {
@@ -301,10 +307,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionState, setPe
                 />
             },
         })),
-        {
-            width: '60px',
-            render: () => <div style={{ width: '20px' }} />,
-        },
+        EXPANDABLE_COLUMN_STUB,
     ], [employeeRoles, permissionState, permissionsGroup.id, setPermissionState])
 
     return <Table

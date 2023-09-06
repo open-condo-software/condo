@@ -154,6 +154,13 @@ export const Table: React.FC<ITableProps> = ({
     )
 }
 
+const DEFAULT_EXPANDABLE_COLUMN_WIDTH = '60px'
+const ICON_STUB_WIDTH = { width: '20px' }
+export const EXPANDABLE_COLUMN_STUB = {
+    width: DEFAULT_EXPANDABLE_COLUMN_WIDTH,
+    render: () => <div style={ICON_STUB_WIDTH} />,
+}
+
 export const ExpandableTable: React.FC<ITableProps> = (props) => {
     const { expandable, ...tableProps } = props
     const dataSource = props.dataSource
@@ -185,7 +192,7 @@ export const ExpandableTable: React.FC<ITableProps> = (props) => {
     const expandableConfig = useMemo(() => ({
         indentSize: 0,
         expandRowByClick: true,
-        columnWidth: '60px',
+        columnWidth: DEFAULT_EXPANDABLE_COLUMN_WIDTH,
         expandedRowClassName: getExpandedRowClassName,
         onExpand: handleExpand,
         expandIcon: getExpandIcon,

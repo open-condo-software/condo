@@ -2,7 +2,7 @@ import { OrganizationEmployeeRole } from '@app/condo/schema'
 import { Table } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -19,19 +19,20 @@ import {
 } from '@condo/domains/organization/constants/common'
 
 
+export const GROUP_NAME_COLUMN_WIDTH = '20%'
+export const ROLE_COLUMN_STYLE: CSSProperties = { width: '100px' }
+
 export function useEmployeeRolesTableColumns (roles: OrganizationEmployeeRole[]): Array<Record<string, unknown>> {
     return [
         {
             dataIndex: 'groupName',
-            width: '20%',
+            width: GROUP_NAME_COLUMN_WIDTH,
             key: 'groupName',
         },
         ...roles.map(role => ({
             title: role.name,
             key: role.id,
-            render: () => {
-                return <div style={{ width: '100px' }} />
-            },
+            render: () => <div style={ROLE_COLUMN_STYLE} />,
         })),
         Table.EXPAND_COLUMN,
     ]
