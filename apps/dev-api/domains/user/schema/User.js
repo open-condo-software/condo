@@ -46,6 +46,16 @@ const User = new GQLListSchema('User', {
             defaultValue: false,
         },
     },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['email'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'user_unique_email',
+            },
+        ],
+    },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadUsers,
