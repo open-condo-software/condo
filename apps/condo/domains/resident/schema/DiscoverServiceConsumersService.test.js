@@ -63,12 +63,17 @@ describe('DiscoverServiceConsumersService', () => {
     }
 
     beforeAll(async () => {
+        setIsFeatureFlagsEnabled(false)
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
         const redisClient = getRedisClient('discoverServiceConsumersCronTask')
         redisClient.set(REDIS_KEY, dayjs().toISOString())
+    })
+
+    afterAll(() => {
+        setIsFeatureFlagsEnabled(true)
     })
 
     describe('access', () => {
@@ -582,7 +587,7 @@ describe('DiscoverServiceConsumersService', () => {
             let adminNoFlag
 
             beforeAll(async () => {
-                setIsFeatureFlagsEnabled(false) // Disable feature flags
+                setIsFeatureFlagsEnabled(true) // Enable feature flags (incl. disable-discover-service-consumers)
                 adminNoFlag = await makeLoggedInAdminClient()
             })
 
@@ -614,7 +619,7 @@ describe('DiscoverServiceConsumersService', () => {
                 }, { delay: 500 })
             })
 
-            test('discover service consumers for service provider org even if the feature DSC-flag was disabled', async () => {
+            test('discover service consumers for service provider org even if the feature disable-DSC-flag was enabled', async () => {
                 const user = await makeClientWithProperty()
                 const [organization] = await registerNewOrganization(user, { type: SERVICE_PROVIDER_TYPE })
                 const [property] = await createTestProperty(user, organization)
@@ -675,6 +680,17 @@ describe('DiscoverServiceConsumersService', () => {
     })
 
     describe('real life cases', () => {
+
+        const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
+
+        beforeAll(async () => {
+            setIsFeatureFlagsEnabled(false) // Disable feature flags (incl. disable-discover-service-consumers)
+        })
+
+        afterAll(() => {
+            setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
+        })
+
         test('Upload receipts => register resident => resident can see the receipts list', async () => {
             const residentClient1 = await makeClientWithResidentAccessAndProperty()
 
