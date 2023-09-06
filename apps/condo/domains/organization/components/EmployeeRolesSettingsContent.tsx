@@ -97,8 +97,6 @@ type TableCheckboxProps = {
     setPermissionState: Dispatch<SetStateAction<PermissionState>>
 }
 
-type SaveNotificationType = 'create' | 'delete'
-
 const getPermissionsWithNewValue = ({ permissionKey, newValue, oldPermissions, isReadPermission }) => {
     let newPermissions
 
@@ -158,8 +156,11 @@ const isCheckboxDisabled = ({ checkboxValue, employeeRoleId, permissionKey, isRe
     return checkboxDisabled
 }
 
-const getSaveNotificationType = ({ initialPermissionState, permissionState }): SaveNotificationType => {
-    let notificationType: SaveNotificationType = 'delete'
+const getSaveNotificationMessage = ({ intl, initialPermissionState, permissionState }): string => {
+    const UpdatePermissionsMessage = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.notification.updatePermissions' })
+    const DeletePermissionsMessage = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.notification.deletePermissions' })
+
+    let notificationMessage = DeletePermissionsMessage
 
     for (const roleId of Object.keys(initialPermissionState)) {
         const initialAppsPermissions = initialPermissionState[roleId].b2bAppRoles
@@ -171,13 +172,13 @@ const getSaveNotificationType = ({ initialPermissionState, permissionState }): S
 
             for (const permission of Object.keys(initialAppPermissions)) {
                 if (!initialAppPermissions[permission] && newAppPermissions[permission]) {
-                    notificationType = 'create'
+                    notificationMessage = UpdatePermissionsMessage
                 }
             }
         }
     }
 
-    return notificationType
+    return notificationMessage
 }
 
 const updateB2BAppRolePermissions = async ({
@@ -329,8 +330,6 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
-    const UpdatePermissionsMessage = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.notification.updatePermissions' })
-    const DeletePermissionsMessage = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.notification.deletePermissions' })
 
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
     const tableData: PermissionsGroup[] = useMemo(() => connectedB2BApps.map((b2bApp): PermissionsGroup => ({
@@ -438,20 +437,19 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             }
         }
 
-        const notificationType = getSaveNotificationType({
-            initialPermissionState,
-            permissionState,
-        })
-
         notification.info({
-            message: notificationType === 'delete' ? DeletePermissionsMessage : UpdatePermissionsMessage,
+            message: getSaveNotificationMessage({
+                initialPermissionState,
+                permissionState,
+                intl,
+            }),
         })
         
         setInitialPermissionState(cloneDeep(permissionState))
         setSubmitActionProcessing(false)
     }, [
-        DeletePermissionsMessage, UpdatePermissionsMessage, b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction,
-        employeeRoles, initialPermissionState, permissionState, softDeleteB2BAppRoleAction, updateB2BAppRoleAction,
+        b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionState, intl,
+        permissionState, softDeleteB2BAppRoleAction, updateB2BAppRoleAction,
     ])
 
     const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => <ExpandableRow
