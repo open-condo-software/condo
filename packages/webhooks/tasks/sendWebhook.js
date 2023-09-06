@@ -98,7 +98,7 @@ async function sendWebhook (subscriptionId) {
                 const noFailureIncrementInterval = dayjs().subtract(1, 'hour')
                 const lastUpdate = dayjs(lastSubscriptionUpdate)
                 // NOTE: If no failures before or > 1 hour since last failure passed -> increment failuresCount
-                if (noFailureIncrementInterval.isAfter(lastUpdate)) {
+                if (failuresCount === 0 || noFailureIncrementInterval.isAfter(lastUpdate)) {
                     await WebhookSubscription.update(keystone, subscriptionId, {
                         failuresCount: failuresCount + 1,
                         dv: 1,
@@ -126,7 +126,8 @@ async function sendWebhook (subscriptionId) {
             }
         }
 
-        // NOTE: we don't need to update WebhookSubscription if no any updates found!
+        // TODO(pahaz): We do not need to update the WebhookSubscription if no updates are found, as we can utilize the same query and cache it. 
+        //     We also want to prevent the unnecessary expansion of the history log/database
         await WebhookSubscription.update(keystone, subscriptionId, {
             syncedAt: lastSyncTime,
             dv: 1,
