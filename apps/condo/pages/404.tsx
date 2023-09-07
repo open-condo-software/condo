@@ -18,7 +18,7 @@ export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
 
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
-const Src404 = { poster: '/404Poster.png', placeholder: '/404PosterPlaceholder.png' }
+const Src404 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
 export default function Custom404 (): React.ReactElement {
     const intl = useIntl()
