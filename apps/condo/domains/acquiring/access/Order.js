@@ -3,22 +3,48 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { find } = require('@open-condo/keystone/schema')
 
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 async function canReadOrders ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
-    if (user.isAdmin || user.type === RESIDENT) return {}
+    if (user.isAdmin || user.type === STAFF) return {}
 
-    return false
+    if (user.type === RESIDENT) {
+
+        // We don't want to make honest GQL request, as it is too expensive
+        const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
+        if (!residents || residents.length === 0) {
+            return false
+        }
+        const serviceConsumers = await find('ServiceConsumer', { resident: { id_in: residents.map(r => r.id) }, deletedAt: null })
+        if (!serviceConsumers || serviceConsumers.length === 0) {
+            return false
+        }
+
+        return {
+            OR: serviceConsumers.map(
+                s => ({ AND: [{ account: { number: s.accountNumber, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext, deletedAt: null } }] } )
+            ),
+        }
+    } else {
+        return {
+            OR: [
+                { context: { organization: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } },
+                { context: { organization: { relatedOrganizations_some: { from: { employees_some: { user: { id: user.id }, role: { canReadBillingReceipts: true }, deletedAt: null, isBlocked: false } } } } } },
+                { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
+            ],
+        }
+    }
 }
 
 async function canManageOrders ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isAdmin || user.type === RESIDENT) return true
+    if (user.isAdmin || user.type === STAFF) return true
 
     return false
 }
