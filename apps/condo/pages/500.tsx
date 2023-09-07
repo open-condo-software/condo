@@ -20,7 +20,7 @@ const {
 } = getConfig()
 
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
-const Src500 = { poster: '/500Poster.png', placeholder: '/500PosterPlaceholder.png' }
+const Src500 = { poster: '/500Poster.png', placeholder: '/500PosterPlaceholder.jpg' }
 
 export default function Custom500 (): React.ReactElement {
     const intl = useIntl()
