@@ -1,5 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
+const conf = require('@open-condo/config')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -17,6 +18,7 @@ const {
     SMS_TRANSPORT,
 } = require('@condo/domains/notification/constants/constants')
 const { Message } = require('@condo/domains/notification/utils/testSchema')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     OrganizationEmployeeSpecialization,
     createTestOrganization,
@@ -24,6 +26,7 @@ const {
     createTestOrganizationEmployee,
     makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { updateTestOrganization, Organization } = require('@condo/domains/organization/utils/testSchema')
 const {
     inviteNewOrganizationEmployee,
     reInviteNewOrganizationEmployee,
@@ -44,6 +47,10 @@ describe('InviteNewOrganizationEmployeeService', () => {
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+
+        if (!conf.CC_DOMAIN) {
+            process.env.CC_DOMAIN = faker.internet.url()
+        }
     })
 
     describe('inviteNewOrganizationEmployee', () => {
@@ -93,6 +100,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                         expect(message1.status).toEqual(MESSAGE_SENT_STATUS)
                         expect(transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
                         expect(message1.organization.id).toEqual(client.organization.id)
+                        expect(message1).toHaveProperty(['meta', 'serverUrl'], process.env.SERVER_URL)
                     })
                 })
 
@@ -436,6 +444,42 @@ describe('InviteNewOrganizationEmployeeService', () => {
             })
 
         })
+
+        describe('for organization with holding type', () => {
+            it('should send message with special serverUrl from env (CC_DOMAIN)', async () => {
+                const userAttrs = {
+                    name: faker.name.firstName(),
+                    email: createTestEmail(),
+                    phone: createTestPhone(),
+                }
+
+                const client = await makeClientWithRegisteredOrganization()
+                await updateTestOrganization(admin, client.organization.id, {
+                    type: HOLDING_TYPE,
+                })
+
+                const organization = await Organization.getOne(admin, { id: client.organization.id })
+                expect(organization).toHaveProperty('type', HOLDING_TYPE)
+
+                const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
+
+                const messageWhere = {
+                    user: { id: employee.user.id },
+                    type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+                }
+
+                await waitFor(async () => {
+                    const message = await Message.getOne(admin, messageWhere)
+                    const { transportsMeta } = message.processingMeta
+
+                    expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
+                    expect(message.organization.id).toEqual(client.organization.id)
+                    expect(message).toHaveProperty(['meta', 'serverUrl'], conf.CC_DOMAIN)
+                })
+            })
+        })
     })
 
     describe('reInviteOrganizationEmployee', () => {
@@ -532,6 +576,48 @@ describe('InviteNewOrganizationEmployeeService', () => {
                                 message: 'Corresponding OrganizationEmployee has already accepted invitation',
                             },
                         }])
+                    })
+                })
+            })
+
+            describe('for organization with holding type', () => {
+                it('should send message with special serverUrl from env (CC_DOMAIN)', async () => {
+                    const userAttrs = {
+                        name: faker.name.firstName(),
+                        email: createTestEmail(),
+                        phone: createTestPhone(),
+                    }
+                    const client = await makeClientWithRegisteredOrganization()
+                    await updateTestOrganization(admin, client.organization.id, {
+                        type: HOLDING_TYPE,
+                    })
+                    const organization = await Organization.getOne(admin, { id: client.organization.id })
+
+                    expect(organization).toHaveProperty('type', HOLDING_TYPE)
+
+                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [employee] = await inviteNewOrganizationEmployee(client, client.organization, userAttrs, role)
+                    const [reInvitedEmployee] = await reInviteNewOrganizationEmployee(client, client.organization, userAttrs)
+
+                    expect(reInvitedEmployee.id).toStrictEqual(employee.id)
+
+                    await waitFor(async () => {
+                        /**
+                         * Check that notifications about invitation as employee were sent
+                         */
+                        const messageWhere = {
+                            user: { id: employee.user.id },
+                            type: DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
+                        }
+                        const messages = await Message.getAll(admin, messageWhere)
+
+                        expect(messages[0].status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(messages[0]).toHaveProperty(['meta', 'serverUrl'], conf.CC_DOMAIN)
+                        expect(messages[0].processingMeta.transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
+                        expect(messages[1].status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(messages[1].processingMeta.transportsMeta[0].transport).toEqual(EMAIL_TRANSPORT)
+                        expect(messages[1]).toHaveProperty(['meta', 'serverUrl'], conf.CC_DOMAIN)
+                        expect(messages[1].organization.id).toEqual(client.organization.id)
                     })
                 })
             })
