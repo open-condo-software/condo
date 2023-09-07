@@ -26,7 +26,6 @@ type TicketChartCardProps = {
     data: Array<TicketGroupedCounter>
     loading?: boolean
     organizationId?: string
-    dateRange?: [Dayjs, Dayjs]
 }
 
 interface ITicketChartCard {

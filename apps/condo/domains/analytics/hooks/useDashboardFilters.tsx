@@ -1,3 +1,4 @@
+import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import React, { useState, useMemo, useCallback } from 'react'
 
@@ -5,9 +6,11 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { searchOrganizationProperty, searchEmployeeUser } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import type { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput/'
+import type { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 
 interface IUseSearchInput {
     (props: Pick<ISearchInputProps, 'search' | 'placeholder'>): {
@@ -72,4 +75,35 @@ export const useExecutorFilter: IUseFilter = ({ organizationId }) => {
     })
 
     return { values, SearchInput }
+}
+
+interface IUseDateRangeFilter {
+    (): {
+        SearchInput: typeof DateRangePicker
+        dateRange: [Dayjs, Dayjs]
+    }
+}
+
+export const useDateRangeFilter: IUseDateRangeFilter = () => {
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
+
+    const disabledDate = useCallback((currentDate) => {
+        return currentDate && currentDate < dayjs().startOf('year')
+    }, [])
+
+    const SearchInput = ({ disabled = false }) => (
+        <DateRangePicker
+            value={dateRange}
+            onChange={setDateRange}
+            allowClear={false}
+            disabled={disabled}
+            disabledDate={disabledDate}
+            style={{ width: '100%' }}
+        />
+    )
+
+    return {
+        dateRange,
+        SearchInput,
+    }
 }

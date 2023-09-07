@@ -9,7 +9,7 @@ import { Typography } from '@open-condo/ui'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
-import { usePropertyFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
+import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
 import { useDetailChartView } from '@condo/domains/analytics/hooks/useDetailChartView'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
@@ -17,7 +17,7 @@ import { TicketByCategoryDataMapper } from './dataMappers'
 
 import type { ITicketChartCard } from './dataMappers'
 
-const TicketByCategoryChart: ITicketChartCard = ({ data, organizationId, dateRange }) => {
+const TicketByCategoryChart: ITicketChartCard = ({ data, organizationId }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
@@ -27,6 +27,7 @@ const TicketByCategoryChart: ITicketChartCard = ({ data, organizationId, dateRan
 
     const { open, PopupChartView, isOpen } = useDetailChartView({ title })
     const { SearchInput, values: propertyIds } = usePropertyFilter({ organizationId })
+    const { SearchInput: DateRangeFilter, dateRange } = useDateRangeFilter()
 
     const [localData, setLocalData] = useState([])
 
@@ -84,8 +85,11 @@ const TicketByCategoryChart: ITicketChartCard = ({ data, organizationId, dateRan
                 </Col>
             </Row>
             <PopupChartView>
-                <Row gutter={[40, 40]}>
-                    <Col span={24}>
+                <Row gutter={[24, 40]}>
+                    <Col span={12}>
+                        <DateRangeFilter disabled={loading} />
+                    </Col>
+                    <Col span={12}>
                         {SearchInput}
                     </Col>
                     <Col span={24}>

@@ -27,9 +27,8 @@ import {
     PaymentTotalChart,
 } from '@condo/domains/analytics/components/charts'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
-import { usePropertyFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
+import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { parseQuery, getPageIndexFromOffset } from '@condo/domains/common/utils/tables.utils'
@@ -376,7 +375,7 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     const [overview, setOverview] = useState<OverviewData>(null)
-    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
+    const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
     const { values: propertyIds, SearchInput: OrganizationPropertySearch } = usePropertyFilter({ organizationId })
 
     const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
@@ -403,10 +402,6 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
         } })
     }, [organizationId, loadDashboardData, dateRange, propertyIds])
 
-    const disabledDate = useCallback((currentDate) => {
-        return currentDate && currentDate < dayjs().startOf('year')
-    }, [])
-
     const newTickets = get(overview, 'ticketByDay.tickets', [])
     const propertyTickets = get(overview, 'ticketByProperty.tickets', [])
     const categoryTickets = get(overview, 'ticketByCategory.tickets', [])
@@ -426,19 +421,12 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 <TableFiltersContainer>
                     <Row gutter={[24, 24]} align='middle' justify='start'>
                         <Col>
-                            <DateRangePicker
-                                value={dateRange}
-                                onChange={setDateRange}
-                                allowClear={false}
-                                disabled={loading}
-                                disabledDate={disabledDate}
-                            />
+                            <DateRangeSearch disabled={loading} />
                         </Col>
                         <Col span={10}>
                             {OrganizationPropertySearch}
                         </Col>
                     </Row>
-
                 </TableFiltersContainer>
             </Col>
             <Col xl={12} lg={24}>
@@ -469,32 +457,46 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>
                         <Col lg={12} md={24} xs={24}>
-                            <AllTicketsChart data={newTickets} />
+                            <AllTicketsChart
+                                data={newTickets}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
                             <TicketByCategoryChart
                                 data={categoryTickets}
                                 organizationId={organizationId}
-                                dateRange={dateRange}
                             />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <PaymentTotalChart data={paymentsData} />
+                            <PaymentTotalChart
+                                data={paymentsData}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <PaymentReceiptChart data={chargedToPaidData} />
+                            <PaymentReceiptChart
+                                data={chargedToPaidData}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <PaymentByPropertyChart data={paymentsData} />
+                            <PaymentByPropertyChart
+                                data={paymentsData}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <ResidentByPropertyChart data={residentsData} />
+                            <ResidentByPropertyChart
+                                data={residentsData}
+                                organizationId={organizationId}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <TicketByExecutorChart data={executorTickets} />
+                            <TicketByExecutorChart
+                                data={executorTickets}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <TicketByPropertyChart data={propertyTickets} />
+                            <TicketByPropertyChart
+                                data={propertyTickets}
+                            />
                         </Col>
                     </Row>
                 </Col>

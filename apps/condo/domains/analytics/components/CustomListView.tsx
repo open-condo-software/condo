@@ -1,8 +1,5 @@
 import { Table, TableColumnsType, Skeleton } from 'antd'
-import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import React from 'react'
-
-import { useIntl } from '@open-condo/next/intl'
 
 import type { CustomChartViewType } from './CustomChart'
 
@@ -11,7 +8,7 @@ type CustomListViewProps = {
     viewMode: CustomChartViewType
     mapperInstance: any
     loading?: boolean
-    translations: Record<string, string>
+    translations: Record<string, string | React.ReactNode>
 }
 
 export const CustomListView: React.FC<CustomListViewProps> = (props) => {

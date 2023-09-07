@@ -54,14 +54,14 @@ const CustomChartView =
         ChartType extends CustomChartViewType,
         MapperType extends BaseSimpleChart<CustomChartMapType<DataType>, ChartConfigResult, CustomChartViewType, DataType>,
     >(props: ICustomChartViewProps<DataType, ChartType, MapperType>) => {
-        const { viewMode, data, mapperInstance, chartConfig } = props
+        const { viewMode, data, mapperInstance, chartConfig, loading } = props
 
         const intl = useIntl()
         const NoData = intl.formatMessage({ id: 'NoData' })
 
         let legend = [], tooltip = null
 
-        if (data === null) {
+        if (data === null || loading) {
             return <Skeleton loading active paragraph={{ rows: 12 }} />
         }
 
