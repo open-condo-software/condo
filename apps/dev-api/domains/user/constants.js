@@ -1,5 +1,7 @@
 const MIN_PASSWORD_LENGTH = 12
+const EMAIL_VERIFICATION_TTL_IN_SEC = 5 * 60 // 5 min
 
 module.exports = {
     MIN_PASSWORD_LENGTH,
+    EMAIL_VERIFICATION_TTL_IN_SEC,
 }
