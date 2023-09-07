@@ -68,6 +68,7 @@
   "packageManager": "yarn@3.2.2",
   "resolutions": {
     "npm": "latest-6",
+    "graphql-upload": "^15.0.2",
     "@keystonejs/app-admin-ui/@types/react": "16.9.17",
     "react-intl/@types/react": "16.9.17",
     "@types/react-transition-group@npm:2.9.2/@types/react": "16.9.17",
@@ -76,6 +77,8 @@
     "es5-ext": "0.10.53",
     "debuglog": "1.0.1",
     "debug": "4.3.4",
-    "knex": "0.95.15"
+    "knex": "0.95.15",
+    "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
+    "@keystonejs/app-graphql": "patch:@keystonejs/app-graphql@npm:6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch"
   }
 }
