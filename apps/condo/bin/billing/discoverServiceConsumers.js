@@ -20,7 +20,7 @@ const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serv
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersScript' } }
 
 const program = new commander.Command()
-program.requiredOption('-o, --organization <organizationId>', 'The organization\'s id', (value, previous) => {
+program.requiredOption('-o, --organization <organizationId>', 'The organization\'s uuid', (value, previous) => {
     if (!UUID_REGEXP.test(value)) {
         throw new commander.InvalidArgumentError('Not a UUID.')
     }
