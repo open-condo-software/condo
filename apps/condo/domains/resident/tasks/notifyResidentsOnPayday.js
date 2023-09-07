@@ -90,7 +90,7 @@ async function notifyResidentsOnPayday () {
             period_in: [
                 previousPeriod,
             ],
-            toPay_gt: 0,
+            toPay_gt: '0',
             deletedAt: null,
         },
     }))
