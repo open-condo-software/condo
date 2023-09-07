@@ -17,6 +17,7 @@ const { checkB2CAppAccessRight } = require('../utils/accessSchema')
  * 1. Admin / support
  * 2. Users with direct access
  * 4. Service users with AccessRights to specific app
+ * 5. Any residents
  */
 async function canReadB2CAppProperties ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()

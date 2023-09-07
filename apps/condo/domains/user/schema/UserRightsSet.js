@@ -15,7 +15,6 @@ const { generateRightSetFields } = require('@condo/domains/user/utils/directAcce
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
 const USER_UPDATE_CHUNK_SIZE = 100
-const USER_UPDATE_FINGERPRINT = 'rights-set-delete-mutation'
 
 const UserRightsSet = new GQLListSchema('UserRightsSet', {
     schemaDoc:
@@ -36,6 +35,7 @@ const UserRightsSet = new GQLListSchema('UserRightsSet', {
         beforeChange: async ({ resolvedData, existingItem, context }) => {
             const isSoftDelete = Boolean(resolvedData['deletedAt'])
             const itemId = get(existingItem, 'id', resolvedData['id'])
+            const sender = resolvedData.sender
 
             if (isSoftDelete) {
                 // Basically implementing SET_NULL policy, to keep consistent behaviour (see Read/User test)
@@ -49,7 +49,7 @@ const UserRightsSet = new GQLListSchema('UserRightsSet', {
                     id: user.id,
                     data: {
                         dv: 1,
-                        sender: { dv: 1, fingerprint: USER_UPDATE_FINGERPRINT },
+                        sender,
                         rightsSet: { disconnectAll: true },
                     },
                 }))

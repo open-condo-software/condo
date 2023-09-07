@@ -7,7 +7,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 /**
- * B2CApps are publicly available for all authed users including:
+ * B2CApps are publicly available for all authed non-deleted users including:
  * 1. Admin / support
  * 2. Users with direct access
  * 3. All residents
