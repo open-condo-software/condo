@@ -189,10 +189,9 @@ describe('B2BAppPermission', () => {
                     expect(allPermissions).toHaveLength(0)
                 })
             })
-            test('No one in the organization can, including the administrator', async () => {
-                await expectToThrowAccessDeniedErrorToObjects(async () => {
-                    await B2BAppPermission.getAll(manager, { id: permission.id })
-                })
+            test('Organization employee can', async () => {
+                const [readPermission] = await B2BAppPermission.getAll(manager, { id: permission.id })
+                expect(readPermission).toHaveProperty('id')
             })
             test('Anonymous cannot read anything', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
