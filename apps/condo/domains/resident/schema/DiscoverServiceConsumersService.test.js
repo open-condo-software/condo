@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult, waitFor, setFeatureFlag, getFeatureFlag,
+    expectToThrowAuthenticationErrorToResult, waitFor, setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -580,16 +580,17 @@ describe('DiscoverServiceConsumersService', () => {
 
         describe(`With enabled "${DISABLE_DISCOVER_SERVICE_CONSUMERS}" feature flag`, () => {
 
+            let prevDisableDSCFlag
+
             beforeAll(async () => {
-                setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, true)
+                prevDisableDSCFlag = setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, true)
             })
 
             afterAll(() => {
-                setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
+                setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, prevDisableDSCFlag)
             })
 
-            // TODO(DOMA-6817) run this test after 6817 done
-            test.skip('discover no service consumers for managing organization if the black list feature flag was enabled', async () => {
+            test('discover no service consumers for managing organization if the black list feature flag was enabled', async () => {
                 const user = await makeClientWithProperty()
 
                 await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
@@ -674,10 +675,10 @@ describe('DiscoverServiceConsumersService', () => {
 
     describe('real life cases', () => {
 
-        const prevDisableDSCFlag = getFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS)
+        let prevDisableDSCFlag
 
         beforeAll(async () => {
-            setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
+            prevDisableDSCFlag = setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
         })
 
         afterAll(() => {

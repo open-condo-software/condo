@@ -97,14 +97,30 @@ let __x_forwarder_for_header
 const featureFlagsStore = new Map()
 const FEATURE_FLAGS_STORE_ALL_KEY = '*'
 
+/**
+ * Sets the feature flag value and returns the previous one
+ * @param {string} id
+ * @param value
+ * @returns {*}
+ */
 function setFeatureFlag (id, value) {
+    const prev = featureFlagsStore.get(id)
     featureFlagsStore.set(id, value)
+
+    return prev
 }
 
+/**
+ * @param {string} id
+ * @returns {*}
+ */
 function getFeatureFlag (id) {
     return featureFlagsStore.get(id) || featureFlagsStore.get(FEATURE_FLAGS_STORE_ALL_KEY) || false
 }
 
+/**
+ * @param value
+ */
 function setAllFeatureFlags (value) {
     featureFlagsStore.set(FEATURE_FLAGS_STORE_ALL_KEY, value)
 }
