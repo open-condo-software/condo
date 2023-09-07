@@ -59,7 +59,7 @@ const B2BAppPermission = generateGqlQueries('B2BAppPermission', B2B_APP_PERMISSI
 const B2B_APP_PROMO_BLOCK_FIELDS = `{ title subtitle textVariant backgroundColor backgroundImage { publicUrl } targetUrl external priority ${COMMON_FIELDS} }`
 const B2BAppPromoBlock = generateGqlQueries('B2BAppPromoBlock', B2B_APP_PROMO_BLOCK_FIELDS)
 
-const B2B_APP_ROLE_FIELDS = `{ app ${B2B_APP_FIELDS} role { id } permissions ${COMMON_FIELDS} }`
+const B2B_APP_ROLE_FIELDS = `{ app { id } role { id } permissions ${COMMON_FIELDS} }`
 const B2BAppRole = generateGqlQueries('B2BAppRole', B2B_APP_ROLE_FIELDS)
 
 const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`

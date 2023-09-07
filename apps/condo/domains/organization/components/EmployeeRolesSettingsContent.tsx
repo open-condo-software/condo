@@ -40,7 +40,7 @@ import {
     Table,
     TableRecord,
 } from '@condo/domains/common/components/Table/Index'
-import { B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
+import { B2BAppContext, B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 import {
     GROUP_NAME_COLUMN_WIDTH,
     ROLE_COLUMN_STYLE,
@@ -132,6 +132,8 @@ const getPermissionsWithNewValue = ({ permissionKey, newValue, oldPermissions, i
  * If it's "canRead" checkbox, then also checks such logic for "canManage" permissions of this group.
  */
 const isCheckboxDisabled = ({ checkboxValue, employeeRoleId, permissionKey, isReadPermission, permissionsState, pathToPermissionsGroup }) => {
+    if (!checkboxValue) return false
+
     const otherEmployeeRoleIds = Object.keys(omit(permissionsState, employeeRoleId))
     const pathToPermissionsGroupFromEmployeeRole = pathToPermissionsGroup.slice(1)
     let checkboxDisabled = checkboxValue
@@ -554,20 +556,30 @@ export const EmployeeRolesSettingsContent = () => {
     })
 
     const {
+        objs: b2bAppContexts,
+        loading: b2bAppContextsLoading,
+    } = B2BAppContext.useObjects({
+        where: { organization: { id: userOrganizationId },  status: 'Finished' },
+    })
+
+    const connectedB2BApps = useMemo(() =>
+        uniqBy(b2bAppContexts.map(context => get(context, 'app')), 'id')
+    , [b2bAppContexts])
+
+    const {
         loading: isB2BAppRolesLoading,
         objs: b2BAppRoles,
         refetch: refetchB2BAppRoles,
     } = B2BAppRole.useObjects({
-        where: { role: { id_in: employeeRoles.map(role => role.id) } },
+        where: {
+            role: { id_in: employeeRoles.map(role => role.id) },
+            app: { id_in: connectedB2BApps.map(context => context.id) },
+        },
     })
 
     const createB2BAppRoleAction = B2BAppRole.useCreate({}, () => refetchB2BAppRoles())
     const softDeleteB2BAppRoleAction = B2BAppRole.useSoftDelete(() => refetchB2BAppRoles())
     const updateB2BAppRoleAction = B2BAppRole.useUpdate({}, () => refetchB2BAppRoles())
-
-    const connectedB2BApps = useMemo(() =>
-        uniqBy(b2BAppRoles.map(b2BAppRole => get(b2BAppRole, 'app')), 'id')
-    , [b2BAppRoles])
 
     const {
         loading: isB2BAppPermissionsLoading,
@@ -576,7 +588,7 @@ export const EmployeeRolesSettingsContent = () => {
         where: { app: { id_in: connectedB2BApps.map(b2bApp => get(b2bApp, 'id')) } },
     })
 
-    const loading = isEmployeeRolesLoading || isB2BAppRolesLoading || isB2BAppPermissionsLoading
+    const loading = isEmployeeRolesLoading || isB2BAppRolesLoading || isB2BAppPermissionsLoading || b2bAppContextsLoading
 
     return <EmployeeRolesTable
         loading={loading}
