@@ -63,7 +63,7 @@ describe('DiscoverServiceConsumersService', () => {
     }
 
     beforeAll(async () => {
-        setIsFeatureFlagsEnabled(false)
+        setIsFeatureFlagsEnabled(false) // need to disable the `disable-discover-service-consumers` flag (the black list)
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
@@ -596,7 +596,7 @@ describe('DiscoverServiceConsumersService', () => {
             })
 
             // TODO(DOMA-6817) run this test after 6817 done
-            test.skip('discover no service consumers for managing organization if the feature flag was disabled', async () => {
+            test.skip('discover no service consumers for managing organization if the black list feature flag was enabled', async () => {
                 const user = await makeClientWithProperty()
 
                 await addAcquiringIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
@@ -619,7 +619,7 @@ describe('DiscoverServiceConsumersService', () => {
                 }, { delay: 500 })
             })
 
-            test('discover service consumers for service provider org even if the feature disable-DSC-flag was enabled', async () => {
+            test('discover service consumers for service provider org even if the feature disable-DSC-flag (black list) was enabled', async () => {
                 const user = await makeClientWithProperty()
                 const [organization] = await registerNewOrganization(user, { type: SERVICE_PROVIDER_TYPE })
                 const [property] = await createTestProperty(user, organization)
