@@ -1,16 +1,13 @@
 const dayjs = require('dayjs')
-const { get, set } = require('lodash')
 
-const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { createCronTask } = require('@open-condo/keystone/tasks')
-const { getIsFeatureFlagsEnabled } = require('@open-condo/keystone/test.utils')
 
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { discoverServiceConsumers, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
+const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersCronTask' } }
 const logger = getLogger('discoverServiceConsumersCronTask')
@@ -29,10 +26,6 @@ async function discoverServiceConsumersCronTask () {
     }
 
     const { keystone: context } = getSchemaCtx('BillingAccount')
-
-    if (conf.NODE_ENV === 'test') {
-        set(context, ['req', 'headers', 'feature-flags'], getIsFeatureFlagsEnabled() ? 'true' : 'false')
-    }
 
     const billingAccountsIds = new Set()
     let maxDate = dayjs(lastDate)

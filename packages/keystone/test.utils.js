@@ -84,7 +84,6 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
-let __isFeatureFlagsEnabled = true
 
 /**
  * Something looks like an ip address. Need to test calls limit from one ip address.
@@ -93,18 +92,21 @@ let __isFeatureFlagsEnabled = true
 let __x_forwarder_for_header
 
 /**
- * This function needs to be called BEFORE the test client creation
- * @param {boolean} isFeatureFlagsEnabled
+ * @type {Map<string, any>}
  */
-function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
-    __isFeatureFlagsEnabled = isFeatureFlagsEnabled
+const featureFlagsStore = new Map()
+const FEATURE_FLAGS_STORE_ALL_KEY = '*'
+
+function setFeatureFlag (id, value) {
+    featureFlagsStore.set(id, value)
 }
 
-/**
- * @returns {boolean}
- */
-function getIsFeatureFlagsEnabled () {
-    return __isFeatureFlagsEnabled
+function getFeatureFlag (id) {
+    return featureFlagsStore.get(id) || featureFlagsStore.get(FEATURE_FLAGS_STORE_ALL_KEY) || false
+}
+
+function setAllFeatureFlags (value) {
+    featureFlagsStore.set(FEATURE_FLAGS_STORE_ALL_KEY, value)
 }
 
 /**
@@ -269,7 +271,6 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
             cache: 'no-cache',
             mode: 'cors',
             credentials: 'include',
-            'feature-flags': __isFeatureFlagsEnabled,
             ...(__x_forwarder_for_header ? { 'x-forwarded-for': __x_forwarder_for_header } : {}),
         },
         includeExtensions: true,
@@ -801,8 +802,6 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
-    setIsFeatureFlagsEnabled,
-    getIsFeatureFlagsEnabled,
     setXForwardedFor,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
@@ -820,4 +819,7 @@ module.exports = {
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowAccessDeniedToFieldError,
+    setFeatureFlag,
+    getFeatureFlag,
+    setAllFeatureFlags,
 }
