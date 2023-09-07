@@ -2,7 +2,7 @@
  * Start recurrent payment seeking for new billing receipts processing task
  *
  * Usage:
- *      yarn workspace @app/condo node bin/createRecurrentPaymentForNewBillingReceipt
+ *      yarn workspace @app/condo node bin/billing/createRecurrentPaymentForNewBillingReceipt
  */
 
 const path = require('path')
