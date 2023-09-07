@@ -9,43 +9,53 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const { checkB2BAppAccessRight } = require('@condo/domains/miniapp/utils/accessSchema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const { SERVICE, STAFF } = require('@condo/domains/user/constants/common')
+const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
 /**
  * B2B App context may only be read:
  * 1. Admin / support
- * 2. Organization employee (without settings / state)
- * 3. Integration service account
+ * 2. Users with direct access
+ * 3. Organization employee (without settings / state)
+ * 4. Integration service account
  */
-async function canReadB2BAppContexts ({ authentication: { item: user } }) {
+async function canReadB2BAppContexts ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
-    return {
-        OR: [
-            { organization: { employees_some: { user: { id: user.id }, isBlocked: false, isRejected: false, deletedAt: null } } },
-            { app: { accessRights_some: { user: { id: user.id }, deletedAt: null } } },
-        ],
+    if (user.type === SERVICE) {
+        return { app: { accessRights_some: { user: { id: user.id }, deletedAt: null } } }
+    } else if (user.type === STAFF) {
+        return { organization: { employees_some: { user: { id: user.id }, isBlocked: false, isRejected: false, deletedAt: null } } }
     }
+
+    return false
 }
 
 /**
  * B2B App context may only be created by:
  * 1. Admin / support
- * 2. Organization employee with canManageIntegrations = true
+ * 2. Users with direct access
+ * 3. Organization employee with canManageIntegrations = true
  *
  * B2B App context may only be updated by:
  * 1. Admin / support
- * 2. App service user
+ * 2. Users with direct access
+ * 3. App service user
  */
-async function canManageB2BAppContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageB2BAppContexts ({ authentication: { item: user }, originalInput, operation, itemId, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
 
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])

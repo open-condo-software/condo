@@ -20,6 +20,7 @@ const { SigninAsUserService } = require('./SigninAsUserService')
 const { SigninResidentUserService } = require('./SigninResidentUserService')
 const { User } = require('./User')
 const { UserExternalIdentity } = require('./UserExternalIdentity')
+const { UserRightsSet } = require('./UserRightsSet')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -40,5 +41,6 @@ module.exports = {
     UserExternalIdentity,
     ExternalTokenAccessRight,
     GetAccessTokenByUserIdService,
+    UserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

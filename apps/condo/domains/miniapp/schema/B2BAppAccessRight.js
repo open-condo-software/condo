@@ -68,8 +68,9 @@ const B2BAppAccessRight = new GQLListSchema('B2BAppAccessRight', {
         validateInput: async ({ resolvedData, context, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
             const accessRightSetId = get(newItem, 'accessRightSet')
+            const shouldCheckAccessRight = Boolean(resolvedData['app'] || resolvedData['accessRightSet'])
 
-            if (accessRightSetId) {
+            if (accessRightSetId && shouldCheckAccessRight) {
                 const appId = get(newItem, 'app')
                 const accessRightSet = await getByCondition('B2BAppAccessRightSet', {
                     app: { id: appId, deletedAt: null },

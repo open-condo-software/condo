@@ -87,7 +87,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
             }),
             new AdminUIApp({
                 adminPath: '/admin',
-                isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
+                isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport || user.rightsSet)),
                 authStrategy,
                 ...(ui || {}),
             }),

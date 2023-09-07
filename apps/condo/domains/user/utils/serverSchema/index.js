@@ -26,6 +26,7 @@ const { RESET_USER_MUTATION } = require('@condo/domains/user/gql')
 const { OidcClient: OidcClientGQL } = require('@condo/domains/user/gql')
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
+const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -99,6 +100,7 @@ async function getAccessTokenByUserId (context, data) {
     })
 }
 
+const UserRightsSet = generateServerUtils(UserRightsSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const whiteList = conf.SMS_WHITE_LIST ? JSON.parse(conf.SMS_WHITE_LIST) : {}
@@ -212,5 +214,6 @@ module.exports = {
     OidcClient,
     ExternalTokenAccessRight,
     getAccessTokenByUserId,
+    UserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

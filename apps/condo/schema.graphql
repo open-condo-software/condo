@@ -31,6 +31,7 @@ type UserHistoryRecord {
   locale: String
   customAccess: JSON
   showGlobalHints: Boolean
+  rightsSet: String
   id: ID!
   v: Int
   createdAt: String
@@ -183,6 +184,10 @@ input UserHistoryRecordWhereInput {
   customAccess_not_in: [JSON]
   showGlobalHints: Boolean
   showGlobalHints_not: Boolean
+  rightsSet: String
+  rightsSet_not: String
+  rightsSet_in: [String]
+  rightsSet_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -322,6 +327,7 @@ input UserHistoryRecordUpdateInput {
   locale: String
   customAccess: JSON
   showGlobalHints: Boolean
+  rightsSet: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -357,6 +363,7 @@ input UserHistoryRecordCreateInput {
   locale: String
   customAccess: JSON
   showGlobalHints: Boolean
+  rightsSet: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -434,6 +441,13 @@ input CustomAccessInput {
   accessRules: [CustomAccessListRuleInput]
 }
 
+input UserRightsSetRelateToOneInput {
+  create: UserRightsSetCreateInput
+  connect: UserRightsSetWhereUniqueInput
+  disconnect: UserRightsSetWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 input UserRelateToOneInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
@@ -507,6 +521,10 @@ type User {
 
   """ Show global hints in CRM or not """
   showGlobalHints: Boolean
+
+  """ A set of permissions that allow the user to directly read or manage certain schemas as well as run certain mutations. 
+  """
+  rightsSet: UserRightsSet
   id: ID!
   v: Int
   createdAt: String
@@ -618,6 +636,8 @@ input UserWhereInput {
   customAccess_not_in: [CustomAccessInput]
   showGlobalHints: Boolean
   showGlobalHints_not: Boolean
+  rightsSet: UserRightsSetWhereInput
+  rightsSet_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -701,6 +721,8 @@ enum SortUsersBy {
   locale_DESC
   showGlobalHints_ASC
   showGlobalHints_DESC
+  rightsSet_ASC
+  rightsSet_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -734,6 +756,7 @@ input UserUpdateInput {
   locale: UserLocaleType
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
+  rightsSet: UserRightsSetRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -765,6 +788,7 @@ input UserCreateInput {
   locale: UserLocaleType
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
+  rightsSet: UserRightsSetRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -3078,6 +3102,754 @@ input ExternalTokenAccessRightCreateInput {
 
 input ExternalTokenAccessRightsCreateInput {
   data: ExternalTokenAccessRightCreateInput
+}
+
+enum UserRightsSetHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type UserRightsSetHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserRightsSetHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the UserRightsSetHistoryRecord List config, or
+   3. As an alias to a 'name' field on the UserRightsSetHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the UserRightsSetHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserRightsSetHistoryRecordWhereInput {
+  AND: [UserRightsSetHistoryRecordWhereInput]
+  OR: [UserRightsSetHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  canReadB2BApps: Boolean
+  canReadB2BApps_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRights_not: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights_not: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canReadB2BAppAccessRightSets_not: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets_not: Boolean
+  canReadB2BAppContexts: Boolean
+  canReadB2BAppContexts_not: Boolean
+  canManageB2BAppContexts: Boolean
+  canManageB2BAppContexts_not: Boolean
+  canReadB2BAppPermissions: Boolean
+  canReadB2BAppPermissions_not: Boolean
+  canManageB2BAppPermissions: Boolean
+  canManageB2BAppPermissions_not: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canReadB2BAppPromoBlocks_not: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks_not: Boolean
+  canReadB2CApps: Boolean
+  canReadB2CApps_not: Boolean
+  canManageB2CApps: Boolean
+  canManageB2CApps_not: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canReadB2CAppAccessRights_not: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights_not: Boolean
+  canReadB2CAppBuilds: Boolean
+  canReadB2CAppBuilds_not: Boolean
+  canManageB2CAppBuilds: Boolean
+  canManageB2CAppBuilds_not: Boolean
+  canReadB2CAppProperties: Boolean
+  canReadB2CAppProperties_not: Boolean
+  canManageB2CAppProperties: Boolean
+  canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteRegisterNewServiceUser_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_action_not: UserRightsSetHistoryRecordHistoryActionType
+  history_action_in: [UserRightsSetHistoryRecordHistoryActionType]
+  history_action_not_in: [UserRightsSetHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input UserRightsSetHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserRightsSetHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  canReadB2BApps_ASC
+  canReadB2BApps_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadB2BAppAccessRights_ASC
+  canReadB2BAppAccessRights_DESC
+  canManageB2BAppAccessRights_ASC
+  canManageB2BAppAccessRights_DESC
+  canReadB2BAppAccessRightSets_ASC
+  canReadB2BAppAccessRightSets_DESC
+  canManageB2BAppAccessRightSets_ASC
+  canManageB2BAppAccessRightSets_DESC
+  canReadB2BAppContexts_ASC
+  canReadB2BAppContexts_DESC
+  canManageB2BAppContexts_ASC
+  canManageB2BAppContexts_DESC
+  canReadB2BAppPermissions_ASC
+  canReadB2BAppPermissions_DESC
+  canManageB2BAppPermissions_ASC
+  canManageB2BAppPermissions_DESC
+  canReadB2BAppPromoBlocks_ASC
+  canReadB2BAppPromoBlocks_DESC
+  canManageB2BAppPromoBlocks_ASC
+  canManageB2BAppPromoBlocks_DESC
+  canReadB2CApps_ASC
+  canReadB2CApps_DESC
+  canManageB2CApps_ASC
+  canManageB2CApps_DESC
+  canReadB2CAppAccessRights_ASC
+  canReadB2CAppAccessRights_DESC
+  canManageB2CAppAccessRights_ASC
+  canManageB2CAppAccessRights_DESC
+  canReadB2CAppBuilds_ASC
+  canReadB2CAppBuilds_DESC
+  canManageB2CAppBuilds_ASC
+  canManageB2CAppBuilds_DESC
+  canReadB2CAppProperties_ASC
+  canReadB2CAppProperties_DESC
+  canManageB2CAppProperties_ASC
+  canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canExecuteRegisterNewServiceUser_ASC
+  canExecuteRegisterNewServiceUser_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input UserRightsSetHistoryRecordUpdateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserRightsSetHistoryRecordsUpdateInput {
+  id: ID!
+  data: UserRightsSetHistoryRecordUpdateInput
+}
+
+input UserRightsSetHistoryRecordCreateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserRightsSetHistoryRecordsCreateInput {
+  data: UserRightsSetHistoryRecordCreateInput
+}
+
+""" A set of rights that allows one user or a group of users to gain direct access to objects of a particular schema and to perform certain mutations 
+"""
+type UserRightsSet {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserRightsSet List config, or
+   2. As an alias to the field set on 'labelField' in the UserRightsSet List config, or
+   3. As an alias to a 'name' field on the UserRightsSet List (if one exists), or
+   4. As an alias to the 'id' field on the UserRightsSet List.
+  """
+  _label_: String
+
+  """ A name that distinguishes this group of rights from others and describes the set of rights that users of this group receive. For example: "Full access to mini-applications", "Level 1 Support", "Read all organizations", etc 
+  """
+  name: String
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BApp" as support / admin users do 
+  """
+  canReadB2BApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BApp" similar to support users 
+  """
+  canManageB2BApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do 
+  """
+  canReadB2BAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRight" similar to support users 
+  """
+  canManageB2BAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRightSet" as support / admin users do 
+  """
+  canReadB2BAppAccessRightSets: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRightSet" similar to support users 
+  """
+  canManageB2BAppAccessRightSets: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppContext" as support / admin users do 
+  """
+  canReadB2BAppContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppContext" similar to support users 
+  """
+  canManageB2BAppContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppPermission" as support / admin users do 
+  """
+  canReadB2BAppPermissions: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPermission" similar to support users 
+  """
+  canManageB2BAppPermissions: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppPromoBlock" as support / admin users do 
+  """
+  canReadB2BAppPromoBlocks: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPromoBlock" similar to support users 
+  """
+  canManageB2BAppPromoBlocks: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CApp" as support / admin users do 
+  """
+  canReadB2CApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CApp" similar to support users 
+  """
+  canManageB2CApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppAccessRight" as support / admin users do 
+  """
+  canReadB2CAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppAccessRight" similar to support users 
+  """
+  canManageB2CAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppBuild" as support / admin users do 
+  """
+  canReadB2CAppBuilds: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppBuild" similar to support users 
+  """
+  canManageB2CAppBuilds: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppProperty" as support / admin users do 
+  """
+  canReadB2CAppProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users 
+  """
+  canManageB2CAppProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
+  """
+  canReadOrganizations: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
+  """
+  canExecuteRegisterNewServiceUser: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input UserRightsSetWhereInput {
+  AND: [UserRightsSetWhereInput]
+  OR: [UserRightsSetWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  canReadB2BApps: Boolean
+  canReadB2BApps_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRights_not: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights_not: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canReadB2BAppAccessRightSets_not: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets_not: Boolean
+  canReadB2BAppContexts: Boolean
+  canReadB2BAppContexts_not: Boolean
+  canManageB2BAppContexts: Boolean
+  canManageB2BAppContexts_not: Boolean
+  canReadB2BAppPermissions: Boolean
+  canReadB2BAppPermissions_not: Boolean
+  canManageB2BAppPermissions: Boolean
+  canManageB2BAppPermissions_not: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canReadB2BAppPromoBlocks_not: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks_not: Boolean
+  canReadB2CApps: Boolean
+  canReadB2CApps_not: Boolean
+  canManageB2CApps: Boolean
+  canManageB2CApps_not: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canReadB2CAppAccessRights_not: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights_not: Boolean
+  canReadB2CAppBuilds: Boolean
+  canReadB2CAppBuilds_not: Boolean
+  canManageB2CAppBuilds: Boolean
+  canManageB2CAppBuilds_not: Boolean
+  canReadB2CAppProperties: Boolean
+  canReadB2CAppProperties_not: Boolean
+  canManageB2CAppProperties: Boolean
+  canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteRegisterNewServiceUser_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input UserRightsSetWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserRightsSetsBy {
+  name_ASC
+  name_DESC
+  canReadB2BApps_ASC
+  canReadB2BApps_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadB2BAppAccessRights_ASC
+  canReadB2BAppAccessRights_DESC
+  canManageB2BAppAccessRights_ASC
+  canManageB2BAppAccessRights_DESC
+  canReadB2BAppAccessRightSets_ASC
+  canReadB2BAppAccessRightSets_DESC
+  canManageB2BAppAccessRightSets_ASC
+  canManageB2BAppAccessRightSets_DESC
+  canReadB2BAppContexts_ASC
+  canReadB2BAppContexts_DESC
+  canManageB2BAppContexts_ASC
+  canManageB2BAppContexts_DESC
+  canReadB2BAppPermissions_ASC
+  canReadB2BAppPermissions_DESC
+  canManageB2BAppPermissions_ASC
+  canManageB2BAppPermissions_DESC
+  canReadB2BAppPromoBlocks_ASC
+  canReadB2BAppPromoBlocks_DESC
+  canManageB2BAppPromoBlocks_ASC
+  canManageB2BAppPromoBlocks_DESC
+  canReadB2CApps_ASC
+  canReadB2CApps_DESC
+  canManageB2CApps_ASC
+  canManageB2CApps_DESC
+  canReadB2CAppAccessRights_ASC
+  canReadB2CAppAccessRights_DESC
+  canManageB2CAppAccessRights_ASC
+  canManageB2CAppAccessRights_DESC
+  canReadB2CAppBuilds_ASC
+  canReadB2CAppBuilds_DESC
+  canManageB2CAppBuilds_ASC
+  canManageB2CAppBuilds_DESC
+  canReadB2CAppProperties_ASC
+  canReadB2CAppProperties_DESC
+  canManageB2CAppProperties_ASC
+  canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canExecuteRegisterNewServiceUser_ASC
+  canExecuteRegisterNewServiceUser_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input UserRightsSetUpdateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserRightsSetsUpdateInput {
+  id: ID!
+  data: UserRightsSetUpdateInput
+}
+
+input UserRightsSetCreateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserRightsSetsCreateInput {
+  data: UserRightsSetCreateInput
 }
 
 enum OrganizationHistoryRecordHistoryActionType {
@@ -65827,6 +66599,33 @@ type Query {
   """ Retrieve the meta-data for the ExternalTokenAccessRight list. """
   _ExternalTokenAccessRightsMeta: _ListMeta
 
+  """ Search for all UserRightsSetHistoryRecord items which match the where clause. 
+  """
+  allUserRightsSetHistoryRecords(where: UserRightsSetHistoryRecordWhereInput, search: String, sortBy: [SortUserRightsSetHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserRightsSetHistoryRecord]
+
+  """ Search for the UserRightsSetHistoryRecord item with the matching ID. """
+  UserRightsSetHistoryRecord(where: UserRightsSetHistoryRecordWhereUniqueInput!): UserRightsSetHistoryRecord
+
+  """ Perform a meta-query on all UserRightsSetHistoryRecord items which match the where clause. 
+  """
+  _allUserRightsSetHistoryRecordsMeta(where: UserRightsSetHistoryRecordWhereInput, search: String, sortBy: [SortUserRightsSetHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserRightsSetHistoryRecord list. """
+  _UserRightsSetHistoryRecordsMeta: _ListMeta
+
+  """ Search for all UserRightsSet items which match the where clause. """
+  allUserRightsSets(where: UserRightsSetWhereInput, search: String, sortBy: [SortUserRightsSetsBy!], orderBy: String, first: Int, skip: Int): [UserRightsSet]
+
+  """ Search for the UserRightsSet item with the matching ID. """
+  UserRightsSet(where: UserRightsSetWhereUniqueInput!): UserRightsSet
+
+  """ Perform a meta-query on all UserRightsSet items which match the where clause. 
+  """
+  _allUserRightsSetsMeta(where: UserRightsSetWhereInput, search: String, sortBy: [SortUserRightsSetsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserRightsSet list. """
+  _UserRightsSetsMeta: _ListMeta
+
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
   allOrganizationHistoryRecords(where: OrganizationHistoryRecordWhereInput, search: String, sortBy: [SortOrganizationHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [OrganizationHistoryRecord]
@@ -69263,6 +70062,42 @@ type Mutation {
 
   """ Delete multiple ExternalTokenAccessRight items by ID. """
   deleteExternalTokenAccessRights(ids: [ID!]): [ExternalTokenAccessRight]
+
+  """ Create a single UserRightsSetHistoryRecord item. """
+  createUserRightsSetHistoryRecord(data: UserRightsSetHistoryRecordCreateInput): UserRightsSetHistoryRecord
+
+  """ Create multiple UserRightsSetHistoryRecord items. """
+  createUserRightsSetHistoryRecords(data: [UserRightsSetHistoryRecordsCreateInput]): [UserRightsSetHistoryRecord]
+
+  """ Update a single UserRightsSetHistoryRecord item by ID. """
+  updateUserRightsSetHistoryRecord(id: ID!, data: UserRightsSetHistoryRecordUpdateInput): UserRightsSetHistoryRecord
+
+  """ Update multiple UserRightsSetHistoryRecord items by ID. """
+  updateUserRightsSetHistoryRecords(data: [UserRightsSetHistoryRecordsUpdateInput]): [UserRightsSetHistoryRecord]
+
+  """ Delete a single UserRightsSetHistoryRecord item by ID. """
+  deleteUserRightsSetHistoryRecord(id: ID!): UserRightsSetHistoryRecord
+
+  """ Delete multiple UserRightsSetHistoryRecord items by ID. """
+  deleteUserRightsSetHistoryRecords(ids: [ID!]): [UserRightsSetHistoryRecord]
+
+  """ Create a single UserRightsSet item. """
+  createUserRightsSet(data: UserRightsSetCreateInput): UserRightsSet
+
+  """ Create multiple UserRightsSet items. """
+  createUserRightsSets(data: [UserRightsSetsCreateInput]): [UserRightsSet]
+
+  """ Update a single UserRightsSet item by ID. """
+  updateUserRightsSet(id: ID!, data: UserRightsSetUpdateInput): UserRightsSet
+
+  """ Update multiple UserRightsSet items by ID. """
+  updateUserRightsSets(data: [UserRightsSetsUpdateInput]): [UserRightsSet]
+
+  """ Delete a single UserRightsSet item by ID. """
+  deleteUserRightsSet(id: ID!): UserRightsSet
+
+  """ Delete multiple UserRightsSet items by ID. """
+  deleteUserRightsSets(ids: [ID!]): [UserRightsSet]
 
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord

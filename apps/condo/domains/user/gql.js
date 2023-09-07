@@ -8,9 +8,12 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { generateFieldNames } = require('@condo/domains/user/utils/directAccess/common.utils')
+const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/utils/directAccess/config')
+
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `type name avatar { publicUrl } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints ${COMMON_FIELDS}`
+const USER_FIELDS = `type name avatar { publicUrl } rightsSet { id } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints ${COMMON_FIELDS}`
 const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
 const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
 
@@ -192,6 +195,10 @@ const GET_ACCESS_TOKEN_BY_USER_ID_QUERY = gql`
     }
 `
 
+const USER_RIGHTS_SET_PERMISSIONS_FIELDS = generateFieldNames(DIRECT_ACCESS_AVAILABLE_SCHEMAS).join(' ')
+const USER_RIGHTS_SET_FIELDS = `{ name ${USER_RIGHTS_SET_PERMISSIONS_FIELDS} ${COMMON_FIELDS} }`
+const UserRightsSet = generateGqlQueries('UserRightsSet', USER_RIGHTS_SET_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -223,5 +230,6 @@ module.exports = {
     USER_CUSTOM_ACCESS_FIELDS,
     ExternalTokenAccessRight,
     GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
+    UserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
