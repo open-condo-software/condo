@@ -15,8 +15,6 @@ type CustomListViewProps = {
 }
 
 export const CustomListView: React.FC<CustomListViewProps> = (props) => {
-    const intl = useIntl()
-
     const { loading = false, data, mapperInstance, viewMode, translations } = props
 
     if (data === null || loading) {
@@ -27,7 +25,7 @@ export const CustomListView: React.FC<CustomListViewProps> = (props) => {
         translations,
     }
 
-    const { tableColumns, dataSource } = mapperInstance.getTableConfig(viewMode, data)
+    const { tableColumns, dataSource } = mapperInstance.getTableConfig(viewMode, data, restOptions)
 
     return (
         <Table
@@ -35,7 +33,11 @@ export const CustomListView: React.FC<CustomListViewProps> = (props) => {
             tableLayout='fixed'
             dataSource={dataSource}
             columns={tableColumns as TableColumnsType}
-            pagination={false}
+            pagination={{
+                showSizeChanger: false,
+                position: ['bottomLeft'],
+                pageSize: 5,
+            }}
         />
     )
 }

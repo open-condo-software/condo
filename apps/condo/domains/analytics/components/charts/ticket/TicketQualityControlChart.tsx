@@ -11,7 +11,7 @@ const TicketQualityControlChart: ITicketChartCard = ({ data, loading }) => {
         <TicketChartView
             data={data}
             loading={loading}
-            viewMode='line'
+            viewMode='bar'
             mapperInstance={TicketQualityControlDataMapper}
             chartConfig={{ chartOptions: { height: 300 }, animationEnabled: false }}
         />

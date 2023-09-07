@@ -248,6 +248,7 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
     const [ticketsCount, setTicketsCount] = useState(0)
 
     const router = useRouter()
+    const { values, SearchInput } = usePropertyFilter({ organizationId })
     const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, MODAL_TABLE_PAGE_SIZE), [offset])
 
@@ -271,6 +272,7 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
                             { qualityControlValue_in: QUALITY_CONTROL_VALUES },
                             { feedbackValue_in: QUALITY_CONTROL_VALUES },
                         ],
+                        ...(values.length && { property: { id_in: values } }),
                     },
                     sortBy: ['createdAt_DESC'],
                     first: MODAL_TABLE_PAGE_SIZE,
@@ -280,7 +282,7 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
         }
 
         setIsChartLoading(!isOpen)
-    }, [isOpen, organizationId, loadAllTickets, currentPageIndex])
+    }, [isOpen, organizationId, loadAllTickets, currentPageIndex, values])
 
     const ticketCardContent = useMemo(() => {
         const goodKey = get(translations.find(t => t.value === TicketQualityControlValueType.Good), 'key')
@@ -352,7 +354,10 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
             <Modal width='big' title={QualityControlTitle} open={isOpen} onCancel={onCancel}>
                 <Row gutter={[0, 40]}>
                     <Col span={24}>
-                        <TicketQualityControlChart data={data} loading={isChartLoading} />
+                        {SearchInput}
+                    </Col>
+                    <Col span={24}>
+                        <TicketQualityControlChart data={[data, translations]} loading={isChartLoading} />
                     </Col>
                     <Col span={24}>
                         <Table
@@ -467,7 +472,11 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                             <AllTicketsChart data={newTickets} />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <TicketByCategoryChart data={categoryTickets} />
+                            <TicketByCategoryChart
+                                data={categoryTickets}
+                                organizationId={organizationId}
+                                dateRange={dateRange}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
                             <PaymentTotalChart data={paymentsData} />

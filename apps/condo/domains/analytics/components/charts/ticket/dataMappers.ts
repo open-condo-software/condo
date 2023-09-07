@@ -1,8 +1,9 @@
 import {
     TicketAnalyticsGroupBy as TicketGroupBy,
-    TicketGroupedCounter,
+    TicketGroupedCounter, TicketQualityControlValueType,
 } from '@app/condo/schema'
-import dayjs from 'dayjs'
+import dayjs, { Dayjs } from 'dayjs'
+import get from 'lodash/get'
 
 import { colors } from '@open-condo/ui/dist/colors'
 
@@ -20,8 +21,16 @@ const COLOR_SET = [
 ]
 const DATE_FORMAT = 'DD.MM.YYYY'
 
+
+type TicketChartCardProps = {
+    data: Array<TicketGroupedCounter>
+    loading?: boolean
+    organizationId?: string
+    dateRange?: [Dayjs, Dayjs]
+}
+
 interface ITicketChartCard {
-    ({ data, loading }: { data: Array<TicketGroupedCounter>, loading?: boolean }): React.ReactElement
+    (props: TicketChartCardProps): React.ReactElement
 }
 
 const AllTicketChartDataMapper = new TicketChart({
@@ -122,7 +131,33 @@ const TicketByCategoryDataMapper = new TicketChart({
                 color: COLOR_SET,
             }
         },
-        table: () => null,
+        table: (_, data, restTableOptions) => {
+            const dataSource = []
+            const aggregatedData = getAggregatedData(data, [TicketGroupBy.Status, TicketGroupBy.CategoryClassifier], false)
+            const tableColumns = [
+                {
+                    key: restTableOptions.translations['categoryClassifier'],
+                    title: restTableOptions.translations['categoryClassifier'],
+                    dataIndex: TicketGroupBy.CategoryClassifier,
+                },
+                ...Object.entries(aggregatedData).map(([key]) => ({ title: key, dataIndex: key, key })),
+            ]
+
+            const agg = getAggregatedData(data, [TicketGroupBy.CategoryClassifier, TicketGroupBy.Status], false)
+
+            Object.entries(agg).forEach(([categoryClassifier, obj], key) => {
+                dataSource.push({
+                    key,
+                    categoryClassifier,
+                    ...obj,
+                })
+            })
+
+            return {
+                dataSource,
+                tableColumns,
+            }
+        },
     },
 })
 
@@ -200,16 +235,18 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
 })
 
 const TicketQualityControlDataMapper = new TicketChart({
-    line: {
-        chart: (viewMode, data) => {
+    bar: {
+        chart: (viewMode, [data, translations]) => {
             const series = []
+            const goodKey = get(translations.find(t => t.value === TicketQualityControlValueType.Good), 'key')
 
             const aggregatedData = getAggregatedData(data, [TicketGroupBy.QualityControlValue, TicketGroupBy.Day])
             const axisLabels = Array
                 .from(new Set(Object.values(aggregatedData).flatMap(e => Object.keys(e))))
                 .sort((a, b) => dayjs(a, DATE_FORMAT).unix() - dayjs(b, DATE_FORMAT).unix())
 
-            Object.entries(aggregatedData).forEach(([groupBy, dataObj], index) => {
+            Object.entries(aggregatedData).forEach(([groupBy, dataObj]) => {
+                const color = groupBy === goodKey ? colors.green['5'] : colors.red['5']
                 series.push({
                     name: groupBy,
                     type: viewMode,
@@ -217,7 +254,7 @@ const TicketQualityControlDataMapper = new TicketChart({
                     data: Object.entries(dataObj),
                     smooth: true,
                     emphasis: { focus: 'series' },
-                    color: index ? colors.green['5'] : colors.red['5'],
+                    color,
                 })
             })
 
