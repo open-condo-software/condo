@@ -27,6 +27,7 @@ async function hasConflictingPushes (context, userId) {
         user: { id: userId },
         createdAt_gte: now.startOf('date').toISOString(),
         createdAt_lte: now.toISOString(),
+        deletedAt: null,
     })
 
     for (const message of userMessages) {
