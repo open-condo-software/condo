@@ -1,7 +1,7 @@
+
 import { notification } from 'antd'
 import axios from 'axios'
 import get from 'lodash/get'
-import isUndefined from 'lodash/isUndefined'
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -10,6 +10,9 @@ import { Typography } from '@open-condo/ui'
 
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 import { CallRecord, CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
+
+import { B2BAppGlobalFeature } from '../../../schema'
+import { useGlobalAppsFeaturesContext } from '../../miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 
 
 const ACTIVE_CALL_KEY = 'activeCall'
@@ -31,7 +34,6 @@ class ActiveCallLocalStorageManager {
     }
 
     public createActiveCall (callId: string) {
-        console.log('localStorage createActiveCall', callId, typeof window === 'undefined')
         if (typeof window === 'undefined') return
 
         try {
@@ -47,12 +49,8 @@ class ActiveCallLocalStorageManager {
         if (typeof window === 'undefined') return
 
         try {
-            console.log('connectTicketToActiveCall', ticketId)
-
             const activeCall = this.getActiveCall()
             const newTicketIds = [...get(activeCall, 'ticketIds', []), ticketId]
-
-            console.log('connectTicketToActiveCall newTicketIds', newTicketIds, JSON.stringify({ ...activeCall, ticketIds: newTicketIds }))
 
             localStorage.setItem(ACTIVE_CALL_KEY, JSON.stringify({ ...activeCall, ticketIds: newTicketIds }))
         } catch (e) {
@@ -93,14 +91,13 @@ const ActiveCallContextProvider = ({ children = {} }) => {
 
     const { addEventHandler } = usePostMessageContext()
     const { organization } = useOrganization()
+    const { requestFeature } = useGlobalAppsFeaturesContext()
 
     const [isCallActive, setIsCallActive] = useState(false)
     const [connectedTickets, setConnectedTickets] = useState([])
 
     const createCallRecordAction = CallRecord.useCreate({})
     const createCallRecordFragmentAction = CallRecordFragment.useCreate({})
-
-    // const [activeCall, setActiveCall] = useState<ActiveCallType>()
 
     const localStorageManager = useMemo(() => new ActiveCallLocalStorageManager(), [])
     const attachTicketToActiveCall = useCallback((ticketId: string) => {
@@ -111,16 +108,22 @@ const ActiveCallContextProvider = ({ children = {} }) => {
     }, [connectedTickets, localStorageManager])
 
     useEffect(() => {
-        if (typeof window !== 'undefined' && !isCallActive) {
-            const initialActiveCall = localStorageManager.getActiveCall()
+        if (typeof window !== 'undefined') {
+            const activeCallFromStorage = localStorageManager.getActiveCall()
+            const callId = get(activeCallFromStorage, 'callId')
 
-            setIsCallActive(!!get(initialActiveCall, 'callId', false))
-            setConnectedTickets(get(initialActiveCall, 'ticketIds', []))
+            if (callId) {
+                console.log('checkIsCallActive', callId)
+                requestFeature({
+                    feature: B2BAppGlobalFeature.CheckIsCallActive,
+                    callId,
+                })
+            }
         }
-    }, [isCallActive, localStorageManager])
+    }, [localStorageManager, requestFeature])
 
     useEffect(() => {
-        if (isUndefined(window)) {
+        if (typeof window === 'undefined') {
             return
         }
 
@@ -150,21 +153,40 @@ const ActiveCallContextProvider = ({ children = {} }) => {
             return { sent: !!error }
         })
 
+
+        // new api
         addEventHandler('CondoWebAppSetActiveCall', '*', ({
             callId,
         }) => {
-            console.log('CondoWebAppSetActiveCall', callId)
+            const currentActiveCall = localStorageManager.getActiveCall()
+            console.log('CondoWebAppSetActiveCall', callId, currentActiveCall)
 
-            // setActiveCall({ callId, ticketIds: [] })
-            setIsCallActive(true)
-            localStorageManager.createActiveCall(callId)
+            if (callId) {
+                if (get(currentActiveCall, 'callId') === callId) {
+                    const initialActiveCall = localStorageManager.getActiveCall()
 
-            return { sent: !!callId }
+                    setIsCallActive(!!get(initialActiveCall, 'callId', false))
+                    setConnectedTickets(get(initialActiveCall, 'ticketIds', []))
+
+                    return { sent: true }
+                }
+
+                setIsCallActive(true)
+                setConnectedTickets([])
+                localStorageManager.createActiveCall(callId)
+            } else {
+                setIsCallActive(null)
+                setConnectedTickets([])
+                localStorageManager.removeActiveCall()
+            }
+
+            return { sent: true }
         })
 
         addEventHandler('CondoWebAppSaveCallRecord', '*', async ({
             callId, fileUrl, startedAt, callerPhone, destCallerPhone, talkTime, isIncomingCall,
         }) => {
+            console.log('condo CondoWebAppSaveCallRecord', callId)
             try {
                 const response = await axios.get(fileUrl, { responseType: 'blob' })
                 const fileName = fileUrl.split('/').reverse()[0]
@@ -176,8 +198,6 @@ const ActiveCallContextProvider = ({ children = {} }) => {
                 const activeCallTicketIds = get(activeCall, 'ticketIds', [])
 
                 if (activeCallIdFromStorage !== callId) return { sent: false }
-
-                console.log('organization', organization.id)
 
                 const callRecord = await createCallRecordAction({
                     organization: { connect: { id: get(organization, 'id') } },

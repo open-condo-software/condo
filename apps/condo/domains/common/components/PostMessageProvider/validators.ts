@@ -81,7 +81,6 @@ const CondoWebAppSetActiveCallParamsSchema = {
     properties: {
         callId: { type: 'string' },
     },
-    required: ['callId'],
     additionalProperties: false,
 }
 

@@ -15,8 +15,13 @@ type AttachCallRecordToTicketFeatureContext = {
     ticketOrganizationId: Scalars['ID'],
 }
 
+type CheckIsCallActiveFeatureContext = {
+    feature: B2BAppGlobalFeature.CheckIsCallActive,
+    callId: string | null
+}
+
 // Group all features contexts using |
-export type FeatureContext = MapGenerationFeatureContext | AttachCallRecordToTicketFeatureContext
+export type FeatureContext = MapGenerationFeatureContext | AttachCallRecordToTicketFeatureContext | CheckIsCallActiveFeatureContext
 
 // Store all miniapps available features
 type IFeaturesType = { [key in B2BAppGlobalFeature]?: string }

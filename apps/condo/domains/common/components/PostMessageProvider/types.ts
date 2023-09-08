@@ -17,7 +17,7 @@ export type RequestParamsMap = {
 } & {
     CondoWebSendAnalyticsEvent: AnalyticsParams,
     CondoWebSetActiveCall: { isCallActive: boolean, connectedTickets: Array<string>, error?: string },
-    CondoWebAppSetActiveCall: { callId: string },
+    CondoWebAppSetActiveCall: { callId: string | null },
     CondoWebAppSaveCallRecord: {
         callId: string,
         fileUrl: string,
