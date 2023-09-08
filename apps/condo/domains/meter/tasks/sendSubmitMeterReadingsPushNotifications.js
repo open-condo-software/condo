@@ -49,7 +49,7 @@ const readMeterReadings = async ({ context, meters }) => {
     // then calculate current period window
     const now = dayjs()
     const startWindowDate = `${now.format('YYYY-MM')}-01`
-    const endWindowDate = now.set('hour', 23).set('minute', 59).set('second', 59).toISOString()
+    const endWindowDate = now.endOf('day').toISOString()
 
     // load all pages for entity
     return await loadListByChunks({
@@ -97,8 +97,8 @@ const readMeterReportingPeriods = async ({ context, organizations }) => {
 }
 
 const checkIsDateStartOrEndOfPeriod = (date, today, start, end) => (
-    dayjs(date).format('YYYY-MM-DD') === dayjs(today).set('date', start).format('YYYY-MM-DD') ||
-    dayjs(date).format('YYYY-MM-DD') === dayjs(today).set('date', end).format('YYYY-MM-DD')
+    dayjs(date).isSame(dayjs(today).set('date', start), 'day') ||
+    dayjs(date).isSame(dayjs(today).set('date', end), 'day')
 )
 
 const createEndDate = (date, notifyEndDay) => {
