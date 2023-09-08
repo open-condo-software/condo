@@ -15,11 +15,10 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
-    setFeatureFlag,
+    setAllFeatureFlags,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
-const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
@@ -108,6 +107,7 @@ describe('Ticket', () => {
     let admin
 
     beforeAll(async () => {
+        setAllFeatureFlags(true)
         admin = await makeLoggedInAdminClient()
     })
 
@@ -3374,11 +3374,7 @@ describe('Ticket', () => {
 
         describe('Ticket created', () => {
 
-            let prevFlagValue
-
             beforeAll(async () => {
-                prevFlagValue = setFeatureFlag(SMS_AFTER_TICKET_CREATION, true)
-
                 const supportClient = await makeClientWithSupportUser()
                 const allOrganizationsBlackList = await MessageOrganizationBlackList.getAll(supportClient, {
                     organization_is_null: true,
@@ -3389,10 +3385,6 @@ describe('Ticket', () => {
                         deletedAt: 'true',
                     })
                 }
-            })
-
-            afterAll(() => {
-                setFeatureFlag(SMS_AFTER_TICKET_CREATION, prevFlagValue)
             })
 
             test('send sms after create ticket with isResidentTicket is true and without resident matches contact data', async () => {
