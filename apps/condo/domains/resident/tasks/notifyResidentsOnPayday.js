@@ -25,7 +25,7 @@ async function hasConflictingPushes (context, userId) {
     const now = dayjs()
     const userMessages = await Message.getAll(context, {
         user: { id: userId },
-        createdAt_gte: now.set('hour', 0).set('minute', 0).set('second', 0).toISOString(),
+        createdAt_gte: now.startOf('date').toISOString(),
         createdAt_lte: now.toISOString(),
     })
 
@@ -52,7 +52,7 @@ async function sendNotification (context, receipt) {
             continue
         }
         
-        const uniqKey = `${userId}_notification_on_payday`
+        const uniqKey = `${userId}_notification_on_payday_${now.format('YYYY-MM-DD')}`
         await sendMessage(context, {
             ...DV_SENDER,
             to: { user: { id: userId } },
@@ -109,7 +109,6 @@ async function notifyResidentsOnPayday () {
         ))
 
         if (paid < toPay) {
-
             await sendNotification(context, receipt)
         }
 

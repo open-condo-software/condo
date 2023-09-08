@@ -1452,7 +1452,7 @@
   "notification.messages.NEWS_ITEM_COMMON_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.NEWS_ITEM_EMERGENCY_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.B2C_APP_MESSAGE_PUSH.push.title": "{title}",
-  "notification.messages.NEED_TO_PAY_RECEIPT_ON_PAYDAY_MESSAGE.push.title": "Remind ☺️",
+  "notification.messages.SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE.push.title": "Remind ☺️",
   "news.ConfirmDeleteTitle": "Delete news?",
   "news.ConfirmDeleteMessage": "It cannot be restored. But you can recreate it.",
   "news.CancelMessage": "Keep",
