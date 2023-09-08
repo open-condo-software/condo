@@ -84,7 +84,6 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
-let __isFeatureFlagsEnabled = true
 
 /**
  * Something looks like an ip address. Need to test calls limit from one ip address.
@@ -93,18 +92,44 @@ let __isFeatureFlagsEnabled = true
 let __x_forwarder_for_header
 
 /**
- * This function needs to be called BEFORE the test client creation
- * @param {boolean} isFeatureFlagsEnabled
+ * @type {Map<string, any>}
  */
-function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
-    __isFeatureFlagsEnabled = isFeatureFlagsEnabled
+const featureFlagsStore = new Map()
+const FEATURE_FLAGS_STORE_ALL_KEY = '*'
+
+/**
+ * Sets the feature flag value and returns the previous one
+ * @param {string} id
+ * @param value
+ * @returns {*}
+ */
+function setFeatureFlag (id, value) {
+    const prev = featureFlagsStore.get(id)
+    featureFlagsStore.set(id, value)
+
+    return prev
 }
 
 /**
- * @returns {boolean}
+ * @param context The keystone context
+ * @param {string} id
+ * @returns {*}
  */
-function getIsFeatureFlagsEnabled () {
-    return __isFeatureFlagsEnabled
+function getFeatureFlag (context, id) {
+    // We pass featureFlagsStore via headers in the case when worker & condo are in different Node.js processes
+    const featureFlagsStoreFromReqHeaders = new Map(JSON.parse(get(context, ['req', 'headers', 'feature-flags'], '[]')))
+    return featureFlagsStore.get(id)
+        || featureFlagsStore.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || featureFlagsStoreFromReqHeaders.get(id)
+        || featureFlagsStoreFromReqHeaders.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || false
+}
+
+/**
+ * @param value
+ */
+function setAllFeatureFlags (value) {
+    featureFlagsStore.set(FEATURE_FLAGS_STORE_ALL_KEY, value)
 }
 
 /**
@@ -269,7 +294,6 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
             cache: 'no-cache',
             mode: 'cors',
             credentials: 'include',
-            'feature-flags': __isFeatureFlagsEnabled,
             ...(__x_forwarder_for_header ? { 'x-forwarded-for': __x_forwarder_for_header } : {}),
         },
         includeExtensions: true,
@@ -282,7 +306,7 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
-            options.headers = { ...options.headers, ...customHeaders }
+            options.headers = { ...options.headers, 'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders }
             if (cookiesObj && Object.keys(cookiesObj).length > 0) {
                 options.headers = { ...options.headers, cookie: restoreCookies() }
             }
@@ -801,8 +825,6 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
-    setIsFeatureFlagsEnabled,
-    getIsFeatureFlagsEnabled,
     setXForwardedFor,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
@@ -820,4 +842,7 @@ module.exports = {
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowAccessDeniedToFieldError,
+    setFeatureFlag,
+    getFeatureFlag,
+    setAllFeatureFlags,
 }

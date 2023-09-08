@@ -15,6 +15,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
+    setAllFeatureFlags,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -106,6 +107,7 @@ describe('Ticket', () => {
     let admin
 
     beforeAll(async () => {
+        setAllFeatureFlags(true)
         admin = await makeLoggedInAdminClient()
     })
 
@@ -3371,6 +3373,7 @@ describe('Ticket', () => {
         })
 
         describe('Ticket created', () => {
+
             beforeAll(async () => {
                 const supportClient = await makeClientWithSupportUser()
                 const allOrganizationsBlackList = await MessageOrganizationBlackList.getAll(supportClient, {

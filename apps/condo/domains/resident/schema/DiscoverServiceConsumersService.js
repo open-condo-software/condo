@@ -11,7 +11,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY } = require('@condo/domains/billing/constants/constants')
 const { BillingAccount, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-const { ENABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
+const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { md5 } = require('@condo/domains/common/utils/crypto')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
@@ -93,9 +93,9 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             const number = get(billingAccount, 'number')
                             const billingContextId = get(billingAccount, ['context', 'id'], null)
 
-                            const shouldDiscover = organizationType === SERVICE_PROVIDER_TYPE ? true : await featureToggleManager.isFeatureEnabled(
+                            const shouldDiscover = organizationType === SERVICE_PROVIDER_TYPE ? true : !await featureToggleManager.isFeatureEnabled(
                                 context,
-                                ENABLE_DISCOVER_SERVICE_CONSUMERS,
+                                DISABLE_DISCOVER_SERVICE_CONSUMERS,
                                 { organization: organizationId },
                             )
 

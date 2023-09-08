@@ -7,7 +7,7 @@ const dayjs = require('dayjs')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToResult,
-    expectToThrowAuthenticationErrorToResult, waitFor, getIsFeatureFlagsEnabled, setIsFeatureFlagsEnabled,
+    expectToThrowAuthenticationErrorToResult, waitFor, setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -27,6 +27,7 @@ const {
     addBillingIntegrationAndContext,
     createTestBillingIntegrationAccessRight,
 } = require('@condo/domains/billing/utils/testSchema')
+const { DISABLE_DISCOVER_SERVICE_CONSUMERS } = require('@condo/domains/common/constants/featureflags')
 const { _internalScheduleTaskByNameByTestClient } = require('@condo/domains/common/utils/testSchema')
 const { SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { createTestOrganization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -577,36 +578,34 @@ describe('DiscoverServiceConsumersService', () => {
             }, { delay: 500 })
         })
 
-        describe('Without DSC feature flag', () => {
-            const prevIsFeatureFlagsEnabled = getIsFeatureFlagsEnabled()
-            let adminNoFlag
+        describe(`With enabled "${DISABLE_DISCOVER_SERVICE_CONSUMERS}" feature flag`, () => {
+
+            let prevDisableDSCFlag
 
             beforeAll(async () => {
-                setIsFeatureFlagsEnabled(false) // Disable feature flags
-                adminNoFlag = await makeLoggedInAdminClient()
+                prevDisableDSCFlag = setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, true)
             })
 
             afterAll(() => {
-                setIsFeatureFlagsEnabled(prevIsFeatureFlagsEnabled) // put the previous value back
+                setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, prevDisableDSCFlag)
             })
 
-            // TODO(DOMA-6817) run this test after 6817 done
-            test.skip('discover no service consumers for managing organization if the feature flag was disabled', async () => {
+            test('discover no service consumers for managing organization if the black list feature flag was enabled', async () => {
                 const user = await makeClientWithProperty()
 
-                await addAcquiringIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-                const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
-                const [billingProperty] = await createTestBillingProperty(adminNoFlag, billingIntegrationContext, { address: user.property.address })
-                const [resident] = await createTestResident(adminNoFlag, user.user, user.property,
+                const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
+                const [resident] = await createTestResident(admin, user.user, user.property,
                     { address: billingProperty.address },
                 )
-                await createTestBillingAccount(adminNoFlag, billingIntegrationContext, billingProperty,
+                await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
                     { unitName: resident.unitName, unitType: resident.unitType },
                 )
 
                 await waitFor(async () => {
-                    const createdServiceConsumers = await ServiceConsumer.getAll(adminNoFlag, {
+                    const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                         resident: { id: resident.id },
                         deletedAt: null,
                     })
@@ -614,17 +613,17 @@ describe('DiscoverServiceConsumersService', () => {
                 }, { delay: 500 })
             })
 
-            test('discover service consumers for service provider org even if the feature DSC-flag was disabled', async () => {
+            test('discover service consumers for service provider org even if the feature disable-DSC-flag (black list) was enabled', async () => {
                 const user = await makeClientWithProperty()
                 const [organization] = await registerNewOrganization(user, { type: SERVICE_PROVIDER_TYPE })
                 const [property] = await createTestProperty(user, organization)
                 user.organization = organization
                 user.property = property
 
-                await addAcquiringIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-                const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminNoFlag, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+                const { billingIntegrationContext } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
 
-                const [billingProperty] = await createTestBillingProperty(adminNoFlag, billingIntegrationContext, { address: user.property.address })
+                const [billingProperty] = await createTestBillingProperty(admin, billingIntegrationContext, { address: user.property.address })
 
                 const residentClient1 = await makeClientWithResidentUser()
                 const [resident] = await registerResidentByTestClient(
@@ -636,14 +635,14 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: faker.lorem.word(),
                     })
 
-                const [billingAccount] = await createTestBillingAccount(adminNoFlag, billingIntegrationContext, billingProperty,
+                const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty,
                     { unitName: resident.unitName, unitType: resident.unitType },
                 )
 
                 await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
 
                 await waitFor(async () => {
-                    const createdServiceConsumers = await ServiceConsumer.getAll(adminNoFlag, {
+                    const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                         resident: { id: resident.id },
                         deletedAt: null,
                     })
@@ -675,6 +674,17 @@ describe('DiscoverServiceConsumersService', () => {
     })
 
     describe('real life cases', () => {
+
+        let prevDisableDSCFlag
+
+        beforeAll(async () => {
+            prevDisableDSCFlag = setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, false)
+        })
+
+        afterAll(() => {
+            setFeatureFlag(DISABLE_DISCOVER_SERVICE_CONSUMERS, prevDisableDSCFlag)
+        })
+
         test('Upload receipts => register resident => resident can see the receipts list', async () => {
             const residentClient1 = await makeClientWithResidentAccessAndProperty()
 
