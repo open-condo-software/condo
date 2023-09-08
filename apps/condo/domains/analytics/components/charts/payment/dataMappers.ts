@@ -11,7 +11,7 @@ import type { EchartsSeries } from '@condo/domains/analytics/components/TicketCh
 const TOP_VALUES = 9
 
 interface IPaymentChartCard {
-    ({ data }: { data: PaymentDataType }): React.ReactElement
+    ({ data, organizationId }: { data: PaymentDataType, organizationId?: string }): React.ReactElement
 }
 
 const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new PaymentChart({
@@ -26,7 +26,7 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
                     name: groupLabel,
                 })).sort((a, b) => b.value - a.value).slice(0, TOP_VALUES),
                 radius: '75%',
-                type: 'pie',
+                type: viewMode,
                 label: { show: true, formatter: (e) =>  e.percent + '%' },
             }]
             return {
@@ -37,6 +37,30 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
                     xAxis: { type: 'value', data: null, boundaryGap: [0, 0.02] },
                 },
                 series,
+            }
+        },
+        table: (_, data, restTableOptions) => {
+            const dataSource = []
+
+            const tableColumns = Object.entries(restTableOptions.translations).map(([key, title]) => ({
+                key,
+                title,
+                dataIndex: key,
+            }))
+
+            const totalPaymentsSum = data.reduce((prev, curr) => prev + Number(curr.sum), 0)
+            data.forEach(({ createdBy, sum }) => {
+                const percent = totalPaymentsSum > 0 ? (Number(sum) / totalPaymentsSum * 100).toFixed(0) + '%' : '-'
+                dataSource.push({
+                    percent,
+                    address: createdBy,
+                    sum,
+                })
+            })
+
+            return {
+                dataSource,
+                tableColumns,
             }
         },
     },

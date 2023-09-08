@@ -480,6 +480,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         <Col lg={12} md={24} xs={24}>
                             <PaymentByPropertyChart
                                 data={paymentsData}
+                                organizationId={organizationId}
                             />
                         </Col>
                         <Col lg={12} md={24} xs={24}>

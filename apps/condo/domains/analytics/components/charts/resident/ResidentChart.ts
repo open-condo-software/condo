@@ -1,10 +1,10 @@
-import { TableColumnsType, TableProps } from 'antd'
 
-import BaseChart, { BaseSimpleChart } from '@condo/domains/common/components/BaseChart'
+import BaseChart from '@condo/domains/common/components/BaseChart'
 
 import type { ResidentGroupedCounter } from '@app/condo/schema'
 import type { CustomChartViewType, CustomChartMapType } from '@condo/domains/analytics/components/CustomChart'
 import type { ChartConfigResult } from '@condo/domains/analytics/components/TicketChart'
+import type { TableColumnsType, TableProps } from 'antd'
 
 type ResidentDataType = Array<ResidentGroupedCounter>
 
