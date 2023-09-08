@@ -111,11 +111,18 @@ function setFeatureFlag (id, value) {
 }
 
 /**
+ * @param context The keystone context
  * @param {string} id
  * @returns {*}
  */
-function getFeatureFlag (id) {
-    return featureFlagsStore.get(id) || featureFlagsStore.get(FEATURE_FLAGS_STORE_ALL_KEY) || false
+function getFeatureFlag (context, id) {
+    // We pass featureFlagsStore via headers in the case when worker & condo are in different Node.js processes
+    const featureFlagsStoreFromReqHeaders = new Map(JSON.parse(get(context, ['req', 'headers', 'feature-flags'], '[]')))
+    return featureFlagsStore.get(id)
+        || featureFlagsStore.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || featureFlagsStoreFromReqHeaders.get(id)
+        || featureFlagsStoreFromReqHeaders.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || false
 }
 
 /**
@@ -299,7 +306,7 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
-            options.headers = { ...options.headers, ...customHeaders }
+            options.headers = { ...options.headers, 'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders }
             if (cookiesObj && Object.keys(cookiesObj).length > 0) {
                 options.headers = { ...options.headers, cookie: restoreCookies() }
             }

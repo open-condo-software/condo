@@ -83,7 +83,7 @@ class FeatureToggleManager {
     async isFeatureEnabled (keystoneContext, featureName, featuresContext) {
         // Note: if you want to override the flag value by tests you can use setFeatureFlag() from test.utils! (TESTS ONLY)
         if (conf.NODE_ENV === 'test') {
-            return getFeatureFlag(featureName)
+            return getFeatureFlag(keystoneContext, featureName)
         }
 
         const growthbook = await this._getGrowthBookInstance(keystoneContext, featuresContext)
@@ -93,7 +93,7 @@ class FeatureToggleManager {
     async getFeatureValue (keystoneContext, featureName, defaultValue, featuresContext) {
         // Note: if you want to override the flag value by tests you use setFeatureFlag() from test.utils! (TESTS ONLY)
         if (conf.NODE_ENV === 'test') {
-            return getFeatureFlag(featureName) || defaultValue
+            return getFeatureFlag(keystoneContext, featureName) || defaultValue
         }
 
         const growthbook = await this._getGrowthBookInstance(keystoneContext, featuresContext)
