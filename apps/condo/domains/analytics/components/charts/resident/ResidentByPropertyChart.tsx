@@ -26,7 +26,6 @@ const ResidentByPropertyChart: IResidentChartCard = ({ data, organizationId }) =
     const ResidentColumnTitle = intl.formatMessage({ id: 'pages.condo.analytics.residentsPercent.title' })
     const ResidentColumnDescription = intl.formatMessage({ id: 'pages.condo.analytics.residentsPercent.description' })
 
-
     const [localData, setLocalData] = useState([])
 
     const { values: propertyIds, SearchInput } = usePropertyFilter({ organizationId })

@@ -491,11 +491,13 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                         <Col lg={12} md={24} xs={24}>
                             <TicketByExecutorChart
                                 data={executorTickets}
+                                organizationId={organizationId}
                             />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
                             <TicketByPropertyChart
                                 data={propertyTickets}
+                                organizationId={organizationId}
                             />
                         </Col>
                     </Row>

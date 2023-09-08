@@ -134,6 +134,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                     ...dateFilter,
                     deletedAt: null,
                     ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
+                    ...(get(where, 'executorIds.length', 0) > 0 && { executor: { id_in: where.executorIds } }),
                 }
 
                 const dataProvider = new AnalyticsDataProvider({

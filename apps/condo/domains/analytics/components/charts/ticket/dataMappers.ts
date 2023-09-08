@@ -132,7 +132,7 @@ const TicketByCategoryDataMapper = new TicketChart({
         },
         table: (_, data, restTableOptions) => {
             const dataSource = []
-            const aggregatedData = getAggregatedData(data, [TicketGroupBy.Status, TicketGroupBy.CategoryClassifier], false)
+            const aggregatedData = getAggregatedData(data, [TicketGroupBy.Status, TicketGroupBy.CategoryClassifier])
             const tableColumns = [
                 {
                     key: restTableOptions.translations['categoryClassifier'],
@@ -142,14 +142,10 @@ const TicketByCategoryDataMapper = new TicketChart({
                 ...Object.entries(aggregatedData).map(([key]) => ({ title: key, dataIndex: key, key })),
             ]
 
-            const agg = getAggregatedData(data, [TicketGroupBy.CategoryClassifier, TicketGroupBy.Status], false)
+            const dataSourceAggregation = getAggregatedData(data, [TicketGroupBy.CategoryClassifier, TicketGroupBy.Status])
 
-            Object.entries(agg).forEach(([categoryClassifier, obj], key) => {
-                dataSource.push({
-                    key,
-                    categoryClassifier,
-                    ...obj,
-                })
+            Object.entries(dataSourceAggregation).forEach(([categoryClassifier, obj], key) => {
+                dataSource.push({ key, categoryClassifier, ...obj })
             })
 
             return {
@@ -229,7 +225,32 @@ const TicketHorizontalBarDataMapper = (groupBy: [TicketGroupBy, TicketGroupBy]):
                 color: COLOR_SET,
             }
         },
-        table: () => null,
+        table: (_, data, restTableOptions) => {
+            const dataSource = []
+            const dataSourceAggregation = getAggregatedData(data, [groupBy[1], groupBy[0]])
+            const aggregatedData = getAggregatedData(data, groupBy)
+            const tableColumns = [
+                ...Object.entries(restTableOptions.translations).map(([dataIndex, key]) => ({
+                    key: key as string,
+                    title: key,
+                    dataIndex,
+                })),
+                ...Object.entries(aggregatedData).map(([key]) => ({
+                    key,
+                    title: key,
+                    dataIndex: key,
+                })),
+            ]
+
+            Object.entries(dataSourceAggregation).forEach(([field, obj], key) => {
+                dataSource.push({ key, [groupBy[1]]: field, ...obj })
+            })
+
+            return {
+                dataSource,
+                tableColumns,
+            }
+        },
     },
 })
 
