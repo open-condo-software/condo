@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 
 import { TicketQualityControlDataMapper } from './dataMappers'
@@ -13,7 +14,7 @@ const TicketQualityControlChart: ITicketChartCard = ({ data, loading }) => {
             loading={loading}
             viewMode='bar'
             mapperInstance={TicketQualityControlDataMapper}
-            chartConfig={{ chartOptions: { height: 300 }, animationEnabled: false }}
+            chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: false }}
         />
     )
 }

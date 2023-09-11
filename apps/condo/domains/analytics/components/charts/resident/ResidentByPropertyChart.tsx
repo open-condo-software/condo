@@ -6,7 +6,7 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tooltip } from '@open-condo/ui'
 
-import { CustomChartView } from '@condo/domains/analytics/components/CustomChartView'
+import { CustomChartView, CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
@@ -44,7 +44,7 @@ const ResidentByPropertyChart: IResidentChartCard = ({ data, organizationId }) =
         <CustomChartView
             data={localData}
             viewMode='pie'
-            chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+            chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: true }}
             mapperInstance={dataMapper}
             loading={loading}
         />
@@ -87,7 +87,7 @@ const ResidentByPropertyChart: IResidentChartCard = ({ data, organizationId }) =
                     <CustomChartView
                         data={data}
                         viewMode='pie'
-                        chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+                        chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: true }}
                         mapperInstance={dataMapper}
                     />
                 </Col>

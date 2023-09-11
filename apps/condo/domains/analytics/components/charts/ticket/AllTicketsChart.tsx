@@ -4,6 +4,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 
 import { AllTicketChartDataMapper } from './dataMappers'
@@ -25,7 +26,7 @@ const AllTicketsChart: ITicketChartCard = ({ data }) => {
                     mainGroup='status'
                     viewMode='line'
                     mapperInstance={AllTicketChartDataMapper}
-                    chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+                    chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: true }}
                 />
             </Col>
         </Row>

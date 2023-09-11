@@ -7,6 +7,7 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { CHART_CONTAINER_BIG_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
@@ -69,7 +70,7 @@ const TicketByPropertyChart: ITicketChartCard = ({ data, organizationId }) => {
             mainGroup='status'
             mapperInstance={mapperInstance}
             viewMode='bar'
-            chartConfig={{ chartOptions: { height: 350 }, animationEnabled: true }}
+            chartConfig={{ chartOptions: { height: CHART_CONTAINER_BIG_HEIGHT }, animationEnabled: true }}
             loading={loading}
         />
     ), [localData, loading])
@@ -88,7 +89,7 @@ const TicketByPropertyChart: ITicketChartCard = ({ data, organizationId }) => {
                         mainGroup='status'
                         mapperInstance={mapperInstance}
                         viewMode='bar'
-                        chartConfig={{ chartOptions: { height: 350 }, animationEnabled: true }}
+                        chartConfig={{ chartOptions: { height: CHART_CONTAINER_BIG_HEIGHT }, animationEnabled: true }}
                     />
                 </Col>
             </Row>

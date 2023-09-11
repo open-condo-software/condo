@@ -20,6 +20,8 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { TicketHorizontalBarDataMapper } from './dataMappers'
 
+import { CHART_CONTAINER_BIG_HEIGHT } from '../../CustomChartView'
+
 import type { ITicketChartCard } from './dataMappers'
 
 const mapperInstance = TicketHorizontalBarDataMapper([TicketGroupBy.Status, TicketGroupBy.Executor])
@@ -74,7 +76,7 @@ const TicketByExecutorChart: ITicketChartCard = ({ data, organizationId }) => {
             viewMode='bar'
             mapperInstance={mapperInstance}
             mainGroup='status'
-            chartConfig={{ chartOptions: { height: 350 }, animationEnabled: true }}
+            chartConfig={{ chartOptions: { height: CHART_CONTAINER_BIG_HEIGHT }, animationEnabled: true }}
             loading={loading}
         />
     ), [localData, loading])
@@ -93,7 +95,7 @@ const TicketByExecutorChart: ITicketChartCard = ({ data, organizationId }) => {
                         mainGroup='status'
                         mapperInstance={mapperInstance}
                         viewMode='bar'
-                        chartConfig={{ chartOptions: { height: 350 }, animationEnabled: true }}
+                        chartConfig={{ chartOptions: { height: CHART_CONTAINER_BIG_HEIGHT }, animationEnabled: true }}
                     />
                 </Col>
             </Row>

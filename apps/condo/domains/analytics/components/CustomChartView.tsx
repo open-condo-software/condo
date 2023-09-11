@@ -14,7 +14,6 @@ import { ChartConfigResult } from './TicketChart'
 import type { CustomChartViewType, CustomChartMapType } from './CustomChart'
 import type { BaseSimpleChart } from '@condo/domains/common/components/BaseChart'
 
-
 type BaseDataType = Array<Record<string, unknown>>
 
 interface ICustomChartViewProps<
@@ -47,6 +46,9 @@ const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
     justifyContent: 'start',
     alignItems: 'start',
 }
+
+export const CHART_CONTAINER_HEIGHT = 300
+export const CHART_CONTAINER_BIG_HEIGHT = 350
 
 const CustomChartView =
     <

@@ -6,6 +6,7 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
@@ -64,7 +65,7 @@ const TicketByCategoryChart: ITicketChartCard = ({ data, organizationId }) => {
             data={localData}
             viewMode='bar'
             mapperInstance={TicketByCategoryDataMapper}
-            chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+            chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: true }}
             loading={loading}
         />
     ), [localData, loading])
@@ -80,7 +81,7 @@ const TicketByCategoryChart: ITicketChartCard = ({ data, organizationId }) => {
                         data={data}
                         viewMode='bar'
                         mapperInstance={TicketByCategoryDataMapper}
-                        chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+                        chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: true }}
                     />
                 </Col>
             </Row>

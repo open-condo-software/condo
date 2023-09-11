@@ -5,7 +5,7 @@ import { Info } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tooltip, Space } from '@open-condo/ui'
 
-import { CustomChartView } from '@condo/domains/analytics/components/CustomChartView'
+import { CustomChartView, CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
 
 import { PaymentReceiptDataMapper } from './dataMappers'
 
@@ -36,7 +36,7 @@ const PaymentReceiptChart: IPaymentChartCard = ({ data }) => {
                     viewMode='bar'
                     data={data}
                     mapperInstance={dataMapper}
-                    chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+                    chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: true }}
                 />
             </Col>
         </Row>

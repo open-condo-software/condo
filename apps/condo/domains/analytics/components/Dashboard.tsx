@@ -242,18 +242,23 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
     const TicketFeedbackTitle = intl.formatMessage({ id: 'pages.reports.ticketFeedbackCount' })
 
     const [isOpen, setIsOpen] = useState(false)
-    const [isChartLoading, setIsChartLoading] = useState(true)
+    const [localData, setLocalData] = useState([])
     const [tickets, setTickets] = useState([])
     const [ticketsCount, setTicketsCount] = useState(0)
 
     const router = useRouter()
+    const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
     const { values, SearchInput } = usePropertyFilter({ organizationId })
     const { offset } = useMemo(() => parseQuery(router.query), [router.query])
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, MODAL_TABLE_PAGE_SIZE), [offset])
 
-
     const { columns } = useTicketQualityTableColumns()
 
+    const [loadTicketFeedback, { loading: ticketFeedbackLoading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
+        onCompleted: (response) => {
+            setLocalData(get(response, 'result.overview.ticketQualityControlValue.tickets', []))
+        },
+    })
     const [loadAllTickets, { loading: ticketsLoading }] = useLazyQuery(TicketGQL.GET_ALL_OBJS_WITH_COUNT_QUERY, {
         onCompleted: (response) => {
             setTickets(response.objs)
@@ -263,10 +268,30 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
 
     useEffect(() => {
         if (isOpen) {
+            loadTicketFeedback({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        where: {
+                            organization: organizationId,
+                            dateFrom: dateRange[0].toISOString(),
+                            dateTo: dateRange[1].toISOString(),
+                            propertyIds: values,
+                        },
+                        groupBy: { aggregatePeriod: 'day' },
+                        entities: ['ticketQualityControlValue'],
+                    },
+                },
+            })
             loadAllTickets({
                 variables: {
                     where: {
                         organization: { id: organizationId },
+                        AND: [
+                            { createdAt_gte: dateRange[0].toISOString() },
+                            { createdAt_lte: dateRange[1].toISOString() },
+                        ],
                         OR: [
                             { qualityControlValue_in: QUALITY_CONTROL_VALUES },
                             { feedbackValue_in: QUALITY_CONTROL_VALUES },
@@ -279,9 +304,7 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
                 },
             })
         }
-
-        setIsChartLoading(!isOpen)
-    }, [isOpen, organizationId, loadAllTickets, currentPageIndex, values])
+    }, [isOpen, organizationId, loadAllTickets, currentPageIndex, values, dateRange, loadTicketFeedback])
 
     const ticketCardContent = useMemo(() => {
         const goodKey = get(translations.find(t => t.value === TicketQualityControlValueType.Good), 'key')
@@ -351,12 +374,15 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
                 {loading ? <Skeleton active paragraph={{ rows: 3 }} /> : ticketCardContent}
             </Card>
             <Modal width='big' title={QualityControlTitle} open={isOpen} onCancel={onCancel}>
-                <Row gutter={[0, 40]}>
-                    <Col span={24}>
+                <Row gutter={[24, 40]}>
+                    <Col span={12}>
+                        <DateRangeSearch disabled={ticketsLoading || ticketFeedbackLoading} />
+                    </Col>
+                    <Col span={12}>
                         {SearchInput}
                     </Col>
                     <Col span={24}>
-                        <TicketQualityControlChart data={[data, translations]} loading={isChartLoading} />
+                        <TicketQualityControlChart data={[localData, translations]} loading={ticketFeedbackLoading} />
                     </Col>
                     <Col span={24}>
                         <Table
