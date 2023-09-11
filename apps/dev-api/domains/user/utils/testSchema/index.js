@@ -8,9 +8,11 @@ const { faker } = require('@faker-js/faker')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
+const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
+const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestUser (client, extraAttrs = {}) {
@@ -39,9 +41,11 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     const obj = await User.update(client, id, attrs)
     return [obj, attrs]
 }
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     User, createTestUser, updateTestUser,
+    ConfirmPhoneAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

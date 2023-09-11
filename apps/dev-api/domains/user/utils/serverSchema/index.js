@@ -7,12 +7,15 @@
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
+const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
+const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     User,
+    ConfirmPhoneAction,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

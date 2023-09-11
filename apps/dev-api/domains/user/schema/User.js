@@ -60,9 +60,9 @@ const User = new GQLListSchema('User', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['email'],
+                fields: ['phone'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'user_unique_email',
+                name: 'user_unique_phone',
             },
         ],
     },
