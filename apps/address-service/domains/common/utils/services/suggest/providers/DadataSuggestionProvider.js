@@ -12,7 +12,7 @@ const DEFAULT_CACHE_TTL = 3600
 const ORGANIZATION_TIN_CACHE_TTL = 84600 // in seconds
 const ADDRESS_TIN_CACHE_TTL = 84600 // in seconds
 const VALID_BUILDING_TYPES = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение', 'здание']
-const TRAILING_DIGIT_RE = /.*\d$/
+const TRAILING_DIGIT_RE = /\d$/
 
 /**
  * @typedef {Object} DadataObjectData
