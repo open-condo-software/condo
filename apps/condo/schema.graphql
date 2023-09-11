@@ -57746,6 +57746,7 @@ type B2BAppHistoryRecord {
   detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
+  globalUrl: String
   isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
@@ -57875,6 +57876,24 @@ input B2BAppHistoryRecordWhereInput {
   appUrl_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  globalUrl: String
+  globalUrl_not: String
+  globalUrl_contains: String
+  globalUrl_not_contains: String
+  globalUrl_starts_with: String
+  globalUrl_not_starts_with: String
+  globalUrl_ends_with: String
+  globalUrl_not_ends_with: String
+  globalUrl_i: String
+  globalUrl_not_i: String
+  globalUrl_contains_i: String
+  globalUrl_not_contains_i: String
+  globalUrl_starts_with_i: String
+  globalUrl_not_starts_with_i: String
+  globalUrl_ends_with_i: String
+  globalUrl_not_ends_with_i: String
+  globalUrl_in: [String]
+  globalUrl_not_in: [String]
   isGlobal: Boolean
   isGlobal_not: Boolean
   hasDynamicTitle: Boolean
@@ -58098,6 +58117,8 @@ enum SortB2BAppHistoryRecordsBy {
   appUrl_DESC
   isHidden_ASC
   isHidden_DESC
+  globalUrl_ASC
+  globalUrl_DESC
   isGlobal_ASC
   isGlobal_DESC
   hasDynamicTitle_ASC
@@ -58143,6 +58164,7 @@ input B2BAppHistoryRecordUpdateInput {
   detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
+  globalUrl: String
   isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
@@ -58182,6 +58204,7 @@ input B2BAppHistoryRecordCreateInput {
   detailedDescription: JSON
   appUrl: String
   isHidden: Boolean
+  globalUrl: String
   isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
@@ -58263,6 +58286,9 @@ type B2BApp {
   """ Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM 
   """
   isHidden: Boolean
+
+  """ Url to app that opens in hidden iframe and works on all condo pages """
+  globalUrl: String
 
   """ Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section 
   """
@@ -58452,6 +58478,24 @@ input B2BAppWhereInput {
   appUrl_not_in: [String]
   isHidden: Boolean
   isHidden_not: Boolean
+  globalUrl: String
+  globalUrl_not: String
+  globalUrl_contains: String
+  globalUrl_not_contains: String
+  globalUrl_starts_with: String
+  globalUrl_not_starts_with: String
+  globalUrl_ends_with: String
+  globalUrl_not_ends_with: String
+  globalUrl_i: String
+  globalUrl_not_i: String
+  globalUrl_contains_i: String
+  globalUrl_not_contains_i: String
+  globalUrl_starts_with_i: String
+  globalUrl_not_starts_with_i: String
+  globalUrl_ends_with_i: String
+  globalUrl_not_ends_with_i: String
+  globalUrl_in: [String]
+  globalUrl_not_in: [String]
   isGlobal: Boolean
   isGlobal_not: Boolean
   hasDynamicTitle: Boolean
@@ -58596,6 +58640,8 @@ enum SortB2BAppsBy {
   appUrl_DESC
   isHidden_ASC
   isHidden_DESC
+  globalUrl_ASC
+  globalUrl_DESC
   isGlobal_ASC
   isGlobal_DESC
   hasDynamicTitle_ASC
@@ -58643,6 +58689,7 @@ input B2BAppUpdateInput {
   detailedDescription: String
   appUrl: String
   isHidden: Boolean
+  globalUrl: String
   isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
@@ -58680,6 +58727,7 @@ input B2BAppCreateInput {
   detailedDescription: String
   appUrl: String
   isHidden: Boolean
+  globalUrl: String
   isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String

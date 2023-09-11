@@ -66,7 +66,6 @@ export const GlobalAppsFeaturesProvider: React.FC = ({ children }) => {
             const nonRegisteredFeatureNames = Object.keys(newFeatures).filter(featureName => !(featureName in prevState))
             const nonRegisteredFeatures = pick(newFeatures, nonRegisteredFeatureNames)
 
-
             return {
                 ...prevState,
                 ...nonRegisteredFeatures,

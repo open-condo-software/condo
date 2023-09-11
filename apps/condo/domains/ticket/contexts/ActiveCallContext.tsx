@@ -91,7 +91,6 @@ const ActiveCallContextProvider = ({ children = {} }) => {
 
     const { addEventHandler } = usePostMessageContext()
     const { organization } = useOrganization()
-    const { requestFeature } = useGlobalAppsFeaturesContext()
 
     const [isCallActive, setIsCallActive] = useState(false)
     const [connectedTickets, setConnectedTickets] = useState([])
@@ -106,21 +105,6 @@ const ActiveCallContextProvider = ({ children = {} }) => {
 
         setConnectedTickets(newTickets)
     }, [connectedTickets, localStorageManager])
-
-    useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const activeCallFromStorage = localStorageManager.getActiveCall()
-            const callId = get(activeCallFromStorage, 'callId')
-
-            if (callId) {
-                console.log('checkIsCallActive', callId)
-                requestFeature({
-                    feature: B2BAppGlobalFeature.CheckIsCallActive,
-                    callId,
-                })
-            }
-        }
-    }, [localStorageManager, requestFeature])
 
     useEffect(() => {
         if (typeof window === 'undefined') {

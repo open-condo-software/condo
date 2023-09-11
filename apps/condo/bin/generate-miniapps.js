@@ -76,7 +76,7 @@ class AppsGenerator {
                     detailedDescription: faker.lorem.paragraphs(5),
                     contextDefaultStatus: this.appUrl ? 'Finished' : 'InProgress',
                     category: this.category,
-                    isHidden: false, isGlobal: false,
+                    isHidden: false,
                     appUrl: this.appUrl,
                 })
             }

@@ -1970,6 +1970,8 @@ export type B2BApp = {
   appUrl?: Maybe<Scalars['String']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
   isHidden?: Maybe<Scalars['Boolean']>;
+  /**  Url to app that opens in hidden iframe and works on all condo pages  */
+  globalUrl?: Maybe<Scalars['String']>;
   /**  Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section  */
   isGlobal?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the miniapp has its own dynamic title. If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. Otherwise, there will be a static title above the app iframe that corresponds to the application name.  */
@@ -3147,6 +3149,7 @@ export type B2BAppCreateInput = {
   detailedDescription?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  globalUrl?: Maybe<Scalars['String']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -3195,6 +3198,7 @@ export type B2BAppHistoryRecord = {
   detailedDescription?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  globalUrl?: Maybe<Scalars['String']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -3230,6 +3234,7 @@ export type B2BAppHistoryRecordCreateInput = {
   detailedDescription?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  globalUrl?: Maybe<Scalars['String']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -3270,6 +3275,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   detailedDescription?: Maybe<Scalars['JSON']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  globalUrl?: Maybe<Scalars['String']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -3398,6 +3404,24 @@ export type B2BAppHistoryRecordWhereInput = {
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  globalUrl?: Maybe<Scalars['String']>;
+  globalUrl_not?: Maybe<Scalars['String']>;
+  globalUrl_contains?: Maybe<Scalars['String']>;
+  globalUrl_not_contains?: Maybe<Scalars['String']>;
+  globalUrl_starts_with?: Maybe<Scalars['String']>;
+  globalUrl_not_starts_with?: Maybe<Scalars['String']>;
+  globalUrl_ends_with?: Maybe<Scalars['String']>;
+  globalUrl_not_ends_with?: Maybe<Scalars['String']>;
+  globalUrl_i?: Maybe<Scalars['String']>;
+  globalUrl_not_i?: Maybe<Scalars['String']>;
+  globalUrl_contains_i?: Maybe<Scalars['String']>;
+  globalUrl_not_contains_i?: Maybe<Scalars['String']>;
+  globalUrl_starts_with_i?: Maybe<Scalars['String']>;
+  globalUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  globalUrl_ends_with_i?: Maybe<Scalars['String']>;
+  globalUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  globalUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  globalUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   isGlobal_not?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
@@ -4871,6 +4895,7 @@ export type B2BAppUpdateInput = {
   detailedDescription?: Maybe<Scalars['String']>;
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
+  globalUrl?: Maybe<Scalars['String']>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -5011,6 +5036,24 @@ export type B2BAppWhereInput = {
   appUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isHidden?: Maybe<Scalars['Boolean']>;
   isHidden_not?: Maybe<Scalars['Boolean']>;
+  globalUrl?: Maybe<Scalars['String']>;
+  globalUrl_not?: Maybe<Scalars['String']>;
+  globalUrl_contains?: Maybe<Scalars['String']>;
+  globalUrl_not_contains?: Maybe<Scalars['String']>;
+  globalUrl_starts_with?: Maybe<Scalars['String']>;
+  globalUrl_not_starts_with?: Maybe<Scalars['String']>;
+  globalUrl_ends_with?: Maybe<Scalars['String']>;
+  globalUrl_not_ends_with?: Maybe<Scalars['String']>;
+  globalUrl_i?: Maybe<Scalars['String']>;
+  globalUrl_not_i?: Maybe<Scalars['String']>;
+  globalUrl_contains_i?: Maybe<Scalars['String']>;
+  globalUrl_not_contains_i?: Maybe<Scalars['String']>;
+  globalUrl_starts_with_i?: Maybe<Scalars['String']>;
+  globalUrl_not_starts_with_i?: Maybe<Scalars['String']>;
+  globalUrl_ends_with_i?: Maybe<Scalars['String']>;
+  globalUrl_not_ends_with_i?: Maybe<Scalars['String']>;
+  globalUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  globalUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isGlobal?: Maybe<Scalars['Boolean']>;
   isGlobal_not?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
@@ -65823,6 +65866,8 @@ export enum SortB2BAppHistoryRecordsBy {
   AppUrlDesc = 'appUrl_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  GlobalUrlAsc = 'globalUrl_ASC',
+  GlobalUrlDesc = 'globalUrl_DESC',
   IsGlobalAsc = 'isGlobal_ASC',
   IsGlobalDesc = 'isGlobal_DESC',
   HasDynamicTitleAsc = 'hasDynamicTitle_ASC',
@@ -66030,6 +66075,8 @@ export enum SortB2BAppsBy {
   AppUrlDesc = 'appUrl_DESC',
   IsHiddenAsc = 'isHidden_ASC',
   IsHiddenDesc = 'isHidden_DESC',
+  GlobalUrlAsc = 'globalUrl_ASC',
+  GlobalUrlDesc = 'globalUrl_DESC',
   IsGlobalAsc = 'isGlobal_ASC',
   IsGlobalDesc = 'isGlobal_DESC',
   HasDynamicTitleAsc = 'hasDynamicTitle_ASC',

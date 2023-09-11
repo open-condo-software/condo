@@ -28,10 +28,10 @@ const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
     }
 `
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription developer partnerUrl appUrl category label gallery price features ${COMMON_FIELDS} }`
+const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription developer partnerUrl appUrl globalUrl category label gallery price features ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
-const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle } organization { id } status ${COMMON_FIELDS} }`
+const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl globalUrl features ${COMMON_FIELDS} icon menuCategory hasDynamicTitle } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
 const B2B_ACCESSES_FIELDS = Object.keys(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG)

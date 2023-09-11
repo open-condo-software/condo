@@ -1,7 +1,7 @@
-import { SortB2BAppsBy } from '@app/condo/schema'
+import { SortB2BAppContextsBy, SortB2BAppsBy } from '@app/condo/schema'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
-import React, { useRef, useEffect, useState, useCallback } from 'react'
+import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
 import { useHotkeys } from 'react-hotkeys-hook'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
@@ -10,7 +10,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { B2BApp } from '@condo/domains/miniapp/utils/clientSchema'
+import { B2BApp, B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
 import {
     useGlobalAppsFeaturesContext,
@@ -31,16 +31,20 @@ export const GlobalAppsContainer: React.FC = () => {
     const organizationId = get(organization, 'id', null)
 
 
-    const { objs, refetch, loading } = B2BApp.useObjects({
+    const { objs, refetch, loading } = B2BAppContext.useObjects({
         where: {
-            isGlobal: true,
-            isHidden: false,
+            app: {
+                globalUrl_not: null,
+                isHidden: false,
+            },
+            organization: { id: organizationId },
+            status: 'Finished',
         },
-        sortBy: [SortB2BAppsBy.CreatedAtAsc],
+        sortBy: [SortB2BAppContextsBy.CreatedAtAsc],
     })
 
-    const appUrls = objs.map(app => app.appUrl)
-
+    const connectedGlobalApps = useMemo(() => objs.map(context => context.app), [objs])
+    const appUrls = useMemo(() => connectedGlobalApps.map(app => app.globalUrl), [connectedGlobalApps])
 
     const iframeRefs = useRef<Array<HTMLIFrameElement>>([])
     const isGlobalAppsFetched = useRef(false)
@@ -54,8 +58,8 @@ export const GlobalAppsContainer: React.FC = () => {
     }, [appUrls])
 
     useDeepCompareEffect(() => {
-        const globalFeatures = objs.reduce((registeredFeatures, app) => {
-            const appOrigin = extractOrigin(app.appUrl)
+        const globalFeatures = connectedGlobalApps.reduce((registeredFeatures, app) => {
+            const appOrigin = extractOrigin(app.globalUrl)
             const availableFeatures = (app.features || []).filter(featureName => !(featureName in registeredFeatures))
             const appFeatures = Object.assign({}, ...availableFeatures.map(featureName => ({ [featureName]: appOrigin })))
 
@@ -65,7 +69,7 @@ export const GlobalAppsContainer: React.FC = () => {
             }
         }, {})
         registerFeatures(globalFeatures)
-    }, [registerFeatures, objs])
+    }, [registerFeatures, connectedGlobalApps])
 
     const handleFeatureRequest: IRequestFeatureHandler = useCallback((context) => {
         const receiverOrigin = get(features, context.feature)
