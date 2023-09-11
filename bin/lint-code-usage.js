@@ -6,6 +6,9 @@ const { parse, each, has } = require('abstract-syntax-tree')
 const FOLDER = 'apps/condo/domains'
 
 // TODO: use semgrep https://semgrep.dev/docs/writing-rules/rule-ideas/#systematize-project-specific-coding-patterns
+// TODO: use https://docs.github.com/en/code-security/code-scanning/integrating-with-code-scanning/sarif-support-for-code-scanning
+// TODO: warning on missing usage of `loadListByChunk` in server utils
+// TODO: warning on missing 'deletedAt: null' in schema queries
 
 function *walkSync (dir) {
     const files = fs.readdirSync(dir, { withFileTypes: true })
