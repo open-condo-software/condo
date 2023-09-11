@@ -13,20 +13,9 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const USER_FIELDS = `{ name password phone email isAdmin isSupport ${COMMON_FIELDS} }`
 const User = generateGqlQueries('User', USER_FIELDS)
 
-const CONFIRM_EMAIL_ACTION_FIELDS = `{ email isVerified expiresAt ${COMMON_FIELDS} }`
-const ConfirmEmailAction = generateGqlQueries('ConfirmEmailAction', CONFIRM_EMAIL_ACTION_FIELDS)
-
-const REGISTER_NEW_USER_MUTATION = gql`
-    mutation registerNewUser ($data: RegisterNewUserInput!) {
-        result: registerNewUser(data: $data) { id }
-    }
-`
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     User,
-    ConfirmEmailAction,
-    REGISTER_NEW_USER_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

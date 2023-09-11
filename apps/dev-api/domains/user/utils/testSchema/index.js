@@ -8,12 +8,9 @@ const { faker } = require('@faker-js/faker')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
-const { ConfirmEmailAction: ConfirmEmailActionGQL } = require('@dev-api/domains/user/gql')
-const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
-const ConfirmEmailAction = generateGQLTestUtils(ConfirmEmailActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestUser (client, extraAttrs = {}) {
@@ -42,53 +39,9 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     const obj = await User.update(client, id, attrs)
     return [obj, attrs]
 }
-
-async function createTestConfirmEmailAction (client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await ConfirmEmailAction.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestConfirmEmailAction (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await ConfirmEmailAction.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-
-async function registerNewUserByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     User, createTestUser, updateTestUser,
-    ConfirmEmailAction, createTestConfirmEmailAction, updateTestConfirmEmailAction,
-    registerNewUserByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
