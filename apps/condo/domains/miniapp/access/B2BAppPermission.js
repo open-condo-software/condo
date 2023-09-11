@@ -22,7 +22,7 @@ const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require
  * 3. Users with direct access
  * Employee cannot access permissions, since they interact only with their B2B app roles
  */
-async function canReadB2BAppPermissions ({ authentication: { item: user }, listKey, context }) {
+async function canReadB2BAppPermissions ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
@@ -35,9 +35,18 @@ async function canReadB2BAppPermissions ({ authentication: { item: user }, listK
     }
 
     if (user.type === STAFF) {
-        const userOrganizations = await find('Organization', queryOrganizationEmployeeFor(user.id))
+        const userEmployeesWithCanManageRoles = await find('OrganizationEmployee',
+            {
+                user: { id: user.id },
+                isBlocked: false,
+                isAccepted: true,
+                role: { canManageRoles: true },
+                deletedAt: null,
+            }
+        )
+        const userOrganizationIds = uniq(compact(userEmployeesWithCanManageRoles.map(employee => employee.organization)))
         const b2bAppContexts =  await find('B2BAppContext', {
-            organization: { id_in: userOrganizations.map(organization => organization.id) },
+            organization: { id_in: userOrganizationIds },
             deletedAt: null,
         })
         const b2bAppIds = uniq(compact(b2bAppContexts.map(context => get(context, 'app'))))

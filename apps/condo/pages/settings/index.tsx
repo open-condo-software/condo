@@ -63,7 +63,6 @@ const SettingsPage: React.FC = () => {
     const userOrganization = useOrganization()
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
     const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles']), [userOrganization])
-    // NOTE: canManageContactRoles check in canManageMobileFeatureConfigsRoles???
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
 
     const tabKeysToDisplay = useMemo(() => {
