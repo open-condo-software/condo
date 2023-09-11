@@ -10,6 +10,11 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
         'Internal schema used for user phone confirmation. ' +
         'It\'s impossible to work with it via API.',
     fields: {
+        phone: {
+            schemaDoc: 'Phone number to be verified',
+            type: 'Text',
+            isRequired: true,
+        },
         code: {
             schemaDoc: 'Confirmation code. Generated inside one of action-creators, such as startConfirmPhoneAction',
             type: 'Text',
@@ -22,6 +27,7 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
                 'then knowing the ID ConfirmPhoneAction allows to register the user.',
             type: 'Checkbox',
             isRequired: true,
+            defaultValue: false,
         },
         expiresAt: {
             schemaDoc:

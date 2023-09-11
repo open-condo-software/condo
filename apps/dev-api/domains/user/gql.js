@@ -13,7 +13,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const USER_FIELDS = `{ name password phone email isAdmin isSupport ${COMMON_FIELDS} }`
 const User = generateGqlQueries('User', USER_FIELDS)
 
-const CONFIRM_PHONE_ACTION_FIELDS = `{ code isVerified expiresAt ${COMMON_FIELDS} }`
+const CONFIRM_PHONE_ACTION_FIELDS = `{ phone code isVerified expiresAt ${COMMON_FIELDS} }`
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

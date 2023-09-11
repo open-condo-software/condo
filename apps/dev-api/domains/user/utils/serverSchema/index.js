@@ -12,6 +12,7 @@ const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/
 
 const User = generateServerUtils(UserGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {

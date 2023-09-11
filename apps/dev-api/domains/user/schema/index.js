@@ -3,11 +3,13 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
-const { User } = require('./User')
+const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
+const { User } = require('./User') 
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     User,
     ConfirmPhoneAction,
+    ConfirmPhoneActionService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

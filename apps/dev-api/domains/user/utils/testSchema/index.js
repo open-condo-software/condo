@@ -41,7 +41,6 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     const obj = await User.update(client, id, attrs)
     return [obj, attrs]
 }
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
