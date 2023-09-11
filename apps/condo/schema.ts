@@ -49096,8 +49096,7 @@ export type OrganizationEmployeesUpdateInput = {
 };
 
 export enum OrganizationFeature {
-  Spp = 'SPP',
-  AnalyticsV3 = 'ANALYTICS_V3'
+  Spp = 'SPP'
 }
 
 export type OrganizationFeatures = {

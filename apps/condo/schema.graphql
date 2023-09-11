@@ -4273,7 +4273,6 @@ input OrganizationLinkRelateToManyInput {
 
 enum OrganizationFeature {
   SPP
-  ANALYTICS_V3
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 

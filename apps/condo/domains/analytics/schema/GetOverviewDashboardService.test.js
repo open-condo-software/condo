@@ -10,6 +10,7 @@ const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
+    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -29,8 +30,8 @@ const {
 const { ERRORS } = require('@condo/domains/analytics/schema/GetOverviewDashboardService')
 const { getOverviewDashboardByTestClient } = require('@condo/domains/analytics/utils/testSchema')
 const { updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
+const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-const { ANALYTICS_V3 } = require('@condo/domains/organization/constants/features')
 const {
     createTestOrganization,
     updateTestOrganization,
@@ -69,9 +70,7 @@ describe('GetOverviewDashboardService', () => {
         organizationAdminUser = await makeClientWithNewRegisteredAndLoggedInUser()
         organizationAdminUser.organization = organization
 
-        await updateTestOrganization(admin, organization.id, {
-            features: [ANALYTICS_V3],
-        })
+        await updateTestOrganization(admin, organization.id)
         const [multiPayment] = await createTestMultiPayment(admin, [payments[1]], residentClient.user, payerAndPayments.acquiringIntegration)
         const [adminRole] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageOrganization: true,
@@ -109,11 +108,13 @@ describe('GetOverviewDashboardService', () => {
         ticket = createdTicket
     })
 
+    beforeEach(() => {
+        setFeatureFlag(ANALYTICS_V3, true)
+    })
+
     describe('Admin', () => {
         it('can query with any organization provided', async () => {
-            const [organization] = await createTestOrganization(admin, {
-                features: [ANALYTICS_V3],
-            })
+            const [organization] = await createTestOrganization(admin)
             const [data] = await getOverviewDashboardByTestClient(admin, {
                 where: { organization: organization.id, dateFrom, dateTo },
                 groupBy: { aggregatePeriod: 'day' },
@@ -157,9 +158,7 @@ describe('GetOverviewDashboardService', () => {
         })
 
         it('can\'t query from another organization', async () => {
-            const [organization] = await createTestOrganization(admin, {
-                features: [ANALYTICS_V3],
-            })
+            const [organization] = await createTestOrganization(admin)
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await getOverviewDashboardByTestClient(organizationAdminUser, {
@@ -384,6 +383,7 @@ describe('GetOverviewDashboardService', () => {
 
     describe('Validations', () => {
         it('cannot query OverviewDashboard without organization feature provided', async () => {
+            setFeatureFlag(ANALYTICS_V3, false)
             const [organization] = await createTestOrganization(admin)
 
             await expectToThrowGQLError(async () => {
