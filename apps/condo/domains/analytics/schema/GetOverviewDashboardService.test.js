@@ -44,6 +44,14 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 const dateFrom = dayjs().toISOString()
 const dateTo = dayjs().endOf('day').toISOString()
 
+beforeEach(() => {
+    setFeatureFlag(ANALYTICS_V3, true)
+})
+
+afterAll(() => {
+    setFeatureFlag(ANALYTICS_V3, false)
+})
+
 describe('GetOverviewDashboardService', () => {
     let admin
     let organization
@@ -104,10 +112,6 @@ describe('GetOverviewDashboardService', () => {
         })
 
         ticket = createdTicket
-    })
-
-    beforeEach(() => {
-        setFeatureFlag(ANALYTICS_V3, true)
     })
 
     describe('Admin', () => {
