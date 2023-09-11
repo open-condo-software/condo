@@ -25,11 +25,21 @@ const User = new GQLListSchema('User', {
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
         },
-        email: {
-            schemaDoc: 'User email. Required for authentication',
+        phone: {
+            schemaDoc: 'User phone. Required for authentication, used as main contact info',
             type: 'Text',
             isRequired: true,
-            access: access.canAccessToEmailField,
+            access: access.canAccessToPhoneField,
+        },
+        email: {
+            schemaDoc: 'User email. Currently used only for internal Keystone mutations.',
+            type: 'Text',
+            isRequired: false,
+            access: {
+                read: false,
+                create: false,
+                update: false,
+            },
         },
         isAdmin: {
             schemaDoc: 'Provides a superuser access to any schema data',

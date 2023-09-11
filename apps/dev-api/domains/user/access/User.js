@@ -35,7 +35,7 @@ const canAccessToAccessControlField = {
     update: access.userIsAdmin,
 }
 
-const canAccessToEmailField = {
+const canAccessToPhoneField = {
     read: (auth) => access.userIsAdminOrIsSupport(auth) || access.userIsThisItem(auth),
     // NOTE: const false removing it UserCreateInput, so it's impossible to create user from bin/prepare
     create: () => false,
@@ -51,7 +51,7 @@ const canAccessToEmailField = {
 module.exports = {
     canReadUsers,
     canManageUsers,
-    canAccessToEmailField,
+    canAccessToPhoneField,
     canAccessToPasswordField,
     canAccessToAccessControlField,
 }

@@ -183,21 +183,24 @@ async function prepareMinimalAppEnv (appName, dbName, redisName, port, sport, se
     await updateAppEnvFile(appName, 'COOKIE_SECRET', `${appName}-secret`)
 }
 
-async function prepareAppEnvLocalAdminUsers (appName) {
+async function prepareAppEnvLocalAdminUsers (appName, identity = 'email') {
     // TODO(pahaz): check create-user.js logic!
-    const justUserEmail = await getAppEnvValue(appName, 'DEFAULT_TEST_USER_IDENTITY') || 'user@example.com'
+    const justUserDefaultIdentity = identity === 'email' ? 'user@example.com' : '+79067777777'
+    const justUserIdentity = await getAppEnvValue(appName, 'DEFAULT_TEST_USER_IDENTITY') || justUserDefaultIdentity
     const justUserPassword = await getAppEnvValue(appName, 'DEFAULT_TEST_USER_SECRET') || getRandomString()
     const justUserOpts = JSON.stringify({ password: justUserPassword, isAdmin: false, name: 'JustUser' })
-    await safeExec(`yarn workspace @app/${appName} node ./bin/create-user.js ${JSON.stringify(justUserEmail)} ${JSON.stringify(justUserOpts)}`)
-    const adminUserEmail = await getAppEnvValue(appName, 'DEFAULT_TEST_ADMIN_IDENTITY') || 'admin@example.com'
+    await safeExec(`yarn workspace @app/${appName} node ./bin/create-user.js ${JSON.stringify(justUserIdentity)} ${JSON.stringify(justUserOpts)}`)
+
+    const adminDefaultIdentity = identity === 'email' ? 'admin@example.com' : '+79068888888'
+    const adminUserIdentity = await getAppEnvValue(appName, 'DEFAULT_TEST_ADMIN_IDENTITY') || adminDefaultIdentity
     const adminUserPassword = await getAppEnvValue(appName, 'DEFAULT_TEST_ADMIN_SECRET') || getRandomString()
     const adminUserOpts = JSON.stringify({ password: adminUserPassword, isAdmin: true, name: 'Admin' })
-    await safeExec(`yarn workspace @app/${appName} node ./bin/create-user.js ${JSON.stringify(adminUserEmail)} ${JSON.stringify(adminUserOpts)}`)
-    await updateAppEnvFile(appName, 'DEFAULT_TEST_USER_IDENTITY', justUserEmail)
+    await safeExec(`yarn workspace @app/${appName} node ./bin/create-user.js ${JSON.stringify(adminUserIdentity)} ${JSON.stringify(adminUserOpts)}`)
+    await updateAppEnvFile(appName, 'DEFAULT_TEST_USER_IDENTITY', justUserIdentity)
     await updateAppEnvFile(appName, 'DEFAULT_TEST_USER_SECRET', justUserPassword)
-    await updateAppEnvFile(appName, 'DEFAULT_TEST_ADMIN_IDENTITY', adminUserEmail)
+    await updateAppEnvFile(appName, 'DEFAULT_TEST_ADMIN_IDENTITY', adminUserIdentity)
     await updateAppEnvFile(appName, 'DEFAULT_TEST_ADMIN_SECRET', adminUserPassword)
-    return { justUserEmail, justUserPassword, adminUserEmail, adminUserPassword }
+    return { justUserIdentity, justUserPassword, adminUserIdentity, adminUserPassword }
 }
 
 async function runAppPackageJsonScript (appName, script) {
