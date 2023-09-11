@@ -186,11 +186,12 @@ const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsDa
     )
 }
 
-interface IDashboardCard {
-    ({ organizationId, dateRange }: { organizationId: string, dateRange: [Dayjs, Dayjs] }): React.ReactElement
-}
+type DashboardCardType = ({ organizationId, dateRange }: {
+    organizationId: string,
+    dateRange: [Dayjs, Dayjs]
+}) => React.ReactElement
 
-const IncidentDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
+const IncidentDashboard: DashboardCardType = ({ organizationId, dateRange }) => {
     const intl = useIntl()
     const IncidentsTitle = intl.formatMessage({ id: 'pages.reports.incidentsTitle' })
     const IncidentDescription = intl.formatMessage({ id: 'pages.reports.incidentsDescription' })

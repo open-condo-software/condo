@@ -20,11 +20,11 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { TicketHorizontalBarDataMapper } from './dataMappers'
 
-import type { ITicketChartCard } from './dataMappers'
+import type { TicketChartCardType } from './dataMappers'
 
 const mapperInstance = TicketHorizontalBarDataMapper([TicketGroupBy.Status, TicketGroupBy.Property])
 
-const TicketByPropertyChart: ITicketChartCard = ({ data, organizationId }) => {
+const TicketByPropertyChart: TicketChartCardType = ({ data, organizationId }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })

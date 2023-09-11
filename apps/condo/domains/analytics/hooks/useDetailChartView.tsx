@@ -2,15 +2,13 @@ import React, { useState, useMemo, useCallback } from 'react'
 
 import { Modal } from '@open-condo/ui'
 
-interface IUseDetailChartView {
-    ({ title }: { title: string }): ({
-        PopupChartView: React.FC
-        open: () => void
-        isOpen: boolean
-    })
-}
+type UseDetailChartViewType = ({ title }: { title: string }) => ({
+    PopupChartView: React.FC
+    open: () => void
+    isOpen: boolean
+})
 
-const useDetailChartView: IUseDetailChartView = ({ title }) => {
+const useDetailChartView: UseDetailChartViewType = ({ title }) => {
     const [isOpen, setIsOpen] = useState(false)
 
     const open = useCallback(() => setIsOpen(true), [])

@@ -28,9 +28,7 @@ type TicketChartCardProps = {
     organizationId?: string
 }
 
-interface ITicketChartCard {
-    (props: TicketChartCardProps): React.ReactElement
-}
+type TicketChartCardType = (props: TicketChartCardProps) => React.ReactElement
 
 const AllTicketChartDataMapper = new TicketChart({
     line: {
@@ -298,4 +296,4 @@ export {
     TicketHorizontalBarDataMapper,
     TicketQualityControlDataMapper,
 }
-export type { ITicketChartCard }
+export type { TicketChartCardType }

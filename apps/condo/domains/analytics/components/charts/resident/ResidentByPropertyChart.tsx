@@ -15,9 +15,9 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { ResidentByPropertyDataMapper } from './dataMappers'
 
-import type { IResidentChartCard } from './dataMappers'
+import type { ResidentChartCardType } from './dataMappers'
 
-const ResidentByPropertyChart: IResidentChartCard = ({ data, organizationId }) => {
+const ResidentByPropertyChart: ResidentChartCardType = ({ data, organizationId }) => {
     const intl = useIntl()
     const ChartTitle = intl.formatMessage({ id: 'pages.reports.residentsTitle' })
     const ResidentTitle = intl.formatMessage({ id: 'global.section.contacts' })

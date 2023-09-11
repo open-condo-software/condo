@@ -14,9 +14,7 @@ type ResidentChartCardProps = {
     dateRange?: [Dayjs, Dayjs]
 }
 
-interface IResidentChartCard {
-    (props: ResidentChartCardProps): React.ReactElement
-}
+type ResidentChartCardType = (props: ResidentChartCardProps) => React.ReactElement
 
 const ResidentByPropertyDataMapper = (residentsTitle: string): ResidentChart => new ResidentChart({
     pie: {
@@ -67,4 +65,4 @@ const ResidentByPropertyDataMapper = (residentsTitle: string): ResidentChart => 
 })
 
 export { ResidentByPropertyDataMapper }
-export type { IResidentChartCard }
+export type { ResidentChartCardType }

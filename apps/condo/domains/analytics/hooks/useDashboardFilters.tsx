@@ -11,14 +11,12 @@ import { searchOrganizationProperty, searchEmployeeUser } from '@condo/domains/t
 
 import type { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput/'
 
-interface IUseSearchInput {
-    (props: Pick<ISearchInputProps, 'search' | 'placeholder'>): {
-        values: Array<string>
-        SearchInput: React.ReactElement
-    }
+type UseSearchInputType = (props: Pick<ISearchInputProps, 'search' | 'placeholder'>) => {
+    values: Array<string>
+    SearchInput: React.ReactElement
 }
 
-const useSearchInput: IUseSearchInput = ({ placeholder, search }) => {
+const useSearchInput: UseSearchInputType = ({ placeholder, search }) => {
     const [values, setValues] = useState<string[]>([])
 
     const onChange = useCallback((values) => {
@@ -43,14 +41,12 @@ const useSearchInput: IUseSearchInput = ({ placeholder, search }) => {
     return { values, SearchInput }
 }
 
-interface IUseFilter {
-    ({ organizationId }: { organizationId: string }): {
-        values: Array<string>,
-        SearchInput: React.ReactElement
-    }
+type UseFilterType = ({ organizationId }: { organizationId: string }) => {
+    values: Array<string>,
+    SearchInput: React.ReactElement
 }
 
-export const usePropertyFilter: IUseFilter = ({ organizationId }) => {
+export const usePropertyFilter: UseFilterType = ({ organizationId }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllAddressesPlaceholder' })
 
@@ -62,7 +58,7 @@ export const usePropertyFilter: IUseFilter = ({ organizationId }) => {
     return { values, SearchInput }
 }
 
-export const useExecutorFilter: IUseFilter = ({ organizationId }) => {
+export const useExecutorFilter: UseFilterType = ({ organizationId }) => {
     const intl = useIntl()
     const PlaceholderMessage = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.Filter.AllExecutorsPlaceholder' })
 

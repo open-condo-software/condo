@@ -16,9 +16,9 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { TicketByCategoryDataMapper } from './dataMappers'
 
-import type { ITicketChartCard } from './dataMappers'
+import type { TicketChartCardType } from './dataMappers'
 
-const TicketByCategoryChart: ITicketChartCard = ({ data, organizationId }) => {
+const TicketByCategoryChart: TicketChartCardType = ({ data, organizationId }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })

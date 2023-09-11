@@ -22,11 +22,11 @@ import { TicketHorizontalBarDataMapper } from './dataMappers'
 
 import { CHART_CONTAINER_BIG_HEIGHT } from '../../CustomChartView'
 
-import type { ITicketChartCard } from './dataMappers'
+import type { TicketChartCardType } from './dataMappers'
 
 const mapperInstance = TicketHorizontalBarDataMapper([TicketGroupBy.Status, TicketGroupBy.Executor])
 
-const TicketByExecutorChart: ITicketChartCard = ({ data, organizationId }) => {
+const TicketByExecutorChart: TicketChartCardType = ({ data, organizationId }) => {
     const intl = useIntl()
     const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
     const TicketsByExecutor = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })

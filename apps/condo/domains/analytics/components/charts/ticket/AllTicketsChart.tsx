@@ -9,9 +9,9 @@ import TicketChartView from '@condo/domains/analytics/components/TicketChartView
 
 import { AllTicketChartDataMapper } from './dataMappers'
 
-import type { ITicketChartCard } from './dataMappers'
+import type { TicketChartCardType } from './dataMappers'
 
-const AllTicketsChart: ITicketChartCard = ({ data }) => {
+const AllTicketsChart: TicketChartCardType = ({ data }) => {
     const intl = useIntl()
     const ChartTitle = intl.formatMessage({ id: 'global.section.tickets' })
 

@@ -5,9 +5,9 @@ import TicketChartView from '@condo/domains/analytics/components/TicketChartView
 
 import { TicketQualityControlDataMapper } from './dataMappers'
 
-import type { ITicketChartCard } from './dataMappers'
+import type { TicketChartCardType } from './dataMappers'
 
-const TicketQualityControlChart: ITicketChartCard = ({ data, loading }) => {
+const TicketQualityControlChart: TicketChartCardType = ({ data, loading }) => {
     return (
         <TicketChartView
             data={data}
