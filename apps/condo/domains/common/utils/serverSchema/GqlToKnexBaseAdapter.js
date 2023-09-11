@@ -83,6 +83,20 @@ class GqlToKnexBaseAdapter {
         const [, query] = Object.entries(condition)[0]
         return has(query, 'id_in')
     }
+
+    extendAggregationWithFilter (aggregateBy = []) {
+        this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
+            const [groupName] = Object.entries(currentFilter)[0]
+            const [filterEntities] = filter
+
+            if (!aggregateBy.includes(groupName)) {
+                aggregateBy.push(groupName)
+            }
+            filterEntities.push(groupName)
+        }, [[], []])
+
+        return aggregateBy
+    }
 }
 
 module.exports = {

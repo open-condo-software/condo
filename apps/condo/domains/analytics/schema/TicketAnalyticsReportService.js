@@ -108,7 +108,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'type TicketGroupedCounter { count: Int!, status: String, property: String, dayGroup: String!, categoryClassifier: String, executor: String, assignee: String, qualityControlValue: String }', //NOSONAR GQL types are not code duplication
+            type: 'type TicketGroupedCounter { count: Int!, status: String, property: String, dayGroup: String!, categoryClassifier: String, executor: String, assignee: String, qualityControlValue: String }',
         },
         {
             access: true,

@@ -43,15 +43,7 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
-            const [groupName] = Object.entries(currentFilter)[0]
-            const [filterEntities] = filter
-
-            if (!this.aggregateBy.includes(groupName)) {
-                this.aggregateBy.push(groupName)
-            }
-            filterEntities.push(groupName)
-        }, [[], []])
+        this.extendAggregationWithFilter(this.aggregateBy)
 
         const query = knex(this.domainName).count('id').sum('amount').select(this.groups)
         query.select(knex.raw('to_char("period", \'01.MM.YYYY\') as "dayGroup"'))

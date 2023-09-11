@@ -20,31 +20,25 @@ const ResidentByPropertyDataMapper = (residentsTitle: string): ResidentChart => 
     pie: {
         chart: (viewMode, data) => {
             const series: Array<EchartsSeries> = [{
-                name: residentsTitle,
-                data: data.slice(0, TOP_VALUES).map(resident => ({ value: resident.count, name: resident.address })),
-                radius: '75%',
                 type: viewMode,
+                name: residentsTitle,
+                radius: '75%',
                 label: { show: true, formatter: (e) =>  e.percent + '%' },
+                data: data.slice(0, TOP_VALUES).map(resident => ({ value: resident.count, name: resident.address })),
             }]
 
             return {
-                legend: [],
                 tooltip: { trigger: 'item', axisPointer: { type: 'none' } },
                 axisData: {
-                    yAxis: { type: 'category', data: null, axisLabel: { show: false } },
                     xAxis: { type: 'value', data: null, boundaryGap: [0, 0.02] },
+                    yAxis: { type: 'category', data: null, axisLabel: { show: false } },
                 },
                 series,
+                legend: [],
             }
         },
         table: (_, data, restTableOptions) => {
             const dataSource = []
-            const tableColumns = Object.entries(restTableOptions.translations).map(([key, title]) => ({
-                key,
-                title,
-                dataIndex: key,
-            }))
-
             const totalCount = data.reduce((prev, curr) => prev + Number(curr.count), 0)
 
             data.forEach(({ count, address }) => {
@@ -58,7 +52,11 @@ const ResidentByPropertyDataMapper = (residentsTitle: string): ResidentChart => 
 
             return {
                 dataSource,
-                tableColumns,
+                tableColumns: Object.entries(restTableOptions.translations).map(([key, title]) => ({
+                    key,
+                    title,
+                    dataIndex: key,
+                })),
             }
         },
     },

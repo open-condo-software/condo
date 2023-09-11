@@ -10,9 +10,7 @@ import type { EchartsSeries } from '@condo/domains/analytics/components/TicketCh
 
 const TOP_VALUES = 9
 
-interface IPaymentChartCard {
-    ({ data, organizationId }: { data: PaymentDataType, organizationId?: string }): React.ReactElement
-}
+type IPaymentChartCard = ({ data, organizationId }: { data: PaymentDataType, organizationId?: string }) => React.ReactElement
 
 const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new PaymentChart({
     pie: {
@@ -113,7 +111,7 @@ const PaymentReceiptDataMapper = (chargedTitle: string, paidTitle: string): Paym
 
 const PaymentTotalDataMapper = (sumTitle: string, paymentCountTitle: string): PaymentChart => new PaymentChart({
     bar: {
-        chart: (viewMode, data) => {
+        chart: (_, data) => {
             const totalGroup = groupBy(data, 'dayGroup')
             const paymentsCount = Object.entries(totalGroup).map(([groupLabel, dataObj]) => {
                 return [groupLabel, dataObj.reduce((p, c) => p + Number(c.count), 0)]
