@@ -34,7 +34,6 @@ const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const {
     createTestOrganization,
-    updateTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
@@ -70,7 +69,6 @@ describe('GetOverviewDashboardService', () => {
         organizationAdminUser = await makeClientWithNewRegisteredAndLoggedInUser()
         organizationAdminUser.organization = organization
 
-        await updateTestOrganization(admin, organization.id)
         const [multiPayment] = await createTestMultiPayment(admin, [payments[1]], residentClient.user, payerAndPayments.acquiringIntegration)
         const [adminRole] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageOrganization: true,
