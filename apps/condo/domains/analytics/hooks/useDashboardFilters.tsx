@@ -10,7 +10,6 @@ import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangeP
 import { searchOrganizationProperty, searchEmployeeUser } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import type { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput/'
-import type { RangePickerProps } from 'antd/lib/date-picker/generatePicker'
 
 interface IUseSearchInput {
     (props: Pick<ISearchInputProps, 'search' | 'placeholder'>): {
@@ -77,14 +76,12 @@ export const useExecutorFilter: IUseFilter = ({ organizationId }) => {
     return { values, SearchInput }
 }
 
-interface IUseDateRangeFilter {
-    (): {
-        SearchInput: typeof DateRangePicker
-        dateRange: [Dayjs, Dayjs]
-    }
+type UseDateRangeFilterType = () => {
+    SearchInput: typeof DateRangePicker
+    dateRange: [Dayjs, Dayjs]
 }
 
-export const useDateRangeFilter: IUseDateRangeFilter = () => {
+export const useDateRangeFilter: UseDateRangeFilterType = () => {
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
 
     const disabledDate = useCallback((currentDate) => {

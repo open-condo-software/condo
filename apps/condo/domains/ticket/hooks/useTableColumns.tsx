@@ -315,7 +315,7 @@ export function useTicketQualityTableColumns (): { columns: ColumnsType<Ticket> 
     const FeedbackMessage = intl.formatMessage({ id: 'ticket.feedback' })
 
     const router = useRouter()
-    const { filters, sorters } = parseQuery(router.query)
+    const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
 
     const renderAddress = useCallback(

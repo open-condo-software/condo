@@ -2,7 +2,7 @@ import {
     TicketAnalyticsGroupBy as TicketGroupBy,
     TicketGroupedCounter, TicketQualityControlValueType,
 } from '@app/condo/schema'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 
 import { colors } from '@open-condo/ui/dist/colors'

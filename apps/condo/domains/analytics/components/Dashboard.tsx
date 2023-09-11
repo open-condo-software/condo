@@ -29,7 +29,7 @@ import {
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { parseQuery, getPageIndexFromOffset } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -248,7 +248,7 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
 
     const router = useRouter()
     const { values, SearchInput } = usePropertyFilter({ organizationId })
-    const { filters, offset } = useMemo(() => parseQuery(router.query), [router.query])
+    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, MODAL_TABLE_PAGE_SIZE), [offset])
 
 
