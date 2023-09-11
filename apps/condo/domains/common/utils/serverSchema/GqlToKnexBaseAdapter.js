@@ -1,4 +1,4 @@
-const has = require('lodash/has')
+const { get, has } = require('lodash')
 
 class GqlToKnexBaseAdapter {
     domainName = null
@@ -9,6 +9,7 @@ class GqlToKnexBaseAdapter {
     whereIn = []
     groups = []
     result = null
+    knexWhere = {}
 
     /**
      * Formatting GQL expressions to Knex data structure
@@ -48,6 +49,14 @@ class GqlToKnexBaseAdapter {
             }
         })
         this.groups = groupBy.filter(type => !this.dayGroups.includes(type))
+
+        this.knexWhere = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
+            return Object.fromEntries(
+                Object.entries(condition).map(([field, query]) => (
+                    get(query, 'id') ? [field, query.id] : [field, query]
+                ))
+            )
+        }).reduce((acc, curr) => ({ ...acc, ...curr }), {})
     }
 
     /**

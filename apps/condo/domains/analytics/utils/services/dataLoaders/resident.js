@@ -17,14 +17,6 @@ class ResidentGqlKnexLoader extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
-            return Object.fromEntries(
-                Object.entries(condition).map(([field, query]) => (
-                    get(query, 'id') ? [field, query.id] : [field, query]
-                ))
-            )
-        })
-
         this.whereIn = {}
 
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
@@ -41,8 +33,7 @@ class ResidentGqlKnexLoader extends GqlToKnexBaseAdapter {
             filterValues.push(...groupIdArray.map(id => [id]))
         }, [[], []])
 
-        const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
-        const query = knex(this.domainName).count('id').select(this.groups).groupBy(this.aggregateBy).where(knexWhere)
+        const query = knex(this.domainName).count('id').select(this.groups).groupBy(this.aggregateBy).where(this.knexWhere)
 
         if (!isEmpty(this.whereIn)) {
             query.whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])

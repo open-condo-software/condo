@@ -238,14 +238,6 @@ class TicketQualityControlGqlLoader extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
-            return Object.fromEntries(
-                Object.entries(condition).map(([field, query]) => (
-                    get(query, 'id') ? [field, query.id] : [field, query]
-                ))
-            )
-        })
-
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
             const [groupName] = Object.entries(currentFilter)[0]
             const [filterEntities] = filter
@@ -259,7 +251,7 @@ class TicketQualityControlGqlLoader extends GqlToKnexBaseAdapter {
         const query = knex(this.domainName).count('id')
             .select(knex.raw(`to_char(date_trunc('${this.dayGroup}',  "createdAt"), 'DD.MM.YYYY') as "dayGroup"`))
             .select(knex.raw('COALESCE("feedbackValue", "qualityControlValue") as "qualityControlComputedValue"'))
-            .where(where.reduce((acc, curr) => ({ ...acc, ...curr }), {}))
+            .where(this.knexWhere)
             .andWhere(function () {
                 this.whereIn('qualityControlValue', QUALITY_CONTROL_VALUES)
                     .orWhereIn('feedbackValue', QUALITY_CONTROL_VALUES)
@@ -279,7 +271,7 @@ class TicketQualityControlDataLoader extends AbstractDataLoader {
     async get ({ where, groupBy }) {
         const locale = extractReqLocale(this.context.req) || conf.DEFAULT_LOCALE
         const translationMapping = Object.fromEntries(QUALITY_CONTROL_VALUES.map(value => [value, i18n(`ticket.qualityControl.${value}`, { locale })]))
-        // return QUALITY_CONTROL_VALUES.map(value => ({ value, label: i18n(`ticket.qualityControl.${value}`, { locale }) }))
+
         const ticketQualityControlLoader = new TicketQualityControlGqlLoader(where, groupBy)
 
         await ticketQualityControlLoader.loadData()
