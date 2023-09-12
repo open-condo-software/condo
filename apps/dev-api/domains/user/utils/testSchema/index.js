@@ -10,6 +10,7 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
 const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
+const { AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -56,11 +57,26 @@ async function registerNewUserByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function authenticateUserWithPhoneAndPasswordByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     User, createTestUser, updateTestUser,
     ConfirmPhoneAction,
     registerNewUserByTestClient,
+    authenticateUserWithPhoneAndPasswordByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

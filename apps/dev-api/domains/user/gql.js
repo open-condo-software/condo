@@ -22,11 +22,18 @@ const REGISTER_NEW_USER_MUTATION = gql`
     }
 `
 
+const AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION = gql`
+    mutation authenticateUserWithPhoneAndPassword ($data: AuthenticateUserWithPhoneAndPasswordInput!) {
+        result: authenticateUserWithPhoneAndPassword(data: $data) { token }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     User,
     ConfirmPhoneAction,
     REGISTER_NEW_USER_MUTATION,
+    AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

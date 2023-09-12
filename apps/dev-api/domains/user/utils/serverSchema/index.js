@@ -9,6 +9,7 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
 const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
+const { AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
@@ -27,11 +28,25 @@ async function registerNewUser (context, data) {
     })
 }
 
+async function authenticateUserWithPhoneAndPassword (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to authenticateUserWithPhoneAndPassword',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     User,
     ConfirmPhoneAction,
     registerNewUser,
+    authenticateUserWithPhoneAndPassword,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
