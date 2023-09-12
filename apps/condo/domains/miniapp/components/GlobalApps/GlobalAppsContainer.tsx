@@ -130,8 +130,8 @@ export const GlobalAppsContainer: React.FC = () => {
         }
     }, [user, loading])
 
-    // // Global miniapps allowed only for authenticated users
-    if (!user) {
+    // // Global miniapps allowed only for authenticated (not support or admin) users
+    if (!user || user.isSupport || user.isAdmin) {
         return null
     }
 

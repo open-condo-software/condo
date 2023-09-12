@@ -1,4 +1,3 @@
-
 import { notification } from 'antd'
 import axios from 'axios'
 import get from 'lodash/get'
@@ -10,9 +9,6 @@ import { Typography } from '@open-condo/ui'
 
 import { usePostMessageContext } from '@condo/domains/common/components/PostMessageProvider'
 import { CallRecord, CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
-
-import { B2BAppGlobalFeature } from '../../../schema'
-import { useGlobalAppsFeaturesContext } from '../../miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 
 
 const ACTIVE_CALL_KEY = 'activeCall'
@@ -29,7 +25,7 @@ class ActiveCallLocalStorageManager {
         try {
             return JSON.parse(localStorage.getItem(ACTIVE_CALL_KEY))
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     }
 
@@ -68,14 +64,12 @@ class ActiveCallLocalStorageManager {
 interface IActiveCallContext {
     isCallActive: boolean
     connectedTickets: Array<string>
-
     attachTicketToActiveCall: (ticketId: string) => void
 }
 
 const ActiveCallContext = createContext<IActiveCallContext>({
     isCallActive: false,
     connectedTickets: [],
-
     attachTicketToActiveCall: null,
 })
 
@@ -137,13 +131,10 @@ const ActiveCallContextProvider = ({ children = {} }) => {
             return { sent: !!error }
         })
 
-
-        // new api
         addEventHandler('CondoWebAppSetActiveCall', '*', ({
             callId,
         }) => {
             const currentActiveCall = localStorageManager.getActiveCall()
-            console.log('CondoWebAppSetActiveCall', callId, currentActiveCall)
 
             if (callId) {
                 if (get(currentActiveCall, 'callId') === callId) {
@@ -170,7 +161,6 @@ const ActiveCallContextProvider = ({ children = {} }) => {
         addEventHandler('CondoWebAppSaveCallRecord', '*', async ({
             callId, fileUrl, startedAt, callerPhone, destCallerPhone, talkTime, isIncomingCall,
         }) => {
-            console.log('condo CondoWebAppSaveCallRecord', callId)
             try {
                 const response = await axios.get(fileUrl, { responseType: 'blob' })
                 const fileName = fileUrl.split('/').reverse()[0]
@@ -220,7 +210,6 @@ const ActiveCallContextProvider = ({ children = {} }) => {
         <ActiveCallContext.Provider
             value={{
                 attachTicketToActiveCall,
-
                 isCallActive,
                 connectedTickets,
             }}

@@ -57747,7 +57747,6 @@ type B2BAppHistoryRecord {
   appUrl: String
   isHidden: Boolean
   globalUrl: String
-  isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
@@ -57894,8 +57893,6 @@ input B2BAppHistoryRecordWhereInput {
   globalUrl_not_ends_with_i: String
   globalUrl_in: [String]
   globalUrl_not_in: [String]
-  isGlobal: Boolean
-  isGlobal_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
   icon: String
@@ -58119,8 +58116,6 @@ enum SortB2BAppHistoryRecordsBy {
   isHidden_DESC
   globalUrl_ASC
   globalUrl_DESC
-  isGlobal_ASC
-  isGlobal_DESC
   hasDynamicTitle_ASC
   hasDynamicTitle_DESC
   icon_ASC
@@ -58165,7 +58160,6 @@ input B2BAppHistoryRecordUpdateInput {
   appUrl: String
   isHidden: Boolean
   globalUrl: String
-  isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
@@ -58205,7 +58199,6 @@ input B2BAppHistoryRecordCreateInput {
   appUrl: String
   isHidden: Boolean
   globalUrl: String
-  isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
@@ -58244,7 +58237,6 @@ input B2BAppAccessRightRelateToManyInput {
 enum B2BAppGlobalFeature {
   PropertyMapGeneration
   AttachCallRecordToTicket
-  CheckIsCallActive
 }
 
 """ B2B app """
@@ -58290,10 +58282,6 @@ type B2BApp {
   """ Url to app that opens in hidden iframe and works on all condo pages """
   globalUrl: String
 
-  """ Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section 
-  """
-  isGlobal: Boolean
-
   """ Indicates whether the miniapp has its own dynamic title. If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. Otherwise, there will be a static title above the app iframe that corresponds to the application name. 
   """
   hasDynamicTitle: Boolean
@@ -58319,7 +58307,7 @@ type B2BApp {
   accessRights(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): [B2BAppAccessRight!]!
   _accessRightsMeta(where: B2BAppAccessRightWhereInput, search: String, sortBy: [SortB2BAppAccessRightsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
 
-  """ List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachCallRecordToTicket, CheckIsCallActive] 
+  """ List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachCallRecordToTicket] 
   """
   features: [B2BAppGlobalFeature!]
 
@@ -58496,8 +58484,6 @@ input B2BAppWhereInput {
   globalUrl_not_ends_with_i: String
   globalUrl_in: [String]
   globalUrl_not_in: [String]
-  isGlobal: Boolean
-  isGlobal_not: Boolean
   hasDynamicTitle: Boolean
   hasDynamicTitle_not: Boolean
   icon: String
@@ -58642,8 +58628,6 @@ enum SortB2BAppsBy {
   isHidden_DESC
   globalUrl_ASC
   globalUrl_DESC
-  isGlobal_ASC
-  isGlobal_DESC
   hasDynamicTitle_ASC
   hasDynamicTitle_DESC
   icon_ASC
@@ -58690,7 +58674,6 @@ input B2BAppUpdateInput {
   appUrl: String
   isHidden: Boolean
   globalUrl: String
-  isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
   menuCategory: String
@@ -58728,7 +58711,6 @@ input B2BAppCreateInput {
   appUrl: String
   isHidden: Boolean
   globalUrl: String
-  isGlobal: Boolean
   hasDynamicTitle: Boolean
   icon: String
   menuCategory: String

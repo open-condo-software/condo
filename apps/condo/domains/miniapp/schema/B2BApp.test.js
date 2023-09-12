@@ -158,12 +158,12 @@ describe('B2BApp', () => {
             const admin = await makeLoggedInAdminClient()
             await expectToThrowValidationFailureError(async () => {
                 await createTestB2BApp(admin, {
-                    isGlobal: true,
+                    globalUrl: faker.internet.url(),
                     appUrl: null,
                 })
             }, GLOBAL_APP_NO_APP_URL_ERROR)
             const [validApp] = await createTestB2BApp(admin, {
-                isGlobal: true,
+                globalUrl: faker.internet.url(),
                 appUrl: faker.internet.url(),
             })
             await expectToThrowValidationFailureError(async () => {
@@ -180,7 +180,7 @@ describe('B2BApp', () => {
             test('Global B2B app may have features', async () => {
                 const [app] = await createTestB2BApp(admin, {
                     appUrl: faker.internet.url(),
-                    isGlobal: true,
+                    globalUrl: faker.internet.url(),
                     features: [MAP_GENERATION_FEATURE],
                 })
 
@@ -188,7 +188,7 @@ describe('B2BApp', () => {
 
                 const [secondApp] = await createTestB2BApp(admin, {
                     appUrl: faker.internet.url(),
-                    isGlobal: true,
+                    globalUrl: faker.internet.url(),
                 })
                 expect(secondApp).toHaveProperty('features', null)
                 const [updatedApp] = await updateTestB2BApp(admin, secondApp.id, {
@@ -199,12 +199,12 @@ describe('B2BApp', () => {
             test('Non-global B2B apps cannot have features', async () => {
                 await expectToThrowValidationFailureError(async () => {
                     await createTestB2BApp(admin, {
-                        isGlobal: false,
+                        globalUrl: null,
                         features: [MAP_GENERATION_FEATURE],
                     })
                 }, NON_GLOBAL_APP_WITH_FEATURES_ERROR)
 
-                const [app] = await createTestB2BApp(admin, { isGlobal: false })
+                const [app] = await createTestB2BApp(admin)
                 await expectToThrowValidationFailureError(async () => {
                     await updateTestB2BApp(admin, app.id, {
                         features: [MAP_GENERATION_FEATURE],
@@ -214,12 +214,12 @@ describe('B2BApp', () => {
             test('Must reset if app stop being global', async () => {
                 const [globalApp] = await createTestB2BApp(admin, {
                     appUrl: faker.internet.url(),
-                    isGlobal: true,
+                    globalUrl: faker.internet.url(),
                     features: [MAP_GENERATION_FEATURE],
                 })
                 expect(globalApp).toHaveProperty('features', [MAP_GENERATION_FEATURE])
                 const [updatedApp] = await updateTestB2BApp(admin, globalApp.id, {
-                    isGlobal: false,
+                    globalUrl: null,
                 })
                 expect(updatedApp).toHaveProperty('features', null)
             })

@@ -56,12 +56,6 @@ const B2BApp = new GQLListSchema('B2BApp', {
             type: Url,
             isRequired: false,
         },
-        isGlobal: {
-            schemaDoc: 'Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It\'s also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section',
-            type: Checkbox,
-            defaultValue: false,
-            isRequired: true,
-        },
         hasDynamicTitle: {
             schemaDoc: 'Indicates whether the miniapp has its own dynamic title. ' +
                 'If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. ' +
@@ -96,7 +90,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {
-            if (operation === 'update' && resolvedData.hasOwnProperty('isGlobal') && !resolvedData.isGlobal) {
+            if (operation === 'update' && resolvedData.hasOwnProperty('globalUrl') && !resolvedData.globalUrl) {
                 resolvedData['features'] = null
             }
             
@@ -104,7 +98,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
         },
         validateInput: ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            if (newItem.isGlobal) {
+            if (newItem.globalUrl) {
                 if (!newItem.appUrl) {
                     return addValidationError(GLOBAL_APP_NO_APP_URL_ERROR)
                 }

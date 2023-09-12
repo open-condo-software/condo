@@ -1972,8 +1972,6 @@ export type B2BApp = {
   isHidden?: Maybe<Scalars['Boolean']>;
   /**  Url to app that opens in hidden iframe and works on all condo pages  */
   globalUrl?: Maybe<Scalars['String']>;
-  /**  Indicates whether the app is global or not. If so, then the application will be opened in hidden mode and receive various notifications from the condo. It's also possible to trigger some condo IFrame methods via global app outside of miniapps CRM section  */
-  isGlobal?: Maybe<Scalars['Boolean']>;
   /**  Indicates whether the miniapp has its own dynamic title. If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. Otherwise, there will be a static title above the app iframe that corresponds to the application name.  */
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   /**  App icon. The presence of this field means that this app will be pinned to the CRM menu after the connection.  */
@@ -1987,7 +1985,7 @@ export type B2BApp = {
   /**  Specifies set of service users, who can access app's contexts related as well as perform actions on behalf of the application  */
   accessRights: Array<B2BAppAccessRight>;
   _accessRightsMeta?: Maybe<_QueryMeta>;
-  /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachCallRecordToTicket, CheckIsCallActive]  */
+  /**  List of features that this global mini-app implements. Can be one or more of the following: [PropertyMapGeneration, AttachCallRecordToTicket]  */
   features?: Maybe<Array<B2BAppGlobalFeature>>;
   /**  The number used to determine the position of the app among the others. App with higher priority appear earlier in "All" category, as well as in it's own category. Apps with the same priority are sorted from newest to oldest. The default value is 1.  */
   displayPriority?: Maybe<Scalars['Int']>;
@@ -3150,7 +3148,6 @@ export type B2BAppCreateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   globalUrl?: Maybe<Scalars['String']>;
-  isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3175,8 +3172,7 @@ export type B2BAppCreateInput = {
 
 export enum B2BAppGlobalFeature {
   PropertyMapGeneration = 'PropertyMapGeneration',
-  AttachCallRecordToTicket = 'AttachCallRecordToTicket',
-  CheckIsCallActive = 'CheckIsCallActive'
+  AttachCallRecordToTicket = 'AttachCallRecordToTicket'
 }
 
 /**  A keystone list  */
@@ -3199,7 +3195,6 @@ export type B2BAppHistoryRecord = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   globalUrl?: Maybe<Scalars['String']>;
-  isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3235,7 +3230,6 @@ export type B2BAppHistoryRecordCreateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   globalUrl?: Maybe<Scalars['String']>;
-  isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3276,7 +3270,6 @@ export type B2BAppHistoryRecordUpdateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   globalUrl?: Maybe<Scalars['String']>;
-  isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -3422,8 +3415,6 @@ export type B2BAppHistoryRecordWhereInput = {
   globalUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   globalUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   globalUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isGlobal?: Maybe<Scalars['Boolean']>;
-  isGlobal_not?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle_not?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -4896,7 +4887,6 @@ export type B2BAppUpdateInput = {
   appUrl?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   globalUrl?: Maybe<Scalars['String']>;
-  isGlobal?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
   menuCategory?: Maybe<Scalars['String']>;
@@ -5054,8 +5044,6 @@ export type B2BAppWhereInput = {
   globalUrl_not_ends_with_i?: Maybe<Scalars['String']>;
   globalUrl_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   globalUrl_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  isGlobal?: Maybe<Scalars['Boolean']>;
-  isGlobal_not?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle?: Maybe<Scalars['Boolean']>;
   hasDynamicTitle_not?: Maybe<Scalars['Boolean']>;
   icon?: Maybe<Scalars['String']>;
@@ -65868,8 +65856,6 @@ export enum SortB2BAppHistoryRecordsBy {
   IsHiddenDesc = 'isHidden_DESC',
   GlobalUrlAsc = 'globalUrl_ASC',
   GlobalUrlDesc = 'globalUrl_DESC',
-  IsGlobalAsc = 'isGlobal_ASC',
-  IsGlobalDesc = 'isGlobal_DESC',
   HasDynamicTitleAsc = 'hasDynamicTitle_ASC',
   HasDynamicTitleDesc = 'hasDynamicTitle_DESC',
   IconAsc = 'icon_ASC',
@@ -66077,8 +66063,6 @@ export enum SortB2BAppsBy {
   IsHiddenDesc = 'isHidden_DESC',
   GlobalUrlAsc = 'globalUrl_ASC',
   GlobalUrlDesc = 'globalUrl_DESC',
-  IsGlobalAsc = 'isGlobal_ASC',
-  IsGlobalDesc = 'isGlobal_DESC',
   HasDynamicTitleAsc = 'hasDynamicTitle_ASC',
   HasDynamicTitleDesc = 'hasDynamicTitle_DESC',
   IconAsc = 'icon_ASC',

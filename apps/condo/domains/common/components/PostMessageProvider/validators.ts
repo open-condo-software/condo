@@ -95,7 +95,7 @@ const CondoWebAppSaveCallRecordParamsSchema = {
         talkTime: { type: 'number' },
         isIncomingCall: { type: 'boolean' },
     },
-    // required: ['callId', 'fileUrl', 'startedAt', 'callerPhone', 'destCallerPhone', 'talkTime', 'isIncomingCall'],
+    required: ['callId', 'fileUrl', 'startedAt', 'callerPhone', 'destCallerPhone', 'talkTime', 'isIncomingCall'],
     additionalProperties: true,
 }
 

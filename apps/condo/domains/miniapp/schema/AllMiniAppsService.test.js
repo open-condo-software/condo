@@ -237,7 +237,7 @@ describe('AllMiniAppsService', () => {
             ]))
         })
         test('Global apps is not shown', async () => {
-            const [anotherApp] = await createTestB2BApp(support, { isHidden: false, isGlobal: true, appUrl: faker.internet.url() })
+            const [anotherApp] = await createTestB2BApp(support, { isHidden: false, globalUrl: faker.internet.url(), appUrl: faker.internet.url() })
             const [data] = await allMiniAppsByTestClient(manager, organization)
             expect(data).toBeDefined()
             expect(data).not.toEqual(expect.arrayContaining([

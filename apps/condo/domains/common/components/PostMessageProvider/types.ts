@@ -16,6 +16,7 @@ export type RequestParamsMap = {
     [Method in BridgeRequestMethodsName]: BridgeRequestParams<Method>
 } & {
     CondoWebSendAnalyticsEvent: AnalyticsParams,
+    // TODO(DOMA-7127) remove CondoWebSetActiveCall method (old telephony postMessage api)
     CondoWebSetActiveCall: { isCallActive: boolean, connectedTickets: Array<string>, error?: string },
     CondoWebAppSetActiveCall: { callId: string | null },
     CondoWebAppSaveCallRecord: {
