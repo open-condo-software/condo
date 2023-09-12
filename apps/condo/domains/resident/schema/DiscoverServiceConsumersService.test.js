@@ -732,7 +732,7 @@ describe('DiscoverServiceConsumersService', () => {
             ]))
         })
 
-        test('Register 2 residents into the same flat => upload receipts => both residents can see the receipts list', async () => {
+        test('2 residents into the same flat => upload receipts => both residents can see the receipts list', async () => {
             const residentClient1 = await makeClientWithResidentAccessAndProperty()
             const residentClient2 = await makeClientWithResidentAccessAndProperty()
 
@@ -792,6 +792,217 @@ describe('DiscoverServiceConsumersService', () => {
                 expect(receipts2).toHaveLength(1)
                 expect(registeredReceipts).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts2[0].id }),
+                ]))
+            }, { delay: 500 })
+        })
+
+        test('2 residents into the same flat => upload receipts with same category&period and different accountNumber => both residents can\'t see the receipts list', async () => {
+            const residentClient1 = await makeClientWithResidentAccessAndProperty()
+            const residentClient2 = await makeClientWithResidentAccessAndProperty()
+
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, residentClient1.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, residentClient1.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            // 1/3 register residents
+            await registerResidentByTestClient(
+                residentClient1,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            await registerResidentByTestClient(
+                residentClient2,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            // 2/3 upload receipts
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                    }),
+                ],
+            }
+            await registerBillingReceiptsByTestClient(admin, payload)
+
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+
+            // 3/3 check that residents can see the receipts list
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+
+                expect(receipts1).toHaveLength(0)
+
+                expect(receipts2).toHaveLength(0)
+            }, { delay: 500 })
+        })
+
+        test('2 residents into the same flat => upload receipts with same period and different accountNumber&category => both residents can see the receipts list', async () => {
+            const residentClient1 = await makeClientWithResidentAccessAndProperty()
+            const residentClient2 = await makeClientWithResidentAccessAndProperty()
+
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, residentClient1.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, residentClient1.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            // 1/3 register residents
+            await registerResidentByTestClient(
+                residentClient1,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            await registerResidentByTestClient(
+                residentClient2,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            // 2/3 upload receipts
+            const category1 = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
+            const category2 = { id: '11bb27ce-3f11-40f2-8fdf-f6aa1364df08' }
+
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        category: category1,
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        category: category2,
+                    }),
+                ],
+            }
+            const [registeredReceipts] = await registerBillingReceiptsByTestClient(admin, payload)
+
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+
+            // 3/3 check that residents can see the receipts list
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+
+                expect(receipts1).toHaveLength(2)
+                expect(registeredReceipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                ]))
+
+                expect(receipts2).toHaveLength(2)
+                expect(registeredReceipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                    expect.objectContaining({ id: receipts2[1].id }),
+                ]))
+            }, { delay: 500 })
+        })
+
+        test('2 residents into the same flat => upload receipts with same accountNumber&category and different period => both residents can see the receipts list', async () => {
+            const residentClient1 = await makeClientWithResidentAccessAndProperty()
+            const residentClient2 = await makeClientWithResidentAccessAndProperty()
+
+            const [billingIntegration] = await createTestBillingIntegration(admin)
+            const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, residentClient1.organization, billingIntegration, { status: CONTEXT_FINISHED_STATUS })
+            const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+            await createTestAcquiringIntegrationContext(admin, residentClient1.organization, acquiringIntegration, { status: CONTEXT_FINISHED_STATUS })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            // 1/3 register residents
+            await registerResidentByTestClient(
+                residentClient1,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            await registerResidentByTestClient(
+                residentClient2,
+                {
+                    address: residentClient1.property.address,
+                    addressMeta: residentClient1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            // 2/3 upload receipts
+            const payload = {
+                context: { id: billingContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        year: 2023,
+                        month: 5,
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: residentClient1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        year: 2023,
+                        month: 6,
+                    }),
+                ],
+            }
+            const [registeredReceipts] = await registerBillingReceiptsByTestClient(admin, payload)
+
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+
+            // 3/3 check that residents can see the receipts list
+            await waitFor(async () => {
+                const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
+                const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
+
+                expect(receipts1).toHaveLength(2)
+                expect(registeredReceipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
+                ]))
+
+                expect(receipts2).toHaveLength(2)
+                expect(registeredReceipts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: receipts2[0].id }),
+                    expect.objectContaining({ id: receipts2[1].id }),
                 ]))
             }, { delay: 500 })
         })
