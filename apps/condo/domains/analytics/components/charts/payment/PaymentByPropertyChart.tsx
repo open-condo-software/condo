@@ -6,7 +6,11 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { CustomChartView, CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
+import {
+    CustomChartView,
+    CHART_CONTAINER_HEIGHT,
+    CHART_CONTENT_ROW_GUTTER,
+} from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
@@ -77,7 +81,7 @@ const PaymentByPropertyChart: IPaymentChartCard = ({ data, organizationId }) => 
 
     return (
         <>
-            <Row gutter={[0, 16]}>
+            <Row gutter={CHART_CONTENT_ROW_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{ChartTitle}</Typography.Title>
                 </Col>
@@ -91,26 +95,24 @@ const PaymentByPropertyChart: IPaymentChartCard = ({ data, organizationId }) => 
                 </Col>
             </Row>
             <PopupChartView>
-                <Row gutter={[24, 40]}>
-                    <Col span={12}>
-                        <DateRangeSearch disabled={loading} />
-                    </Col>
-                    <Col span={12}>
-                        {PropertySearch}
-                    </Col>
-                    <Col span={24}>
-                        {chart}
-                    </Col>
-                    <Col span={24}>
-                        <CustomListView
-                            viewMode='pie'
-                            data={localData}
-                            loading={loading}
-                            mapperInstance={dataMapper}
-                            translations={translations}
-                        />
-                    </Col>
-                </Row>
+                <Col span={12}>
+                    <DateRangeSearch disabled={loading} />
+                </Col>
+                <Col span={12}>
+                    {PropertySearch}
+                </Col>
+                <Col span={24}>
+                    {chart}
+                </Col>
+                <Col span={24}>
+                    <CustomListView
+                        viewMode='pie'
+                        data={localData}
+                        loading={loading}
+                        mapperInstance={dataMapper}
+                        translations={translations}
+                    />
+                </Col>
             </PopupChartView>
         </>
     )

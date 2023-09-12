@@ -6,7 +6,7 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
+import { CHART_CONTAINER_HEIGHT, CHART_CONTENT_ROW_GUTTER } from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
@@ -24,7 +24,7 @@ const TicketByCategoryChart: TicketChartCardType = ({ data, organizationId }) =>
     const TicketsByCategory = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Category' })
     const CategoryClassifierTitle = intl.formatMessage({ id: 'global.category' })
 
-    const title = TicketTitle + ' ' + TicketsByCategory.toLowerCase()
+    const title = `${TicketTitle} ${TicketsByCategory.toLowerCase()}`
 
     const { open, PopupChartView, isOpen } = useDetailChartView({ title })
     const { SearchInput, values: propertyIds } = usePropertyFilter({ organizationId })
@@ -72,7 +72,7 @@ const TicketByCategoryChart: TicketChartCardType = ({ data, organizationId }) =>
 
     return (
         <>
-            <Row gutter={[0, 16]}>
+            <Row gutter={CHART_CONTENT_ROW_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{TicketTitle} {TicketsByCategory.toLowerCase()}</Typography.Title>
                 </Col>
@@ -86,25 +86,23 @@ const TicketByCategoryChart: TicketChartCardType = ({ data, organizationId }) =>
                 </Col>
             </Row>
             <PopupChartView>
-                <Row gutter={[24, 40]}>
-                    <Col span={12}>
-                        <DateRangeFilter disabled={loading} />
-                    </Col>
-                    <Col span={12}>
-                        {SearchInput}
-                    </Col>
-                    <Col span={24}>
-                        {chart}
-                    </Col>
-                    <Col span={24}>
-                        <CustomListView
-                            viewMode='bar'
-                            translations={translations}
-                            mapperInstance={TicketByCategoryDataMapper}
-                            data={localData}
-                        />
-                    </Col>
-                </Row>
+                <Col span={12}>
+                    <DateRangeFilter disabled={loading} />
+                </Col>
+                <Col span={12}>
+                    {SearchInput}
+                </Col>
+                <Col span={24}>
+                    {chart}
+                </Col>
+                <Col span={24}>
+                    <CustomListView
+                        viewMode='bar'
+                        translations={translations}
+                        mapperInstance={TicketByCategoryDataMapper}
+                        data={localData}
+                    />
+                </Col>
             </PopupChartView>
         </>
     )

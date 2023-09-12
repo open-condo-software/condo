@@ -7,7 +7,10 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { CHART_CONTAINER_BIG_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
+import {
+    CHART_CONTAINER_BIG_HEIGHT,
+    CHART_CONTENT_ROW_GUTTER,
+} from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
@@ -30,7 +33,7 @@ const TicketByPropertyChart: TicketChartCardType = ({ data, organizationId }) =>
     const TicketsByPropertyTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.Property' })
     const PropertyTitle = intl.formatMessage({ id: 'field.Address' })
 
-    const title = TicketTitle + ' ' + TicketsByPropertyTitle.toLowerCase()
+    const title = `${TicketTitle} ${TicketsByPropertyTitle.toLowerCase()}`
     const { open, isOpen, PopupChartView } = useDetailChartView({ title })
     const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
     const { values: propertyIds, SearchInput: PropertySearch } = usePropertyFilter({ organizationId })
@@ -79,7 +82,7 @@ const TicketByPropertyChart: TicketChartCardType = ({ data, organizationId }) =>
 
     return (
         <>
-            <Row gutter={[0, 16]}>
+            <Row gutter={CHART_CONTENT_ROW_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{title}</Typography.Title>
                 </Col>
@@ -94,26 +97,24 @@ const TicketByPropertyChart: TicketChartCardType = ({ data, organizationId }) =>
                 </Col>
             </Row>
             <PopupChartView>
-                <Row gutter={[24, 40]}>
-                    <Col span={12}>
-                        <DateRangeSearch disabled={loading} />
-                    </Col>
-                    <Col span={12}>
-                        {PropertySearch}
-                    </Col>
-                    <Col span={24}>
-                        {chart}
-                    </Col>
-                    <Col span={24}>
-                        <CustomListView
-                            viewMode='bar'
-                            mapperInstance={mapperInstance}
-                            loading={loading}
-                            data={localData}
-                            translations={translations}
-                        />
-                    </Col>
-                </Row>
+                <Col span={12}>
+                    <DateRangeSearch disabled={loading} />
+                </Col>
+                <Col span={12}>
+                    {PropertySearch}
+                </Col>
+                <Col span={24}>
+                    {chart}
+                </Col>
+                <Col span={24}>
+                    <CustomListView
+                        viewMode='bar'
+                        mapperInstance={mapperInstance}
+                        loading={loading}
+                        data={localData}
+                        translations={translations}
+                    />
+                </Col>
             </PopupChartView>
         </>
     )

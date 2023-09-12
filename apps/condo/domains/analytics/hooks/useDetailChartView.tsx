@@ -1,6 +1,11 @@
+import { Row } from 'antd'
 import React, { useState, useMemo, useCallback } from 'react'
 
 import { Modal } from '@open-condo/ui'
+
+import type { RowProps } from 'antd'
+
+const MODAL_ROW_GUTTER: RowProps['gutter'] = [24, 40]
 
 type UseDetailChartViewType = ({ title }: { title: string }) => ({
     PopupChartView: React.FC
@@ -20,7 +25,9 @@ const useDetailChartView: UseDetailChartViewType = ({ title }) => {
             width='big'
             title={title}
         >
-            {children}
+            <Row gutter={MODAL_ROW_GUTTER}>
+                {children}
+            </Row>
         </Modal>
     ), [isOpen, title])
 

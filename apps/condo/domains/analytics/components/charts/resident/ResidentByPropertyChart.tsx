@@ -6,7 +6,11 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Tooltip } from '@open-condo/ui'
 
-import { CustomChartView, CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
+import {
+    CustomChartView,
+    CHART_CONTAINER_HEIGHT,
+    CHART_CONTENT_ROW_GUTTER,
+} from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
 import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
@@ -79,7 +83,7 @@ const ResidentByPropertyChart: ResidentChartCardType = ({ data, organizationId }
 
     return (
         <>
-            <Row gutter={[0, 16]}>
+            <Row gutter={CHART_CONTENT_ROW_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{ChartTitle}</Typography.Title>
                 </Col>
@@ -93,22 +97,20 @@ const ResidentByPropertyChart: ResidentChartCardType = ({ data, organizationId }
                 </Col>
             </Row>
             <PopupChartView>
-                <Row gutter={[24, 40]}>
-                    <Col span={24}>
-                        {SearchInput}
-                    </Col>
-                    <Col span={24}>
-                        {chart}
-                    </Col>
-                    <Col span={24}>
-                        <CustomListView
-                            viewMode='pie'
-                            mapperInstance={dataMapper}
-                            data={localData}
-                            translations={translations}
-                        />
-                    </Col>
-                </Row>
+                <Col span={24}>
+                    {SearchInput}
+                </Col>
+                <Col span={24}>
+                    {chart}
+                </Col>
+                <Col span={24}>
+                    <CustomListView
+                        viewMode='pie'
+                        mapperInstance={dataMapper}
+                        data={localData}
+                        translations={translations}
+                    />
+                </Col>
             </PopupChartView>
         </>
     )

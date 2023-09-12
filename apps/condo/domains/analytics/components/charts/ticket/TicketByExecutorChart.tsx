@@ -7,6 +7,7 @@ import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { CHART_CONTAINER_BIG_HEIGHT, CHART_CONTENT_ROW_GUTTER } from '@condo/domains/analytics/components/CustomChartView'
 import { CustomListView } from '@condo/domains/analytics/components/CustomListView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
@@ -20,8 +21,6 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 
 import { TicketHorizontalBarDataMapper } from './dataMappers'
 
-import { CHART_CONTAINER_BIG_HEIGHT } from '../../CustomChartView'
-
 import type { TicketChartCardType } from './dataMappers'
 
 const mapperInstance = TicketHorizontalBarDataMapper([TicketGroupBy.Status, TicketGroupBy.Executor])
@@ -32,7 +31,7 @@ const TicketByExecutorChart: TicketChartCardType = ({ data, organizationId }) =>
     const TicketsByExecutor = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.groupByFilter.User' })
     const ExecutorTitle = intl.formatMessage({ id: 'field.Executor' })
 
-    const title = TicketTitle + ' ' + TicketsByExecutor.toLowerCase()
+    const title = `${TicketTitle} ${TicketsByExecutor.toLowerCase()}`
 
     const { open, isOpen, PopupChartView } = useDetailChartView({ title })
     const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
@@ -85,7 +84,7 @@ const TicketByExecutorChart: TicketChartCardType = ({ data, organizationId }) =>
 
     return (
         <>
-            <Row gutter={[0, 16]}>
+            <Row gutter={CHART_CONTENT_ROW_GUTTER}>
                 <Col span={24}>
                     <Typography.Title level={3}>{title}</Typography.Title>
                 </Col>
@@ -100,29 +99,27 @@ const TicketByExecutorChart: TicketChartCardType = ({ data, organizationId }) =>
                 </Col>
             </Row>
             <PopupChartView>
-                <Row gutter={[24, 40]}>
-                    <Col span={12}>
-                        <DateRangeSearch disabled={loading} />
-                    </Col>
-                    <Col span={12}>
-                        {SearchInput}
-                    </Col>
-                    <Col span={24}>
-                        {PropertySearchInput}
-                    </Col>
-                    <Col span={24}>
-                        {chart}
-                    </Col>
-                    <Col span={24}>
-                        <CustomListView
-                            viewMode='bar'
-                            mapperInstance={mapperInstance}
-                            loading={loading}
-                            data={localData}
-                            translations={translations}
-                        />
-                    </Col>
-                </Row>
+                <Col span={12}>
+                    <DateRangeSearch disabled={loading} />
+                </Col>
+                <Col span={12}>
+                    {SearchInput}
+                </Col>
+                <Col span={24}>
+                    {PropertySearchInput}
+                </Col>
+                <Col span={24}>
+                    {chart}
+                </Col>
+                <Col span={24}>
+                    <CustomListView
+                        viewMode='bar'
+                        mapperInstance={mapperInstance}
+                        loading={loading}
+                        data={localData}
+                        translations={translations}
+                    />
+                </Col>
             </PopupChartView>
         </>
     )}

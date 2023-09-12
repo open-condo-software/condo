@@ -13,6 +13,7 @@ import { ChartConfigResult } from './TicketChart'
 
 import type { CustomChartViewType, CustomChartMapType } from './CustomChart'
 import type { BaseSimpleChart } from '@condo/domains/common/components/BaseChart'
+import type { RowProps } from 'antd'
 
 type BaseDataType = Array<Record<string, unknown>>
 
@@ -49,6 +50,8 @@ const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
 
 export const CHART_CONTAINER_HEIGHT = 300
 export const CHART_CONTAINER_BIG_HEIGHT = 350
+
+export const CHART_CONTENT_ROW_GUTTER: RowProps['gutter'] = [0, 16]
 
 const CustomChartView =
     <
