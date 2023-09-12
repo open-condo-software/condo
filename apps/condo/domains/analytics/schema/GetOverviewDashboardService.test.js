@@ -38,11 +38,12 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { updateTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TICKET_STATUS_TYPES } = require('@condo/domains/ticket/constants')
 const { QUALITY_CONTROL_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/qualityControl')
 const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-
 
 const dateFrom = dayjs().toISOString()
 const dateTo = dayjs().endOf('day').toISOString()
@@ -421,6 +422,28 @@ describe('GetOverviewDashboardService', () => {
 
                 expect(data.overview.resident.residents).toHaveLength(1)
                 expect(data.overview).toHaveProperty(['resident', 'residents', '0', 'count'], '1')
+            })
+        })
+        describe('Property', () => {
+            it('should return total count of organization property living units', async () => {
+                const [updatedProperty] = await updateTestProperty(admin, property.id, {
+                    map: buildingMapJson,
+                })
+
+                expect(updatedProperty.unitsCount).toBeGreaterThan(0)
+
+                const [data] = await getOverviewDashboardByTestClient(organizationAdminUser,
+                    {
+                        where: {
+                            organization: organization.id,
+                            dateFrom,
+                            dateTo,
+                        },
+                        groupBy: { aggregatePeriod: 'day' },
+                        entities: ['property'],
+                    })
+
+                expect(data.overview).toHaveProperty(['property', 'sum'], String(updatedProperty.unitsCount))
             })
         })
     })
