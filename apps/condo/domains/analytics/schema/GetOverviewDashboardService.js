@@ -4,6 +4,7 @@
 
 const dayjs = require('dayjs')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
@@ -16,8 +17,7 @@ const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/d
 const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
 const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
 const { OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
-const { ANALYTICS_V3 } = require('@condo/domains/organization/constants/features')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 
 const ERRORS = {
     FEATURE_IS_DISABLED: {
@@ -92,12 +92,12 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         {
             access: access.canGetOverviewDashboard,
             schema: 'getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
+            resolver: async (parent, args, context) => {
                 const { data: { where, groupBy } } = args
 
-                const organization = await Organization.getOne(context, { id: where.organization })
+                const hasFeature = await featureToggleManager.getFeatureValue(context, ANALYTICS_V3, false)
 
-                if (!organization.features.includes(ANALYTICS_V3)) {
+                if (!hasFeature) {
                     throw new GQLError(ERRORS.FEATURE_IS_DISABLED, context)
                 }
 
