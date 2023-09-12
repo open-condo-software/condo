@@ -3,6 +3,7 @@
 
 exports.up = async (knex) => {
     await knex.raw(`
+    BEGIN;
     --
     -- [CUSTOM] create transform function that remove provided value from jsonb array
     --
@@ -25,11 +26,19 @@ exports.up = async (knex) => {
     -- [CUSTOM] drop custom function
     --
     DROP FUNCTION jsonb_remove_array_element;
+    
+    COMMIT;
     `)
 }
 
 exports.down = async (knex) => {
     await knex.raw(`
+    BEGIN;
     
+    --
+    -- This is an irreversible migration, because organization feature was completely removed from features field
+    -- 
+    
+    COMMIT;
     `)
 }
