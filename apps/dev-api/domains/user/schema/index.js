@@ -4,12 +4,14 @@
  */
 const { ConfirmPhoneAction } = require('./ConfirmPhoneAction')
 const { ConfirmPhoneActionService } = require('./ConfirmPhoneActionService')
-const { User } = require('./User') 
+const { RegisterNewUserService } = require('./RegisterNewUserService') 
+const { User } = require('./User')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     User,
     ConfirmPhoneAction,
     ConfirmPhoneActionService,
+    RegisterNewUserService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

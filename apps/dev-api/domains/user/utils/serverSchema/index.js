@@ -4,19 +4,34 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
+const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateServerUtils(UserGQL)
 const ConfirmPhoneAction = generateServerUtils(ConfirmPhoneActionGQL)
+
+async function registerNewUser (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_NEW_USER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to registerNewUser',
+        dataPath: 'obj',
+    })
+}
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     User,
     ConfirmPhoneAction,
+    registerNewUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

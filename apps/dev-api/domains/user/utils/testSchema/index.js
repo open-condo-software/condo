@@ -5,10 +5,11 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
+const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -41,10 +42,25 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     const obj = await User.update(client, id, attrs)
     return [obj, attrs]
 }
+
+async function registerNewUserByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     User, createTestUser, updateTestUser,
     ConfirmPhoneAction,
+    registerNewUserByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
