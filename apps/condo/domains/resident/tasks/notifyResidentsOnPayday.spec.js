@@ -32,36 +32,42 @@ const getNewMessages = async ({ userId }) => {
 describe('Push notification on payday about unpaid receipts', () => {
     setFakeClientMode(index)
     describe('send push',  () => {
-        let admin, client, resident, consumer, context, property, billingProperty, account, period, acquiringContext
+        let admin, context, property, billingProperty, account, period, acquiringContext, organization
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
-            client = await makeClientWithResidentUser()
-            const [integration] = await createTestBillingIntegration(admin)
-            const [organization] = await registerNewOrganization(admin);
-            [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration);
+            period = dayjs().set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
+            const [integration] = await createTestBillingIntegration(admin);
+            [organization] = await registerNewOrganization(admin);
+            [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+                lastReport: {
+                    period,
+                    finishTime: dayjs().toISOString(),
+                    totalReceipts: 100,
+                },
+            });
             [property] = await createTestProperty(admin, organization);
             [billingProperty] = await createTestBillingProperty(admin, context, { address: property.address, addressMeta: property.addressMeta });
-            [account] = await createTestBillingAccount(admin, context, billingProperty);
-            [resident] = await createTestResident(admin, client.user, property);
-            [consumer] = await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
+            [account] = await createTestBillingAccount(admin, context, billingProperty)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin);
             [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
-            period = dayjs().set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
         })
 
         it('has BillingReceipt with positive toPay field and has not Payments', async () => {
+            const client = await makeClientWithResidentUser()
+            const [resident] = await createTestResident(admin, client.user, property)
+            await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
 
             await notifyResidentsOnPayday()
 
             const messages = await getNewMessages({ userId: client.user.id })
-
             expect(messages).toHaveLength(1)
-
-            await Message.softDelete(keystone, messages[0].id, { dv: 1, sender: { dv: 1, fingerprint: 'tests' } })
         })
-        
+
         it('has BillingReceipt with positive toPay field and has partial Payments', async () => {
+            const client = await makeClientWithResidentUser()
+            const [resident] = await createTestResident(admin, client.user, property)
+            await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
 
             const [payment] = await createTestPayment(admin, receipt.context.organization, receipt, acquiringContext, {
@@ -73,30 +79,29 @@ describe('Push notification on payday about unpaid receipts', () => {
             await notifyResidentsOnPayday()
 
             const messages = await getNewMessages({ userId: client.user.id })
-
             expect(messages).toHaveLength(1)
         })
     })
 
     describe('dont send', function () {
-        let admin, client, resident, consumer, context, property, billingProperty, account, period, acquiringContext
+        let admin, context, property, billingProperty, account, period, acquiringContext, organization
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
-            client = await makeClientWithResidentUser()
-            const [integration] = await createTestBillingIntegration(admin)
-            const [organization] = await registerNewOrganization(admin);
+            period = dayjs().set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
+            const [integration] = await createTestBillingIntegration(admin);
+            [organization] = await registerNewOrganization(admin);
             [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration);
             [property] = await createTestProperty(admin, organization);
             [billingProperty] = await createTestBillingProperty(admin, context, { address: property.address, addressMeta: property.addressMeta });
-            [account] = await createTestBillingAccount(admin, context, billingProperty);
-            [resident] = await createTestResident(admin, client.user, property);
-            [consumer] = await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
+            [account] = await createTestBillingAccount(admin, context, billingProperty)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin);
             [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
-            period = dayjs().set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
         })
 
         it('has BillingReceipt with positive toPay field and has full Payment', async () => {
+            const client = await makeClientWithResidentUser()
+            const [resident] = await createTestResident(admin, client.user, property)
+            await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
 
             const [payment] = await createTestPayment(admin, receipt.context.organization, receipt, acquiringContext, {

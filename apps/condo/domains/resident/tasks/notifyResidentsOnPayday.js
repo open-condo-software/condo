@@ -6,7 +6,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingReceipt, getPaymentsSum, BillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
@@ -31,6 +31,7 @@ async function hasConflictingPushes (context, userId) {
     })
 
     for (const message of userMessages) {
+        console.log('pshp', conflictingMessageTypes.find(type => type === message.type))
         if (conflictingMessageTypes.find(type => type === message.type)) return true
     }
     return false
@@ -57,7 +58,7 @@ async function sendNotification (context, receipt) {
         await sendMessage(context, {
             ...DV_SENDER,
             to: { user: { id: userId } },
-            lang: conf.DEFAULT_LOCALE,
+            lang,
             type: SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
             meta: {
                 dv: 1,
@@ -79,22 +80,35 @@ async function sendNotification (context, receipt) {
 async function notifyResidentsOnPayday () {
     const { keystone: context } = await getSchemaCtx('User')
     const now = dayjs()
-    const previousPeriod = now.set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
     logger.info({ msg: 'Start processing', startAt: now.format() })
 
-    // get all BillingReceipts with positive toPay field
-    const allBillingReceipts = (await loadListByChunks({
+    const allBillingContexts = await loadListByChunks({
         context,
-        list: BillingReceipt,
+        list: BillingIntegrationOrganizationContext,
         chunkSize: 20,
         where: {
-            period_in: [
-                previousPeriod,
-            ],
-            toPay_gt: '0',
+            lastReport_not: null,
+            updatedAt_gte: now.set('date', 1).subtract(2, 'month').toISOString(),
             deletedAt: null,
         },
-    }))
+    })
+
+    const allBillingReceipts = []
+
+    // get all BillingReceipts with positive toPay field
+    for (const billingContext of allBillingContexts) {
+        const [receipt] = await BillingReceipt.getAll(context, {
+            period: billingContext.lastReport.period,
+            toPay_gt: '0',
+            context: { organization: { id: billingContext.organization.id } },
+            deletedAt: null,
+        }, {
+            first: 1,
+            sortBy: ['createdAt_DESC'],
+        })
+
+        allBillingReceipts.push(receipt)
+    }
 
     for (const receipt of allBillingReceipts) {
         const organizationId = get(receipt, ['context', 'organization', 'id'])
