@@ -35,13 +35,12 @@ async function canReadB2BAppPermissions ({ authentication: { item: user }, listK
     }
 
     if (user.type === STAFF) {
+        const employeeQuery = queryOrganizationEmployeeFor(user.id).employees_some
         const userEmployeesWithCanManageRoles = await find('OrganizationEmployee',
             {
-                user: { id: user.id },
-                isBlocked: false,
+                ...employeeQuery,
                 isAccepted: true,
                 role: { canManageRoles: true },
-                deletedAt: null,
             }
         )
         const userOrganizationIds = uniq(compact(userEmployeesWithCanManageRoles.map(employee => employee.organization)))

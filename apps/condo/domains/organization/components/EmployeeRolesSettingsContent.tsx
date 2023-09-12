@@ -7,7 +7,7 @@ import {
     B2BAppPermission as B2BAppPermissionType,
     B2BAppRole as B2BAppRoleType,
 } from '@app/condo/schema'
-import { Col, notification, Row, RowProps, Typography } from 'antd'
+import { Col, notification, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
 import isEqual from 'lodash/isEqual'
@@ -32,7 +32,7 @@ import {
 import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip, Typography } from '@open-condo/ui'
 
 import {
     EXPANDABLE_COLUMN_STUB,
@@ -104,7 +104,7 @@ type TableCheckboxProps = {
  * If user set "canManage" permission checkbox, then "canRead" checkbox sets to true automatically.
  * If user unset "canRead" permission checkbox, then all "canManage" checkboxes of this group sets to false automatically.
  */
-const getPermissionsWithNewValue = ({ permissionKey, newValue, oldPermissions, isReadPermission }) => {
+const getPermissionsWithNewValue = ({ permissionKey, newValue, oldPermissions, isReadPermission }): PermissionsType => {
     let newPermissions
 
     if (isReadPermission) {
@@ -401,8 +401,6 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 })),
         ],
     })), [CanReadServiceTitle, b2BAppPermissions, connectedB2BApps])
-
-    console.log('tableData', b2BAppPermissions, tableData)
 
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
     const [permissionsState, setPermissionsState] = useState<PermissionsState>()
