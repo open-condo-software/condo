@@ -188,6 +188,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             ],
                             unitType: item.unitType,
                             unitName: item.unitName,
+                            number: item.number,
                         },
                     }, { sortBy: ['period_DESC'], first: 2 })
 
