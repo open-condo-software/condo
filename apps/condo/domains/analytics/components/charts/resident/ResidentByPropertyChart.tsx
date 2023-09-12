@@ -34,12 +34,12 @@ const ResidentByPropertyChart: ResidentChartCardType = ({ data, organizationId }
 
     const { values: propertyIds, SearchInput } = usePropertyFilter({ organizationId })
     const { dateRange } = useDateRangeFilter()
-    const { open, isOpen, PopupChartView } = useDetailChartView({ title: ChartTitle })
+    const { open, isOpen, PopupChartView, errorFallback } = useDetailChartView({ title: ChartTitle })
     const [loadResidentData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
             setLocalData(get(response, 'result.overview.resident.residents', []))
         },
-        onError: error => {console.log(error)},
+        onError: () => { errorFallback() },
     })
 
     const dataMapper = useMemo(() => ResidentByPropertyDataMapper(ResidentTitle), [ResidentTitle])

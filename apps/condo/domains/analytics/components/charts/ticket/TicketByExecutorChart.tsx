@@ -33,7 +33,7 @@ const TicketByExecutorChart: TicketChartCardType = ({ data, organizationId }) =>
 
     const title = `${TicketTitle} ${TicketsByExecutor.toLowerCase()}`
 
-    const { open, isOpen, PopupChartView } = useDetailChartView({ title })
+    const { open, isOpen, PopupChartView, errorFallback } = useDetailChartView({ title })
     const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
     const { values: executorIds, SearchInput } = useExecutorFilter({ organizationId })
     const { values: propertyIds, SearchInput: PropertySearchInput } = usePropertyFilter({ organizationId })
@@ -44,7 +44,7 @@ const TicketByExecutorChart: TicketChartCardType = ({ data, organizationId }) =>
         onCompleted: (response) => {
             setLocalData(get(response, 'result.overview.ticketByExecutor.tickets', []))
         },
-        onError: error => {console.log(error)},
+        onError: () => { errorFallback() },
     })
 
     useEffect(() => {

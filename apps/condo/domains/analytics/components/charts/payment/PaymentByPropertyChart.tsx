@@ -30,7 +30,7 @@ const PaymentByPropertyChart: IPaymentChartCard = ({ data, organizationId }) => 
     const PropertyPercentTitle = intl.formatMessage({ id: 'pages.condo.analytics.paymentPercent' })
 
     const [localData, setLocalData] = useState([])
-    const { open, isOpen, PopupChartView } = useDetailChartView({ title: ChartTitle })
+    const { open, isOpen, PopupChartView, errorFallback } = useDetailChartView({ title: ChartTitle })
     const { values: propertyIds, SearchInput: PropertySearch } = usePropertyFilter({ organizationId })
     const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
 
@@ -38,7 +38,7 @@ const PaymentByPropertyChart: IPaymentChartCard = ({ data, organizationId }) => 
         onCompleted: (response) => {
             setLocalData(get(response, 'result.overview.payment.payments', []))
         },
-        onError: error => {console.log(error)},
+        onError: () => { errorFallback() },
     })
 
     useEffect(() => {

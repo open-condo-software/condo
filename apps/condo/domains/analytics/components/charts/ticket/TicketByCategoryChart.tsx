@@ -26,7 +26,7 @@ const TicketByCategoryChart: TicketChartCardType = ({ data, organizationId }) =>
 
     const title = `${TicketTitle} ${TicketsByCategory.toLowerCase()}`
 
-    const { open, PopupChartView, isOpen } = useDetailChartView({ title })
+    const { open, PopupChartView, isOpen, errorFallback } = useDetailChartView({ title })
     const { SearchInput, values: propertyIds } = usePropertyFilter({ organizationId })
     const { SearchInput: DateRangeFilter, dateRange } = useDateRangeFilter()
 
@@ -36,7 +36,7 @@ const TicketByCategoryChart: TicketChartCardType = ({ data, organizationId }) =>
         onCompleted: (response) => {
             setLocalData(get(response, 'result.overview.ticketByCategory.tickets', []))
         },
-        onError: error => {console.log(error)},
+        onError: () => { errorFallback() },
     })
 
     const translations = {

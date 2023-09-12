@@ -1,6 +1,7 @@
-import { Row } from 'antd'
+import { Row, notification } from 'antd'
 import React, { useState, useMemo, useCallback } from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
 import { Modal } from '@open-condo/ui'
 
 import type { RowProps } from 'antd'
@@ -11,12 +12,19 @@ type UseDetailChartViewType = ({ title }: { title: string }) => ({
     PopupChartView: React.FC
     open: () => void
     isOpen: boolean
+    errorFallback: () => void
 })
 
 const useDetailChartView: UseDetailChartViewType = ({ title }) => {
+    const intl = useIntl()
+    const ErrorTitle = intl.formatMessage({ id: 'errors.LoadingError' })
+
     const [isOpen, setIsOpen] = useState(false)
 
     const open = useCallback(() => setIsOpen(true), [])
+    const errorFallback = useCallback(() => {
+        notification.error({ message: ErrorTitle })
+    }, [ErrorTitle])
 
     const PopupChartView = useMemo<React.FC>(() => ({ children }) => (
         <Modal
@@ -35,6 +43,7 @@ const useDetailChartView: UseDetailChartViewType = ({ title }) => {
         PopupChartView,
         open,
         isOpen,
+        errorFallback,
     }
 }
 

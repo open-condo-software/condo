@@ -34,7 +34,7 @@ const TicketByPropertyChart: TicketChartCardType = ({ data, organizationId }) =>
     const PropertyTitle = intl.formatMessage({ id: 'field.Address' })
 
     const title = `${TicketTitle} ${TicketsByPropertyTitle.toLowerCase()}`
-    const { open, isOpen, PopupChartView } = useDetailChartView({ title })
+    const { open, isOpen, PopupChartView, errorFallback } = useDetailChartView({ title })
     const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
     const { values: propertyIds, SearchInput: PropertySearch } = usePropertyFilter({ organizationId })
 
@@ -44,6 +44,7 @@ const TicketByPropertyChart: TicketChartCardType = ({ data, organizationId }) =>
         onCompleted: (response) => {
             setLocalData(get(response, 'result.overview.ticketByProperty.tickets', []))
         },
+        onError: () => { errorFallback() },
     })
 
     useEffect(() => {
