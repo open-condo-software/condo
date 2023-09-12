@@ -95,7 +95,9 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
             resolver: async (parent, args, context) => {
                 const { data: { where, groupBy } } = args
 
-                const hasFeature = await featureToggleManager.getFeatureValue(context, ANALYTICS_V3, false)
+                const hasFeature = await featureToggleManager.getFeatureValue(context, ANALYTICS_V3, false, {
+                    organization: where.organization,
+                })
 
                 if (!hasFeature) {
                     throw new GQLError(ERRORS.FEATURE_IS_DISABLED, context)
