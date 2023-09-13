@@ -32,7 +32,6 @@ import {
     useLayoutContext,
 } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
@@ -40,7 +39,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
+import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
     MultipleFilterContextProvider,

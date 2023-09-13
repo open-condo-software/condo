@@ -36,7 +36,6 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
@@ -49,7 +48,6 @@ import { EXCEL } from '@condo/domains/common/constants/export'
 import { BIGGER_LIMIT_FOR_IMPORT, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import {
     DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
-    EXTENDED_RECORDS_LIMIT_FOR_IMPORT,
 } from '@condo/domains/common/constants/import'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
