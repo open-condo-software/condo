@@ -921,6 +921,7 @@ __metadata:
     jest-jasmine2: ^29.4.0
     jest-watch-typeahead: ^0.6.1
     lodash: ^4.17.21
+    phone: ^3.1.40
     uuid: ^8.3.0
   languageName: unknown
   linkType: soft
@@ -35068,6 +35069,13 @@ __metadata:
   version: 3.1.36
   resolution: "phone@npm:3.1.36"
   checksum: c61be152752acb70ca90ac2e629c26aab4e909812bd3d0646004903687483c3dafe4e7458030251f80f0888bcf935e3e7395aad8bfced547236e6ea7dcd5ed6d
+  languageName: node
+  linkType: hard
+
+"phone@npm:^3.1.40":
+  version: 3.1.40
+  resolution: "phone@npm:3.1.40"
+  checksum: 2cc04c03145501eeceb379adbc4013983045da2ac01974ef8e2df8424486ba8241f44597954d82d10a05dbec440bec21bfdb4bf31039b4b568c9e4fd9efd74b5
   languageName: node
   linkType: hard
 

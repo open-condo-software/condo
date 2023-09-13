@@ -4,10 +4,9 @@
 
 const dayjs = require('dayjs')
 
-const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
 const { User, ConfirmPhoneAction } = require('@dev-api/domains/user/utils/serverSchema')
-
 
 const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
     types: [
@@ -15,16 +14,12 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             access: true,
             type: 'input RegisterNewUserInput { dv: Int!, sender: SenderFieldInput!, confirmPhoneActionId: String!, name: String!, password: String!}',
         },
-        {
-            access: true,
-            type: 'type RegisterNewUserOutput { id: String! }',
-        },
     ],
     
     mutations: [
         {
             access: true,
-            schema: 'registerNewUser(data: RegisterNewUserInput!): RegisterNewUserOutput',
+            schema: 'registerNewUser(data: RegisterNewUserInput!): User',
             resolver: async (parent, args, context) => {
                 const { data: { dv, sender, confirmPhoneActionId, name, password } } = args
 
@@ -48,9 +43,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     password,
                 })
 
-                return {
-                    id: createdUser.id,
-                }
+                return await getById('User', createdUser.id)
             },
         },
     ],
