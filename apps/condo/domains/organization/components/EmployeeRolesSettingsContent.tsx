@@ -5,7 +5,7 @@ import {
     SortOrganizationEmployeeRolesBy,
     OrganizationEmployeeRole as OrganizationEmployeeRoleType,
     B2BAppPermission as B2BAppPermissionType,
-    B2BAppRole as B2BAppRoleType,
+    B2BAppRole as B2BAppRoleType, OrganizationEmployeeRoleUpdateInput,
 } from '@app/condo/schema'
 import { Col, notification, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
@@ -60,7 +60,8 @@ type PermissionRow = {
 
 type PermissionsGroup = {
     id: string,
-    groupName: string
+    b2bAppId?: string,
+    groupName: string,
     permissions: PermissionRow[],
 }
 
@@ -73,6 +74,7 @@ type EmployeeRolesTableProps = {
     createB2BAppRoleAction: IUseCreateActionType<B2BAppRoleType, B2BAppRoleCreateInput>,
     softDeleteB2BAppRoleAction: IUseSoftDeleteActionType<B2BAppRoleType>,
     updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>,
+    updateOrganizationEmployeeRoleAction: IUseUpdateActionType<OrganizationEmployeeRoleType, OrganizationEmployeeRoleUpdateInput>
 }
 
 type PermissionsType = { [permissionKey: string]: boolean }
@@ -97,6 +99,61 @@ type TableCheckboxProps = {
     permissionKey: string
     permissionsState: PermissionsState
     setPermissionsState: Dispatch<SetStateAction<PermissionsState>>
+}
+
+type EmployeeRolePermissionGroupDescriptor = {
+    groupName: string,
+    permissions: { key: string, name: string }[]
+}
+
+/**
+ * Generates employee role permissions data for settings table.
+ * If you want to add permission row or group of permissions you need to modify "employeeRolePermissionGroups" array.
+ */
+const getEmployeeRolePermissionGroups = (intl): PermissionsGroup[] => {
+    const ServicesGroupName = intl.formatMessage({ id: 'global.section.miniapps' })
+    const CanManageB2BAppsName = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canManageB2BApps' })
+
+    const employeeRolePermissionGroups: EmployeeRolePermissionGroupDescriptor[] = [{
+        groupName: ServicesGroupName,
+        permissions: [
+            { key: 'canManageB2BApps', name: CanManageB2BAppsName },
+        ],
+    }]
+
+    return employeeRolePermissionGroups.map(({ groupName, permissions }) => ({
+        id: groupName,
+        groupName: groupName,
+        permissions: permissions.map(({ key, name }) => ({ id: key, key, name })),
+    }))
+}
+
+/**
+ * Generates b2b role permissions data for settings table.
+ */
+const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): PermissionsGroup[] => {
+    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
+
+    return connectedB2BApps.map((b2bApp): PermissionsGroup => ({
+        id: b2bApp.id,
+        b2bAppId: b2bApp.id,
+        groupName: b2bApp.name,
+        permissions: [
+            // Client side mark that employee role has b2bRole (Due to our logic this employee role can read b2bApp).
+            {
+                id: `canRead${b2bApp.id}`,
+                key: `canRead${b2bApp.id}`,
+                name: CanReadServiceTitle,
+            },
+            ...b2BAppPermissions
+                .filter(permission => permission.app.id === b2bApp.id)
+                .map((permission): PermissionRow => ({
+                    id: permission.id,
+                    key: permission.key,
+                    name: permission.name,
+                })),
+        ],
+    }))
 }
 
 /**
@@ -184,7 +241,24 @@ const getSaveNotificationMessage = ({ intl, initialPermissionsState, permissions
 
     let notificationMessage = DeletePermissionsMessage
 
+    const hasAddPermissionOperation = (initialPermissions, newPermissions) => {
+        for (const permission of Object.keys(initialPermissions)) {
+            if (!initialPermissions[permission] && newPermissions[permission]) {
+                return true
+            }
+        }
+
+        return false
+    }
+
     for (const roleId of Object.keys(initialPermissionsState)) {
+        const initialEmployeeRolePermissions = initialPermissionsState[roleId].organizationPermissions
+        const newEmployeeRolePermissions = permissionsState[roleId].organizationPermissions
+
+        if (hasAddPermissionOperation(initialEmployeeRolePermissions, newEmployeeRolePermissions)) {
+            notificationMessage = UpdatePermissionsMessage
+        }
+
         const initialAppsPermissions = initialPermissionsState[roleId].b2bAppRoles
         const newAppsPermissions = permissionsState[roleId].b2bAppRoles
 
@@ -192,10 +266,8 @@ const getSaveNotificationMessage = ({ intl, initialPermissionsState, permissions
             const initialAppPermissions = initialAppsPermissions[appId].permissions
             const newAppPermissions = newAppsPermissions[appId].permissions
 
-            for (const permission of Object.keys(initialAppPermissions)) {
-                if (!initialAppPermissions[permission] && newAppPermissions[permission]) {
-                    notificationMessage = UpdatePermissionsMessage
-                }
+            if (hasAddPermissionOperation(initialAppPermissions, newAppPermissions)) {
+                notificationMessage = UpdatePermissionsMessage
             }
         }
     }
@@ -350,7 +422,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
         ...employeeRoles.map(employeeRole => ({
             render: (permissionRow: PermissionRow) => {
                 return <TableCheckbox
-                    b2bAppId={permissionsGroup.id}
+                    b2bAppId={permissionsGroup.b2bAppId}
                     permissionKey={permissionRow.key}
                     employeeRoleId={employeeRole.id}
                     permissionsState={permissionsState}
@@ -359,7 +431,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
             },
         })),
         EXPANDABLE_COLUMN_STUB,
-    ], [employeeRoles, permissionsState, permissionsGroup.id, setPermissionsState])
+    ], [employeeRoles, permissionsGroup.b2bAppId, permissionsState, setPermissionsState])
 
     return <Table
         tableLayout='auto'
@@ -374,33 +446,18 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
 export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
     loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction,
+    updateOrganizationEmployeeRoleAction,
 }) => {
     const intl = useIntl()
     const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
-    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
 
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
-    const tableData: PermissionsGroup[] = useMemo(() => connectedB2BApps.map((b2bApp): PermissionsGroup => ({
-        id: b2bApp.id,
-        groupName: b2bApp.name,
-        permissions: [
-            // Client side mark that employee role has b2bRole (Due to our logic this employee role can read b2bApp).
-            {
-                id: `canRead${b2bApp.id}`,
-                key: `canRead${b2bApp.id}`,
-                name: CanReadServiceTitle,
-            },
-            ...b2BAppPermissions
-                .filter(permission => permission.app.id === b2bApp.id)
-                .map((permission): PermissionRow => ({
-                    id: permission.id,
-                    key: permission.key,
-                    name: permission.name,
-                })),
-        ],
-    })), [CanReadServiceTitle, b2BAppPermissions, connectedB2BApps])
+    const tableData: PermissionsGroup[] = useMemo(() => [
+        ...getEmployeeRolePermissionGroups(intl),
+        ...getB2BRolePermissionGroups(intl, connectedB2BApps, b2BAppPermissions),
+    ], [b2BAppPermissions, connectedB2BApps, intl])
 
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
     const [permissionsState, setPermissionsState] = useState<PermissionsState>()
@@ -455,6 +512,13 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 continue
             }
 
+            const initialEmployeeRolePermissions = initialRolePermissions.organizationPermissions
+            const newEmployeeRolePermissions = newRolePermissions.organizationPermissions
+
+            if (!isEqual(initialEmployeeRolePermissions, newEmployeeRolePermissions)) {
+                await updateOrganizationEmployeeRoleAction(newEmployeeRolePermissions, employeeRole)
+            }
+
             const initialB2bRolePermissions = initialRolePermissions.b2bAppRoles
             const newB2bRolePermissions = newRolePermissions.b2bAppRoles
 
@@ -475,7 +539,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         notification.info({
             message: getSaveNotificationMessage({
                 initialPermissionsState,
-                permissionsState: permissionsState,
+                permissionsState,
                 intl,
             }),
         })
@@ -483,8 +547,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         setInitialPermissionsState(cloneDeep(permissionsState))
         setSubmitActionProcessing(false)
     }, [
-        b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState, intl,
-        permissionsState, softDeleteB2BAppRoleAction, updateB2BAppRoleAction,
+        b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState,
+        intl, permissionsState, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction,
     ])
 
     const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => <ExpandableRow
@@ -547,6 +611,7 @@ export const EmployeeRolesSettingsContent = () => {
 
     const {
         loading: isEmployeeRolesLoading,
+        refetch: refetchEmployeeRoles,
         objs: employeeRoles,
     } = OrganizationEmployeeRole.useObjects({
         where: { organization: { id: userOrganizationId } },
@@ -578,6 +643,7 @@ export const EmployeeRolesSettingsContent = () => {
     const createB2BAppRoleAction = B2BAppRole.useCreate({}, () => refetchB2BAppRoles())
     const softDeleteB2BAppRoleAction = B2BAppRole.useSoftDelete(() => refetchB2BAppRoles())
     const updateB2BAppRoleAction = B2BAppRole.useUpdate({}, () => refetchB2BAppRoles())
+    const updateOrganizationEmployeeRoleAction = OrganizationEmployeeRole.useUpdate({}, () => refetchEmployeeRoles())
 
     const {
         loading: isB2BAppPermissionsLoading,
@@ -593,6 +659,7 @@ export const EmployeeRolesSettingsContent = () => {
         createB2BAppRoleAction={createB2BAppRoleAction}
         softDeleteB2BAppRoleAction={softDeleteB2BAppRoleAction}
         updateB2BAppRoleAction={updateB2BAppRoleAction}
+        updateOrganizationEmployeeRoleAction={updateOrganizationEmployeeRoleAction}
         connectedB2BApps={connectedB2BApps}
         employeeRoles={employeeRoles}
         b2BAppRoles={b2BAppRoles}

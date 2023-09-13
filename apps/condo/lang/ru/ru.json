@@ -899,6 +899,7 @@
   "pages.condo.meter.reportingPeriod.create.addressPlaceholder": "Выберите дом",
   "pages.condo.meter.reportingPeriod.EmptyList.header": "Период подачи показаний пока не добавлен",
   "pages.condo.settings.employeeRoles.canReadService": "Просмотр сервиса",
+  "pages.condo.settings.employeeRoles.canManageB2BApps": "Подключение сервисов",
   "pages.condo.settings.employeeRoles.notification.updatePermissions": "Права предоставлены",
   "pages.condo.settings.employeeRoles.notification.deletePermissions": "Права отозваны",
   "pages.condo.settings.employeeRoles.disabledCheckboxTitle": "Нельзя выключить права у всех ролей, для корректной работы у кого-то они должны быть доступны",
