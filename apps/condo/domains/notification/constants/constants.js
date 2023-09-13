@@ -73,6 +73,7 @@ const RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE = 'RECURRENT_
 const B2C_APP_MESSAGE_PUSH_TYPE = 'B2C_APP_MESSAGE_PUSH'
 const NEWS_ITEM_COMMON_MESSAGE_TYPE = 'NEWS_ITEM_COMMON_MESSAGE_TYPE'
 const NEWS_ITEM_EMERGENCY_MESSAGE_TYPE = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
+const DEV_PORTAL_MESSAGE_TYPE = 'DEV_PORTAL_MESSAGE'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -517,6 +518,10 @@ const MESSAGE_META = {
     },
     [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta },
     [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: { ...newsItemMessageMeta },
+    [DEV_PORTAL_MESSAGE_TYPE]: {
+        dv: { required: true },
+        body: { required: true },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -688,7 +693,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
     },
-
+    [DEV_PORTAL_MESSAGE_TYPE]: {
+        allowedTransports: [SMS_TRANSPORT],
+        defaultTransports: [SMS_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -899,5 +908,6 @@ module.exports = {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
     NEWS_ITEM_COMMON_MESSAGE_TYPE,
     NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,
+    DEV_PORTAL_MESSAGE_TYPE,
 }
 

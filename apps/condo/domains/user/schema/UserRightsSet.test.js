@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -39,6 +39,12 @@ const {
     B2CAppBuild,
     B2CAppProperty,
 } = require('@condo/domains/miniapp/utils/testSchema')
+const {
+    DEV_PORTAL_MESSAGE_TYPE,
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_SENT_STATUS,
+} = require('@condo/domains/notification/constants/constants')
+const { sendMessageByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
 const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     UserRightsSet,
@@ -50,6 +56,7 @@ const {
     makeClientWithSupportUser,
     makeClientWithServiceUser,
     registerNewServiceUserByTestClient,
+    createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
 
 function expectDeleted (obj) {
@@ -383,7 +390,8 @@ describe('UserRightsSet', () => {
     })
     describe('Specific right sets', () => {
         describe('Dev-portal service user', () => {
-            test('Can manage all miniapp-related models (without context)', async () => {
+            let portalClient
+            beforeAll(async () => {
                 const [portalRightSet] = await createTestUserRightsSet(support, {
                     canReadB2BApps: true,
                     canReadB2BAppAccessRights: true,
@@ -404,11 +412,13 @@ describe('UserRightsSet', () => {
                     canManageB2CAppProperties: true,
 
                     canExecuteRegisterNewServiceUser: true,
+                    canExecuteSendMessage: true,
                 })
-                const portalClient = await makeClientWithServiceUser({
+                portalClient = await makeClientWithServiceUser({
                     rightsSet: { connect: { id: portalRightSet.id } },
                 })
-
+            })
+            test('Can manage all miniapp-related models (without context)', async () => {
                 // Create / update section
                 const [b2bApp] = await createTestB2BApp(portalClient)
                 expect(b2bApp).toHaveProperty('id')
@@ -503,6 +513,26 @@ describe('UserRightsSet', () => {
                 expectDeleted(deletedPermission)
                 const [deletedB2BApp] = await B2BApp.softDelete(portalClient, readB2BApp.id)
                 expectDeleted(deletedB2BApp)
+            })
+            test('Can send SMS-messages', async () => {
+                const meta = { dv: 1, body: faker.lorem.sentence(5) }
+
+                const [data] = await sendMessageByTestClient(portalClient, {
+                    to: { phone: createTestPhone() },
+                    type: DEV_PORTAL_MESSAGE_TYPE,
+                    meta,
+                })
+
+                expect(data).toHaveProperty('id')
+                expect(data).toHaveProperty('status', MESSAGE_SENDING_STATUS)
+
+                await waitFor(async () => {
+                    const message = await Message.getOne(admin, { id: data.id })
+
+                    expect(message).toBeDefined()
+                    expect(message).toHaveProperty('meta', meta)
+                    expect(message).toHaveProperty('status', MESSAGE_SENT_STATUS)
+                })
             })
         })
     })
