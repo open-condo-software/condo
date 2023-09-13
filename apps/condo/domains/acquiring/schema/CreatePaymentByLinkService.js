@@ -54,7 +54,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
         },
         {
             access: true,
-            type: 'type CreatePaymentByLinkOutput { multiPaymentId: ID!, amount: String!, serviceCharge: String!, explicitFee: String!, totalAmount: String!, address: String!, addressMeta: AddressMetaField!, unitType: String!, unitName: String!, accountNumber: String!, period: String! }',
+            type: 'type CreatePaymentByLinkOutput { multiPaymentId: ID!, amount: String!, commission: String!, totalAmount: String!, address: String!, addressMeta: AddressMetaField!, unitType: String!, unitName: String!, accountNumber: String!, period: String! }',
         },
     ],
 
@@ -228,8 +228,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                 return {
                     multiPaymentId,
                     amount: multiPayment.amountWithoutExplicitFee,
-                    serviceCharge: multiPayment.explicitServiceCharge, // explicit* are paid by resident
-                    explicitFee: multiPayment.explicitFee,
+                    commission: multiPayment.explicitServiceCharge,
                     totalAmount: multiPayment.amount,
                     address: normalizedAddress.address,
                     addressMeta: {

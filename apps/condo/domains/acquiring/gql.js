@@ -72,7 +72,7 @@ const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMEN
 
 const PAYMENT_BY_LINK_MUTATION = gql`
     mutation createPaymentByLink ($data: CreatePaymentByLinkInput!) {
-        result: createPaymentByLink(data: $data) { multiPaymentId amount serviceCharge explicitFee totalAmount address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName accountNumber period }
+        result: createPaymentByLink(data: $data) { multiPaymentId amount commission totalAmount address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName accountNumber period }
     }
 `
 
