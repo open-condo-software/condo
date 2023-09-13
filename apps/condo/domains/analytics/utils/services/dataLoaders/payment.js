@@ -1,5 +1,5 @@
 const Big = require('big.js')
-const { get, pick } = require('lodash')
+const { get, pick, isEmpty, find } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -18,13 +18,27 @@ class BillingResidentKnexLoader extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
+        const propertyIds = get(this.where, 'property.id_in', [])
 
-        this.result = await knex(this.domainName).select(['id', 'address', 'user']).where(this.where)
+        if (!isEmpty(propertyIds)) {
+            this.result = await knex(this.domainName)
+                .select(['id', 'address', 'user'])
+                .where(pick(this.where, ['organization', 'deletedAt']))
+                .whereIn('property', propertyIds)
+        } else {
+            this.result = await knex(this.domainName)
+                .select(['id', 'address', 'user'])
+                .where(this.where)
+        }
     }
 }
 
-const createBillingPropertyRange = async (organizationWhereInput) => {
-    const billingResidentLoader = new BillingResidentKnexLoader({ organization: get(organizationWhereInput, 'organization.id'), deletedAt: null })
+const createBillingPropertyRange = async (organizationWhereInput, propertyFilter = []) => {
+    const billingResidentLoader = new BillingResidentKnexLoader({
+        organization: get(organizationWhereInput, 'organization.id'),
+        deletedAt: null,
+        ...(!isEmpty(propertyFilter) && { property: { id_in: propertyFilter } }),
+    })
     await billingResidentLoader.loadData()
 
     return billingResidentLoader
@@ -57,7 +71,7 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
 }
 
 class PaymentDataLoader extends AbstractDataLoader {
-    async get ({ where, groupBy, totalFilter }) {
+    async get ({ where, groupBy, totalFilter, extraFilter }) {
         const paymentSumLoader = new GqlWithKnexLoadList({
             listKey: 'Payment',
             fields: 'id',
@@ -85,11 +99,13 @@ class PaymentDataLoader extends AbstractDataLoader {
             let groupByLabels = []
             switch (group) {
                 case 'createdBy':
-                    groupByLabels = await createBillingPropertyRange(pick(where, ['organization']))
+                    groupByLabels = await createBillingPropertyRange(pick(where, ['organization']), extraFilter.propertyIds)
                     payments.forEach(payment => {
                         const foundMapping = groupByLabels.find(e => e.value === payment[group])
                         if (foundMapping) {
                             payment[group] = foundMapping.label
+                        } else {
+                            payment[group] = null
                         }
                     })
                     break
@@ -98,7 +114,7 @@ class PaymentDataLoader extends AbstractDataLoader {
             }
         }
 
-        return { sum, payments }
+        return { sum, payments: payments.filter(payment => payment.createdBy !== null) }
     }
 }
 

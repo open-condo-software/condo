@@ -208,6 +208,9 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                     { advancedAt_gte: dayjs(where.dateFrom).startOf('day').toISOString() },
                                     { advancedAt_lte: dayjs(where.dateTo).endOf('day').toISOString() },
                                 ],
+                                extraFilter: {
+                                    propertyIds: where.propertyIds,
+                                },
                             },
                         },
                         receipt: {

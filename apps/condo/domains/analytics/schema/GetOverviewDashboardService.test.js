@@ -393,6 +393,16 @@ describe('GetOverviewDashboardService', () => {
                 expect(data.overview).toHaveProperty(['payment', 'payments', '0', 'sum'], totalPaymentsSum.toFixed(2))
                 expect(data.overview).toHaveProperty(['payment', 'payments', '0', 'createdBy'], admin.user.id)
             })
+
+            it('should filter payments by resident property', async () => {
+                const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
+                    where: { organization: organization.id, dateFrom, dateTo, propertyIds: [property.id] },
+                    groupBy: { aggregatePeriod: 'day' },
+                    entities: ['payment'],
+                })
+
+                expect(data.overview.payment.payments).toBeDefined()
+            })
         })
         describe('Receipt', () => {
             it('should return sum for last month of created receipts', async () => {
