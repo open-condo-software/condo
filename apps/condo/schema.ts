@@ -62680,7 +62680,7 @@ export type RegisterBillingReceiptInput = {
   services?: Maybe<Array<Maybe<BillingReceiptServiceFieldInput>>>;
   month: Scalars['Int'];
   year: Scalars['Int'];
-  category: BillingCategoryWhereUniqueInput;
+  category?: Maybe<BillingCategoryWhereUniqueInput>;
   tin: Scalars['String'];
   routingNumber: Scalars['String'];
   bankAccount: Scalars['String'];

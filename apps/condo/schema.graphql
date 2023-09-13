@@ -65661,7 +65661,7 @@ input RegisterBillingReceiptInput {
   services: [BillingReceiptServiceFieldInput]
   month: Int!
   year: Int!
-  category: BillingCategoryWhereUniqueInput!
+  category: BillingCategoryWhereUniqueInput
   tin: String!
   routingNumber: String!
   bankAccount: String!
