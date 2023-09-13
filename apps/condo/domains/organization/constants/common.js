@@ -64,6 +64,7 @@ const DEFAULT_ROLES = {
         'canManageNewsItems': true,
         'canManageNewsItemTemplates': true,
         'canManageMobileFeatureConfigs': true,
+        'canManageB2BApps': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -98,6 +99,7 @@ const DEFAULT_ROLES = {
         'canManageCallRecords': true,
         'canDownloadCallRecords': false,
         'ticketVisibilityType': PROPERTY_TICKET_VISIBILITY,
+        'canManageB2BApps': false,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -134,6 +136,7 @@ const DEFAULT_ROLES = {
         'canManageNewsItems': true,
         'canDownloadCallRecords': true,
         'canManageNewsItemTemplates': true,
+        'canManageB2BApps': false,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -168,6 +171,7 @@ const DEFAULT_ROLES = {
         'canManageCallRecords': true,
         'canDownloadCallRecords': false,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
+        'canManageB2BApps': false,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -202,6 +206,7 @@ const DEFAULT_ROLES = {
         'canManageCallRecords': true,
         'canDownloadCallRecords': false,
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
+        'canManageB2BApps': false,
     },
     'Contractor': {
         'name': 'employee.role.Contractor.name',
@@ -235,6 +240,7 @@ const DEFAULT_ROLES = {
         'canManageCallRecords': false,
         'canDownloadCallRecords': false,
         'ticketVisibilityType': ASSIGNED_TICKET_VISIBILITY,
+        'canManageB2BApps': false,
     },
 }
 
