@@ -5,13 +5,10 @@ exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
 --
--- Remove field isGlobal from b2bapp
+-- [CUSTOM] Set Statement Timeout to some large amount - 25 min (25 * 60 => 1500 sec)
 --
-ALTER TABLE "B2BApp" DROP COLUMN "isGlobal" CASCADE;
---
--- Remove field isGlobal from b2bapphistoryrecord
---
-ALTER TABLE "B2BAppHistoryRecord" DROP COLUMN "isGlobal" CASCADE;
+SET statement_timeout = '1500s';
+
 --
 -- Add field globalUrl to b2bapp
 --
@@ -20,6 +17,28 @@ ALTER TABLE "B2BApp" ADD COLUMN "globalUrl" text NULL;
 -- Add field globalUrl to b2bapphistoryrecord
 --
 ALTER TABLE "B2BAppHistoryRecord" ADD COLUMN "globalUrl" text NULL;
+
+--
+-- [CUSTOM] Update globalUrl for existed apps
+--
+UPDATE "B2BApp"
+SET "globalUrl" = "appUrl"
+WHERE "B2BApp"."isGlobal" = true;
+
+--
+-- Remove field isGlobal from b2bapp
+--
+ALTER TABLE "B2BApp" DROP COLUMN "isGlobal" CASCADE;
+--
+-- Remove field isGlobal from b2bapphistoryrecord
+--
+ALTER TABLE "B2BAppHistoryRecord" DROP COLUMN "isGlobal" CASCADE;
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
