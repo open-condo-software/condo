@@ -14,7 +14,7 @@ import { hasFeature } from '@condo/domains/common/components/containers/FeatureF
 import { ControlRoomSettingsContent } from '@condo/domains/common/components/settings/ControlRoomSettingsContent'
 import { MobileFeatureConfigContent } from '@condo/domains/common/components/settings/MobileFeatureConfigContent'
 import { SettingsPageContent } from '@condo/domains/common/components/settings/SettingsPageContent'
-import { MOBILE_FEATURE_CONFIGURATION } from '@condo/domains/common/constants/featureflags'
+import { MOBILE_FEATURE_CONFIGURATION, SETTINGS_NEW_EMPLOYEE_ROLE_TABLE } from '@condo/domains/common/constants/featureflags'
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
@@ -26,7 +26,10 @@ import {
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
-import { EmployeeRolesSettingsContent } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
+import {
+    EmployeeRolesSettingsContent,
+    EmployeeRoleTicketVisibilityInfo,
+} from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
 import { PropertyScopeSettingsContent } from '@condo/domains/scope/components/PropertyScopeSettingsContent'
@@ -38,7 +41,7 @@ import {
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_EMPLOYEE_ROLES, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
@@ -55,18 +58,23 @@ const SettingsPage: React.FC = () => {
     const hasSubscriptionFeature = hasFeature('subscription')
     const { useFlag } = useFeatureFlags()
     const hasMobileFeatureConfigurationFeature = useFlag(MOBILE_FEATURE_CONFIGURATION)
+    const hasNewEmployeeRoleTableFeature = useFlag(SETTINGS_NEW_EMPLOYEE_ROLE_TABLE)
     
     const userOrganization = useOrganization()
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
+    const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles']), [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
 
     const tabKeysToDisplay = useMemo(() => {
-        const result = ALWAYS_AVAILABLE_TABS
-        if (hasSubscriptionFeature) result.push(SETTINGS_TAB_SUBSCRIPTION)
-        if (canManageContactRoles) result.push(SETTINGS_TAB_CONTACT_ROLES)
-        if (canManageMobileFeatureConfigsRoles) result.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
-        return result
-    }, [hasSubscriptionFeature, canManageContactRoles, canManageMobileFeatureConfigsRoles])
+        const availableTabs = ALWAYS_AVAILABLE_TABS
+
+        if (hasSubscriptionFeature) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
+        if (canManageContactRoles) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
+        if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
+        if (canManageEmployeeRoles) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
+
+        return availableTabs
+    }, [hasSubscriptionFeature, canManageContactRoles, canManageEmployeeRoles, canManageMobileFeatureConfigsRoles])
 
     const settingsTabs: TabItem[] = useMemo(
         () => [
@@ -89,7 +97,7 @@ const SettingsPage: React.FC = () => {
             {
                 key: SETTINGS_TAB_EMPLOYEE_ROLES,
                 label: EmployeeRolesTitle,
-                children: <EmployeeRolesSettingsContent/>,
+                children: hasNewEmployeeRoleTableFeature ? <EmployeeRolesSettingsContent/> : <EmployeeRoleTicketVisibilityInfo/>,
             },
             {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
@@ -113,8 +121,8 @@ const SettingsPage: React.FC = () => {
             },
         ].filter(Boolean),
         [
-            hasSubscriptionFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, EmployeeRolesTitle, DetailsTitle,
-            canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles,
+            hasSubscriptionFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, EmployeeRolesTitle, hasNewEmployeeRoleTableFeature,
+            DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles,
             hasMobileFeatureConfigurationFeature, MobileFeatureConfigTitle,
         ],
     )

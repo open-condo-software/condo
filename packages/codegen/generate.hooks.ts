@@ -48,9 +48,9 @@ type IUseObjectReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLO
 type IUseCountReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     count: number
 }
-type IUseCreateActionType<GQLObject, GQLCreateInput> = (values: Partial<GQLCreateInput>) => Promise<GQLObject>
-type IUseUpdateActionType<GQLObject, GQLUpdateInput> = (values: Partial<GQLUpdateInput>, obj: IUUIDObject) => Promise<GQLObject>
-type IUseSoftDeleteActionType<GQLObject> = (obj: IUUIDObject) => Promise<GQLObject>
+export type IUseCreateActionType<GQLObject, GQLCreateInput> = (values: Partial<GQLCreateInput>) => Promise<GQLObject>
+export type IUseUpdateActionType<GQLObject, GQLUpdateInput> = (values: Partial<GQLUpdateInput>, obj: IUUIDObject) => Promise<GQLObject>
+export type IUseSoftDeleteActionType<GQLObject> = (obj: IUUIDObject) => Promise<GQLObject>
 
 
 export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {

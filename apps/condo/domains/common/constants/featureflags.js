@@ -14,6 +14,7 @@ const DISABLE_DISCOVER_SERVICE_CONSUMERS = 'disable-discover-service-consumers'
 const MOBILE_FEATURE_CONFIGURATION = 'mobile-feature-configuration'
 const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resident-mobile-app'
 const SUBMIT_ONLY_PROGRESSION_METER_READINGS = 'submit-only-progression-meter-readings'
+const SETTINGS_NEW_EMPLOYEE_ROLE_TABLE = 'settings-new-employee-role-table'
 const ANALYTICS_V3 = 'analytics-v3'
 
 module.exports = {
@@ -34,4 +35,5 @@ module.exports = {
     TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP,
     SUBMIT_ONLY_PROGRESSION_METER_READINGS,
     ANALYTICS_V3,
+    SETTINGS_NEW_EMPLOYEE_ROLE_TABLE,
 }

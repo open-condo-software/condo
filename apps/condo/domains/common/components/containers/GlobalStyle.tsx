@@ -1,6 +1,8 @@
 import { css, Global } from '@emotion/react'
 import React from 'react'
 
+import { colors as UIColors } from '@open-condo/ui/dist/colors'
+
 import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT, gradients } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {
@@ -248,7 +250,7 @@ export default function GlobalStyle () {
                 display: none;
               }
               
-              .ant-table.ant-table-bordered .ant-table-tbody tr:last-of-type td {
+              .ant-table.ant-table-bordered .ant-table-tbody tr:last-of-type > td {
                 border-bottom: none;
               }
               .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th,
@@ -349,7 +351,7 @@ export default function GlobalStyle () {
               .ant-table-tbody > tr:last-child > td:first-child {
                 border-bottom-left-radius: 12px;
               }
-              
+
               .ant-table-tbody > tr:last-child > td:last-child {
                 border-bottom-right-radius: 12px;
               }
@@ -360,6 +362,44 @@ export default function GlobalStyle () {
                     border: none !important;
                     border-top: 1px solid #D0D3E5 !important;
                   }
+              }
+
+              .ant-table-tbody > tr.condo-table-expandable-row {
+                &.condo-table-expandable-row-last-row:not(.condo-table-expandable-row-expanded) {
+                  & > td:first-child {
+                    border-bottom-left-radius: 8px;
+                  }
+                  
+                  & > td:last-child {
+                    border-bottom-right-radius: 8px;
+                  }
+                }
+                
+                &:hover > td {
+                  background-color: ${UIColors.gray[1]};
+                }
+
+                &-expanded {
+                  background-color: ${UIColors.gray[1]};
+                }
+              }
+
+              .ant-table-tbody > .condo-table-expandable-row-inner-row {
+                & > td > .ant-table-wrapper .ant-table {
+                  margin-left: 0 !important;
+
+                  & > .ant-table-container {
+                    border-left: 0;
+                    border-right: 0;
+                    border-radius: 0;
+                    border-top: 0;
+                    border-bottom: 0;
+                  }
+                }
+
+                & > td {
+                  padding-left: 0;
+                }
               }
               
               h1.ant-typography {

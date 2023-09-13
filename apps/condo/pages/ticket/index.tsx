@@ -163,7 +163,7 @@ const TicketTable = ({
     TicketImportButton,
 }) => {
     const intl = useIntl()
-    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
+    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'global.cancelSelection' })
     const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
 
     const { getTrackingWrappedCallback } = useTracking()
