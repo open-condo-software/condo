@@ -43,7 +43,7 @@ import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
-const CARD_ROW_GUTTER: RowProps['gutter'] = [24, 24]
+const CARD_ROW_GUTTER: RowProps['gutter'] = [12, 24]
 const CARD_STYLE: React.CSSProperties = { height: '160px' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
