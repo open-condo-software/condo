@@ -1,4 +1,4 @@
-import { SortB2BAppContextsBy, SortB2BAppsBy } from '@app/condo/schema'
+import { SortB2BAppContextsBy } from '@app/condo/schema'
 import get from 'lodash/get'
 import isNull from 'lodash/isNull'
 import React, { useRef, useEffect, useState, useCallback, useMemo } from 'react'
@@ -10,7 +10,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
-import { B2BApp, B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
+import { B2BAppContext } from '@condo/domains/miniapp/utils/clientSchema'
 
 import {
     useGlobalAppsFeaturesContext,
