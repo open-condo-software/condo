@@ -20648,9 +20648,16 @@ export type CreatePaymentByLinkInput = {
 export type CreatePaymentByLinkOutput = {
   __typename?: 'CreatePaymentByLinkOutput';
   multiPaymentId: Scalars['ID'];
+  amount: Scalars['String'];
+  serviceCharge: Scalars['String'];
+  explicitFee: Scalars['String'];
+  totalAmount: Scalars['String'];
   address: Scalars['String'];
+  addressMeta: AddressMetaField;
+  unitType: Scalars['String'];
   unitName: Scalars['String'];
   accountNumber: Scalars['String'];
+  period: Scalars['String'];
 };
 
 export type CustomAccess = {
