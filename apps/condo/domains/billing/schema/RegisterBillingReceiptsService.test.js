@@ -10,6 +10,7 @@ const {
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
+const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { errors: mutationErrors } = require('@condo/domains/billing/schema/RegisterBillingReceiptsService')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
@@ -407,11 +408,8 @@ describe('RegisterBillingReceiptsService', () => {
 
                 // create categories
                 const services = generateServicesData()
-                const defaultCategory = await BillingCategory.getOne(admin, {
-                    name: 'billing.category.housing.name',
-                })
                 const categories = (await BillingCategory.getAll(admin, {}))
-                    .filter(category => category.id !== defaultCategory.id)
+                    .filter(category => category.id !== DEFAULT_BILLING_CATEGORY_ID)
                 const billingCategoryWithServices = (await createTestBillingCategory(
                     admin, { name: `Category ${new Date()}`, serviceNames: services.map(({ name }) => name) },
                 ))[0]
@@ -477,7 +475,7 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(billingReceipts).toHaveLength(4)
                 expect(serviceCreatedReceipts).toHaveLength(1)
                 expect(receiptsWithNotCategoryInfo).toHaveLength(1)
-                expect(receiptsWithNotCategoryInfo[0].category.id).toEqual(defaultCategory.id)
+                expect(receiptsWithNotCategoryInfo[0].category.id).toEqual(DEFAULT_BILLING_CATEGORY_ID)
                 expect(data).toHaveLength(4)
             })
 

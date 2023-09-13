@@ -1,7 +1,9 @@
+const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
+
 const { CategoryResolver } = require('./categoryResolver')
 
 const mockCategories = [
-    { id: 'housing', name: 'billing.category.housing.name', serviceNames: [] },
+    { id: DEFAULT_BILLING_CATEGORY_ID, name: 'billing.category.housing.name', serviceNames: [] },
     { id: 'overhaul', name: 'billing.category.overhaul.name', serviceNames: ['Overhaul', 'Penny for overhaul'] },
     { id: 'electricity', name: 'billing.category.electricity.name', serviceNames: ['Electricity'] },
 ]
@@ -10,7 +12,7 @@ const mockReceipts = [
     {
         receipt: { category: { id: 'unknown category' }, services: [ { name: 'Electricity' } ] },
         error: 'BILLING_CATEGORY_NOT_FOUND',
-        result: 'housing',
+        result: DEFAULT_BILLING_CATEGORY_ID,
         description: 'return error on bad user defined category',
     },
     {
@@ -40,12 +42,12 @@ const mockReceipts = [
     {
         receipt: { services: [{ name: 'Penny for overhaul' }, { name: 'Overhaul' }, { name: 'Electricity' }] },
         error: null,
-        result: 'housing',
+        result: DEFAULT_BILLING_CATEGORY_ID,
         description: 'set default category on mixed services' },
     {
         receipt: { services: [{ name: 'Some unknown service name' }] },
         error: null,
-        result: 'housing',
+        result: DEFAULT_BILLING_CATEGORY_ID,
         description: 'set default category on unknown services',
     },
 ]
