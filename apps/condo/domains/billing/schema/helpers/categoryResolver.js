@@ -4,7 +4,6 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-const { BillingProperty } = require("../../utils/serverSchema");
 
 const BILLING_CATEGORY_FIELDS = '{ id name serviceNames }'
 const BillingCategoryGQL = generateGqlQueries('BillingCategory', BILLING_CATEGORY_FIELDS)
