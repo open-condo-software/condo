@@ -120,7 +120,7 @@ const TopCard = React.memo<TopCardProps>(({
     const intl = useIntl()
     const CategoryMessage = intl.formatMessage({ id: `miniapps.categories.${category}.name` })
     const userOrganization = useOrganization()
-    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
+    const canManageB2BApps = get(userOrganization, ['link', 'role', 'canManageB2BApps'], false)
 
     const router = useRouter()
     const [{ width: contentWidth }, setContentRef] = useContainerSize()
@@ -130,7 +130,7 @@ const TopCard = React.memo<TopCardProps>(({
         const btnProps: ButtonProps = { type: 'primary' }
         if (!contextStatus) {
             btnProps.children = intl.formatMessage({ id: 'miniapps.addDescription.action.connect' })
-            btnProps.disabled = !canManageIntegrations
+            btnProps.disabled = !canManageB2BApps
             btnProps.onClick = () => {
                 connectAction()
             }
@@ -150,7 +150,7 @@ const TopCard = React.memo<TopCardProps>(({
         }
 
         return btnProps
-    }, [id, appUrl, contextStatus, connectAction, intl, router, canManageIntegrations, accessible])
+    }, [id, appUrl, contextStatus, connectAction, intl, router, canManageB2BApps, accessible])
 
     const images = gallery || []
     const imagesAmount = images.length

@@ -42,7 +42,7 @@ async function canReadB2BAppContexts ({ authentication: { item: user }, listKey 
  * B2B App context may only be created by:
  * 1. Admin / support
  * 2. Users with direct access
- * 3. Organization employee with canManageIntegrations = true
+ * 3. Organization employee with canManageB2BApps = true
  *
  * B2B App context may only be updated by:
  * 1. Admin / support
@@ -60,7 +60,7 @@ async function canManageB2BAppContexts ({ authentication: { item: user }, origin
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+        return await checkOrganizationPermission(user.id, organizationId, 'canManageB2BApps')
     } else if (operation === 'update') {
         if (!itemId) return false
         const context = await getById('B2BAppContext', itemId)
