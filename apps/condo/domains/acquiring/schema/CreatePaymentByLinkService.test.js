@@ -145,6 +145,8 @@ describe('CreatePaymentByLinkService', () => {
 
         const multiPayment = await MultiPayment.getOne(admin, { id: data.multiPaymentId })
         expect(multiPayment).toBeDefined()
+        expect(data.totalAmount).toEqual(multiPayment.amount)
+        expect(data.amount).toEqual(multiPayment.amountWithoutExplicitFee)
 
         const payments = await Payment.getAll(admin, {
             multiPayment: { id: multiPayment.id },
