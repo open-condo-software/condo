@@ -39,6 +39,7 @@ import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportT
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import {
@@ -160,6 +161,9 @@ export const MetersPageContent = ({
 
     const handleCreateMeterReadings = useCallback(() => router.push('/meter/create'), [])
 
+    const { useFlagValue } = useFeatureFlags()
+    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+
     return (
         <>
             <TablePageContent>
@@ -172,11 +176,7 @@ export const MetersPageContent = ({
                             accessCheck={canManageMeterReadings}
                             onFinish={refetch}
                             columns={columns}
-                            maxTableLength={
-                                hasFeature('bigger_limit_for_import') ?
-                                    EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                    DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                            }
+                            maxTableLength={maxTableLength}
                             rowNormalizer={meterReadingNormalizer}
                             rowValidator={meterReadingValidator}
                             objectCreator={meterReadingCreator}
@@ -288,10 +288,7 @@ export const MetersPageContent = ({
                                         accessCheck={canManageMeterReadings}
                                         onFinish={refetch}
                                         columns={columns}
-                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                        }
+                                        maxTableLength={maxTableLength}
                                         rowNormalizer={meterReadingNormalizer}
                                         rowValidator={meterReadingValidator}
                                         objectCreator={meterReadingCreator}

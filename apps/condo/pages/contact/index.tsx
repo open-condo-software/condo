@@ -6,6 +6,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { FileDown, PlusCircle, Search } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -22,6 +23,7 @@ import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { EXCEL } from '@condo/domains/common/constants/export'
+import { BIGGER_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/featureflags'
 import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT, EXTENDED_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -35,6 +37,7 @@ import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFi
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, getPageIndexFromQuery, IFilters } from '@condo/domains/contact/utils/helpers'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
@@ -101,6 +104,9 @@ export const ContactsPageContent = ({
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoContactsData ? 'flex' : 'none' }
     const exampleTemplateLink = useMemo(() => `/contact-import-example-${intl.locale}.xlsx`, [intl.locale])
 
+    const { useFlagValue } = useFeatureFlags()
+    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+
     return (
         <>
             <Head>
@@ -120,10 +126,7 @@ export const ContactsPageContent = ({
                                 accessCheck={canManageContacts}
                                 onFinish={refetch}
                                 columns={columns}
-                                maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                    EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                    DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                }
+                                maxTableLength={maxTableLength}
                                 rowNormalizer={contactNormalizer}
                                 rowValidator={contactValidator}
                                 objectCreator={contactCreator}
@@ -186,10 +189,7 @@ export const ContactsPageContent = ({
                                                         accessCheck={canManageContacts}
                                                         onFinish={refetch}
                                                         columns={columns}
-                                                        maxTableLength={hasFeature('bigger_limit_for_import') ?
-                                                            EXTENDED_RECORDS_LIMIT_FOR_IMPORT :
-                                                            DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                                                        }
+                                                        maxTableLength={maxTableLength}
                                                         rowNormalizer={contactNormalizer}
                                                         rowValidator={contactValidator}
                                                         objectCreator={contactCreator}

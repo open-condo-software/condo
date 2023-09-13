@@ -46,7 +46,7 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { BIGGER_LIMIT_FOR_IMPORT, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import {
     DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
     EXTENDED_RECORDS_LIMIT_FOR_IMPORT,
@@ -827,6 +827,9 @@ export const TicketsPageContent = ({
 
     const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
 
+    const { useFlagValue } = useFeatureFlags()
+    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+
     const TicketImportButton = useMemo(() => {
         return showImport && isTicketImportFeatureEnabled && (
             <ImportWrapper
@@ -839,11 +842,7 @@ export const TicketsPageContent = ({
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
                 exampleTemplateLink={exampleTemplateLink}
-                maxTableLength={
-                    hasFeature('bigger_limit_for_import')
-                        ? EXTENDED_RECORDS_LIMIT_FOR_IMPORT
-                        : DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                }
+                maxTableLength={maxTableLength}
             >
                 <Button
                     type='secondary'

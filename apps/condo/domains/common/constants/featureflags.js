@@ -16,6 +16,7 @@ const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resid
 const SUBMIT_ONLY_PROGRESSION_METER_READINGS = 'submit-only-progression-meter-readings'
 const SETTINGS_NEW_EMPLOYEE_ROLE_TABLE = 'settings-new-employee-role-table'
 const ANALYTICS_V3 = 'analytics-v3'
+const BIGGER_LIMIT_FOR_IMPORT = 'bigger-limit-for-import'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -36,4 +37,5 @@ module.exports = {
     SUBMIT_ONLY_PROGRESSION_METER_READINGS,
     ANALYTICS_V3,
     SETTINGS_NEW_EMPLOYEE_ROLE_TABLE,
+    BIGGER_LIMIT_FOR_IMPORT,
 }
