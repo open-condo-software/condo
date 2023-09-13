@@ -315,6 +315,23 @@ describe('GetOverviewDashboardService', () => {
                     expect(ticketsByQualityControlValue.find(e => e.qualityControlValue === goodLabel)).toHaveProperty('count', 1)
                     expect(ticketsByQualityControlValue.find(e => e.qualityControlValue === badLabel)).toHaveProperty('count', 1)
                 })
+
+                it('should able to filter tickets with quality control value by properties', async () => {
+                    const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, {
+                        where: { organization: organization.id, dateFrom, dateTo, propertyIds: [property.id] },
+                        groupBy: { aggregatePeriod: 'day' },
+                        entities: ['ticketQualityControlValue'],
+                    })
+
+                    const ticketsByQualityControlValue = data.overview.ticketQualityControlValue.tickets
+
+                    const goodLabel = i18n('ticket.qualityControl.good')
+                    const badLabel = i18n('ticket.qualityControl.bad')
+
+                    expect(ticketsByQualityControlValue).toHaveLength(2)
+                    expect(ticketsByQualityControlValue.find(e => e.qualityControlValue === goodLabel)).toHaveProperty('count', 1)
+                    expect(ticketsByQualityControlValue.find(e => e.qualityControlValue === badLabel)).toHaveProperty('count', 1)
+                })
             })
         })
         describe('Payment', () => {

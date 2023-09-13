@@ -1,5 +1,5 @@
 const dayjs = require('dayjs')
-const { get, isEmpty } = require('lodash')
+const { get, isEmpty, find } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
@@ -249,8 +249,11 @@ class TicketQualityControlGqlLoader extends GqlToKnexBaseAdapter {
                     .orWhereIn('feedbackValue', QUALITY_CONTROL_VALUES)
             })
 
-        if (this.whereIn.length > 0) {
-            query.whereIn(this.whereIn[0])
+
+        const propertyFilter = get(find(this.where, 'property', {}), 'property.id_in', [])
+
+        if (!isEmpty(propertyFilter)) {
+            query.whereIn('property', propertyFilter)
         }
 
         this.result = await query
