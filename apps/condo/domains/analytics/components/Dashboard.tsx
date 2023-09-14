@@ -376,10 +376,10 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
             </Card>
             <Modal width='big' title={QualityControlTitle} open={isOpen} onCancel={onCancel}>
                 <Row gutter={[24, 40]}>
-                    <Col span={12}>
+                    <Col span={24}>
                         <DateRangeSearch disabled={ticketsLoading || ticketFeedbackLoading} />
                     </Col>
-                    <Col span={12}>
+                    <Col span={24}>
                         {SearchInput}
                     </Col>
                     <Col span={24}>
@@ -404,6 +404,8 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const [overview, setOverview] = useState<OverviewData>(null)
     const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
     const { values: propertyIds, SearchInput: OrganizationPropertySearch } = usePropertyFilter({ organizationId })
+
+    const { breakpoints: { TABLET_LARGE } } = useLayoutContext()
 
     const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
@@ -446,11 +448,11 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
         <Row gutter={DASHBOARD_ROW_GUTTER}>
             <Col span={24}>
                 <TableFiltersContainer>
-                    <Row gutter={[24, 24]} align='middle' justify='start'>
-                        <Col>
+                    <Row gutter={[24, 24]} align='middle' justify='start' wrap>
+                        <Col span={TABLET_LARGE ? 10 : 24}>
                             <DateRangeSearch disabled={loading} />
                         </Col>
-                        <Col span={10}>
+                        <Col span={TABLET_LARGE ? 14 : 24}>
                             {OrganizationPropertySearch}
                         </Col>
                     </Row>

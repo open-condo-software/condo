@@ -104,7 +104,7 @@ class PaymentDataLoader extends AbstractDataLoader {
                         const foundMapping = groupByLabels.find(e => e.value === payment[group])
                         if (foundMapping) {
                             payment[group] = foundMapping.label
-                        } else {
+                        } else if (!isEmpty(extraFilter.propertyIds)) {
                             payment[group] = null
                         }
                     })
@@ -114,7 +114,7 @@ class PaymentDataLoader extends AbstractDataLoader {
             }
         }
 
-        return { sum, payments: payments.filter(payment => payment.createdBy !== null) }
+        return { sum, payments: isEmpty(extraFilter.propertyIds) ? payments : payments.filter(payment => payment.createdBy !== null) }
     }
 }
 
