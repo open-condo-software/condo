@@ -899,6 +899,7 @@
   "pages.condo.meter.reportingPeriod.create.addressPlaceholder": "Select property",
   "pages.condo.meter.reportingPeriod.EmptyList.header": "Submission period not yet added",
   "pages.condo.settings.employeeRoles.canReadService": "View service",
+  "pages.condo.settings.employeeRoles.canManageB2BApps": "Connect services",
   "pages.condo.settings.employeeRoles.notification.updatePermissions": "Permissions updated",
   "pages.condo.settings.employeeRoles.notification.deletePermissions": "Permissions withdrawn",
   "pages.condo.settings.employeeRoles.disabledCheckboxTitle": "You can not turn off the rights of all roles, for correct work of someone they must be available",

@@ -3616,7 +3616,7 @@ export type B2BAppHistoryRecordsUpdateInput = {
   data?: Maybe<B2BAppHistoryRecordUpdateInput>;
 };
 
-/**  B2BApp permissions that describe additional capabilities within the mini-application and allow the organization administration to manage accesses within the miniapp depending on the employee's role by toggling the B2BAppPermissions of a particular application for each role. By default, for all employees with "canManageIntegrations" in their role, all permissions will be set to True. For all other roles with access to the application the default value is False.  */
+/**  B2BApp permissions that describe additional capabilities within the mini-application and allow the organization administration to manage accesses within the miniapp depending on the employee's role by toggling the B2BAppPermissions of a particular application for each role. By default, for all employees with "canManageB2BApps" in their role, all permissions will be set to True. For all other roles with access to the application the default value is False.  */
 export type B2BAppPermission = {
   __typename?: 'B2BAppPermission';
   /**
@@ -4539,7 +4539,7 @@ export type B2BAppRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  This model links the role of the organization and mini-apps, allowing mini-apps to extend the main role template. Having this mapping between role A and mini-app B means that all employees in the organization with role A can access mini-app B. In addition, a mini-app may want to differentiate access within itself. To do this, it can create B2BAppPermissions via service user, the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  By default, all existing and new permissions will be set to "true" for all roles in the organization that have "canManageIntegrations" checked, false for other employees. When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageIntegrations" checkbox. B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, and when adding it - it is added to all roles, and the value is set according to the rules described above.  */
+/**  This model links the role of the organization and mini-apps, allowing mini-apps to extend the main role template. Having this mapping between role A and mini-app B means that all employees in the organization with role A can access mini-app B. In addition, a mini-app may want to differentiate access within itself. To do this, it can create B2BAppPermissions via service user, the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  By default, all existing and new permissions will be set to "true" for all roles in the organization that have "canManageB2BApps" checked, false for other employees. When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageB2BApps" checkbox. B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, and when adding it - it is added to all roles, and the value is set according to the rules described above.  */
 export type B2BAppRole = {
   __typename?: 'B2BAppRole';
   /**
@@ -47954,6 +47954,7 @@ export type OrganizationEmployeeRole = {
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -48005,6 +48006,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48062,6 +48064,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -48113,6 +48116,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48169,6 +48173,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48310,6 +48315,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canDownloadCallRecords_not?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -48433,6 +48440,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48551,6 +48559,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canDownloadCallRecords_not?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -69833,6 +69843,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanDownloadCallRecordsDesc = 'canDownloadCallRecords_DESC',
   CanManageMobileFeatureConfigsAsc = 'canManageMobileFeatureConfigs_ASC',
   CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -69922,6 +69934,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanDownloadCallRecordsDesc = 'canDownloadCallRecords_DESC',
   CanManageMobileFeatureConfigsAsc = 'canManageMobileFeatureConfigs_ASC',
   CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

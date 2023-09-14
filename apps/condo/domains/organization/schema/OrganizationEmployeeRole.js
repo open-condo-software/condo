@@ -107,6 +107,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageCallRecords: { type: Checkbox, defaultValue: false },
         canDownloadCallRecords: { type: Checkbox, defaultValue: false },
         canManageMobileFeatureConfigs: { type: Checkbox, defaultValue: false },
+        canManageB2BApps: { type: Checkbox, defaultValue: false },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
     access: {
