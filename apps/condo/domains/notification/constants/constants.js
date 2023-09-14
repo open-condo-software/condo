@@ -527,11 +527,9 @@ const MESSAGE_META = {
         dv: { required: true },
         data: {
             monthName:  { required: true },
-            billingReceiptId: { required: true },
             serviceConsumerId: { required: true },
             residentId: { required: true },
             userId: { required: true },
-            toPayAmount: { required: true },
         },
     },
 }

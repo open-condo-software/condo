@@ -15,7 +15,7 @@ const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE } = require('@cond
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { notifyResidentsOnPayday } = require('@condo/domains/resident/tasks/notifyResidentsOnPayday')
+const { notifyResidentsOnPayday1: notifyResidentsOnPayday } = require('@condo/domains/resident/tasks/notifyResidentsOnPayday')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -35,7 +35,7 @@ describe('Push notification on payday about unpaid receipts', () => {
         let admin, context, property, billingProperty, account, period, acquiringContext, organization
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
-            period = dayjs().set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
+            period = dayjs().set('date', 1).subtract(2, 'month').format('YYYY-MM-DD')
             const [integration] = await createTestBillingIntegration(admin);
             [organization] = await registerNewOrganization(admin);
             [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
@@ -55,7 +55,12 @@ describe('Push notification on payday about unpaid receipts', () => {
         it('has BillingReceipt with positive toPay field and has not Payments', async () => {
             const client = await makeClientWithResidentUser()
             const [resident] = await createTestResident(admin, client.user, property)
-            await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
+            await createTestServiceConsumer(admin, resident, organization, {
+                accountNumber: account.number,
+                billingAccount: { connect: { id: account.id } },
+                billingIntegrationContext: { connect: { id: context.id } },
+                acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
+            })
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
 
             await notifyResidentsOnPayday()
@@ -64,10 +69,35 @@ describe('Push notification on payday about unpaid receipts', () => {
             expect(messages).toHaveLength(1)
         })
 
+        it('has several BillingReceipt with positive toPay field, different period and has not Payments', async () => {
+            const client = await makeClientWithResidentUser()
+            const [resident] = await createTestResident(admin, client.user, property)
+            await createTestServiceConsumer(admin, resident, organization, {
+                accountNumber: account.number,
+                billingAccount: { connect: { id: account.id } },
+                billingIntegrationContext: { connect: { id: context.id } },
+                acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
+            })
+            const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
+            await createTestBillingReceipt(admin, context, billingProperty, account, { period: dayjs().subtract(1, 'month').set('date', 1).format('YYYY-MM-DD') })
+            await createTestBillingReceipt(admin, context, billingProperty, account, { period: dayjs().subtract(3, 'month').set('date', 1).format('YYYY-MM-DD') })
+
+            await notifyResidentsOnPayday()
+
+            const messages = await getNewMessages({ userId: client.user.id })
+            expect(messages).toHaveLength(1)
+            expect(messages[0].uniqKey.slice(-10)).toEqual(period)
+        })
+
         it('has BillingReceipt with positive toPay field and has partial Payments', async () => {
             const client = await makeClientWithResidentUser()
             const [resident] = await createTestResident(admin, client.user, property)
-            await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
+            await createTestServiceConsumer(admin, resident, organization, {
+                accountNumber: account.number,
+                billingAccount: { connect: { id: account.id } },
+                billingIntegrationContext: { connect: { id: context.id } },
+                acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
+            })
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
 
             const [payment] = await createTestPayment(admin, receipt.context.organization, receipt, acquiringContext, {
@@ -90,8 +120,13 @@ describe('Push notification on payday about unpaid receipts', () => {
             period = dayjs().set('date', 1).subtract(1, 'month').format('YYYY-MM-DD')
             const [integration] = await createTestBillingIntegration(admin);
             [organization] = await registerNewOrganization(admin);
-            [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration);
-            [property] = await createTestProperty(admin, organization);
+            [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+                lastReport: {
+                    period,
+                    finishTime: dayjs().toISOString(),
+                    totalReceipts: 100,
+                },
+            });            [property] = await createTestProperty(admin, organization);
             [billingProperty] = await createTestBillingProperty(admin, context, { address: property.address, addressMeta: property.addressMeta });
             [account] = await createTestBillingAccount(admin, context, billingProperty)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin);
@@ -101,7 +136,12 @@ describe('Push notification on payday about unpaid receipts', () => {
         it('has BillingReceipt with positive toPay field and has full Payment', async () => {
             const client = await makeClientWithResidentUser()
             const [resident] = await createTestResident(admin, client.user, property)
-            await createTestServiceConsumer(admin, resident, organization, { accountNumber: account.number })
+            await createTestServiceConsumer(admin, resident, organization, {
+                accountNumber: account.number,
+                billingAccount: { connect: { id: account.id } },
+                billingIntegrationContext: { connect: { id: context.id } },
+                acquiringIntegrationContext: { connect: { id: acquiringContext.id } },
+            })
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
 
             const [payment] = await createTestPayment(admin, receipt.context.organization, receipt, acquiringContext, {
