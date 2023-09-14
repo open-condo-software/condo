@@ -47,19 +47,20 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
             }))
 
             const totalPaymentsSum = data.reduce((prev, curr) => prev + Number(curr.sum), 0)
-            data.forEach(({ createdBy, sum }) => {
-                const percent = totalPaymentsSum > 0 ? (Number(sum) / totalPaymentsSum * 100).toFixed(0) + '%' : '-'
+            const aggregatedData = groupBy(data, 'createdBy')
+
+            Object.entries(aggregatedData).forEach(([address, dataObj]) => {
+                const addressSum = dataObj.reduce((prev, agg) => prev + Number(agg.sum), 0)
+                const percent = totalPaymentsSum > 0 ? (addressSum / totalPaymentsSum * 100).toFixed(1) + '%' : '-'
+
                 dataSource.push({
+                    address,
+                    sum: Number(addressSum).toFixed(1),
                     percent,
-                    address: createdBy,
-                    sum,
                 })
             })
 
-            return {
-                dataSource,
-                tableColumns,
-            }
+            return { dataSource, tableColumns }
         },
     },
 })
