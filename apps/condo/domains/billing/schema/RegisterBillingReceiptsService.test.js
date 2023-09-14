@@ -10,6 +10,7 @@ const {
 const { expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
 const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
+const { DEFAULT_BILLING_CATEGORY_ID } = require('@condo/domains/billing/constants/constants')
 const { errors: mutationErrors } = require('@condo/domains/billing/schema/RegisterBillingReceiptsService')
 const { registerBillingReceiptsByTestClient } = require('@condo/domains/billing/utils/testSchema')
 const {
@@ -21,10 +22,13 @@ const {
     createTestBillingIntegrationOrganizationContext,
     BillingReceipt,
     BillingAccount,
+    BillingCategory,
     BillingProperty,
+    generateServicesData,
     updateTestBillingIntegrationAccessRight,
     createRegisterBillingReceiptsPayload,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingCategory } = require('@condo/domains/billing/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
@@ -398,10 +402,17 @@ describe('RegisterBillingReceiptsService', () => {
             })
 
             test('BillingReceipts are created if they have different categories', async () => {
-
                 const [organization] = await createTestOrganization(admin)
                 const [integration] = await createTestBillingIntegration(admin)
                 const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+                // create categories
+                const services = generateServicesData()
+                const categories = (await BillingCategory.getAll(admin, {}))
+                    .filter(category => category.id !== DEFAULT_BILLING_CATEGORY_ID)
+                const billingCategoryWithServices = (await createTestBillingCategory(
+                    admin, { name: `Category ${new Date()}`, serviceNames: services.map(({ name }) => name) },
+                ))[0]
 
                 const receiptInput = createRegisterBillingReceiptsPayload()
 
@@ -410,23 +421,62 @@ describe('RegisterBillingReceiptsService', () => {
                     receipts: [
                         {
                             ...receiptInput,
+                            category: { id: categories[0].id },
                             importId: faker.random.alphaNumeric(24),
                         },
                         {
                             ...receiptInput,
-                            category: { id: '35b0030f-d691-458a-a902-a6985f58d82e' },
+                            category: { id: categories[1].id },
+                            importId: faker.random.alphaNumeric(24),
+                        },
+
+                        // include 3 receipts with the same category services
+                        // (going to be merged into one receipt since it related to the same category)
+                        {
+                            ...receiptInput,
+                            services: services.slice(0, 1),
+                            importId: faker.random.alphaNumeric(24),
+                        },
+                        {
+                            ...receiptInput,
+                            services: services.slice(0, 2),
+                            importId: faker.random.alphaNumeric(24),
+                        },
+                        {
+                            ...receiptInput,
+                            services,
+                            importId: faker.random.alphaNumeric(24),
+                        },
+
+                        // should fall back to default category
+                        // for no services case
+                        {
+                            ...receiptInput,
+                            services: [],
                             importId: faker.random.alphaNumeric(24),
                         },
                     ],
                 }
 
+                delete payload.receipts[2].category
+                delete payload.receipts[3].category
+                delete payload.receipts[4].category
+                delete payload.receipts[5].category
+
                 const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
                 const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
                 const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+                const serviceCreatedReceipts = billingReceipts.filter(
+                    ({ category: { id } }) => id === billingCategoryWithServices.id
+                )
+                const receiptsWithNotCategoryInfo = billingReceipts.filter(({ importId }) => importId === payload.receipts[5].importId)
 
                 expect(billingProperties).toHaveLength(1)
-                expect(billingReceipts).toHaveLength(2)
-                expect(data).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(4)
+                expect(serviceCreatedReceipts).toHaveLength(1)
+                expect(receiptsWithNotCategoryInfo).toHaveLength(1)
+                expect(receiptsWithNotCategoryInfo[0].category.id).toEqual(DEFAULT_BILLING_CATEGORY_ID)
+                expect(data).toHaveLength(4)
             })
 
             test('BillingReceipts are created if they have different periods', async () => {
@@ -637,7 +687,7 @@ describe('RegisterBillingReceiptsService', () => {
             expect(data).toHaveLength(50)
         })
 
-        test('Management company changes billing recipennt', async () => {
+        test('Management company changes billing recipient', async () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
