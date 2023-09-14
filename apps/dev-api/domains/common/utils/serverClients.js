@@ -25,7 +25,7 @@ class CondoClient extends ApolloServerClient {
         super(endpoint, authRequisites, opts)
     }
 
-    async sendMessage (message, to) {
+    async sendMessage (to, message) {
         await this.executeAuthorizedMutation({
             mutation: SEND_MESSAGE_MUTATION,
             variables: {
