@@ -36,7 +36,6 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
@@ -46,10 +45,9 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { BIGGER_LIMIT_FOR_IMPORT, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import {
     DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
-    EXTENDED_RECORDS_LIMIT_FOR_IMPORT,
 } from '@condo/domains/common/constants/import'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
@@ -827,6 +825,9 @@ export const TicketsPageContent = ({
 
     const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
 
+    const { useFlagValue } = useFeatureFlags()
+    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+
     const TicketImportButton = useMemo(() => {
         return showImport && isTicketImportFeatureEnabled && (
             <ImportWrapper
@@ -839,11 +840,7 @@ export const TicketsPageContent = ({
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
                 exampleTemplateLink={exampleTemplateLink}
-                maxTableLength={
-                    hasFeature('bigger_limit_for_import')
-                        ? EXTENDED_RECORDS_LIMIT_FOR_IMPORT
-                        : DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                }
+                maxTableLength={maxTableLength}
             >
                 <Button
                     type='secondary'
