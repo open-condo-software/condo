@@ -13,15 +13,23 @@ const { TO_PAY_DETAILS_FIELD } = require('@condo/domains/billing/schema/fields/B
 const { UNIT_TYPE_FIELD, MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
 const Order = new GQLListSchema('Order', {
-    schemaDoc: 'Invoice document for one time paid services',
+    schemaDoc: 'Document for one time paid order with list of services',
     fields: {
-        ticket: {
-            schemaDoc: 'Ticket',
+
+        context: {
+            schemaDoc: 'Acquiring context for organization that executes the paid Order',
             type: Relationship,
-            ref: 'Ticket',
+            ref: 'AcquiringIntegrationContext',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
+        ticket: {
+            schemaDoc: 'Ticket this Order is based on',
+            type: Relationship,
+            ref: 'Ticket',
+            isRequired: false,
             access: { read: access.canReadSensitiveOrderData },
         },
 
@@ -39,7 +47,7 @@ const Order = new GQLListSchema('Order', {
         accountNumber: {
             schemaDoc: 'Account number of the resident who placed an Order',
             type: Text,
-            isRequired: true,
+            isRequired: false,
         },
 
         toPay: {
@@ -56,6 +64,16 @@ const Order = new GQLListSchema('Order', {
             schemaDoc: 'Order number',
             type: Text,
             isRequired: true,
+        },
+
+        receiver: {
+            schemaDoc: 'Relation to the BillingRecipient',
+            type: Relationship,
+            ref: 'BillingRecipient',
+            isRequired: true,
+            knexOptions: { isNotNullable: true },
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            defaultValue: null,
         },
 
     },
