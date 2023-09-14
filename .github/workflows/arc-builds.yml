@@ -9,7 +9,7 @@ on:
 jobs:
   build:
 
-    runs-on: arc-runner-set
+    runs-on: runners-set-cpu6-ram12
 
     strategy:
       matrix:
