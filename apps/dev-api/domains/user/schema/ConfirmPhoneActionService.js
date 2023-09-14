@@ -5,9 +5,14 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
+const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
+const { extractReqLocale, getLocalizedMessage } = require('@dev-api/domains/common/utils/messages')
+const { sendMessage } = require('@dev-api/domains/common/utils/sms')
 const { CONFIRM_ACTION_TTL_IN_SEC, CONFIRM_ACTION_CODE_LENGTH } = require('@dev-api/domains/user/constants')
+const { ERRORS } = require('@dev-api/domains/user/schema/User')
+const { normalizePhone } = require('@dev-api/domains/user/utils/phone')
 const { ConfirmPhoneAction } = require('@dev-api/domains/user/utils/serverSchema')
 
 const SMS_WHITE_LIST = JSON.parse(conf['SMS_WHITE_LIST'] || '{}')
@@ -38,12 +43,17 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             schema: 'startConfirmPhoneAction(data: StartConfirmPhoneActionInput!): StartConfirmPhoneActionOutput',
             resolver: async (parent, args, context) => {
                 const { data: { dv, sender, phone } } = args
+                const normalizedPhone = normalizePhone(phone)
+                if (!normalizedPhone) {
+                    throw new GQLError(ERRORS.INVALID_PHONE, context)
+                }
+
                 const code = SMS_WHITE_LIST.hasOwnProperty(phone)
-                    ? SMS_WHITE_LIST[phone]
+                    ? SMS_WHITE_LIST[normalizedPhone]
                     : faker.random.numeric(CONFIRM_ACTION_CODE_LENGTH)
 
                 const actionPayload = {
-                    phone,
+                    phone: normalizedPhone,
                     code,
                     expiresAt: dayjs().add(CONFIRM_ACTION_TTL_IN_SEC, 'second').toISOString(),
                     dv,
@@ -51,6 +61,14 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 }
 
                 const createdAction = await ConfirmPhoneAction.create(context, actionPayload)
+
+                const locale =  extractReqLocale(context.req)
+                const message = getLocalizedMessage('messages.confirmPhoneAction', {
+                    locale,
+                    values: { code },
+                })
+
+                await sendMessage(normalizedPhone, message)
 
                 return {
                     actionId: createdAction.id,

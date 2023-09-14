@@ -905,9 +905,11 @@ __metadata:
     "@keystonejs/list-plugins": ^8.1.0
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
+    "@open-condo/apollo-server-client": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"
+    "@open-condo/locales": "workspace:^"
     "@types/jest": ^29.4.0
     "@types/node": ^16
     babel-jest: ^29.4.0
@@ -9783,7 +9785,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@open-condo/apollo-server-client@workspace:packages/apollo-server-client":
+"@open-condo/apollo-server-client@workspace:^, @open-condo/apollo-server-client@workspace:packages/apollo-server-client":
   version: 0.0.0-use.local
   resolution: "@open-condo/apollo-server-client@workspace:packages/apollo-server-client"
   peerDependencies:

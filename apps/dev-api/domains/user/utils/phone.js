@@ -1,4 +1,4 @@
-const phone = require('phone')
+const { phone } = require('phone')
 
 function normalizePhone (input, opts = { allowLandLine: false }) {
     if (!input || typeof input !== 'string' || !input.startsWith('+')) {

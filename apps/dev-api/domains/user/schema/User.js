@@ -103,4 +103,5 @@ const User = new GQLListSchema('User', {
 
 module.exports = {
     User,
+    ERRORS,
 }
