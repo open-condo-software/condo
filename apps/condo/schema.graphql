@@ -66144,7 +66144,7 @@ input CreatePaymentByLinkInput {
 type CreatePaymentByLinkOutput {
   multiPaymentId: ID!
   amount: String!
-  commission: String!
+  explicitFee: String!
   totalAmount: String!
   address: String!
   addressMeta: AddressMetaField!
