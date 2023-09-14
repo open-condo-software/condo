@@ -78,7 +78,6 @@ describe('GetOverviewDashboardService', () => {
     let ticket
     let residentClient
     let incident
-    let incidentProperty
 
     beforeAll(async () => {
         const payerAndPayments = await makePayerAndPayments(3)
@@ -138,7 +137,7 @@ describe('GetOverviewDashboardService', () => {
 
         const [createdIncident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)
         incident = createdIncident
-        incidentProperty = await createTestIncidentProperty(admin, incident, property)
+        await createTestIncidentProperty(admin, incident, property)
     })
 
     describe('Admin', () => {

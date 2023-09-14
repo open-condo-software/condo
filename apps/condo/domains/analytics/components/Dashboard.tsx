@@ -28,6 +28,7 @@ import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
 import { parseQuery, getPageIndexFromOffset } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { QUALITY_CONTROL_VALUES } from '@condo/domains/ticket/constants/qualityControl'
@@ -39,7 +40,7 @@ import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
-const CARD_ROW_GUTTER: RowProps['gutter'] = [12, 24]
+const CARD_ROW_GUTTER: RowProps['gutter'] = [8, 24]
 const CARD_STYLE: React.CSSProperties = { height: '160px' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
@@ -50,6 +51,7 @@ const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
     textAlign: 'center',
 }
 const MODAL_TABLE_PAGE_SIZE = 5
+const DASHBOARD_WIDTH_BREAKPOINT = 1300
 
 type StatisticCardProps = { label: string, value: string | number, secondaryLabel?: string }
 
@@ -127,7 +129,7 @@ const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsDa
     return (
         <Card title={<Typography.Title level={3}>{SummaryTitle}</Typography.Title>}>
             {isTicketCountLoading || loading ? (
-                <Skeleton loading paragraph={{ rows: 3 }} />
+                <Skeleton loading active paragraph={{ rows: 3 }} />
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
                     <Col span={24}>
@@ -393,6 +395,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const { values: propertyIds, SearchInput: OrganizationPropertySearch } = usePropertyFilter({ organizationId })
 
     const { breakpoints: { TABLET_LARGE } } = useLayoutContext()
+    const { width } = useWindowSize()
 
     const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
@@ -446,7 +449,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                     </Row>
                 </TableFiltersContainer>
             </Col>
-            <Col xl={12} lg={24}>
+            <Col xl={width > DASHBOARD_WIDTH_BREAKPOINT ? 12 : 24} lg={24}>
                 <PerformanceCard
                     organizationId={organizationId}
                     paymentSum={paymentSum}
@@ -472,7 +475,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 />
             </Col>
             {overview === null ? (
-                <Skeleton paragraph={{ rows: 62 }} />
+                <Skeleton paragraph={{ rows: 62 }} loading active />
             ) : (
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>
