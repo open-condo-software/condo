@@ -67,7 +67,7 @@ class OIDCAuthClient {
 }
 
 class ApolloServerClient {
-
+    #isAuthorized = false
     client
     clientName
     authToken
@@ -87,6 +87,7 @@ class ApolloServerClient {
     constructor (endpoint, authRequisites = {}, { clientName = 'apollo-server-client', locale = 'ru' } = {}) {
         this.clientName = clientName
         this.endpoint = endpoint
+        this.locale = locale
 
         this.authRequisites = normalizeAuthRequisites(authRequisites)
         this.logger = getLogger(clientName)
@@ -161,6 +162,7 @@ class ApolloServerClient {
         })
         this.userId = user.id
         this.authToken = token
+        this.#isAuthorized = true
     }
 
     async singInByPhoneAndPassword () {
@@ -171,6 +173,31 @@ class ApolloServerClient {
         })
         this.userId = user.id
         this.authToken = token
+        this.#isAuthorized = true
+    }
+
+    async executeAuthorizedQuery (queryArgs, opts = { batchClient: false }) {
+        if (!this.#isAuthorized) {
+            await this.signIn()
+        }
+
+        if (opts.batchClient) {
+            return await this.batchClient.query(queryArgs)
+        } else {
+            return await this.client.query(queryArgs)
+        }
+    }
+
+    async executeAuthorizedMutation (mutationArgs, opts = { batchClient: false }) {
+        if (!this.#isAuthorized) {
+            await this.signIn()
+        }
+
+        if (opts.batchClient) {
+            return await this.batchClient.mutate(mutationArgs)
+        } else {
+            return await this.client.mutate(mutationArgs)
+        }
     }
 
     async loadByChunks ({ modelGql, where, chunkSize = LOAD_CHUNK_SIZE, limit = 100000, sortBy = ['id_ASC'] }) {
@@ -196,7 +223,7 @@ class ApolloServerClient {
      * @returns {Promise<*>}
      */
     async getCount ({ modelGql, where, first, skip, sortBy }) {
-        const { data: { meta: { count } } } = await this.client.query({
+        const { data: { meta: { count } } } = await this.executeAuthorizedQuery({
             query: modelGql.GET_COUNT_OBJS_QUERY,
             variables: {
                 where,
@@ -213,7 +240,7 @@ class ApolloServerClient {
      * Default limit is 100 (on condo side). To load all models - use loadByChunks
      */
     async getModels ({ modelGql, where, first, skip, sortBy }) {
-        const { data: { objs } } = await this.client.query({
+        const { data: { objs } } = await this.executeAuthorizedQuery({
             query: modelGql.GET_ALL_OBJS_QUERY,
             variables: {
                 where,
@@ -230,7 +257,7 @@ class ApolloServerClient {
 
         if (id) variables.id = id
 
-        const { data: { obj: updatedObj, result: updatedResult } } = await this.client.mutate({
+        const { data: { obj: updatedObj, result: updatedResult } } = await this.executeAuthorizedMutation({
             mutation: modelGql.UPDATE_OBJ_MUTATION,
             variables,
         })
@@ -239,16 +266,15 @@ class ApolloServerClient {
     }
 
     async updateModels ({ modelGql, updateInputs = [], isBatch = false, onProgress = () => null }) {
-        const client = isBatch ? this.batchClient : this.client
         const chunks = splitArray(updateInputs, MAX_MODIFY_OPERATIONS_IN_REQUEST)
         let result = []
         for (const chunk of chunks) {
-            const { data: { objs } } = await client.mutate({
+            const { data: { objs } } = await this.executeAuthorizedMutation({
                 mutation: modelGql.UPDATE_OBJS_MUTATION,
                 variables: {
-                    data: chunk.map( data => ({ id: data.id, data: { ...this.dvSender(), ...data.data } })),
+                    data: chunk.map(data => ({ id: data.id, data: { ...this.dvSender(), ...data.data } })),
                 },
-            })
+            }, { batchClient: isBatch })
             await onProgress(objs.length)
             result = result.concat(objs)
         }
@@ -257,8 +283,7 @@ class ApolloServerClient {
     }
 
     async createModel ({ modelGql, createInput, isBatch = false }) {
-        const client = isBatch ? this.batchClient : this.client
-        const { data: { obj } } = await client.mutate({
+        const { data: { obj } } = await this.executeAuthorizedMutation({
             mutation: modelGql.CREATE_OBJ_MUTATION,
             variables: {
                 data: {
@@ -266,21 +291,20 @@ class ApolloServerClient {
                     ...createInput,
                 },
             },
-        })
+        }, { batchClient: isBatch })
         return obj
     }
 
     async createModels ({ modelGql, createInputs = [], isBatch = false, onProgress = () => null }) {
-        const client = isBatch ? this.batchClient : this.client
         const chunks = splitArray(createInputs, MAX_MODIFY_OPERATIONS_IN_REQUEST)
         let result = []
         for (const chunk of chunks) {
-            const { data: { objs } } = await client.mutate({
+            const { data: { objs } } = await this.executeAuthorizedMutation({
                 mutation: modelGql.CREATE_OBJS_MUTATION,
                 variables: {
-                    data: chunk.map( data => ({ data: { ...this.dvSender(), ...data } })),
+                    data: chunk.map(data => ({ data: { ...this.dvSender(), ...data } })),
                 },
-            })
+            }, { batchClient: isBatch })
             await onProgress(objs.length)
             result = result.concat(objs)
         }
