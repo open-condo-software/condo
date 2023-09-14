@@ -29,7 +29,7 @@ const NewsItemRecipientsExportTask = generateGQLTestUtils(NewsItemRecipientsExpo
 
 /* AUTOGENERATE MARKER <CONST> */
 
-const propertyMap1x9x4 = {
+const getPropertyMap = (floors, unitsOnFloor) => ({
     dv: 1,
     type: 'building',
     sections: [
@@ -39,40 +39,18 @@ const propertyMap1x9x4 = {
             index: 1,
             name: '1',
             preview: null,
-            /*
-                 ___________________
-                | 33 | 34 | 35 | 36 |
-                |____|____|____|____|
-                | 29 | 30 | 31 | 32 |
-                |____|____|____|____|
-                | 25 | 26 | 27 | 28 |
-                |____|____|____|____|
-                | 21 | 22 | 23 | 24 |
-                |____|____|____|____|
-                | 17 | 18 | 19 | 20 |
-                |____|____|____|____|
-                | 13 | 14 | 15 | 16 |
-                |____|____|____|____|
-                |  9 | 10 | 11 | 12 |
-                |____|____|____|____|
-                |  5 |  6 |  7 |  8 |
-                |____|____|____|____|
-                |  1 |  2 |  3 |  4 |
-                |____|____|____|____|
-             */
-            floors: map(Array(9), (...[, floor]) => {
-                const unitsCount = 4
+            floors: map(Array(floors), (...[, floor]) => {
                 const floorPlus1 = floor + 1
                 return {
                     id: String(floorPlus1),
                     type: 'floor',
                     index: floorPlus1,
                     name: String(floorPlus1),
-                    units: map(Array(unitsCount), (...[, n]) => ({
-                        id: String(floor * unitsCount + n + 1),
+                    units: map(Array(unitsOnFloor), (...[, n]) => ({
+                        id: String(floor * unitsOnFloor + n + 1),
                         type: 'unit',
                         name: null,
-                        label: String(floor * unitsCount + n + 1),
+                        label: String(floor * unitsOnFloor + n + 1),
                         preview: null,
                         unitType: FLAT_UNIT_TYPE,
                     })),
@@ -81,7 +59,30 @@ const propertyMap1x9x4 = {
         },
     ],
     'parking': [],
-}
+})
+
+/*
+      ___________________
+     | 33 | 34 | 35 | 36 |
+     |____|____|____|____|
+     | 29 | 30 | 31 | 32 |
+     |____|____|____|____|
+     | 25 | 26 | 27 | 28 |
+     |____|____|____|____|
+     | 21 | 22 | 23 | 24 |
+     |____|____|____|____|
+     | 17 | 18 | 19 | 20 |
+     |____|____|____|____|
+     | 13 | 14 | 15 | 16 |
+     |____|____|____|____|
+     |  9 | 10 | 11 | 12 |
+     |____|____|____|____|
+     |  5 |  6 |  7 |  8 |
+     |____|____|____|____|
+     |  1 |  2 |  3 |  4 |
+     |____|____|____|____|
+ */
+const propertyMap1x9x4 = getPropertyMap(9, 4)
 
 async function createTestNewsItem (client, organization, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -293,6 +294,7 @@ async function updateTestNewsItemRecipientsExportTask (client, id, extraAttrs = 
 
 module.exports = {
     propertyMap1x9x4,
+    getPropertyMap,
     NewsItem, createTestNewsItem, updateTestNewsItem, publishTestNewsItem,
     NewsItemScope, createTestNewsItemScope, updateTestNewsItemScope,
     NewsItemTemplate, createTestNewsItemTemplate, updateTestNewsItemTemplate,

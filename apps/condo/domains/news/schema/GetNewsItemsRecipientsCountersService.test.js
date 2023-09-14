@@ -9,7 +9,8 @@ const {
     expectToThrowAuthenticationError, expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { getNewsItemsRecipientsCountersByTestClient, propertyMap1x9x4 } = require('@condo/domains/news/utils/testSchema')
+const { LOAD_RESIDENTS_CHUNK_SIZE } = require('@condo/domains/news/constants/common')
+const { getNewsItemsRecipientsCountersByTestClient, getPropertyMap, propertyMap1x9x4 } = require('@condo/domains/news/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
@@ -119,6 +120,30 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         expect(data4).toEqual({ propertiesCount: 2, unitsCount: 2, receiversCount: 1 })
         expect(data5).toEqual({ propertiesCount: 1, unitsCount: 36, receiversCount: 0 })
         expect(data6).toEqual({ propertiesCount: 2, unitsCount: 72, receiversCount: 1 })
+    })
+
+    test('The data for counters calculated correctly for several resident chunks', async () => {
+        const [property1] = await createTestProperty(adminClient, dummyO10n, { map: getPropertyMap(15, 4) })
+        const [user] = await createTestUser(adminClient)
+        const residentsCount = LOAD_RESIDENTS_CHUNK_SIZE + 10
+
+        await Promise.all(
+            Array.from(
+                { length: residentsCount },
+                (_, i) =>
+                    createTestResident(adminClient, user, property1, { unitType: 'flat', unitName: `${i + 1}` })
+            )
+        )
+
+        const payload = {
+            organization: pick(dummyO10n, 'id'),
+            newsItemScopes: [
+                { property: { id: property1.id }, unitType: null, unitName: null },
+            ],
+        }
+        const [data] = await getNewsItemsRecipientsCountersByTestClient(staffClientYes, payload)
+
+        expect(data).toEqual({ propertiesCount: 1, unitsCount: residentsCount, receiversCount: residentsCount })
     })
 
     test('anonymous can\'t execute', async () => {

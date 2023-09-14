@@ -1,6 +1,7 @@
 const get = require('lodash/get')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { LOAD_RESIDENTS_CHUNK_SIZE } = require('@condo/domains/news/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const getUnitsFromProperty = (property) => (
@@ -44,7 +45,7 @@ async function countUniqueUnitsFromResidents (context, where) {
     await loadListByChunks({
         context,
         list: Resident,
-        chunkSize: 50,
+        chunkSize: LOAD_RESIDENTS_CHUNK_SIZE,
         where: { ...where, deletedAt: null },
         /**
          * @param {Resident[]} chunk
@@ -52,6 +53,7 @@ async function countUniqueUnitsFromResidents (context, where) {
          */
         chunkProcessor: (chunk) => {
             chunk.forEach((r) => units.add(`${r.property.id}_${r.unitType}_${r.unitName}`))
+
             return []
         },
     })
