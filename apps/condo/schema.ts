@@ -24039,6 +24039,11 @@ export type IncidentHistoryRecordsUpdateInput = {
   data?: Maybe<IncidentHistoryRecordUpdateInput>;
 };
 
+export type IncidentOverviewResult = {
+  __typename?: 'IncidentOverviewResult';
+  count: Scalars['String'];
+};
+
 export type IncidentPropertiesCreateInput = {
   data?: Maybe<IncidentPropertyCreateInput>;
 };
@@ -50113,7 +50118,8 @@ export enum OverviewDashboardEntities {
   Payment = 'payment',
   Receipt = 'receipt',
   Resident = 'resident',
-  Property = 'property'
+  Property = 'property',
+  Incident = 'incident'
 }
 
 export type OverviewData = {
@@ -50127,6 +50133,7 @@ export type OverviewData = {
   receipt?: Maybe<ReceiptOverviewResult>;
   resident?: Maybe<ResidentOverviewResult>;
   property?: Maybe<PropertyOverviewResult>;
+  incident?: Maybe<IncidentOverviewResult>;
 };
 
 /**  Information about completed transaction from user to a specific organization  */

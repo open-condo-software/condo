@@ -1,5 +1,5 @@
 const Big = require('big.js')
-const { get, pick, isEmpty, find } = require('lodash')
+const { get, pick, isEmpty } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 

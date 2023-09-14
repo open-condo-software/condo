@@ -89,6 +89,9 @@ const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
                     }
                     sum
                 }
+                incident {
+                    count
+                }
             } 
         }
     }

@@ -1,9 +1,6 @@
-import {
-    IncidentStatusType,
-    TicketQualityControlValueType,
-} from '@app/condo/schema'
+import { TicketQualityControlValueType } from '@app/condo/schema'
 import { Row, Col, Skeleton } from 'antd'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -36,7 +33,6 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 import { QUALITY_CONTROL_VALUES } from '@condo/domains/ticket/constants/qualityControl'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 import { useTicketQualityTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
-import { Incident } from '@condo/domains/ticket/utils/clientSchema'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import type { OverviewData } from '@app/condo/schema'
@@ -131,7 +127,7 @@ const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsDa
     return (
         <Card title={<Typography.Title level={3}>{SummaryTitle}</Typography.Title>}>
             {isTicketCountLoading || loading ? (
-                <Skeleton loading paragraph={{ rows: 5 }} />
+                <Skeleton loading paragraph={{ rows: 3 }} />
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
                     <Col span={24}>
@@ -186,26 +182,17 @@ const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsDa
     )
 }
 
-type DashboardCardType = ({ organizationId, dateRange }: {
-    organizationId: string,
-    dateRange: [Dayjs, Dayjs]
+type DashboardCardType = ({ count, loading }: {
+    count: string,
+    loading: boolean
 }) => React.ReactElement
 
-const IncidentDashboard: DashboardCardType = ({ organizationId, dateRange }) => {
+const IncidentDashboard: DashboardCardType = ({ count, loading }) => {
     const intl = useIntl()
     const IncidentsTitle = intl.formatMessage({ id: 'pages.reports.incidentsTitle' })
     const IncidentDescription = intl.formatMessage({ id: 'pages.reports.incidentsDescription' })
 
     const { push } = useRouter()
-
-    const { loading, count } = Incident.useCount({
-        where: {
-            organization: { id: organizationId },
-            status: IncidentStatusType.Actual,
-            createdAt_gte: dateRange[0].startOf('day').toISOString(),
-            createdAt_lte: dateRange[1].endOf('day').toISOString(),
-        },
-    })
 
     const onCardClick = useCallback(async () => {
         await push('/incident')
@@ -215,7 +202,7 @@ const IncidentDashboard: DashboardCardType = ({ organizationId, dateRange }) => 
         <Row style={CARD_STYLE} align='middle'>
             <Col span={24} style={TEXT_CENTER_STYLE}>
                 <Space direction='vertical' size={12} align='center'>
-                    <Typography.Title level={1} type={count > 0 ? 'danger' : 'success'}>{count}</Typography.Title>
+                    <Typography.Title level={1} type={Number(count) > 0 ? 'danger' : 'success'}>{count}</Typography.Title>
                     <div style={TEXT_CENTER_STYLE}>
                         <Typography.Paragraph type='secondary' size='medium'>
                             {IncidentDescription}
@@ -442,6 +429,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
     const paymentSum = get(overview, 'payment.sum', null)
     const receiptsData = get(overview, 'receipt.receipts', [])
     const residentsData = get(overview, 'resident.residents', [])
+    const incidentsCount = get(overview, 'incident.count', 0)
     const chargedToPaidData = paymentsData.length > 0 && receiptsData.length > 0 ? [paymentsData, receiptsData] : []
 
     return (
@@ -470,7 +458,10 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 />
             </Col>
             <Col xl={6} lg={12} xs={24}>
-                <IncidentDashboard organizationId={organizationId} dateRange={dateRange} />
+                <IncidentDashboard
+                    count={incidentsCount}
+                    loading={loading}
+                />
             </Col>
             <Col xl={6} lg={12} xs={24}>
                 <TicketQualityControlDashboard

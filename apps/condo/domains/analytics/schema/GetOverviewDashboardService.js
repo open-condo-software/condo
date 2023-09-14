@@ -13,11 +13,15 @@ const { i18n } = require('@open-condo/locales/loader')
 const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const access = require('@condo/domains/analytics/access/GetOverviewDashboardService')
 const { AnalyticsDataProvider } = require('@condo/domains/analytics/utils/services/AnalyticsDataProvider')
+const { IncidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/incident')
 const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/payment')
 const { PropertyDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/property')
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
 const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
-const { TicketDataLoader, TicketQualityControlDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
+const {
+    TicketDataLoader,
+    TicketQualityControlDataLoader,
+} = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
 const { OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
 const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 
@@ -50,7 +54,7 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'enum OverviewDashboardEntities { ticketByDay, ticketByProperty, ticketByCategory, ticketByExecutor, ticketQualityControlValue, payment, receipt, resident, property }',
+            type: 'enum OverviewDashboardEntities { ticketByDay, ticketByProperty, ticketByCategory, ticketByExecutor, ticketQualityControlValue, payment, receipt, resident, property, incident }',
         },
         {
             access: true,
@@ -94,7 +98,11 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, ticketQualityControlValue: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult, property: PropertyOverviewResult }',
+            type: 'type IncidentOverviewResult { count: String! }',
+        },
+        {
+            access: true,
+            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, ticketQualityControlValue: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult, property: PropertyOverviewResult, incident: IncidentOverviewResult }',
         },
         {
             access: true,
@@ -236,6 +244,16 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                     ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
                                 },
                                 groupBy: ['address'],
+                            },
+                        },
+                        incident: {
+                            provider: new IncidentDataLoader({ context }),
+                            queryOptions: {
+                                where: {
+                                    organization: { id: where.organization },
+                                    deletedAt: null,
+                                    ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
+                                },
                             },
                         },
                     },

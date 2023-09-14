@@ -66316,6 +66316,7 @@ enum OverviewDashboardEntities {
   receipt
   resident
   property
+  incident
 }
 
 input GetOverviewDashboardInput {
@@ -66372,6 +66373,10 @@ type PropertyOverviewResult {
   sum: String!
 }
 
+type IncidentOverviewResult {
+  count: String!
+}
+
 type OverviewData {
   ticketByProperty: TicketOverviewResult
   ticketByDay: TicketOverviewResult
@@ -66382,6 +66387,7 @@ type OverviewData {
   receipt: ReceiptOverviewResult
   resident: ResidentOverviewResult
   property: PropertyOverviewResult
+  incident: IncidentOverviewResult
 }
 
 type GetOverviewDashboardOutput {
