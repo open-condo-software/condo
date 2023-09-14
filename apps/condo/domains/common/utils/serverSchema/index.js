@@ -133,18 +133,24 @@ const loadListByChunks = async ({
     let maxIterationsCount = Math.ceil(limit / chunkSize)
     let newChunk = []
     let all = []
+    let newChunkLength
+
     do {
         newChunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
-        if (newChunk.length > 0) {
+        newChunkLength = newChunk.length
+
+        if (newChunkLength > 0) {
             if (isFunction(chunkProcessor)) {
                 newChunk = chunkProcessor.constructor.name === 'AsyncFunction'
                     ? await chunkProcessor(newChunk)
                     : chunkProcessor(newChunk)
             }
+
+            skip += newChunkLength
             all = all.concat(newChunk)
-            skip += newChunk.length
         }
-    } while (--maxIterationsCount > 0 && newChunk.length)
+    } while (--maxIterationsCount > 0 && newChunkLength)
+
     return all
 }
 
