@@ -8,6 +8,8 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const ACQUIRING_INTEGRATION_FIELDS = `{ name setupUrl canGroupReceipts hostUrl supportedBillingIntegrationsGroup ${COMMON_FIELDS} }`
@@ -70,7 +72,7 @@ const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMEN
 
 const PAYMENT_BY_LINK_MUTATION = gql`
     mutation createPaymentByLink ($data: CreatePaymentByLinkInput!) {
-        result: createPaymentByLink(data: $data) { multiPaymentId, address, unitName, accountNumber }
+        result: createPaymentByLink(data: $data) { multiPaymentId amount explicitFee totalAmount address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName accountNumber period }
     }
 `
 

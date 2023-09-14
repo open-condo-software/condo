@@ -14,6 +14,7 @@ const { CONTEXT_FINISHED_STATUS: ACQUIRING_CONTEXT_FINISHED_STATUS } = require('
 const {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
+    MultiPayment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
@@ -53,7 +54,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
         },
         {
             access: true,
-            type: 'type CreatePaymentByLinkOutput { multiPaymentId: ID!, address: String!, unitName: String!, accountNumber: String! }',
+            type: 'type CreatePaymentByLinkOutput { multiPaymentId: ID!, amount: String!, explicitFee: String!, totalAmount: String!, address: String!, addressMeta: AddressMetaField!, unitType: String!, unitName: String!, accountNumber: String!, period: String! }',
         },
     ],
 
@@ -222,11 +223,24 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
                     multiPaymentId = id
                 }
 
+                const multiPayment = await MultiPayment.getOne(context, { id: multiPaymentId })
+
                 return {
                     multiPaymentId,
+                    amount: multiPayment.amountWithoutExplicitFee,
+                    explicitFee: multiPayment.explicitServiceCharge,
+                    totalAmount: multiPayment.amount,
                     address: normalizedAddress.address,
-                    unitName: normalizedAddress.addressMeta.unitName,
+                    addressMeta: {
+                        dv: 1,
+                        value: get(normalizedAddress, ['addressMeta', 'value'], ''),
+                        unrestricted_value: get(normalizedAddress, ['addressMeta', 'unrestricted_value'], ''),
+                        data: get(normalizedAddress, ['addressMeta', 'data'], null),
+                    },
+                    unitType: get(normalizedAddress, ['addressMeta', 'unitType']),
+                    unitName: get(normalizedAddress, ['addressMeta', 'unitName']),
                     accountNumber: PersonalAcc,
+                    period,
                 }
             },
         },
