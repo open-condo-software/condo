@@ -6,9 +6,11 @@ const express = require('express')
 const { get, isEmpty, isString, isNil } = require('lodash')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 
+const logger = getLogger('sberCloudFileAdapter')
 
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
 
@@ -229,25 +231,30 @@ const obsRouterHandler = ({ keystone }) => {
                 returnFields += `, ${propertyQuery}`
             }
 
-            const item = await getItem({
-                keystone,
-                listKey,
-                itemId,
-                context,
-                returnFields,
-            })
+            hasAccessToReadFile = false
 
-            // item accessible
-            hasAccessToReadFile = !isNil(item)
+            try {
+                const item = await getItem({
+                    keystone,
+                    listKey,
+                    itemId,
+                    context,
+                    returnFields,
+                })
 
-            // check property access case
-            if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
-                const propertyPath = propertyQuery
-                    .replaceAll('}', '') // remove close brackets of sub props querying
-                    .split('{') // work with each path parts separately
-                    .map(path => path.trim()) // since gql allow to have spaces in querying - let's remove them
-                    .join('.') // join by . for lodash get utility
-                hasAccessToReadFile = get(item, propertyPath) == propertyValue
+                hasAccessToReadFile = !isNil(item)
+
+                // check property access case
+                if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
+                    const propertyPath = propertyQuery
+                        .replaceAll('}', '') // remove close brackets of sub props querying
+                        .split('{') // work with each path parts separately
+                        .map(path => path.trim()) // since gql allow to have spaces in querying - let's remove them
+                        .join('.') // join by . for lodash get utility
+                    hasAccessToReadFile = get(item, propertyPath) == propertyValue
+                }
+            } catch (err) {
+                logger.error({ msg: 'getItem failed', err: err, args: listKey, itemId, returnFields })
             }
         }
 
