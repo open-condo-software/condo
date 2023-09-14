@@ -7,7 +7,7 @@ async function canReadTicketReportWidgetData ({ authentication: { item: user } }
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    return { organization: queryOrganizationEmployeeFor(user.id) }
+    return { organization: queryOrganizationEmployeeFor(user.id, 'canReadAnalytics') }
 }
 
 module.exports = {

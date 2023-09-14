@@ -11,6 +11,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Dashboard } from '@condo/domains/analytics/components/Dashboard'
 import ExternalReportCard from '@condo/domains/analytics/components/ExternalReportCard'
 import { ExternalReport } from '@condo/domains/analytics/utils/clientSchema/index'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -71,6 +72,9 @@ const IndexPage = () => {
             </Row>
         )
     }, [NoDataTitle, externalReports, organization, link, isDashboardEnabled])
+
+
+    return <AccessDeniedPage />
 
     return (
         <>

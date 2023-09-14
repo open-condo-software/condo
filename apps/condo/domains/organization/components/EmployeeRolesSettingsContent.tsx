@@ -501,6 +501,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     }, [initialPermissionsState])
 
     const handleSave = useCallback(async () => {
+        let isPermissionsChanged
         setSubmitActionProcessing(true)
 
         for (const employeeRole of employeeRoles) {
@@ -511,6 +512,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             if (isEqual(initialRolePermissions, newRolePermissions)) {
                 continue
             }
+            isPermissionsChanged = true
 
             const initialEmployeeRolePermissions = initialRolePermissions.organizationPermissions
             const newEmployeeRolePermissions = newRolePermissions.organizationPermissions
@@ -536,13 +538,15 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             }
         }
 
-        notification.info({
-            message: getSaveNotificationMessage({
-                initialPermissionsState,
-                permissionsState,
-                intl,
-            }),
-        })
+        if (isPermissionsChanged) {
+            notification.info({
+                message: getSaveNotificationMessage({
+                    initialPermissionsState,
+                    permissionsState,
+                    intl,
+                }),
+            })
+        }
         
         setInitialPermissionsState(cloneDeep(permissionsState))
         setSubmitActionProcessing(false)
