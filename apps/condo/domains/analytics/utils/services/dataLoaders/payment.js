@@ -38,7 +38,7 @@ const createBillingPropertyRange = async (organizationWhereInput, propertyFilter
         organization: get(organizationWhereInput, 'organization.id'),
         deletedAt: null,
         ...(!isEmpty(propertyFilter) && { property: { id_in: propertyFilter } }),
-    })
+    }, ['address', 'user'])
     await billingResidentLoader.loadData()
 
     return billingResidentLoader
@@ -67,11 +67,24 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
             .whereIn(...this.whereIn[0])
             .whereBetween('period', [this.dateRange.from, this.dateRange.to])
             .orderBy('dayGroup', 'asc')
+        console.log('raw result')
+        console.log(JSON.stringify(this.result, null, 2))
     }
 }
 
 class PaymentDataLoader extends AbstractDataLoader {
     async get ({ where, groupBy, totalFilter, extraFilter }) {
+        const hasPropertyFilter = !isEmpty(extraFilter.propertyIds)
+        let paymentPropertyLabels = []
+
+        for (const group of groupBy) {
+            if (group === 'createdBy') {
+                paymentPropertyLabels = await createBillingPropertyRange(pick(where, ['organization']), extraFilter.propertyIds)
+                console.log('property labels')
+                console.log(JSON.stringify(paymentPropertyLabels, null, 2))
+            }
+        }
+
         const paymentSumLoader = new GqlWithKnexLoadList({
             listKey: 'Payment',
             fields: 'id',
@@ -80,6 +93,7 @@ class PaymentDataLoader extends AbstractDataLoader {
                 status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
                 deletedAt: null,
                 AND: totalFilter,
+                ...(hasPropertyFilter && { createdBy: { id_in: paymentPropertyLabels.map(({ value }) => value) } }),
             },
         })
 
@@ -95,24 +109,14 @@ class PaymentDataLoader extends AbstractDataLoader {
             ...searchResult,
         }))
 
-        for (const group of groupBy) {
-            let groupByLabels = []
-            switch (group) {
-                case 'createdBy':
-                    groupByLabels = await createBillingPropertyRange(pick(where, ['organization']), extraFilter.propertyIds)
-                    payments.forEach(payment => {
-                        const foundMapping = groupByLabels.find(e => e.value === payment[group])
-                        if (foundMapping) {
-                            payment[group] = foundMapping.label
-                        } else if (!isEmpty(extraFilter.propertyIds)) {
-                            payment[group] = null
-                        }
-                    })
-                    break
-                default:
-                    break
+        payments.forEach(payment => {
+            const foundMapping = paymentPropertyLabels.find(e => e.value === payment['createdBy'])
+            if (foundMapping) {
+                payment['createdBy'] = foundMapping.label
+            } else if (!isEmpty(extraFilter.propertyIds)) {
+                payment['createdBy'] = null
             }
-        }
+        })
 
         return { sum, payments: isEmpty(extraFilter.propertyIds) ? payments : payments.filter(payment => payment.createdBy !== null) }
     }
