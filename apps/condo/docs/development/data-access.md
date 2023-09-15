@@ -31,5 +31,6 @@ Can have custom GraphQL data types for input and output.
   - should be used in:
     - mutations to resolve results
     - in access control queries to look up for records, not exposed to public API
+- `loadListByChunks` should be used when number of records to load, exceeds GLOBAL_QUERY_LIMIT
 - `context.executeGraphQL` can execute any kind of GraphQL query and mutation with skipping access control
-  - useful in cases when we deviate from the conventional approach with with fixed set of fields and need only some of them
+  - useful in cases when we deviate from the conventional approach with fixed set of fields and need only some of them
