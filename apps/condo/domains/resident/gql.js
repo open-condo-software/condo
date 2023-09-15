@@ -25,7 +25,7 @@ const REGISTER_RESIDENT_MUTATION = gql`
         result: registerResident(data: $data) ${RESIDENT_FIELDS}
     }
 `
-const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id user { id locale } organization { id } unitType unitName deletedAt address property { id } } billingAccount { id number } accountNumber ${COMMON_FIELDS} organization { id name tin country } isDiscovered }`
+const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id user { id locale } organization { id } unitType unitName deletedAt address property { id } } billingAccount { id number } billingIntegrationContext { id lastReport } accountNumber ${COMMON_FIELDS} organization { id name tin country } isDiscovered }`
 const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_FIELDS)
 
 const REGISTER_SERVICE_CONSUMER_MUTATION = gql`

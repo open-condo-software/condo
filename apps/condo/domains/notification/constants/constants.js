@@ -74,6 +74,7 @@ const B2C_APP_MESSAGE_PUSH_TYPE = 'B2C_APP_MESSAGE_PUSH'
 const NEWS_ITEM_COMMON_MESSAGE_TYPE = 'NEWS_ITEM_COMMON_MESSAGE_TYPE'
 const NEWS_ITEM_EMERGENCY_MESSAGE_TYPE = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
 const DEV_PORTAL_MESSAGE_TYPE = 'DEV_PORTAL_MESSAGE'
+const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE = 'SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -522,6 +523,15 @@ const MESSAGE_META = {
         dv: { required: true },
         body: { required: true },
     },
+    [SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            monthName:  { required: true },
+            serviceConsumerId: { required: true },
+            residentId: { required: true },
+            userId: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -698,6 +708,11 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [SMS_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
+
 }
 
 const MESSAGE_SENDING_STATUS = 'sending'
@@ -909,5 +924,6 @@ module.exports = {
     NEWS_ITEM_COMMON_MESSAGE_TYPE,
     NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,
     DEV_PORTAL_MESSAGE_TYPE,
+    SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
 }
 
