@@ -16,6 +16,7 @@ const {
     createTestAcquiringIntegration, addAcquiringIntegrationAndContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY } = require('@condo/domains/billing/constants/constants')
+const { BillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestBillingProperty,
     createTestBillingAccount,
@@ -670,6 +671,112 @@ describe('DiscoverServiceConsumersService', () => {
                 residentsFound: 0,
                 billingAccountsFound: 0,
             })
+        })
+
+        test('Create only one consumer if there are duplicates of billing account', async () => {
+            const user1 = await makeClientWithProperty()
+            const residentClient1 = await makeClientWithResidentUser()
+
+            const { billingIntegrationContext: billingIntegrationContext1 } = await addBillingIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(admin, user1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            const [billingProperty1] = await createTestBillingProperty(admin, billingIntegrationContext1, { address: user1.property.address })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+            const number = faker.random.alphaNumeric(8)
+            let billingAccount1
+
+            const receiptsPayload = {
+                context: { id: billingIntegrationContext1.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: user1.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        accountNumber: number,
+                    }),
+                ],
+            }
+            await registerBillingReceiptsByTestClient(admin, receiptsPayload)
+
+            // Make sure that billing account created successfully
+            await waitFor(async () => {
+                const billingAccounts = await BillingAccount.getAll(admin, {
+                    context: { organization: { id: user1.organization.id } },
+                    number,
+                    deletedAt: null,
+                })
+
+                expect(billingAccounts).toHaveLength(1)
+
+                billingAccount1 = billingAccounts[0]
+            }, { delay: 500 })
+
+            // Add duplicated billing account
+            const [billingAccount1a] = await createTestBillingAccount(admin, billingIntegrationContext1, billingProperty1, {
+                unitType: unitType1,
+                unitName: unitName1,
+                number,
+            })
+
+            // Make sure we have duplicates
+            await waitFor(async () => {
+                const billingAccounts = await BillingAccount.getAll(admin, {
+                    context: { organization: { id: user1.organization.id } },
+                    unitType: unitType1,
+                    unitName: unitName1,
+                    number,
+                    deletedAt: null,
+                })
+
+                expect(billingAccounts).toEqual(expect.arrayContaining([
+                    expect.objectContaining({ id: billingAccount1.id }),
+                    expect.objectContaining({ id: billingAccount1a.id }),
+                ]))
+            })
+
+            // Start discovering using cron
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+
+            // no consumers should be created, because of there are no residents yet
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    organization: { id: user1.organization.id },
+                    accountNumber: number,
+                    deletedAt: null,
+                })
+
+                expect(createdServiceConsumers).toHaveLength(0)
+            }, { delay: 500 })
+
+            // Now add resident
+            // It must start discovering for all related billing accounts
+            const [resident1] = await registerResidentByTestClient(
+                residentClient1,
+                {
+                    address: user1.property.address,
+                    addressMeta: user1.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                }
+            )
+
+            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                organization: { id: user1.organization.id },
+                accountNumber: billingAccount1.number,
+                deletedAt: null,
+            })
+
+            expect(createdServiceConsumers).toHaveLength(1)
+            expect(createdServiceConsumers).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    resident: expect.objectContaining({ id: resident1.id }),
+                    organization: expect.objectContaining({ id: user1.organization.id }),
+                    accountNumber: billingAccount1.number,
+                    isDiscovered: true,
+                }),
+            ]))
         })
     })
 
