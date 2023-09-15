@@ -92,28 +92,6 @@ type TableCheckboxProps = {
 }
 
 /**
- * Changes value of the checkbox and related checkboxes.
- * If user set "canManage" permission checkbox, then "canRead" checkbox sets to true automatically.
- * If user unset "canRead" permission checkbox, then all "canManage" checkboxes of this group sets to false automatically.
- */
-const getPermissionsWithNewValue = ({
-    relatedPermissions = [],
-    permissionKey,
-    newValue,
-    oldPermissions,
-}): PermissionsType => {
-    return {
-        ...oldPermissions,
-        [permissionKey]: newValue,
-        ...relatedPermissions.reduce((acc, key) => {
-            acc[key] = newValue
-
-            return acc
-        }, {}),
-    }
-}
-
-/**
  * Checks that certain checked checkbox in table is disabled.
  * If there are no one of the other employee roles who have that permission, then checkbox will be disabled.
  * If it's "canRead" checkbox, then also checks such logic for "canManage" permissions of this group.
@@ -296,8 +274,8 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
     const b2bAppId = permissionsGroup.b2bAppId
     const permissionKey = permissionRow.key
     const isB2bPermission = !!b2bAppId
-    const relatedCheckPermissions = permissionRow.relatedCheckPermissions
-    const relatedUncheckPermissions = permissionRow.relatedUncheckPermissions
+    const relatedCheckPermissions = useMemo(() => permissionRow.relatedCheckPermissions || [], [permissionRow.relatedCheckPermissions])
+    const relatedUncheckPermissions = useMemo(() => permissionRow.relatedUncheckPermissions || [], [permissionRow.relatedUncheckPermissions])
 
     if (isB2bPermission) {
         pathToPermissionsGroupInState = [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions']
@@ -311,12 +289,18 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
         const newValue = e.target.checked
         const newState = cloneDeep(permissionsState)
         const oldPermissions = get(newState, pathToPermissionsGroupInState)
-        const newPermissions = getPermissionsWithNewValue({
+        const permissionsToChange = [
             permissionKey,
-            newValue,
-            oldPermissions,
-            relatedPermissions: newValue ? relatedCheckPermissions : relatedUncheckPermissions,
-        })
+            ...(newValue ? relatedCheckPermissions : relatedUncheckPermissions),
+        ]
+        const newPermissions = {
+            ...oldPermissions,
+            ...permissionsToChange.reduce((acc, key) => {
+                acc[key] = newValue
+
+                return acc
+            }, {}),
+        }
 
         set(newState, pathToPermissionsGroupInState, newPermissions)
         setPermissionsState(newState)

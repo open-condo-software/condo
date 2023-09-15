@@ -23,7 +23,7 @@ export type PermissionsGroup = {
  * Generates b2b role permissions data for settings table.
  */
 const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): PermissionsGroup[] => {
-    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
+    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.permission.canReadService' })
 
     return connectedB2BApps.map((b2bApp): PermissionsGroup => {
         const canReadKey = `canRead${b2bApp.id}`
@@ -52,27 +52,35 @@ const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): 
     })
 }
 
+const addNamesToPermissions = (intl) => (permissionGroup): PermissionsGroup => ({
+    ...permissionGroup,
+    groupName: intl.formatMessage({ id: `pages.condo.settings.employeeRoles.permissionGroup.${permissionGroup.key}` }),
+    permissions: permissionGroup.permissions.map(
+        (permission): PermissionRow => ({
+            ...permission,
+            name: intl.formatMessage({ id: `pages.condo.settings.employeeRoles.permission.${permission.key}` }),
+        })
+    ),
+})
+
 export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPermissions: B2BAppPermission[]): PermissionsGroup[] => {
     const intl = useIntl()
-    const ServicesGroupName = intl.formatMessage({ id: 'global.section.miniapps' })
-    const CanManageB2BAppsName = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canManageB2BApps' })
 
     const employeeRolePermissionGroups: PermissionsGroup[] = useMemo(() => [
         {
-            groupName: 'Аналитика',
             key: 'analytics',
             permissions: [
-                { key: 'canReadAnalytics', name: 'Просмотр аналитики' },
+                { key: 'canReadAnalytics' },
             ],
         },
         {
-            groupName: ServicesGroupName,
             key: 'services',
             permissions: [
-                { key: 'canManageB2BApps', name: CanManageB2BAppsName },
+                { key: 'canManageB2BApps' },
             ],
         },
-    ], [CanManageB2BAppsName, ServicesGroupName])
+    ].map(addNamesToPermissions(intl))
+    , [intl])
 
     return [
         ...employeeRolePermissionGroups,
