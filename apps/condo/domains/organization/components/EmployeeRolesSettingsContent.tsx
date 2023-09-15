@@ -47,10 +47,8 @@ import {
     useEmployeeRolesTableColumns,
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
+import { PermissionRow, useEmployeeRolesTableData, PermissionsGroup } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
-
-import { PermissionRow, useEmployeeRolesTableData } from '../hooks/useEmployeeRolesTableData'
-import { PermissionsGroup } from '../hooks/useEmployeeRolesTableData'
 
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
