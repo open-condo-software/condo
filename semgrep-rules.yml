@@ -12,3 +12,13 @@ rules:
       - pattern: $LOGGER.$METHOD({ ... })
       - pattern-not: '$LOGGER.$METHOD({ ..., msg: $MSG, ... })'
     severity: ERROR
+
+  - id: deprecated-server-side-graphql-client
+    languages:
+      - js
+    message: Used outdated method of data access. For more details see apps/condo/docs/development/data-access.md
+    pattern: const { ..., getItem, ... } = require('@keystonejs/server-side-graphql-client')
+    metadata:
+      references:
+        - condo/apps/condo/docs/development/data-access.md
+    severity: WARNING
