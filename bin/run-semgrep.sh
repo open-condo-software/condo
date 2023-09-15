@@ -20,9 +20,9 @@ runScan () {
   then
     echo "USE SARIF OUTPUT FORMAT"
     mkdir -p semgrep_results
-    semgrep $1 --error --sarif > semgrep_results/${1//\//_}.sarif
+    semgrep $1 --error --sarif --config ./semgrep-rules.yml > semgrep_results/${1//\//_}.sarif
   else
-    semgrep $1 --error
+    semgrep $1 --error --config ./semgrep-rules.yml
   fi
 }
 

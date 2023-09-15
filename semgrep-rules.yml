@@ -1,0 +1,14 @@
+rules:
+  - id: logger-message
+    languages:
+      - js
+    message: logger methods called with objects as argument, must contain "msg" to appear as a message in Kibana
+    patterns:
+      - pattern-inside: |
+          const { getLogger } = require('@open-condo/keystone/logging')
+          ...
+          const $LOGGER = getLogger(...)
+          ...
+      - pattern: $LOGGER.$METHOD({ ... })
+      - pattern-not: '$LOGGER.$METHOD({ ..., msg: $MSG, ... })'
+    severity: ERROR
