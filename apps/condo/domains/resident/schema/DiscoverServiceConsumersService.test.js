@@ -752,15 +752,12 @@ describe('DiscoverServiceConsumersService', () => {
 
             // Now add resident
             // It must start discovering for all related billing accounts
-            const [resident1] = await registerResidentByTestClient(
-                residentClient1,
-                {
-                    address: user1.property.address,
-                    addressMeta: user1.property.addressMeta,
-                    unitType: unitType1,
-                    unitName: unitName1,
-                }
-            )
+            const [resident1] = await registerResidentByTestClient(residentClient1, {
+                address: user1.property.address,
+                addressMeta: user1.property.addressMeta,
+                unitType: unitType1,
+                unitName: unitName1,
+            })
 
             const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
                 organization: { id: user1.organization.id },
