@@ -67,8 +67,6 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
             .whereIn(...this.whereIn[0])
             .whereBetween('period', [this.dateRange.from, this.dateRange.to])
             .orderBy('dayGroup', 'asc')
-        console.log('raw result')
-        console.log(JSON.stringify(this.result, null, 2))
     }
 }
 
@@ -80,8 +78,6 @@ class PaymentDataLoader extends AbstractDataLoader {
         for (const group of groupBy) {
             if (group === 'createdBy') {
                 paymentPropertyLabels = await createBillingPropertyRange(pick(where, ['organization']), extraFilter.propertyIds)
-                console.log('property labels')
-                console.log(JSON.stringify(paymentPropertyLabels, null, 2))
             }
         }
 
