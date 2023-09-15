@@ -20,7 +20,7 @@ import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
 
 interface INewContactFieldsFieldsProps {
-    initialValue?: TContact,
+    initialValueWithoutContact?: TContact,
     onChange: (contact: ContactValue) => void,
     onChecked?: () => void,
     checked?: boolean,
@@ -57,6 +57,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     activeTab,
     contactsLoading,
     unitName,
+    initialValueWithoutContact,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
@@ -64,7 +65,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
 
-    const [value, setValue] = useState({})
+    const [value, setValue] = useState(initialValueWithoutContact)
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)
 
     const { phoneValidator } = useValidations({ allowLandLine: true })

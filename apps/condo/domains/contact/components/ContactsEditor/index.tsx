@@ -8,6 +8,7 @@ import find from 'lodash/find'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isFunction from 'lodash/isFunction'
+import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
@@ -65,6 +66,7 @@ export interface IContactEditorProps {
     property?: string,
     unitName?: string,
     unitType?: BuildingUnitSubType,
+    clientPhone?: string,
     allowLandLine?: boolean,
     disabled?: boolean
     initialQuery
@@ -128,6 +130,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const [activeTab, setActiveTab] = useState<CONTACT_TYPE>()
 
     const { breakpoints } = useLayoutContext()
+    const router = useRouter()
 
     const initialContactsQuery = useMemo(() => ({
         ...initialQuery,
@@ -140,10 +143,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         ...initialQuery,
     }), [initialQuery, organization])
 
-    const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [])
-    const isNotResidentInitialValue = !initialValue.id && initialValue.phone
-    const initialTab = hasNotResidentTab && (isEmptyInitialValue || isNotResidentInitialValue) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
-    const initialNotResidentAutoCompleteFieldsValue = !initialValue.id && initialValue
+    const isEmptyInitialValue = useMemo(() => isEmpty(Object.values(initialValue).filter(Boolean)), [initialValue])
+    const initialValueWithoutContact = !initialValue.id && initialValue
+    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
+    const initialTab = hasNotResidentTab && (isEmptyInitialValue || initialValueWithoutContact) ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
 
     const {
         objs: fetchedContacts,
@@ -207,15 +210,19 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     useEffect(() => {
         if (hasNotResidentTab) {
-            if (unitName) {
+            if (unitName && (redirectToClientCard || isEmpty(initialValueWithoutContact))) {
                 setActiveTab(CONTACT_TYPE.RESIDENT)
+
+                if (redirectToClientCard && initialValueWithoutContact) {
+                    setEditableFieldsChecked(true)
+                }
             } else {
                 setActiveTab(CONTACT_TYPE.NOT_RESIDENT)
             }
         } else {
             setActiveTab(CONTACT_TYPE.RESIDENT)
         }
-    }, [hasNotResidentTab, unitName])
+    }, [hasNotResidentTab, initialValueWithoutContact, redirectToClientCard, unitName])
 
     useEffect(() => {
         setActiveTab(initialTab)
@@ -303,7 +310,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         setEditableFieldsChecked(false)
 
         setActiveTab(tab)
-    }, [triggerOnChange])
+    }, [initialValue.id, initialValue.phone, triggerOnChange])
 
     const className = props.disabled ? 'disabled' : ''
 
@@ -331,52 +338,58 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     activeTab={activeTab}
                                     contactsLoading={contactsLoading}
                                     unitName={unitName}
+                                    initialValueWithoutContact={initialValueWithoutContact}
                                 />
                             ) : (
                                 <>
                                     {contactOptions}
                                     <>
-                                        {(displayEditableContactFields || (initialValue.id && !initialValueIsPresentedInFetchedContacts)) ? (
-                                            <>
-                                                <NewContactFields
-                                                    onChange={handleChangeContact}
-                                                    onChecked={handleSyncedFieldsChecked}
-                                                    checked={editableFieldsChecked}
-                                                    contacts={fetchedContacts}
-                                                    displayMinusButton={true}
-                                                    onClickMinusButton={handleClickOnMinusButton}
-                                                    fields={fields}
-                                                    activeTab={activeTab}
-                                                    contactsLoading={contactsLoading}
-                                                    unitName={unitName}
-                                                />
-                                                {
-                                                    !breakpoints.TABLET_LARGE && (
-                                                        <Col span={24}>
-                                                            <Button
-                                                                type='link'
-                                                                style={BUTTON_STYLE}
-                                                                onClick={handleClickOnMinusButton}
-                                                                icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
-                                                            >
-                                                                {CancelMessage}
-                                                            </Button>
-                                                        </Col>
-                                                    )
-                                                }
-                                            </>
-                                        ) : (
-                                            <Col span={24}>
-                                                <Button
-                                                    type='link'
-                                                    style={BUTTON_STYLE}
-                                                    onClick={handleClickOnPlusButton}
-                                                    icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
-                                                >
-                                                    {AddNewContactLabel}
-                                                </Button>
-                                            </Col>
-                                        )}
+                                        {(
+                                            displayEditableContactFields ||
+                                            (initialValue.id && !initialValueIsPresentedInFetchedContacts)) ||
+                                            initialValueWithoutContact
+                                            ? (
+                                                <>
+                                                    <NewContactFields
+                                                        onChange={handleChangeContact}
+                                                        onChecked={handleSyncedFieldsChecked}
+                                                        checked={editableFieldsChecked}
+                                                        contacts={fetchedContacts}
+                                                        displayMinusButton={true}
+                                                        onClickMinusButton={handleClickOnMinusButton}
+                                                        fields={fields}
+                                                        activeTab={activeTab}
+                                                        contactsLoading={contactsLoading}
+                                                        unitName={unitName}
+                                                        initialValueWithoutContact={initialValueWithoutContact}
+                                                    />
+                                                    {
+                                                        !breakpoints.TABLET_LARGE && (
+                                                            <Col span={24}>
+                                                                <Button
+                                                                    type='link'
+                                                                    style={BUTTON_STYLE}
+                                                                    onClick={handleClickOnMinusButton}
+                                                                    icon={<MinusCircleOutlined style={BUTTON_ICON_STYLE} />}
+                                                                >
+                                                                    {CancelMessage}
+                                                                </Button>
+                                                            </Col>
+                                                        )
+                                                    }
+                                                </>
+                                            ) : (
+                                                <Col span={24}>
+                                                    <Button
+                                                        type='link'
+                                                        style={BUTTON_STYLE}
+                                                        onClick={handleClickOnPlusButton}
+                                                        icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
+                                                    >
+                                                        {AddNewContactLabel}
+                                                    </Button>
+                                                </Col>
+                                            )}
                                     </>
                                 </>
                             )}
@@ -392,7 +405,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                     <NotResidentFields
                                         initialQuery={initialEmployeesQuery}
                                         refetch={refetchEmployees}
-                                        initialValue={initialNotResidentAutoCompleteFieldsValue}
+                                        initialValue={initialValueWithoutContact}
                                         onChange={handleChangeEmployee}
                                         employees={fetchedEmployees}
                                         activeTab={activeTab}
