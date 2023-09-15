@@ -6,6 +6,7 @@ const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
@@ -69,61 +70,66 @@ async function notifyResidentsOnPayday () {
     const { keystone: context } = await getSchemaCtx('User')
     const state = {
         startTime: dayjs(),
+        hasMoreConsumers: true,
         consumersOffset: 0,
         consumersChunkSize: 50,
-        processedDataCount: {
-            organizations: 0,
-            receipts: 0,
-            serviceConsumers: 0,
-        },
+        processedReceipts: 0,
         recipientsMap: new Map(),
+        recipients: [],
     }
     logger.info({ msg: 'Start processing', startAt: state.startTime.format() })
-
-    const consumers = await ServiceConsumer.getAll(context, {
-        acquiringIntegrationContext_is_null: false,
-        billingAccount_is_null: false,
-        billingIntegrationContext_is_null: false,
-        deletedAt: null,
-    }, {
-        skip: state.consumersOffset,
-        first: state.consumersChunkSize,
-    })
-
-    for (const consumer of consumers) {
-        const userId = consumer.resident.user.id
-        const organizationId = consumer.organization.id
-
-        //checking whether this user has been processed
-        if (state.recipientsMap.has(organizationId) && state.recipientsMap.get(organizationId) === userId) continue
-        state.recipientsMap.set(organizationId, userId)
-        const receipts = await BillingReceipt.getAll(context, {
-            context: {
-                id: consumer.billingIntegrationContext.id,
-                organization: { id: consumer.organization.id },
+    while (state.hasMoreConsumers) {
+        const consumers = await ServiceConsumer.getAll(context, {
+            acquiringIntegrationContext: {
+                status: CONTEXT_FINISHED_STATUS,
+                deletedAt: null,
             },
-            period: consumer.billingIntegrationContext.lastReport.period,
-            toPay_gt: '0',
+            billingAccount_is_null: false,
+            billingIntegrationContext_is_null: false,
             deletedAt: null,
+        }, {
+            skip: state.consumersOffset,
+            first: state.consumersChunkSize,
         })
-        state.processedDataCount.receipts += receipts.length
-        let isAllPaid = true
-        for (const receipt of receipts) {
-            const organizationId = get(receipt, ['context', 'organization', 'id'])
-            const accountNumber = get(receipt, ['account', 'number'])
-            const toPay = Number(get(receipt, ['toPay']))
-            const paid = Number(await getPaymentsSum(
-                context,
-                organizationId,
-                accountNumber,
-                get(receipt, 'period', null),
-                get(receipt, ['recipient', 'bic'], null),
-                get(receipt, ['recipient', 'bankAccount'], null)
-            ))
-            if (paid < toPay) isAllPaid = false
-        }
 
-        if (!isAllPaid) await sendNotification(context, receipts[0], consumer)
+        if (consumers.length !== state.consumersChunkSize) state.hasMoreConsumers = false
+        state.consumersOffset += consumers.length
+
+        for (const consumer of consumers) {
+            const userId = consumer.resident.user.id
+            const organizationId = consumer.organization.id
+
+            //checking whether this user has been processed
+            if (state.recipientsMap.has(organizationId) && state.recipientsMap.get(organizationId) === userId) continue
+            state.recipientsMap.set(organizationId, userId)
+            const receipts = await BillingReceipt.getAll(context, {
+                context: {
+                    id: consumer.billingIntegrationContext.id,
+                    organization: { id: consumer.organization.id },
+                },
+                period: consumer.billingIntegrationContext.lastReport.period,
+                toPay_gt: '0',
+                deletedAt: null,
+            })
+            state.processedReceipts += receipts.length
+            let isAllPaid = true
+            for (const receipt of receipts) {
+                const organizationId = get(receipt, ['context', 'organization', 'id'])
+                const accountNumber = get(receipt, ['account', 'number'])
+                const toPay = Number(get(receipt, ['toPay']))
+                const paid = Number(await getPaymentsSum(
+                    context,
+                    organizationId,
+                    accountNumber,
+                    get(receipt, 'period', null),
+                    get(receipt, ['recipient', 'bic'], null),
+                    get(receipt, ['recipient', 'bankAccount'], null)
+                ))
+                if (paid < toPay) isAllPaid = false
+            }
+
+            if (!isAllPaid) await sendNotification(context, receipts[0], consumer)
+        }
     }
 }
 
