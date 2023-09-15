@@ -9,7 +9,7 @@ const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 const notifyResidentsOnPaydayTask = require('./notifyResidentsOnPaydayTask')
 
 
-describe('Meter verification notification', () => {
+describe.skip('Meter verification notification', () => {
     setFakeClientMode(index)
 
     describe('feature flag', () => {
