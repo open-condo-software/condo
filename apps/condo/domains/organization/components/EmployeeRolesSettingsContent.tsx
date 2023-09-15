@@ -49,22 +49,11 @@ import {
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 
+import { PermissionRow, useEmployeeRolesTableData } from '../hooks/useEmployeeRolesTableData'
+import { PermissionsGroup } from '../hooks/useEmployeeRolesTableData'
+
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
-
-type PermissionRow = {
-    key: string,
-    name: string,
-    relatedCheckPermissions?: string[],
-    relatedUncheckPermissions?: string[]
-}
-
-type PermissionsGroup = {
-    key: string,
-    b2bAppId?: string,
-    groupName: string,
-    permissions: PermissionRow[],
-}
 
 type EmployeeRolesTableProps = {
     connectedB2BApps: B2BApp[],
@@ -100,39 +89,6 @@ type TableCheckboxProps = {
     permissionRow: PermissionRow
     permissionsState: PermissionsState
     setPermissionsState: Dispatch<SetStateAction<PermissionsState>>
-}
-
-/**
- * Generates b2b role permissions data for settings table.
- */
-const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): PermissionsGroup[] => {
-    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
-
-    return connectedB2BApps.map((b2bApp): PermissionsGroup => {
-        const canReadKey = `canRead${b2bApp.id}`
-        const appPermissions = b2BAppPermissions.filter(permission => permission.app.id === b2bApp.id)
-        const appPermissionKeys = appPermissions.map(({ key }) => key)
-
-        return {
-            key: b2bApp.id,
-            b2bAppId: b2bApp.id,
-            groupName: b2bApp.name,
-            permissions: [
-                // Client side mark that employee role has b2bRole (Due to our logic this employee role can read b2bApp).
-                {
-                    key: `canRead${b2bApp.id}`,
-                    name: CanReadServiceTitle,
-                    relatedUncheckPermissions: appPermissionKeys,
-                },
-                ...appPermissions
-                    .map((permission): PermissionRow => ({
-                        key: permission.key,
-                        name: permission.name,
-                        relatedCheckPermissions: [canReadKey],
-                    })),
-            ],
-        }
-    })
 }
 
 /**
@@ -432,32 +388,9 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
-    const ServicesGroupName = intl.formatMessage({ id: 'global.section.miniapps' })
-    const CanManageB2BAppsName = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canManageB2BApps' })
 
+    const tableData: PermissionsGroup[] = useEmployeeRolesTableData(connectedB2BApps, b2BAppPermissions)
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
-
-    const employeeRolePermissionGroups: PermissionsGroup[] = useMemo(() => [
-        {
-            groupName: 'Аналитика',
-            key: 'analytics',
-            permissions: [
-                { key: 'canReadAnalytics', name: 'Просмотр аналитики' },
-            ],
-        },
-        {
-            groupName: ServicesGroupName,
-            key: 'services',
-            permissions: [
-                { key: 'canManageB2BApps', name: CanManageB2BAppsName },
-            ],
-        },
-    ], [CanManageB2BAppsName, ServicesGroupName])
-
-    const tableData: PermissionsGroup[] = useMemo(() => [
-        ...employeeRolePermissionGroups,
-        ...getB2BRolePermissionGroups(intl, connectedB2BApps, b2BAppPermissions),
-    ], [b2BAppPermissions, connectedB2BApps, employeeRolePermissionGroups, intl])
 
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
     const [permissionsState, setPermissionsState] = useState<PermissionsState>()
