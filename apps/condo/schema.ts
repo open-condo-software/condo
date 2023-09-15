@@ -47981,6 +47981,7 @@ export type OrganizationEmployeeRole = {
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -48033,6 +48034,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48091,6 +48093,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -48143,6 +48146,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48200,6 +48204,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48343,6 +48348,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -48467,6 +48474,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48587,6 +48595,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -69872,6 +69882,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
   CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
+  CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -69963,6 +69975,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
   CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
+  CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

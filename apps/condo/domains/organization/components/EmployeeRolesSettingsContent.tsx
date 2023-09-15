@@ -53,13 +53,12 @@ import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clie
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 
 type PermissionRow = {
-    id: string,
     key: string,
     name: string,
 }
 
 type PermissionsGroup = {
-    id: string,
+    key: string,
     b2bAppId?: string,
     groupName: string,
     permissions: PermissionRow[],
@@ -101,11 +100,6 @@ type TableCheckboxProps = {
     setPermissionsState: Dispatch<SetStateAction<PermissionsState>>
 }
 
-type EmployeeRolePermissionGroupDescriptor = {
-    groupName: string,
-    permissions: { key: string, name: string }[]
-}
-
 /**
  * Generates employee role permissions data for settings table.
  * If you want to add permission row or group of permissions you need to modify "employeeRolePermissionGroups" array.
@@ -114,18 +108,22 @@ const getEmployeeRolePermissionGroups = (intl): PermissionsGroup[] => {
     const ServicesGroupName = intl.formatMessage({ id: 'global.section.miniapps' })
     const CanManageB2BAppsName = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canManageB2BApps' })
 
-    const employeeRolePermissionGroups: EmployeeRolePermissionGroupDescriptor[] = [{
-        groupName: ServicesGroupName,
-        permissions: [
-            { key: 'canManageB2BApps', name: CanManageB2BAppsName },
-        ],
-    }]
-
-    return employeeRolePermissionGroups.map(({ groupName, permissions }) => ({
-        id: groupName,
-        groupName: groupName,
-        permissions: permissions.map(({ key, name }) => ({ id: key, key, name })),
-    }))
+    return [
+        {
+            groupName: 'Аналитика',
+            key: 'analytics',
+            permissions: [
+                { key: 'canReadAnalytics', name: 'Просмотр аналитики' },
+            ],
+        },
+        {
+            groupName: ServicesGroupName,
+            key: 'services',
+            permissions: [
+                { key: 'canManageB2BApps', name: CanManageB2BAppsName },
+            ],
+        },
+    ]
 }
 
 /**
@@ -135,20 +133,18 @@ const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): 
     const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
 
     return connectedB2BApps.map((b2bApp): PermissionsGroup => ({
-        id: b2bApp.id,
+        key: b2bApp.id,
         b2bAppId: b2bApp.id,
         groupName: b2bApp.name,
         permissions: [
             // Client side mark that employee role has b2bRole (Due to our logic this employee role can read b2bApp).
             {
-                id: `canRead${b2bApp.id}`,
                 key: `canRead${b2bApp.id}`,
                 name: CanReadServiceTitle,
             },
             ...b2BAppPermissions
                 .filter(permission => permission.app.id === b2bApp.id)
                 .map((permission): PermissionRow => ({
-                    id: permission.id,
                     key: permission.key,
                     name: permission.name,
                 })),
@@ -197,7 +193,6 @@ const isCheckboxDisabled = ({ checkboxValue, employeeRoleId, permissionKey, isRe
 
     for (const roleId of otherEmployeeRoleIds) {
         const isOtherEmployeeHasPermission = get(permissionsState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permissionKey], false)
-
         if (isOtherEmployeeHasPermission) {
             checkboxDisabled = false
             break
@@ -600,6 +595,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                     columns={tableColumns}
                     data-cy='employeeRoles__table'
                     expandable={expandableConfig}
+                    rowKey='key'
                 />
             </Col>
             <ActionBar
