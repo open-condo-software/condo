@@ -21,8 +21,8 @@ async function canGetExternalReportIframeUrl ({ authentication: { item: user }, 
         id,
         OR: [
             { organization_is_null: true },
-            { organization: queryOrganizationEmployeeFor(user.id, 'canReadAnalytics') },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadAnalytics') },
+            { organization: queryOrganizationEmployeeFor(user.id) },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
         ],
         deletedAt: null,
     })

@@ -11,11 +11,8 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { ExternalReport, createTestExternalReport, updateTestExternalReport } = require('@condo/domains/analytics/utils/testSchema')
-const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
-
-const { createTestOrganization, createTestOrganizationEmployee } = require('../../organization/utils/testSchema')
 
 describe('ExternalReport', () => {
     describe('CRUD tests', () => {
@@ -201,9 +198,9 @@ describe('ExternalReport', () => {
                 ]))
             })
 
-            test('user can if organization is null', async () => {
+            test('user can', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [obj] = await createTestExternalReport(admin, { organization: null })
+                const [obj, attrs] = await createTestExternalReport(admin)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const objs = await ExternalReport.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
@@ -219,54 +216,12 @@ describe('ExternalReport', () => {
                 })
             })
 
-            test('user cannot if organization is not null', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(admin)
-                const [obj] = await createTestExternalReport(admin, { organization: { connect: { id: organization.id } } })
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const objs = await ExternalReport.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs).not.toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        id: obj.id,
-                        type: obj.type,
-                        title: obj.title,
-                        description: obj.description,
-                        meta: obj.meta,
-                        organization: obj.organization,
-                    }),
-                ]))
-            })
-
-            test('user can only it\'s organizations and he has canReadAnalytics permission', async () => {
+            test('user can only it\'s organizations', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const client = await makeClientWithRegisteredOrganization()
+                const anotherClient = await makeClientWithRegisteredOrganization()
 
-                const [obj] = await createTestExternalReport(admin, { organization: { connect: { id: client.organization.id } } })
-
-                const objs = await ExternalReport.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        id: obj.id,
-                        type: obj.type,
-                        title: obj.title,
-                        description: obj.description,
-                        meta: obj.meta,
-                        organization: obj.organization,
-                    }),
-                ]))
-            })
-
-            test('user can not if he has not canReadAnalytics permission', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await createTestOrganization(admin)
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadAnalytics: false })
-                await createTestOrganizationEmployee(admin, organization, client.user, role)
-
-                const [obj] = await createTestExternalReport(admin, { organization: { connect: { id: organization.id } } })
+                const [obj] = await createTestExternalReport(admin, { organization: { connect: { id: anotherClient.organization.id } } })
 
                 const objs = await ExternalReport.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 

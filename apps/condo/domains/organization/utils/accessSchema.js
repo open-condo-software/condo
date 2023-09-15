@@ -116,16 +116,8 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
     return employee.deletedAt === null
 }
 
-const queryOrganizationEmployeeFor = (userId, permission) => {
-    const baseQuery = { employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } }
-
-    if (permission) {
-        return { ...baseQuery, employees_some: { ...baseQuery.employees_some, role: { [permission]: true } } }
-    }
-
-    return baseQuery
-}
-const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId, permission) } })
+const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
+const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
 
 module.exports = {
     checkPermissionInUserOrganizationOrRelatedOrganization,

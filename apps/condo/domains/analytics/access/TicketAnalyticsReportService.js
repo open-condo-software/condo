@@ -7,8 +7,6 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkUserBelongsToOrganization } = require('@condo/domains/organization/utils/accessSchema')
 
-const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('../../organization/utils/accessSchema')
-
 async function canReadTicketAnalyticsReport ({ authentication: { item: user }, args: { data: { where } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -17,9 +15,7 @@ async function canReadTicketAnalyticsReport ({ authentication: { item: user }, a
     const organizationId = get(where, ['organization', 'id'], false)
     if (!organizationId) return false
 
-    const canReadAnalytics = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canReadAnalytics')
-
-    return !!canReadAnalytics
+    return await checkUserBelongsToOrganization(user.id, organizationId)
 }
 
 async function canReadExportTicketAnalyticsToExcel ({ authentication: { item: user }, args: { data: { where } } }) {
