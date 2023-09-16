@@ -180,13 +180,13 @@ const obsRouterHandler = ({ keystone }) => {
     return async function (req, res, next) {
         if (!req.user) {
             // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
-            res.sendStatus(403)
+            res.status(403)
             return res.end()
         }
         const meta = await Acl.getMeta(req.params.file)
 
         if (isEmpty(meta)) {
-            res.sendStatus(404)
+            res.status(404)
             return res.end()
         }
         const {
@@ -200,7 +200,7 @@ const obsRouterHandler = ({ keystone }) => {
         const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
         if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
-            res.sendStatus(404)
+            res.status(404)
             return res.end()
         }
 
@@ -255,7 +255,7 @@ const obsRouterHandler = ({ keystone }) => {
             }
 
             if (!hasAccessToReadFile) {
-                res.sendStatus(403)
+                res.status(403)
                 return res.end()
             }
             const url = Acl.generateUrl(req.params.file)
@@ -272,7 +272,7 @@ const obsRouterHandler = ({ keystone }) => {
             *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
             * */
             if (req.get('shallow-redirect')) {
-                res.sendStatus(200)
+                res.status(200)
                 return res.json({ redirectUrl: url })
             }
 
@@ -280,7 +280,7 @@ const obsRouterHandler = ({ keystone }) => {
         } catch (err) {
             logger.error({ msg: 'obsRouterHandlerError', err })
             // TODO(pahaz): we need to research a better solution here may be we need a 404 or 403
-            res.sendStatus(500)
+            res.status(500)
             return res.end()
         }
     }
