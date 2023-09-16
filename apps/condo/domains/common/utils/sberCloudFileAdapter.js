@@ -6,11 +6,14 @@ const express = require('express')
 const { isEmpty, isString } = require('lodash')
 
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 
 
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
+const logger = getLogger('sberCloudFileAdapter')
+
 
 class SberCloudObsAcl {
     constructor (config) {
@@ -184,68 +187,77 @@ const obsRouterHandler = ({ keystone }) => {
         const meta = await Acl.getMeta(req.params.file)
 
         if (isEmpty(meta)) {
-            res.status(404)
-            return next()
+            res.sendStatus(404)
+            return res.end()
         }
+
         const { id: itemId, ids: stringItemIds, listkey: listKey } = meta
 
         if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
-            res.status(404)
-            return next()
-        }
-
-        const { id, isAdmin, isSupport, type } = req.user
-        const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
-
-        let hasAccessToReadFile
-
-        // If user has access to at least one of the objects with this file => user has access to read file
-        if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
-            const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
-            const items = await getItems({
-                keystone,
-                listKey,
-                itemId,
-                context,
-                where: { id_in: itemIds, deletedAt: null },
-            })
-
-            hasAccessToReadFile = items.length > 0
-        }
-
-        if (itemId && !hasAccessToReadFile) {
-            hasAccessToReadFile = await getItem({
-                keystone,
-                listKey,
-                itemId,
-                context,
-                returnFields: 'id',
-            })
-        }
-
-        if (!hasAccessToReadFile) {
-            res.sendStatus(403)
+            res.sendStatus(404)
             return res.end()
         }
-        const url = Acl.generateUrl(req.params.file)
 
-        /*
-        * NOTE
-        * Problem:
-        *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
-        *   it is impossible to read the response of the request.
-        *
-        * Solution:
-        *   When adding the "shallow-redirect" header,
-        *   the redirect link to the file comes in json format and a second request is made to get the file.
-        *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
-        * */
-        if (req.get('shallow-redirect')) {
-            res.status(200)
-            return res.json({ redirectUrl: url })
+        try {
+            const { id, isAdmin, isSupport, type } = req.user
+            const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
+
+            let hasAccessToReadFile
+
+            // If user has access to at least one of the objects with this file => user has access to read file
+            if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
+                const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
+                // TODO(pahaz): it looks like some error here! it's better to use `execGqlAsUser`
+                const items = await getItems({
+                    keystone,
+                    listKey,
+                    itemId,
+                    context,
+                    where: { id_in: itemIds, deletedAt: null },
+                })
+
+                hasAccessToReadFile = items.length > 0
+            }
+
+            if (itemId && !hasAccessToReadFile) {
+                hasAccessToReadFile = await getItem({
+                    keystone,
+                    listKey,
+                    itemId,
+                    context,
+                    returnFields: 'id',
+                })
+            }
+
+            if (!hasAccessToReadFile) {
+                res.sendStatus(403)
+                return res.end()
+            }
+            const url = Acl.generateUrl(req.params.file)
+
+            /*
+            * NOTE
+            * Problem:
+            *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
+            *   it is impossible to read the response of the request.
+            *
+            * Solution:
+            *   When adding the "shallow-redirect" header,
+            *   the redirect link to the file comes in json format and a second request is made to get the file.
+            *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
+            * */
+            if (req.get('shallow-redirect')) {
+                res.status(200)
+                return res.json({ redirectUrl: url })
+            }
+
+            return res.redirect(url)
+        } catch (err) {
+            logger.error({ msg: 'obsRouterHandlerError', err })
+            // TODO(pahaz): we need to research a better solution here may be we need a 404 or 403
+            res.sendStatus(500)
+            return res.end()
         }
-
-        return res.redirect(url)
     }
 }
 
