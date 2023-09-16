@@ -6,6 +6,7 @@ const { Text, Relationship, DateTimeUtc, Select, Virtual } = require('@keystonej
 const Big = require('big.js')
 const { get } = require('lodash')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
@@ -49,6 +50,27 @@ const {
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
+
+const ERRORS = {
+    PAYMENT_NO_PAIRED_FROZEN_ORDER: {
+        code: BAD_USER_INPUT,
+        type: PAYMENT_NO_PAIRED_FROZEN_ORDER,
+        message: 'Input is containing "order", but no "frozenOrder" is not specified',
+        variable: ['data', 'order'],
+    },
+    PAYMENT_NO_PAIRED_ORDER: {
+        code: BAD_USER_INPUT,
+        type: PAYMENT_NO_PAIRED_ORDER,
+        message: 'Input is containing "frozenOrder", but no "order" is not specified',
+        variable: ['data', 'frozenOrder'],
+    },
+    PAYMENT_RECEIPT_IS_LINKED: {
+        code: BAD_USER_INPUT,
+        type: PAYMENT_RECEIPT_IS_LINKED,
+        message: 'Input is containing "order", but no "receipt" is already linked (cannot be both)',
+        variable: ['data', 'receipt'],
+    },
+}
 
 
 const Payment = new GQLListSchema('Payment', {
@@ -157,12 +179,12 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             hooks: {
-                validateInput: ({ resolvedData, addFieldValidationError, fieldPath }) => {
+                validateInput: ({ context, resolvedData, fieldPath }) => {
                     if (resolvedData[fieldPath] && !resolvedData['frozenOrder']) {
-                        addFieldValidationError(PAYMENT_NO_PAIRED_FROZEN_ORDER)
+                        throw new GQLError(ERRORS.PAYMENT_NO_PAIRED_FROZEN_ORDER, context)
                     }
                     if (resolvedData['receipt']) {
-                        addFieldValidationError(PAYMENT_RECEIPT_IS_LINKED)
+                        throw new GQLError(ERRORS.PAYMENT_RECEIPT_IS_LINKED, context)
                     }
                 },
             },
@@ -174,9 +196,9 @@ const Payment = new GQLListSchema('Payment', {
             isRequired: false,
             access: { read: access.canReadPaymentsSensitiveData },
             hooks: {
-                validateInput: ({ resolvedData, addFieldValidationError, fieldPath }) => {
+                validateInput: ({ context, resolvedData, fieldPath }) => {
                     if (resolvedData[fieldPath] && !resolvedData['order']) {
-                        addFieldValidationError(PAYMENT_NO_PAIRED_ORDER)
+                        throw new GQLError(ERRORS.PAYMENT_NO_PAIRED_ORDER, context)
                     }
                 },
             },

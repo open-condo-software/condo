@@ -27,9 +27,6 @@ const {
     PAYMENT_NO_SUPPORTED_CONTEXT,
     PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
     PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
-    PAYMENT_NO_PAIRED_FROZEN_ORDER,
-    PAYMENT_NO_PAIRED_ORDER,
-    PAYMENT_RECEIPT_IS_LINKED,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_ERROR_STATUS,
@@ -417,25 +414,32 @@ describe('Payment', () => {
             test('Order and frozen order should be updated at the same time', async () => {
                 const { admin, organization, order } = await makePayer()
 
-                await expectToThrowValidationFailureError(async () => {
+                await catchErrorFrom(async () => {
                     await createTestPayment(admin, organization, null, null, {
                         order: { connect: { id: order.id } },
                         frozenOrder: null,
                     })
-                }, PAYMENT_NO_PAIRED_FROZEN_ORDER)
-                await expectToThrowValidationFailureError(async () => {
+                }, (error) => {
+                    expect(error.errors[0].message).toContain('Input is containing "order", but no "frozenOrder" is not specified')
+                })
+                await catchErrorFrom(async () => {
                     await createTestPayment(admin, organization, null, null, {
                         frozenOrder: { dv: 1, data: order },
                     })
-                }, PAYMENT_NO_PAIRED_ORDER)
+                }, (error) => {
+                    expect(error.errors[0].message).toContain('Input is containing "frozenOrder", but no "order" is not specified')
+                })
             })
             test('Payment should not have both order and receipt',  async () => {
                 const { admin, organization, order, billingReceipts } = await makePayer()
-                await expectToThrowValidationFailureError(async () => {
+                await catchErrorFrom(async () => {
                     await createTestPayment(admin, organization, billingReceipts[0], null, {
                         order: { connect: { id: order.id } },
+                        frozenOrder: { dv: 1, data: order },
                     })
-                }, PAYMENT_RECEIPT_IS_LINKED)
+                }, (error) => {
+                    expect(error.errors[0].message).toContain('Input is containing "order", but no "receipt" is already linked (cannot be both)')
+                })
             })
             test('Payment should have correct type',  async () => {
                 const { admin, organization, order, billingReceipts, acquiringContext } = await makePayer()
