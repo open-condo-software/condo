@@ -119,7 +119,7 @@ describe('InviteNewOrganizationEmployeeService', () => {
                     const extraAttrs = {
                         specializations: [{ id: categoryClassifier1.id }],
                     }
-                    const [role] = await createTestOrganizationEmployeeRole(client, client.organization)
+                    const [role] = await createTestOrganizationEmployeeRole(inviteClient, inviteClient.organization)
                     const [employee] = await inviteNewOrganizationEmployee(inviteClient, inviteClient.organization, userAttrs, role, extraAttrs)
 
                     expect(employee.email).toEqual(client1.userAttrs.email)

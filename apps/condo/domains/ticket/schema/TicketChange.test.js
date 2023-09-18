@@ -4,7 +4,6 @@
 
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { sortBy } = require('lodash')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -400,7 +399,7 @@ describe('TicketChange', () => {
             })
 
             it('ticket changed by related from organization employee', async () => {
-                const { clientFrom, organizationTo, propertyTo, role } = await createTestOrganizationWithAccessToAnotherOrganization({
+                const { clientFrom, organizationTo, propertyTo, roleFrom } = await createTestOrganizationWithAccessToAnotherOrganization({
                     roleExtraAttrs: { canManageTickets: true },
                 })
                 const [ticket] = await createTestTicket(clientFrom, organizationTo, propertyTo)
@@ -412,7 +411,7 @@ describe('TicketChange', () => {
                 const obj = await TicketChange.getOne(clientFrom, {
                     ticket: { id: ticket.id },
                 })
-                expect(obj.changedByRole).toEqual(i18n(role.name))
+                expect(obj.changedByRole).toEqual(i18n(roleFrom.name))
             })
 
             it('ticket changed by deleted organization employee', async () => {

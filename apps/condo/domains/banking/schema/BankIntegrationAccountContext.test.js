@@ -92,7 +92,7 @@ describe('BankIntegrationAccountContext', () => {
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, anotherOrganization, {
                     canManageBankIntegrationAccountContexts: true,
                 })
-                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+                await createTestOrganizationEmployee(adminClient, anotherOrganization, userClient.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
