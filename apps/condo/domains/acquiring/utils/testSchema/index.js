@@ -12,7 +12,7 @@ const {
     createTestBillingIntegrationOrganizationContext,
     createTestBillingAccount,
     createTestBillingProperty,
-    createTestBillingReceipt,
+    createTestBillingReceipt, createTestBillingRecipient,
 } = require('@condo/domains/billing/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
@@ -51,6 +51,7 @@ const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { Order: OrderGQL } = require('@condo/domains/acquiring/gql')
 const { createTestTicket } = require("@condo/domains/ticket/utils/testSchema");
+const { REGISTER_MULTI_PAYMENT_FOR_ORDER_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateGQLTestUtils(AcquiringIntegrationGQL)
@@ -496,17 +497,18 @@ async function updateTestRecurrentPayment (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestOrder (client, property, ticket, extraAttrs = {}) {
+async function createTestOrder (client, context, receiver, ticket = null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!property || !property.id) throw new Error('no property.id')
-    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    if (!context) throw new Error('no context')
+    if (!receiver) throw new Error('no receiver')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        property: { connect: { id: property.id } },
-        ticket: { connect: { id: ticket.id } },
+        receiver: { connect: { id: receiver.id } },
+        context: { connect: { id: context.id } },
+        ... ticket ? { ticket: { connect: { id: ticket.id } } } : {},
         unitName: faker.random.alphaNumeric(8),
         unitType: faker.random.alphaNumeric(8),
         toPay: faker.random.numeric(4),
@@ -532,6 +534,24 @@ async function updateTestOrder (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function registerMultiPaymentForOrderByTestClient(client, order, acquiringIntegrationContext, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!order) throw new Error('no order')
+    if (!acquiringIntegrationContext) throw new Error('no acquiringIntegrationContext')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        order,
+        acquiringIntegrationContext,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_MULTI_PAYMENT_FOR_ORDER_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 // Utils used to generate bunch of entities for working with MultiPayments
@@ -552,8 +572,9 @@ async function makePayer (receiptsAmount = 1) {
         billingReceipts.push(receipt)
     }
 
+    const [receiver] = await createTestBillingRecipient(admin, billingContext)
     const [ticket] = await createTestTicket(admin, organization, property)
-    const [order] = await createTestOrder(admin, property, ticket)
+    const [order] = await createTestOrder(admin, receiver, ticket)
     const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
     const [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
 
@@ -763,5 +784,6 @@ module.exports = {
     RecurrentPaymentContext, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
     Order, createTestOrder, updateTestOrder,
+    registerMultiPaymentForOrderByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

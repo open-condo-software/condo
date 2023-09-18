@@ -114,7 +114,7 @@ const RegisterMultiPaymentForOrderService = new GQLCustomSchema('RegisterMultiPa
     types: [
         {
             access: true,
-            type: 'input RegisterMultiPaymentForOrderInput { dv: Int!, sender: SenderFieldInput!, orderObj: OrderWhereUniqueInput!, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput! }',
+            type: 'input RegisterMultiPaymentForOrderInput { dv: Int!, sender: SenderFieldInput!, order: OrderWhereUniqueInput!, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput! }',
         },
         {
             access: true,
@@ -177,7 +177,9 @@ const RegisterMultiPaymentForOrderService = new GQLCustomSchema('RegisterMultiPa
                     }, context)
                 }
 
-                const billingContext = await getById('BillingIntegrationOrganizationContext', orderObj.context)
+                // TODO: order might not have billingContext
+                const billingRecipient = await getById('BillingRecipient', orderObj.receiver)
+                const billingContext = await getById('BillingIntegrationOrganizationContext', billingRecipient.context)
                 const billingIntegration = await getById('BillingIntegration', billingContext.integration)
 
                 if (billingContext.deletedAt) {
@@ -208,6 +210,7 @@ const RegisterMultiPaymentForOrderService = new GQLCustomSchema('RegisterMultiPa
                     }, context)
                 }
 
+                // TODO: where to find currency code aside from billingIntegration?
                 const currencyCode = get(billingIntegration, ['currencyCode'])
 
                 // Stage 3 Generating payments
@@ -244,8 +247,8 @@ const RegisterMultiPaymentForOrderService = new GQLCustomSchema('RegisterMultiPa
                     frozenOrder,
                     context: { connect: { id: acquiringContext.id } },
                     organization: { connect: { id: acquiringContext.organization } },
-                    recipientBic: orderObj.recipient.bic,
-                    recipientBankAccount: orderObj.recipient.bankAccount,
+                    recipientBic: billingRecipient.bic,
+                    recipientBankAccount: billingRecipient.bankAccount,
                     ...paymentCommissionFields,
                 })
                 const payment = { ...paymentModel, serviceFee: paymentCommissionFields.serviceFee }

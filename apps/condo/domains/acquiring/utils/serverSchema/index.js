@@ -21,6 +21,7 @@ const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
 const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
 const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
 const { Order: OrderGQL } = require('@condo/domains/acquiring/gql')
+const { REGISTER_MULTI_PAYMENT_FOR_ORDER_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -85,6 +86,19 @@ async function allPaymentsSum (context, data) {
 const RecurrentPaymentContext = generateServerUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateServerUtils(RecurrentPaymentGQL)
 const Order = generateServerUtils(OrderGQL)
+async function registerMultiPaymentForOrder (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: REGISTER_MULTI_PAYMENT_FOR_ORDER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to register multiPayment for Order',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -101,5 +115,6 @@ module.exports = {
     RecurrentPaymentContext,
     RecurrentPayment,
     Order,
+    registerMultiPaymentForOrder,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
