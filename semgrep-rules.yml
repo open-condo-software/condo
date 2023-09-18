@@ -16,8 +16,13 @@ rules:
   - id: deprecated-server-side-graphql-client
     languages:
       - js
-    message: Used outdated method of data access. For more details see apps/condo/docs/development/data-access.md
-    pattern: const { ..., getItem, ... } = require('@keystonejs/server-side-graphql-client')
+    message: This utils are incompatible with Keystone 6. Additionally, we are attempting to address a problem that can readily be resolved using existing utilities, such as the `execGqlAsUser` function. Recommended data access techniques are described in apps/condo/docs/development/data-access.md
+    patterns:
+      - pattern-inside: const { ... } = require('@keystonejs/server-side-graphql-client')
+      - pattern: '$GETTER'
+      - metavariable-regex:
+          metavariable: '$GETTER'
+          regex: '^get\w+$'
     metadata:
       references:
         - condo/apps/condo/docs/development/data-access.md
