@@ -4,6 +4,8 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { CONFIRM_ACTION_MAX_ATTEMPTS } = require('@dev-api/domains/user/constants')
+
 
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc:
@@ -36,7 +38,13 @@ const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
             type: 'DateTimeUtc',
             isRequired: true,
         },
-
+        attempts: {
+            schemaDoc: 'Number of attempts to enter the code. ' +
+                `When ${CONFIRM_ACTION_MAX_ATTEMPTS} attempts are reached, this action becomes invalid.`,
+            type: 'Integer',
+            isRequired: true,
+            defaultValue: 0,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
