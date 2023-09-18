@@ -7,6 +7,7 @@ const dayjs = require('dayjs')
 
 const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
+const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
 const { PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
@@ -29,7 +30,7 @@ const getNewMessages = async ({ userId }) => {
     })
 }
 
-describe.skip/* temporarily */('Push notification on payday about unpaid receipts', () => {
+describe('Push notification on payday about unpaid receipts', () => {
     setFakeClientMode(index)
     describe('send push',  () => {
         let admin, context, property, billingProperty, account, period, acquiringContext, organization
@@ -49,7 +50,9 @@ describe.skip/* temporarily */('Push notification on payday about unpaid receipt
             [billingProperty] = await createTestBillingProperty(admin, context, { address: property.address, addressMeta: property.addressMeta });
             [account] = await createTestBillingAccount(admin, context, billingProperty)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin);
-            [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+            [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
         })
 
         it('has BillingReceipt with positive toPay field and has not Payments', async () => {
@@ -130,7 +133,9 @@ describe.skip/* temporarily */('Push notification on payday about unpaid receipt
             [billingProperty] = await createTestBillingProperty(admin, context, { address: property.address, addressMeta: property.addressMeta });
             [account] = await createTestBillingAccount(admin, context, billingProperty)
             const [acquiringIntegration] = await createTestAcquiringIntegration(admin);
-            [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration)
+            [acquiringContext] = await createTestAcquiringIntegrationContext(admin, organization, acquiringIntegration, {
+                status: CONTEXT_FINISHED_STATUS,
+            })
         })
 
         it('has BillingReceipt with positive toPay field and has full Payment', async () => {
