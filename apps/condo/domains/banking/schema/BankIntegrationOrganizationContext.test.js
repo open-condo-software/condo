@@ -164,11 +164,14 @@ describe('BankIntegrationOrganizationContext', () => {
 
                 const [organization1] = await createTestOrganization(admin)
                 const [organization2] = await createTestOrganization(admin)
-                const [role] = await createTestOrganizationEmployeeRole(admin, organization1, {
+                const [role1] = await createTestOrganizationEmployeeRole(admin, organization1, {
                     canManageBankIntegrationOrganizationContexts: true,
                 })
-                await createTestOrganizationEmployee(admin, organization1, client1.user, role)
-                await createTestOrganizationEmployee(admin, organization2, client2.user, role)
+                const [role2] = await createTestOrganizationEmployeeRole(admin, organization2, {
+                    canManageBankIntegrationOrganizationContexts: true,
+                })
+                await createTestOrganizationEmployee(admin, organization1, client1.user, role1)
+                await createTestOrganizationEmployee(admin, organization2, client2.user, role2)
 
                 await createTestBankIntegrationOrganizationContext(client1, bankIntegration, organization1)
 

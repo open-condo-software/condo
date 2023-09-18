@@ -165,7 +165,7 @@ describe('OrganizationLink', () => {
 
             const [role1] = await createTestOrganizationEmployeeRole(admin, organizationFrom1)
             await createTestOrganizationEmployee(admin, organizationFrom1, userClient.user, role1)
-            const [role2] = await createTestOrganizationEmployeeRole(admin, organizationFrom1)
+            const [role2] = await createTestOrganizationEmployeeRole(admin, organizationFrom2)
             await createTestOrganizationEmployee(admin, organizationFrom2, userClient.user, role2)
 
             const allTickets = await Ticket.getAll(userClient, {})

@@ -441,10 +441,11 @@ describe('TicketChange', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
-                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, { canManageTickets: true })
-                await createTestOrganizationEmployee(admin, organizationFrom, client.user, role)
+                const [roleFrom] = await createTestOrganizationEmployeeRole(admin, organizationFrom, { canManageTickets: true })
+                await createTestOrganizationEmployee(admin, organizationFrom, client.user, roleFrom)
 
                 const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageTickets: true })
                 const [property] = await createTestProperty(admin, organization)
                 const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
 
@@ -463,7 +464,7 @@ describe('TicketChange', () => {
                 const obj = await TicketChange.getOne(admin, {
                     ticket: { id: ticket.id },
                 })
-                expect(obj.changedByRole).toEqual(i18n(role.name))
+                expect(obj.changedByRole).toEqual(i18n(roleFrom.name))
             })
 
             it('ticket changed by user with deleted related from organization employee and existing organization employee', async () => {
