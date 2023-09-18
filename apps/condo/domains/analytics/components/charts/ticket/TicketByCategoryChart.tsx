@@ -86,10 +86,10 @@ const TicketByCategoryChart: TicketChartCardType = ({ data, organizationId }) =>
                 </Col>
             </Row>
             <PopupChartView>
-                <Col span={12}>
+                <Col span={24}>
                     <DateRangeFilter disabled={loading} />
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                     {SearchInput}
                 </Col>
                 <Col span={24}>

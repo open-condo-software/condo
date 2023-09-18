@@ -84,7 +84,7 @@ export const useDateRangeFilter: UseDateRangeFilterType = () => {
         return currentDate && currentDate < dayjs().startOf('year')
     }, [])
 
-    const SearchInput = ({ disabled = false }) => (
+    const SearchInput = useMemo(() => ({ disabled = false }) => (
         <DateRangePicker
             value={dateRange}
             onChange={setDateRange}
@@ -93,7 +93,7 @@ export const useDateRangeFilter: UseDateRangeFilterType = () => {
             disabledDate={disabledDate}
             style={{ width: '100%' }}
         />
-    )
+    ), [dateRange, disabledDate])
 
     return {
         dateRange,

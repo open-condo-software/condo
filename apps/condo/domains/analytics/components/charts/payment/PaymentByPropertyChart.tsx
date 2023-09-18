@@ -95,10 +95,10 @@ const PaymentByPropertyChart: IPaymentChartCard = ({ data, organizationId }) => 
                 </Col>
             </Row>
             <PopupChartView>
-                <Col span={12}>
+                <Col span={24}>
                     <DateRangeSearch disabled={loading} />
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                     {PropertySearch}
                 </Col>
                 <Col span={24}>

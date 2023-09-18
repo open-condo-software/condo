@@ -99,10 +99,10 @@ const TicketByExecutorChart: TicketChartCardType = ({ data, organizationId }) =>
                 </Col>
             </Row>
             <PopupChartView>
-                <Col span={12}>
+                <Col span={24}>
                     <DateRangeSearch disabled={loading} />
                 </Col>
-                <Col span={12}>
+                <Col span={24}>
                     {SearchInput}
                 </Col>
                 <Col span={24}>

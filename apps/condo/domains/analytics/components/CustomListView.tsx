@@ -1,9 +1,7 @@
 import { Table, TableColumnsType, Skeleton } from 'antd'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-
-import { getScrollConfig } from './TicketListView'
 
 import type { CustomChartViewType } from './CustomChart'
 
@@ -15,10 +13,14 @@ type CustomListViewProps = {
     translations: Record<string, string | React.ReactNode>
 }
 
+const TABLE_SCROLL_CONFIG = { x: true }
+const TABLE_STYLE = { width: 'auto' }
+
 export const CustomListView: React.FC<CustomListViewProps> = (props) => {
     const { loading = false, data, mapperInstance, viewMode, translations } = props
-    const { breakpoints } = useLayoutContext()
+    const { shouldTableScroll } = useLayoutContext()
 
+    const scrollConfig = useMemo(() => shouldTableScroll ? TABLE_SCROLL_CONFIG : {}, [shouldTableScroll])
 
     if (data === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
@@ -35,8 +37,9 @@ export const CustomListView: React.FC<CustomListViewProps> = (props) => {
             bordered
             tableLayout='fixed'
             dataSource={dataSource}
+            style={TABLE_STYLE}
             columns={tableColumns as TableColumnsType}
-            scroll={getScrollConfig(!breakpoints.TABLET_LARGE)}
+            scroll={scrollConfig}
             pagination={{
                 showSizeChanger: false,
                 position: ['bottomLeft'],

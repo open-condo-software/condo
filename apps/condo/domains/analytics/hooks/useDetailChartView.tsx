@@ -32,6 +32,7 @@ const useDetailChartView: UseDetailChartViewType = ({ title }) => {
             onCancel={() => setIsOpen(false)}
             width='big'
             title={title}
+            scrollX={false}
         >
             <Row gutter={MODAL_ROW_GUTTER}>
                 {children}
