@@ -5,17 +5,68 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const conf = require('@open-condo/config')
-const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { TOO_MANY_REQUESTS, BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { extractReqLocale, getLocalizedMessage } = require('@dev-api/domains/common/utils/messages')
 const { sendMessage } = require('@dev-api/domains/common/utils/sms')
-const { CONFIRM_ACTION_TTL_IN_SEC, CONFIRM_ACTION_CODE_LENGTH } = require('@dev-api/domains/user/constants')
-const { ERRORS } = require('@dev-api/domains/user/schema/User')
+const {
+    CONFIRM_ACTION_TTL_IN_SEC,
+    CONFIRM_ACTION_CODE_LENGTH,
+    CONFIRM_ACTION_DAILY_LIMIT_BY_IP,
+    CONFIRM_ACTION_DAILY_LIMIT_BY_PHONE,
+    CONFIRM_ACTION_MAX_ATTEMPTS,
+} = require('@dev-api/domains/user/constants')
+const { SMS_DAILY_LIMIT_REACHED, ACTION_NOT_FOUND, INVALID_CODE } = require('@dev-api/domains/user/constants/errors')
+const { ERRORS: UserErrors } = require('@dev-api/domains/user/schema/User')
+const { RedisGuard } = require('@dev-api/domains/user/utils/guards')
 const { normalizePhone } = require('@dev-api/domains/user/utils/phone')
 const { ConfirmPhoneAction } = require('@dev-api/domains/user/utils/serverSchema')
 
 const SMS_WHITE_LIST = JSON.parse(conf['SMS_WHITE_LIST'] || '{}')
+const IP_WHITE_LIST = JSON.parse(conf['IP_WHITE_LIST'] || '[]')
+
+const redisGuard = new RedisGuard()
+
+const ERRORS = {
+    SMS_FOR_IP_DAY_LIMIT_REACHED: {
+        code: TOO_MANY_REQUESTS,
+        type: SMS_DAILY_LIMIT_REACHED,
+        message: 'Your IP address has exceeded the daily SMS request limit',
+    },
+    SMS_FOR_PHONE_DAY_LIMIT_REACHED: {
+        code: TOO_MANY_REQUESTS,
+        type: SMS_DAILY_LIMIT_REACHED,
+        message: 'The specified phone has exceeded the daily SMS request limit',
+    },
+    ACTION_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ACTION_NOT_FOUND,
+        message: 'ConfirmPhoneAction with the specified ID is not was expired, or does not exist',
+    },
+    INVALID_CODE: {
+        code: BAD_USER_INPUT,
+        type: INVALID_CODE,
+        message: 'Invalid verification code',
+    },
+}
+
+async function checkDailySMSLimits (phone, rawIp, context) {
+    const ip = rawIp.split(':').pop()
+    if (SMS_WHITE_LIST.hasOwnProperty(phone) || IP_WHITE_LIST.includes(ip)) {
+        return
+    }
+
+    const byIpCounter = await redisGuard.incrementDayCounter(`ConfirmPhoneAction:ip:${ip}`)
+    if (byIpCounter > CONFIRM_ACTION_DAILY_LIMIT_BY_IP) {
+        throw new GQLError(ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
+    }
+
+    const byPhoneCounter = await redisGuard.incrementDayCounter(`ConfirmPhoneAction:phone:${phone}`)
+    if (byPhoneCounter > CONFIRM_ACTION_DAILY_LIMIT_BY_PHONE) {
+        throw new GQLError(ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED, context)
+    }
+}
 
 const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService', {
     types: [
@@ -45,8 +96,10 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                 const { data: { dv, sender, phone } } = args
                 const normalizedPhone = normalizePhone(phone)
                 if (!normalizedPhone) {
-                    throw new GQLError(ERRORS.INVALID_PHONE, context)
+                    throw new GQLError(UserErrors.INVALID_PHONE, context)
                 }
+
+                await checkDailySMSLimits(phone, context.req.ip, context)
 
                 const code = SMS_WHITE_LIST.hasOwnProperty(phone)
                     ? SMS_WHITE_LIST[normalizedPhone]
@@ -80,24 +133,42 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
             access: true,
             schema: 'completeConfirmPhoneAction(data: CompleteConfirmPhoneActionInput!): CompleteConfirmPhoneActionOutput',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, actionId, code } } = args
+                const { data: { dv, sender, actionId, code: inputCode } } = args
 
                 const currentTime = dayjs().toISOString()
                 const requestedAction = await ConfirmPhoneAction.getOne(context, {
+                    deletedAt: null,
                     id: actionId,
-                    code,
                     expiresAt_gt: currentTime,
                     isVerified: false,
                 })
 
                 if (!requestedAction) {
-                    throw new Error('NOT FOUND')
+                    throw new GQLError(ERRORS.ACTION_NOT_FOUND, context)
+                }
+
+                let { attempts, code: actionCode } = requestedAction
+                attempts += 1
+
+                if (inputCode !== actionCode) {
+                    const updateAttrs = {
+                        dv,
+                        sender,
+                        attempts,
+                    }
+                    if (attempts >= CONFIRM_ACTION_MAX_ATTEMPTS) {
+                        updateAttrs.deletedAt = currentTime
+                    }
+                    await ConfirmPhoneAction.update(context, requestedAction.id, updateAttrs)
+
+                    throw new GQLError(ERRORS.INVALID_CODE, context)
                 }
 
                 await ConfirmPhoneAction.update(context, requestedAction.id, {
                     isVerified: true,
                     dv,
                     sender,
+                    attempts,
                 })
 
                 return {
@@ -110,4 +181,5 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
 
 module.exports = {
     ConfirmPhoneActionService,
+    ERRORS,
 }
