@@ -363,7 +363,7 @@ const TicketQualityControlDashboard = ({ data, translations, loading, organizati
             >
                 {loading ? <Skeleton active paragraph={{ rows: 3 }} /> : ticketCardContent}
             </Card>
-            <Modal width='big' title={QualityControlTitle} open={isOpen} onCancel={onCancel}>
+            <Modal width='big' scrollX={false} title={QualityControlTitle} open={isOpen} onCancel={onCancel}>
                 <Row gutter={[24, 40]}>
                     <Col span={24}>
                         <DateRangeSearch disabled={ticketsLoading || ticketFeedbackLoading} />
