@@ -3141,9 +3141,9 @@ type UserRightsSetHistoryRecord {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
-  canReadOrganizations: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   id: ID!
@@ -3222,12 +3222,12 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
-  canReadOrganizations: Boolean
-  canReadOrganizations_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -3357,12 +3357,12 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
-  canReadOrganizations_ASC
-  canReadOrganizations_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -3407,9 +3407,9 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
-  canReadOrganizations: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   v: Int
@@ -3453,9 +3453,9 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
-  canReadOrganizations: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   v: Int
@@ -3572,6 +3572,10 @@ type UserRightsSet {
   """
   canManageB2CAppProperties: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
+  """
+  canReadOrganizations: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do 
   """
   canReadTickets: Boolean
@@ -3579,10 +3583,6 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users 
   """
   canManageTickets: Boolean
-
-  """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
-  """
-  canReadOrganizations: Boolean
 
   """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
   """
@@ -3675,12 +3675,12 @@ input UserRightsSetWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
-  canReadOrganizations: Boolean
-  canReadOrganizations_not: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
@@ -3790,12 +3790,12 @@ enum SortUserRightsSetsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
-  canReadOrganizations_ASC
-  canReadOrganizations_DESC
   canExecuteRegisterNewServiceUser_ASC
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
@@ -3840,9 +3840,9 @@ input UserRightsSetUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
-  canReadOrganizations: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   v: Int
@@ -3883,9 +3883,9 @@ input UserRightsSetCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
-  canReadOrganizations: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
   v: Int

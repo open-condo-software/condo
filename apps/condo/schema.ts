@@ -72366,12 +72366,12 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
   CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
   CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
-  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
-  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
@@ -72437,12 +72437,12 @@ export enum SortUserRightsSetsBy {
   CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
   CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
   CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
   CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
-  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
-  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
   CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
   CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
@@ -82780,12 +82780,12 @@ export type UserRightsSet = {
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users  */
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do  */
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do  */
   canReadTickets?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users  */
   canManageTickets?: Maybe<Scalars['Boolean']>;
-  /**  Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do  */
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
@@ -82828,9 +82828,9 @@ export type UserRightsSetCreateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -82876,9 +82876,9 @@ export type UserRightsSetHistoryRecord = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
@@ -82918,9 +82918,9 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -82965,9 +82965,9 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -83045,12 +83045,12 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
@@ -83175,9 +83175,9 @@ export type UserRightsSetUpdateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
@@ -83252,12 +83252,12 @@ export type UserRightsSetWhereInput = {
   canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
   canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
   canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
