@@ -132,7 +132,7 @@ describe('OrganizationEmployeeSpecialization', () => {
                 await createTestOrganizationEmployee(admin, organization, user.user, role)
 
                 const [organization1] = await createTestOrganization(admin)
-                const [role1] = await createTestOrganizationEmployeeRole(admin, organization, {
+                const [role1] = await createTestOrganizationEmployeeRole(admin, organization1, {
                     canManageEmployees: true,
                 })
                 const [employee1] = await createTestOrganizationEmployee(admin, organization1, user1.user, role1)

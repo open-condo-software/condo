@@ -489,12 +489,8 @@ describe('Meter', () => {
 
             test('employee from "to" related organization with "canManageMeters" role: cannot update Meter from "from" organization', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const { clientFrom, clientTo, employeeTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
-                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
+                const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization({
                     canManageMeters: true,
-                })
-                await updateTestOrganizationEmployee(admin, employeeTo.id, {
-                    role: { connect: { id: role.id } },
                 })
                 const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
