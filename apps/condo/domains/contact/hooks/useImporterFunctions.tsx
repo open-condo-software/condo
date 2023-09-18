@@ -29,7 +29,7 @@ const normalizeBooleanValue = (value: string, yes: string, no: string) => {
     const VALID_VALUES = [yes.toLowerCase(), no.toLowerCase(), '']
     const valueInLowerCase = value.trim().toLowerCase()
     if (!VALID_VALUES.includes(valueInLowerCase)) return null
-    return valueInLowerCase === yes
+    return valueInLowerCase === yes.toLowerCase()
 }
 
 const parsePhones = (phones: string) => {
