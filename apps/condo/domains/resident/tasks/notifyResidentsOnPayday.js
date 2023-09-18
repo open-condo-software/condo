@@ -70,6 +70,7 @@ async function notifyResidentsOnPayday () {
     const { keystone: context } = await getSchemaCtx('User')
     const state = {
         startTime: dayjs(),
+        completeTime: null,
         hasMoreConsumers: true,
         consumersOffset: 0,
         consumersChunkSize: 50,
@@ -137,6 +138,9 @@ async function notifyResidentsOnPayday () {
             }
         }
     }
+    state.completeTime = dayjs().toISOString()
+    state.startTime = state.startTime.toISOString()
+    logger.info({ msg: 'Processing completed', state, startAt: state.startTime, completeAt: state.completeTime })
 }
 
 module.exports = {
