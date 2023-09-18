@@ -55,40 +55,15 @@ describe('OrganizationEmployee', () => {
         expect(obj.updatedAt).toMatch(DATETIME_RE)
     })
 
-    test('support: can create OrganizationEmployee', async () => {
+    test('support: cannot create OrganizationEmployee', async () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)
         const [role] = await createTestOrganizationEmployeeRole(admin, organization)
         const { user } = await makeClientWithNewRegisteredAndLoggedInUser()
-
-        const support = await makeClientWithSupportUser()
-        const [obj, attrs] = await createTestOrganizationEmployee(support, organization, user, role)
-
-        expect(obj.id).toBeDefined()
-        expect(obj.dv).toEqual(1)
-        expect(obj.sender).toEqual(attrs.sender)
-        expect(obj.v).toEqual(1)
-        expect(obj.createdBy).toEqual(expect.objectContaining({ id: support.user.id }))
-        expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
-        expect(obj.createdAt).toMatch(DATETIME_RE)
-        expect(obj.updatedAt).toMatch(DATETIME_RE)
-    })
-
-    test('support: cannot create OrganizationEmployee without user', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const [organization] = await createTestOrganization(admin)
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
-
         const support = await makeClientWithSupportUser()
 
         await expectToThrowAccessDeniedErrorToObj(async () => {
-            await OrganizationEmployee.create(support, {
-                dv: 1,
-                sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                email: faker.internet.email(),
-                organization: { connect: { id: organization.id } },
-                role: { connect: { id: role.id } },
-            })
+            await createTestOrganizationEmployee(support, organization, user, role)
         })
     })
 
