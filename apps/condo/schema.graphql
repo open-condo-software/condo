@@ -65663,7 +65663,7 @@ input RegisterNewUserInput {
   sender: SenderFieldInput!
   name: String!
   password: String!
-  confirmPhoneActionToken: String
+  confirmPhoneActionToken: String!
   email: String
   phone: String
   meta: JSON

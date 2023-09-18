@@ -3,6 +3,7 @@ const { faker } = require('@faker-js/faker')
 const { makeLoggedInAdminClient, makeClient, expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
+const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
@@ -40,8 +41,8 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { phone }),
-            errors.WRONG_PHONE_FORMAT,
-            'user',
+            COMMON_ERRORS.WRONG_PHONE_FORMAT,
+            'obj',
         )
     })
 
@@ -53,29 +54,12 @@ describe('RegisterNewUserService', () => {
         const password = faker.internet.password()
         const email = userAttrs.email
         const phone = createTestPhone()
-        const dv = 1
-        const sender = { dv: 1, fingerprint: 'tests' }
-        const { errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
-            data: {
-                dv,
-                sender,
-                name,
-                phone,
-                password,
-                email,
-            },
-        })
-        expect(errors).toMatchObject([{
-            message: 'User with specified email already exists',
-            name: 'GQLError',
-            path: ['user'],
-            extensions: {
-                mutation: 'registerNewUser',
-                variable: ['data', 'email'],
-                code: 'BAD_USER_INPUT',
-                type: 'NOT_UNIQUE',
-            },
-        }])
+
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { name, phone, password, email }),
+            errors.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS,
+            'user',
+        )
     })
 
     test('register with empty password', async () => {

@@ -63039,7 +63039,7 @@ export type RegisterNewUserInput = {
   sender: SenderFieldInput;
   name: Scalars['String'];
   password: Scalars['String'];
-  confirmPhoneActionToken?: Maybe<Scalars['String']>;
+  confirmPhoneActionToken: Scalars['String'];
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;

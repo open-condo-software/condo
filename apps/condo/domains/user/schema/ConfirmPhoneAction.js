@@ -6,27 +6,20 @@ const { Text, Integer, Checkbox, DateTimeUtc } = require('@keystonejs/fields')
 const { historical, uuided, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { PHONE_WITHOUT_LAND_LINE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/user/access/ConfirmPhoneAction')
 const {
     SMS_CODE_LENGTH,
 } = require('@condo/domains/user/constants/common')
 
+
 const ConfirmPhoneAction = new GQLListSchema('ConfirmPhoneAction', {
     schemaDoc: 'User confirm phone actions is used before registration starts',
     fields: {
         phone: {
-            schemaDoc: 'Phone. In international E.164 format without spaces',
-            type: Text,
+            ...PHONE_WITHOUT_LAND_LINE_FIELD,
             kmigratorOptions: { null: false, unique: false },
             isRequired: true,
-            hooks: {
-                resolveInput: ({ resolvedData }) => {
-                    if (resolvedData['phone']) {
-                        return normalizePhone(resolvedData['phone'])
-                    }
-                },
-            },
         },
         token: {
             schemaDoc: 'Unique token to complete confirmation',

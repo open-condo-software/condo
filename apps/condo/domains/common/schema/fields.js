@@ -164,25 +164,32 @@ const UNIT_TYPE_FIELD = {
     defaultValue: FLAT_UNIT_TYPE,
 }
 
+const getPhoneFieldHooks = ({ allowLandline }) => ({
+    resolveInput: async ({ resolvedData, fieldPath }) => {
+        const newValue = normalizePhone(resolvedData[fieldPath], allowLandline)
+        return newValue || resolvedData[fieldPath]
+    },
+    validateInput: ({ resolvedData, context, fieldPath }) => {
+        const newCallerPhone = normalizePhone(resolvedData[fieldPath], allowLandline)
+
+        if (resolvedData[fieldPath] && newCallerPhone !== resolvedData[fieldPath]) {
+            throw new GQLError(
+                { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', fieldPath] },
+                context
+            )
+        }
+    },
+})
+
 const PHONE_FIELD = {
     schemaDoc: 'Normalized phone in E.164 format without spaces',
     type: Text,
-    hooks: {
-        resolveInput: async ({ resolvedData, fieldPath }) => {
-            const newValue = normalizePhone(resolvedData[fieldPath], true)
-            return newValue || resolvedData[fieldPath]
-        },
-        validateInput: ({ resolvedData, context, fieldPath }) => {
-            const newCallerPhone = normalizePhone(resolvedData[fieldPath], true)
+    hooks: getPhoneFieldHooks({ allowLandline: true }),
+}
 
-            if (resolvedData[fieldPath] && newCallerPhone !== resolvedData[fieldPath]) {
-                throw new GQLError(
-                    { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', fieldPath] },
-                    context
-                )
-            }
-        },
-    },
+const PHONE_WITHOUT_LAND_LINE_FIELD = {
+    ...PHONE_FIELD,
+    hooks: getPhoneFieldHooks({ allowLandline: false }),
 }
 
 module.exports = {
@@ -202,4 +209,5 @@ module.exports = {
     IMPORT_ID_FIELD,
     UNIT_TYPE_FIELD,
     PHONE_FIELD,
+    PHONE_WITHOUT_LAND_LINE_FIELD,
 }
