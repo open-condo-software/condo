@@ -4,18 +4,41 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const { countryPhoneData } = require('phone')
+const { getById } = require('@open-condo/keystone/schema')
+const { makeLoggedInClient, makeClient } = require('@open-condo/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
 const { REGISTER_NEW_USER_MUTATION } = require('@dev-api/domains/user/gql')
-const { AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION } = require('@dev-api/domains/user/gql')
+const {
+    AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
+    START_CONFIRM_PHONE_ACTION_MUTATION,
+    COMPLETE_CONFIRM_PHONE_ACTION_MUTATION,
+} = require('@dev-api/domains/user/gql')
+const conf = require("@open-condo/config");
+const get = require('lodash/get')
+const max = require('lodash/max')
+const repeat = require('lodash/repeat')
+const {CONFIRM_ACTION_CODE_LENGTH} = require("@dev-api/domains/user/constants");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
 const ConfirmPhoneAction = generateGQLTestUtils(ConfirmPhoneActionGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || '+79068888888'
+const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
+
+function createTestPhone () {
+    const { country_code, mobile_begin_with, phone_number_lengths } = faker.helpers.arrayElement(countryPhoneData.filter(x => get(x, 'mobile_begin_with.length', 0) > 0))
+    const length = max(phone_number_lengths)
+    const code = String(faker.helpers.arrayElement(mobile_begin_with))
+
+    return faker.phone.number('+' + country_code + code + repeat('#', length - code.length))
+}
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -44,20 +67,6 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function registerNewUserByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
 async function authenticateUserWithPhoneAndPasswordByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -73,10 +82,93 @@ async function authenticateUserWithPhoneAndPasswordByTestClient(client, extraAtt
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 
+async function startConfirmPhoneActionByTestClient(attrs = {}, client) {
+    client ??= await makeClient()
+    attrs.dv ??= 1
+    attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    attrs.phone ??= createTestPhone()
+
+    const { data, errors } = await client.mutate(START_CONFIRM_PHONE_ACTION_MUTATION, {
+        data: attrs
+    })
+    throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
+
+async function completeConfirmPhoneActionByTestClient(id, attrs = {}, client) {
+    client ??= await makeClient()
+    attrs.dv ??= 1
+    attrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    attrs.actionId = id
+    attrs.code ??= faker.random.numeric(CONFIRM_ACTION_CODE_LENGTH)
+
+    const { data, errors } = await client.mutate(COMPLETE_CONFIRM_PHONE_ACTION_MUTATION, {
+        data: attrs,
+    })
+    throwIfError(data, errors)
+
+    return [data.result, attrs]
+}
+
+async function registerNewTestUser (userAttrs = {}, client) {
+    userAttrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    userAttrs.password ??= faker.internet.password()
+    userAttrs.phone ??= createTestPhone()
+    userAttrs.name ??= faker.internet.userName()
+    client ??= await makeClient()
+
+    let { sender, name, phone, password, actionId } = userAttrs
+
+    if (!actionId) {
+         [{actionId}] = await startConfirmPhoneActionByTestClient({
+            sender,
+            phone,
+        }, client)
+
+        const {code} = await getById('ConfirmPhoneAction', actionId)
+
+        await completeConfirmPhoneActionByTestClient(actionId, {
+            sender,
+            code,
+        }, client)
+    }
+
+
+    const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
+        data: { dv: 1, sender, confirmPhoneActionId: actionId, name, password }
+    })
+
+    throwIfError(data, errors)
+
+    const user = data.result
+
+    return [user, userAttrs]
+}
+
+async function makeLoggedInAdminClient () {
+    return await makeLoggedInClient({ phone: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET, })
+}
+
+async function makeRegisteredAndLoggedInUser () {
+    const client = await makeClient()
+    const [user, userAttrs] = await registerNewTestUser({}, client)
+    Object.assign(user, userAttrs)
+    client.user = user
+    await authenticateUserWithPhoneAndPasswordByTestClient(client, {
+        phone: userAttrs.phone,
+        password: userAttrs.password,
+    })
+
+    return client
+}
+
 module.exports = {
     User, createTestUser, updateTestUser,
     ConfirmPhoneAction,
-    registerNewUserByTestClient,
-    authenticateUserWithPhoneAndPasswordByTestClient,
+    startConfirmPhoneActionByTestClient, completeConfirmPhoneActionByTestClient,
+    registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient,
+    makeLoggedInAdminClient, makeRegisteredAndLoggedInUser,
+    createTestPhone,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

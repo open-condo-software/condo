@@ -16,6 +16,18 @@ const User = generateGqlQueries('User', USER_FIELDS)
 const CONFIRM_PHONE_ACTION_FIELDS = `{ phone code isVerified expiresAt ${COMMON_FIELDS} }`
 const ConfirmPhoneAction = generateGqlQueries('ConfirmPhoneAction', CONFIRM_PHONE_ACTION_FIELDS)
 
+const START_CONFIRM_PHONE_ACTION_MUTATION = gql`
+    mutation startConfirmPhoneAction ($data: StartConfirmPhoneActionInput!) {
+        result: startConfirmPhoneAction(data: $data) { actionId phone }
+    } 
+`
+
+const COMPLETE_CONFIRM_PHONE_ACTION_MUTATION = gql`
+    mutation completeConfirmPhoneAction ($data: CompleteConfirmPhoneActionInput!) {
+        result: completeConfirmPhoneAction(data: $data) { status }
+    }
+`
+
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser ($data: RegisterNewUserInput!) {
         result: registerNewUser(data: $data) { id }
@@ -33,6 +45,8 @@ const AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION = gql`
 module.exports = {
     User,
     ConfirmPhoneAction,
+    START_CONFIRM_PHONE_ACTION_MUTATION,
+    COMPLETE_CONFIRM_PHONE_ACTION_MUTATION,
     REGISTER_NEW_USER_MUTATION,
     AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
