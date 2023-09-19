@@ -493,37 +493,39 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         >
             {SaveLabel}
         </Button>,
-        <Button
-            icon={<Close size='medium' />}
-            key='close'
-            onClick={handleCancel}
-            type='secondary'
-            disabled={submitActionProcessing || !hasChanges}
-        >
-            {CancelSelectionLabel}
-        </Button>,
+        hasChanges && (
+            <Button
+                icon={<Close size='medium' />}
+                key='close'
+                onClick={handleCancel}
+                type='secondary'
+                disabled={submitActionProcessing}
+            >
+                {CancelSelectionLabel}
+            </Button>
+        ),
     ], [CancelSelectionLabel, SaveLabel, handleCancel, handleSave, hasChanges, submitActionProcessing])
 
     return (
-        <>
-            <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                <Col span={24}>
-                    <ExpandableTable
-                        loading={loading}
-                        pagination={false}
-                        totalRows={connectedB2BApps.length}
-                        dataSource={tableData}
-                        columns={tableColumns}
-                        data-cy='employeeRoles__table'
-                        expandable={expandableConfig}
-                        rowKey='key'
-                    />
-                </Col>
-            </Row>
-            <ActionBar
-                actions={actionBarItems}
-            />
-        </>
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+            <Col span={24}>
+                <ExpandableTable
+                    loading={loading}
+                    pagination={false}
+                    totalRows={connectedB2BApps.length}
+                    dataSource={tableData}
+                    columns={tableColumns}
+                    data-cy='employeeRoles__table'
+                    expandable={expandableConfig}
+                    rowKey='key'
+                />
+            </Col>
+            <Col span={24}>
+                <ActionBar
+                    actions={actionBarItems}
+                />
+            </Col>
+        </Row>
     )
 }
 

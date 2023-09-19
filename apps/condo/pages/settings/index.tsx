@@ -62,8 +62,10 @@ const SettingsPage: React.FC = () => {
 
     const userOrganization = useOrganization()
     const canManageContactRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageContactRoles']), [userOrganization])
-    const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles']), [userOrganization])
+    const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMobileFeatureConfigs']), [userOrganization])
+
+    const isEmployeeTabAvailable = hasNewEmployeeRoleTableFeature ? canManageEmployeeRoles : true
 
     const tabKeysToDisplay = useMemo(() => {
         const availableTabs = ALWAYS_AVAILABLE_TABS
@@ -71,10 +73,29 @@ const SettingsPage: React.FC = () => {
         if (hasSubscriptionFeature) availableTabs.push(SETTINGS_TAB_SUBSCRIPTION)
         if (canManageContactRoles) availableTabs.push(SETTINGS_TAB_CONTACT_ROLES)
         if (canManageMobileFeatureConfigsRoles) availableTabs.push(SETTINGS_TAB_MOBILE_FEATURE_CONFIG)
-        if (canManageEmployeeRoles) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
+        if (isEmployeeTabAvailable) availableTabs.push(SETTINGS_TAB_EMPLOYEE_ROLES)
 
         return availableTabs
-    }, [hasSubscriptionFeature, canManageContactRoles, canManageEmployeeRoles, canManageMobileFeatureConfigsRoles])
+    }, [hasSubscriptionFeature, canManageContactRoles, canManageMobileFeatureConfigsRoles, isEmployeeTabAvailable])
+
+    const employeeRolesTab = useMemo(() => {
+        const baseTabData = {
+            key: SETTINGS_TAB_EMPLOYEE_ROLES,
+            label: EmployeeRolesTitle,
+        }
+
+        if (hasNewEmployeeRoleTableFeature && canManageEmployeeRoles) {
+            return {
+                ...baseTabData,
+                children: <EmployeeRolesSettingsContent/>,
+            }
+        } else if (!hasNewEmployeeRoleTableFeature) {
+            return {
+                ...baseTabData,
+                children: <EmployeeRoleTicketVisibilityInfo/>,
+            }
+        }
+    }, [EmployeeRolesTitle, canManageEmployeeRoles, hasNewEmployeeRoleTableFeature])
 
     const settingsTabs: TabItem[] = useMemo(
         () => [
@@ -94,11 +115,7 @@ const SettingsPage: React.FC = () => {
                 children: <PropertyScopeSettingsContent/>,
                 eventName: 'PropertyScopeVisitIndex',
             },
-            {
-                key: SETTINGS_TAB_EMPLOYEE_ROLES,
-                label: EmployeeRolesTitle,
-                children: hasNewEmployeeRoleTableFeature ? <EmployeeRolesSettingsContent/> : <EmployeeRoleTicketVisibilityInfo/>,
-            },
+            employeeRolesTab,
             {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
                 label: DetailsTitle,
@@ -120,11 +137,7 @@ const SettingsPage: React.FC = () => {
                 children: <MobileFeatureConfigContent/>,
             },
         ].filter(Boolean),
-        [
-            hasSubscriptionFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, EmployeeRolesTitle, hasNewEmployeeRoleTableFeature,
-            DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles,
-            hasMobileFeatureConfigurationFeature, MobileFeatureConfigTitle,
-        ],
+        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, employeeRolesTab, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, hasMobileFeatureConfigurationFeature, MobileFeatureConfigTitle],
     )
 
     const titleContent = useMemo(() => (
