@@ -15,6 +15,7 @@ const access = require('@condo/domains/organization/access/InviteNewOrganization
 const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
 const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
+const { createUserAndSendLoginData } = require('@condo/domains/user/utils/serverSchema')
 
 const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
 const guards = require('../utils/serverSchema/guards')
@@ -135,7 +136,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         length: 8,
                         numbers: true,
                     })
-                    const userAttributes = {
+                    const userData = {
                         name,
                         email,
                         phone,
@@ -143,18 +144,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         ...dvSenderData,
                     }
 
-                    const { data: registerData, errors: registerErrors } = await context.executeGraphQL({
-                        query: REGISTER_NEW_USER_MUTATION,
-                        variables: {
-                            data: userAttributes,
-                        },
-                    })
-
-                    if (registerErrors) {
-                        throw new GQLError({ ...ERRORS.UNABLE_TO_REGISTER_USER, data: { registerErrors } }, context)
-                    }
-
-                    user = registerData.user
+                    user = await createUserAndSendLoginData({ context, userData })
                 }
 
                 const employee = await OrganizationEmployee.create(context, {

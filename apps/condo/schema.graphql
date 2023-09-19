@@ -1554,7 +1554,7 @@ type ConfirmPhoneAction {
   """
   _label_: String
 
-  """ Phone. In international E.164 format without spaces """
+  """ Normalized phone in E.164 format without spaces """
   phone: String
 
   """ Unique token to complete confirmation """
