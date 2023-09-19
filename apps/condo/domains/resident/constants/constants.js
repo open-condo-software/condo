@@ -76,7 +76,7 @@ const PAYMENT_CATEGORIES_META = [
         name: 'Газ',
         key: 'billing.category.gas.name',
         uuid: '40053ebf-7a67-4b9d-8637-a6f398ad7d3c',
-        active: false,
+        active: true,
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
