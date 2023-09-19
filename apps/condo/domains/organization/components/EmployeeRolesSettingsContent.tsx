@@ -47,23 +47,11 @@ import {
     useEmployeeRolesTableColumns,
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
+import { PermissionRow, useEmployeeRolesTableData, PermissionsGroup } from '@condo/domains/organization/hooks/useEmployeeRolesTableData'
 import { OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 
 
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
-
-type PermissionRow = {
-    id: string,
-    key: string,
-    name: string,
-}
-
-type PermissionsGroup = {
-    id: string,
-    b2bAppId?: string,
-    groupName: string,
-    permissions: PermissionRow[],
-}
 
 type EmployeeRolesTableProps = {
     connectedB2BApps: B2BApp[],
@@ -95,92 +83,10 @@ type PermissionsState = {
 
 type TableCheckboxProps = {
     employeeRoleId: string
-    b2bAppId?: string
-    permissionKey: string
+    permissionsGroup: PermissionsGroup
+    permissionRow: PermissionRow
     permissionsState: PermissionsState
     setPermissionsState: Dispatch<SetStateAction<PermissionsState>>
-}
-
-type EmployeeRolePermissionGroupDescriptor = {
-    groupName: string,
-    permissions: { key: string, name: string }[]
-}
-
-/**
- * Generates employee role permissions data for settings table.
- * If you want to add permission row or group of permissions you need to modify "employeeRolePermissionGroups" array.
- */
-const getEmployeeRolePermissionGroups = (intl): PermissionsGroup[] => {
-    const ServicesGroupName = intl.formatMessage({ id: 'global.section.miniapps' })
-    const CanManageB2BAppsName = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canManageB2BApps' })
-
-    const employeeRolePermissionGroups: EmployeeRolePermissionGroupDescriptor[] = [{
-        groupName: ServicesGroupName,
-        permissions: [
-            { key: 'canManageB2BApps', name: CanManageB2BAppsName },
-        ],
-    }]
-
-    return employeeRolePermissionGroups.map(({ groupName, permissions }) => ({
-        id: groupName,
-        groupName: groupName,
-        permissions: permissions.map(({ key, name }) => ({ id: key, key, name })),
-    }))
-}
-
-/**
- * Generates b2b role permissions data for settings table.
- */
-const getB2BRolePermissionGroups = (intl, connectedB2BApps, b2BAppPermissions): PermissionsGroup[] => {
-    const CanReadServiceTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.canReadService' })
-
-    return connectedB2BApps.map((b2bApp): PermissionsGroup => ({
-        id: b2bApp.id,
-        b2bAppId: b2bApp.id,
-        groupName: b2bApp.name,
-        permissions: [
-            // Client side mark that employee role has b2bRole (Due to our logic this employee role can read b2bApp).
-            {
-                id: `canRead${b2bApp.id}`,
-                key: `canRead${b2bApp.id}`,
-                name: CanReadServiceTitle,
-            },
-            ...b2BAppPermissions
-                .filter(permission => permission.app.id === b2bApp.id)
-                .map((permission): PermissionRow => ({
-                    id: permission.id,
-                    key: permission.key,
-                    name: permission.name,
-                })),
-        ],
-    }))
-}
-
-/**
- * Changes value of the checkbox and related checkboxes.
- * If user set "canManage" permission checkbox, then "canRead" checkbox sets to true automatically.
- * If user unset "canRead" permission checkbox, then all "canManage" checkboxes of this group sets to false automatically.
- */
-const getPermissionsWithNewValue = ({ permissionKey, newValue, oldPermissions, isReadPermission }): PermissionsType => {
-    let newPermissions
-
-    if (isReadPermission) {
-        if (newValue) {
-            newPermissions = { ...oldPermissions, [permissionKey]: newValue }
-        } else if (!newValue) {
-            newPermissions = Object.keys(oldPermissions)
-                .reduce((acc, permission) => ({ ...acc, [permission]: false }), {})
-        }
-    } else {
-        if (newValue) {
-            const readPermissionKey = Object.keys(oldPermissions).find(permission => permission.startsWith('canRead'))
-            newPermissions = { ...oldPermissions, [permissionKey]: newValue, [readPermissionKey]: true }
-        } else {
-            newPermissions = { ...oldPermissions, [permissionKey]: newValue }
-        }
-    }
-
-    return newPermissions
 }
 
 /**
@@ -188,46 +94,42 @@ const getPermissionsWithNewValue = ({ permissionKey, newValue, oldPermissions, i
  * If there are no one of the other employee roles who have that permission, then checkbox will be disabled.
  * If it's "canRead" checkbox, then also checks such logic for "canManage" permissions of this group.
  */
-const isCheckboxDisabled = ({ checkboxValue, employeeRoleId, permissionKey, isReadPermission, permissionsState, pathToPermissionsGroup }) => {
+const isCheckboxDisabled = ({
+    checkboxValue,
+    employeeRoleId,
+    permissionKey,
+    permissionsState,
+    pathToPermissionsGroupInState,
+    relatedUncheckPermissions = [],
+}) => {
     if (!checkboxValue) return false
 
     const otherEmployeeRoleIds = Object.keys(omit(permissionsState, employeeRoleId))
-    const pathToPermissionsGroupFromEmployeeRole = pathToPermissionsGroup.slice(1)
-    let checkboxDisabled = checkboxValue
+    const pathToPermissionsGroupInStateFromEmployeeRole = pathToPermissionsGroupInState.slice(1)
 
-    for (const roleId of otherEmployeeRoleIds) {
-        const isOtherEmployeeHasPermission = get(permissionsState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permissionKey], false)
+    // Check that at least one of other roles has checkbox.
+    for (const permission of [permissionKey, ...relatedUncheckPermissions]) {
+        let atLeastOneEmployeeHasPermission = false
 
-        if (isOtherEmployeeHasPermission) {
-            checkboxDisabled = false
-            break
-        }
-    }
+        for (const roleId of otherEmployeeRoleIds) {
+            const isOtherEmployeeHasPermission = get(
+                permissionsState,
+                [roleId, ...pathToPermissionsGroupInStateFromEmployeeRole, permission],
+                false
+            )
 
-    if (isReadPermission) {
-        const permissionsGroup = get(permissionsState, pathToPermissionsGroup)
-        checkboxDisabled = false
-
-        for (const permission of Object.keys(permissionsGroup)) {
-            let otherEmployeeHasPermission = false
-
-            for (const roleId of otherEmployeeRoleIds) {
-                const isEmployeeHasPermission = get(permissionsState, [roleId, ...pathToPermissionsGroupFromEmployeeRole, permission], false)
-
-                if (isEmployeeHasPermission) {
-                    otherEmployeeHasPermission = true
-                    break
-                }
-            }
-
-            if (!otherEmployeeHasPermission) {
-                checkboxDisabled = true
+            if (isOtherEmployeeHasPermission) {
+                atLeastOneEmployeeHasPermission = true
                 break
             }
         }
+
+        if (!atLeastOneEmployeeHasPermission) {
+            return true
+        }
     }
 
-    return checkboxDisabled
+    return false
 }
 
 /**
@@ -355,45 +257,60 @@ const createInitialB2BAppPermissionsState = ({ appId, b2BAppPermissions, b2bRole
     }
 }
 
-const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId, permissionKey, permissionsState, setPermissionsState }) => {
+const TableCheckbox: React.FC<TableCheckboxProps> = ({
+    employeeRoleId,
+    permissionRow,
+    permissionsState,
+    setPermissionsState,
+    permissionsGroup,
+}) => {
     const intl = useIntl()
     const DisabledTooltipTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.disabledCheckboxTitle' })
 
     let value
-    let pathToPermissionsGroup
-    const isReadPermission = permissionKey.startsWith('canRead')
+    let pathToPermissionsGroupInState
+    const b2bAppId = permissionsGroup.b2bAppId
+    const permissionKey = permissionRow.key
     const isB2bPermission = !!b2bAppId
+    const relatedCheckPermissions = useMemo(() => permissionRow.relatedCheckPermissions || [], [permissionRow.relatedCheckPermissions])
+    const relatedUncheckPermissions = useMemo(() => permissionRow.relatedUncheckPermissions || [], [permissionRow.relatedUncheckPermissions])
 
     if (isB2bPermission) {
-        pathToPermissionsGroup = [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions']
-        value = get(permissionsState, [...pathToPermissionsGroup, permissionKey], false)
+        pathToPermissionsGroupInState = [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions']
+        value = get(permissionsState, [...pathToPermissionsGroupInState, permissionKey], false)
     } else {
-        pathToPermissionsGroup = [employeeRoleId, 'organizationPermissions']
-        value = get(permissionsState, [...pathToPermissionsGroup, permissionKey], false)
+        pathToPermissionsGroupInState = [employeeRoleId, 'organizationPermissions']
+        value = get(permissionsState, [...pathToPermissionsGroupInState, permissionKey], false)
     }
 
     const onChange = useCallback((e) => {
         const newValue = e.target.checked
         const newState = cloneDeep(permissionsState)
-        const oldPermissions = get(newState, pathToPermissionsGroup)
-        const newPermissions = getPermissionsWithNewValue({
+        const oldPermissions = get(newState, pathToPermissionsGroupInState)
+        const permissionsToChange = [
             permissionKey,
-            newValue,
-            oldPermissions,
-            isReadPermission,
-        })
+            ...(newValue ? relatedCheckPermissions : relatedUncheckPermissions),
+        ]
+        const newPermissions = {
+            ...oldPermissions,
+            ...permissionsToChange.reduce((acc, key) => {
+                acc[key] = newValue
 
-        set(newState, pathToPermissionsGroup, newPermissions)
+                return acc
+            }, {}),
+        }
+
+        set(newState, pathToPermissionsGroupInState, newPermissions)
         setPermissionsState(newState)
-    }, [isReadPermission, pathToPermissionsGroup, permissionKey, permissionsState, setPermissionsState])
+    }, [pathToPermissionsGroupInState, permissionKey, permissionsState, relatedCheckPermissions, relatedUncheckPermissions, setPermissionsState])
 
     const checkboxDisabled = isCheckboxDisabled({
         checkboxValue: value,
         employeeRoleId,
         permissionKey,
-        isReadPermission,
         permissionsState,
-        pathToPermissionsGroup,
+        pathToPermissionsGroupInState,
+        relatedUncheckPermissions,
     })
 
     return (
@@ -401,7 +318,7 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({ employeeRoleId, b2bAppId,
             {
                 checkboxDisabled ? (
                     <Tooltip title={DisabledTooltipTitle}>
-                        <Checkbox checked={Boolean(value)} onChange={onChange} disabled={true} />
+                        <Checkbox checked={Boolean(value)} onChange={onChange} disabled />
                     </Tooltip>
                 ) : (
                     <Checkbox checked={Boolean(value)} onChange={onChange} />
@@ -422,16 +339,16 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
         ...employeeRoles.map(employeeRole => ({
             render: (permissionRow: PermissionRow) => {
                 return <TableCheckbox
-                    b2bAppId={permissionsGroup.b2bAppId}
-                    permissionKey={permissionRow.key}
                     employeeRoleId={employeeRole.id}
+                    permissionsGroup={permissionsGroup}
+                    permissionRow={permissionRow}
                     permissionsState={permissionsState}
                     setPermissionsState={setPermissionsState}
                 />
             },
         })),
         EXPANDABLE_COLUMN_STUB,
-    ], [employeeRoles, permissionsGroup.b2bAppId, permissionsState, setPermissionsState])
+    ], [employeeRoles, permissionsGroup, permissionsState, setPermissionsState])
 
     return <Table
         tableLayout='auto'
@@ -440,6 +357,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
         pagination={false}
         dataSource={permissionRows}
         columns={columns}
+        rowKey='key'
     />
 }
 
@@ -449,19 +367,16 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     updateOrganizationEmployeeRoleAction,
 }) => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
 
+    const tableData: PermissionsGroup[] = useEmployeeRolesTableData(connectedB2BApps, b2BAppPermissions)
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
-    const tableData: PermissionsGroup[] = useMemo(() => [
-        ...getEmployeeRolePermissionGroups(intl),
-        ...getB2BRolePermissionGroups(intl, connectedB2BApps, b2BAppPermissions),
-    ], [b2BAppPermissions, connectedB2BApps, intl])
 
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
     const [permissionsState, setPermissionsState] = useState<PermissionsState>()
     const [submitActionProcessing, setSubmitActionProcessing] = useState<boolean>(false)
+    const hasChanges = useMemo(() => !isEqual(initialPermissionsState, permissionsState), [initialPermissionsState, permissionsState])
     const loadingState = loading || submitActionProcessing
 
     useEffect(() => {
@@ -501,6 +416,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     }, [initialPermissionsState])
 
     const handleSave = useCallback(async () => {
+        let isPermissionsChanged
         setSubmitActionProcessing(true)
 
         for (const employeeRole of employeeRoles) {
@@ -511,6 +427,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             if (isEqual(initialRolePermissions, newRolePermissions)) {
                 continue
             }
+            isPermissionsChanged = true
 
             const initialEmployeeRolePermissions = initialRolePermissions.organizationPermissions
             const newEmployeeRolePermissions = newRolePermissions.organizationPermissions
@@ -536,13 +453,15 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             }
         }
 
-        notification.info({
-            message: getSaveNotificationMessage({
-                initialPermissionsState,
-                permissionsState,
-                intl,
-            }),
-        })
+        if (isPermissionsChanged) {
+            notification.info({
+                message: getSaveNotificationMessage({
+                    initialPermissionsState,
+                    permissionsState,
+                    intl,
+                }),
+            })
+        }
         
         setInitialPermissionsState(cloneDeep(permissionsState))
         setSubmitActionProcessing(false)
@@ -551,12 +470,14 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
         intl, permissionsState, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction,
     ])
 
-    const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => <ExpandableRow
-        permissionsState={permissionsState}
-        employeeRoles={employeeRoles}
-        setPermissionsState={setPermissionsState}
-        permissionsGroup={permissionsGroup}
-    />, [employeeRoles, permissionsState])
+    const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => (
+        <ExpandableRow
+            permissionsGroup={permissionsGroup}
+            employeeRoles={employeeRoles}
+            permissionsState={permissionsState}
+            setPermissionsState={setPermissionsState}
+        />
+    ), [employeeRoles, permissionsState])
 
     const expandableConfig = useMemo(() => ({
         expandedRowRender: getExpandedRowRender,
@@ -568,25 +489,25 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             onClick={handleSave}
             type='primary'
             loading={submitActionProcessing}
+            disabled={!hasChanges}
         >
             {SaveLabel}
         </Button>,
-        <Button
-            icon={<Close size='medium' />}
-            key='close'
-            onClick={handleCancel}
-            type='secondary'
-            disabled={submitActionProcessing}
-        >
-            {CancelSelectionLabel}
-        </Button>,
-    ], [CancelSelectionLabel, SaveLabel, handleCancel, handleSave, submitActionProcessing])
+        hasChanges && (
+            <Button
+                icon={<Close size='medium' />}
+                key='close'
+                onClick={handleCancel}
+                type='secondary'
+                disabled={submitActionProcessing}
+            >
+                {CancelSelectionLabel}
+            </Button>
+        ),
+    ], [CancelSelectionLabel, SaveLabel, handleCancel, handleSave, hasChanges, submitActionProcessing])
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-            <Col span={24}>
-                <Typography.Title level={3}>{TitleMessage}</Typography.Title>
-            </Col>
             <Col span={24}>
                 <ExpandableTable
                     loading={loading}
@@ -596,11 +517,14 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                     columns={tableColumns}
                     data-cy='employeeRoles__table'
                     expandable={expandableConfig}
+                    rowKey='key'
                 />
             </Col>
-            <ActionBar
-                actions={actionBarItems}
-            />
+            <Col span={24}>
+                <ActionBar
+                    actions={actionBarItems}
+                />
+            </Col>
         </Row>
     )
 }

@@ -5456,6 +5456,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canDownloadCallRecords: Boolean
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5600,6 +5601,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageMobileFeatureConfigs_not: Boolean
   canManageB2BApps: Boolean
   canManageB2BApps_not: Boolean
+  canReadAnalytics: Boolean
+  canReadAnalytics_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5743,6 +5746,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageMobileFeatureConfigs_DESC
   canManageB2BApps_ASC
   canManageB2BApps_DESC
+  canReadAnalytics_ASC
+  canReadAnalytics_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5798,6 +5803,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canDownloadCallRecords: Boolean
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5854,6 +5860,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canDownloadCallRecords: Boolean
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5939,6 +5946,7 @@ type OrganizationEmployeeRole {
   canDownloadCallRecords: Boolean
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6071,6 +6079,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageMobileFeatureConfigs_not: Boolean
   canManageB2BApps: Boolean
   canManageB2BApps_not: Boolean
+  canReadAnalytics: Boolean
+  canReadAnalytics_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6196,6 +6206,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageMobileFeatureConfigs_DESC
   canManageB2BApps_ASC
   canManageB2BApps_DESC
+  canReadAnalytics_ASC
+  canReadAnalytics_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6250,6 +6262,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canDownloadCallRecords: Boolean
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6302,6 +6315,7 @@ input OrganizationEmployeeRoleCreateInput {
   canDownloadCallRecords: Boolean
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String

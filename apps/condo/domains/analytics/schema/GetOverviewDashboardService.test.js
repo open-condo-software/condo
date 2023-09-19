@@ -95,6 +95,7 @@ describe('GetOverviewDashboardService', () => {
         const [multiPayment] = await createTestMultiPayment(admin, [payments[1]], residentClient.user, payerAndPayments.acquiringIntegration)
         const [adminRole] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageOrganization: true,
+            canReadAnalytics: true,
         })
         const [executor] = await createTestOrganizationEmployee(admin, organization, organizationAdminUser.user, adminRole, {
             isAccepted: true, name: organizationAdminUser.user.name,
@@ -162,7 +163,7 @@ describe('GetOverviewDashboardService', () => {
     })
 
     describe('User', () => {
-        it('can query if it has an organization administrator role', async () => {
+        it('can query if it has an organization role with canReadAnalytics', async () => {
             const payload = { where: { organization: organization.id, dateFrom, dateTo }, groupBy: { aggregatePeriod: 'day' } }
             const [data] = await getOverviewDashboardByTestClient(organizationAdminUser, payload)
 
