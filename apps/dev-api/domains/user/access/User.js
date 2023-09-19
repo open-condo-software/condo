@@ -23,10 +23,10 @@ async function canManageUsers ({ authentication: { item: user }, operation, item
 }
 
 const canAccessToPasswordField = {
-    read: access.userIsAdmin,
+    read: access.userIsThisItem,
     // NOTE: const false removing it UserCreateInput, so it's impossible to create user from bin/prepare
     create: () => false,
-    update: access.userIsAdminOrIsThisItem,
+    update: access.userIsThisItem,
 }
 
 const canAccessToAccessControlField = {

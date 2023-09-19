@@ -48,6 +48,9 @@ async function createTestUser (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: faker.internet.userName(),
+        phone: createTestPhone(),
+        password: faker.internet.password(),
         ...extraAttrs,
     }
     const obj = await User.create(client, attrs)
