@@ -22,7 +22,8 @@ const conf = require("@open-condo/config");
 const get = require('lodash/get')
 const max = require('lodash/max')
 const repeat = require('lodash/repeat')
-const {CONFIRM_ACTION_CODE_LENGTH} = require("@dev-api/domains/user/constants");
+const { CONFIRM_ACTION_CODE_LENGTH, CONFIRM_ACTION_TTL_IN_SEC} = require("@dev-api/domains/user/constants");
+const dayjs = require("dayjs");
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)
@@ -64,6 +65,36 @@ async function updateTestUser (client, id, extraAttrs = {}) {
         ...extraAttrs,
     }
     const obj = await User.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestConfirmPhoneAction(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        phone: createTestPhone(),
+        code: faker.random.numeric(CONFIRM_ACTION_CODE_LENGTH),
+        expiresAt: dayjs().add(CONFIRM_ACTION_TTL_IN_SEC, 's'),
+        ...extraAttrs,
+    }
+    const obj = await ConfirmPhoneAction.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestConfirmPhoneAction (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await ConfirmPhoneAction.update(client, id, attrs)
     return [obj, attrs]
 }
 
@@ -157,12 +188,22 @@ async function makeRegisteredAndLoggedInUser () {
     return client
 }
 
+async function makeLoggedInSupportClient () {
+    const admin = await makeLoggedInAdminClient()
+    const client = await makeRegisteredAndLoggedInUser()
+    await updateTestUser(admin, client.user.id, {
+        isSupport: true
+    })
+
+    return client
+}
+
 module.exports = {
     User, createTestUser, updateTestUser,
-    ConfirmPhoneAction,
+    ConfirmPhoneAction, createTestConfirmPhoneAction, updateTestConfirmPhoneAction,
     startConfirmPhoneActionByTestClient, completeConfirmPhoneActionByTestClient,
     registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient,
-    makeLoggedInAdminClient, makeRegisteredAndLoggedInUser,
+    makeLoggedInAdminClient, makeRegisteredAndLoggedInUser, makeLoggedInSupportClient,
     createTestPhone,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
