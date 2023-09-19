@@ -1,10 +1,17 @@
 const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
 
 const { makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
 const { AUTH_WITH_PHONE_DAILY_LIMIT_BY_IP } = require('@dev-api/domains/user/constants')
 const { ERRORS } = require('@dev-api/domains/user/schema/AuthenticateUserWithPhoneAndPasswordService')
-const { registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient, createTestPhone } = require('@dev-api/domains/user/utils/testSchema')
+const {
+    registerNewTestUser,
+    authenticateUserWithPhoneAndPasswordByTestClient,
+    createTestPhone,
+    makeLoggedInAdminClient,
+    updateTestUser,
+} = require('@dev-api/domains/user/utils/testSchema')
 
 describe('AuthenticateUserWithPhoneAndPasswordService', () => {
     let registeredUser
@@ -21,6 +28,23 @@ describe('AuthenticateUserWithPhoneAndPasswordService', () => {
         })
         expect(result).toHaveProperty('token')
         expect(result).toHaveProperty(['item', 'id'], registeredUser.id)
+    })
+    test('Cannot authenticate for soft-deleted user', async () => {
+        const [user, attrs] = await registerNewTestUser()
+        const admin = await makeLoggedInAdminClient()
+        const [deletedUser] = await updateTestUser(admin, user.id, {
+            deletedAt: dayjs().toISOString(),
+        })
+        expect(deletedUser).toHaveProperty('deletedAt')
+        expect(deletedUser.deletedAt).not.toBeNull()
+
+        const client = await makeClient()
+        await expectToThrowGQLError(async () => {
+            await authenticateUserWithPhoneAndPasswordByTestClient(client, {
+                phone: attrs.phone,
+                password: attrs.password,
+            })
+        }, ERRORS.INCORRECT_PHONE_OR_PASSWORD, 'result')
     })
     describe('Must throw error on incorrect credentials', () => {
         test('Incorrect phone', async () => {
