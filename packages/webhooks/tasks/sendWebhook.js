@@ -26,7 +26,7 @@ async function sendWebhook (subscriptionId) {
 
     const lockKey = `sendWebhook:${subscriptionId}`
     const lock = await rLock.acquire([lockKey], LOCK_DURATION)
-    logger.info({ message: 'Lock acquired', subscriptionId })
+    logger.info({ msg: 'Lock acquired', subscriptionId })
 
     try {
         const subscription = await WebhookSubscription.getOne(keystone, { id: subscriptionId })
@@ -104,16 +104,16 @@ async function sendWebhook (subscriptionId) {
                 }
 
                 if (response.status === 523) {
-                    logger.error({ message: 'Data was not sent. Reason: Unreachable resource', subscriptionId })
+                    logger.error({ msg: 'Data was not sent. Reason: Unreachable resource', subscriptionId })
                     return { status: NO_RESPONSE_STATUS }
                 } else {
-                    logger.error({ message: 'Data was sent, but server response was not ok', status: response.status, subscriptionId })
+                    logger.error({ msg: 'Data was sent, but server response was not ok', status: response.status, subscriptionId })
                     return { status: BAD_RESPONSE_STATUS }
                 }
 
             } else {
                 totalLoaded += lastLoaded
-                logger.info({ message: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
+                logger.info({ msg: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
             }
 
             // Step 3: Update subscription state if full batch received. Else condition will lead to final update
@@ -135,7 +135,7 @@ async function sendWebhook (subscriptionId) {
         return { status: OK_STATUS }
 
     } finally {
-        logger.info({ message: 'Lock released', subscriptionId })
+        logger.info({ msg: 'Lock released', subscriptionId })
         await lock.release()
     }
 }

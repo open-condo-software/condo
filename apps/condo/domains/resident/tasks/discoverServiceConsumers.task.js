@@ -16,9 +16,9 @@ async function discoverServiceConsumersTask (data) {
 
     try {
         const result = await discoverServiceConsumers(context, { ...data, ...DV_SENDER })
-        logger.info({ message: 'discoverServiceConsumers done', result })
+        logger.info({ msg: 'discoverServiceConsumers done', result })
     } catch (err) {
-        logger.error({ message: 'discoverServiceConsumers fail', err })
+        logger.error({ msg: 'discoverServiceConsumers fail', err })
     }
 }
 

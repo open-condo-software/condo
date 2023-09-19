@@ -20,9 +20,9 @@ const REDIS_KEY = 'discoverServiceConsumersLastDate'
 async function discoverServiceConsumersCronTask () {
     const lastDate = await redisClient.get(REDIS_KEY)
     if (!lastDate) {
-        const message = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} ${dayjs().toISOString()}")`
-        logger.warn({ message })
-        throw new Error(message)
+        const msg = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} ${dayjs().toISOString()}")`
+        logger.warn({ msg })
+        throw new Error(msg)
     }
 
     const { keystone: context } = getSchemaCtx('BillingAccount')
@@ -64,10 +64,10 @@ async function discoverServiceConsumersCronTask () {
 
     try {
         const result = await discoverServiceConsumers(context, data)
-        logger.info({ message: 'discoverServiceConsumersCronTask done', result })
+        logger.info({ msg: 'discoverServiceConsumersCronTask done', result })
         redisClient.set(REDIS_KEY, dayjs(maxDate).toISOString())
     } catch (err) {
-        logger.error({ message: 'discoverServiceConsumersCronTask fail', err })
+        logger.error({ msg: 'discoverServiceConsumersCronTask fail', err })
     }
 }
 

@@ -71,7 +71,7 @@ const buildExportFile = async ({ rows, locale }) => {
  */
 async function exportRecipients (taskId) {
     if (!taskId) {
-        logger.error({ message: 'taskId is undefined' })
+        logger.error({ msg: 'taskId is undefined' })
         throw new Error('taskId is undefined')
     }
     const { keystone: context } = await getSchemaCtx('NewsItemRecipientsExportTask')
@@ -187,7 +187,7 @@ async function exportRecipients (taskId) {
 
     } catch (err) {
         await NewsItemRecipientsExportTask.update(context, taskId, { ...dvAndSender, status: ERROR })
-        logger.error({ message: 'Failed to export incidents', data: { id: taskId }, err })
+        logger.error({ msg: 'Failed to export incidents', data: { id: taskId }, err })
         throw err
     }
 }

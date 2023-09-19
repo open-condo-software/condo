@@ -140,7 +140,7 @@ async function notifyResidentsOnPayday () {
 
                 if (!isAllPaid) await sendNotification(context, receipts[0], consumer)
             } catch (error) {
-                logger.error({ error })
+                logger.error({ msg: 'Could not send notification to resident', error })
                 state.failedConsumers++
             }
         }
