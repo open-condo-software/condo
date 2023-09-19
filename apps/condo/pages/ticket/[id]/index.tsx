@@ -655,6 +655,7 @@ const TicketIdPage = () => {
 
     const { user } = useAuth()
     const { link, organization, selectLink } = useOrganization()
+    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
 
     const router = useRouter()
 
@@ -702,7 +703,7 @@ const TicketIdPage = () => {
         )
     }
 
-    if (!canEmployeeReadTicket(ticket)) {
+    if (!canReadTickets || !canEmployeeReadTicket(ticket)) {
         return (
             <AccessDeniedPage />
         )

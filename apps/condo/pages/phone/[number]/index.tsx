@@ -25,6 +25,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Carousel, Space, Typography } from '@open-condo/ui'
 
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
@@ -857,6 +858,9 @@ export const ClientCardPageContentWrapper = ({
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
+    const { link } = useOrganization()
+    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
+
     const phoneNumber = get(router, ['query', 'number']) as string
 
     const { objs: contacts, loading: contactsLoading } = Contact.useObjects({
@@ -924,6 +928,10 @@ export const ClientCardPageContentWrapper = ({
     let phoneNumberPrefix
     if (usePhonePrefix) {
         phoneNumberPrefix = phoneNumberPrefixFromContacts || phoneNumberPrefixFromEmployees || phoneNumberPrefixFromTickets
+    }
+
+    if (!canReadTickets) {
+        return <AccessDeniedPage />
     }
 
     return (

@@ -803,10 +803,11 @@ describe('Ticket', () => {
             })
         })
 
-        test('user: read Ticket', async () => {
+        test('employee with canReadTicket: can read Ticket', async () => {
             const client = await makeClientWithProperty()
             const [obj, attrs] = await createTestTicket(client, client.organization, client.property)
             const objs = await Ticket.getAll(client)
+
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj.id)
             expect(objs[0].dv).toEqual(1)
@@ -818,6 +819,18 @@ describe('Ticket', () => {
             expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
             expect(objs[0].createdAt).toMatch(obj.createdAt)
             expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        })
+
+        test('employee without canReadTicket: can not read Ticket', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const client = await makeClientWithProperty()
+            const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(admin, client.organization, { canReadTickets: false })
+            await createTestOrganizationEmployee(admin, client.organization, client1.user, role)
+            await createTestTicket(client, client.organization, client.property)
+            const objs = await Ticket.getAll(client1)
+
+            expect(objs).toHaveLength(0)
         })
 
         test('user: no access to another organization ticket', async () => {

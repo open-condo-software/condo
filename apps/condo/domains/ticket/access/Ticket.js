@@ -43,8 +43,8 @@ async function canReadTickets ({ authentication: { item: user }, listKey }) {
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
             ],
             deletedAt: null,
         },

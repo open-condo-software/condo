@@ -131,6 +131,7 @@ const MenuItems: React.FC = () => {
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
     const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
+    const hasAccessToTickets = get(role, 'canReadTickets', false)
 
     const { canRead: canManageNewsItems } = useNewsItemsAccess()
 
@@ -161,7 +162,7 @@ const MenuItems: React.FC = () => {
                     path: 'ticket',
                     icon: AllIcons['LayoutList'],
                     label: 'global.section.controlRoom',
-                    access: isManagingCompany,
+                    access: isManagingCompany && hasAccessToTickets,
                 },
                 {
                     id: 'menuitem-incident',
@@ -276,16 +277,7 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [
-        isAssignedVisibilityType,
-        canManageNewsItems,
-        isSPPOrg,
-        hasAccessToBilling,
-        anyReceiptsLoaded,
-        sppBillingId,
-        connectedAppsIds,
-        isManagingCompany,
-    ])
+    ]), [isAssignedVisibilityType, isManagingCompany, hasAccessToTickets, canManageNewsItems, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, connectedAppsIds])
 
     return (
         <>
