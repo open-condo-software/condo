@@ -1137,7 +1137,7 @@
   "pages.condo.news.notification.success.title" : "News sent",
   "pages.condo.news.notification.success.description" : "Sending can be cancelled within 15 seconds",
   "pages.condo.news.notification.success.button" : "Cancel send",
-  "pages.reports.paymentTooltip": "To display statistics, you must upload registries in on of the following formats: ГИС-ЖКХ or Квартплата24",
+  "pages.reports.paymentTooltip": "To display statistics, you must use one of the following billing integrations: ГИС-ЖКХ or Квартплата24",
   "pages.reports.paymentsTotal": "Payment of receipts (from resident mobile app)",
   "pages.reports.residentsTitle": "implementation of the mobile app",
   "pages.reports.incidentsTitle": "Incidents",

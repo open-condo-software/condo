@@ -1137,7 +1137,7 @@
   "pages.condo.news.notification.success.title" : "Новость отправлена",
   "pages.condo.news.notification.success.description" : "Отправку можно отменить в течение 15 секунд",
   "pages.condo.news.notification.success.button" : "Отменить отправку",
-  "pages.reports.paymentTooltip": "Для отображения статистики необходимо загружать реестры в одном из следующих форматов: ГИС-ЖКХ или Квартплата24",
+  "pages.reports.paymentTooltip": "Для отображения статистики необходимо использовать одну из следующих биллинговых интеграций: ГИС-ЖКХ или Квартплата24",
   "pages.reports.paymentsTotal": "Оплата квитанций (из МП жителя)",
   "pages.reports.residentsTitle": "Внедрение моб. приложения жителя",
   "pages.reports.incidentsTitle": "Отключения",
