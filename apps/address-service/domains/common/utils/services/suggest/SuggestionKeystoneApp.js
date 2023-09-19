@@ -1,3 +1,4 @@
+const AddressService = require('@app/address-service/lib/pullenti/address/AddressService')
 const express = require('express')
 const get = require('lodash/get')
 
@@ -46,6 +47,10 @@ class SuggestionKeystoneApp {
      * @returns {Express}
      */
     prepareMiddleware (params) {
+        // The required one-time initialization before using the API
+        // This SDK will be used as the fallback in the case if there are no suggestions returned from suggestions provider
+        AddressService.initialize()
+
         // this route can not be used for csrf attack (a public route)
         // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
@@ -115,7 +120,7 @@ class SuggestionKeystoneApp {
 
             // 2. Get suggestions array
             if (suggestionProvider) {
-                const denormalizedSuggestions = await suggestionProvider.get({
+                let denormalizedSuggestions = await suggestionProvider.get({
                     query: s,
                     session,
                     context,
@@ -123,6 +128,23 @@ class SuggestionKeystoneApp {
                     count,
                     helpers,
                 })
+
+                if (denormalizedSuggestions.length === 0) {
+                    let addr = AddressService.processSingleAddressText(s)
+                    const parsed = addr.items.map((item) => item.toString()).join(', ')
+
+                    denormalizedSuggestions = await suggestionProvider.get({
+                        query: parsed,
+                        session,
+                        context: 'defaultFallback1',
+                        language,
+                        count,
+                        helpers,
+                    })
+
+                    this.logger.info({ msg: `Fallback1 search "${s}" as "${parsed}"`, suggestionsCount: denormalizedSuggestions.length })
+                }
+
                 suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
             }
 
