@@ -52,6 +52,20 @@ const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
                         status
                     }
                 }
+                ticketQualityControlValue {
+                    tickets {
+                        count
+                        dayGroup
+                        qualityControlValue
+                    }
+                    translations {
+                        key
+                        value
+                    }
+                }
+                property {
+                    sum
+                }
                 payment {
                     payments {
                         dayGroup
@@ -74,6 +88,9 @@ const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
                         sum
                     }
                     sum
+                }
+                incident {
+                    count
                 }
             } 
         }

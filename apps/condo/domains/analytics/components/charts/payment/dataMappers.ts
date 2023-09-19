@@ -10,9 +10,7 @@ import type { EchartsSeries } from '@condo/domains/analytics/components/TicketCh
 
 const TOP_VALUES = 9
 
-interface IPaymentChartCard {
-    ({ data }: { data: PaymentDataType }): React.ReactElement
-}
+type IPaymentChartCard = ({ data, organizationId }: { data: PaymentDataType, organizationId?: string }) => React.ReactElement
 
 const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new PaymentChart({
     pie: {
@@ -26,7 +24,7 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
                     name: groupLabel,
                 })).sort((a, b) => b.value - a.value).slice(0, TOP_VALUES),
                 radius: '75%',
-                type: 'pie',
+                type: viewMode,
                 label: { show: true, formatter: (e) =>  e.percent + '%' },
             }]
             return {
@@ -38,6 +36,31 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
                 },
                 series,
             }
+        },
+        table: (_, data, restTableOptions) => {
+            const dataSource = []
+
+            const tableColumns = Object.entries(restTableOptions.translations).map(([key, title]) => ({
+                key,
+                title,
+                dataIndex: key,
+            }))
+
+            const totalPaymentsSum = data.reduce((prev, curr) => prev + Number(curr.sum), 0)
+            const aggregatedData = groupBy(data, 'createdBy')
+
+            Object.entries(aggregatedData).forEach(([address, dataObj]) => {
+                const addressSum = dataObj.reduce((prev, agg) => prev + Number(agg.sum), 0)
+                const percent = totalPaymentsSum > 0 ? (addressSum / totalPaymentsSum * 100).toFixed(1) + '%' : '-'
+
+                dataSource.push({
+                    address,
+                    sum: Number(addressSum).toFixed(1),
+                    percent,
+                })
+            })
+
+            return { dataSource, tableColumns }
         },
     },
 })
@@ -89,7 +112,7 @@ const PaymentReceiptDataMapper = (chargedTitle: string, paidTitle: string): Paym
 
 const PaymentTotalDataMapper = (sumTitle: string, paymentCountTitle: string): PaymentChart => new PaymentChart({
     bar: {
-        chart: (viewMode, data) => {
+        chart: (_, data) => {
             const totalGroup = groupBy(data, 'dayGroup')
             const paymentsCount = Object.entries(totalGroup).map(([groupLabel, dataObj]) => {
                 return [groupLabel, dataObj.reduce((p, c) => p + Number(c.count), 0)]

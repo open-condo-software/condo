@@ -22100,6 +22100,7 @@ export type GetOverviewDashboardInput = {
   sender: Scalars['JSON'];
   where: GetOverviewDashboardWhereInput;
   groupBy: GetOverviewDashboardGroupByInput;
+  entities?: Maybe<Array<Maybe<OverviewDashboardEntities>>>;
 };
 
 export type GetOverviewDashboardOutput = {
@@ -22111,6 +22112,8 @@ export type GetOverviewDashboardWhereInput = {
   organization: Scalars['String'];
   dateFrom: Scalars['String'];
   dateTo: Scalars['String'];
+  propertyIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  executorIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 export type GetPhoneByConfirmPhoneActionTokenInput = {
@@ -24034,6 +24037,11 @@ export type IncidentHistoryRecordsCreateInput = {
 export type IncidentHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<IncidentHistoryRecordUpdateInput>;
+};
+
+export type IncidentOverviewResult = {
+  __typename?: 'IncidentOverviewResult';
+  count: Scalars['String'];
 };
 
 export type IncidentPropertiesCreateInput = {
@@ -50101,15 +50109,31 @@ export type OrganizationsUpdateInput = {
   data?: Maybe<OrganizationUpdateInput>;
 };
 
+export enum OverviewDashboardEntities {
+  TicketByDay = 'ticketByDay',
+  TicketByProperty = 'ticketByProperty',
+  TicketByCategory = 'ticketByCategory',
+  TicketByExecutor = 'ticketByExecutor',
+  TicketQualityControlValue = 'ticketQualityControlValue',
+  Payment = 'payment',
+  Receipt = 'receipt',
+  Resident = 'resident',
+  Property = 'property',
+  Incident = 'incident'
+}
+
 export type OverviewData = {
   __typename?: 'OverviewData';
   ticketByProperty?: Maybe<TicketOverviewResult>;
   ticketByDay?: Maybe<TicketOverviewResult>;
   ticketByCategory?: Maybe<TicketOverviewResult>;
   ticketByExecutor?: Maybe<TicketOverviewResult>;
+  ticketQualityControlValue?: Maybe<TicketOverviewResult>;
   payment?: Maybe<PaymentOverviewResult>;
   receipt?: Maybe<ReceiptOverviewResult>;
   resident?: Maybe<ResidentOverviewResult>;
+  property?: Maybe<PropertyOverviewResult>;
+  incident?: Maybe<IncidentOverviewResult>;
 };
 
 /**  Information about completed transaction from user to a specific organization  */
@@ -52794,6 +52818,11 @@ export type PropertyMetersCreateInput = {
 export type PropertyMetersUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<PropertyMeterUpdateInput>;
+};
+
+export type PropertyOverviewResult = {
+  __typename?: 'PropertyOverviewResult';
+  sum: Scalars['String'];
 };
 
 export type PropertyRelateToOneInput = {
@@ -72860,7 +72889,8 @@ export enum TicketAnalyticsGroupBy {
   Property = 'property',
   CategoryClassifier = 'categoryClassifier',
   Executor = 'executor',
-  Assignee = 'assignee'
+  Assignee = 'assignee',
+  QualityControlValue = 'qualityControlValue'
 }
 
 export type TicketAnalyticsNullReplaces = {
@@ -77602,6 +77632,7 @@ export type TicketGroupedCounter = {
   categoryClassifier?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -78824,6 +78855,13 @@ export type TicketOrganizationSettingsUpdateInput = {
 export type TicketOverviewResult = {
   __typename?: 'TicketOverviewResult';
   tickets?: Maybe<Array<TicketGroupedCounter>>;
+  translations?: Maybe<Array<Maybe<TicketOverviewTranslations>>>;
+};
+
+export type TicketOverviewTranslations = {
+  __typename?: 'TicketOverviewTranslations';
+  key: Scalars['String'];
+  value: Scalars['String'];
 };
 
 /**  Describes where the incident occurred  */

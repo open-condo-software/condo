@@ -4,13 +4,14 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
+import { CHART_CONTAINER_HEIGHT } from '@condo/domains/analytics/components/CustomChartView'
 import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
 
 import { AllTicketChartDataMapper } from './dataMappers'
 
-import type { ITicketChartCard } from './dataMappers'
+import type { TicketChartCardType } from './dataMappers'
 
-const AllTicketsChart: ITicketChartCard = ({ data }) => {
+const AllTicketsChart: TicketChartCardType = ({ data }) => {
     const intl = useIntl()
     const ChartTitle = intl.formatMessage({ id: 'global.section.tickets' })
 
@@ -25,7 +26,7 @@ const AllTicketsChart: ITicketChartCard = ({ data }) => {
                     mainGroup='status'
                     viewMode='line'
                     mapperInstance={AllTicketChartDataMapper}
-                    chartConfig={{ chartOptions: { height: 300 }, animationEnabled: true }}
+                    chartConfig={{ chartOptions: { height: CHART_CONTAINER_HEIGHT }, animationEnabled: true }}
                 />
             </Col>
         </Row>

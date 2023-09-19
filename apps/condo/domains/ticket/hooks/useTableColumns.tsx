@@ -303,31 +303,30 @@ export function useTableColumns<T> (
     }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
 }
 
-export function useLightWeightTableColumns (): { columns: ColumnsType<Ticket> } {
+export function useTicketQualityTableColumns (): { columns: ColumnsType<Ticket> } {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
-    const StatusMessage = intl.formatMessage({ id: 'Status' })
-    const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const DescriptionMessage = intl.formatMessage({ id: 'Description' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
-    const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
-    const ResponsibleMessage = intl.formatMessage({ id: 'field.Responsible' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const FeedbackMessage = intl.formatMessage({ id: 'ticket.feedback' })
+
+    const router = useRouter()
+    const { filters } = parseQuery(router.query)
+    const search = getFilteredValue(filters, 'search')
 
     const renderAddress = useCallback(
-        (property) => getAddressRender(property, DeletedMessage, []),
-        [DeletedMessage])
+        (property) => getAddressRender(property, DeletedMessage, search),
+        [DeletedMessage, search])
 
-    const renderExecutor = useCallback(
-        (executor) => getTableCellRenderer({ search: [] })(get(executor, ['name'])),
-        [])
-
-    const renderAssignee = useCallback(
-        (assignee) => getTableCellRenderer({ search: [] })(get(assignee, ['name'])),
-        [])
+    const renderFeedback = (intl) => {
+        return function render (feedback: string, ticket: Ticket) {
+            return intl.formatMessage({ id: `ticket.feedback.${ticket.feedbackValue || feedback}` })
+        }
+    }
 
     return useMemo(() => ({
         columns: [
@@ -335,89 +334,65 @@ export function useLightWeightTableColumns (): { columns: ColumnsType<Ticket> } 
                 title: NumberMessage,
                 dataIndex: 'number',
                 key: 'number',
-                sorter: false,
+                sorter: true,
                 width: COLUMNS_WIDTH.number,
-                render: getTicketNumberRender(intl, []),
+                render: getTicketNumberRender(intl, search),
                 align: 'left',
                 className: 'number-column',
             },
             {
                 title: DateMessage,
+                filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
                 dataIndex: 'createdAt',
                 key: 'createdAt',
-                sorter: false,
+                sorter: true,
                 width: COLUMNS_WIDTH.createdAt,
-                render: getDateRender(intl, String([])),
-            },
-            {
-                title: StatusMessage,
-                render: getStatusRender(intl, []),
-                dataIndex: 'status',
-                key: 'status',
-                sorter: false,
-                width: COLUMNS_WIDTH.status,
-                filterIcon: getFilterIcon,
+                render: getDateRender(intl, String(search)),
             },
             {
                 title: AddressMessage,
                 dataIndex: 'property',
+                filteredValue: getFilteredValue<IFilters>(filters, 'property'),
                 key: 'property',
-                sorter: false,
+                sorter: true,
                 width: COLUMNS_WIDTH.address,
                 render: renderAddress,
-                filterIcon: getFilterIcon,
             },
             {
                 title: UnitMessage,
                 dataIndex: 'unitName',
+                filteredValue: getFilteredValue(filters, 'unitName'),
                 key: 'unitName',
-                sorter: false,
+                sorter: true,
                 width: COLUMNS_WIDTH.unitName,
-                render: getUnitRender(intl, []),
+                render: getUnitRender(intl, search),
                 ellipsis: true,
             },
             {
                 title: DescriptionMessage,
                 dataIndex: 'details',
+                filteredValue: getFilteredValue<IFilters>(filters, 'details'),
                 key: 'details',
                 width: COLUMNS_WIDTH.details,
-                render: getTicketDetailsRender([]),
+                render: getTicketDetailsRender(search),
             },
             {
                 title: ClassifierTitle,
                 dataIndex: ['classifier', 'category', 'name'],
+                filteredValue: getFilteredValue(filters, 'categoryClassifier'),
                 key: 'categoryClassifier',
                 width: COLUMNS_WIDTH.categoryClassifier,
-                render: getClassifierRender(intl, []),
+                render: getClassifierRender(intl, search),
                 ellipsis: true,
             },
             {
-                title: ClientNameMessage,
-                dataIndex: 'clientName',
-                key: 'clientName',
-                sorter: false,
-                width: COLUMNS_WIDTH.clientName,
-                render: getTicketUserNameRender([]),
-                ellipsis: true,
-            },
-            {
-                title: ExecutorMessage,
-                dataIndex: 'executor',
-                key: 'executor',
-                sorter: false,
-                width: COLUMNS_WIDTH.executor,
-                render: renderExecutor,
-                ellipsis: true,
-            },
-            {
-                title: ResponsibleMessage,
-                dataIndex: 'assignee',
-                key: 'assignee',
-                sorter: false,
-                width: COLUMNS_WIDTH.assignee,
-                render: renderAssignee,
-                ellipsis: true,
+                title: FeedbackMessage,
+                dataIndex: 'qualityControlValue',
+                key: 'qualityControlValue',
+                width: '10%',
+                render: renderFeedback(intl),
             },
         ],
-    }), [AddressMessage, ClassifierTitle, ClientNameMessage, DateMessage, DescriptionMessage, ExecutorMessage, NumberMessage, ResponsibleMessage, StatusMessage, UnitMessage, intl, renderAddress, renderAssignee, renderExecutor])
+    }), [AddressMessage, ClassifierTitle, DateMessage, DescriptionMessage, FeedbackMessage,
+        NumberMessage, UnitMessage, filters, intl, renderAddress, search])
 }
