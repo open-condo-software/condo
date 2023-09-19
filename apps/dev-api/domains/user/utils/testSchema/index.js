@@ -5,7 +5,6 @@
  */
 const { faker } = require('@faker-js/faker')
 const { countryPhoneData } = require('phone')
-const { getById } = require('@open-condo/keystone/schema')
 const { makeLoggedInClient, makeClient } = require('@open-condo/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
@@ -140,6 +139,9 @@ async function completeConfirmPhoneActionByTestClient(id, attrs = {}, client) {
 }
 
 async function registerNewTestUser (userAttrs = {}, client) {
+    // NOTE: needed to read confirmation code
+    const adminClient = await makeLoggedInAdminClient()
+
     userAttrs.sender ??= { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     userAttrs.password ??= faker.internet.password()
     userAttrs.phone ??= createTestPhone()
@@ -154,7 +156,7 @@ async function registerNewTestUser (userAttrs = {}, client) {
             phone,
         }, client)
 
-        const {code} = await getById('ConfirmPhoneAction', actionId)
+        const { code } = await ConfirmPhoneAction.getOne(adminClient, {id: actionId})
 
         await completeConfirmPhoneActionByTestClient(actionId, {
             sender,

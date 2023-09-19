@@ -2,19 +2,25 @@ const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 const { expectToThrowGQLError, makeClient, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 
 const { USER_ALREADY_EXISTS, ACTION_NOT_FOUND, PASSWORD_TOO_SIMPLE } = require('@dev-api/domains/user/constants/errors')
-const { ConfirmPhoneAction } = require('@dev-api/domains/user/utils/serverSchema')
 const {
+    ConfirmPhoneAction,
     startConfirmPhoneActionByTestClient,
     completeConfirmPhoneActionByTestClient,
     registerNewTestUser,
     createTestPhone,
+    makeLoggedInAdminClient,
+    updateTestConfirmPhoneAction,
 } = require('@dev-api/domains/user/utils/testSchema')
 
 describe('RegisterNewUserService', () => {
+    // NOTE: admin client used to simulate expiration / deletion of action cases
+    let adminClient
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+    })
     test('Basic registration case must work', async () => {
         const phone = createTestPhone()
         const name = faker.internet.userName()
@@ -54,16 +60,14 @@ describe('RegisterNewUserService', () => {
     test('Cannot register with expired ConfirmPhoneAction', async () => {
         const client = await makeClient()
         const [{ actionId }] = await startConfirmPhoneActionByTestClient({}, client)
-        const { code } = await getById('ConfirmPhoneAction', actionId)
+        const { code } = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
         expect(code).toBeDefined()
-
-        const { keystone: context } = getSchemaCtx('ConfirmPhoneAction')
+        
         const [{ status }] = await completeConfirmPhoneActionByTestClient(actionId, { code }, client)
         expect(status).toEqual('success')
 
-        await ConfirmPhoneAction.update(context, actionId, {
-            dv: 1,
-            sender: { fingerprint: 'test-update', dv: 1 },
+
+        await updateTestConfirmPhoneAction(adminClient, actionId, {
             expiresAt: dayjs().toISOString(),
         })
 
@@ -77,16 +81,13 @@ describe('RegisterNewUserService', () => {
     test('Cannot register with deleted ConfirmPhoneAction', async () => {
         const client = await makeClient()
         const [{ actionId }] = await startConfirmPhoneActionByTestClient({}, client)
-        const { code } = await getById('ConfirmPhoneAction', actionId)
+        const { code } = await ConfirmPhoneAction.getOne(adminClient, { id: actionId })
         expect(code).toBeDefined()
 
-        const { keystone: context } = getSchemaCtx('ConfirmPhoneAction')
         const [{ status }] = await completeConfirmPhoneActionByTestClient(actionId, { code }, client)
         expect(status).toEqual('success')
 
-        await ConfirmPhoneAction.update(context, actionId, {
-            dv: 1,
-            sender: { fingerprint: 'test-update', dv: 1 },
+        await updateTestConfirmPhoneAction(adminClient, actionId, {
             deletedAt: dayjs().toISOString(),
         })
 
