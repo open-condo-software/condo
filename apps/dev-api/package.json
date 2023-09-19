@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "test": "jest --unhandled-rejections=strict",
     "prepare": "node bin/prepare.js",
     "build:deps": "turbo build --filter=dev-api^...",
     "build": "yarn build:deps && cross-env PHASE=build keystone build",

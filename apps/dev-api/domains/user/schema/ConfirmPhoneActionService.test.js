@@ -1,7 +1,6 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { getById } = require('@open-condo/keystone/schema')
 const { makeClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -13,19 +12,25 @@ const {
 } = require('@dev-api/domains/user/constants')
 const { ERRORS } = require('@dev-api/domains/user/schema/ConfirmPhoneActionService')
 const {
+    ConfirmPhoneAction,
     createTestPhone,
     startConfirmPhoneActionByTestClient,
-    completeConfirmPhoneActionByTestClient,
+    completeConfirmPhoneActionByTestClient, makeLoggedInAdminClient,
 } = require('@dev-api/domains/user/utils/testSchema')
 
 describe('ConfirmPhoneActionService', () => {
+    let adminClient
+    beforeAll(async ()=> {
+        adminClient = await makeLoggedInAdminClient()
+    })
     describe('Basic flow', () => {
         test('Can verify phone by verification code', async () => {
             const client = await makeClient()
             const [startResult] = await startConfirmPhoneActionByTestClient({}, client)
             expect(startResult).toHaveProperty('actionId')
-            // Note: ConfirmPhoneAction is not visible outside if server, check its test for more
-            const createdAction = await getById('ConfirmPhoneAction', startResult.actionId)
+
+            // NOTE: admin client is used to read a confirmation code
+            const createdAction = await ConfirmPhoneAction.getOne(adminClient, { id: startResult.actionId })
             expect(createdAction).toHaveProperty('code')
             expect(createdAction.code).toHaveLength(CONFIRM_ACTION_CODE_LENGTH)
             expect(createdAction).toHaveProperty('deletedAt', null)
@@ -38,7 +43,8 @@ describe('ConfirmPhoneActionService', () => {
             }, client)
             expect(completeResult).toHaveProperty('status', 'success')
 
-            const updatedAction = await getById('ConfirmPhoneAction', startResult.actionId)
+            // NOTE: admin client is used to read a confirmation code
+            const updatedAction = await ConfirmPhoneAction.getOne(adminClient, { id: startResult.actionId })
             expect(updatedAction).toHaveProperty('code', createdAction.code)
             expect(updatedAction).toHaveProperty('deletedAt', null)
             expect(updatedAction).toHaveProperty('isVerified', true)
@@ -78,8 +84,8 @@ describe('ConfirmPhoneActionService', () => {
                 const client = await makeClient()
                 const [startResult] = await startConfirmPhoneActionByTestClient({}, client)
                 expect(startResult).toHaveProperty('actionId')
-                // Note: ConfirmPhoneAction is not visible outside if server, check its test for more
-                const createdAction = await getById('ConfirmPhoneAction', startResult.actionId)
+                // NOTE: admin client is used to read a confirmation code
+                const createdAction = await ConfirmPhoneAction.getOne(adminClient, { id: startResult.actionId })
                 expect(createdAction).toHaveProperty('code')
 
                 for (let i = 0; i < CONFIRM_ACTION_MAX_ATTEMPTS; i++) {
