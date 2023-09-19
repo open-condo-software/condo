@@ -67,15 +67,9 @@ async function updateTestUser (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function authenticateUserWithPhoneAndPasswordByTestClient(client, extraAttrs = {}) {
+async function authenticateUserWithPhoneAndPasswordByTestClient(client, attrs = {}) {
     if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
     const { data, errors } = await client.mutate(AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION, { data: attrs })
     throwIfError(data, errors)
     return [data.result, attrs]

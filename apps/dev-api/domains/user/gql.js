@@ -36,7 +36,7 @@ const REGISTER_NEW_USER_MUTATION = gql`
 
 const AUTHENTICATE_USER_WITH_PHONE_AND_PASSWORD_MUTATION = gql`
     mutation authenticateUserWithPhoneAndPassword ($data: AuthenticateUserWithPhoneAndPasswordInput!) {
-        result: authenticateUserWithPhoneAndPassword(data: $data) { token }
+        result: authenticateUserWithPhoneAndPassword(data: $data) { token item { id } }
     }
 `
 
