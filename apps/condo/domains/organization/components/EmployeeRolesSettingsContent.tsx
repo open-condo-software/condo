@@ -367,7 +367,6 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     updateOrganizationEmployeeRoleAction,
 }) => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
     const CancelSelectionLabel = intl.formatMessage({ id: 'global.cancelSelection' })
 
@@ -377,6 +376,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
     const [permissionsState, setPermissionsState] = useState<PermissionsState>()
     const [submitActionProcessing, setSubmitActionProcessing] = useState<boolean>(false)
+    const hasChanges = useMemo(() => !isEqual(initialPermissionsState, permissionsState), [initialPermissionsState, permissionsState])
     const loadingState = loading || submitActionProcessing
 
     useEffect(() => {
@@ -489,6 +489,7 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             onClick={handleSave}
             type='primary'
             loading={submitActionProcessing}
+            disabled={!hasChanges}
         >
             {SaveLabel}
         </Button>,
@@ -497,33 +498,32 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
             key='close'
             onClick={handleCancel}
             type='secondary'
-            disabled={submitActionProcessing}
+            disabled={submitActionProcessing || !hasChanges}
         >
             {CancelSelectionLabel}
         </Button>,
-    ], [CancelSelectionLabel, SaveLabel, handleCancel, handleSave, submitActionProcessing])
+    ], [CancelSelectionLabel, SaveLabel, handleCancel, handleSave, hasChanges, submitActionProcessing])
 
     return (
-        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-            <Col span={24}>
-                <Typography.Title level={3}>{TitleMessage}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <ExpandableTable
-                    loading={loading}
-                    pagination={false}
-                    totalRows={connectedB2BApps.length}
-                    dataSource={tableData}
-                    columns={tableColumns}
-                    data-cy='employeeRoles__table'
-                    expandable={expandableConfig}
-                    rowKey='key'
-                />
-            </Col>
+        <>
+            <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                <Col span={24}>
+                    <ExpandableTable
+                        loading={loading}
+                        pagination={false}
+                        totalRows={connectedB2BApps.length}
+                        dataSource={tableData}
+                        columns={tableColumns}
+                        data-cy='employeeRoles__table'
+                        expandable={expandableConfig}
+                        rowKey='key'
+                    />
+                </Col>
+            </Row>
             <ActionBar
                 actions={actionBarItems}
             />
-        </Row>
+        </>
     )
 }
 
