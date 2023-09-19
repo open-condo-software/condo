@@ -10,6 +10,7 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/
 const { BillingReceipt, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE, BILLING_RECEIPT_ADDED_TYPE, BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE, BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE, BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE, BILLING_RECEIPT_AVAILABLE_TYPE, BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
@@ -69,17 +70,17 @@ async function sendNotification (context, receipt, consumer) {
 async function notifyResidentsOnPayday () {
     const { keystone: context } = await getSchemaCtx('User')
     const state = {
-        startTime: dayjs(),
+        startTime: dayjs().toISOString(),
         completeTime: null,
         hasMoreConsumers: true,
         consumersOffset: 0,
-        consumersChunkSize: 50,
+        consumersChunkSize: 20,
         processedReceipts: 0,
         recipientsMap: new Map(),
         failedConsumers: 0,
         recipients: [],
     }
-    logger.info({ msg: 'Start processing', startAt: state.startTime.format() })
+    logger.info({ msg: 'Start processing', startAt: state.startTime })
     while (state.hasMoreConsumers) {
         const consumers = await ServiceConsumer.getAll(context, {
             acquiringIntegrationContext: {
@@ -105,16 +106,22 @@ async function notifyResidentsOnPayday () {
                 //checking whether this user has been processed
                 if (state.recipientsMap.has(organizationId) && state.recipientsMap.get(organizationId) === userId) continue
                 state.recipientsMap.set(organizationId, userId)
-                const receipts = await BillingReceipt.getAll(context, {
-                    context: {
-                        id: consumer.billingIntegrationContext.id,
-                        organization: { id: consumer.organization.id },
+
+                const receipts = await loadListByChunks({
+                    context,
+                    chunkSize:20,
+                    list: BillingReceipt,
+                    where: {
+                        context: {
+                            id: consumer.billingIntegrationContext.id,
+                        },
+                        period: consumer.billingIntegrationContext.lastReport.period,
+                        toPay_gt: '0',
+                        deletedAt: null,
                     },
-                    period: consumer.billingIntegrationContext.lastReport.period,
-                    toPay_gt: '0',
-                    deletedAt: null,
                 })
                 state.processedReceipts += receipts.length
+
                 let isAllPaid = true
                 for (const receipt of receipts) {
                     const organizationId = get(receipt, ['context', 'organization', 'id'])
@@ -139,8 +146,7 @@ async function notifyResidentsOnPayday () {
         }
     }
     state.completeTime = dayjs().toISOString()
-    state.startTime = state.startTime.toISOString()
-    logger.info({ msg: 'Processing completed', state, startAt: state.startTime, completeAt: state.completeTime })
+    logger.info({ msg: 'Processing completed', state, startAt: state.startTime, completeAt: state.completeTime, failedConsumers: state.failedConsumers })
 }
 
 module.exports = {
