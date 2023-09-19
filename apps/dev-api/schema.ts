@@ -16,10 +16,33 @@ export type Scalars = {
 };
 
 
+export type AuthenticateUserWithPhoneAndPasswordInput = {
+  phone: Scalars['String'];
+  password: Scalars['String'];
+};
+
+export type AuthenticateUserWithPhoneAndPasswordOutput = {
+  __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput';
+  token: Scalars['String'];
+  item: User;
+};
+
 export enum CacheControlScope {
   Public = 'PUBLIC',
   Private = 'PRIVATE'
 }
+
+export type CompleteConfirmPhoneActionInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  actionId: Scalars['String'];
+  code: Scalars['String'];
+};
+
+export type CompleteConfirmPhoneActionOutput = {
+  __typename?: 'CompleteConfirmPhoneActionOutput';
+  status: Scalars['String'];
+};
 
 /**  Internal schema used for user phone confirmation. It's impossible to work with it via API.  */
 export type ConfirmPhoneAction = {
@@ -32,12 +55,16 @@ export type ConfirmPhoneAction = {
    *  4. As an alias to the 'id' field on the ConfirmPhoneAction List.
    */
   _label_?: Maybe<Scalars['String']>;
+  /**  Phone number to be verified  */
+  phone?: Maybe<Scalars['String']>;
   /**  Confirmation code. Generated inside one of action-creators, such as startConfirmPhoneAction  */
   code?: Maybe<Scalars['String']>;
   /**  Verifies number verification. If the number has been recently verified (before ConfirmPhoneAction expired), then knowing the ID ConfirmPhoneAction allows to register the user.  */
   isVerified?: Maybe<Scalars['Boolean']>;
   /**  Action expiration time. After the expiration time, it will not be possible to register a user using this action.  */
   expiresAt?: Maybe<Scalars['String']>;
+  /**  Number of attempts to enter the code. When 5 attempts are reached, this action becomes invalid.  */
+  attempts?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -55,9 +82,11 @@ export type ConfirmPhoneAction = {
 };
 
 export type ConfirmPhoneActionCreateInput = {
+  phone?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
   expiresAt?: Maybe<Scalars['String']>;
+  attempts?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -80,9 +109,11 @@ export type ConfirmPhoneActionHistoryRecord = {
    *  4. As an alias to the 'id' field on the ConfirmPhoneActionHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
+  phone?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
   expiresAt?: Maybe<Scalars['String']>;
+  attempts?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -99,9 +130,11 @@ export type ConfirmPhoneActionHistoryRecord = {
 };
 
 export type ConfirmPhoneActionHistoryRecordCreateInput = {
+  phone?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
   expiresAt?: Maybe<Scalars['String']>;
+  attempts?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -123,9 +156,11 @@ export enum ConfirmPhoneActionHistoryRecordHistoryActionType {
 }
 
 export type ConfirmPhoneActionHistoryRecordUpdateInput = {
+  phone?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
   expiresAt?: Maybe<Scalars['String']>;
+  attempts?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -143,6 +178,24 @@ export type ConfirmPhoneActionHistoryRecordUpdateInput = {
 export type ConfirmPhoneActionHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<ConfirmPhoneActionHistoryRecordWhereInput>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   code?: Maybe<Scalars['String']>;
   code_not?: Maybe<Scalars['String']>;
   code_contains?: Maybe<Scalars['String']>;
@@ -171,6 +224,14 @@ export type ConfirmPhoneActionHistoryRecordWhereInput = {
   expiresAt_gte?: Maybe<Scalars['String']>;
   expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  attempts?: Maybe<Scalars['Int']>;
+  attempts_not?: Maybe<Scalars['Int']>;
+  attempts_lt?: Maybe<Scalars['Int']>;
+  attempts_lte?: Maybe<Scalars['Int']>;
+  attempts_gt?: Maybe<Scalars['Int']>;
+  attempts_gte?: Maybe<Scalars['Int']>;
+  attempts_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  attempts_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -263,9 +324,11 @@ export type ConfirmPhoneActionHistoryRecordsUpdateInput = {
 };
 
 export type ConfirmPhoneActionUpdateInput = {
+  phone?: Maybe<Scalars['String']>;
   code?: Maybe<Scalars['String']>;
   isVerified?: Maybe<Scalars['Boolean']>;
   expiresAt?: Maybe<Scalars['String']>;
+  attempts?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -280,6 +343,24 @@ export type ConfirmPhoneActionUpdateInput = {
 export type ConfirmPhoneActionWhereInput = {
   AND?: Maybe<Array<Maybe<ConfirmPhoneActionWhereInput>>>;
   OR?: Maybe<Array<Maybe<ConfirmPhoneActionWhereInput>>>;
+  phone?: Maybe<Scalars['String']>;
+  phone_not?: Maybe<Scalars['String']>;
+  phone_contains?: Maybe<Scalars['String']>;
+  phone_not_contains?: Maybe<Scalars['String']>;
+  phone_starts_with?: Maybe<Scalars['String']>;
+  phone_not_starts_with?: Maybe<Scalars['String']>;
+  phone_ends_with?: Maybe<Scalars['String']>;
+  phone_not_ends_with?: Maybe<Scalars['String']>;
+  phone_i?: Maybe<Scalars['String']>;
+  phone_not_i?: Maybe<Scalars['String']>;
+  phone_contains_i?: Maybe<Scalars['String']>;
+  phone_not_contains_i?: Maybe<Scalars['String']>;
+  phone_starts_with_i?: Maybe<Scalars['String']>;
+  phone_not_starts_with_i?: Maybe<Scalars['String']>;
+  phone_ends_with_i?: Maybe<Scalars['String']>;
+  phone_not_ends_with_i?: Maybe<Scalars['String']>;
+  phone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  phone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   code?: Maybe<Scalars['String']>;
   code_not?: Maybe<Scalars['String']>;
   code_contains?: Maybe<Scalars['String']>;
@@ -308,6 +389,14 @@ export type ConfirmPhoneActionWhereInput = {
   expiresAt_gte?: Maybe<Scalars['String']>;
   expiresAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   expiresAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  attempts?: Maybe<Scalars['Int']>;
+  attempts_not?: Maybe<Scalars['Int']>;
+  attempts_lt?: Maybe<Scalars['Int']>;
+  attempts_lte?: Maybe<Scalars['Int']>;
+  attempts_gt?: Maybe<Scalars['Int']>;
+  attempts_gte?: Maybe<Scalars['Int']>;
+  attempts_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  attempts_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -430,6 +519,10 @@ export type Mutation = {
   deleteConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
   /**  Delete multiple ConfirmPhoneAction items by ID.  */
   deleteConfirmPhoneActions?: Maybe<Array<Maybe<ConfirmPhoneAction>>>;
+  startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
+  completeConfirmPhoneAction?: Maybe<CompleteConfirmPhoneActionOutput>;
+  registerNewUser?: Maybe<User>;
+  authenticateUserWithPhoneAndPassword?: Maybe<AuthenticateUserWithPhoneAndPasswordOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -558,6 +651,26 @@ export type MutationDeleteConfirmPhoneActionArgs = {
 
 export type MutationDeleteConfirmPhoneActionsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationStartConfirmPhoneActionArgs = {
+  data: StartConfirmPhoneActionInput;
+};
+
+
+export type MutationCompleteConfirmPhoneActionArgs = {
+  data: CompleteConfirmPhoneActionInput;
+};
+
+
+export type MutationRegisterNewUserArgs = {
+  data: RegisterNewUserInput;
+};
+
+
+export type MutationAuthenticateUserWithPhoneAndPasswordArgs = {
+  data: AuthenticateUserWithPhoneAndPasswordInput;
 };
 
 
@@ -717,6 +830,14 @@ export type Query_KsListsMetaArgs = {
   where?: Maybe<_KsListsMetaInput>;
 };
 
+export type RegisterNewUserInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  confirmPhoneActionId: Scalars['String'];
+  name: Scalars['String'];
+  password: Scalars['String'];
+};
+
 export type SenderField = {
   __typename?: 'SenderField';
   dv: Scalars['Int'];
@@ -729,12 +850,16 @@ export type SenderFieldInput = {
 };
 
 export enum SortConfirmPhoneActionHistoryRecordsBy {
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
   CodeAsc = 'code_ASC',
   CodeDesc = 'code_DESC',
   IsVerifiedAsc = 'isVerified_ASC',
   IsVerifiedDesc = 'isVerified_DESC',
   ExpiresAtAsc = 'expiresAt_ASC',
   ExpiresAtDesc = 'expiresAt_DESC',
+  AttemptsAsc = 'attempts_ASC',
+  AttemptsDesc = 'attempts_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -754,12 +879,16 @@ export enum SortConfirmPhoneActionHistoryRecordsBy {
 }
 
 export enum SortConfirmPhoneActionsBy {
+  PhoneAsc = 'phone_ASC',
+  PhoneDesc = 'phone_DESC',
   CodeAsc = 'code_ASC',
   CodeDesc = 'code_DESC',
   IsVerifiedAsc = 'isVerified_ASC',
   IsVerifiedDesc = 'isVerified_DESC',
   ExpiresAtAsc = 'expiresAt_ASC',
   ExpiresAtDesc = 'expiresAt_DESC',
+  AttemptsAsc = 'attempts_ASC',
+  AttemptsDesc = 'attempts_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -837,6 +966,18 @@ export enum SortUsersBy {
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC'
 }
+
+export type StartConfirmPhoneActionInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  phone: Scalars['String'];
+};
+
+export type StartConfirmPhoneActionOutput = {
+  __typename?: 'StartConfirmPhoneActionOutput';
+  actionId: Scalars['String'];
+  phone: Scalars['String'];
+};
 
 
 /**  Account of individual developer or development company.  */
