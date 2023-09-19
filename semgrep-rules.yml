@@ -11,6 +11,9 @@ rules:
           ...
       - pattern: $LOGGER.$METHOD({ ... })
       - pattern-not: '$LOGGER.$METHOD({ ..., msg: $MSG, ... })'
+      - metavariable-regex:
+          metavariable: '$METHOD'
+          regex: '^(trace|debug|info|warn|error|fatal)$'
     severity: ERROR
 
   - id: deprecated-server-side-graphql-client
