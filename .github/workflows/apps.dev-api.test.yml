@@ -42,21 +42,19 @@ jobs:
           pip3 install psycopg2-binary
 
       - name: Setup docker-compose databases
-        run: |
-          docker-compose up -d postgresdb redis
+        run: docker-compose up -d postgresdb redis
 
       - name: Prepare .env
-        run: |
-          cp apps/dev-api/.env.example apps/dev-api/.env
+        run: cp apps/dev-api/.env.example apps/dev-api/.env
 
       - name: Build dependent apps
-        run: |
-          turbo build --filter=dev-api^...
+        run: turbo build --filter=dev-api^...
+
+      - name: Run migrations
+        run: yarn workspace @app/dev-api migrate
 
       - name: Prepare app
-        run: |
-          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/dev-api migrate
-          yarn workspace @app/dev-api node bin/prepare.js
+        run: yarn workspace @app/dev-api node bin/prepare.js
 
       - name: Run tests with ${{ matrix.database }}
         run: |
@@ -64,6 +62,8 @@ jobs:
           export NODE_ENV=test
           
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
+          
+          mkdir -p apps/dev-api/dist/admin
           
           yarn workspace @app/dev-api dev 2>&1 > dev-api.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
