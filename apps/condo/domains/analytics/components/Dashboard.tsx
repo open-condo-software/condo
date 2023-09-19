@@ -1,12 +1,7 @@
-import {
-    TicketStatusTypeType,
-    IncidentStatusType,
-    TicketQualityControlValueType,
-} from '@app/condo/schema'
+import { TicketQualityControlValueType } from '@app/condo/schema'
 import { Row, Col, Skeleton } from 'antd'
-import Big from 'big.js'
-import dayjs, { Dayjs } from 'dayjs'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
@@ -14,11 +9,12 @@ import React, { useEffect, useMemo, useState, useCallback, useRef } from 'react'
 import { Wallet, LayoutList, Smile, Frown } from '@open-condo/icons'
 import { useLazyQuery } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
-import { Card, Typography, Space } from '@open-condo/ui'
+import { Card, Typography, Space, Modal } from '@open-condo/ui'
 
 import {
     TicketByPropertyChart,
     TicketByExecutorChart,
+    TicketQualityControlChart,
     ResidentByPropertyChart,
     AllTicketsChart,
     PaymentByPropertyChart,
@@ -27,22 +23,23 @@ import {
     PaymentTotalChart,
 } from '@condo/domains/analytics/components/charts'
 import { GET_OVERVIEW_DASHBOARD_MUTATION } from '@condo/domains/analytics/gql'
+import { usePropertyFilter, useDateRangeFilter } from '@condo/domains/analytics/hooks/useDashboardFilters'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
 import { Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useWindowSize } from '@condo/domains/common/hooks/useWindowSize'
+import { parseQuery, getPageIndexFromOffset } from '@condo/domains/common/utils/tables.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useLightWeightTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
-import { Incident, Ticket } from '@condo/domains/ticket/utils/clientSchema'
+import { QUALITY_CONTROL_VALUES } from '@condo/domains/ticket/constants/qualityControl'
+import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
+import { useTicketQualityTableColumns } from '@condo/domains/ticket/hooks/useTableColumns'
 import { GET_TICKETS_COUNT_QUERY } from '@condo/domains/ticket/utils/clientSchema/search'
 
 import type { OverviewData } from '@app/condo/schema'
 import type { RowProps } from 'antd'
 
-const TICKET_TABLE_PAGE_SIZE = 5
 const DASHBOARD_ROW_GUTTER: RowProps['gutter'] = [20, 40]
-const CARD_ROW_GUTTER: RowProps['gutter'] = [24, 24]
+const CARD_ROW_GUTTER: RowProps['gutter'] = [8, 24]
 const CARD_STYLE: React.CSSProperties = { height: '160px' }
 const TEXT_CENTER_STYLE: React.CSSProperties = { textAlign: 'center' }
 const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
@@ -52,6 +49,8 @@ const DATA_CARD_DESCRIPTION_CONTAINER_STYLE: React.CSSProperties = {
     justifyContent: 'center',
     textAlign: 'center',
 }
+const MODAL_TABLE_PAGE_SIZE = 5
+const DASHBOARD_WIDTH_BREAKPOINT = 1300
 
 type StatisticCardProps = { label: string, value: string | number, secondaryLabel?: string }
 
@@ -69,21 +68,21 @@ const StatisticCard: React.FC<StatisticCardProps> = ({ label, value, secondaryLa
     </Col>
 )
 
-const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData, paymentLoading, dateRange }) => {
+const PerformanceCard = ({ organizationId, paymentSum, propertyData, residentsData, loading, dateRange, propertyIds }) => {
     const intl = useIntl()
     const SummaryTitle = intl.formatMessage({ id: 'pages.reports.summary' })
     const DoneLabel = intl.formatMessage({ id: 'Done' })
     const InWorkLabel = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
     const NewTicketsLabel = intl.formatMessage({ id: 'ticket.status.OPEN.many' })
+    const CompletedLabel = intl.formatMessage({ id: 'ticket.status.COMPLETED.many' })
     const ClosedTicketsLabel = intl.formatMessage({ id: 'ticket.status.CLOSED.many' })
-    const PaymentsAmountPercent = intl.formatMessage({ id: 'pages.reports.paymentsAmountPercent' })
     const PaymentsAmount = intl.formatMessage({ id: 'pages.reports.paymentsAmount' })
     const ResidentsInApp = intl.formatMessage({ id: 'pages.reports.residentsWithApp' })
+    const UnitsCount = intl.formatMessage({ id: 'pages.condo.property.id.UnitsCount' })
 
     const { breakpoints } = useLayoutContext()
 
     const [completionPercent, setCompletionPercent] = useState('—')
-    const [paymentsAmountPercent, setPaymentsAmountPercent] = useState('—')
     const [residentsCount, setResidentsCount] = useState(0)
     const ticketCounts = useRef(null)
 
@@ -107,31 +106,29 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
             createdAt_lte: dateRange[1].endOf('day').toISOString(),
         }
 
-        loadTicketCounts({ variables: { where: ticketWhere, whereWithoutStatuses: ticketWhere } })
-    }, [organizationId, loadTicketCounts, dateRange])
-
-    useEffect(() => {
-        if (!paymentLoading && !isNull(paymentSum) && !isNull(receiptSum)) {
-            if (Number(receiptSum) > 0) {
-                setPaymentsAmountPercent(Big(paymentSum).div(receiptSum).mul(100).round(0).toString() + '%')
-            }
+        if (!isEmpty(propertyIds)) {
+            ticketWhere['property'] = { id_in: propertyIds }
         }
-    }, [receiptSum, paymentSum, paymentLoading])
+
+        loadTicketCounts({ variables: { where: ticketWhere, whereWithoutStatuses: ticketWhere } })
+    }, [organizationId, loadTicketCounts, dateRange, propertyIds])
 
     useEffect(() => {
         if (residentsData.length) {
             setResidentsCount(residentsData.reduce((p, c) => p + Number(c.count), 0))
+        } else {
+            setResidentsCount(0)
         }
     }, [residentsData])
     const iconStyle = useMemo(() => ({ display: !breakpoints.TABLET_LARGE ? 'none' : 'block' }), [breakpoints.TABLET_LARGE])
     const cardRowJustify = useMemo(() => breakpoints.TABLET_LARGE ? 'space-between' : 'space-around', [breakpoints.TABLET_LARGE])
 
-    const loading = ticketCountLoading || isNull(ticketCounts.current)
+    const isTicketCountLoading = ticketCountLoading || isNull(ticketCounts.current)
 
     return (
         <Card title={<Typography.Title level={3}>{SummaryTitle}</Typography.Title>}>
-            {loading || paymentLoading ? (
-                <Skeleton loading paragraph={{ rows: 5 }} />
+            {isTicketCountLoading || loading ? (
+                <Skeleton loading active paragraph={{ rows: 3 }} />
             ) : (
                 <Row gutter={DASHBOARD_ROW_GUTTER}>
                     <Col span={24}>
@@ -152,6 +149,10 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                                 value={ticketCounts.current.processing.count}
                             />
                             <StatisticCard
+                                label={CompletedLabel}
+                                value={ticketCounts.current.completed.count}
+                            />
+                            <StatisticCard
                                 label={ClosedTicketsLabel}
                                 value={ticketCounts.current.closed.count}
                             />
@@ -163,16 +164,16 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
                                 <Wallet />
                             </Col>
                             <StatisticCard
-                                label={PaymentsAmountPercent}
-                                value={paymentsAmountPercent}
-                            />
-                            <StatisticCard
                                 label={PaymentsAmount}
                                 value={intl.formatNumber(paymentSum, { style: 'currency', currency: 'Rub' })}
                             />
                             <StatisticCard
                                 label={ResidentsInApp}
                                 value={residentsCount}
+                            />
+                            <StatisticCard
+                                label={UnitsCount}
+                                value={propertyData}
                             />
                         </Row>
                     </Col>
@@ -182,25 +183,17 @@ const PerformanceCard = ({ organizationId, paymentSum, receiptSum, residentsData
     )
 }
 
-interface IDashboardCard {
-    ({ organizationId, dateRange }: { organizationId: string, dateRange: [Dayjs, Dayjs] }): React.ReactElement
-}
+type DashboardCardType = ({ count, loading }: {
+    count: string,
+    loading: boolean
+}) => React.ReactElement
 
-const IncidentDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
+const IncidentDashboard: DashboardCardType = ({ count, loading }) => {
     const intl = useIntl()
     const IncidentsTitle = intl.formatMessage({ id: 'pages.reports.incidentsTitle' })
     const IncidentDescription = intl.formatMessage({ id: 'pages.reports.incidentsDescription' })
 
     const { push } = useRouter()
-
-    const { loading, count } = Incident.useCount({
-        where: {
-            organization: { id: organizationId },
-            status: IncidentStatusType.Actual,
-            createdAt_gte: dateRange[0].startOf('day').toISOString(),
-            createdAt_lte: dateRange[1].endOf('day').toISOString(),
-        },
-    })
 
     const onCardClick = useCallback(async () => {
         await push('/incident')
@@ -210,7 +203,7 @@ const IncidentDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
         <Row style={CARD_STYLE} align='middle'>
             <Col span={24} style={TEXT_CENTER_STYLE}>
                 <Space direction='vertical' size={12} align='center'>
-                    <Typography.Title level={1} type={count > 0 ? 'danger' : 'success'}>{count}</Typography.Title>
+                    <Typography.Title level={1} type={Number(count) > 0 ? 'danger' : 'success'}>{count}</Typography.Title>
                     <div style={TEXT_CENTER_STYLE}>
                         <Typography.Paragraph type='secondary' size='medium'>
                             {IncidentDescription}
@@ -232,35 +225,86 @@ const IncidentDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
     )
 }
 
-const TicketQualityControlDashboard: IDashboardCard = ({ organizationId, dateRange }) => {
+const TicketQualityControlDashboard = ({ data, translations, loading, organizationId }) => {
     const intl = useIntl()
     const QualityControlTitle = intl.formatMessage({ id: 'ticket.qualityControl' })
     const TicketFeedbackTitle = intl.formatMessage({ id: 'pages.reports.ticketFeedbackCount' })
 
-    const { count: goodCount, loading: goodLoading } = Ticket.useCount({
-        where: {
-            organization: { id: organizationId },
-            status: { OR: [{ type: TicketStatusTypeType.Completed }, { type: TicketStatusTypeType.Closed }] },
-            qualityControlValue: TicketQualityControlValueType.Good,
-            AND: [
-                { createdAt_gte: dateRange[0].startOf('day').toISOString() },
-                { createdAt_lte: dateRange[1].endOf('day').toISOString() },
-            ],
+    const [isOpen, setIsOpen] = useState(false)
+    const [localData, setLocalData] = useState([])
+    const [tickets, setTickets] = useState([])
+    const [ticketsCount, setTicketsCount] = useState(0)
+
+    const router = useRouter()
+    const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
+    const { values, SearchInput } = usePropertyFilter({ organizationId })
+    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
+    const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, MODAL_TABLE_PAGE_SIZE), [offset])
+
+    const { columns } = useTicketQualityTableColumns()
+
+    const [loadTicketFeedback, { loading: ticketFeedbackLoading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
+        onCompleted: (response) => {
+            setLocalData(get(response, 'result.overview.ticketQualityControlValue.tickets', []))
         },
     })
-    const { count: badCount, loading: badLoading } = Ticket.useCount({
-        where: {
-            organization: { id: organizationId },
-            status: { OR: [{ type: TicketStatusTypeType.Completed }, { type: TicketStatusTypeType.Closed }] },
-            qualityControlValue: TicketQualityControlValueType.Bad,
-            AND: [
-                { createdAt_gte: dateRange[0].startOf('day').toISOString() },
-                { createdAt_lte: dateRange[1].endOf('day').toISOString() },
-            ],
+    const [loadAllTickets, { loading: ticketsLoading }] = useLazyQuery(TicketGQL.GET_ALL_OBJS_WITH_COUNT_QUERY, {
+        onCompleted: (response) => {
+            setTickets(response.objs)
+            setTicketsCount(response.meta.count)
         },
     })
 
+    useEffect(() => {
+        if (isOpen) {
+            loadTicketFeedback({
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        where: {
+                            organization: organizationId,
+                            dateFrom: dateRange[0].toISOString(),
+                            dateTo: dateRange[1].toISOString(),
+                            propertyIds: values,
+                        },
+                        groupBy: { aggregatePeriod: 'day' },
+                        entities: ['ticketQualityControlValue'],
+                    },
+                },
+            })
+            loadAllTickets({
+                variables: {
+                    where: {
+                        organization: { id: organizationId },
+                        AND: [
+                            { createdAt_gte: dateRange[0].toISOString() },
+                            { createdAt_lte: dateRange[1].toISOString() },
+                        ],
+                        OR: [
+                            { qualityControlValue_in: QUALITY_CONTROL_VALUES },
+                            { feedbackValue_in: QUALITY_CONTROL_VALUES },
+                        ],
+                        ...(values.length && { property: { id_in: values } }),
+                    },
+                    sortBy: ['createdAt_DESC'],
+                    first: MODAL_TABLE_PAGE_SIZE,
+                    skip: (currentPageIndex - 1) * MODAL_TABLE_PAGE_SIZE,
+                },
+            })
+        }
+    }, [isOpen, organizationId, loadAllTickets, currentPageIndex, values, dateRange, loadTicketFeedback])
+
     const ticketCardContent = useMemo(() => {
+        const goodKey = get(translations.find(t => t.value === TicketQualityControlValueType.Good), 'key')
+        const badKey = get(translations.find(t => t.value === TicketQualityControlValueType.Bad), 'key')
+        const goodCount = data
+            .filter(e => e.qualityControlValue === goodKey)
+            .reduce((prev, curr) => prev + curr.count, 0)
+        const badCount = data.
+            filter(e => e.qualityControlValue === badKey)
+            .reduce((prev, curr) => prev + curr.count, 0)
+
         const totalCount = goodCount + badCount
         const goodPercent = totalCount  > 0 ? (goodCount / totalCount * 100).toFixed(0) : 0
         const badPercent = totalCount > 0 ? (badCount / totalCount * 100).toFixed(0) : 0
@@ -298,74 +342,59 @@ const TicketQualityControlDashboard: IDashboardCard = ({ organizationId, dateRan
                 </Col>
             </Row>
         )
-    }, [goodCount, badCount, TicketFeedbackTitle])
+    }, [data, translations, TicketFeedbackTitle])
 
-    return (
-        <Card
-            title={<Typography.Title level={3}>{QualityControlTitle}</Typography.Title>}
-        >
-            {goodLoading || badLoading ? <Skeleton active paragraph={{ rows: 3 }} /> : ticketCardContent}
-        </Card>
-    )
-}
+    const onCardClick = useCallback(() => {
+        setIsOpen(true)
+    }, [])
 
-const TicketTableView: IDashboardCard = ({ organizationId, dateRange }) => {
-    const intl = useIntl()
-    const TicketTitle = intl.formatMessage({ id: 'global.section.tickets' })
-    const InProgressTitle = intl.formatMessage({ id: 'ticket.status.IN_PROGRESS.name' })
-
-    const router = useRouter()
-    const { columns } = useLightWeightTableColumns()
-
-    const { offset } = useMemo(() => parseQuery(router.query), [router.query])
-
-    const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, 5), [offset])
-
-    const { objs: tickets, loading, count } = Ticket.useObjects({
-        where: {
-            organization: { id: organizationId },
-            status: { type: TicketStatusTypeType.Processing },
-            AND: [
-                { createdAt_gte: dateRange[0].startOf('day').toISOString() },
-                { createdAt_lte: dateRange[1].endOf('day').toISOString() },
-            ],
-        },
-        first: TICKET_TABLE_PAGE_SIZE,
-        skip: (currentPageIndex - 1) * TICKET_TABLE_PAGE_SIZE,
-    })
-
-    const handleRowAction = useCallback((record) => {
-        return {
-            onClick: async () => {
-                await router.push(`/ticket/${record.id}`)
-            },
-        }
+    const onCancel = useCallback(() => {
+        setIsOpen(false)
+        router.replace('/reports', undefined, { shallow: true })
     }, [router])
 
     return (
-        <Row gutter={[0, 16]}>
-            <Col span={24}>
-                <Typography.Title level={3}>
-                    {TicketTitle} {InProgressTitle.toLowerCase()}
-                </Typography.Title>
-            </Col>
-            <Col span={24}>
-                <Table
-                    totalRows={count}
-                    loading={loading}
-                    columns={columns}
-                    dataSource={tickets}
-                    pageSize={5}
-                    onRow={handleRowAction}
-                />
-            </Col>
-        </Row>
+        <>
+            <Card
+                title={<Typography.Title level={3}>{QualityControlTitle}</Typography.Title>}
+                hoverable
+                onClick={onCardClick}
+            >
+                {loading ? <Skeleton active paragraph={{ rows: 3 }} /> : ticketCardContent}
+            </Card>
+            <Modal width='big' scrollX={false} title={QualityControlTitle} open={isOpen} onCancel={onCancel}>
+                <Row gutter={[24, 40]}>
+                    <Col span={24}>
+                        <DateRangeSearch disabled={ticketsLoading || ticketFeedbackLoading} />
+                    </Col>
+                    <Col span={24}>
+                        {SearchInput}
+                    </Col>
+                    <Col span={24}>
+                        <TicketQualityControlChart data={[localData, translations]} loading={ticketFeedbackLoading} />
+                    </Col>
+                    <Col span={24}>
+                        <Table
+                            columns={columns}
+                            loading={ticketsLoading}
+                            dataSource={tickets}
+                            totalRows={ticketsCount}
+                            pageSize={MODAL_TABLE_PAGE_SIZE}
+                        />
+                    </Col>
+                </Row>
+            </Modal>
+        </>
     )
 }
 
 export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId }) => {
     const [overview, setOverview] = useState<OverviewData>(null)
-    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
+    const { dateRange, SearchInput: DateRangeSearch } = useDateRangeFilter()
+    const { values: propertyIds, SearchInput: OrganizationPropertySearch } = usePropertyFilter({ organizationId })
+
+    const { breakpoints: { TABLET_LARGE } } = useLayoutContext()
+    const { width } = useWindowSize()
 
     const [loadDashboardData, { loading }] = useLazyQuery(GET_OVERVIEW_DASHBOARD_MUTATION, {
         onCompleted: (response) => {
@@ -381,95 +410,118 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 where: {
                     organization: organizationId,
                     dateFrom: dateRange[0].toISOString(),
-                    dateTo: dayjs(dateRange[1]).endOf('day').toISOString(),
+                    dateTo: dateRange[1].toISOString(),
+                    propertyIds,
                 },
                 groupBy: {
                     aggregatePeriod: 'day',
                 },
             },
         } })
-    }, [organizationId, loadDashboardData, dateRange])
-
-    const disabledDate = useCallback((currentDate) => {
-        return currentDate && currentDate < dayjs().startOf('year')
-    }, [])
+    }, [organizationId, loadDashboardData, dateRange, propertyIds])
 
     const newTickets = get(overview, 'ticketByDay.tickets', [])
     const propertyTickets = get(overview, 'ticketByProperty.tickets', [])
     const categoryTickets = get(overview, 'ticketByCategory.tickets', [])
     const executorTickets = get(overview, 'ticketByExecutor.tickets', [])
+    const ticketQualityControlValue = get(overview, 'ticketQualityControlValue.tickets', [])
+    const ticketQualityControlValueTranslations = get(overview, 'ticketQualityControlValue.translations', [])
+    const propertyData = get(overview, 'property.sum', 0)
     const paymentsData = get(overview, 'payment.payments', [])
     const paymentSum = get(overview, 'payment.sum', null)
     const receiptsData = get(overview, 'receipt.receipts', [])
-    const receiptSum = get(overview, 'receipt.sum', null)
     const residentsData = get(overview, 'resident.residents', [])
+    const incidentsCount = get(overview, 'incident.count', 0)
     const chargedToPaidData = paymentsData.length > 0 && receiptsData.length > 0 ? [paymentsData, receiptsData] : []
 
     return (
         <Row gutter={DASHBOARD_ROW_GUTTER}>
             <Col span={24}>
                 <TableFiltersContainer>
-                    <Row gutter={[24, 24]} align='middle' justify='start'>
-                        <Col>
-                            <DateRangePicker
-                                value={dateRange}
-                                onChange={setDateRange}
-                                allowClear={false}
-                                disabled={loading}
-                                disabledDate={disabledDate}
-                            />
+                    <Row gutter={[24, 24]} align='middle' justify='start' wrap>
+                        <Col span={TABLET_LARGE ? 10 : 24}>
+                            <DateRangeSearch disabled={loading} />
+                        </Col>
+                        <Col span={TABLET_LARGE ? 14 : 24}>
+                            {OrganizationPropertySearch}
                         </Col>
                     </Row>
-
                 </TableFiltersContainer>
             </Col>
-            <Col xl={12} lg={24}>
+            <Col xl={width > DASHBOARD_WIDTH_BREAKPOINT ? 12 : 24} lg={24}>
                 <PerformanceCard
                     organizationId={organizationId}
                     paymentSum={paymentSum}
-                    receiptSum={receiptSum}
                     residentsData={residentsData}
-                    paymentLoading={false}
+                    propertyIds={propertyIds}
+                    propertyData={propertyData}
+                    loading={loading}
                     dateRange={dateRange}
                 />
             </Col>
             <Col xl={6} lg={12} xs={24}>
-                <IncidentDashboard organizationId={organizationId} dateRange={dateRange} />
+                <IncidentDashboard
+                    count={incidentsCount}
+                    loading={loading}
+                />
             </Col>
             <Col xl={6} lg={12} xs={24}>
-                <TicketQualityControlDashboard organizationId={organizationId} dateRange={dateRange} />
+                <TicketQualityControlDashboard
+                    data={ticketQualityControlValue}
+                    translations={ticketQualityControlValueTranslations}
+                    loading={loading}
+                    organizationId={organizationId}
+                />
             </Col>
             {overview === null ? (
-                <Skeleton paragraph={{ rows: 62 }} />
+                <Skeleton paragraph={{ rows: 62 }} loading active />
             ) : (
                 <Col span={24}>
                     <Row gutter={DASHBOARD_ROW_GUTTER}>
                         <Col lg={12} md={24} xs={24}>
-                            <AllTicketsChart data={newTickets} />
+                            <AllTicketsChart
+                                data={newTickets}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <TicketByCategoryChart data={categoryTickets} />
-                        </Col>
-                        <Col span={24}>
-                            <TicketTableView organizationId={organizationId} dateRange={dateRange} />
-                        </Col>
-                        <Col lg={12} md={24} xs={24}>
-                            <PaymentTotalChart data={paymentsData} />
+                            <TicketByCategoryChart
+                                data={categoryTickets}
+                                organizationId={organizationId}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <PaymentReceiptChart data={chargedToPaidData} />
+                            <PaymentTotalChart
+                                data={paymentsData}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <PaymentByPropertyChart data={paymentsData} />
+                            <PaymentReceiptChart
+                                data={chargedToPaidData}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <ResidentByPropertyChart data={residentsData} />
+                            <PaymentByPropertyChart
+                                data={paymentsData}
+                                organizationId={organizationId}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <TicketByExecutorChart data={executorTickets} />
+                            <ResidentByPropertyChart
+                                data={residentsData}
+                                organizationId={organizationId}
+                            />
                         </Col>
                         <Col lg={12} md={24} xs={24}>
-                            <TicketByPropertyChart data={propertyTickets} />
+                            <TicketByExecutorChart
+                                data={executorTickets}
+                                organizationId={organizationId}
+                            />
+                        </Col>
+                        <Col lg={12} md={24} xs={24}>
+                            <TicketByPropertyChart
+                                data={propertyTickets}
+                                organizationId={organizationId}
+                            />
                         </Col>
                     </Row>
                 </Col>

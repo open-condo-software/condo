@@ -66220,6 +66220,7 @@ enum TicketAnalyticsGroupBy {
   categoryClassifier
   executor
   assignee
+  qualityControlValue
 }
 
 input TicketAnalyticsReportInput {
@@ -66247,6 +66248,7 @@ type TicketGroupedCounter {
   categoryClassifier: String
   executor: String
   assignee: String
+  qualityControlValue: String
 }
 
 input TicketAnalyticsNullReplaces {
@@ -66298,6 +66300,21 @@ input GetOverviewDashboardWhereInput {
   organization: String!
   dateFrom: String!
   dateTo: String!
+  propertyIds: [ID]
+  executorIds: [ID]
+}
+
+enum OverviewDashboardEntities {
+  ticketByDay
+  ticketByProperty
+  ticketByCategory
+  ticketByExecutor
+  ticketQualityControlValue
+  payment
+  receipt
+  resident
+  property
+  incident
 }
 
 input GetOverviewDashboardInput {
@@ -66305,10 +66322,17 @@ input GetOverviewDashboardInput {
   sender: JSON!
   where: GetOverviewDashboardWhereInput!
   groupBy: GetOverviewDashboardGroupByInput!
+  entities: [OverviewDashboardEntities]
+}
+
+type TicketOverviewTranslations {
+  key: String!
+  value: String!
 }
 
 type TicketOverviewResult {
   tickets: [TicketGroupedCounter!]
+  translations: [TicketOverviewTranslations]
 }
 
 type PaymentGroupedCounter {
@@ -66343,14 +66367,25 @@ type ResidentOverviewResult {
   residents: [ResidentGroupedCounter!]
 }
 
+type PropertyOverviewResult {
+  sum: String!
+}
+
+type IncidentOverviewResult {
+  count: String!
+}
+
 type OverviewData {
   ticketByProperty: TicketOverviewResult
   ticketByDay: TicketOverviewResult
   ticketByCategory: TicketOverviewResult
   ticketByExecutor: TicketOverviewResult
+  ticketQualityControlValue: TicketOverviewResult
   payment: PaymentOverviewResult
   receipt: ReceiptOverviewResult
   resident: ResidentOverviewResult
+  property: PropertyOverviewResult
+  incident: IncidentOverviewResult
 }
 
 type GetOverviewDashboardOutput {

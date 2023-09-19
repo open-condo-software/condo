@@ -13,7 +13,7 @@ interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetPr
     filters: null | ticketAnalyticsPageFilters
 }
 
-const getScrollConfig = (isSmall: boolean) => {
+export const getScrollConfig = (isSmall: boolean) => {
     const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; } = {
         scrollToFirstRowOnChange: true,
     }
