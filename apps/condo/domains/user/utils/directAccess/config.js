@@ -23,8 +23,12 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'B2CAppAccessRight',
         'B2CAppBuild',
         'B2CAppProperty',
+
         // Organization domain
         { schemaName: 'Organization', readonly: true },
+
+        // Ticket domain
+        'Ticket',
     ],
     services: [
         'registerNewServiceUser',
