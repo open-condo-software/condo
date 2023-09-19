@@ -320,7 +320,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         displayEditableContactFields ||
         (initialValue.id && !initialValueIsPresentedInFetchedContacts) ||
         !isEmptyInitialNotResidentValue,
-    [])
+    [displayEditableContactFields, initialValue.id, initialValueIsPresentedInFetchedContacts, isEmptyInitialNotResidentValue])
 
     if (error) {
         console.warn(error)
