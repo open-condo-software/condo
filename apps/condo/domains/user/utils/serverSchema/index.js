@@ -11,10 +11,13 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const conf = require('@open-condo/config')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const {
     SMS_CODE_LENGTH, STAFF,
 } = require('@condo/domains/user/constants/common')
+const { ERRORS } = require('@condo/domains/user/constants/errors')
 const { User: UserGQL, UserExternalIdentity: UserExternalIdentityGQL, UserAdmin: UserAdminGQL } = require('@condo/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@condo/domains/user/gql')
 const { ForgotPasswordAction: ForgotPasswordActionGQL } = require('@condo/domains/user/gql')
@@ -197,7 +200,34 @@ async function markTokenAsUsed (context, tokenType, tokenAction, sender) {
     }
 }
 
+async function createUserAndSendLoginData ({ context, userData }) {
+    const user = await User.create(context, userData, {
+        errorMapping: {
+            '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
+            '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+            [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
+            [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+            [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
+            [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
+        },
+    })
+
+    await sendMessage(context, {
+        to: { user: { id: user.id } },
+        type: REGISTER_NEW_USER_MESSAGE_TYPE,
+        meta: {
+            userPassword: userData.password,
+            userPhone: userData.phone,
+            dv: 1,
+        },
+        sender: userData.sender,
+    })
+
+    return user
+}
+
 module.exports = {
+    createUserAndSendLoginData,
     User,
     UserAdmin,
     UserExternalIdentity,

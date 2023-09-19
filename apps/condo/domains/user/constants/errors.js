@@ -1,3 +1,9 @@
+const { pick } = require('lodash')
+
+const { GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+
+const { NOT_UNIQUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+
 const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD } = require('./common')
 
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
@@ -126,7 +132,62 @@ const GQL_ERRORS = {
     },
 }
 
+/**
+ * List of possible errors, that this custom schema can throw
+ * They will be rendered in documentation section in GraphiQL for this custom schema
+ */
+const ERRORS = {
+    UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'confirmPhoneActionToken'],
+        code: BAD_USER_INPUT,
+        type: UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+        message: 'Unable to find confirm phone action',
+        messageForUser: 'api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
+    },
+    WRONG_PHONE_FORMAT: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'phone'],
+        code: BAD_USER_INPUT,
+        type: WRONG_PHONE_FORMAT,
+        message: 'Wrong format of provided phone number',
+        messageForUser: 'api.common.WRONG_PHONE_FORMAT',
+        correctExample: '+79991234567',
+    },
+    ...pick(GQL_ERRORS, [
+        'INVALID_PASSWORD_LENGTH',
+        'PASSWORD_CONTAINS_EMAIL',
+        'PASSWORD_CONTAINS_PHONE',
+        'PASSWORD_IS_FREQUENTLY_USED',
+        'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
+    ]),
+    USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'phone'],
+        code: BAD_USER_INPUT,
+        type: NOT_UNIQUE,
+        message: 'User with specified phone already exists',
+        messageForUser: 'api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS',
+    },
+    USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS: {
+        mutation: 'registerNewUser',
+        variable: ['data', 'email'],
+        code: BAD_USER_INPUT,
+        type: NOT_UNIQUE,
+        message: 'User with specified email already exists',
+        messageForUser: 'api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS',
+    },
+    UNABLE_TO_CREATE_USER: {
+        mutation: 'registerNewUser',
+        code: INTERNAL_ERROR,
+        type: UNABLE_TO_CREATE_USER,
+        message: 'Unable to create user',
+        messageForUser: 'api.user.registerNewUser.UNABLE_TO_CREATE_USER',
+    },
+}
+
 module.exports = {
+    ERRORS,
     WRONG_PASSWORD_ERROR,
     EMPTY_PASSWORD_ERROR,
     WRONG_EMAIL_ERROR,

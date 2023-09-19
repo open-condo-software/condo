@@ -5,7 +5,6 @@ const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { errors } = require('./RegisterNewUserService')
