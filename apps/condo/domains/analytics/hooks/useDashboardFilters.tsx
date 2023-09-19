@@ -11,6 +11,8 @@ import { searchOrganizationProperty, searchEmployeeUser } from '@condo/domains/t
 
 import type { ISearchInputProps } from '@condo/domains/common/components/GraphQlSearchInput/'
 
+const DATE_RANGE_STYLE: React.CSSProperties = { width: '100%' }
+
 type UseSearchInputType = (props: Pick<ISearchInputProps, 'search' | 'placeholder'>) => {
     values: Array<string>
     SearchInput: React.ReactElement
@@ -83,17 +85,18 @@ export const useDateRangeFilter: UseDateRangeFilterType = () => {
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
     }, [])
+    const onChange = useCallback((dateRange) => setDateRange([dateRange[0].startOf('day'), dateRange[1].endOf('day')]), [])
 
     const SearchInput = useMemo(() => ({ disabled = false }) => (
         <DateRangePicker
             value={dateRange}
-            onChange={setDateRange}
+            onChange={onChange}
             allowClear={false}
             disabled={disabled}
             disabledDate={disabledDate}
-            style={{ width: '100%' }}
+            style={DATE_RANGE_STYLE}
         />
-    ), [dateRange, disabledDate])
+    ), [dateRange, disabledDate, onChange])
 
     return {
         dateRange,

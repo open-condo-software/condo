@@ -1,6 +1,5 @@
 import { TicketQualityControlValueType } from '@app/condo/schema'
 import { Row, Col, Skeleton } from 'antd'
-import dayjs from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isNull from 'lodash/isNull'
@@ -411,7 +410,7 @@ export const Dashboard: React.FC<{ organizationId: string }> = ({ organizationId
                 where: {
                     organization: organizationId,
                     dateFrom: dateRange[0].toISOString(),
-                    dateTo: dayjs(dateRange[1]).endOf('day').toISOString(),
+                    dateTo: dateRange[1].toISOString(),
                     propertyIds,
                 },
                 groupBy: {
