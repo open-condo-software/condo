@@ -27,6 +27,14 @@ class RedisGuard {
 
         return afterIncrement
     }
+
+    async getDayCounter (key) {
+        const endOfDay = dayjs().endOf('day')
+        const dailyKey = [this.counterPrefix, endOfDay.format('YYYY_MM_DD'), key].join(':')
+        const counterValue = this.redis.get(dailyKey)
+
+        return counterValue || 0
+    }
 }
 
 module.exports = {

@@ -51,18 +51,19 @@ const ERRORS = {
     },
 }
 
-async function checkDailySMSLimits (phone, rawIp, context) {
-    const ip = rawIp.split(':').pop()
+async function checkDailySMSLimits (phone, context) {
+    const rawIP = context.req.ip
+    const ip = rawIP.split(':').pop()
     if (SMS_WHITE_LIST.hasOwnProperty(phone) || IP_WHITE_LIST.includes(ip)) {
         return
     }
 
-    const byIpCounter = await redisGuard.incrementDayCounter(`ConfirmPhoneAction:ip:${ip}`)
+    const byIpCounter = await redisGuard.incrementDayCounter(`confirm_phone_action:ip:${ip}`)
     if (byIpCounter > CONFIRM_ACTION_DAILY_LIMIT_BY_IP) {
         throw new GQLError(ERRORS.SMS_FOR_IP_DAY_LIMIT_REACHED, context)
     }
 
-    const byPhoneCounter = await redisGuard.incrementDayCounter(`ConfirmPhoneAction:phone:${phone}`)
+    const byPhoneCounter = await redisGuard.incrementDayCounter(`confirm_phone_action:phone:${phone}`)
     if (byPhoneCounter > CONFIRM_ACTION_DAILY_LIMIT_BY_PHONE) {
         throw new GQLError(ERRORS.SMS_FOR_PHONE_DAY_LIMIT_REACHED, context)
     }
@@ -99,7 +100,7 @@ const ConfirmPhoneActionService = new GQLCustomSchema('ConfirmPhoneActionService
                     throw new GQLError(UserErrors.INVALID_PHONE, context)
                 }
 
-                await checkDailySMSLimits(phone, context.req.ip, context)
+                await checkDailySMSLimits(phone, context)
 
                 const code = SMS_WHITE_LIST.hasOwnProperty(phone)
                     ? SMS_WHITE_LIST[normalizedPhone]
