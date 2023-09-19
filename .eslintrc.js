@@ -35,6 +35,7 @@ module.exports = {
     ignorePatterns: [
         'dist',
         '*schema.ts',
+        'apps/address-service/lib',
     ],
     rules: {
         'comma-spacing': 'off',
