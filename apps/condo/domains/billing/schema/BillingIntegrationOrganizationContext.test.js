@@ -358,4 +358,24 @@ describe('BillingIntegrationOrganizationContext', () => {
             expect(context).toHaveProperty('status', status)
         })
     })
+
+    describe('Validate orgPPAGUID for GISGKH integration',  () => {
+        let organization
+        let admin
+        beforeAll(async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            admin = adminClient
+            const [org] = await registerNewOrganization(adminClient)
+            organization = org
+        })
+        test(`On status update to ${CONTEXT_FINISHED_STATUS} without orgppaguid`, async () => {
+            const [integration] = await createTestBillingIntegration(admin, {
+                contextDefaultStatus: status,
+            })
+            const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+            await updateTestBillingIntegrationOrganizationContext(admin, context.id, { status: CONTEXT_FINISHED_STATUS })
+            expect(context).toBeDefined()
+            expect(context).toHaveProperty('status', status)
+        })
+    })
 })

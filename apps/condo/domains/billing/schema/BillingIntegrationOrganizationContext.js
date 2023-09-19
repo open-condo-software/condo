@@ -5,16 +5,36 @@
 const { Relationship } = require('@keystonejs/fields')
 const { get } = require('lodash')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { find, getById, GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingIntegrationOrganizationContext')
+const { 
+    BILLING_INTEGRATION_CONTEXT_NO_ORGPPAGUID_ERROR,
+    BILLING_INTEGRATION_CONTEXT_INCORRECT_ORGPPAGUID_ERROR,
+} = require('@condo/domains/billing/constants/errors')
 const { validateReport } = require('@condo/domains/billing/utils/validation.utils')
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { STATUS_FIELD, getStatusResolver, getStatusDescription } = require('@condo/domains/miniapp/schema/fields/context')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+
+
+const ERRORS = {
+    NO_ORGPPAGUID: {
+        code: BAD_USER_INPUT,
+        type: BILLING_INTEGRATION_CONTEXT_NO_ORGPPAGUID_ERROR,
+        message: 'You have to set ORGPPAGUID for Billing Integration Context in Settings field',
+    },
+    INCORRECT_ORGPPAGUID: {
+        code: BAD_USER_INPUT,
+        type: BILLING_INTEGRATION_CONTEXT_INCORRECT_ORGPPAGUID_ERROR,
+        message: 'ORGPPAGUID for Billing Integration Context has to be a valid uuid',
+    },
+}
 
 const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrationOrganizationContext', {
     schemaDoc: 'Integration state and settings for all organizations. The existence of this object means that there is a configured integration between the `billing data source` and `this API`',
@@ -97,7 +117,7 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
         auth: true,
     },
     hooks: {
-        validateInput: async ({ operation, resolvedData, addValidationError }) => {
+        validateInput: async ({ context, operation, resolvedData, addValidationError }) => {
             // should have only one explicit (hidden = false) context in organization!
             if (operation === 'create' && resolvedData['status'] === CONTEXT_FINISHED_STATUS) {
                 const integration = await getById('BillingIntegration', get(resolvedData, ['integration']))
@@ -112,6 +132,21 @@ const BillingIntegrationOrganizationContext = new GQLListSchema('BillingIntegrat
 
                 if (contextsInThisOrganization.length > 0) {
                     addValidationError('Can\'t create two BillingIntegrationOrganizationContexts in same organization!')
+                }
+            }
+            if (operation === 'update' && resolvedData['status'] === CONTEXT_FINISHED_STATUS) {
+                const integration = await getById('BillingIntegration', get(resolvedData, ['integration']))
+
+                if (get(integration, 'id') === '6187dbb5-4e51-4db5-9941-b1ee7ee8c198') {    // if it is GIS-GKH integration
+                    const settings = JSON.parse(resolvedData['settings'])
+                    const guid = get(settings, 'orgPPAGUID')
+                    if (guid) {
+                        if (!UUID_REGEXP.test(guid)) {
+                            throw new GQLError(ERRORS.INCORRECT_ORGPPAGUID, context)
+                        }
+                    } else {
+                        throw new GQLError(ERRORS.NO_ORGPPAGUID, context)
+                    }
                 }
             }
         },
