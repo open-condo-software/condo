@@ -67,12 +67,21 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
     const intl = useIntl()
 
     const employeeRolePermissionGroups: PermissionsGroup[] = useMemo(() => [
-        // {
-        //     key: 'tickets',
-        //     permissions: [
-        //         { key: 'canReadTickets' },
-        //     ],
-        // },
+        {
+            key: 'tickets',
+            permissions: [
+                {
+                    key: 'canReadTickets',
+                    relatedCheckPermissions: ['canShareTickets'],
+                    relatedUncheckPermissions: ['canManageTickets', 'canShareTickets', 'canManageTicketComments'],
+                },
+                {
+                    key: 'canManageTickets',
+                    relatedCheckPermissions: ['canReadTickets', 'canShareTickets', 'canManageTicketComments'],
+                    relatedUncheckPermissions: ['canShareTickets', 'canManageTicketComments'],
+                },
+            ],
+        },
         {
             key: 'analytics',
             permissions: [
