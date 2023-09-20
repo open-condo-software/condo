@@ -132,6 +132,7 @@ const MenuItems: React.FC = () => {
     const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     const hasAccessToTickets = get(role, 'canReadTickets', false)
+    const hasAccessToIncidents = get(role, 'canReadIncidents', false)
 
     const { canRead: canManageNewsItems } = useNewsItemsAccess()
 
@@ -169,7 +170,7 @@ const MenuItems: React.FC = () => {
                     path: 'incident',
                     icon: AllIcons['OnOff'],
                     label: 'global.section.incidents',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToIncidents,
                 },
                 {
                     id: 'menuitem-news',

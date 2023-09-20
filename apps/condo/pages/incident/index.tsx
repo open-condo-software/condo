@@ -33,8 +33,8 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useIncidentExportToExcelTask } from '@condo/domains/ticket/hooks/useIncidentExportToExcelTask'
@@ -409,6 +409,6 @@ const IncidentsPage: IIncidentIndexPage = () => {
     )
 }
 
-IncidentsPage.requiredAccess = OrganizationRequired
+IncidentsPage.requiredAccess = IncidentReadPermissionRequired
 
 export default IncidentsPage

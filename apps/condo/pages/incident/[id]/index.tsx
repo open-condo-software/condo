@@ -20,7 +20,7 @@ import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/comp
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,
     INCIDENT_WORK_TYPE_EMERGENCY,
@@ -506,6 +506,6 @@ const IncidentIdPage: IIncidentIdPage = () => {
     )
 }
 
-IncidentIdPage.requiredAccess = OrganizationRequired
+IncidentIdPage.requiredAccess = IncidentReadPermissionRequired
 
 export default IncidentIdPage

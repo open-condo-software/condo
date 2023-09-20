@@ -54,7 +54,10 @@ import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { FavoriteTicketsContextProvider } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
-import { TicketQualityControlProvider, useTicketQualityControl } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
+import {
+    TicketQualityControlProvider,
+    useTicketQualityControl,
+} from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
@@ -114,7 +117,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     }
 
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
-    const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
+    const canReadByResident = useMemo(() => get(ticket, 'canReadByResident'), [ticket])
 
     const createdBy = useMemo(() => get(ticket, ['createdBy']), [ticket])
     const formattedStatusUpdatedAt = useMemo(() => dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm'), [statusUpdatedAt])
@@ -155,7 +158,8 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                         <Col xl={13} md={11} xs={24}>
                             <Row gutter={SMALL_VERTICAL_GUTTER} align='middle'>
                                 <Col span={breakpoints.TABLET_LARGE ? 24 : 22}>
-                                    <Typography.Title style={TITLE_STYLE} level={1}>{TicketTitleMessage}</Typography.Title>
+                                    <Typography.Title style={TITLE_STYLE}
+                                        level={1}>{TicketTitleMessage}</Typography.Title>
                                 </Col>
                                 {
                                     !breakpoints.TABLET_LARGE && (
@@ -170,12 +174,14 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                                     <Row>
                                         <Col span={24}>
                                             <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}
+                                                    type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
                                                 <UserNameField user={createdBy}>
                                                     {({ name, postfix }) => (
                                                         <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                             {name}
-                                                            {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                            {postfix && <Typography.Text type='secondary'
+                                                                ellipsis>&nbsp;{postfix}</Typography.Text>}
                                                         </Typography.Text>
                                                     )}
                                                 </UserNameField>
@@ -230,7 +236,8 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                                                     <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
                                                         {ChangedMessage}: {formattedStatusUpdatedAt}
                                                     </Typography.Paragraph>
-                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type='secondary'>
+                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}
+                                                        type='secondary'>
                                                         {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
                                                     </Typography.Paragraph>
                                                 </Col>
@@ -254,7 +261,8 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                                                     <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
                                                         {ChangedMessage}: {formattedStatusUpdatedAt}
                                                     </Typography.Paragraph>
-                                                    <Typography.Paragraph style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>
+                                                    <Typography.Paragraph style={TICKET_CREATE_INFO_TEXT_STYLE}
+                                                        type='secondary'>
                                                         {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
                                                     </Typography.Paragraph>
                                                 </Col>
@@ -268,11 +276,15 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                 </Col>
                 <Col span={24}>
                     <Row justify='space-between' align='middle' gutter={[0, 24]}>
-                        <Col span={!breakpoints.TABLET_LARGE && 24} hidden={!isEmergency && !isPaid && !isWarranty && statusReopenedCounter === 0}>
+                        <Col span={!breakpoints.TABLET_LARGE && 24}
+                            hidden={!isEmergency && !isPaid && !isWarranty && statusReopenedCounter === 0}>
                             <Space direction='horizontal'>
-                                {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
-                                {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                {isEmergency && <TicketTag
+                                    color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
+                                {isPaid && <TicketTag
+                                    color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                {isWarranty && <TicketTag
+                                    color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
                                 {
                                     statusReopenedCounter > 0 && (
                                         <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
@@ -283,7 +295,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                             </Space>
                         </Col>
                         <Col span={!breakpoints.TABLET_LARGE && 24}>
-                            <TicketResidentFeatures ticket={ticket} />
+                            <TicketResidentFeatures ticket={ticket}/>
                         </Col>
                     </Row>
                 </Col>
@@ -296,22 +308,22 @@ const TicketContent = ({ ticket }) => {
     return (
         <Col span={24}>
             <Row gutter={BIG_VERTICAL_GUTTER}>
-                <TicketQualityControlFields ticket={ticket} />
-                <TicketFeedbackFields ticket={ticket} />
+                <TicketQualityControlFields ticket={ticket}/>
+                <TicketFeedbackFields ticket={ticket}/>
                 <Col span={24}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <TicketDeadlineField ticket={ticket} />
-                        <TicketPropertyField ticket={ticket} />
-                        <TicketClientField ticket={ticket} />
-                        <TicketDetailsField ticket={ticket} />
-                        <TicketFileListField ticket={ticket} />
+                        <TicketDeadlineField ticket={ticket}/>
+                        <TicketPropertyField ticket={ticket}/>
+                        <TicketClientField ticket={ticket}/>
+                        <TicketDetailsField ticket={ticket}/>
+                        <TicketFileListField ticket={ticket}/>
                     </Row>
                 </Col>
                 <Col span={24}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <TicketClassifierField ticket={ticket} />
-                        <TicketExecutorField ticket={ticket} />
-                        <TicketAssigneeField ticket={ticket} />
+                        <TicketClassifierField ticket={ticket}/>
+                        <TicketExecutorField ticket={ticket}/>
+                        <TicketAssigneeField ticket={ticket}/>
                     </Row>
                 </Col>
             </Row>
@@ -326,14 +338,17 @@ const TicketChangeDiff = styled.p`
       color: black;
     }
   }
+
   &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
     del, ins {
       color: black;
+
       span {
         color: black;
       }
     }
   }
+
   del, ins {
     text-decoration: none;
   }
@@ -413,14 +428,14 @@ const TicketActionBar = ({
                     <Button
                         disabled={disabledEditTicketButton}
                         type='secondary'
-                        icon={<Edit size='medium' />}
+                        icon={<Edit size='medium'/>}
                         data-cy='ticket__update-link'
                     >
                         {UpdateMessage}
                     </Button>
                 </Link>,
                 breakpoints.TABLET_LARGE && <>
-                    <TicketBlanksExportToPdfButton />
+                    <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}
                 </>,
                 canShareTickets && (
@@ -506,7 +521,9 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         },
     })
     const {
-        obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime, loading: loadingUserTicketCommentReadTime,
+        obj: userTicketCommentReadTime,
+        refetch: refetchUserTicketCommentReadTime,
+        loading: loadingUserTicketCommentReadTime,
     } = UserTicketCommentReadTime.useObject({
         where: {
             user: { id: user.id },
@@ -514,11 +531,11 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         },
     })
     const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
-        user: { connect: {  id: user.id } },
+        user: { connect: { id: user.id } },
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
     const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
-        user: { connect: {  id: user.id } },
+        user: { connect: { id: user.id } },
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
 
@@ -557,7 +574,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
         [auth, employee])
 
-    const render =  (
+    const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
             <Col lg={16} xs={24}>
                 <Row gutter={TICKET_CONTENT_VERTICAL_GUTTER}>
@@ -704,7 +721,7 @@ const TicketIdPage = () => {
 
     if (!canEmployeeReadTicket(ticket)) {
         return (
-            <AccessDeniedPage />
+            <AccessDeniedPage/>
         )
     }
 

@@ -7,12 +7,11 @@ import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { OnBoarding as OnBoardingHooks } from '@condo/domains/onboarding/utils/clientSchema'
-
-import { AccessDeniedPage } from '../../common/components/containers/AccessDeniedPage'
 
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {

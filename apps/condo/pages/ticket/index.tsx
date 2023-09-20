@@ -1125,5 +1125,4 @@ const TicketsPage: ITicketIndexPage = () => {
 }
 
 TicketsPage.requiredAccess = TicketReadPermissionRequired
-
 export default TicketsPage
