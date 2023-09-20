@@ -68,6 +68,19 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
 
     const employeeRolePermissionGroups: PermissionsGroup[] = useMemo(() => [
         {
+            key: 'incidents',
+            permissions: [
+                {
+                    key: 'canReadIncidents',
+                    relatedUncheckPermissions: ['canManageIncidents'],
+                },
+                {
+                    key: 'canManageIncidents',
+                    relatedCheckPermissions: ['canReadIncidents'],
+                },
+            ],
+        },
+        {
             key: 'tickets',
             permissions: [
                 {

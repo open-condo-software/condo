@@ -227,9 +227,14 @@ describe('TicketChange', () => {
         })
 
         describe('user: read TicketChange', () => {
-            it('only belonging to organization, it employed in', async () => {
-                const client = await makeClientWithProperty()
-                const [ticket] = await createTestTicket(admin, client.organization, client.property)
+            it('can read ticket change if user is organization employee with canReadTickets permission', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [ticket] = await createTestTicket(admin, organization, property)
 
                 const payload = {
                     details: faker.lorem.sentence(),
@@ -243,6 +248,28 @@ describe('TicketChange', () => {
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0].ticket.id).toEqual(ticket.id)
+            })
+
+            it('can not read ticket change if user is organization employee without canReadTickets permission', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: false })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+
+                const payload = {
+                    details: faker.lorem.sentence(),
+                }
+
+                await updateTestTicket(admin, ticket.id, payload)
+
+                const objs = await TicketChange.getAll(client, {
+                    ticket: { id: ticket.id },
+                })
+
+                expect(objs).toHaveLength(0)
             })
         })
 
