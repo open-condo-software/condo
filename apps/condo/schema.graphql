@@ -3933,6 +3933,7 @@ type OrganizationHistoryRecord {
   importRemoteSystem: String
   importId: String
   features: JSON
+  isApproved: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4119,6 +4120,8 @@ input OrganizationHistoryRecordWhereInput {
   features_not: JSON
   features_in: [JSON]
   features_not_in: [JSON]
+  isApproved: Boolean
+  isApproved_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4218,6 +4221,8 @@ enum SortOrganizationHistoryRecordsBy {
   importRemoteSystem_DESC
   importId_ASC
   importId_DESC
+  isApproved_ASC
+  isApproved_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4251,6 +4256,7 @@ input OrganizationHistoryRecordUpdateInput {
   importRemoteSystem: String
   importId: String
   features: JSON
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4285,6 +4291,7 @@ input OrganizationHistoryRecordCreateInput {
   importRemoteSystem: String
   importId: String
   features: JSON
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4394,6 +4401,13 @@ type Organization {
   """ List of the organization's features connected by a particular integration 
   """
   features: [OrganizationFeature!]!
+
+  """
+   @deprecated
+  Indicates that organization is real.
+  This is a service field, you should not implement logic using it. 
+  """
+  isApproved: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4584,6 +4598,8 @@ input OrganizationWhereInput {
   features_not: [OrganizationFeature!]
   features_in: [[OrganizationFeature!]]
   features_not_in: [[OrganizationFeature!]]
+  isApproved: Boolean
+  isApproved_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4669,6 +4685,8 @@ enum SortOrganizationsBy {
   importRemoteSystem_DESC
   importId_ASC
   importId_DESC
+  isApproved_ASC
+  isApproved_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4702,6 +4720,7 @@ input OrganizationUpdateInput {
   importRemoteSystem: String
   importId: String
   features: [OrganizationFeature!]
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4733,6 +4752,7 @@ input OrganizationCreateInput {
   importRemoteSystem: String
   importId: String
   features: [OrganizationFeature!]
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String

@@ -103,6 +103,18 @@ const canAccessOnlyAdminField = {
     update: access.userIsAdmin,
 }
 
+async function canAccessToIsApprovedField (args) {
+    const { authentication: { item: user }, operation, listKey } = args
+
+    const isAdminOrIsSupport = access.userIsAdminOrIsSupport(args)
+    if (isAdminOrIsSupport) return true
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return true
+
+    return operation === 'read'
+}
+
 /*
   Rules are logical functions that used for list access, and may return a boolean (meaning
   all or no items are available) or a set of filters that limit the available items.
@@ -112,4 +124,5 @@ module.exports = {
     canManageOrganizations,
     canAccessToImportField,
     canAccessOnlyAdminField,
+    canAccessToIsApprovedField,
 }

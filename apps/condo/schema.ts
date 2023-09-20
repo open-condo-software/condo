@@ -47465,6 +47465,12 @@ export type Organization = {
   importId?: Maybe<Scalars['String']>;
   /**  List of the organization's features connected by a particular integration  */
   features: Array<OrganizationFeature>;
+  /**
+   *  @deprecated
+   * Indicates that organization is real.
+   * This is a service field, you should not implement logic using it.
+   */
+  isApproved?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47545,6 +47551,7 @@ export type OrganizationCreateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Array<OrganizationFeature>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49193,6 +49200,7 @@ export type OrganizationHistoryRecord = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -49223,6 +49231,7 @@ export type OrganizationHistoryRecordCreateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49258,6 +49267,7 @@ export type OrganizationHistoryRecordUpdateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49443,6 +49453,8 @@ export type OrganizationHistoryRecordWhereInput = {
   features_not?: Maybe<Scalars['JSON']>;
   features_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   features_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -49876,6 +49888,7 @@ export type OrganizationUpdateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Array<OrganizationFeature>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50048,6 +50061,8 @@ export type OrganizationWhereInput = {
   features_not?: Maybe<Array<OrganizationFeature>>;
   features_in?: Maybe<Array<Maybe<Array<OrganizationFeature>>>>;
   features_not_in?: Maybe<Array<Maybe<Array<OrganizationFeature>>>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -70124,6 +70139,8 @@ export enum SortOrganizationHistoryRecordsBy {
   ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  IsApprovedAsc = 'isApproved_ASC',
+  IsApprovedDesc = 'isApproved_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -70207,6 +70224,8 @@ export enum SortOrganizationsBy {
   ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  IsApprovedAsc = 'isApproved_ASC',
+  IsApprovedDesc = 'isApproved_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
