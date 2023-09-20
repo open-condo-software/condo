@@ -56,6 +56,9 @@ jobs:
       - name: Prepare app
         run: yarn workspace @app/dev-api node bin/prepare.js
 
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       - name: Run tests with ${{ matrix.database }}
         env:
           DATABASE_URL: ${{ matrix.database }}
