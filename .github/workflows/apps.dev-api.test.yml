@@ -56,9 +56,6 @@ jobs:
       - name: Prepare app
         run: yarn workspace @app/dev-api node bin/prepare.js
 
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
-
       - name: Run tests with ${{ matrix.database }}
         env:
           DATABASE_URL: ${{ matrix.database }}
@@ -70,7 +67,6 @@ jobs:
           
           mkdir -p apps/dev-api/dist/admin
           
-          yarn workspace @app/dev-api dev 2>&1 > dev-api.dev.log &
-          bash ./.github/workflows/waitForLocalhostApiReady.sh
+          yarn workspace @app/dev-api dev 2>&1 > dev-api.dev.log & bash ./.github/workflows/waitForLocalhostApiReady.sh
           
           yarn workspace @app/dev-api test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail 2 > &1 > dev-api.tests.log
