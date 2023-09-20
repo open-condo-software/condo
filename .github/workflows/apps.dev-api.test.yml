@@ -67,6 +67,6 @@ jobs:
           
           mkdir -p apps/dev-api/dist/admin
           
-          yarn workspace @app/dev-api dev 2>&1 > dev-api.dev.log & bash ./.github/workflows/waitForLocalhostApiReady.sh
+          yarn workspace @app/dev-api dev & bash ./.github/workflows/waitForLocalhostApiReady.sh
           
           yarn workspace @app/dev-api test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail 2 > &1 > dev-api.tests.log
