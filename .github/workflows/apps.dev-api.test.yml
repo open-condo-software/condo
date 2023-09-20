@@ -57,6 +57,8 @@ jobs:
         run: yarn workspace @app/dev-api node bin/prepare.js
 
       - name: Run tests with ${{ matrix.database }}
+        env:
+          DATABASE_URL: ${{ matrix.database }}
         run: |
           set -x
           export NODE_ENV=test
