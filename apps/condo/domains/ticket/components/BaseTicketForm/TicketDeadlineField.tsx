@@ -33,12 +33,12 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const COL_SPAN = useMemo(() => !breakpoints.TABLET_LARGE ? 24 : 11, [breakpoints.TABLET_LARGE])
 
     const { ticketSetting, isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue, isExistedTicket } = useTicketFormContext()
-    const { isPaid, isEmergency, isWarranty } = form.getFieldsValue(['isPaid', 'isEmergency', 'isWarranty'])
-    const isTouchedTicketType = form.isFieldsTouched(['isPaid', 'isEmergency', 'isWarranty'])
+    const { isPayable, isEmergency, isWarranty } = form.getFieldsValue(['isPayable', 'isEmergency', 'isWarranty'])
+    const isTouchedTicketType = form.isFieldsTouched(['isPayable', 'isEmergency', 'isWarranty'])
 
     const autoAddDays: null | number = useMemo(
-        () => getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty),
-        [isEmergency, isPaid, isWarranty, ticketSetting]
+        () => getTicketDefaultDeadline(ticketSetting, isPayable, isEmergency, isWarranty),
+        [isEmergency, isPayable, isWarranty, ticketSetting]
     )
 
     const createdAt = get(initialValues, 'createdAt', null)

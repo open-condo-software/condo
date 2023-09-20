@@ -32,7 +32,7 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_BUILDINGS]: ['organization', 'address', 'unitsCount', 'uninhabitedUnitsCount', 'ticketsInWork', 'ticketsClosed'],
     [EXPORT_TYPE_TICKETS]: [
         'number', 'source', 'organization', 'property', 'unitName', 'unitType', 'entranceName', 'floorName', 'clientName', 'contact', 'clientPhone',
-        'details', 'isEmergency', 'isWarranty', 'isPaid', 'place', 'category', 'description',
+        'details', 'isEmergency', 'isWarranty', 'isPayable', 'place', 'category', 'description',
         'createdAt', 'updatedAt', 'inworkAt', 'completedAt', 'closedAt', 'status', 'operator', 'executor', 'assignee',
         'organizationComments', 'residentComments', 'deadline', 'deferredUntil', 'statusReopenedCounter',
         'feedbackValue', 'feedbackComment', 'feedbackAdditionalOptions', 'feedbackUpdatedAt',

@@ -41,7 +41,7 @@ describe('Ticket',  function () {
                     ticketView
                         .visit()
                         .clickIsWarrantyCheckbox()
-                        .clickIsPaidCheckbox()
+                        .clickIsPayableCheckbox()
                         .clickIsEmergencyCheckbox()
                         .clickOnGlobalFiltersButton()
                         .typeAddressSearchInput(propertyAddress)

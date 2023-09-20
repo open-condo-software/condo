@@ -71274,6 +71274,10 @@ export enum SortTicketChangesBy {
   IsPaidFromDesc = 'isPaidFrom_DESC',
   IsPaidToAsc = 'isPaidTo_ASC',
   IsPaidToDesc = 'isPaidTo_DESC',
+  IsPayableFromAsc = 'isPayableFrom_ASC',
+  IsPayableFromDesc = 'isPayableFrom_DESC',
+  IsPayableToAsc = 'isPayableTo_ASC',
+  IsPayableToDesc = 'isPayableTo_DESC',
   IsEmergencyFromAsc = 'isEmergencyFrom_ASC',
   IsEmergencyFromDesc = 'isEmergencyFrom_DESC',
   IsEmergencyToAsc = 'isEmergencyTo_ASC',
@@ -71801,6 +71805,8 @@ export enum SortTicketHistoryRecordsBy {
   DetailsDesc = 'details_DESC',
   IsPaidAsc = 'isPaid_ASC',
   IsPaidDesc = 'isPaid_DESC',
+  IsPayableAsc = 'isPayable_ASC',
+  IsPayableDesc = 'isPayable_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
   IsWarrantyAsc = 'isWarranty_ASC',
@@ -72236,6 +72242,8 @@ export enum SortTicketsBy {
   RelatedDesc = 'related_DESC',
   IsPaidAsc = 'isPaid_ASC',
   IsPaidDesc = 'isPaid_DESC',
+  IsPayableAsc = 'isPayable_ASC',
+  IsPayableDesc = 'isPayable_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
   IsWarrantyAsc = 'isWarranty_ASC',
@@ -72896,8 +72904,13 @@ export type Ticket = {
   details?: Maybe<Scalars['String']>;
   /**  Sometimes, it is important for us to show related issues. For example, to show related issues  */
   related?: Maybe<Ticket>;
-  /**  Indicates the ticket is paid  */
+  /**
+   *  @deprecated Please use "isPayable"
+   * Indicates the ticket is payable
+   */
   isPaid?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is payable  */
+  isPayable?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergency?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is warranty  */
@@ -73393,10 +73406,20 @@ export type TicketChange = {
   detailsFrom?: Maybe<Scalars['String']>;
   /**  Text description of the issue. Maybe written by a user or an operator  */
   detailsTo?: Maybe<Scalars['String']>;
-  /**  Indicates the ticket is paid  */
+  /**
+   *  @deprecated Please use "isPayable"
+   * Indicates the ticket is payable
+   */
   isPaidFrom?: Maybe<Scalars['Boolean']>;
-  /**  Indicates the ticket is paid  */
+  /**
+   *  @deprecated Please use "isPayable"
+   * Indicates the ticket is payable
+   */
   isPaidTo?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is payable  */
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is payable  */
+  isPayableTo?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
@@ -73589,6 +73612,8 @@ export type TicketChangeCreateInput = {
   detailsTo?: Maybe<Scalars['String']>;
   isPaidFrom?: Maybe<Scalars['Boolean']>;
   isPaidTo?: Maybe<Scalars['Boolean']>;
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  isPayableTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   isWarrantyFrom?: Maybe<Scalars['Boolean']>;
@@ -73735,6 +73760,8 @@ export type TicketChangeUpdateInput = {
   detailsTo?: Maybe<Scalars['String']>;
   isPaidFrom?: Maybe<Scalars['Boolean']>;
   isPaidTo?: Maybe<Scalars['Boolean']>;
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  isPayableTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   isWarrantyFrom?: Maybe<Scalars['Boolean']>;
@@ -74182,6 +74209,10 @@ export type TicketChangeWhereInput = {
   isPaidFrom_not?: Maybe<Scalars['Boolean']>;
   isPaidTo?: Maybe<Scalars['Boolean']>;
   isPaidTo_not?: Maybe<Scalars['Boolean']>;
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  isPayableFrom_not?: Maybe<Scalars['Boolean']>;
+  isPayableTo?: Maybe<Scalars['Boolean']>;
+  isPayableTo_not?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom_not?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
@@ -76357,6 +76388,7 @@ export type TicketCreateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -77748,6 +77780,7 @@ export type TicketHistoryRecord = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -77817,6 +77850,7 @@ export type TicketHistoryRecordCreateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -77891,6 +77925,7 @@ export type TicketHistoryRecordUpdateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -78258,6 +78293,8 @@ export type TicketHistoryRecordWhereInput = {
   related_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isPaid_not?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
+  isPayable_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
@@ -78522,7 +78559,7 @@ export type TicketOrganizationSetting = {
   organization?: Maybe<Organization>;
   /**  Default deadline duration for default tickets (ISO 8601 format)  */
   defaultDeadlineDuration?: Maybe<Scalars['String']>;
-  /**  Default deadline duration for paid tickets (ISO 8601 format)  */
+  /**  Default deadline duration for payable tickets (ISO 8601 format)  */
   paidDeadlineDuration?: Maybe<Scalars['String']>;
   /**  Default deadline duration for emergency tickets (ISO 8601 format)  */
   emergencyDeadlineDuration?: Maybe<Scalars['String']>;
@@ -81194,6 +81231,7 @@ export type TicketUpdateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -81496,6 +81534,8 @@ export type TicketWhereInput = {
   related_is_null?: Maybe<Scalars['Boolean']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isPaid_not?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
+  isPayable_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;

@@ -80,7 +80,7 @@ describe('Helpers', () => {
                             { createdAt_lte: selectedRange[1].toISOString() },
                             { isEmergency: true },
                             { isWarranty: false },
-                            { isPaid: false },
+                            { isPayable: false },
                         ],
                         groupBy: ['status', 'day'],
                     }
@@ -104,7 +104,7 @@ describe('Helpers', () => {
                             { createdAt_lte: selectedRange[1].toISOString() },
                             { isEmergency: false },
                             { isWarranty: true },
-                            { isPaid: false },
+                            { isPayable: false },
                         ],
                         groupBy: ['status', 'day'],
                     }
@@ -113,7 +113,7 @@ describe('Helpers', () => {
                     ).toStrictEqual(expectedResult)
                 })
 
-                it('filter with paid ticket type',  () => {
+                it('filter with payable ticket type',  () => {
                     const filter: ticketAnalyticsPageFilters = {
                         range: selectedRange,
                         specification: 'day',
@@ -128,12 +128,12 @@ describe('Helpers', () => {
                             { createdAt_lte: selectedRange[1].toISOString() },
                             { isEmergency: false },
                             { isWarranty: false },
-                            { isPaid: true },
+                            { isPayable: true },
                         ],
                         groupBy: ['status', 'day'],
                     }
                     const dataToCheck = filterToQuery({
-                        filter, viewMode: 'line', ticketType: 'paid', mainGroup: 'status',
+                        filter, viewMode: 'line', ticketType: 'payable', mainGroup: 'status',
                     })
                     expect(dataToCheck).toStrictEqual(expectedResult)
                 })

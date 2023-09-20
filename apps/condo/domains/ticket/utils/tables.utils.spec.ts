@@ -3,9 +3,9 @@ import { getTicketAttributesFilter } from '@condo/domains/ticket/utils/tables.ut
 describe('Table utils', () => {
     describe('getTicketAttributesFilter', () => {
         const isEmergencyAttribute = 'isEmergency'
-        const isPaidAttribute = 'isPaid'
+        const isPayableAttribute = 'isPayable'
         const isWarrantyAttribute = 'isWarranty'
-        const filterAttribute = getTicketAttributesFilter([isEmergencyAttribute, isPaidAttribute, isWarrantyAttribute])
+        const filterAttribute = getTicketAttributesFilter([isEmergencyAttribute, isPayableAttribute, isWarrantyAttribute])
 
         it('should return filter query with one search argument', () => {
             const result = filterAttribute(isEmergencyAttribute)
@@ -15,17 +15,17 @@ describe('Table utils', () => {
         })
 
         it('should return filter query with two search argument', () => {
-            const result = filterAttribute([isEmergencyAttribute, isPaidAttribute])
+            const result = filterAttribute([isEmergencyAttribute, isPayableAttribute])
 
             expect(result).toBeDefined()
-            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPaidAttribute]: true } ] })
+            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPayableAttribute]: true } ] })
         })
 
         it('should return filter query with three search argument', () => {
-            const result = filterAttribute([isEmergencyAttribute, isPaidAttribute, isWarrantyAttribute])
+            const result = filterAttribute([isEmergencyAttribute, isPayableAttribute, isWarrantyAttribute])
 
             expect(result).toBeDefined()
-            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPaidAttribute]: true }, { [isWarrantyAttribute]: true } ] })
+            expect(result).toStrictEqual({ OR: [ { [isEmergencyAttribute]: true }, { [isPayableAttribute]: true }, { [isWarrantyAttribute]: true } ] })
         })
 
         it('should return undefined with wrong search argument', () => {
