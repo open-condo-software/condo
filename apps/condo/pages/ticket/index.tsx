@@ -439,7 +439,7 @@ const TicketsTableContainer = ({
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
-const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPaid']
+const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
 // todo(doma-5776): update amplitude
 const DETAILED_LOGGING = ['status', 'source', 'attributes', 'feedbackValue', 'qualityControlValue', 'unitType', 'contactIsNull']
@@ -608,7 +608,7 @@ const FiltersContainer = ({ filterMetas }) => {
     const RegularLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.RegularLabel' })
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
-    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+    const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -624,7 +624,7 @@ const FiltersContainer = ({ filterMetas }) => {
         isRegular: regular,
         isWarranty: warranty,
         statusReopenedCounter: returned,
-        isPaid: paid,
+        isPayable: payable,
     } = attributes
 
     const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
@@ -702,13 +702,13 @@ const FiltersContainer = ({ filterMetas }) => {
                             </Col>
                             <Col>
                                 <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isPaid')}
-                                    checked={paid}
+                                    onChange={handleAttributeCheckboxChange('isPayable')}
+                                    checked={payable}
                                     style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxPaid'
-                                    data-cy='ticket__filter-isPaid'
+                                    eventName='TicketFilterCheckboxPayable'
+                                    data-cy='ticket__filter-isPayable'
                                 >
-                                    {PaidLabel}
+                                    {PayableLabel}
                                 </Checkbox>
                             </Col>
                             <Col>

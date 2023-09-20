@@ -499,7 +499,7 @@ describe('exportTickets', () => {
                 ticket.clientPhone || '',
                 ticket.details,
                 ticket.isEmergency ? YesMessage : NoMessage,
-                ticket.isPaid ? YesMessage : NoMessage,
+                ticket.isPayable ? YesMessage : NoMessage,
                 ticket.isWarranty ? YesMessage : NoMessage,
                 get(ticket, 'classifier.place.name', empty),
                 get(ticket, 'classifier.category.name', empty),

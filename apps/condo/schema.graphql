@@ -21057,6 +21057,7 @@ type TicketHistoryRecord {
   details: String
   related: String
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -21425,6 +21426,8 @@ input TicketHistoryRecordWhereInput {
   related_not_in: [String]
   isPaid: Boolean
   isPaid_not: Boolean
+  isPayable: Boolean
+  isPayable_not: Boolean
   isEmergency: Boolean
   isEmergency_not: Boolean
   isWarranty: Boolean
@@ -21696,6 +21699,8 @@ enum SortTicketHistoryRecordsBy {
   details_DESC
   isPaid_ASC
   isPaid_DESC
+  isPayable_ASC
+  isPayable_DESC
   isEmergency_ASC
   isEmergency_DESC
   isWarranty_ASC
@@ -21774,6 +21779,7 @@ input TicketHistoryRecordUpdateInput {
   details: String
   related: String
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -21847,6 +21853,7 @@ input TicketHistoryRecordCreateInput {
   details: String
   related: String
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -22098,8 +22105,14 @@ type Ticket {
   """
   related: Ticket
 
-  """ Indicates the ticket is paid """
+  """
+   @deprecated Please use "isPayable"
+  Indicates the ticket is payable 
+  """
   isPaid: Boolean
+
+  """ Indicates the ticket is payable """
+  isPayable: Boolean
 
   """ Indicates the ticket is emergency """
   isEmergency: Boolean
@@ -22454,6 +22467,8 @@ input TicketWhereInput {
   related_is_null: Boolean
   isPaid: Boolean
   isPaid_not: Boolean
+  isPayable: Boolean
+  isPayable_not: Boolean
   isEmergency: Boolean
   isEmergency_not: Boolean
   isWarranty: Boolean
@@ -22699,6 +22714,8 @@ enum SortTicketsBy {
   related_DESC
   isPaid_ASC
   isPaid_DESC
+  isPayable_ASC
+  isPayable_DESC
   isEmergency_ASC
   isEmergency_DESC
   isWarranty_ASC
@@ -22781,6 +22798,7 @@ input TicketUpdateInput {
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -22851,6 +22869,7 @@ input TicketCreateInput {
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -24302,11 +24321,23 @@ type TicketChange {
   """
   detailsTo: String
 
-  """ Indicates the ticket is paid """
+  """
+   @deprecated Please use "isPayable"
+  Indicates the ticket is payable 
+  """
   isPaidFrom: Boolean
 
-  """ Indicates the ticket is paid """
+  """
+   @deprecated Please use "isPayable"
+  Indicates the ticket is payable 
+  """
   isPaidTo: Boolean
+
+  """ Indicates the ticket is payable """
+  isPayableFrom: Boolean
+
+  """ Indicates the ticket is payable """
+  isPayableTo: Boolean
 
   """ Indicates the ticket is emergency """
   isEmergencyFrom: Boolean
@@ -24963,6 +24994,10 @@ input TicketChangeWhereInput {
   isPaidFrom_not: Boolean
   isPaidTo: Boolean
   isPaidTo_not: Boolean
+  isPayableFrom: Boolean
+  isPayableFrom_not: Boolean
+  isPayableTo: Boolean
+  isPayableTo_not: Boolean
   isEmergencyFrom: Boolean
   isEmergencyFrom_not: Boolean
   isEmergencyTo: Boolean
@@ -25736,6 +25771,10 @@ enum SortTicketChangesBy {
   isPaidFrom_DESC
   isPaidTo_ASC
   isPaidTo_DESC
+  isPayableFrom_ASC
+  isPayableFrom_DESC
+  isPayableTo_ASC
+  isPayableTo_DESC
   isEmergencyFrom_ASC
   isEmergencyFrom_DESC
   isEmergencyTo_ASC
@@ -25912,6 +25951,8 @@ input TicketChangeUpdateInput {
   detailsTo: String
   isPaidFrom: Boolean
   isPaidTo: Boolean
+  isPayableFrom: Boolean
+  isPayableTo: Boolean
   isEmergencyFrom: Boolean
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
@@ -26029,6 +26070,8 @@ input TicketChangeCreateInput {
   detailsTo: String
   isPaidFrom: Boolean
   isPaidTo: Boolean
+  isPayableFrom: Boolean
+  isPayableTo: Boolean
   isEmergencyFrom: Boolean
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
@@ -31487,7 +31530,7 @@ type TicketOrganizationSetting {
   """ Default deadline duration for default tickets (ISO 8601 format) """
   defaultDeadlineDuration: String
 
-  """ Default deadline duration for paid tickets (ISO 8601 format) """
+  """ Default deadline duration for payable tickets (ISO 8601 format) """
   paidDeadlineDuration: String
 
   """ Default deadline duration for emergency tickets (ISO 8601 format) """

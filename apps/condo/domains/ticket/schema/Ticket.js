@@ -54,7 +54,7 @@ const {
     calculateStatusUpdatedAt,
     calculateDeferredUntil,
     setDeadline, updateStatusAfterResidentFeedback,
-    updateStatusAfterResidentReview, classifyTicket,
+    classifyTicket,
 } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
 const {
     createTicketChange,
@@ -504,8 +504,20 @@ const Ticket = new GQLListSchema('Ticket', {
             ref: 'Ticket',
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
+
+        /**
+         * @deprecated Please use "isPayable"
+         */
         isPaid: {
-            schemaDoc: 'Indicates the ticket is paid',
+            schemaDoc: '@deprecated Please use "isPayable"' +
+                '\nIndicates the ticket is payable',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
+
+        isPayable: {
+            schemaDoc: 'Indicates the ticket is payable',
             type: Checkbox,
             defaultValue: false,
             isRequired: true,
@@ -657,7 +669,7 @@ const Ticket = new GQLListSchema('Ticket', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     hooks: {
-        resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
+        resolveInput: async ({ operation, context, resolvedData, existingItem, originalInput }) => {
             // NOTE(pahaz): can be undefined if you use it on worker or inside the scripts
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
@@ -711,6 +723,15 @@ const Ticket = new GQLListSchema('Ticket', {
                             }
                         }
                     }
+                }
+            }
+
+            // TODO(DOMA-7224): delete this block when the mobile app will use 'isPayable' field
+            {
+                if ('isPayable' in originalInput) {
+                    resolvedData.isPaid = resolvedData.isPayable
+                } else if ('isPaid' in originalInput) {
+                    resolvedData.isPayable = resolvedData.isPaid
                 }
             }
 
