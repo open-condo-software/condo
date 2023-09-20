@@ -13,7 +13,7 @@ async function canReadTicketFilterTemplates ({ authentication: { item: user } })
     if (user.isAdmin) return {}
 
     return {
-        employee: { organization: { ...queryOrganizationEmployeeFor(user.id) } },
+        employee: { organization: { ...queryOrganizationEmployeeFor(user.id, 'canReadTickets') } },
         createdBy: { id: user.id },
     }
 }

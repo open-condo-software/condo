@@ -42,8 +42,8 @@ async function canReadTicketCommentFiles ({ authentication: { item: user } }) {
             {
                 organization: {
                     OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                        queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
                     ],
                 },
             },

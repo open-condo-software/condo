@@ -21,8 +21,8 @@ async function canReadUserFavoriteTickets ({ authentication: { item: user } }) {
         user: { id: user.id },
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
             ],
         },
     }

@@ -24,7 +24,30 @@ const {
 } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
+const { createTestOrganization, createTestOrganizationEmployee } = require('../../organization/utils/testSchema')
+const { createTestProperty } = require('../../property/utils/testSchema')
+
 describe('TicketFile', () => {
+    let admin
+    let organization
+    let property
+    let clientWithCanReadTicket
+    let clientWithoutCanReadTicket
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        clientWithCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        clientWithoutCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [testOrganization] = await createTestOrganization(admin)
+        organization = testOrganization
+        const [testProperty] = await createTestProperty(admin, organization)
+        property = testProperty
+        const [roleWithCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+        const [roleWithoutCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: false })
+        await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
+        await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
+    })
+
     describe('User', () => {
         it('can create temporary TicketFile [no ticket relation]', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -56,22 +79,25 @@ describe('TicketFile', () => {
             expect(ticketFile.organization).toEqual(expect.objectContaining({ id: client.organization.id }))
             expect(ticketFile.ticket).toEqual(expect.objectContaining({ id: client.ticket.id }))
         })
-        it('can read TicketFile', async () => {
-            const client = await makeClientWithTicket()
-            const [ticketFile, attrs] = await createTestTicketFile(client, client.ticket)
-            const objs = await TicketFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toMatch(ticketFile.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(objs[0].createdAt).toMatch(ticketFile.createdAt)
-            expect(objs[0].updatedAt).toMatch(ticketFile.updatedAt)
+
+        it('can read TicketFile if employee has canReadTickets', async () => {
+            const [ticket] = await createTestTicket(admin, organization, property)
+            const [ticketFile] = await createTestTicketFile(admin, ticket)
+
+            const readTickets = await TicketFile.getOne(clientWithCanReadTicket, { id: ticketFile.id })
+
+            expect(readTickets).toBeDefined()
         })
+
+        it('can not read TicketFile if employee has not canReadTickets', async () => {
+            const [ticket] = await createTestTicket(admin, organization, property)
+            const [ticketFile] = await createTestTicketFile(admin, ticket)
+
+            const readTickets = await TicketFile.getOne(clientWithoutCanReadTicket, { id: ticketFile.id })
+
+            expect(readTickets).toBeUndefined()
+        })
+
         it('cannot read TicketFile from another organization', async () => {
             const client = await makeClientWithTicket()
             await createTestTicketFile(client, client.ticket)
@@ -79,6 +105,7 @@ describe('TicketFile', () => {
             const objs = await TicketFile.getAll(anotherClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(0)
         })
+
         it('can update temporary TicketFile', async () => {
             const client = await makeClientWithTicket()
             const [ticketFileCreated] = await createTestTicketFile(client)
