@@ -34,7 +34,6 @@ import { colors } from '@open-condo/ui/dist/colors'
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
-import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -64,7 +63,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketStatusFilter } from '@condo/domains/ticket/components/TicketStatusFilter/TicketStatusFilter'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 import {
@@ -1027,7 +1026,6 @@ const TicketsPage: ITicketIndexPage = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const canReadTickets = get(userOrganization, ['link', 'role', 'canReadTickets'], false)
 
     const filterMetas = useTicketTableFilters()
 
@@ -1047,10 +1045,6 @@ const TicketsPage: ITicketIndexPage = () => {
             organization: { id: userOrganizationId },
         },
     })
-
-    if (!canReadTickets) {
-        return <AccessDeniedPage />
-    }
 
     return (
         <>
@@ -1130,6 +1124,6 @@ const TicketsPage: ITicketIndexPage = () => {
     )
 }
 
-TicketsPage.requiredAccess = OrganizationRequired
+TicketsPage.requiredAccess = TicketReadPermissionRequired
 
 export default TicketsPage

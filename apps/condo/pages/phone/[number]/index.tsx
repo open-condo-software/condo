@@ -25,7 +25,6 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Carousel, Space, Typography } from '@open-condo/ui'
 
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
-import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { BuildingIcon } from '@condo/domains/common/components/icons/BuildingIcon'
 import { PlusIcon } from '@condo/domains/common/components/icons/PlusIcon'
@@ -42,6 +41,7 @@ import { OrganizationRequired } from '@condo/domains/organization/components/Org
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
+import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -858,9 +858,6 @@ export const ClientCardPageContentWrapper = ({
     usePhonePrefix = false,
 }) => {
     const router = useRouter()
-    const { link } = useOrganization()
-    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
-
     const phoneNumber = get(router, ['query', 'number']) as string
 
     const { objs: contacts, loading: contactsLoading } = Contact.useObjects({
@@ -930,10 +927,6 @@ export const ClientCardPageContentWrapper = ({
         phoneNumberPrefix = phoneNumberPrefixFromContacts || phoneNumberPrefixFromEmployees || phoneNumberPrefixFromTickets
     }
 
-    if (!canReadTickets) {
-        return <AccessDeniedPage />
-    }
-
     return (
         <ClientCardPageContent
             phoneNumber={phoneNumber}
@@ -965,6 +958,6 @@ const ClientCardPage = () => {
 }
 //#endregion
 
-ClientCardPage.requiredAccess = OrganizationRequired
+ClientCardPage.requiredAccess = TicketReadPermissionRequired
 
 export default ClientCardPage

@@ -29,10 +29,10 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
+import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketAssigneeField } from '@condo/domains/ticket/components/TicketId/TicketAssigneeField'
 import { TicketCallRecordHistory } from '@condo/domains/ticket/components/TicketId/TicketCallRecordHistory'
@@ -320,23 +320,23 @@ const TicketContent = ({ ticket }) => {
 }
 
 const TicketChangeDiff = styled.p`
-    &.statusDisplayName {
-        del, ins {
-            font-weight: bold;
-            color: black;
-        }
-    }
-    &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
-        del, ins {
-            color: black;
-            span {
-                color: black;
-            }
-        }
-    }
+  &.statusDisplayName {
     del, ins {
-        text-decoration: none;
+      font-weight: bold;
+      color: black;
     }
+  }
+  &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
+    del, ins {
+      color: black;
+      span {
+        color: black;
+      }
+    }
+  }
+  del, ins {
+    text-decoration: none;
+  }
 `
 
 const TicketActionBar = ({
@@ -655,7 +655,6 @@ const TicketIdPage = () => {
 
     const { user } = useAuth()
     const { link, organization, selectLink } = useOrganization()
-    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
 
     const router = useRouter()
 
@@ -703,7 +702,7 @@ const TicketIdPage = () => {
         )
     }
 
-    if (!canReadTickets || !canEmployeeReadTicket(ticket)) {
+    if (!canEmployeeReadTicket(ticket)) {
         return (
             <AccessDeniedPage />
         )
@@ -734,6 +733,6 @@ const TicketIdPage = () => {
     )
 }
 
-TicketIdPage.requiredAccess = OrganizationRequired
+TicketIdPage.requiredAccess = TicketReadPermissionRequired
 
 export default TicketIdPage
