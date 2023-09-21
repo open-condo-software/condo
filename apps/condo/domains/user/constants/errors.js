@@ -1,7 +1,5 @@
 const { pick } = require('lodash')
 
-const { GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-
 const { NOT_UNIQUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 
 const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD } = require('./common')
@@ -140,7 +138,7 @@ const ERRORS = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         mutation: 'registerNewUser',
         variable: ['data', 'confirmPhoneActionToken'],
-        code: BAD_USER_INPUT,
+        code: 'BAD_USER_INPUT',
         type: UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
         message: 'Unable to find confirm phone action',
         messageForUser: 'api.user.registerNewUser.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION',
@@ -148,7 +146,7 @@ const ERRORS = {
     WRONG_PHONE_FORMAT: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
-        code: BAD_USER_INPUT,
+        code: 'BAD_USER_INPUT',
         type: WRONG_PHONE_FORMAT,
         message: 'Wrong format of provided phone number',
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
@@ -164,7 +162,7 @@ const ERRORS = {
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
-        code: BAD_USER_INPUT,
+        code: 'BAD_USER_INPUT',
         type: NOT_UNIQUE,
         message: 'User with specified phone already exists',
         messageForUser: 'api.user.registerNewUser.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS',
@@ -172,14 +170,14 @@ const ERRORS = {
     USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'email'],
-        code: BAD_USER_INPUT,
+        code: 'BAD_USER_INPUT',
         type: NOT_UNIQUE,
         message: 'User with specified email already exists',
         messageForUser: 'api.user.registerNewUser.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS',
     },
     UNABLE_TO_CREATE_USER: {
         mutation: 'registerNewUser',
-        code: INTERNAL_ERROR,
+        code: 'INTERNAL_ERROR',
         type: UNABLE_TO_CREATE_USER,
         message: 'Unable to create user',
         messageForUser: 'api.user.registerNewUser.UNABLE_TO_CREATE_USER',

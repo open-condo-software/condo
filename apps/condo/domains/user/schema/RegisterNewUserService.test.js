@@ -1,6 +1,6 @@
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGraphQLRequestError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
@@ -174,5 +174,19 @@ describe('RegisterNewUserService', () => {
             errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
             'user',
         )
+    })
+
+    test('register with no token', async () => {
+        const client = await makeClient()
+
+        await catchErrorFrom(async () => {
+            await registerNewUser(client, { confirmPhoneActionToken: null })
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                name: 'UserInputError',
+                message: 'Variable "$data" got invalid value null at "data.confirmPhoneActionToken"; Expected non-nullable type "String!" not to be null.',
+                extensions: { code: 'BAD_USER_INPUT' },
+            }])
+        })
     })
 })
