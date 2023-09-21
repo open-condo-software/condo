@@ -25,7 +25,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'B2CAppProperty',
 
         // Organization domain
-        { schemaName: 'Organization', readonly: true },
+        'Organization',
 
         // Ticket domain
         'Ticket',

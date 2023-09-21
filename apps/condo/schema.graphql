@@ -3142,6 +3142,7 @@ type UserRightsSetHistoryRecord {
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -3224,6 +3225,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canManageB2CAppProperties_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -3359,6 +3362,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canManageB2CAppProperties_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -3408,6 +3413,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -3454,6 +3460,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -3576,6 +3583,10 @@ type UserRightsSet {
   """
   canReadOrganizations: Boolean
 
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Organization" similar to support users 
+  """
+  canManageOrganizations: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do 
   """
   canReadTickets: Boolean
@@ -3677,6 +3688,8 @@ input UserRightsSetWhereInput {
   canManageB2CAppProperties_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
   canReadTickets: Boolean
   canReadTickets_not: Boolean
   canManageTickets: Boolean
@@ -3792,6 +3805,8 @@ enum SortUserRightsSetsBy {
   canManageB2CAppProperties_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
   canReadTickets_ASC
   canReadTickets_DESC
   canManageTickets_ASC
@@ -3841,6 +3856,7 @@ input UserRightsSetUpdateInput {
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
@@ -3884,6 +3900,7 @@ input UserRightsSetCreateInput {
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
   canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
