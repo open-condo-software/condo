@@ -16,7 +16,6 @@ const { sendMessage, Message } = require('@condo/domains/notification/utils/serv
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 
-
 const logger = getLogger('notifyResidentsOnPayday')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsOnPayday' } }
@@ -100,6 +99,7 @@ async function notifyResidentsOnPayday () {
 
         for (const consumer of consumers) {
             try {
+                const accountNumber = get(consumer, ['accountNumber'])
                 const userId = consumer.resident.user.id
                 const organizationId = consumer.organization.id
 
@@ -112,6 +112,9 @@ async function notifyResidentsOnPayday () {
                     chunkSize:20,
                     list: BillingReceipt,
                     where: {
+                        account: {
+                            number: accountNumber,
+                        },
                         context: {
                             id: consumer.billingIntegrationContext.id,
                         },
@@ -125,7 +128,6 @@ async function notifyResidentsOnPayday () {
                 let isAllPaid = true
                 for (const receipt of receipts) {
                     const organizationId = get(receipt, ['context', 'organization', 'id'])
-                    const accountNumber = get(receipt, ['account', 'number'])
                     const toPay = Number(get(receipt, ['toPay']))
                     const paid = Number(await getPaymentsSum(
                         context,
