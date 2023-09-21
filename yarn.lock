@@ -919,9 +919,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/documents-next@workspace:apps/documents-next"
   dependencies:
+    "@open-condo/bridge": "workspace:^"
+    "@open-condo/config": "workspace:^"
+    "@open-condo/icons": "workspace:^"
+    "@open-condo/ui": "workspace:^"
     "@types/node": ^16
     "@types/react": 18.0.27
     "@types/react-dom": 18.0.10
+    antd: ^4
     next: ^13.5.2
     next-i18n-router: ^3.3.0
     react: 18.2.0
@@ -15057,6 +15062,60 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 9d1c249f769b61f3b95b8b4699de88c92a6fb17539014bb270475434658dfca1e6826ffa79582ea00d63c68286ce65630980cab9dadd92f7304fe445ca342f8c
+  languageName: node
+  linkType: hard
+
+"antd@npm:^4":
+  version: 4.24.14
+  resolution: "antd@npm:4.24.14"
+  dependencies:
+    "@ant-design/colors": ^6.0.0
+    "@ant-design/icons": ^4.7.0
+    "@ant-design/react-slick": ~1.0.0
+    "@babel/runtime": ^7.18.3
+    "@ctrl/tinycolor": ^3.4.0
+    classnames: ^2.2.6
+    copy-to-clipboard: ^3.2.0
+    lodash: ^4.17.21
+    moment: ^2.29.2
+    rc-cascader: ~3.7.0
+    rc-checkbox: ~3.0.0
+    rc-collapse: ~3.4.2
+    rc-dialog: ~9.0.2
+    rc-drawer: ~6.3.0
+    rc-dropdown: ~4.0.0
+    rc-field-form: ~1.34.0
+    rc-image: ~5.13.0
+    rc-input: ~0.1.4
+    rc-input-number: ~7.3.9
+    rc-mentions: ~1.13.1
+    rc-menu: ~9.8.0
+    rc-motion: ^2.6.1
+    rc-notification: ~4.6.0
+    rc-pagination: ~3.2.0
+    rc-picker: ~2.7.0
+    rc-progress: ~3.4.1
+    rc-rate: ~2.9.0
+    rc-resize-observer: ^1.2.0
+    rc-segmented: ~2.1.0
+    rc-select: ~14.1.17
+    rc-slider: ~10.0.0
+    rc-steps: ~5.0.0-alpha.2
+    rc-switch: ~3.2.0
+    rc-table: ~7.26.0
+    rc-tabs: ~12.5.6
+    rc-textarea: ~0.4.5
+    rc-tooltip: ~5.2.0
+    rc-tree: ~5.7.0
+    rc-tree-select: ~5.5.0
+    rc-trigger: ^5.2.10
+    rc-upload: ~4.3.0
+    rc-util: ^5.35.1
+    scroll-into-view-if-needed: ^2.2.25
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: 36436d9e8b6cad33c9b437ef67dfbf2848d0c81ac0eed7ec91f537b090694d155c1988ed0b3d9d578ab8541bb6df5ca9a061e223d5faa526e8d956625f33f91e
   languageName: node
   linkType: hard
 
@@ -38038,6 +38097,19 @@ __metadata:
     react: ">=16.9.0"
     react-dom: ">=16.9.0"
   checksum: 2d19bac2670bf546225f12e9b7f5b578233ec53cfca0071eaca53d4b056c10fe92b36d4148f0592f0cdc65ab3067c81f9cd8456769ff0e00c1b03210d40c8f19
+  languageName: node
+  linkType: hard
+
+"rc-util@npm:^5.35.1":
+  version: 5.37.0
+  resolution: "rc-util@npm:5.37.0"
+  dependencies:
+    "@babel/runtime": ^7.18.3
+    react-is: ^16.12.0
+  peerDependencies:
+    react: ">=16.9.0"
+    react-dom: ">=16.9.0"
+  checksum: 0a72644f0924235044eb20bbc73081356c1fb98459f6cce0f4b75807c82cb71c050e5f36cf6d82f8a8a07b5955632e1198b8884cd96fe2d8d92f2289f9058a7e
   languageName: node
   linkType: hard
 
