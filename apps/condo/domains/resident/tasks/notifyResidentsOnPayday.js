@@ -40,7 +40,7 @@ async function sendNotification (context, receipt, consumer) {
     const resident = consumer.resident
     const userId = resident.user.id
     const lang = get(COUNTRIES, [get(receipt, 'organization.country', conf.DEFAULT_LOCALE), 'locale'], conf.DEFAULT_LOCALE)
-    const now = dayjs().subtract(1, 'month')
+    const monthName = lang === RU_LOCALE ? dayjs(receipt.period).locale('ru').format('MMMM') : dayjs(receipt.period).format('MMMM')
 
     if (await hasConflictingPushes(context, userId)) {
         logger.info({ msg: 'Today the User received push notifications with a conflicting type', userId })
@@ -53,10 +53,11 @@ async function sendNotification (context, receipt, consumer) {
         to: { user: { id: userId } },
         lang,
         type: SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
+        organization: { connect: { id: consumer.organization.id } },
         meta: {
             dv: 1,
             data: {
-                monthName: lang === RU_LOCALE ? now.locale('ru').format('MMMM') : now.format('MMMM'),
+                monthName,
                 serviceConsumerId: consumer.id,
                 residentId: resident.id,
                 userId,
@@ -88,6 +89,9 @@ async function notifyResidentsOnPayday () {
             },
             billingAccount_is_null: false,
             billingIntegrationContext_is_null: false,
+            resident: {
+                deletedAt: null,
+            },
             deletedAt: null,
         }, {
             skip: state.consumersOffset,
