@@ -902,7 +902,7 @@ __metadata:
     glob: 8.1.0
     gray-matter: 4.0.3
     lodash: ^4.17.21
-    next: ^13.3.0
+    next: ^13.5.2
     next-mdx-remote: 4.3.0
     react: 18.2.0
     react-dom: 18.2.0
@@ -911,6 +911,22 @@ __metadata:
     remark-custom-heading-id: 1.0.0
     remark-gfm: 3.0.1
     title: 3.5.3
+    typescript: 4.9.4
+  languageName: unknown
+  linkType: soft
+
+"@app/documents-next@workspace:apps/documents-next":
+  version: 0.0.0-use.local
+  resolution: "@app/documents-next@workspace:apps/documents-next"
+  dependencies:
+    "@types/node": ^16
+    "@types/react": 18.0.27
+    "@types/react-dom": 18.0.10
+    next: ^13.5.2
+    next-i18n-router: ^3.3.0
+    react: 18.2.0
+    react-dom: 18.2.0
+    react-intl: ^6.4.7
     typescript: 4.9.4
   languageName: unknown
   linkType: soft
@@ -6640,6 +6656,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formatjs/ecma402-abstract@npm:1.17.2":
+  version: 1.17.2
+  resolution: "@formatjs/ecma402-abstract@npm:1.17.2"
+  dependencies:
+    "@formatjs/intl-localematcher": 0.4.2
+    tslib: ^2.4.0
+  checksum: 026382b1fb295cef4387b2f2a34dace107b12fb7607793093b26595b0d639a30e5f4539665730897eb77eefabee2bb35c156896c63925b0ec03b746751e3fb00
+  languageName: node
+  linkType: hard
+
 "@formatjs/fast-memoize@npm:1.2.1":
   version: 1.2.1
   resolution: "@formatjs/fast-memoize@npm:1.2.1"
@@ -6664,6 +6690,15 @@ __metadata:
   dependencies:
     tslib: ^2.4.0
   checksum: 19f7f04657363d3ca4854ba3e5ecf4ae5bf0575c12ba8b2b24a7128131b38d91cf2692aeab778d42e9aa2e27cd2ea3b1e23cabf8ce4dff42988dcf65582c3a94
+  languageName: node
+  linkType: hard
+
+"@formatjs/fast-memoize@npm:2.2.0":
+  version: 2.2.0
+  resolution: "@formatjs/fast-memoize@npm:2.2.0"
+  dependencies:
+    tslib: ^2.4.0
+  checksum: 8697fe72a7ece252d600a7d08105f2a2f758e2dd96f54ac0a4c508b1205a559fc08835635e1f8e5ca9dcc3ee61ce1fca4a0e7047b402f29fc96051e293a280ff
   languageName: node
   linkType: hard
 
@@ -6700,6 +6735,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formatjs/icu-messageformat-parser@npm:2.6.2":
+  version: 2.6.2
+  resolution: "@formatjs/icu-messageformat-parser@npm:2.6.2"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.17.2
+    "@formatjs/icu-skeleton-parser": 1.6.2
+    tslib: ^2.4.0
+  checksum: c339a712497deaa14e84610afb6c09377a5641b18fb0ae3d42999354cf2b557c84d7c7fead0d06d38a04f8e63e8002ae51c820a8a3e98b82805e84e7878e9d90
+  languageName: node
+  linkType: hard
+
 "@formatjs/icu-skeleton-parser@npm:1.3.12":
   version: 1.3.12
   resolution: "@formatjs/icu-skeleton-parser@npm:1.3.12"
@@ -6727,6 +6773,16 @@ __metadata:
     "@formatjs/ecma402-abstract": 1.11.4
     tslib: ^2.1.0
   checksum: cce2d8bea54f0096c557dc03920bfe4785893e60962313fab9eeee41f0b411d38b9d45852882b19f261417d730362c8685bea6ba5ac1e2dee141f030cda624e9
+  languageName: node
+  linkType: hard
+
+"@formatjs/icu-skeleton-parser@npm:1.6.2":
+  version: 1.6.2
+  resolution: "@formatjs/icu-skeleton-parser@npm:1.6.2"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.17.2
+    tslib: ^2.4.0
+  checksum: f51658d0b086579a2173b91beb692822f08db1180c81fa41e62bef4236a0de98f9d6e46087d77c5e46fa4286f77b4b52a2467f3d8b81a4cf8dd817edb138d68b
   languageName: node
   linkType: hard
 
@@ -6763,6 +6819,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formatjs/intl-displaynames@npm:6.5.2":
+  version: 6.5.2
+  resolution: "@formatjs/intl-displaynames@npm:6.5.2"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.17.2
+    "@formatjs/intl-localematcher": 0.4.2
+    tslib: ^2.4.0
+  checksum: e48718c00fc2392aac49bbc6971f44d6e56f3626aaebae9ecf61fe8787b7e11b5b0be9f7be5d8bcd43ea6fbaa7ea4aa1453b042e076f982fa0d24d7744088ccf
+  languageName: node
+  linkType: hard
+
 "@formatjs/intl-listformat@npm:6.5.3":
   version: 6.5.3
   resolution: "@formatjs/intl-listformat@npm:6.5.3"
@@ -6796,6 +6863,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@formatjs/intl-listformat@npm:7.4.2":
+  version: 7.4.2
+  resolution: "@formatjs/intl-listformat@npm:7.4.2"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.17.2
+    "@formatjs/intl-localematcher": 0.4.2
+    tslib: ^2.4.0
+  checksum: e31c0f8cf91c23c22c725db6fee51f5a54399a04d7dc1834a7a83e2d7069e26b92f7276a10c4f35d4ffa82f482c1fcf1240571f2e04e10ef072f2edcd2f69a09
+  languageName: node
+  linkType: hard
+
 "@formatjs/intl-localematcher@npm:0.2.25":
   version: 0.2.25
   resolution: "@formatjs/intl-localematcher@npm:0.2.25"
@@ -6814,12 +6892,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@formatjs/intl-localematcher@npm:0.2.32":
+"@formatjs/intl-localematcher@npm:0.2.32, @formatjs/intl-localematcher@npm:^0.2.32":
   version: 0.2.32
   resolution: "@formatjs/intl-localematcher@npm:0.2.32"
   dependencies:
     tslib: ^2.4.0
   checksum: 477e18aabaf2e6e90fc12952a3cb6c0ebb40ad99414d6b9d2501c6348fbad58cacb433ec6630955cfd1491ea7630f32a9dc280bb27d0fb8a784251404a54140a
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl-localematcher@npm:0.4.2":
+  version: 0.4.2
+  resolution: "@formatjs/intl-localematcher@npm:0.4.2"
+  dependencies:
+    tslib: ^2.4.0
+  checksum: df579d8c453a11eed1ec55604f8dda121d728fc5109ed885892347a126089caef95a0edf71f1f6db3134bb9e73787062995baf7746a2577e8ca2980dcd6590cb
   languageName: node
   linkType: hard
 
@@ -6860,6 +6947,26 @@ __metadata:
     typescript:
       optional: true
   checksum: c0c8ccbc8bcffc245a5ec6654271dc99dd48359c6dfa21666824be55a7e2b0be8e6f0a1277d1e539064fa2eb72c5349d9ea7ae6ab207191a3adf00c68b1eab7f
+  languageName: node
+  linkType: hard
+
+"@formatjs/intl@npm:2.9.3":
+  version: 2.9.3
+  resolution: "@formatjs/intl@npm:2.9.3"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.17.2
+    "@formatjs/fast-memoize": 2.2.0
+    "@formatjs/icu-messageformat-parser": 2.6.2
+    "@formatjs/intl-displaynames": 6.5.2
+    "@formatjs/intl-listformat": 7.4.2
+    intl-messageformat: 10.5.3
+    tslib: ^2.4.0
+  peerDependencies:
+    typescript: ^4.7 || 5
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 70df0ce7121e612f0415ed4dcc83d3d64499127c6a8996d30eb37c91d16d153721befc74332d5ab064b8b03c5bbd4073fd0b0f11f90a73559d997619e285eaac
   languageName: node
   linkType: hard
 
@@ -9283,10 +9390,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/env@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/env@npm:13.3.0"
-  checksum: 17dbea6d019df98f8abebadcaed635d792c69368389c7869ca023acfba240294368a58eda761fb8047403b84e82edf25ea2af45afe06cc1807a25de42e256dd3
+"@next/env@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/env@npm:13.5.2"
+  checksum: f6ef14b7643049dafc2d53b5091e3f74eed0af14743cfd61f1db7782a99e69b5bef63f36ba700034b23656a264c7ec498aac8fa4f9377dad01e544ffa507388f
   languageName: node
   linkType: hard
 
@@ -9336,65 +9443,65 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-arm64@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-darwin-arm64@npm:13.3.0"
+"@next/swc-darwin-arm64@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-darwin-arm64@npm:13.5.2"
   conditions: os=darwin & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-darwin-x64@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-darwin-x64@npm:13.3.0"
+"@next/swc-darwin-x64@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-darwin-x64@npm:13.5.2"
   conditions: os=darwin & cpu=x64
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-gnu@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-linux-arm64-gnu@npm:13.3.0"
+"@next/swc-linux-arm64-gnu@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-linux-arm64-gnu@npm:13.5.2"
   conditions: os=linux & cpu=arm64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-arm64-musl@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-linux-arm64-musl@npm:13.3.0"
+"@next/swc-linux-arm64-musl@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-linux-arm64-musl@npm:13.5.2"
   conditions: os=linux & cpu=arm64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-gnu@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-linux-x64-gnu@npm:13.3.0"
+"@next/swc-linux-x64-gnu@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-linux-x64-gnu@npm:13.5.2"
   conditions: os=linux & cpu=x64 & libc=glibc
   languageName: node
   linkType: hard
 
-"@next/swc-linux-x64-musl@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-linux-x64-musl@npm:13.3.0"
+"@next/swc-linux-x64-musl@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-linux-x64-musl@npm:13.5.2"
   conditions: os=linux & cpu=x64 & libc=musl
   languageName: node
   linkType: hard
 
-"@next/swc-win32-arm64-msvc@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-win32-arm64-msvc@npm:13.3.0"
+"@next/swc-win32-arm64-msvc@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-win32-arm64-msvc@npm:13.5.2"
   conditions: os=win32 & cpu=arm64
   languageName: node
   linkType: hard
 
-"@next/swc-win32-ia32-msvc@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-win32-ia32-msvc@npm:13.3.0"
+"@next/swc-win32-ia32-msvc@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-win32-ia32-msvc@npm:13.5.2"
   conditions: os=win32 & cpu=ia32
   languageName: node
   linkType: hard
 
-"@next/swc-win32-x64-msvc@npm:13.3.0":
-  version: 13.3.0
-  resolution: "@next/swc-win32-x64-msvc@npm:13.3.0"
+"@next/swc-win32-x64-msvc@npm:13.5.2":
+  version: 13.5.2
+  resolution: "@next/swc-win32-x64-msvc@npm:13.5.2"
   conditions: os=win32 & cpu=x64
   languageName: node
   linkType: hard
@@ -12379,12 +12486,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/helpers@npm:0.4.14":
-  version: 0.4.14
-  resolution: "@swc/helpers@npm:0.4.14"
+"@swc/helpers@npm:0.5.2":
+  version: 0.5.2
+  resolution: "@swc/helpers@npm:0.5.2"
   dependencies:
     tslib: ^2.4.0
-  checksum: 273fd3f3fc461a92f3790cc551ea054745c6d6959afbe1232e6d7aa1c722bbc114d308aab96bef5c78fc0303c85c7b472ef00e2253251cc89737f3b1af56e5a5
+  checksum: 51d7e3d8bd56818c49d6bfbd715f0dbeedc13cf723af41166e45c03e37f109336bbcb57a1f2020f4015957721aeb21e1a7fff281233d797ff7d3dd1f447fa258
   languageName: node
   linkType: hard
 
@@ -26904,6 +27011,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"intl-messageformat@npm:10.5.3":
+  version: 10.5.3
+  resolution: "intl-messageformat@npm:10.5.3"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.17.2
+    "@formatjs/fast-memoize": 2.2.0
+    "@formatjs/icu-messageformat-parser": 2.6.2
+    tslib: ^2.4.0
+  checksum: cc71cfa9b93aacba3f9d8ddcef7fab2bf81125de3edb7ee73b58185d107e86c301d54bd0e7a87141e311f5104ee90182f1ca52d8ee94446a0dfccc5c7db8541f
+  languageName: node
+  linkType: hard
+
 "intl-messageformat@npm:9.13.0":
   version: 9.13.0
   resolution: "intl-messageformat@npm:9.13.0"
@@ -32842,6 +32961,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"next-i18n-router@npm:^3.3.0":
+  version: 3.3.0
+  resolution: "next-i18n-router@npm:3.3.0"
+  dependencies:
+    "@formatjs/intl-localematcher": ^0.2.32
+    negotiator: ^0.6.3
+  checksum: 2169f5f36f733f4fa125a5caa826b40a8d1fcabe8823cc29f0b66d2583b52f8cdf40bc1dd83bc0dcc75661d81b3190085ccf7323cfee1d3850edd9f3deabe3a9
+  languageName: node
+  linkType: hard
+
 "next-mdx-remote@npm:4.3.0":
   version: 4.3.0
   resolution: "next-mdx-remote@npm:4.3.0"
@@ -32884,29 +33013,29 @@ __metadata:
   languageName: node
   linkType: hard
 
-"next@npm:^13.3.0":
-  version: 13.3.0
-  resolution: "next@npm:13.3.0"
+"next@npm:^13.5.2":
+  version: 13.5.2
+  resolution: "next@npm:13.5.2"
   dependencies:
-    "@next/env": 13.3.0
-    "@next/swc-darwin-arm64": 13.3.0
-    "@next/swc-darwin-x64": 13.3.0
-    "@next/swc-linux-arm64-gnu": 13.3.0
-    "@next/swc-linux-arm64-musl": 13.3.0
-    "@next/swc-linux-x64-gnu": 13.3.0
-    "@next/swc-linux-x64-musl": 13.3.0
-    "@next/swc-win32-arm64-msvc": 13.3.0
-    "@next/swc-win32-ia32-msvc": 13.3.0
-    "@next/swc-win32-x64-msvc": 13.3.0
-    "@swc/helpers": 0.4.14
+    "@next/env": 13.5.2
+    "@next/swc-darwin-arm64": 13.5.2
+    "@next/swc-darwin-x64": 13.5.2
+    "@next/swc-linux-arm64-gnu": 13.5.2
+    "@next/swc-linux-arm64-musl": 13.5.2
+    "@next/swc-linux-x64-gnu": 13.5.2
+    "@next/swc-linux-x64-musl": 13.5.2
+    "@next/swc-win32-arm64-msvc": 13.5.2
+    "@next/swc-win32-ia32-msvc": 13.5.2
+    "@next/swc-win32-x64-msvc": 13.5.2
+    "@swc/helpers": 0.5.2
     busboy: 1.6.0
     caniuse-lite: ^1.0.30001406
     postcss: 8.4.14
     styled-jsx: 5.1.1
+    watchpack: 2.4.0
+    zod: 3.21.4
   peerDependencies:
     "@opentelemetry/api": ^1.1.0
-    fibers: ">= 3.1.0"
-    node-sass: ^6.0.0 || ^7.0.0
     react: ^18.2.0
     react-dom: ^18.2.0
     sass: ^1.3.0
@@ -32932,15 +33061,11 @@ __metadata:
   peerDependenciesMeta:
     "@opentelemetry/api":
       optional: true
-    fibers:
-      optional: true
-    node-sass:
-      optional: true
     sass:
       optional: true
   bin:
     next: dist/bin/next
-  checksum: 24e0e013e867a825ff7d1f49587e696147ea8f9ff42946121fe0dce25f9bcc9b1d5941425fa7cef3b8c0e6f1c3daa7f09f758ac5a8aa15aa66c3b31a07465081
+  checksum: cc0635ad5aaab9fc1f4315b9506361b1abf1a12146542d6054b9434e2e892e967f19fbabd3f3763ba5e227306aa91627c1d73af089e9b853b84c74e20bb0be00
   languageName: node
   linkType: hard
 
@@ -38328,6 +38453,30 @@ __metadata:
     typescript:
       optional: true
   checksum: c842bec10a78b88e53b54170bcd7819ec4f324abf18400f6a66049f4f78af587064fbb156b0f04e0a02d4b60407dcce713c2140b266a41762c6b8a5a54a7627d
+  languageName: node
+  linkType: hard
+
+"react-intl@npm:^6.4.7":
+  version: 6.4.7
+  resolution: "react-intl@npm:6.4.7"
+  dependencies:
+    "@formatjs/ecma402-abstract": 1.17.2
+    "@formatjs/icu-messageformat-parser": 2.6.2
+    "@formatjs/intl": 2.9.3
+    "@formatjs/intl-displaynames": 6.5.2
+    "@formatjs/intl-listformat": 7.4.2
+    "@types/hoist-non-react-statics": ^3.3.1
+    "@types/react": 16 || 17 || 18
+    hoist-non-react-statics: ^3.3.2
+    intl-messageformat: 10.5.3
+    tslib: ^2.4.0
+  peerDependencies:
+    react: ^16.6.0 || 17 || 18
+    typescript: ^4.7 || 5
+  peerDependenciesMeta:
+    typescript:
+      optional: true
+  checksum: 5b53096e4bf1e2a60b1175d381d645b284723280575054eba7c2f3a0b7aaf338228ffb7f1319caa7f7cdd7a463c9ba564e7ee09e3be794aa4c556fc850bbd670
   languageName: node
   linkType: hard
 
@@ -45823,6 +45972,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"watchpack@npm:2.4.0, watchpack@npm:^2.2.0, watchpack@npm:^2.4.0":
+  version: 2.4.0
+  resolution: "watchpack@npm:2.4.0"
+  dependencies:
+    glob-to-regexp: ^0.4.1
+    graceful-fs: ^4.1.2
+  checksum: 23d4bc58634dbe13b86093e01c6a68d8096028b664ab7139d58f0c37d962d549a940e98f2f201cecdabd6f9c340338dc73ef8bf094a2249ef582f35183d1a131
+  languageName: node
+  linkType: hard
+
 "watchpack@npm:^1.7.4":
   version: 1.7.5
   resolution: "watchpack@npm:1.7.5"
@@ -45837,16 +45996,6 @@ __metadata:
     watchpack-chokidar2:
       optional: true
   checksum: 8b7cb8c8df8f4dd0e8ac47693c0141c4f020a4b031411247d600eca31522fde6f1f9a3a6f6518b46e71f7971b0ed5734c08c60d7fdd2530e7262776286f69236
-  languageName: node
-  linkType: hard
-
-"watchpack@npm:^2.2.0, watchpack@npm:^2.4.0":
-  version: 2.4.0
-  resolution: "watchpack@npm:2.4.0"
-  dependencies:
-    glob-to-regexp: ^0.4.1
-    graceful-fs: ^4.1.2
-  checksum: 23d4bc58634dbe13b86093e01c6a68d8096028b664ab7139d58f0c37d962d549a940e98f2f201cecdabd6f9c340338dc73ef8bf094a2249ef582f35183d1a131
   languageName: node
   linkType: hard
 
@@ -47133,6 +47282,13 @@ __metadata:
     compress-commons: ^3.0.0
     readable-stream: ^3.6.0
   checksum: 2f574c91413d08818facd5467818edfa2307e179dce2687f9819a7de4c5e2ab0f9d5b4511ae0cf5603e7e2831b9f10ce4681cff0717b98dd4918b382da269ef2
+  languageName: node
+  linkType: hard
+
+"zod@npm:3.21.4":
+  version: 3.21.4
+  resolution: "zod@npm:3.21.4"
+  checksum: f185ba87342ff16f7a06686767c2b2a7af41110c7edf7c1974095d8db7a73792696bcb4a00853de0d2edeb34a5b2ea6a55871bc864227dace682a0a28de33e1f
   languageName: node
   linkType: hard
 
