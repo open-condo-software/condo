@@ -53,7 +53,7 @@ async function sendNotification (context, receipt, consumer) {
         to: { user: { id: userId } },
         lang,
         type: SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
-        organization: { connect: { id: consumer.organization.id } },
+        organization: { id: consumer.organization.id },
         meta: {
             dv: 1,
             data: {
@@ -122,15 +122,42 @@ async function notifyResidentsOnPayday () {
                         context: {
                             id: consumer.billingIntegrationContext.id,
                         },
-                        period: consumer.billingIntegrationContext.lastReport.period,
+                        period_gte: dayjs().subtract(2, 'month').startOf('month').toISOString(),
                         toPay_gt: '0',
                         deletedAt: null,
                     },
                 })
                 state.processedReceipts += receipts.length
 
-                let isAllPaid = true
+                const receiptsByAccountAndRecipient = {}
                 for (const receipt of receipts) {
+                    const accountNumber = get(receipt, ['account', 'number'])
+                    const recipientId = get(receipt, ['receiver', 'id'])
+                    const categoryId = get(receipt, ['category', 'id'])
+                    const key = accountNumber + '-' + recipientId + '-' + categoryId
+
+                    const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
+
+                    if (!(key in receiptsByAccountAndRecipient)) {
+                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
+                        continue
+                    }
+
+                    // If we have a receipt with later period -- we take it
+                    const existingRecipientPeriod = dayjs(get(receiptsByAccountAndRecipient[key], 'period'), 'YYYY-MM-DD')
+                    if (existingRecipientPeriod < period) {
+                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
+                    }
+                }
+
+                const processedReceipts = (Object.values(receiptsByAccountAndRecipient)).map(r => r.id)
+                receipts.forEach(receipt => {
+                    receipt.isPayable = processedReceipts.includes(receipt.id)
+                })
+                const payableReceipts = receipts.filter(r => r.isPayable)
+
+                let isAllPaid = true
+                for (const receipt of payableReceipts) {
                     const organizationId = get(receipt, ['context', 'organization', 'id'])
                     const toPay = Number(get(receipt, ['toPay']))
                     const paid = Number(await getPaymentsSum(
@@ -144,7 +171,7 @@ async function notifyResidentsOnPayday () {
                     if (paid < toPay) isAllPaid = false
                 }
 
-                if (!isAllPaid) await sendNotification(context, receipts[0], consumer)
+                if (!isAllPaid) await sendNotification(context, payableReceipts[0], consumer)
             } catch (error) {
                 logger.error({ error })
                 state.failedConsumers++
