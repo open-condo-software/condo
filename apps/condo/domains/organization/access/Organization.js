@@ -79,20 +79,20 @@ async function canReadOrganizations ({ authentication: { item: user }, listKey }
 async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    if (user.isSupport || user.isAdmin) return true
+    if (user.isAdmin || user.isSupport) return true
+
+    // You should use "registerNewOrganization"
+    if (operation === 'create') return false
+
     const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
     if (hasDirectAccess) return true
 
     // NOTE: The "isApproved" field can only be managed by the admin, support, users with special rights.
     if ('isApproved' in originalInput) return false
 
-    if (operation === 'create') {
-        return false
-    } else if (operation === 'update') {
-        // user is inside employee list and is not blocked
-        return {
-            employees_some: { user: { id: user.id }, role: { canManageOrganization: true }, isBlocked: false, deletedAt: null },
-        }
+    // user is inside employee list and is not blocked
+    return {
+        employees_some: { user: { id: user.id }, role: { canManageOrganization: true }, isBlocked: false, deletedAt: null },
     }
 }
 

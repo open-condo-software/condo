@@ -63,6 +63,14 @@ describe('Organization', () => {
                     await createTestOrganization(user)
                 })
             })
+            test('User with custom rights cannot create organization directly', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [userRightsSet] = await createTestUserRightsSet(support, { canReadOrganizations: true, canManageOrganizations: true })
+                await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(userClient)
+                })
+            })
             test('Support can create organization directly', async () => {
                 const [obj, attrs] = await createTestOrganization(support)
 
@@ -76,6 +84,7 @@ describe('Organization', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expect(obj.isApproved).toBeTruthy()
             })
         })
         describe('Read', () => {
@@ -390,7 +399,7 @@ describe('Organization', () => {
                 expect(updatedO18n.isApproved).toBeTruthy()
             })
 
-            test('User with custom access: can register organization, read and update field "isApproved"', async () => {
+            test('User with custom access: can read and update field "isApproved"', async () => {
                 const userClient = await makeEmployeeUserClientWithAbilities({
                     canManageOrganization: true,
                 })
