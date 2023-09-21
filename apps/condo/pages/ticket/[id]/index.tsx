@@ -375,8 +375,9 @@ const TicketActionBar = ({
     const { isCallActive, connectedTickets } = useActiveCall()
 
     const id = get(ticket, 'id')
-    const ticketOrganizationId = get(ticket, 'organization.id')
-    const canShareTickets = get(employee, 'role.canShareTickets')
+    const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
+    const canShareTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
+    const canManageTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
 
     const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
@@ -424,16 +425,18 @@ const TicketActionBar = ({
                         {AttachCallToTicketMessage}
                     </Button>
                 ),
-                <Link key='update' href={`/ticket/${ticket.id}/update`}>
-                    <Button
-                        disabled={disabledEditTicketButton}
-                        type='secondary'
-                        icon={<Edit size='medium'/>}
-                        data-cy='ticket__update-link'
-                    >
-                        {UpdateMessage}
-                    </Button>
-                </Link>,
+                canManageTickets && (
+                    <Link key='update' href={`/ticket/${ticket.id}/update`}>
+                        <Button
+                            disabled={disabledEditTicketButton}
+                            type='secondary'
+                            icon={<Edit size='medium'/>}
+                            data-cy='ticket__update-link'
+                        >
+                            {UpdateMessage}
+                        </Button>
+                    </Link>
+                ),
                 breakpoints.TABLET_LARGE && <>
                     <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}

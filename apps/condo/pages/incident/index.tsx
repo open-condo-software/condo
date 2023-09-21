@@ -271,6 +271,7 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
     const { useTableColumns, filterMetas, baseQuery } = props
 
     const { user } = useAuth() as { user: { id: string } }
+    const { link } = useOrganization()
     const router = useRouter()
 
     const { incidentsLoading, incidents, count, sortBy, where } = useIncidentsSearch({ baseQuery, filterMetas })
@@ -310,6 +311,8 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
         </Col>
     ), [count, incidents, columns, loading, handleRowAction])
 
+    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
+
     return (
         <>
             {IncidentsTable}
@@ -318,14 +321,16 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
                     <Col span={24}>
                         <ActionBar
                             actions={[
-                                <Button
-                                    key='create'
-                                    type='primary'
-                                    children={AddNewIncidentLabel}
-                                    onClick={handleAddNewIncident}
-                                    id='createIncident'
-                                    icon={<PlusCircle size='medium' />}
-                                />,
+                                canManageIncidents && (
+                                    <Button
+                                        key='create'
+                                        type='primary'
+                                        children={AddNewIncidentLabel}
+                                        onClick={handleAddNewIncident}
+                                        id='createIncident'
+                                        icon={<PlusCircle size='medium' />}
+                                    />
+                                ),
                                 Boolean(count) && <ExportButton key='export' id='exportToExcelIncidents' />,
                             ]}
                         />

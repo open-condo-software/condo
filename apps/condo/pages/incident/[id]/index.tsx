@@ -13,6 +13,7 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
@@ -362,8 +363,10 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const { incident, refetchIncident, incidentLoading, withOrganization } = props
 
     const router = useRouter()
+    const { link } = useOrganization()
 
     const isActual = incident.status === IncidentStatusType.Actual
+    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
 
     const {
         objs: incidentChanges,
@@ -445,22 +448,26 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                         <Col span={24}>
                             <ActionBar
                                 actions={[
-                                    <Button
-                                        key='changeStatus'
-                                        disabled={incidentLoading}
-                                        type='primary'
-                                        children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
-                                        onClick={handleOpen}
-                                        id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
-                                    />,
-                                    <Button
-                                        key='editIncident'
-                                        disabled={incidentLoading}
-                                        type='secondary'
-                                        children={EditLabel}
-                                        onClick={handleEditIncident}
-                                        id='editIncident'
-                                    />,
+                                    canManageIncidents && (
+                                        <Button
+                                            key='changeStatus'
+                                            disabled={incidentLoading}
+                                            type='primary'
+                                            children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
+                                            onClick={handleOpen}
+                                            id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
+                                        />
+                                    ),
+                                    canManageIncidents && (
+                                        <Button
+                                            key='editIncident'
+                                            disabled={incidentLoading}
+                                            type='secondary'
+                                            children={EditLabel}
+                                            onClick={handleEditIncident}
+                                            id='editIncident'
+                                        />
+                                    ),
                                 ]}
                             />
                         </Col>
