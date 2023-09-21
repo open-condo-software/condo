@@ -169,8 +169,6 @@ const Organization = new GQLListSchema('Organization', {
                 '\nIf the organization is test or fraudulent, then you need to set value to false.',
             type: Checkbox,
             defaultValue: true,
-            isRequired: true,
-            access: access.canAccessToIsApprovedField,
         },
     },
     kmigratorOptions: {

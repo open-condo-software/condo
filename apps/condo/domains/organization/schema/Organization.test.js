@@ -401,6 +401,10 @@ describe('Organization', () => {
                     expect(o18n.id).toEqual(userClient.organization.id)
                     expect(o18n.isApproved).toBeTruthy()
 
+                    // User can update other fields
+                    const [updatedO10n, attrs] = await updateTestOrganization(userClient, userClient.organization.id, { name: faker.random.word() })
+                    expect(updatedO10n.name).toEqual(attrs.name)
+
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await updateTestOrganization(userClient, userClient.organization.id, { isApproved: false })
                     })
@@ -408,15 +412,16 @@ describe('Organization', () => {
 
                 {
                     // After adding rights user can read and update "isApproved"
-                    const [userRightsSet] = await createTestUserRightsSet(support, { canReadOrganizations: true })
+                    const [userRightsSet] = await createTestUserRightsSet(support, { canReadOrganizations: true, canManageOrganizations: true })
                     await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
 
                     const o18n = await Organization.getOne(userClient, { id: userClient.organization.id })
                     expect(o18n.id).toEqual(userClient.organization.id)
                     expect(o18n.isApproved).toBeTruthy()
 
-                    const [updatedO18n] = await updateTestOrganization(userClient, userClient.organization.id, { isApproved: false })
+                    const [updatedO18n, attrs] = await updateTestOrganization(userClient, userClient.organization.id, { isApproved: false, name: faker.random.word() })
                     expect(updatedO18n.isApproved).toBeFalsy()
+                    expect(updatedO18n.name).toEqual(attrs.name)
                 }
             })
         })
