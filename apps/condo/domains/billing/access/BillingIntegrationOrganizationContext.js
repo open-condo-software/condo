@@ -3,9 +3,11 @@
  */
 
 const { get } = require('lodash')
+const isEmpty = require('lodash/isEmpty')
+const omit = require('lodash/omit')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 
 const { checkBillingIntegrationsAccessRights } = require('@condo/domains/billing/utils/accessSchema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')
@@ -65,10 +67,42 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     }
 
     if (!organizationId || !integrationId) return false
-    const canManageIntegrations = await checkOrganizationPermission(user.id, organizationId, 'canManageIntegrations')
+
+    if (user.type === SERVICE) {
+        return await checkBillingIntegrationsAccessRights(user.id, [integrationId])
+    }
+
+    const [employee] = await find('OrganizationEmployee', {
+        organization: { id: organizationId },
+        user: { id: user.id },
+        deletedAt: null,
+        isBlocked: false,
+    })
+
+    if (!employee || !employee.role) {
+        return false
+    }
+
+    const [employeeRole] = await find('OrganizationEmployeeRole', {
+        id: employee.role,
+        organization: { id: organizationId },
+    })
+
+    if (!employeeRole) return false
+
+    const canManageIntegrations = employeeRole['canManageIntegrations'] || false
+    const canImportBillingReceipts = employeeRole['canImportBillingReceipts'] || false
+
     if (canManageIntegrations) return true
 
-    return await checkBillingIntegrationsAccessRights(user.id, [integrationId])
+    // NOTE: employee with canImportBillingReceipts can update only state and settings fields
+    if (operation === 'update' && !canManageIntegrations && canImportBillingReceipts) {
+        const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'state', 'settings'])
+
+        if (isEmpty(inaccessibleUpdatedFields)) return true
+    }
+
+    return false
 }
 
 async function canManageContextProblem ({ authentication:  { item: user }, originalInput }) {

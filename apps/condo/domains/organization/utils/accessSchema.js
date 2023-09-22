@@ -22,6 +22,36 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
+async function checkOrganizationPermissions (userId, organizationId, permissions = []) {
+    if (!userId || !organizationId || permissions.length === 0) return false
+
+    const [employee] = await find('OrganizationEmployee', {
+        organization: { id: organizationId },
+        user: { id: userId },
+        deletedAt: null,
+        isBlocked: false,
+    })
+
+    if (!employee || !employee.role) {
+        return false
+    }
+
+    const [employeeRole] = await find('OrganizationEmployeeRole', {
+        id: employee.role,
+        organization: { id: organizationId },
+    })
+
+    if (!employeeRole) return false
+
+    for (const permission of permissions) {
+        if (!employeeRole[permission]) {
+            return false
+        }
+    }
+
+    return true
+}
+
 async function checkOrganizationsPermission (userId, organizationIds, permission) {
     if (!userId || !organizationIds.length) return false
     const employees = await find('OrganizationEmployee', {

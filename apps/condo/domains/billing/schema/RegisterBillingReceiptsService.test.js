@@ -105,7 +105,7 @@ describe('RegisterBillingReceiptsService', () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-            const { managerUserClient } = await makeOrganizationIntegrationManager(billingContext)
+            const { managerUserClient } = await makeOrganizationIntegrationManager({ context: billingContext })
             await expectToThrowAccessDeniedErrorToResult(async () => {
                 await registerBillingReceiptsByTestClient(managerUserClient, { context: { id: '1234' }, receipts: [] })
             })
@@ -825,12 +825,12 @@ describe('RegisterBillingReceiptsService', () => {
             const [organization] = await createTestOrganization(admin)
             const [integration] = await createTestBillingIntegration(admin)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
-            const { managerUserClient } = await makeOrganizationIntegrationManager(billingContext)
+            const { managerUserClient } = await makeOrganizationIntegrationManager({ context: billingContext })
 
             const [organization2] = await createTestOrganization(admin)
             const [integration2] = await createTestBillingIntegration(admin)
             const [billingContext2] = await createTestBillingIntegrationOrganizationContext(admin, organization2, integration2)
-            const { managerUserClient: hackerClient } = await makeOrganizationIntegrationManager(billingContext2)
+            const { managerUserClient: hackerClient } = await makeOrganizationIntegrationManager({ context: billingContext2 })
 
             const payload = {
                 context: { id: billingContext.id },

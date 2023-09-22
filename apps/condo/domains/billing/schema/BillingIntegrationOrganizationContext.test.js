@@ -17,7 +17,7 @@ const {
     createTestBillingIntegrationOrganizationContext,
     updateTestBillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/testSchema')
-const { CONTEXT_STATUSES, CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
+const { CONTEXT_STATUSES, CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/miniapp/constants')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole, updateTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganization, updateTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -317,6 +317,29 @@ describe('BillingIntegrationOrganizationContext', () => {
 
             await expectToThrowAccessDeniedErrorToObj(async () => {
                 await BillingIntegrationOrganizationContext.delete(managerUserClient, context.id)
+            })
+        })
+
+        test('employee with "canImportBillingReceipts": can only update state and settings fields', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const { managerUserClient, integration, organization } = await makeOrganizationIntegrationManager({
+                employeeRoleArgs: {
+                    canImportBillingReceipts: true,
+                },
+            })
+
+            const [context] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+            const payload = { settings: { dv: 1, test: 'test' }, state: { dv: 1, step: 'test' } }
+            const [updatedObj] = await updateTestBillingIntegrationOrganizationContext(managerUserClient, context.id, payload)
+
+            expect(updatedObj.settings.test).toEqual('test')
+            expect(updatedObj.state.step).toEqual('test')
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                const payload = { status: CONTEXT_IN_PROGRESS_STATUS }
+
+                await updateTestBillingIntegrationOrganizationContext(managerUserClient, context.id, payload)
             })
         })
     })
