@@ -104,12 +104,6 @@ async function notifyResidentsOnPayday () {
         for (const consumer of consumers) {
             try {
                 const accountNumber = get(consumer, ['accountNumber'])
-                const userId = consumer.resident.user.id
-                const organizationId = consumer.organization.id
-
-                //checking whether this user has been processed
-                if (state.recipientsMap.has(organizationId) && state.recipientsMap.get(organizationId) === userId) continue
-                state.recipientsMap.set(organizationId, userId)
 
                 const receipts = await loadListByChunks({
                     context,
