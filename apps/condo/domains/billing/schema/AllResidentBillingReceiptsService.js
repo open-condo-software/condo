@@ -195,18 +195,18 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
 
                     if (!(key in receiptsByAccountAndRecipient)) {
-                        receiptsByAccountAndRecipient[key] = receipt.id
+                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
                         continue
                     }
 
                     // If we have a receipt with later period -- we take it
                     const existingRecipientPeriod = dayjs(get(receiptsByAccountAndRecipient[key], 'period'), 'YYYY-MM-DD')
                     if (existingRecipientPeriod < period) {
-                        receiptsByAccountAndRecipient[key] = receipt.id
+                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
                     }
                 }
 
-                const payableReceipts = Object.values(receiptsByAccountAndRecipient)
+                const payableReceipts = (Object.values(receiptsByAccountAndRecipient)).map(r => r.id)
                 processedReceipts.forEach(receipt => {
                     receipt.isPayable = payableReceipts.includes(receipt.id)
                 })
