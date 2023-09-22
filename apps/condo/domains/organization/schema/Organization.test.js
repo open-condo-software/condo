@@ -4,7 +4,6 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { getListDependentRelations } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
@@ -36,7 +35,10 @@ const {
     SOME_RANDOM_LETTERS,
 } = require('@condo/domains/organization/utils/tin.utils.spec')
 const { DEFAULT_STATUS_TRANSITIONS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, makeClientWithSupportUser, createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser, makeClientWithSupportUser, createTestUser,
+    createTestUserRightsSet, updateTestUser,
+} = require('@condo/domains/user/utils/testSchema')
+
 
 describe('Organization', () => {
     let admin
@@ -61,6 +63,14 @@ describe('Organization', () => {
                     await createTestOrganization(user)
                 })
             })
+            test('User with custom rights cannot create organization directly', async () => {
+                const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [userRightsSet] = await createTestUserRightsSet(support, { canReadOrganizations: true, canManageOrganizations: true })
+                await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(userClient)
+                })
+            })
             test('Support can create organization directly', async () => {
                 const [obj, attrs] = await createTestOrganization(support)
 
@@ -74,6 +84,7 @@ describe('Organization', () => {
                 expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
                 expect(obj.createdAt).toMatch(DATETIME_RE)
                 expect(obj.updatedAt).toMatch(DATETIME_RE)
+                expect(obj.isApproved).toBeTruthy()
             })
         })
         describe('Read', () => {
@@ -362,6 +373,66 @@ describe('Organization', () => {
             const organizations = await Organization.getAll(clientFrom, { id: organizationTo.id })
 
             expect(organizations).toHaveLength(0)
+        })
+    })
+    describe('Fields', () => {
+        describe('isApproved', () => {
+            test('Admin: can create, read and update field "isApproved"', async () => {
+                const [createdO10n] = await createTestOrganization(admin, { isApproved: false })
+                expect(createdO10n.isApproved).toBeFalsy()
+
+                const o10n = await Organization.getOne(admin, { id: createdO10n.id })
+                expect(o10n.isApproved).toBeFalsy()
+
+                const [updatedO18n] = await updateTestOrganization(admin, createdO10n.id, { isApproved: true })
+                expect(updatedO18n.isApproved).toBeTruthy()
+            })
+
+            test('Support: can create, read and update field "isApproved"', async () => {
+                const [createdO10n] = await createTestOrganization(support, { isApproved: false })
+                expect(createdO10n.isApproved).toBeFalsy()
+
+                const o10n = await Organization.getOne(support, { id: createdO10n.id })
+                expect(o10n.isApproved).toBeFalsy()
+
+                const [updatedO18n] = await updateTestOrganization(support, createdO10n.id, { isApproved: true })
+                expect(updatedO18n.isApproved).toBeTruthy()
+            })
+
+            test('User with custom access: can read and update field "isApproved"', async () => {
+                const userClient = await makeEmployeeUserClientWithAbilities({
+                    canManageOrganization: true,
+                })
+
+                {
+                    // Before adding rights user cannot read and update "isApproved"
+                    const o18n = await Organization.getOne(userClient, { id: userClient.organization.id })
+                    expect(o18n.id).toEqual(userClient.organization.id)
+                    expect(o18n.isApproved).toBeTruthy()
+
+                    // User can update other fields
+                    const [updatedO10n, attrs] = await updateTestOrganization(userClient, userClient.organization.id, { name: faker.random.word() })
+                    expect(updatedO10n.name).toEqual(attrs.name)
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestOrganization(userClient, userClient.organization.id, { isApproved: false })
+                    })
+                }
+
+                {
+                    // After adding rights user can read and update "isApproved"
+                    const [userRightsSet] = await createTestUserRightsSet(support, { canReadOrganizations: true, canManageOrganizations: true })
+                    await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
+
+                    const o18n = await Organization.getOne(userClient, { id: userClient.organization.id })
+                    expect(o18n.id).toEqual(userClient.organization.id)
+                    expect(o18n.isApproved).toBeTruthy()
+
+                    const [updatedO18n, attrs] = await updateTestOrganization(userClient, userClient.organization.id, { isApproved: false, name: faker.random.word() })
+                    expect(updatedO18n.isApproved).toBeFalsy()
+                    expect(updatedO18n.name).toEqual(attrs.name)
+                }
+            })
         })
     })
     describe('Validations', () => {
