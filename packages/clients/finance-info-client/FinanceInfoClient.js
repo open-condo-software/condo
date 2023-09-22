@@ -7,6 +7,27 @@ const { getRedisClient } = require('@open-condo/keystone/redis')
 const { apiToken: API_KEY } = conf['ADDRESS_SUGGESTIONS_CONFIG'] ? JSON.parse(conf['ADDRESS_SUGGESTIONS_CONFIG']) : {}
 
 const CACHE_TTL = 10 * 24 * 60 * 60 // 10 days
+
+
+/**
+ * @typedef {Object} BankInfo
+ * @property {string} routingNumber - The Bank Identification Code (BIC).
+ * @property {string} bankName - The name of the bank.
+ * @property {string} offsettingAccount - The correspondent account of the bank.
+ * @property {string} territoryCode - The territory code of the bank.
+ */
+
+/**
+ * @typedef {Object} OrganizationInfo
+ * @property {string} timezone - The timezone of the organization.
+ * @property {string} territoryCode - The territory code of the organization.
+ * @property {string} iec - The IEC (KPP) of the organization.
+ * @property {string} tin - The TIN (INN) of the organization.
+ * @property {string} psrn - Primary State Registration Number (OGRN)
+ * @property {string} name - The name of the organization (either short name or full name).
+ * @property {string} country - The lowercase country code of the organization.
+ */
+
 /**
  * Class representing a DaData API client with caching
  */
@@ -25,13 +46,7 @@ class FinanceInfoClient {
      * @async
      * @param {string} requestTin - The Taxpayer Identification Number (TIN) to look up.
      * @throws {Error} Throws an error if input validation fails.
-     * @returns {string} returns.timezone - The timezone of the organization.
-     * @returns {string} returns.territoryCode - The territory code of the organization.
-     * @returns {string} returns.iec - The IEC (KPP) of the organization.
-     * @returns {string} returns.tin - The TIN (INN) of the organization.
-     * @returns {string} returns.psrn - Primary State Registration Number (OGRN)
-     * @returns {string} returns.name - The name of the organization (either short name or full name).
-     * @returns {string} returns.country - The lowercase country code of the organization.
+     * @returns {OrganizationInfo}
      */
     async getOrganization (requestTin) {
         if (typeof requestTin !== 'string' || (requestTin.length !== 10 && requestTin.length !== 12)) {
@@ -62,15 +77,13 @@ class FinanceInfoClient {
         return result
     }
 
+
     /**
      * Get bank details by Bank Identification Code (BIC).
      * @async
      * @param {string} routingNumber - The Bank Identification Code (BIC) to look up.
      * @throws {Error} Throws an error if input validation fails.
-     * @returns {string} returns.routingNumber - The Bank Identification Code (BIC).
-     * @returns {string} returns.bankName - The name of the bank.
-     * @returns {string} returns.offsettingAccount - The correspondent account of the bank.
-     * @returns {string} returns.territoryCode - The territory code of the bank.
+     * @returns {BankInfo}
      */
     async getBank (routingNumber) {
         if (typeof routingNumber !== 'string' || !routingNumber.startsWith('04') || routingNumber.length !== 9) {
