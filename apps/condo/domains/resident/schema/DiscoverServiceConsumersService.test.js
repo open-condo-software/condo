@@ -44,7 +44,7 @@ const {
     createTestResident,
     ServiceConsumer,
     discoverServiceConsumersByTestClient,
-    registerResidentByTestClient,
+    registerResidentByTestClient, registerServiceConsumerByTestClient,
 } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithSupportUser,
@@ -493,12 +493,12 @@ describe('DiscoverServiceConsumersService', () => {
                 unitName: unitName1,
                 unitType: unitType1,
             })
-            const [resident2] = await createTestResident(admin, residentClient2.user, user2.property, {
+            await createTestResident(admin, residentClient2.user, user2.property, {
                 address: billingProperty2.address,
                 unitName: unitName2,
                 unitType: unitType2,
             })
-            const [resident2a] = await createTestResident(admin, residentClient2a.user, user2.property, {
+            await createTestResident(admin, residentClient2a.user, user2.property, {
                 address: billingProperty2a.address,
                 unitName: unitName2,
                 unitType: unitType2,
@@ -850,6 +850,64 @@ describe('DiscoverServiceConsumersService', () => {
                     isDiscovered: true,
                 }),
             ]))
+        })
+
+        test('Keep isDiscovered=false for consumers created by resident', async () => {
+            const user = await makeClientWithProperty()
+            const residentClient = await makeClientWithResidentUser()
+            const serviceUser = await makeClientWithServiceUser()
+
+            const {
+                billingIntegration,
+                billingIntegrationContext,
+            } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            await createTestBillingIntegrationAccessRight(support, billingIntegration, serviceUser.user)
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: user.property.address,
+                    addressMeta: user.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            const accountNumber = faker.lorem.word()
+
+            const payload = {
+                context: { id: billingIntegrationContext.id },
+                receipts: [
+                    // One of receipts is for resident1
+                    createRegisterBillingReceiptsPayload({
+                        address: user.property.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        accountNumber,
+                    }),
+                ],
+            }
+            const [registeredReceipts] = await registerBillingReceiptsByTestClient(serviceUser, payload)
+
+            expect(registeredReceipts).toHaveLength(1)
+
+            const [serviceConsumer] = await registerServiceConsumerByTestClient(residentClient, {
+                residentId: resident.id,
+                accountNumber,
+                organizationId: user.organization.id,
+            })
+
+            expect(serviceConsumer).not.toBeFalsy()
+            expect(serviceConsumer.isDiscovered).toEqual(false)
+
+            await discoverServiceConsumersByTestClient(admin, { billingAccountsIds: [registeredReceipts[0].account.id] })
+
+            const serviceConsumerAfterDiscovering = await ServiceConsumer.getOne(admin, { id: serviceConsumer.id })
+
+            expect(serviceConsumerAfterDiscovering.isDiscovered).toEqual(false)
         })
     })
 
