@@ -347,6 +347,9 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
     const EmptyListLabel = intl.formatMessage({  id: 'incident.index.emptyList.label' })
     const CreateIncidentLabel = intl.formatMessage({  id: 'incident.index.createIncident.label' })
 
+    const { link } = useOrganization()
+    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
+
     const { filterMetas, useTableColumns, baseQuery, baseQueryLoading = false } = props
 
     const {
@@ -367,6 +370,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
                     label={EmptyListLabel}
                     createRoute='/incident/create'
                     createLabel={CreateIncidentLabel}
+                    accessCheck={canManageIncidents}
                 />
             )
         }
@@ -381,7 +385,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
                 />
             </Row>
         )
-    }, [baseQueryLoading, incidentTotalLoading, incidentTotal, filterMetas, useTableColumns, baseQuery, EmptyListLabel, CreateIncidentLabel])
+    }, [baseQueryLoading, incidentTotalLoading, incidentTotal, filterMetas, useTableColumns, baseQuery, EmptyListLabel, CreateIncidentLabel, canManageIncidents])
 
     return (
         <>
@@ -399,7 +403,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
     )
 }
 
-const IncidentsPage: IIncidentIndexPage = () => {
+const IncidentsPage: IIncidentIndexPage = (props) => {
     const filterMetas = useIncidentTableFilters()
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
