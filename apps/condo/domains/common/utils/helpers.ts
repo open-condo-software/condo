@@ -73,7 +73,8 @@ export const getAddressDetails = (property: ObjectWithAddressInfo) => {
     const settlementPart = get(addressMeta, 'settlement_with_type')
 
     const settlement = streetWithType ? streetWithType : settlementPart
-    const streetPart = settlement && `${settlement}, ${houseNamePrefix}${houseName}${houseNameSuffix}`
+    const settlementWithComma = settlement ? `${settlement}, ` : ''
+    const streetPart = `${settlementWithComma}${houseNamePrefix}${houseName}${houseNameSuffix}`
     const regionPart = regionName && regionName !== cityName && regionWithFullType
 
     const areaWithType = get(addressMeta, 'area_with_type')
