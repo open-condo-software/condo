@@ -43,6 +43,12 @@ const TicketFile = new GQLListSchema('TicketFile', {
                 await Adapter.delete(existingItem.file)
             }
         },
+        resolveInput: async ({ resolvedData }) => {
+            if (resolvedData['file']) {
+                resolvedData['file'].originalFilename = Buffer.from(resolvedData['file'].originalFilename, 'latin1').toString('utf-8')
+            }
+            return resolvedData
+        },
     },
     plugins: [
         addOrganizationFieldPlugin({ fromField: 'ticket' }),

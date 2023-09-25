@@ -87,7 +87,7 @@ class SberCloudFileAdapter {
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
         const fileData = {
             id,
-            originalFilename: filename,
+            originalFilename: Buffer.from(filename, 'latin1').toString('utf8'),
             filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
             mimetype,
             encoding,
