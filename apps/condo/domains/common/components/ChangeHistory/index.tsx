@@ -1,5 +1,5 @@
 import { Col, Row, Skeleton, Button, RowProps } from 'antd'
-import React, { ComponentProps, ReactElement, useCallback, useMemo, useState } from 'react'
+import React, { ReactElement, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
@@ -7,17 +7,18 @@ import { colors } from '@open-condo/ui/dist/colors/'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-import { BaseChangesType, HistoricalChange } from './HistoricalChange'
+import { BaseChangesType, HistoricalChangeInputType, HistoricalChangeReturnType } from './HistoricalChange/types'
 
 
-type ChangeHistoryInputType<ChangesType> = {
+type ChangeHistoryInputType<ChangesType extends BaseChangesType> = {
     items: ChangesType[]
     total: number
     loading: boolean
     title: string
-    useChangedFieldMessagesOf: ComponentProps<typeof HistoricalChange>['useChangedFieldMessagesOf']
-    Diff: ComponentProps<typeof HistoricalChange>['Diff']
+    useChangedFieldMessagesOf: HistoricalChangeInputType<ChangesType>['useChangedFieldMessagesOf']
+    Diff: HistoricalChangeInputType<ChangesType>['Diff']
     labelSpan?: number
+    HistoricalChange: (props: HistoricalChangeInputType<ChangesType>) => HistoricalChangeReturnType,
 }
 
 type ChangeHistoryReturnType = ReactElement | null
@@ -36,7 +37,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     const intl = useIntl()
     const FetchMoreTemplate = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
 
-    const { items, total, loading, title, useChangedFieldMessagesOf, Diff, labelSpan } = props
+    const { items, total, loading, title, useChangedFieldMessagesOf, Diff, labelSpan, HistoricalChange } = props
 
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
 
@@ -81,8 +82,4 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
             </Row>
         </Col>
     )
-}
-
-export {
-    HistoricalChange,
 }

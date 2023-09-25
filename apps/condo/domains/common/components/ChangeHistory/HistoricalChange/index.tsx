@@ -1,32 +1,13 @@
-import { Maybe } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
 import dayjs from 'dayjs'
-import React, { ReactElement, useMemo } from 'react'
+import React, { useMemo } from 'react'
 
 import { Typography } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 
+import { BaseChangesType, HistoricalChangeReturnType, HistoricalChangeInputType } from './types'
 
-export type BaseChangesType = {
-    createdAt?: Maybe<string>
-    actualCreationDate?: Maybe<string>
-    id: string
-}
-
-type UseChangedFieldMessagesOfType<ChangesType> = (changesValue: ChangesType) => Array<{
-    field: string
-    message: ReactElement | null
-}>
-
-type HistoricalChangeInputType<ChangesType> = {
-    changesValue: ChangesType
-    useChangedFieldMessagesOf: UseChangedFieldMessagesOfType<ChangesType>
-    Diff: React.FC<{ className?: string }>
-    labelSpan?: number
-}
-
-type HistoricalChangeReturnType = ReactElement
 
 const HISTORICAL_CHANGE_GUTTER: RowProps['gutter'] = [12, 12]
 

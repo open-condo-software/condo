@@ -17,6 +17,8 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
+import { ChangeHistoryDiff } from '@condo/domains/common/components/ChangeHistory/ChangeHistoryDiff'
+import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
@@ -342,8 +344,6 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
     )
 }
 
-const ChangeHistoryDiff: React.FC = (props) => <p {...props} />
-
 const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
 const PAGE_HEADER_STYLE: React.CSSProperties = { paddingBottom: 20 }
@@ -441,6 +441,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                         title={ChangeHistoryTitle}
                                         useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
                                         Diff={ChangeHistoryDiff}
+                                        HistoricalChange={HistoricalChange}
                                     />
                                 </Col>
                             )
