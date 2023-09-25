@@ -2,17 +2,16 @@ import { ConfigProvider, Layout } from 'antd'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
 import get from 'lodash/get'
-import { Open_Sans, Noto_Sans_Mono }  from 'next/font/google'
+import { Wix_Madefor_Display, Noto_Sans_Mono }  from 'next/font/google'
 import { IntlProvider } from 'react-intl'
 
 import { Header } from '@/domains/common/components/Header'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
-const mainFont = Open_Sans({
+const mainFont = Wix_Madefor_Display({
     subsets: ['latin', 'cyrillic'],
     variable: '--condo-font-fallback',
-    style: ['normal', 'italic'],
 })
 const monoFont = Noto_Sans_Mono({
     subsets: ['latin', 'cyrillic'],
