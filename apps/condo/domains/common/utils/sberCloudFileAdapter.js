@@ -1,14 +1,16 @@
 const path = require('path')
 
-const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
 const { get, isEmpty, isString, isNil } = require('lodash')
 
+const { genGetAllGQL } = require('@open-condo/codegen/generate.gql')
+const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
+
 
 
 const logger = getLogger('sberCloudFileAdapter')
@@ -205,42 +207,44 @@ const obsRouterHandler = ({ keystone }) => {
         }
 
         try {
-            const { id, isAdmin, isSupport, type } = req.user
-            const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
-
             let hasAccessToReadFile
 
             // If user has access to at least one of the objects with this file => user has access to read file
             if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
                 const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
-                const items = await getItems({
-                    keystone,
-                    listKey,
-                    itemId,
-                    context,
-                    where: { id_in: itemIds, deletedAt: null },
+                const items = await execGqlAsUser(keystone, req.user, {
+                    query: genGetAllGQL(listKey, '{ id }'),
+                    variables: {
+                        where: {
+                            id_in: itemIds,
+                        },
+                    },
+                    dataPath: 'objs',
+                    deleted: false,
                 })
 
                 hasAccessToReadFile = items.length > 0
             }
 
             if (itemId && !hasAccessToReadFile) {
-                let returnFields = 'id'
+                let returnFields = ['id']
 
                 // for checking property we have to include property name in the return fields list
                 if (isString(propertyQuery)) {
-                    returnFields += `, ${propertyQuery}`
+                    returnFields.push(propertyQuery)
                 }
 
-                const item = await getItem({
-                    keystone,
-                    listKey,
-                    itemId,
-                    context,
-                    returnFields,
+                const [item] = await execGqlAsUser(keystone, req.user, {
+                    query: genGetAllGQL(listKey, `{ ${returnFields.join(' ')} }`),
+                    variables: {
+                        where: {
+                            id: itemId,
+                        },
+                    },
+                    dataPath: 'objs',
+                    deleted: false,
                 })
 
-                // item accessible
                 hasAccessToReadFile = !isNil(item)
 
                 // check property access case
@@ -250,7 +254,7 @@ const obsRouterHandler = ({ keystone }) => {
                         .split('{') // work with each path parts separately
                         .map(path => path.trim()) // since gql allow to have spaces in querying - let's remove them
                         .join('.') // join by . for lodash get utility
-                    hasAccessToReadFile = get(item, propertyPath) == propertyValue
+                    hasAccessToReadFile = get(item, propertyPath) === propertyValue
                 }
             }
 
