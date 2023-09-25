@@ -5,6 +5,7 @@ const https = require('https')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
+const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
 const axiosCookieJarSupportLib = require('axios-cookiejar-support')
@@ -251,12 +252,13 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
 
 /**
  * @param {string} serverUrl
- * @param {boolean} logRequestResponse
+ * @param {{customHeaders?: Record<string, string>, logRequestResponse?: boolean}} opts
  * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
  */
-const makeApolloClient = (serverUrl, logRequestResponse = false) => {
+const makeApolloClient = (serverUrl, opts = {}) => {
     let cookiesObj = {}
-    let customHeaders = {}
+    let customHeaders =  opts.hasOwnProperty('customHeaders') ? opts.customHeaders : {}
+    let logRequestResponse =  Boolean(opts.logRequestResponse)
 
     /**
      * @returns {string}
@@ -349,10 +351,14 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
     }
 }
 
-const makeClient = async () => {
+const makeClient = async (opts = { generateIP: true }) => {
     // Data for real client
     let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
     let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
+    const customHeaders = {}
+    if (opts.generateIP) {
+        customHeaders['x-forwarded-for'] = faker.internet.ip()
+    }
 
     if (__expressApp) {
         const port = __expressServer.address().port
@@ -363,7 +369,7 @@ const makeClient = async () => {
         logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
     }
 
-    return makeApolloClient(serverUrl, TESTS_LOG_REQUEST_RESPONSE || logErrors)
+    return makeApolloClient(serverUrl, { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE || logErrors, customHeaders })
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
