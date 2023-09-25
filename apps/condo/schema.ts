@@ -6171,9 +6171,15 @@ export type B2CAppProperty = {
   _label_?: Maybe<Scalars['String']>;
   /**  Link to B2C App  */
   app?: Maybe<B2CApp>;
-  /**  Property address. Must match the address lookup service with case accuracy  */
-  address?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  /**  Normalized address  */
+  address?: Maybe<Scalars['String']>;
+  /**  The unique key of the address  */
+  addressKey?: Maybe<Scalars['String']>;
+  /**  Property address components  */
+  addressMeta?: Maybe<AddressMetaField>;
+  /**  The origins of the address (some strings which may looks like real address or some id)  */
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6192,6 +6198,9 @@ export type B2CAppProperty = {
 export type B2CAppPropertyCreateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6215,8 +6224,11 @@ export type B2CAppPropertyHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6234,6 +6246,9 @@ export type B2CAppPropertyHistoryRecord = {
 export type B2CAppPropertyHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6257,6 +6272,9 @@ export enum B2CAppPropertyHistoryRecordHistoryActionType {
 export type B2CAppPropertyHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6278,6 +6296,10 @@ export type B2CAppPropertyHistoryRecordWhereInput = {
   app_not?: Maybe<Scalars['String']>;
   app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   address?: Maybe<Scalars['String']>;
   address_not?: Maybe<Scalars['String']>;
   address_contains?: Maybe<Scalars['String']>;
@@ -6296,10 +6318,32 @@ export type B2CAppPropertyHistoryRecordWhereInput = {
   address_not_ends_with_i?: Maybe<Scalars['String']>;
   address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -6390,6 +6434,9 @@ export type B2CAppPropertyHistoryRecordsUpdateInput = {
 export type B2CAppPropertyUpdateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6406,6 +6453,10 @@ export type B2CAppPropertyWhereInput = {
   OR?: Maybe<Array<Maybe<B2CAppPropertyWhereInput>>>;
   app?: Maybe<B2CAppWhereInput>;
   app_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   address?: Maybe<Scalars['String']>;
   address_not?: Maybe<Scalars['String']>;
   address_contains?: Maybe<Scalars['String']>;
@@ -6424,10 +6475,32 @@ export type B2CAppPropertyWhereInput = {
   address_not_ends_with_i?: Maybe<Scalars['String']>;
   address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -66294,10 +66367,12 @@ export enum SortB2CAppHistoryRecordsBy {
 export enum SortB2CAppPropertiesBy {
   AppAsc = 'app_ASC',
   AppDesc = 'app_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -66315,10 +66390,12 @@ export enum SortB2CAppPropertiesBy {
 }
 
 export enum SortB2CAppPropertyHistoryRecordsBy {
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
