@@ -154,12 +154,15 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
             permissions: [
                 {
                     key: 'canManageIntegrations',
+                    relatedCheckPermissions: ['canReadPayments', 'canReadBillingReceipts'],
                 },
                 {
                     key: 'canReadPayments',
+                    relatedUncheckPermissions: ['canManageIntegrations'],
                 },
                 {
                     key: 'canReadBillingReceipts',
+                    relatedUncheckPermissions: ['canManageIntegrations', 'canImportBillingReceipts'],
                 },
                 {
                     key: 'canImportBillingReceipts',
