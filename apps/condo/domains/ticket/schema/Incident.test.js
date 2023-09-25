@@ -142,6 +142,21 @@ describe('Incident', () => {
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('details', attrs.details)
             })
+            test('can\'t update from not his organization', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIncidents: false })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [otherOrganization] = await createTestOrganization(admin)
+                const [roleInOtherOrganization] = await createTestOrganizationEmployeeRole(admin, otherOrganization, { canManageIncidents: true })
+                await createTestOrganizationEmployee(admin, otherOrganization, client.user, roleInOtherOrganization)
+
+                const [incident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestIncident(client, incident.id, { details: faker.lorem.sentence() })
+                })
+            })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await Incident.delete(employeeUser, incidentByAdmin.id)

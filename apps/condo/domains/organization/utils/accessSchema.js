@@ -49,6 +49,7 @@ async function checkRelatedOrganizationPermission (userId, organizationId, permi
     const [organizationLink] = await find('OrganizationLink', {
         from: queryOrganizationEmployeeFor(userId),
         to: { id: organizationId },
+        deletedAt: null,
     })
     if (!organizationLink) return false
 
@@ -60,6 +61,7 @@ async function checkRelatedOrganizationsPermission (userId, organizationIds, per
     const organizationLinks = await find('OrganizationLink', {
         from: queryOrganizationEmployeeFor(userId),
         to: { id_in: organizationIds },
+        deletedAt: null,
     })
 
     if (!organizationLinks.length) {
