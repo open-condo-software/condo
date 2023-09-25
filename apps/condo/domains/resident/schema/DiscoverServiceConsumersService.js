@@ -340,7 +340,6 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         billingAccount: account.id,
                         billingIntegrationContext: billingContextId || null,
                         acquiringIntegrationContext: acquiringContextId || null,
-                        isDiscovered: true,
                     }
                 })
 
@@ -380,7 +379,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             })
                         }
 
-                        return ServiceConsumer.create(context, data)
+                        return ServiceConsumer.create(context, { ...data, isDiscovered: true })
                     }),
                 )
 
