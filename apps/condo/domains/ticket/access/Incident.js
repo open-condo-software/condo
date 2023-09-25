@@ -21,8 +21,8 @@ async function canReadIncidents ({ authentication: { item: user } }) {
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadIncidents'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadIncidents'),
             ],
         },
     }

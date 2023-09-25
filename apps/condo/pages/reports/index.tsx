@@ -41,7 +41,7 @@ const IndexPage = () => {
     }, { fetchPolicy: 'network-only' })
 
     const pageContent = useMemo(() => {
-        const canReadAnalytics = get(link, [ 'role', 'canManageOrganization'], false)
+        const canReadAnalytics = get(link, [ 'role', 'canReadAnalytics'], false)
 
         if (isDashboardEnabled && canReadAnalytics) {
             return <Dashboard organizationId={organization.id} />

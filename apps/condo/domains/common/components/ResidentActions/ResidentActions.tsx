@@ -31,6 +31,10 @@ export const ResidentAppealDropDownMenuItemWrapperProps = {
 const DIVIDER_STYLES: CSSProperties = { margin: 0 }
 
 const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchByPhoneModalVisible, setDropdownVisible }) => {
+    const { link } = useOrganization()
+    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
+    const canManageTickets = get(link, ['role', 'canManageTickets'], false)
+
     const handleButtonClick = useCallback(() => {
         setDropdownVisible(false)
         setIsSearchByPhoneModalVisible(true)
@@ -39,7 +43,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
     return (
         <StyledMenu>
             {
-                !isAssignedVisibilityType && (
+                canReadTickets && !isAssignedVisibilityType && (
                     <>
                         <MenuItem
                             id='menuitem-action-SearchByPhoneNumber'
@@ -53,14 +57,18 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
                     </>
                 )
             }
-            <MenuItem
-                id='menuitem-action-CreateAppeal'
-                menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                path='/ticket/create'
-                icon={NewAppeal}
-                label='CreateAppeal'
-                eventName='MenuCreateTicketClick'
-            />
+            {
+                canManageTickets && (
+                    <MenuItem
+                        id='menuitem-action-CreateAppeal'
+                        menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
+                        path='/ticket/create'
+                        icon={NewAppeal}
+                        label='CreateAppeal'
+                        eventName='MenuCreateTicketClick'
+                    />
+                )
+            }
             {
                 !isAssignedVisibilityType && (
                     <>

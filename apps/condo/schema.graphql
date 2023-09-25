@@ -5464,6 +5464,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
@@ -5486,6 +5487,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5564,6 +5566,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageIntegrations_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
   canManageMeters: Boolean
@@ -5624,6 +5628,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageBankTransactions_not: Boolean
   canManageBankAccountReports: Boolean
   canManageBankAccountReports_not: Boolean
+  canReadIncidents: Boolean
+  canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
   canManageNewsItems: Boolean
@@ -5725,6 +5731,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageIntegrations_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
   canManageMeters_ASC
@@ -5769,6 +5777,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageBankTransactions_DESC
   canManageBankAccountReports_ASC
   canManageBankAccountReports_DESC
+  canReadIncidents_ASC
+  canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
   canManageNewsItems_ASC
@@ -5811,6 +5821,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
@@ -5833,6 +5844,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5868,6 +5880,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
@@ -5890,6 +5903,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5940,6 +5954,7 @@ type OrganizationEmployeeRole {
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
@@ -5976,6 +5991,7 @@ type OrganizationEmployeeRole {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -6056,6 +6072,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageIntegrations_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
   canManageMeters: Boolean
@@ -6102,6 +6120,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageBankTransactions_not: Boolean
   canManageBankAccountReports: Boolean
   canManageBankAccountReports_not: Boolean
+  canReadIncidents: Boolean
+  canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
   canManageNewsItems: Boolean
@@ -6185,6 +6205,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageIntegrations_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
   canManageMeters_ASC
@@ -6229,6 +6251,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageBankTransactions_DESC
   canManageBankAccountReports_ASC
   canManageBankAccountReports_DESC
+  canReadIncidents_ASC
+  canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
   canManageNewsItems_ASC
@@ -6270,6 +6294,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
@@ -6292,6 +6317,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
@@ -6323,6 +6349,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
@@ -6345,6 +6372,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean

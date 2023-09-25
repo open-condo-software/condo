@@ -74,6 +74,34 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
             ],
         },
         {
+            key: 'tickets',
+            permissions: [
+                {
+                    key: 'canReadTickets',
+                    relatedCheckPermissions: ['canShareTickets'],
+                    relatedUncheckPermissions: ['canManageTickets', 'canShareTickets', 'canManageTicketComments'],
+                },
+                {
+                    key: 'canManageTickets',
+                    relatedCheckPermissions: ['canReadTickets', 'canShareTickets', 'canManageTicketComments'],
+                    relatedUncheckPermissions: ['canShareTickets', 'canManageTicketComments'],
+                },
+            ],
+        },
+        {
+            key: 'incidents',
+            permissions: [
+                {
+                    key: 'canReadIncidents',
+                    relatedUncheckPermissions: ['canManageIncidents'],
+                },
+                {
+                    key: 'canManageIncidents',
+                    relatedCheckPermissions: ['canReadIncidents'],
+                },
+            ],
+        },
+        {
             key: 'services',
             permissions: [
                 { key: 'canManageB2BApps' },

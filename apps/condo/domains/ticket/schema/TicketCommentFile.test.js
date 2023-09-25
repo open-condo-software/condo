@@ -28,7 +28,6 @@ const {
     updateTestTicketCommentFile,
     createTestTicket,
     createTestTicketComment,
-    TicketComment, createTestTicketFile, TicketFile,
 } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -36,6 +35,26 @@ const { RESIDENT_COMMENT_TYPE } = require('../constants')
 
 
 describe('TicketCommentFile', () => {
+    let admin
+    let organization
+    let property
+    let clientWithCanReadTicket
+    let clientWithoutCanReadTicket
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        clientWithCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        clientWithoutCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [testOrganization] = await createTestOrganization(admin)
+        organization = testOrganization
+        const [testProperty] = await createTestProperty(admin, organization)
+        property = testProperty
+        const [roleWithCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+        const [roleWithoutCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: false })
+        await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
+        await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
+    })
+
     describe('employee', () => {
         describe('create', () => {
             test('can be created by user, who has "canManageTicketComments" ability', async () => {
@@ -158,6 +177,26 @@ describe('TicketCommentFile', () => {
                 })
             })
 
+            test('can be read by employee with canReadTickets permission', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user)
+                const [file] = await createTestTicketCommentFile(admin, ticket, ticketComment)
+
+                const readFile = await TicketCommentFile.getOne(clientWithCanReadTicket, { id: file.id })
+
+                expect(readFile).toBeDefined()
+            })
+
+            test('can not be read by employee without canReadTickets permission', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                const [ticketComment] = await createTestTicketComment(admin, ticket, admin.user)
+                const [file] = await createTestTicketCommentFile(admin, ticket, ticketComment)
+
+                const readFile = await TicketCommentFile.getOne(clientWithoutCanReadTicket, { id: file.id })
+
+                expect(readFile).toBeUndefined()
+            })
+
             test('can be read by employee from "from" relation organization', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
@@ -165,8 +204,8 @@ describe('TicketCommentFile', () => {
                 const [ticketComment] = await createTestTicketComment(admin, ticket, clientFrom.user)
                 await createTestTicketCommentFile(clientFrom, ticket, ticketComment)
 
-                const comments = await TicketComment.getAll(clientFrom)
-                expect(comments).toHaveLength(1)
+                const files = await TicketCommentFile.getAll(clientFrom)
+                expect(files).toHaveLength(1)
             })
 
             test('cannot be read by employee from "to" relation organization', async () => {
@@ -178,8 +217,8 @@ describe('TicketCommentFile', () => {
                 const [ticketComment] = await createTestTicketComment(clientFrom, ticket, clientFrom.user)
                 await createTestTicketCommentFile(clientFrom, ticket, ticketComment)
 
-                const comments = await TicketComment.getAll(clientTo)
-                expect(comments).toHaveLength(0)
+                const files = await TicketCommentFile.getAll(clientTo)
+                expect(files).toHaveLength(0)
             })
 
             it('can read own TicketCommentFile', async () => {

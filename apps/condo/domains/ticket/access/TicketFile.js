@@ -8,7 +8,6 @@ const { getById } = require('@open-condo/keystone/schema')
 
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { getTicketAccessForUser } = require('@condo/domains/ticket/utils/accessSchema')
 const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 
@@ -25,8 +24,8 @@ async function canReadTicketFiles ({ authentication: { item: user } }) {
             {
                 organization: {
                     OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                        queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
                     ],
                 },
             },

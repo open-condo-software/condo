@@ -63,6 +63,7 @@ type EmployeeRolesTableProps = {
     softDeleteB2BAppRoleAction: IUseSoftDeleteActionType<B2BAppRoleType>,
     updateB2BAppRoleAction: IUseUpdateActionType<B2BAppRoleType, B2BAppRoleUpdateInput>,
     updateOrganizationEmployeeRoleAction: IUseUpdateActionType<OrganizationEmployeeRoleType, OrganizationEmployeeRoleUpdateInput>
+    refetchEmployeeRoles
 }
 
 type PermissionsType = { [permissionKey: string]: boolean }
@@ -364,7 +365,7 @@ const ExpandableRow = ({ permissionsGroup, employeeRoles, permissionsState, setP
 export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
     connectedB2BApps, employeeRoles, b2BAppRoles, b2BAppPermissions,
     loading, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, createB2BAppRoleAction,
-    updateOrganizationEmployeeRoleAction,
+    updateOrganizationEmployeeRoleAction, refetchEmployeeRoles,
 }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
@@ -372,6 +373,8 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
 
     const tableData: PermissionsGroup[] = useEmployeeRolesTableData(connectedB2BApps, b2BAppPermissions)
     const tableColumns = useEmployeeRolesTableColumns(employeeRoles)
+
+    const { selectLink, link } = useOrganization()
 
     const [initialPermissionsState, setInitialPermissionsState] = useState<PermissionsState>()
     const [permissionsState, setPermissionsState] = useState<PermissionsState>()
@@ -462,13 +465,13 @@ export const EmployeeRolesTable: React.FC<EmployeeRolesTableProps> = ({
                 }),
             })
         }
-        
+
+        await refetchEmployeeRoles()
         setInitialPermissionsState(cloneDeep(permissionsState))
         setSubmitActionProcessing(false)
-    }, [
-        b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState,
-        intl, permissionsState, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction,
-    ])
+
+        await selectLink(link)
+    }, [b2BAppPermissions, b2BAppRoles, createB2BAppRoleAction, employeeRoles, initialPermissionsState, intl, link, permissionsState, refetchEmployeeRoles, selectLink, softDeleteB2BAppRoleAction, updateB2BAppRoleAction, updateOrganizationEmployeeRoleAction])
 
     const getExpandedRowRender = useCallback((permissionsGroup: PermissionsGroup) => (
         <ExpandableRow
@@ -564,10 +567,10 @@ export const EmployeeRolesSettingsContent = () => {
         },
     })
 
-    const createB2BAppRoleAction = B2BAppRole.useCreate({}, () => refetchB2BAppRoles())
-    const softDeleteB2BAppRoleAction = B2BAppRole.useSoftDelete(() => refetchB2BAppRoles())
-    const updateB2BAppRoleAction = B2BAppRole.useUpdate({}, () => refetchB2BAppRoles())
-    const updateOrganizationEmployeeRoleAction = OrganizationEmployeeRole.useUpdate({}, () => refetchEmployeeRoles())
+    const createB2BAppRoleAction = B2BAppRole.useCreate({}, async () => await refetchB2BAppRoles())
+    const softDeleteB2BAppRoleAction = B2BAppRole.useSoftDelete(async () => await refetchB2BAppRoles())
+    const updateB2BAppRoleAction = B2BAppRole.useUpdate({}, async () => await refetchB2BAppRoles())
+    const updateOrganizationEmployeeRoleAction = OrganizationEmployeeRole.useUpdate({})
 
     const {
         loading: isB2BAppPermissionsLoading,
@@ -579,6 +582,7 @@ export const EmployeeRolesSettingsContent = () => {
     const loading = isEmployeeRolesLoading || isB2BAppRolesLoading || isB2BAppPermissionsLoading || b2bAppContextsLoading
 
     return <EmployeeRolesTable
+        refetchEmployeeRoles={refetchEmployeeRoles}
         loading={loading}
         createB2BAppRoleAction={createB2BAppRoleAction}
         softDeleteB2BAppRoleAction={softDeleteB2BAppRoleAction}

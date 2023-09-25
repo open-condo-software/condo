@@ -105,10 +105,25 @@ const REVIEW_VALUES_WITHOUT_RETURNED = [REVIEW_VALUES.GOOD, REVIEW_VALUES.BAD]
 
 describe('Ticket', () => {
     let admin
+    let organization
+    let property
+    let clientWithCanReadTicket
+    let clientWithoutCanReadTicket
 
     beforeAll(async () => {
         setAllFeatureFlags(true)
+
         admin = await makeLoggedInAdminClient()
+        clientWithCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        clientWithoutCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [testOrganization] = await createTestOrganization(admin)
+        organization = testOrganization
+        const [testProperty] = await createTestProperty(admin, organization)
+        property = testProperty
+        const [roleWithCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+        const [roleWithoutCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: false })
+        await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
+        await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
     })
 
     describe('CRUD', () => {
@@ -803,21 +818,18 @@ describe('Ticket', () => {
             })
         })
 
-        test('user: read Ticket', async () => {
-            const client = await makeClientWithProperty()
-            const [obj, attrs] = await createTestTicket(client, client.organization, client.property)
-            const objs = await Ticket.getAll(client)
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toMatch(obj.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(objs[0].createdAt).toMatch(obj.createdAt)
-            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        test('employee with canReadTicket: can read Ticket', async () => {
+            const [ticket] = await createTestTicket(admin, organization, property)
+            const readTicket = await Ticket.getOne(clientWithCanReadTicket, { id: ticket.id })
+
+            expect(readTicket).toBeDefined()
+        })
+
+        test('employee without canReadTicket: can not read Ticket', async () => {
+            const [ticket] = await createTestTicket(admin, organization, property)
+            const readTicket = await Ticket.getOne(clientWithoutCanReadTicket, { id: ticket.id })
+
+            expect(readTicket).toBeUndefined()
         })
 
         test('user: no access to another organization ticket', async () => {

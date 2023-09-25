@@ -63,7 +63,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketStatusFilter } from '@condo/domains/ticket/components/TicketStatusFilter/TicketStatusFilter'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 import {
@@ -800,6 +800,7 @@ export const TicketsPageContent = ({
     const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
+    const { link } = useOrganization()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
@@ -827,9 +828,10 @@ export const TicketsPageContent = ({
 
     const { useFlagValue } = useFeatureFlags()
     const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+    const canManageTickets = useMemo(() => get(link, ['role', 'canManageTickets'], false), [link])
 
     const TicketImportButton = useMemo(() => {
-        return showImport && isTicketImportFeatureEnabled && (
+        return canManageTickets && showImport && isTicketImportFeatureEnabled && (
             <ImportWrapper
                 accessCheck={isTicketImportFeatureEnabled}
                 domainTranslate={TicketReadingObjectsNameManyGenitiveMessage}
@@ -850,7 +852,7 @@ export const TicketsPageContent = ({
                 </Button>
             </ImportWrapper>
         )
-    }, [ImportButtonMessage, TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, exampleTemplateLink, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator, ticketsWithoutFiltersCount])
+    }, [ImportButtonMessage, TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, canManageTickets, columns, exampleTemplateLink, isTicketImportFeatureEnabled, maxTableLength, showImport, ticketCreator, ticketNormalizer, ticketValidator, ticketsWithoutFiltersCount])
 
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null
@@ -865,6 +867,7 @@ export const TicketsPageContent = ({
                 createRoute='/ticket/create'
                 createLabel={CreateTicket}
                 button={TicketImportButton}
+                accessCheck={canManageTickets}
             />
         )
     }
@@ -1124,6 +1127,5 @@ const TicketsPage: ITicketIndexPage = () => {
     )
 }
 
-TicketsPage.requiredAccess = OrganizationRequired
-
+TicketsPage.requiredAccess = TicketReadPermissionRequired
 export default TicketsPage
