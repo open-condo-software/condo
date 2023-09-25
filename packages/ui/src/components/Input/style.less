@@ -6,6 +6,7 @@
   box-sizing: content-box;
   height: @condo-global-typography-text-l-line-height;
   padding: @condo-global-spacing-12 - @condo-global-border-width-default;
+  color: @condo-global-color-black;
   border: @condo-global-border-width-default solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-medium;
 
@@ -17,14 +18,20 @@
     .condo-typography-text-large();
   }
 
+  &:hover,
   &:active,
   &:focus {
     border-color: @condo-global-color-gray-7;
     box-shadow: none;
   }
 
-  &-disabled {
-    background-color: @condo-global-color-white !important;
-    opacity: @condo-global-opacity-disabled !important;
+  &-disabled[disabled] {
+    color: @condo-global-color-black;
+    background-color: @condo-global-color-white;
+    opacity: @condo-global-opacity-disabled;
+
+    &::placeholder {
+      color: @condo-global-color-gray-7;
+    }
   }
 }
