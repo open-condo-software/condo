@@ -15,6 +15,8 @@ const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/doma
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
 
+const { findPropertyByOrganizationAndAddress } = require('./helpers/propertyFinder')
+
 const RECEIPTS_LIMIT = 50
 
 /**
@@ -377,6 +379,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             continue
                         }
                         normalizedAddress = normalizedAddressFromSuggestions
+                    }
+
+                    if (!normalizedAddress) {
+                        const findedOrganizationProperty = findPropertyByOrganizationAndAddress(billingContext.organization.id, address)
+                        normalizedAddress = findedOrganizationProperty.address
                     }
 
                     // TODO (DOMA-4077) When address service is here -> use normalized address to compare properties
