@@ -459,7 +459,7 @@ describe('UserRightsSet', () => {
 
                 const [appProperty] = await createTestB2CAppProperty(portalClient, b2cApp)
                 expect(appProperty).toHaveProperty('id')
-                const newAddress = getFakeAddress()
+                const [newAddress] = getFakeAddress()
                 const [updatedProperty] = await updateTestB2CAppProperty(portalClient, appProperty.id, {
                     address: newAddress,
                 })
