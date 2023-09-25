@@ -97,7 +97,7 @@ describe('B2CAppProperty', () => {
                 [property] = await createTestB2CAppProperty(admin, app)
             })
             test('Admin can update and soft-delete', async () => {
-                const address = getFakeAddress()
+                const [address] = getFakeAddress()
                 const [updatedProperty] = await updateTestB2CAppProperty(admin, property.id, { address })
                 expect(updatedProperty).toHaveProperty('address', address.toLowerCase())
                 const [deletedProperty] = await updateTestB2CAppProperty(admin, property.id, {
@@ -107,7 +107,7 @@ describe('B2CAppProperty', () => {
                 expect(deletedProperty.deletedAt).not.toBeNull()
             })
             test('Support can update and soft-delete', async () => {
-                const address = getFakeAddress()
+                const [address] = getFakeAddress()
                 const [updatedProperty] = await updateTestB2CAppProperty(support, property.id, { address })
                 expect(updatedProperty).toHaveProperty('address', address.toLowerCase())
                 const [deletedProperty] = await updateTestB2CAppProperty(support, property.id, {
@@ -119,7 +119,7 @@ describe('B2CAppProperty', () => {
             describe('User', () => {
                 describe('With access right', () => {
                     test('Can update and soft-delete property linked to permitted app', async () => {
-                        const address = getFakeAddress()
+                        const [address] = getFakeAddress()
                         const loweredAddress = address.toLowerCase()
                         const [updatedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, { address })
                         expect(updatedProperty).toHaveProperty('address', loweredAddress)
