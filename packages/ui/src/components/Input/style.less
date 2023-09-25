@@ -1,0 +1,30 @@
+@import "antd/lib/input/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+
+.condo-input {
+  box-sizing: content-box;
+  height: @condo-global-typography-text-l-line-height;
+  padding: @condo-global-spacing-12 - @condo-global-border-width-default;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-medium;
+
+  .condo-typography-text-large();
+
+  &::placeholder {
+    color: @condo-global-color-gray-7;
+
+    .condo-typography-text-large();
+  }
+
+  &:active,
+  &:focus {
+    border-color: @condo-global-color-gray-7;
+    box-shadow: none;
+  }
+
+  &-disabled {
+    background-color: @condo-global-color-white !important;
+    opacity: @condo-global-opacity-disabled !important;
+  }
+}
