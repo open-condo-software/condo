@@ -9,11 +9,11 @@ export default function GlobalStyle () {
     return (
         <Global
             styles={css`
-              @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+              @import url('https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;600;700&display=swap');
               body {
                 max-width: 100%;
                 overflow-x: hidden;
-                font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+                font-family: 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
                 line-height: 1.5;
 
                 text-decoration-skip: ink;
