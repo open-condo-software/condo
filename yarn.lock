@@ -10080,6 +10080,7 @@ __metadata:
     react: ^16.13.1
     react-dom: ^16.13.1
     react-markdown: ^6
+    react-phone-input-2: ^2.15.1
     remark-gfm: ^1
     source-map-loader: ^4.0.1
     style-dictionary: ^3.7.1
@@ -38781,7 +38782,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-phone-input-2@npm:^2.14.0":
+"react-phone-input-2@npm:^2.14.0, react-phone-input-2@npm:^2.15.1":
   version: 2.15.1
   resolution: "react-phone-input-2@npm:2.15.1"
   dependencies:

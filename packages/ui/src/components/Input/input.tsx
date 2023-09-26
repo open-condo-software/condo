@@ -18,7 +18,7 @@ export type InputProps = BaseInputProps & {
 }
 
 const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<InputRef>> = React.forwardRef((props, ref) => {
-    const { allowClear: allowClearProp } = props
+    const { allowClear: allowClearProp, ...restProps } = props
 
     const allowClear = useMemo(() => {
         if (allowClearProp) {
@@ -28,7 +28,7 @@ const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<In
         return false
     }, [allowClearProp])
 
-    return <DefaultInput {...props} ref={ref} prefixCls={INPUT_CLASS_PREFIX} allowClear={allowClear}/>
+    return <DefaultInput {...restProps} ref={ref} prefixCls={INPUT_CLASS_PREFIX} allowClear={allowClear}/>
 })
 
 Input.displayName = 'Input'
