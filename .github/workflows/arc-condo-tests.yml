@@ -58,8 +58,8 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=24576"
+          # export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=8192"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
@@ -79,9 +79,9 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
           # TESTS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/schema/(.*)[.]test.js$' 2>&1 > condo.1.test.organization-user-scope-property.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/schema/(.*)[.]test.js$' 2>&1 > condo.1.test.organization-user-scope-property.log
           # SPECS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/(.*)[.]spec.js$' 2>&1 > condo.1.spec.organization-user-scope-property.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/(.*)[.]spec.js$' 2>&1 > condo.1.spec.organization-user-scope-property.log
         
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
@@ -157,8 +157,8 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=24576"
+          # export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=8192"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
@@ -177,10 +177,10 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
           # TESTS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/schema/(.*)[.]test.js$' 2>&1 > condo.2.test.acquiring-billing-miniapps-banking.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/schema/(.*)[.]test.js$' 2>&1 > condo.2.test.acquiring-billing-miniapps-banking.log
           
           # SPECS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/(.*)[.]spec.js$' 2>&1 > condo.2.spec.acquiring-billing-miniapps-banking.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/(.*)[.]spec.js$' 2>&1 > condo.2.spec.acquiring-billing-miniapps-banking.log
         
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
@@ -256,8 +256,8 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=24576"
+          # export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=8192"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
@@ -276,10 +276,10 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
           # TESTS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/schema/(.*)[.]test.js$' 2>&1 > condo.3.test.ticket-meter-contact-resident.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/schema/(.*)[.]test.js$' 2>&1 > condo.3.test.ticket-meter-contact-resident.log
         
           # SPECS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/(.*)[.]spec.js$' 2>&1 > condo.3.spec.ticket-meter-contact-resident.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/(.*)[.]spec.js$' 2>&1 > condo.3.spec.ticket-meter-contact-resident.log
         
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
@@ -355,8 +355,8 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=24576"
+          # export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=8192"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
@@ -375,10 +375,10 @@ jobs:
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
           # TESTS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.test.other-domains.log
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.test.other-domains.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
           # SPECS
-          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.spec.others.log
+          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --expose-gc --logHeapUsage --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.spec.others.log
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
