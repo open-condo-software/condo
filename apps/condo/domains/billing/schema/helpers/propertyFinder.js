@@ -1,49 +1,56 @@
+const { intersection } = require('lodash')
+
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
+const SYMBOLS_TO_REMOVE_REGEXP = /[!@#$%^&*)(+=_:"'`[\]]/g
+const SPLITTERS_REGEXP = /[,;. ]/
+
 /**
- * @param {string} addressStr 
+ * @param {string} addressStr
  * @returns {string[]}
  */
 function tokenifyAddress (addressStr) {
     return addressStr
-        .replace(/[!@#$%^&*)(+=,_:;"'`[\]]/g, '')
-        .split(/[. ]/)
+        .replace(SYMBOLS_TO_REMOVE_REGEXP, '')
+        .split(SPLITTERS_REGEXP)
         .filter(Boolean)
         .filter((x) => x.length > 1)
 }
 
 /**
- * @param {*} context 
- * @param {string} organizationId 
- * @param {string} address 
- * 
+ * @param {*} context
+ * @param {string} organizationId
+ * @param {string} address
+ *
  * @returns {Property}
  */
 async function findPropertyByOrganizationAndAddress (context, organizationId, address) {
-    return address
+    const targetTokens = tokenifyAddress(address)
 
-    //
-    // TODO
-    //
+    let theMostProbablyProperty
+    let maxScore = 0
 
-    // const targetTokens = tokenifyAddress(address)
+    await loadListByChunks({
+        context,
+        list: Property,
+        where: { organization: { id: organizationId }, deletedAt: null },
+        chunkSize: 50,
+        chunkProcessor: (/** @type {Property[]} */ chunk) => {
+            for (const property of chunk) {
+                const tokens = tokenifyAddress(property.address)
+                const score = 100 / targetTokens.length * intersection(targetTokens, tokens).length
+                if (score > maxScore) {
+                    theMostProbablyProperty = property
+                    maxScore = score
+                }
+            }
 
-    // let theMostProbablyProperty
+            return []
+        },
+    })
 
-    // await loadListByChunks({
-    //     context,
-    //     list: Property,
-    //     where: { organization: { id: organizationId }, deletedAt: null },
-    //     chunkSize: 50,
-    //     chunkProcessor: (/** @type {Property[]} */ chunk) => {
-    //         for (const property of chunk) {
-    //             const tokens = tokenifyAddress(property.address)
-    //         }
-
-    //         return []
-    //     },
-    // })
+    return [theMostProbablyProperty, Number(maxScore.toFixed(2))]
 }
 
-module.exports = { findPropertyByOrganizationAndAddress }
+module.exports = { findPropertyByOrganizationAndAddress, tokenifyAddress }
