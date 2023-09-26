@@ -21,15 +21,6 @@ const suggestionContexts = {
         [YANDEX_PROVIDER]: {},
     },
 
-    defaultFallback1: {
-        [DADATA_PROVIDER]: {
-            from_bound: { value: 'country' },
-            to_bound: undefined,
-        },
-        [GOOGLE_PROVIDER]: {},
-        [YANDEX_PROVIDER]: {},
-    },
-
     /**
      * The other contexts will be loaded according to the query.
      * The values from the default context will be overridden by values from other ones.
