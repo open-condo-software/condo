@@ -512,7 +512,7 @@ function getFakeAddress(validAddress = true, validHouse = true) {
 
     if (!validHouse) {
         invalidAddress = address.replace('д', 'б')
-        addressMeta.data.house_type_full = 'б'
+        addressMeta.data.house_type_full = 'бунгало'
     }
 
     return [invalidAddress, addressMeta]
