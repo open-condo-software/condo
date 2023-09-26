@@ -4,8 +4,8 @@
 
 const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
-const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 
+const { getById, find } = require('@open-condo/keystone/schema')
 const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
 const { OnBoarding: OnBoardingApi } = require('@condo/domains/onboarding/utils/serverSchema')
@@ -19,6 +19,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const { MockSbbolResponses } = require('./MockSbbolResponses')
 const { syncUser } = require('./syncUser')
+
 
 const { keystone } = index
 
@@ -88,23 +89,13 @@ describe('syncUser from SBBOL', () => {
                 keystone,
                 context: adminContext,
             }
-            const residentUser = await getItem({
-                keystone,
-                itemId: residentClient.user.id,
-                listKey: 'User',
-                returnFields: 'id name phone',
-            })
-            
+            const residentUser = await getById( 'User', residentClient.user.id)
+
             const { userData } = MockSbbolResponses.getUserAndOrganizationInfo()
             userData.phone = residentUser.phone
             await syncUser({ context, userInfo: userData, identityId })
-            const existingUsers = await getItems({
-                keystone,
-                listKey: 'User',
-                where: { phone: residentUser.phone },
-                returnFields: 'id type name phone',
-            })
-            
+            const existingUsers = await find( 'User', { phone: residentUser.phone })
+
             expect(existingUsers).toHaveLength(2)
 
             const resident = (existingUsers[0].type === 'staff') ? existingUsers[1] : existingUsers[0]
@@ -141,12 +132,7 @@ describe('syncUser from SBBOL', () => {
                 expect(newUser.name).toBeDefined()
                 expect(newUser.id).toBeDefined()
                 expect(newUser.id).not.toEqual(idOfFirstAnotherUser)
-                const [ updatedExistingUser ] = await getItems({
-                    keystone,
-                    listKey: 'User',
-                    where: { id: idOfFirstAnotherUser },
-                    returnFields: 'id email',
-                })
+                const [ updatedExistingUser ] = await find('User', { id: idOfFirstAnotherUser })
                 expect(updatedExistingUser.email).toBeNull()
             })
         })
@@ -167,12 +153,7 @@ describe('syncUser from SBBOL', () => {
                 expect(syncedUser.name).toBeDefined()
                 expect(syncedUser.id).toBeDefined()
                 expect(syncedUser.id).not.toEqual(idOfFirstAnotherUser)
-                const [ updatedExistingUser ] = await getItems({
-                    keystone,
-                    listKey: 'User',
-                    where: { id: idOfFirstAnotherUser },
-                    returnFields: 'id email',
-                })
+                const [ updatedExistingUser ] = await find( 'User', { id: idOfFirstAnotherUser })
                 expect(updatedExistingUser.email).toBeNull()
             })
         })
