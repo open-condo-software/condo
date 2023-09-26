@@ -206,7 +206,7 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                     }
                 }
 
-                const payableReceipts = (Object.values(receiptsByAccountAndRecipient)).map(r => r.id)
+                const payableReceipts = Object.values(receiptsByAccountAndRecipient).map(r => r.id)
                 processedReceipts.forEach(receipt => {
                     receipt.isPayable = payableReceipts.includes(receipt.id)
                 })
