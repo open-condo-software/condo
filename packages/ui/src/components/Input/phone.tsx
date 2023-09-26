@@ -14,7 +14,7 @@ export type PhoneInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 
 const Phone: React.FC<PhoneInputProps> = (props) => {
     const { country, placeholder, onChange, ...restProps } = props
 
-    const internalOnChange: PhoneInputProps['onChange'] = useCallback((rawValue, data, event, formattedValue) => {
+    const internalOnChange = useCallback<Required<PhoneInputProps>['onChange']>((rawValue, data, event, formattedValue) => {
         const value = rawValue ? `+${rawValue}` : rawValue
         if (onChange) {
             onChange(value, data, event, formattedValue)
