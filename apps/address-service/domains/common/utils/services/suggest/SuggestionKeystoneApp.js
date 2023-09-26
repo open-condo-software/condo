@@ -115,7 +115,7 @@ class SuggestionKeystoneApp {
 
             // 2. Get suggestions array
             if (suggestionProvider) {
-                let denormalizedSuggestions = await suggestionProvider.get({
+                const denormalizedSuggestions = await suggestionProvider.get({
                     query: s,
                     session,
                     context,
