@@ -20,7 +20,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-pip docker-compose curl
-
       - name: Verify Git Installation
         run: git --version
           
@@ -35,7 +34,6 @@ jobs:
         run: |
           cp .env.example .env
           docker-compose up -d postgresdb redis
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -47,11 +45,9 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
-
       - name: build deps
         run: |
           turbo build --filter=condo^...
-
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -62,38 +58,30 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          # export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=8192"
+          export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=24576"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
-
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
-
           # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
           mkdir -p ./apps/condo/dist/admin
-
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
-
           yarn workspace @app/condo dev 2>&1 > condo.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
-
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
           
           source bin/validate-db-schema-ts-to-match-graphql-api.sh
-
           yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
-
           # And check background processes!
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
-
           # TESTS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/schema/(.*)[.]test.js$' 2>&1 > condo.1.test.organization-user-scope-property.log
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/schema/(.*)[.]test.js$' 2>&1 > condo.1.test.organization-user-scope-property.log
           # SPECS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/(.*)[.]spec.js$' 2>&1 > condo.1.spec.organization-user-scope-property.log
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(organization|user|scope|property)/(.*)[.]spec.js$' 2>&1 > condo.1.spec.organization-user-scope-property.log
         
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
@@ -131,7 +119,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-pip docker-compose curl
-
       - name: Verify Git Installation
         run: git --version
           
@@ -146,7 +133,6 @@ jobs:
         run: |
           cp .env.example .env
           docker-compose up -d postgresdb redis
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -158,11 +144,9 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
-
       - name: build deps
         run: |
           turbo build --filter=condo^...
-
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -173,44 +157,34 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          # export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=8192"
+          export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=24576"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
-
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
-
           # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
           mkdir -p ./apps/condo/dist/admin
-
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
-
           yarn workspace @app/condo dev 2>&1 > condo.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
-
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
-
           source bin/validate-db-schema-ts-to-match-graphql-api.sh
-
           yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
-
           # And check background processes!
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
-
           # TESTS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/schema/(.*)[.]test.js$' 2>&1 > condo.2.test.acquiring-billing-miniapps-banking.log
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/schema/(.*)[.]test.js$' 2>&1 > condo.2.test.acquiring-billing-miniapps-banking.log
           
           # SPECS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/(.*)[.]spec.js$' 2>&1 > condo.2.spec.acquiring-billing-miniapps-banking.log
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(acquiring|billing|miniapp|banking)/(.*)[.]spec.js$' 2>&1 > condo.2.spec.acquiring-billing-miniapps-banking.log
         
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
-
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
@@ -244,7 +218,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-pip docker-compose curl
-
       - name: Verify Git Installation
         run: git --version
           
@@ -259,7 +232,6 @@ jobs:
         run: |
           cp .env.example .env
           docker-compose up -d postgresdb redis
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -271,11 +243,9 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
-
       - name: build deps
         run: |
           turbo build --filter=condo^...
-
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -286,44 +256,34 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          # export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=8192"
+          export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=24576"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
-
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
-
           # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
           mkdir -p ./apps/condo/dist/admin
-
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
-
           yarn workspace @app/condo dev 2>&1 > condo.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
-
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
-
           source bin/validate-db-schema-ts-to-match-graphql-api.sh
-
           yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
-
           # And check background processes!
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
-
           # TESTS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/schema/(.*)[.]test.js$' 2>&1 > condo.3.test.ticket-meter-contact-resident.log
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/schema/(.*)[.]test.js$' 2>&1 > condo.3.test.ticket-meter-contact-resident.log
         
           # SPECS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/(.*)[.]spec.js$' 2>&1 > condo.3.spec.ticket-meter-contact-resident.log
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '/domains/(ticket|meter|contact|resident)/(.*)[.]spec.js$' 2>&1 > condo.3.spec.ticket-meter-contact-resident.log
         
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
-
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
@@ -357,7 +317,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-pip docker-compose curl
-
       - name: Verify Git Installation
         run: git --version
           
@@ -372,7 +331,6 @@ jobs:
         run: |
           cp .env.example .env
           docker-compose up -d postgresdb redis
-
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v1
         with:
@@ -384,11 +342,9 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
-
       - name: build deps
         run: |
           turbo build --filter=condo^...
-
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -399,41 +355,30 @@ jobs:
           export NOTIFICATION__DISABLE_LOGGING=true
           export FAKE_ADDRESS_SUGGESTIONS=true
           export TESTS_LOG_REQUEST_RESPONSE=true
-          # export WORKER_CONCURRENCY=50
-          export NODE_OPTIONS="--max_old_space_size=8192"
+          export WORKER_CONCURRENCY=50
+          export NODE_OPTIONS="--max_old_space_size=24576"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
           printenv
-
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
-
           # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
           mkdir -p ./apps/condo/dist/admin
-
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
-
           yarn workspace @app/condo dev 2>&1 > condo.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
-
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
-
           source bin/validate-db-schema-ts-to-match-graphql-api.sh
-
           yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
-
           # And check background processes!
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
-
           # TESTS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.test.other-domains.log
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
-
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.test.other-domains.log
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
           # SPECS
-          yarn workspace @app/condo test --coverageProvider="v8" --workerIdleMemoryLimit="1" --runInBand --testTimeout=15000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.spec.others.log
-
+          yarn workspace @app/condo test --maxWorkers="50%" --workerIdleMemoryLimit="24G" --testTimeout=10000 --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident)/' 2>&1 > condo.4.spec.others.log
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
@@ -441,7 +386,6 @@ jobs:
           yarn jest ./packages/keystone --maxWorkers=2
           
           yarn workspace @app/condo lint-schema
-
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
