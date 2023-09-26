@@ -135,6 +135,7 @@ const MenuItems: React.FC = () => {
     const hasAccessToIncidents = get(role, 'canReadIncidents', false)
     const hasAccessToEmployees = get(role, 'canReadEmployees', false)
     const hasAccessToProperties = get(role, 'canReadProperties', false)
+    const hasAccessToContacts = get(role, 'canReadContacts', false)
 
     const { canRead: canReadNewsItems } = useNewsItemsAccess()
 
@@ -203,7 +204,7 @@ const MenuItems: React.FC = () => {
                     path: 'contact',
                     icon: AllIcons['Contacts'],
                     label: 'global.section.contacts',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToContacts,
                 },
             ].filter(checkItemAccess),
         },
@@ -280,7 +281,7 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [isAssignedVisibilityType, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, canReadNewsItems, hasAccessToProperties, hasAccessToEmployees, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, connectedAppsIds])
+    ]), [isAssignedVisibilityType, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, canReadNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, connectedAppsIds])
 
     return (
         <>

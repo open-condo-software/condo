@@ -12,8 +12,8 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestPhone, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Contact', () => {
     test('required fields', async () => {
@@ -254,6 +254,20 @@ describe('Contact', () => {
             const objs = await Contact.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
             expect(objs).toHaveLength(1)
             expect(objs[0].id).toMatch(obj.id)
+        })
+
+        it('cannot be read by employee with canManageContacts: false', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, { canReadContacts: false })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+            const [property] = await createTestProperty(adminClient, organization)
+            const [obj] = await createTestContact(adminClient, organization, property)
+
+            const readContact = await Contact.getOne(userClient, { id: obj.id })
+
+            expect(readContact).toBeUndefined()
         })
 
         it('cannot be read by user, who is not employed in organization, which manages associated property', async () => {

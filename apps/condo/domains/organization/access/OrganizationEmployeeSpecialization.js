@@ -20,8 +20,8 @@ async function canReadOrganizationEmployeeSpecializations ({ authentication: { i
         employee: {
             organization: {
                 OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    queryOrganizationEmployeeFor(user.id, 'canReadEmployees'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadEmployees'),
                 ],
             },
         },
