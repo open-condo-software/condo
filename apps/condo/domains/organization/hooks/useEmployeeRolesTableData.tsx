@@ -124,6 +124,19 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
             ],
         },
         {
+            key: 'employees',
+            permissions: [
+                {
+                    key: 'canReadEmployees',
+                    relatedUncheckPermissions: ['canManageEmployees'],
+                },
+                {
+                    key: 'canManageEmployees',
+                    relatedCheckPermissions: ['canReadEmployees'],
+                },
+            ],
+        },
+        {
             key: 'services',
             permissions: [
                 { key: 'canManageB2BApps' },

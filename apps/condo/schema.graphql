@@ -5460,6 +5460,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
@@ -5560,6 +5561,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   statusTransitions_not_in: [JSON]
   canManageOrganization: Boolean
   canManageOrganization_not: Boolean
+  canReadEmployees: Boolean
+  canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
   canManageRoles: Boolean
@@ -5729,6 +5732,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   description_DESC
   canManageOrganization_ASC
   canManageOrganization_DESC
+  canReadEmployees_ASC
+  canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
   canManageRoles_ASC
@@ -5827,6 +5832,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
@@ -5888,6 +5894,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
@@ -5964,6 +5971,7 @@ type OrganizationEmployeeRole {
   """ Employee status transitions map """
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
@@ -6080,6 +6088,8 @@ input OrganizationEmployeeRoleWhereInput {
   description_not_in: [String]
   canManageOrganization: Boolean
   canManageOrganization_not: Boolean
+  canReadEmployees: Boolean
+  canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
   canManageRoles: Boolean
@@ -6217,6 +6227,8 @@ enum SortOrganizationEmployeeRolesBy {
   description_DESC
   canManageOrganization_ASC
   canManageOrganization_DESC
+  canReadEmployees_ASC
+  canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
   canManageRoles_ASC
@@ -6314,6 +6326,7 @@ input OrganizationEmployeeRoleUpdateInput {
   name: String
   description: String
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
@@ -6371,6 +6384,7 @@ input OrganizationEmployeeRoleCreateInput {
   name: String
   description: String
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean

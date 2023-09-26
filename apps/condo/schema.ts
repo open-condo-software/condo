@@ -48027,6 +48027,7 @@ export type OrganizationEmployeeRole = {
   /**  Employee status transitions map  */
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
@@ -48093,6 +48094,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
@@ -48156,6 +48158,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
@@ -48213,6 +48216,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
@@ -48275,6 +48279,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
@@ -48374,6 +48379,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   statusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageOrganization_not?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
+  canReadEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
@@ -48557,6 +48564,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
@@ -48647,6 +48655,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageOrganization_not?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
+  canReadEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
@@ -69977,6 +69987,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   DescriptionDesc = 'description_DESC',
   CanManageOrganizationAsc = 'canManageOrganization_ASC',
   CanManageOrganizationDesc = 'canManageOrganization_DESC',
+  CanReadEmployeesAsc = 'canReadEmployees_ASC',
+  CanReadEmployeesDesc = 'canReadEmployees_DESC',
   CanManageEmployeesAsc = 'canManageEmployees_ASC',
   CanManageEmployeesDesc = 'canManageEmployees_DESC',
   CanManageRolesAsc = 'canManageRoles_ASC',
@@ -70078,6 +70090,8 @@ export enum SortOrganizationEmployeeRolesBy {
   DescriptionDesc = 'description_DESC',
   CanManageOrganizationAsc = 'canManageOrganization_ASC',
   CanManageOrganizationDesc = 'canManageOrganization_DESC',
+  CanReadEmployeesAsc = 'canReadEmployees_ASC',
+  CanReadEmployeesDesc = 'canReadEmployees_DESC',
   CanManageEmployeesAsc = 'canManageEmployees_ASC',
   CanManageEmployeesDesc = 'canManageEmployees_DESC',
   CanManageRolesAsc = 'canManageRoles_ASC',
