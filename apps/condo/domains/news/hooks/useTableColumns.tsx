@@ -10,6 +10,8 @@ import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { UseNewsTableFiltersReturnType } from '@condo/domains/news/hooks/useTableFilters'
 import { getRenderBody, getRenderTitle, getRenderNewsDate, ResendNewsButton, getTypeRender, getRenderProperties } from '@condo/domains/news/utils/clientSchema/NewsRenders'
 
+import { useNewsItemsAccess } from './useNewsItemsAccess'
+
 const COLUMNS_WIDTH = {
     resend: '4%',
     number: '5.8%',
@@ -30,12 +32,13 @@ export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
     const DateMessage = intl.formatMessage({ id: 'pages.condo.news.index.tableField.date' })
 
     const router = useRouter()
+    const { canManage } = useNewsItemsAccess()
     const { filters } = parseQuery(router.query)
     const search = getFilteredValue(filters, 'search')
     
     const renderResendNews = useCallback((_, newsItem) => {
         const isSentAt = get(newsItem, 'sentAt', null)
-        if (!isSentAt) return
+        if (!isSentAt || !canManage) return
 
         return (
             <ResendNewsButton
@@ -43,7 +46,7 @@ export const useTableColumns = (filterMetas: UseNewsTableFiltersReturnType) => {
                 newsItem={newsItem}
             />
         )
-    }, [intl])
+    }, [canManage, intl])
 
     const renderType = useMemo(() => getTypeRender(intl, search), [intl, search])
     const renderTitle = useMemo(() => getRenderTitle(search), [search])
