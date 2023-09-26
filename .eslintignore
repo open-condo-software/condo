@@ -14,4 +14,3 @@ package.json
 README.md
 **/public/tinymce
 **/public/ui
-apps/address-service/lib/**
