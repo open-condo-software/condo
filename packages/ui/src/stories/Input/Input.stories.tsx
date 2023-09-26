@@ -9,6 +9,7 @@ export default {
     args: {
         placeholder: 'Placeholder',
         disabled: false,
+        allowClear: false,
     },
 } as ComponentMeta<typeof Component>
 

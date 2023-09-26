@@ -2,7 +2,8 @@
 @import (reference) "@open-condo/ui/src/tokens/variables.less";
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 
-.condo-input {
+.condo-input,
+.condo-input-affix-wrapper {
   box-sizing: content-box;
   height: @condo-global-typography-text-l-line-height;
   padding: @condo-global-spacing-12 - @condo-global-border-width-default;
@@ -12,26 +13,56 @@
 
   .condo-typography-text-large();
 
-  &::placeholder {
-    color: @condo-global-color-gray-7;
-
-    .condo-typography-text-large();
-  }
-
-  &:hover,
-  &:active,
-  &:focus {
+  &-focused {
     border-color: @condo-global-color-gray-7;
     box-shadow: none;
   }
+}
 
-  &-disabled[disabled] {
+.condo-input:not(.condo-input-disabled),
+.condo-input-affix-wrapper:not(.condo-input-affix-wrapper-disabled) {
+  &:hover,
+  &:focus,
+  &:active {
+    border-color: @condo-global-color-gray-7;
+    box-shadow: none;
+  }
+}
+
+.condo-input::placeholder,
+.condo-input-affix-wrapper > .condo-input::placeholder {
+  color: @condo-global-color-gray-7;
+
+  .condo-typography-text-large();
+}
+
+.condo-input-affix-wrapper-disabled,
+.condo-input-disabled[disabled] {
+  color: @condo-global-color-black;
+  background-color: @condo-global-color-white;
+  opacity: @condo-global-opacity-disabled;
+
+  &:hover {
+    border-color: @condo-global-color-gray-5;
+  }
+}
+
+.condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled] {
+  opacity: 1;
+}
+
+.condo-input-disabled[disabled]::placeholder,
+.condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled]::placeholder {
+  color: @condo-global-color-gray-7;
+}
+
+.condo-input-clear-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &,
+  &:hover {
     color: @condo-global-color-black;
-    background-color: @condo-global-color-white;
-    opacity: @condo-global-opacity-disabled;
-
-    &::placeholder {
-      color: @condo-global-color-gray-7;
-    }
   }
 }
