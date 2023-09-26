@@ -25,7 +25,7 @@ export { Dropdown } from './components/Dropdown'
 export type { DropdownProps } from './components/Dropdown'
 
 export { Input } from './components/Input'
-export type { BaseInputProps } from './components/Input'
+export type { InputType, BaseInputProps, InputProps, PasswordInputProps } from './components/Input'
 
 export { List } from './components/List'
 export type { ListProps } from './components/List'

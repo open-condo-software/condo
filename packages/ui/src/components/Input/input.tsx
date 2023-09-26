@@ -12,11 +12,12 @@ export const INPUT_CLASS_PREFIX = 'condo-input'
 
 export type BaseInputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'style' | 'size'>
 & Pick<DefaultInputProps, 'disabled'>
-& {
+
+export type InputProps = BaseInputProps & {
     allowClear?: boolean
 }
 
-const Input: React.ForwardRefExoticComponent<BaseInputProps & React.RefAttributes<InputRef>> = React.forwardRef((props, ref) => {
+const Input: React.ForwardRefExoticComponent<InputProps & React.RefAttributes<InputRef>> = React.forwardRef((props, ref) => {
     const { allowClear: allowClearProp } = props
 
     const allowClear = useMemo(() => {
