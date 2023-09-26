@@ -26,4 +26,3 @@ ignore.*
 # not a source code files
 *docker-compose.yml
 *docker-compose.yaml
-apps/address-service/lib/**
