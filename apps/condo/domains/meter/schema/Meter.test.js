@@ -967,9 +967,13 @@ describe('Meter', () => {
             const [anotherProperty] = await createTestProperty(admin, organization)
             const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
             const [b2cApp] = await createTestB2CApp(admin)
-            await createTestB2CAppProperty(admin, b2cApp, { address: property.address })
+            await createTestB2CAppProperty(admin, b2cApp, {
+                address: property.address, addressMeta: property.addressMeta,
+            })
             const [anotherApp] = await createTestB2CApp(admin)
-            await createTestB2CAppProperty(admin, anotherApp, { address: anotherProperty.address })
+            await createTestB2CAppProperty(admin, anotherApp, {
+                address: anotherProperty.address, addressMeta: anotherProperty.addressMeta,
+            })
             await expectToThrowValidationFailureError(async () => {
                 await createTestMeter(admin, organization, property, resource, {
                     isAutomatic: false,

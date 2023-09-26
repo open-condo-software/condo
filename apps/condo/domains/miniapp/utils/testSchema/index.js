@@ -11,10 +11,10 @@ const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const {
     B2C_APP_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-
 const {
     ALL_MINI_APPS_QUERY,
     SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
@@ -280,12 +280,14 @@ async function createTestB2CAppProperty (client, app, extraAttrs = {}, validAddr
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const [address, addressMeta] = getFakeAddress(validAddress, validHouse)
 
     const attrs = {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
-        address: getFakeAddress(validAddress, validHouse),
+        address,
+        addressMeta,
         ...extraAttrs,
     }
     const obj = await B2CAppProperty.create(client, attrs)
@@ -496,13 +498,24 @@ async function updateTestB2BAppAccessRightSet (client, id, extraAttrs = {}) {
 
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
-    const cityPart = `город ${faker.name.firstName()}`
-    const streetPart = `улица ${faker.name.firstName()}`
-    const houseType = validHouse ? 'дом' : 'бунгало'
-    const houseNumber = validAddress ? `${faker.datatype.number({min: 1, max: 100})}` : ''
-    const housePart = `${houseType} ${houseNumber}`
+    const { address, addressMeta } = buildFakeAddressAndMeta(false)
 
-    return [cityPart, streetPart, housePart].join(', ')
+    if (validAddress && validHouse) {
+        return [address, addressMeta]
+    }
+
+    let invalidAddress
+
+    if (!validAddress) {
+        invalidAddress = address.replace(/д\s\d+\s/gm, '')
+    }
+
+    if (!validHouse) {
+        invalidAddress = address.replace('д', 'б')
+        addressMeta.data.house_type_full = 'бунгало'
+    }
+
+    return [invalidAddress, addressMeta]
 }
 
 module.exports = {

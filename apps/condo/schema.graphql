@@ -60998,8 +60998,11 @@ type B2CAppPropertyHistoryRecord {
   """
   _label_: String
   app: String
-  address: String
   id: ID!
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -61021,6 +61024,10 @@ input B2CAppPropertyHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
   address: String
   address_not: String
   address_contains: String
@@ -61039,10 +61046,32 @@ input B2CAppPropertyHistoryRecordWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -61122,10 +61151,12 @@ input B2CAppPropertyHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2CAppPropertyHistoryRecordsBy {
-  address_ASC
-  address_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -61145,6 +61176,9 @@ enum SortB2CAppPropertyHistoryRecordsBy {
 input B2CAppPropertyHistoryRecordUpdateInput {
   app: String
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -61167,6 +61201,9 @@ input B2CAppPropertyHistoryRecordsUpdateInput {
 input B2CAppPropertyHistoryRecordCreateInput {
   app: String
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -61199,11 +61236,20 @@ type B2CAppProperty {
 
   """ Link to B2C App """
   app: B2CApp
-
-  """ Property address. Must match the address lookup service with case accuracy 
-  """
-  address: String
   id: ID!
+
+  """ Normalized address """
+  address: String
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Property address components """
+  addressMeta: AddressMetaField
+
+  """ The origins of the address (some strings which may looks like real address or some id) 
+  """
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -61231,6 +61277,10 @@ input B2CAppPropertyWhereInput {
   OR: [B2CAppPropertyWhereInput]
   app: B2CAppWhereInput
   app_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
   address: String
   address_not: String
   address_contains: String
@@ -61249,10 +61299,32 @@ input B2CAppPropertyWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -61314,10 +61386,12 @@ input B2CAppPropertyWhereUniqueInput {
 enum SortB2CAppPropertiesBy {
   app_ASC
   app_DESC
-  address_ASC
-  address_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -61337,6 +61411,9 @@ enum SortB2CAppPropertiesBy {
 input B2CAppPropertyUpdateInput {
   app: B2CAppRelateToOneInput
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -61356,6 +61433,9 @@ input B2CAppPropertiesUpdateInput {
 input B2CAppPropertyCreateInput {
   app: B2CAppRelateToOneInput
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
