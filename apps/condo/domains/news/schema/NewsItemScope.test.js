@@ -70,12 +70,14 @@ describe('NewsItemScope', () => {
 
             let [roleAllow] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
                 canManageNewsItems: true,
+                canReadNewsItems: true,
             })
             dummyRoleAllow = roleAllow
             await createTestOrganizationEmployee(adminClient, dummyO10n, staffClient.user, dummyRoleAllow)
 
             let [roleDisallow] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, {
                 canManageNewsItems: false,
+                canReadNewsItems: false,
             })
             dummyRoleDisallow = roleDisallow
             await createTestOrganizationEmployee(adminClient, dummyO10n, staffClientNoPermission.user, dummyRoleDisallow)
@@ -259,15 +261,12 @@ describe('NewsItemScope', () => {
                 })
             })
 
-            test('staff without permission can', async () => {
+            test('staff without read permission can\'t', async () => {
                 const [obj] = await createTestNewsItemScope(adminClient, dummyNewsItem, { property: { connect: { id: dummyProperty.id } } })
 
-                const objs = await NewsItemScope.getAll(staffClientNoPermission, {}, { sortBy: ['updatedAt_DESC'] })
+                const readObj = await NewsItemScope.getOne(staffClientNoPermission, { id: obj.id }, { sortBy: ['updatedAt_DESC'] })
 
-                expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs[0]).toMatchObject({
-                    id: obj.id,
-                })
+                expect(readObj).toBeUndefined()
             })
 
             test('anonymous can\'t', async () => {

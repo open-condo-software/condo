@@ -5496,6 +5496,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
+  canReadNewsItems: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5646,6 +5647,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5795,6 +5798,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5853,6 +5858,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
+  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5912,6 +5918,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
+  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6000,6 +6007,7 @@ type OrganizationEmployeeRole {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
+  canReadNewsItems: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6138,6 +6146,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6269,6 +6279,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6326,6 +6338,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
+  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6381,6 +6394,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
+  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String

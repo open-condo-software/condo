@@ -53,8 +53,8 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
             ],
             deletedAt: null,
         },
