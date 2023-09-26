@@ -1,3 +1,4 @@
+// nosemgrep: deprecated-server-side-graphql-client
 const { getItems } = require('@keystonejs/server-side-graphql-client')
 const { isFunction } = require('lodash')
 
