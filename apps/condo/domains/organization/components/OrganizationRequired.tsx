@@ -107,8 +107,6 @@ const PermissionsRequiredWrapper: React.FC<PermissionRequiredPageProps> = ({ chi
         return false
     }, [permissionKeys, role])
 
-    console.log('isAccessDenied', isAccessDenied)
-
     if (isAccessDenied) {
         return <AccessDeniedPage />
     }

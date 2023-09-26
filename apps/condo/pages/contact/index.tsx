@@ -29,13 +29,13 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { useContactExportToExcelTask } from '@condo/domains/contact/hooks/useContactExportToExcelTask'
 import { useImporterFunctions } from '@condo/domains/contact/hooks/useImporterFunctions'
 import { useTableColumns } from '@condo/domains/contact/hooks/useTableColumns'
 import { useContactsTableFilters } from '@condo/domains/contact/hooks/useTableFilters'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
 import { CONTACT_PAGE_SIZE, getPageIndexFromQuery, IFilters } from '@condo/domains/contact/utils/helpers'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 
 const ADD_CONTACT_ROUTE = '/contact/create/'
@@ -244,6 +244,6 @@ const ContactsPage = () => {
     )
 }
 
-ContactsPage.requiredAccess = OrganizationRequired
+ContactsPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactsPage

@@ -127,7 +127,13 @@ const queryOrganizationEmployeeFor = (userId, permission) => {
 
     return { employees_some: baseEmployeeQuery }
 }
-const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId, permission) } })
+const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({
+    relatedOrganizations_some: {
+        AND: [
+            { from: queryOrganizationEmployeeFor(userId, permission), deletedAt: null },
+        ],
+    },
+})
 
 module.exports = {
     checkPermissionInUserOrganizationOrRelatedOrganization,
