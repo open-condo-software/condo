@@ -372,6 +372,15 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         partialErrors.push(new GQLError({ ...ERRORS.ADDRESS_EMPTY_VALUE, inputIndex: i }, context))
                         continue
                     }
+
+                    if (!normalizedAddress) {
+                        const [findedOrganizationProperty, score] = await findPropertyByOrganizationAndAddress(context, billingContext.organization.id, address)
+
+                        if (score > 80) {
+                            normalizedAddress = findedOrganizationProperty.address
+                        }
+                    }
+
                     if (!normalizedAddress) {
                         const normalizedAddressFromSuggestions = get(await getAddressSuggestions(address, 1), ['0', 'value'])
                         if (!normalizedAddressFromSuggestions) {
@@ -379,11 +388,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             continue
                         }
                         normalizedAddress = normalizedAddressFromSuggestions
-                    }
-
-                    if (!normalizedAddress) {
-                        const findedOrganizationProperty = findPropertyByOrganizationAndAddress(billingContext.organization.id, address)
-                        normalizedAddress = findedOrganizationProperty.address
                     }
 
                     // TODO (DOMA-4077) When address service is here -> use normalized address to compare properties
@@ -478,7 +482,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             },
         },
     ],
-    
 })
 
 module.exports = {
