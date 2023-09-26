@@ -48030,6 +48030,7 @@ export type OrganizationEmployeeRole = {
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -48065,6 +48066,7 @@ export type OrganizationEmployeeRole = {
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
@@ -48072,7 +48074,6 @@ export type OrganizationEmployeeRole = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -48095,6 +48096,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -48121,6 +48123,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
@@ -48128,7 +48131,6 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48157,6 +48159,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -48183,6 +48186,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
@@ -48190,7 +48194,6 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -48213,6 +48216,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -48239,6 +48243,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
@@ -48246,7 +48251,6 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48274,6 +48278,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -48300,6 +48305,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
@@ -48307,7 +48313,6 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48375,6 +48380,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageRoles_not?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageIntegrations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
@@ -48443,6 +48450,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -48457,8 +48466,6 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
   canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -48553,6 +48560,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
@@ -48579,6 +48587,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
@@ -48586,7 +48595,6 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48645,6 +48653,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageRoles_not?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageIntegrations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
@@ -48699,6 +48709,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -48713,8 +48725,6 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
   canReadAnalytics?: Maybe<Scalars['Boolean']>;
   canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems?: Maybe<Scalars['Boolean']>;
-  canReadNewsItems_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -69973,6 +69983,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageRolesDesc = 'canManageRoles_DESC',
   CanManageIntegrationsAsc = 'canManageIntegrations_ASC',
   CanManageIntegrationsDesc = 'canManageIntegrations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
@@ -70025,6 +70037,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadIncidentsDesc = 'canReadIncidents_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManageNewsItemTemplatesAsc = 'canManageNewsItemTemplates_ASC',
@@ -70039,8 +70053,6 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
   CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
   CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
-  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
-  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -70072,6 +70084,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageRolesDesc = 'canManageRoles_DESC',
   CanManageIntegrationsAsc = 'canManageIntegrations_ASC',
   CanManageIntegrationsDesc = 'canManageIntegrations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
   CanReadTicketsAsc = 'canReadTickets_ASC',
@@ -70124,6 +70138,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadIncidentsDesc = 'canReadIncidents_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManageNewsItemTemplatesAsc = 'canManageNewsItemTemplates_ASC',
@@ -70138,8 +70154,6 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
   CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
   CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
-  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
-  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

@@ -55,6 +55,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageEmployees: { type: Checkbox, defaultValue: false },
         canManageRoles: { type: Checkbox, defaultValue: false },
         canManageIntegrations: { type: Checkbox, defaultValue: false },
+        canReadProperties: { type: Checkbox, defaultValue: true },
         canManageProperties: { type: Checkbox, defaultValue: false },
         canReadTickets: { type: Checkbox, defaultValue: true },
         canManageTickets: { type: Checkbox, defaultValue: false },
@@ -104,6 +105,7 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageBankAccountReports: { type: Checkbox, defaultValue: false },
         canReadIncidents: { type: Checkbox, defaultValue: true },
         canManageIncidents: { type: Checkbox, defaultValue: false },
+        canReadNewsItems: { type: Checkbox, defaultValue: false },
         canManageNewsItems: { type: Checkbox, defaultValue: false },
         canManageNewsItemTemplates: { type: Checkbox, defaultValue: false },
         canManageCallRecords: { type: Checkbox, defaultValue: false },
@@ -111,7 +113,6 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canManageMobileFeatureConfigs: { type: Checkbox, defaultValue: false },
         canManageB2BApps: { type: Checkbox, defaultValue: false },
         canReadAnalytics: { type: Checkbox, defaultValue: false },
-        canReadNewsItems: { type: Checkbox, defaultValue: true },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
     access: {

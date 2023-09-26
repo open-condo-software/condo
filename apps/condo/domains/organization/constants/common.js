@@ -69,6 +69,7 @@ const DEFAULT_ROLES = {
         'canManageB2BApps': true,
         'canReadAnalytics': true,
         'canReadNewsItems': true,
+        'canReadProperties': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -108,6 +109,7 @@ const DEFAULT_ROLES = {
         'canManageB2BApps': false,
         'canReadAnalytics': false,
         'canReadNewsItems': true,
+        'canReadProperties': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -149,6 +151,7 @@ const DEFAULT_ROLES = {
         'canManageB2BApps': false,
         'canReadAnalytics': false,
         'canReadNewsItems': true,
+        'canReadProperties': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -187,7 +190,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageB2BApps': false,
         'canReadAnalytics': false,
-        'canReadNewsItems': true,
+        'canReadNewsItems': false,
+        'canReadProperties': true,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -226,7 +230,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageB2BApps': false,
         'canReadAnalytics': false,
-        'canReadNewsItems': true,
+        'canReadNewsItems': false,
+        'canReadProperties': true,
     },
     'Contractor': {
         'name': 'employee.role.Contractor.name',
@@ -264,7 +269,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': ASSIGNED_TICKET_VISIBILITY,
         'canManageB2BApps': false,
         'canReadAnalytics': false,
-        'canReadNewsItems': true,
+        'canReadNewsItems': false,
+        'canReadProperties': true,
     },
 }
 

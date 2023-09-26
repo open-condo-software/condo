@@ -5463,6 +5463,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
@@ -5489,6 +5490,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -5496,7 +5498,6 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadNewsItems: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5565,6 +5566,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
   canManageIntegrations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
   canReadTickets: Boolean
@@ -5633,6 +5636,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5647,8 +5652,6 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
-  canReadNewsItems: Boolean
-  canReadNewsItems_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5732,6 +5735,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageRoles_DESC
   canManageIntegrations_ASC
   canManageIntegrations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
   canReadTickets_ASC
@@ -5784,6 +5789,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
   canManageNewsItemTemplates_ASC
@@ -5798,8 +5805,6 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
-  canReadNewsItems_ASC
-  canReadNewsItems_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5825,6 +5830,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
@@ -5851,6 +5857,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -5858,7 +5865,6 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5885,6 +5891,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
@@ -5911,6 +5918,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -5918,7 +5926,6 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5960,6 +5967,7 @@ type OrganizationEmployeeRole {
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
@@ -6000,6 +6008,7 @@ type OrganizationEmployeeRole {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -6007,7 +6016,6 @@ type OrganizationEmployeeRole {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadNewsItems: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6078,6 +6086,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
   canManageIntegrations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
   canReadTickets: Boolean
@@ -6132,6 +6142,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
   canManageNewsItemTemplates: Boolean
@@ -6146,8 +6158,6 @@ input OrganizationEmployeeRoleWhereInput {
   canManageB2BApps_not: Boolean
   canReadAnalytics: Boolean
   canReadAnalytics_not: Boolean
-  canReadNewsItems: Boolean
-  canReadNewsItems_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6213,6 +6223,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageRoles_DESC
   canManageIntegrations_ASC
   canManageIntegrations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
   canReadTickets_ASC
@@ -6265,6 +6277,8 @@ enum SortOrganizationEmployeeRolesBy {
   canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
   canManageNewsItemTemplates_ASC
@@ -6279,8 +6293,6 @@ enum SortOrganizationEmployeeRolesBy {
   canManageB2BApps_DESC
   canReadAnalytics_ASC
   canReadAnalytics_DESC
-  canReadNewsItems_ASC
-  canReadNewsItems_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6305,6 +6317,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
@@ -6331,6 +6344,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -6338,7 +6352,6 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6361,6 +6374,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
@@ -6387,6 +6401,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -6394,7 +6409,6 @@ input OrganizationEmployeeRoleCreateInput {
   canManageMobileFeatureConfigs: Boolean
   canManageB2BApps: Boolean
   canReadAnalytics: Boolean
-  canReadNewsItems: Boolean
   v: Int
   createdAt: String
   updatedAt: String
