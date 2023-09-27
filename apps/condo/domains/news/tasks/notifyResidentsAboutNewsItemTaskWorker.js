@@ -5,7 +5,6 @@ const truncate = require('lodash/truncate')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
@@ -145,7 +144,7 @@ async function sendNotifications (context, newsItem) {
  * @param {String} newsItemId in uuid format
  * @returns {Promise<void>}
  */
-async function notifyResidentsAboutNewsItem (newsItemId) {
+async function notifyResidentsAboutNewsItemTaskWorker (newsItemId) {
     const { keystone: context } = await getSchemaCtx('NewsItem')
 
     const newsItem = await NewsItem.getOne(context, { id: newsItemId })
@@ -180,4 +179,6 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
     }
 }
 
-module.exports = createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, { priority: 2 })
+module.exports = {
+    notifyResidentsAboutNewsItemTaskWorker,
+}
