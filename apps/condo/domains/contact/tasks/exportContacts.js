@@ -3,7 +3,6 @@ const get = require('lodash/get')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { EXCEL, ERROR } = require('@condo/domains/common/constants/export')
@@ -166,5 +165,5 @@ async function exportContacts (taskId) {
 }
 
 module.exports = {
-    exportContacts: createTask('exportContacts', exportContacts, { priority: 2 }),
+    exportContacts,
 }
