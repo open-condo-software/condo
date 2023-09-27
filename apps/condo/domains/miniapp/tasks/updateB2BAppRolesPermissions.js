@@ -3,7 +3,6 @@ const omit = require('lodash/omit')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 
@@ -95,5 +94,5 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
 }
 
 module.exports = {
-    updateB2BAppRolesPermissions: createTask('updateB2BAppRolesPermissions', updateB2BAppRolesPermissions),
+    updateB2BAppRolesPermissions,
 }
