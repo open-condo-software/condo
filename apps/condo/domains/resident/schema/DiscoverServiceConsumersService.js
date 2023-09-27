@@ -236,6 +236,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }
                 /** @type {Object<string, Set<string>>} */
                 const billingAccountsByAddressAndCategoryAndPeriod = {}
+                const billingAccountsWithoutReceipts = new Set()
                 for (const item of billingAccountItemsData) {
                     /** @type {BillingReceipt[]} */
                     const receipts = await BillingReceipt.getAll(context, {
@@ -258,11 +259,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     }, { sortBy: ['period_DESC'], first: 1 })
 
                     if (receipts.length === 0) {
-                        const theKey = md5(`${item.address}_${item.unitType}_${item.unitName}_noReceipts`)
-                        /** @type {Set<string>} */
-                        const current = get(billingAccountsByAddressAndCategoryAndPeriod, theKey, new Set())
-                        current.add(item.id)
-                        set(billingAccountsByAddressAndCategoryAndPeriod, theKey, current)
+                        // if no receipts found - not create service consumer
+                        billingAccountsWithoutReceipts.add(item.id)
                     } else {
                         for (const receipt of receipts) {
                             const theKey = md5(`${item.address}_${item.unitType}_${item.unitName}_${receipt.category.id}_${receipt.period}`)
@@ -283,6 +281,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }, [])
 
                 billingAccountItemsData = billingAccountItemsData.filter(({ id }) => !billingAccountsIdsExcludedBySameCategory.includes(id))
+                billingAccountItemsData = billingAccountItemsData.filter(({ id }) => !billingAccountsWithoutReceipts.has(id))
 
                 const residentsWhere = {
                     deletedAt: null,
