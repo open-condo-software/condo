@@ -69,7 +69,7 @@ describe('ContactExportTask', () => {
             test('user cannot be created if user does not belongs to requested organization in `where` field', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageContacts: true,
+                    canReadContacts: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
                 const [forbiddenOrganization] = await createTestOrganization(adminClient)
@@ -78,6 +78,22 @@ describe('ContactExportTask', () => {
                     await createTestContactExportTask(userClient, userClient.user, {
                         where: {
                             organization: { id: forbiddenOrganization.id },
+                        },
+                    })
+                })
+            })
+
+            test('user cannot be created if user belongs to requested organization with canReadContacts: false in `where` field', async () => {
+                const [organization] = await createTestOrganization(adminClient)
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                    canReadContacts: false,
+                })
+                await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestContactExportTask(userClient, userClient.user, {
+                        where: {
+                            organization: { id: organization.id },
                         },
                     })
                 })
@@ -104,7 +120,7 @@ describe('ContactExportTask', () => {
             test('user cannot create without specifying organization id at where field', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                    canManageContacts: true,
+                    canReadContacts: true,
                 })
                 await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 

@@ -13,6 +13,8 @@ const {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
 } = require('@condo/domains/organization/utils/accessSchema')
 
+const { checkUserPermissionsInOrganizations } = require('../../organization/utils/accessSchema')
+
 
 async function canReadIncidentExportTasks ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -37,23 +39,11 @@ async function canManageIncidentExportTasks ({ authentication: { item: user }, o
 
         if (isEmpty(organizationIds)) return false
 
-        const userEmployeeOrganizations = await find('Organization', {
-            AND: [
-                {
-                    id_in: organizationIds,
-                },
-                {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                    ],
-                },
-            ],
+        return await checkUserPermissionsInOrganizations({
+            userId: user.id,
+            organizationIds,
+            permission: 'canReadIncidents',
         })
-
-        if (userEmployeeOrganizations.length === organizationIds.length) {
-            return true
-        }
     } else if (operation === 'update') {
         const task = await getById('IncidentExportTask', itemId)
 

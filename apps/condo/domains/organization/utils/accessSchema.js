@@ -135,7 +135,26 @@ const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission)
     },
 })
 
+const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, permission }) => {
+    const userEmployeeOrganizations = await find('Organization', {
+        AND: [
+            {
+                id_in: organizationIds,
+            },
+            {
+                OR: [
+                    queryOrganizationEmployeeFor(userId, permission),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId, permission),
+                ],
+            },
+        ],
+    })
+
+    return userEmployeeOrganizations.length === organizationIds.length
+}
+
 module.exports = {
+    checkUserPermissionsInOrganizations,
     checkPermissionInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,

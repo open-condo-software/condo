@@ -9,7 +9,7 @@ const { find, getById } = require('@open-condo/keystone/schema')
 const { CANCELLED } = require('@condo/domains/common/constants/export')
 const {
     queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor, checkUserPermissionsInOrganizations,
 } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadContactExportTasks ({ authentication: { item: user } }) {
@@ -36,23 +36,12 @@ async function canManageContactExportTasks ({ authentication: { item: user }, or
         const organizationIds = uniq(compact([organizationId, ...organizationIdIn]))
 
         if (organizationIds.length === 0) return false
-        const userEmployeeOrganizations = await find('Organization', {
-            AND: [
-                {
-                    id_in: organizationIds,
-                },
-                {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                    ],
-                },
-            ],
-        })
 
-        if (userEmployeeOrganizations.length === organizationIds.length) {
-            return true
-        }
+        return await checkUserPermissionsInOrganizations({
+            userId: user.id,
+            organizationIds,
+            permission: 'canReadContacts',
+        })
     } else if (operation === 'update') {
         const task = await getById('ContactExportTask', itemId)
 
