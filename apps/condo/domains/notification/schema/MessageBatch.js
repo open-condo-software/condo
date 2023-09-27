@@ -19,8 +19,7 @@ const {
     MESSAGE_BATCH_CREATED_STATUS,
     MESSAGE_BATCH_TYPE_OPTIONS,
 } = require('@condo/domains/notification/constants/constants')
-
-const { sendMessageBatch } = require('../tasks/sendMessageBatch')
+const { sendMessageBatchTask } = require('@condo/domains/notification/tasks')
 
 const operationForbiddenValidator = ({ fieldPath, addFieldValidationError, operation }) => {
     if (operation === 'update') addFieldValidationError(`${OPERATION_FORBIDDEN}] Updating ${fieldPath} is forbidden.`)
@@ -117,7 +116,7 @@ const MessageBatch = new GQLListSchema('MessageBatch', {
             return resolvedData
         },
         afterChange: async ({ operation, updatedItem }) => {
-            if (operation === 'create') await sendMessageBatch.delay(updatedItem.id)
+            if (operation === 'create') await sendMessageBatchTask.delay(updatedItem.id)
         },
     },
 })

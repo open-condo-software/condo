@@ -8,7 +8,7 @@ const {
     MESSAGE_TYPES, MESSAGE_META,
     MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS,
 } = require('@condo/domains/notification/constants/constants')
-const { deliverMessage } = require('@condo/domains/notification/tasks')
+const { deliverMessageTask } = require('@condo/domains/notification/tasks')
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
 const ERRORS = {
@@ -152,7 +152,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     ? messageWithSameUniqKey
                     : await Message.create(context, messageAttrs)
 
-                if (!messageWithSameUniqKey) await deliverMessage.delay(message.id)
+                if (!messageWithSameUniqKey) await deliverMessageTask.delay(message.id)
 
                 return {
                     isDuplicateMessage: !!messageWithSameUniqKey,
@@ -176,7 +176,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     readAt: null,
                 })
 
-                await deliverMessage.delay(message.id)
+                await deliverMessageTask.delay(message.id)
 
                 return {
                     id: message.id,
