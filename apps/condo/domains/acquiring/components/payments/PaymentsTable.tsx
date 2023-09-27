@@ -190,7 +190,7 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         queryMetas,
         PaymentsFilterTemplate,
         handleResetSearch,
-        undefined,
+        null,
         null,
         [],
         { tab: 'payments' },
