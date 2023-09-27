@@ -47,3 +47,16 @@ rules:
     paths:
       exclude:
         - domains/*/tasks/index.js
+
+  - id: name-of-task-should-match-name-of-function
+    languages:
+      - js
+    message: Name of task should match name of function
+    severity: ERROR
+    patterns:
+      - pattern-inside: $CREATE_TASK('$NAME', ..., $FUNC)
+      - metavariable-regex:
+          metavariable: '$CREATE_TASK'
+          regex: '^create(Cron){0,1}Task$'
+      - metavariable-comparison:
+          comparison: str($NAME) != str($FUNC)
