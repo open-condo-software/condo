@@ -12,7 +12,7 @@ const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/ke
 const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/meter/access/PropertyMeter')
 const { AUTOMATIC_METER_NO_MASTER_APP, B2B_APP_NOT_CONNECTED, B2C_APP_NOT_AVAILABLE } = require('@condo/domains/meter/constants/errors')
-const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
+const { deleteReadingsOfDeletedMeterTask } = require('@condo/domains/meter/tasks')
 const { PropertyMeter: PropertyMeterAPI } = require('@condo/domains/meter/utils/serverSchema/index')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
@@ -100,7 +100,7 @@ const PropertyMeter = new GQLListSchema('PropertyMeter', {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {
-                    await deleteReadingsOfDeletedMeter.delay(updatedItem, deletedMeterAt)
+                    await deleteReadingsOfDeletedMeterTask.delay(updatedItem, deletedMeterAt)
                 }
             }
         },

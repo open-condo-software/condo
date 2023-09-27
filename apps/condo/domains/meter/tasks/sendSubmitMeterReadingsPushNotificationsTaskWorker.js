@@ -1,6 +1,5 @@
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const { SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
 
@@ -8,7 +7,10 @@ const { sendSubmitMeterReadingsPushNotifications } = require('./sendSubmitMeterR
 
 const logger = getLogger('meter/sendSubmitMeterReadingsPushNotifications')
 
-const sendSubmitMeterReadingsPushNotificationsTaskFn = async (context = null) => {
+/**
+ * Syncs new and cancelled subscriptions
+ */
+const sendSubmitMeterReadingsPushNotificationsTaskWorker = async (context = null) => {
     const isFeatureEnabled = await featureToggleManager.isFeatureEnabled(context, SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK)
 
     // Skip sending notifications if feature is disabled on https://growthbook.doma.ai/features
@@ -21,9 +23,6 @@ const sendSubmitMeterReadingsPushNotificationsTaskFn = async (context = null) =>
     await sendSubmitMeterReadingsPushNotifications()
 }
 
-/**
- * Syncs new and cancelled subscriptions
- */
-const sendSubmitMeterReadingsPushNotificationsTask = createCronTask('sendSubmitMeterReadingsPushNotifications', '0 14 * * *', sendSubmitMeterReadingsPushNotificationsTaskFn)
-
-module.exports = sendSubmitMeterReadingsPushNotificationsTask
+module.exports = {
+    sendSubmitMeterReadingsPushNotificationsTaskWorker,
+}

@@ -19,7 +19,7 @@ const {
     METER_NUMBER_HAVE_INVALID_VALUE,
     METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE,
 } = require('@condo/domains/meter/constants/errors')
-const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
+const { deleteReadingsOfDeletedMeterTask } = require('@condo/domains/meter/tasks')
 const { Meter: MeterApi } = require('@condo/domains/meter/utils/serverSchema')
 const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
@@ -217,7 +217,7 @@ const Meter = new GQLListSchema('Meter', {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {
-                    await deleteReadingsOfDeletedMeter.delay(updatedItem, deletedMeterAt)
+                    await deleteReadingsOfDeletedMeterTask.delay(updatedItem, deletedMeterAt)
                 }
             }
         },

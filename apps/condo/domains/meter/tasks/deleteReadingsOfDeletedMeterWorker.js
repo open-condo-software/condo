@@ -1,5 +1,4 @@
 const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { PropertyMeterReading } = require('@condo/domains/meter/utils/serverSchema')
@@ -7,7 +6,7 @@ const { PropertyMeterReading } = require('@condo/domains/meter/utils/serverSchem
 /**
  * Soft delete meter readings after soft delete meter
  */
-async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt) {
+async function deleteReadingsOfDeletedMeterWorker (deletedMeter, deletedMeterAt) {
     const { keystone: context } = await getSchemaCtx('Property')
 
     const isPropertyMeter = deletedMeter.__typename === 'PropertyMeter'
@@ -28,4 +27,6 @@ async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt) {
     }
 }
 
-module.exports = createTask('deleteReadingsOfDeletedMeter', deleteReadingsOfDeletedMeter)
+module.exports = {
+    deleteReadingsOfDeletedMeterWorker,
+}
