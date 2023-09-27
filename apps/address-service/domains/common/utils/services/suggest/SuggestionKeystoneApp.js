@@ -124,7 +124,7 @@ class SuggestionKeystoneApp {
                     helpers,
                 })
 
-                // TODO(AleX83Xpert): Think about splitting the address string to tokens, compile 2nd variant of address and pass to suggestion provider
+                // TODO(DOMA-7276): Think about splitting the address string to tokens, compile 2nd variant of address and pass to suggestion provider
 
                 suggestions = bypass ? denormalizedSuggestions : suggestionProvider.normalize(denormalizedSuggestions)
             }

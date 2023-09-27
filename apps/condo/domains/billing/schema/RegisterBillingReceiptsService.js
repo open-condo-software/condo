@@ -19,6 +19,9 @@ const { findPropertyByOrganizationAndAddress } = require('./helpers/propertyFind
 
 const RECEIPTS_LIMIT = 50
 
+// This is a percent of matched tokens while searching through the organization's properties
+const PROPERTY_SCORE_TO_PASS = 80
+
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
@@ -376,7 +379,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     if (!normalizedAddress) {
                         const [findedOrganizationProperty, score] = await findPropertyByOrganizationAndAddress(context, billingContext.organization.id, address)
 
-                        if (score > 80) {
+                        if (score > PROPERTY_SCORE_TO_PASS) {
                             normalizedAddress = findedOrganizationProperty.address
                         }
                     }
