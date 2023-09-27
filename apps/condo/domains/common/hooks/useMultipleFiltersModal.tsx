@@ -379,6 +379,7 @@ type MultipleFiltersModalProps = {
     onSubmit?: (filters) => void
     eventNamePrefix?: string
     detailedLogging?: string[]
+    extraQueryParameters?: Record<string, unknown>
 }
 
 const isEqualSelectedFiltersTemplateAndFilters = (selectedFiltersTemplate, filters) => {
@@ -397,6 +398,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     onSubmit,
     eventNamePrefix,
     detailedLogging,
+    extraQueryParameters,
 }) => {
     const intl = useIntl()
     const FiltersModalTitle = intl.formatMessage({ id: 'FiltersLabel' })
@@ -536,7 +538,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
         }
 
         const newParameters = getFiltersQueryData(filtersValue)
-        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
+        await updateQuery(router, { newParameters: { ...newParameters, ...extraQueryParameters } }, { routerAction: 'replace' })
         setIsMultipleFiltersModalVisible(false)
     }, [searchFilter, onSubmit, router, setIsMultipleFiltersModalVisible])
 
@@ -768,7 +770,7 @@ const Modal: React.FC<MultipleFiltersModalProps> = ({
     )
 }
 
-export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql, onReset = undefined, onSubmit = undefined, eventNamePrefix?: string, detailedLogging: string[] = []) {
+export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>, filtersSchemaGql, onReset = undefined, onSubmit = undefined, eventNamePrefix?: string, detailedLogging: string[] = [], extraQueryParameters?: Record<string, unknown>) {
     const [isMultipleFiltersModalVisible, setIsMultipleFiltersModalVisible] = useState<boolean>()
 
     const MultipleFiltersModal = useCallback(() => (
@@ -781,8 +783,9 @@ export function useMultipleFiltersModal <T> (filterMetas: Array<FiltersMeta<T>>,
             onSubmit={onSubmit}
             eventNamePrefix={eventNamePrefix}
             detailedLogging={detailedLogging}
+            extraQueryParameters={extraQueryParameters}
         />
-    ), [detailedLogging, eventNamePrefix, filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit])
+    ), [detailedLogging, eventNamePrefix, filterMetas, filtersSchemaGql, isMultipleFiltersModalVisible, onReset, onSubmit, extraQueryParameters])
 
     const ResetFilterButton = useCallback((props) => (
         <ResetFiltersModalButton handleReset={onReset} {...props} />
