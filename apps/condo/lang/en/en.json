@@ -924,6 +924,8 @@
   "pages.condo.settings.employeeRoles.notification.updatePermissions": "Permissions updated",
   "pages.condo.settings.employeeRoles.notification.deletePermissions": "Permissions withdrawn",
   "pages.condo.settings.employeeRoles.disabledCheckboxTitle": "You can not turn off the rights of all roles, for correct work of someone they must be available",
+  "pages.condo.settings.employeeRoles.relatedCheckPermissionsTooltip": "Adding this permission automatically adds the following permissions: {permissions}.",
+  "pages.condo.settings.employeeRoles.relatedUncheckPermissionsTooltip": "Deleting this permission will automatically remove the following permissions: {permissions}.",
   "pages.condo.settings.hint.organization": "Organization",
   "pages.condo.settings.hint.ticketPropertyHint": "Property hint",
   "pages.condo.settings.hint.createTicketPropertyHint": "Create ticket hint",

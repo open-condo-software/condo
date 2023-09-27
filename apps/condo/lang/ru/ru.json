@@ -924,6 +924,8 @@
   "pages.condo.settings.employeeRoles.notification.updatePermissions": "Права предоставлены",
   "pages.condo.settings.employeeRoles.notification.deletePermissions": "Права отозваны",
   "pages.condo.settings.employeeRoles.disabledCheckboxTitle": "Нельзя выключить права у всех ролей, для корректной работы у кого-то они должны быть доступны",
+  "pages.condo.settings.employeeRoles.relatedCheckPermissionsTooltip": "При добавлении этого права автоматически добавятся следующие права:  {permissions}.",
+  "pages.condo.settings.employeeRoles.relatedUncheckPermissionsTooltip": "При удалении этого права автоматически удалятся следующие права: {permissions}.",
   "pages.condo.settings.hint.organization": "УК",
   "pages.condo.settings.hint.ticketPropertyHint": "Справка по дому",
   "pages.condo.settings.hint.createTicketPropertyHint": "Создать справку",
