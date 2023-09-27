@@ -734,7 +734,7 @@ describe('NewsItems', () => {
 
                     test('staff can\'t', async () => {
                         const staffClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                        const [role] = await createTestOrganizationEmployeeRole(adminClient, user_cant_o10n, { canManageNewsItems: true })
+                        const [role] = await createTestOrganizationEmployeeRole(adminClient, user_cant_o10n, { canReadNewsItems: true })
                         await createTestOrganizationEmployee(adminClient, user_cant_o10n, staffClient.user, role)
 
                         await expectToThrowAccessDeniedToFieldError(async () => {
