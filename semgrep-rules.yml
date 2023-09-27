@@ -38,9 +38,12 @@ rules:
     severity: ERROR
     patterns:
       - pattern-inside: |
-          const { createCronTask } = require('@open-condo/keystone/tasks')
+          const { $CREATE_TASK } = require('@open-condo/keystone/tasks')
           ...
-      - pattern: 'createCronTask'
+      - pattern: '$CREATE_TASK'
+      - metavariable-regex:
+          metavariable: '$CREATE_TASK'
+          regex: '^create(Cron){0,1}Task$'
     paths:
       exclude:
         - domains/*/tasks/index.js
