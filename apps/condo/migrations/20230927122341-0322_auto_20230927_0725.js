@@ -60,7 +60,7 @@ ALTER TABLE "OrganizationEmployeeRoleHistoryRecord" ADD COLUMN "canReadPropertie
 --
 UPDATE "OrganizationEmployeeRole"
 SET "canReadNewsItems" = true
-WHERE name  = ANY(ARRAY['employee.role.Administrator.name', 'employee.role.Dispatcher.name', 'employee.role.Manager.name']);
+WHERE name = ANY(ARRAY['employee.role.Administrator.name', 'employee.role.Dispatcher.name', 'employee.role.Manager.name']);
 
 --
 -- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
