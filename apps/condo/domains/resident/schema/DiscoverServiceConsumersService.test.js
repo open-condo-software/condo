@@ -1366,6 +1366,8 @@ describe('DiscoverServiceConsumersService', () => {
             const [managingOrg1] = await registerNewOrganization(user1)
             const [serviceOrg1] = await registerNewOrganization(user2, { type: SERVICE_PROVIDER_TYPE })
 
+            const now = dayjs()
+
             // register resident1 when other actors are not existing yet
             const unitType1 = FLAT_UNIT_TYPE
             const unitName1 = faker.lorem.word()
@@ -1396,6 +1398,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
                         category: category0,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1436,6 +1440,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
                         category: category2,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1495,6 +1501,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
                         category: category3,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     // Another is for resident2
                     createRegisterBillingReceiptsPayload({
@@ -1503,6 +1511,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName2,
                         accountNumber: resident2ManagingAccountNumber,
                         category: category1,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1526,6 +1536,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName2,
                         accountNumber: resident2ServiceAccountNumber,
                         category: category2,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1616,6 +1628,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         accountNumber: resident1ManagingAccountNumber,
                         category: category4,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     // Another is for resident2
                     createRegisterBillingReceiptsPayload({
@@ -1624,6 +1638,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName2,
                         accountNumber: resident2ManagingAccountNumber,
                         category: category3,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1718,6 +1734,8 @@ describe('DiscoverServiceConsumersService', () => {
                         address: address2,
                         unitType: unitType2,
                         unitName: unitName2,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     // Another ones are for resident1 and resident3
                     createRegisterBillingReceiptsPayload({
@@ -1726,6 +1744,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         category: category5,
                         accountNumber: resident1ServiceAccountNumber,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload({
                         address: address1,
@@ -1733,6 +1753,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         category: category5,
                         accountNumber: resident3ServiceAccountNumber,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                 ],
             }
@@ -1798,6 +1820,8 @@ describe('DiscoverServiceConsumersService', () => {
                         address: address2a,
                         unitType: unitType5,
                         unitName: unitName5,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                 ],
             }
@@ -1913,6 +1937,8 @@ describe('DiscoverServiceConsumersService', () => {
 
             const allRegisteredReceipts = []
 
+            const now = dayjs()
+
             for (let i = 0; i <= MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC; i++) {
                 const unitType = FLAT_UNIT_TYPE
                 const unitName = faker.lorem.word()
@@ -1922,7 +1948,11 @@ describe('DiscoverServiceConsumersService', () => {
                 const payload = {
                     context: { id: billingContext.id },
                     receipts: [
-                        createRegisterBillingReceiptsPayload({ address, unitType, unitName }),
+                        createRegisterBillingReceiptsPayload({
+                            address, unitType, unitName,
+                            year: Number(now.format('YYYY')),
+                            month: Number(now.format('MM')),
+                        }),
                     ],
                 }
                 const [registeredReceipts] = await registerBillingReceiptsByTestClient(serviceUser, payload)
