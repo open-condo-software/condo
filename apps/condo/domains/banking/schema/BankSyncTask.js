@@ -20,7 +20,7 @@ const {
     SBBOL,
 } = require('@condo/domains/banking/constants')
 const { BANK_SYNC_TASK_OPTIONS } = require('@condo/domains/banking/schema/fields/BankSyncTaskOptions')
-const { importBankTransactionsFrom1CClientBankExchange } = require('@condo/domains/banking/tasks/importBankTransactionsFrom1CClientBankExchange')
+const { importBankTransactionsFrom1CClientBankExchangeTask } = require('@condo/domains/banking/tasks')
 const { BankAccount, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
@@ -228,7 +228,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
             if (operation === 'create') {
                 const type = get(updatedItem, 'options.type')
                 if (type === _1C_CLIENT_BANK_EXCHANGE) {
-                    await importBankTransactionsFrom1CClientBankExchange.delay(updatedItem.id)
+                    await importBankTransactionsFrom1CClientBankExchangeTask.delay(updatedItem.id)
                 }
                 if (type === SBBOL) {
                     await syncSbbolTransactionsBankSyncTask.delay(updatedItem.id)

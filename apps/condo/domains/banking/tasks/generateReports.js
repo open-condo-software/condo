@@ -6,7 +6,6 @@ const isEqual = require('lodash/isEqual')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const {
     BankAccount, BankAccountReportTask, BankAccountReport,
@@ -288,7 +287,5 @@ const generateReports = async (taskId) => {
 }
 
 module.exports = {
-    generateReportsTask: createTask('generateReportsTask', async (taskId) => {
-        await generateReports(taskId)
-    }),
+    generateReports,
 }
