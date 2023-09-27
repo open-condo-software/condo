@@ -8,7 +8,7 @@ import get from 'lodash/get'
 import getConfig from 'next/config'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { FeatureFlagsProvider, useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
@@ -424,6 +424,50 @@ const MyApp = ({ Component, pageProps }) => {
 
     const shouldDisplayCookieAgreement = router.pathname.match(/\/auth\/.*/)
 
+    const isOnClient = typeof window !== 'undefined'
+    useEffect(() => {
+        if (!isOnClient) return
+        const handleRouteChange = (url, options) => {
+            console.log(
+                `[CONDO] App is changing to ${url}`, options
+            )
+        }
+        const handleHistoryChange = (url, options) => {
+            console.log(
+                `[CONDO] History is changing to ${url}`, options
+            )
+        }
+
+        router.events.on('routeChangeStart', handleRouteChange)
+        router.events.on('beforeHistoryChange', handleHistoryChange)
+
+        // If the component is unmounted, unsubscribe
+        // from the event with the `off` method:
+        return () => {
+            router.events.off('routeChangeStart', handleRouteChange)
+            router.events.off('beforeHistoryChange', handleHistoryChange)
+        }
+    }, [isOnClient])
+
+    useEffect(() => {
+        if (!isOnClient) return
+
+        console.log('[CONDO] addEventListener')
+        const handlerPop = (event) => {
+            console.debug('[CONDO] pop history',
+                {
+                    location: `location: ${document.location}, state: ${JSON.stringify(event.state)}`,
+                    event,
+                }
+            )
+        }
+        window.addEventListener('popstate', handlerPop)
+
+        return () => {
+            window.removeEventListener('popstate', handlerPop)
+        }
+    }, [isOnClient])
+
     return (
         <>
             <Head>
@@ -517,15 +561,62 @@ const apolloClientConfig = {
     },
 }
 
+const withObserver = () => (PageComponent) => {
+    const WithObserver = (pageProps) => {
+        const isOnClient = typeof window !== 'undefined'
+
+        useEffect(() => {
+            if (!isOnClient) return
+
+            console.log('[CONDO] add observer')
+            let oldHref = document.location.href
+
+            const bodyList = document.querySelector('body')
+
+            const observer = new MutationObserver(function (mutations) {
+                if (oldHref != document.location.href) {
+                    const newRef = document.location.href
+                    console.debug('[CONDO] change url', { oldHref, newRef })
+                    oldHref = newRef
+                }
+            })
+
+            const config = {
+                childList: true,
+                subtree: true,
+            }
+
+            observer.observe(bodyList, config)
+
+            return () => {
+                observer.disconnect()
+            }
+        }, [isOnClient])
+        return (
+            <PageComponent {...pageProps} />
+        )
+    }
+
+    // Set the correct displayName in development
+    if (process.env.NODE_ENV !== 'production') {
+        const displayName = PageComponent.displayName || PageComponent.name || 'Component'
+        WithObserver.displayName = `withObserver(${displayName})`
+    }
+
+    return WithObserver
+}
+
 export default (
-    withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
-        withAuth({ ssr: true, USER_QUERY })(
-            withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
-                withOrganization({
-                    ssr: true,
-                    GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
-                })(
-                    MyApp
+    withObserver()(
+        withApollo({ ssr: true, apolloCacheConfig, apolloClientConfig })(
+            withAuth({ ssr: true, USER_QUERY })(
+                withIntl({ ssr: true, messagesImporter, extractReqLocale, defaultLocale })(
+                    withOrganization({
+                        ssr: true,
+                        GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY: GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY,
+                    })(
+                        MyApp
+                    )
                 )
             )
         )
