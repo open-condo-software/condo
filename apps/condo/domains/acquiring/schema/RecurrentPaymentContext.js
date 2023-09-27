@@ -14,7 +14,7 @@ const {
     GQL_ERRORS,
 } = require('@condo/domains/acquiring/constants/errors')
 const { SETTINGS_FIELD } = require('@condo/domains/acquiring/schema/fields/Settings')
-const { removeOutdatedRecurrentPayments } = require('@condo/domains/acquiring/tasks')
+const { removeOutdatedRecurrentPaymentsTask } = require('@condo/domains/acquiring/tasks')
 const {
     POSITIVE_MONEY_AMOUNT_FIELD,
 } = require('@condo/domains/common/schema/fields')
@@ -128,7 +128,7 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
                     // that means all RecurrentPayments with status CREATED/ERROR_NEED_RETRY
                     // won't be paid, cause change service consumer lead to CAN_NOT_REGISTER_MULTI_PAYMENT error
                     // the solution is to delete RecurrentPayments with certain status
-                    await removeOutdatedRecurrentPayments.delay({
+                    await removeOutdatedRecurrentPaymentsTask.delay({
                         recurrentPaymentContextId, dv, sender,
                     })
                 } else if (!isNil(newPaymentDay) && newPaymentDay !== paymentDay && paymentDay === nowDay) {
@@ -136,12 +136,12 @@ const RecurrentPaymentContext = new GQLListSchema('RecurrentPaymentContext', {
                     // and today is the day when we should proceed creation of recurrent payments
                     // in case if any recurrent payments was already created - we have to get rid of them
                     // since end user are not waiting for today payment anymore
-                    await removeOutdatedRecurrentPayments.delay({
+                    await removeOutdatedRecurrentPaymentsTask.delay({
                         recurrentPaymentContextId, dv, sender,
                     })
                 } else if (!isNil(newAutoPayReceipts) && autoPayReceipts !== newAutoPayReceipts) {
                     // change trigger case
-                    await removeOutdatedRecurrentPayments.delay({
+                    await removeOutdatedRecurrentPaymentsTask.delay({
                         recurrentPaymentContextId, dv, sender,
                     })
                 }
