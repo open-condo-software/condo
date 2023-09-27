@@ -624,7 +624,6 @@ export const EmployeeRolesSettingsContent = () => {
 
 export const EmployeeRoleTicketVisibilityInfo = () => {
     const intl = useIntl()
-    const TitleMessage = intl.formatMessage({ id: 'EmployeeRoles' })
     const EditProhibitedMessage = intl.formatMessage({ id: 'EditProhibited' })
 
     const userOrganization = useOrganization()
@@ -651,21 +650,14 @@ export const EmployeeRoleTicketVisibilityInfo = () => {
     }), [EditProhibitedMessage])
 
     return (
-        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-            <Col span={24}>
-                <Typography.Title level={3}>{TitleMessage}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <Table
-                    pagination={false}
-                    totalRows={totalRoles}
-                    loading={isRolesLoading}
-                    dataSource={roles}
-                    columns={tableColumns}
-                    data-cy='employeeRoles__table'
-                    components={tableComponents}
-                />
-            </Col>
-        </Row>
+        <Table
+            pagination={false}
+            totalRows={totalRoles}
+            loading={isRolesLoading}
+            dataSource={roles}
+            columns={tableColumns}
+            data-cy='employeeRoles__table'
+            components={tableComponents}
+        />
     )
 }

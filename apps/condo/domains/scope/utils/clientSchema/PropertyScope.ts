@@ -14,6 +14,7 @@ import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { PropertyScope as PropertyScopeGQL } from '@condo/domains/scope/gql'
 
 const {
+    useCount,
     useObject,
     useObjects,
     useCreate,
@@ -23,6 +24,7 @@ const {
 } = generateReactHooks<PropertyScope, PropertyScopeCreateInput, PropertyScopeUpdateInput, QueryAllPropertyScopesArgs>(PropertyScopeGQL)
 
 export {
+    useCount,
     useObject,
     useObjects,
     useCreate,
