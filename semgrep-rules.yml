@@ -31,7 +31,7 @@ rules:
         - condo/apps/condo/docs/development/data-access.md
     severity: WARNING
 
-  - id: create-cron-tasks-only-in-index-files
+  - id: create-tasks-only-in-index-files
     languages:
       - js
     message: Cron task should be created only in tasks/index.js files. You can implement corresponding function in a separate module, but usage of "createCronTask" in only allowed in tasks/index.js file to make it easier to find and manage them
