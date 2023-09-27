@@ -235,6 +235,22 @@ describe('DiscoverServiceConsumersService', () => {
                 { unitName: resident1.unitName, unitType: resident1.unitType },
             )
 
+            const now = dayjs()
+            const receiptsPayload = {
+                context: { id: billingIntegrationContext.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty.address,
+                        unitType: resident1.unitType,
+                        unitName: resident1.unitName,
+                        accountNumber: billingAccount1.number,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
+                    }),
+                ],
+            }
+            await registerBillingReceiptsByTestClient(admin, receiptsPayload)
+
             await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
 
             await waitFor(async () => {
@@ -335,7 +351,7 @@ describe('DiscoverServiceConsumersService', () => {
 
             // Add some receipts
             const now = dayjs()
-            const past = now.subtract(4, 'months')
+            const past = now.subtract(1, 'months')
             const payloadReceipts1 = {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
@@ -509,12 +525,54 @@ describe('DiscoverServiceConsumersService', () => {
                 unitType: unitType3,
             })
 
-            const payload = {
+            const dscPayload = {
                 billingAccountsIds: [billingAccount1.id, billingAccount2.id, billingAccount2a.id, billingAccount3.id],
             }
-            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
+            const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, dscPayload)
 
+            // No consumers created, because there are no receipts
             expect(statistics).toEqual({
+                created: 0,
+                residentsFound: 0,
+                billingAccountsFound: 0,
+            })
+
+            // Now add receipts
+            const now = dayjs()
+            const receiptsPayload1 = {
+                context: { id: billingIntegrationContext1.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty1.address,
+                        unitType: resident1.unitType,
+                        unitName: resident1.unitName,
+                        accountNumber: billingAccount1.number,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
+                    }),
+                ],
+            }
+            await registerBillingReceiptsByTestClient(admin, receiptsPayload1)
+
+            const receiptsPayload3 = {
+                context: { id: billingIntegrationContext3.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty3.address,
+                        unitType: resident3.unitType,
+                        unitName: resident3.unitName,
+                        accountNumber: billingAccount3.number,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
+                    }),
+                ],
+            }
+            await registerBillingReceiptsByTestClient(admin, receiptsPayload3)
+
+            const [{ statistics: statistics2 }] = await discoverServiceConsumersByTestClient(admin, dscPayload)
+
+            // Consumers for resident1 and resident3 was created
+            expect(statistics2).toEqual({
                 created: 2,
                 residentsFound: 2,
                 billingAccountsFound: 2,
@@ -604,38 +662,34 @@ describe('DiscoverServiceConsumersService', () => {
             }
             const [{ statistics }] = await discoverServiceConsumersByTestClient(admin, payload)
 
+            // no receipts - no consumers created
             expect(statistics).toEqual({
-                created: 1,
-                residentsFound: 1,
-                billingAccountsFound: 1,
+                created: 0,
+                residentsFound: 0,
+                billingAccountsFound: 0,
             })
-
-            const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
-                OR: [
-                    { AND: [{ organization: { id: user1.organization.id } }, { accountNumber: billingAccount1.number }] },
-                ],
-                deletedAt: null,
-            })
-
-            expect(createdServiceConsumers).toHaveLength(1)
-            expect(createdServiceConsumers).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    resident: expect.objectContaining({ id: resident1.id }),
-                    organization: expect.objectContaining({ id: user1.organization.id }),
-                    accountNumber: billingAccount1.number,
-                    isDiscovered: true,
-                }),
-            ]))
 
             // Add some receipts
+            const now = dayjs()
+            const past = now.subtract(1, 'month')
             const payloadReceipts = {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
                     createRegisterBillingReceiptsPayload({
                         address: billingProperty1.address,
-                        unitType: unitType1,
-                        unitName: unitName1,
+                        unitType: resident1.unitType,
+                        unitName: resident1.unitName,
                         accountNumber: billingAccount1.number,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
+                    }),
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty1.address,
+                        unitType: resident1.unitType,
+                        unitName: resident1.unitName,
+                        accountNumber: billingAccount1.number,
+                        year: Number(past.format('YYYY')),
+                        month: Number(past.format('MM')),
                     }),
                 ],
             }
@@ -645,9 +699,10 @@ describe('DiscoverServiceConsumersService', () => {
 
             await waitFor(async () => {
                 const receipts1 = await ResidentBillingReceipt.getAll(residentClient1, {})
-                expect(receipts1).toHaveLength(1)
+                expect(receipts1).toHaveLength(2)
                 expect(registeredReceipts).toEqual(expect.arrayContaining([
                     expect.objectContaining({ id: receipts1[0].id }),
+                    expect.objectContaining({ id: receipts1[1].id }),
                 ]))
 
                 const receipts2 = await ResidentBillingReceipt.getAll(residentClient2, {})
@@ -716,6 +771,23 @@ describe('DiscoverServiceConsumersService', () => {
                     { unitName: resident.unitName, unitType: resident.unitType },
                 )
 
+                // Add some receipts
+                const now = dayjs()
+                const payloadReceipts = {
+                    context: { id: billingIntegrationContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: billingProperty.address,
+                            unitType: resident.unitType,
+                            unitName: resident.unitName,
+                            accountNumber: billingAccount.number,
+                            year: Number(now.format('YYYY')),
+                            month: Number(now.format('MM')),
+                        }),
+                    ],
+                }
+                await registerBillingReceiptsByTestClient(admin, payloadReceipts)
+
                 await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
 
                 await waitFor(async () => {
@@ -763,6 +835,7 @@ describe('DiscoverServiceConsumersService', () => {
             const number = faker.random.alphaNumeric(8)
             let billingAccount1
 
+            const now = dayjs()
             const receiptsPayload = {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
@@ -771,6 +844,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitType: unitType1,
                         unitName: unitName1,
                         accountNumber: number,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                 ],
             }
@@ -935,6 +1010,7 @@ describe('DiscoverServiceConsumersService', () => {
             const unitName1 = faker.lorem.word()
 
             // 1/3 upload receipts
+            const now = dayjs()
             const payload = {
                 context: { id: billingContext.id },
                 receipts: [
@@ -942,6 +1018,8 @@ describe('DiscoverServiceConsumersService', () => {
                         address: residentClient1.property.address,
                         unitType: unitType1,
                         unitName: unitName1,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1002,6 +1080,7 @@ describe('DiscoverServiceConsumersService', () => {
                 })
 
             // 2/3 upload receipts
+            const now = dayjs()
             const payload = {
                 context: { id: billingContext.id },
                 receipts: [
@@ -1009,6 +1088,8 @@ describe('DiscoverServiceConsumersService', () => {
                         address: residentClient1.property.address,
                         unitType: unitType1,
                         unitName: unitName1,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                     createRegisterBillingReceiptsPayload(),
                 ],
@@ -1149,6 +1230,8 @@ describe('DiscoverServiceConsumersService', () => {
                         unitType: unitType1,
                         unitName: unitName1,
                         category: category2,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
                     }),
                 ],
             }
@@ -1208,7 +1291,7 @@ describe('DiscoverServiceConsumersService', () => {
 
             // 2/3 upload receipts
             const now = dayjs()
-            const past = now.subtract(3, 'months')
+            const past = now.subtract(1, 'months')
             const payload = {
                 context: { id: billingContext.id },
                 receipts: [
