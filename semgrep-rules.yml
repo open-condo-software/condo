@@ -54,9 +54,15 @@ rules:
     message: Name of task should match name of function
     severity: ERROR
     patterns:
-      - pattern-inside: $CREATE_TASK('$NAME', ..., $FUNC)
+      - pattern-inside: $CREATE_TASK('$NAME', ..., $FUNC, ...)
       - metavariable-regex:
           metavariable: '$CREATE_TASK'
           regex: '^create(Cron){0,1}Task$'
+      - metavariable-regex:
+          metavariable: '$NAME'
+          regex: '^\w+$'
+      - metavariable-regex:
+          metavariable: '$FUNC'
+          regex: '^\w+$'
       - metavariable-comparison:
           comparison: str($NAME) != str($FUNC)
