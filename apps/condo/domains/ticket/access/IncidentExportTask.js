@@ -5,15 +5,10 @@
 const { get, uniq, compact, isEmpty } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { CANCELLED } = require('@condo/domains/common/constants/export')
-const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-} = require('@condo/domains/organization/utils/accessSchema')
-
-const { checkUserPermissionsInOrganizations } = require('../../organization/utils/accessSchema')
+const { checkUserPermissionsInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadIncidentExportTasks ({ authentication: { item: user } }) {

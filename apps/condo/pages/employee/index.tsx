@@ -135,7 +135,7 @@ export const EmployeesPageContent = ({
 const EmployeesPage = () => {
     const { link: { role = {} }, organization }  = useOrganization()
     const userOrganizationId = get(organization, 'id', null)
-    const canManageEmployee = get(role, 'canManageEmployees', null)
+    const canManageEmployee = get(role, 'canInviteNewOrganizationEmployees', null)
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)

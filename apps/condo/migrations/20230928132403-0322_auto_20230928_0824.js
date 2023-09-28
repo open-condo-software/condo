@@ -46,6 +46,19 @@ ALTER TABLE "OrganizationEmployeeRoleHistoryRecord" ADD COLUMN "canReadNewsItems
 -- Add field canReadProperties to organizationemployeerolehistoryrecord
 --
 ALTER TABLE "OrganizationEmployeeRoleHistoryRecord" ADD COLUMN "canReadProperties" boolean NULL;
+
+--
+-- [CUSTOM] Set canReadNewsItems to true for existed administrators, managers and dispatchers
+--
+UPDATE "OrganizationEmployeeRole"
+SET "canReadNewsItems" = true
+WHERE name = ANY(ARRAY['employee.role.Administrator.name', 'employee.role.Dispatcher.name', 'employee.role.Manager.name']);
+
+--
+-- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
+--
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)
@@ -86,19 +99,6 @@ ALTER TABLE "OrganizationEmployeeRole" DROP COLUMN "canReadEmployees" CASCADE;
 -- Add field canReadContacts to organizationemployeerole
 --
 ALTER TABLE "OrganizationEmployeeRole" DROP COLUMN "canReadContacts" CASCADE;
-
-
---
--- [CUSTOM] Set canReadNewsItems to true for existed administrators, managers and dispatchers
---
-UPDATE "OrganizationEmployeeRole"
-SET "canReadNewsItems" = true
-WHERE name = ANY(ARRAY['employee.role.Administrator.name', 'employee.role.Dispatcher.name', 'employee.role.Manager.name']);
-
---
--- [CUSTOM] Revert Statement Timeout to default amount - 10 secs
---
-SET statement_timeout = '10s';
 
 COMMIT;
 
