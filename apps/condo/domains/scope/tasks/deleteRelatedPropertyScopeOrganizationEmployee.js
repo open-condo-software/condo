@@ -1,5 +1,4 @@
 const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { PropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/serverSchema')
 
@@ -25,5 +24,5 @@ async function deleteRelatedPropertyScopeOrganizationEmployee (deletedPropertySc
 }
 
 module.exports = {
-    deleteRelatedPropertyScopeOrganizationEmployee: createTask('deleteRelatedPropertyScopeOrganizationEmployee', deleteRelatedPropertyScopeOrganizationEmployee),
+    deleteRelatedPropertyScopeOrganizationEmployee,
 }
