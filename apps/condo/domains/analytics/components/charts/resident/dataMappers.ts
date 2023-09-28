@@ -19,11 +19,16 @@ type ResidentChartCardType = (props: ResidentChartCardProps) => React.ReactEleme
 const ResidentByPropertyDataMapper = (residentsTitle: string): ResidentChart => new ResidentChart({
     pie: {
         chart: (viewMode, data) => {
+            const totalCount = data.reduce((prev, curr) => prev + Number(curr.count), 0)
+
             const series: Array<EchartsSeries> = [{
                 type: viewMode,
                 name: residentsTitle,
                 radius: '75%',
-                label: { show: true, formatter: (e) =>  e.percent + '%' },
+                label: {
+                    show: true,
+                    formatter: ({ value }) => totalCount > 0 ? (Number(value) / totalCount * 100).toFixed(0) + '%' : '-',
+                },
                 data: data.slice(0, TOP_VALUES).map(resident => ({ value: resident.count, name: resident.address })),
             }]
 

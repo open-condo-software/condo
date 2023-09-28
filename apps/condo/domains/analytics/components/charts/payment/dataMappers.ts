@@ -17,6 +17,8 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
         chart: (viewMode, data) => {
             const createdByGroup = groupBy(data, 'createdBy')
 
+            const totalSum = data.reduce((prev, curr) => prev + Number(curr.sum), 0)
+
             const series: Array<EchartsSeries> = [{
                 name: paidTitle,
                 data: Object.entries(createdByGroup).map(([groupLabel, dataObj]) => ({
@@ -25,7 +27,10 @@ const PaymentByPropertyDataMapper = (paidTitle: string): PaymentChart => new Pay
                 })).sort((a, b) => b.value - a.value).slice(0, TOP_VALUES),
                 radius: '75%',
                 type: viewMode,
-                label: { show: true, formatter: (e) =>  e.percent + '%' },
+                label: {
+                    show: true,
+                    formatter: ({ value }) => totalSum > 0 ? (value / totalSum * 100).toFixed(1) + '%' : '-',
+                },
             }]
             return {
                 legend: [],
