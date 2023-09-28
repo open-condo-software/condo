@@ -1,6 +1,6 @@
 const { find } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
-const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+
+const { sendWebhookTask } = require('./index')
 
 async function sendModelWebhooks (modelName) {
     // TODO(DOMA-4570): Add filter for only responsive subscriptions (failCount < threshold)
@@ -12,10 +12,10 @@ async function sendModelWebhooks (modelName) {
     })
 
     for (const subscription of subscriptions) {
-        await sendWebhook.delay(subscription.id)
+        await sendWebhookTask.delay(subscription.id)
     }
 }
 
 module.exports = {
-    sendModelWebhooks: createTask('sendModelWebhooks', sendModelWebhooks, { priority: 3 }),
+    sendModelWebhooks,
 }

@@ -1,7 +1,9 @@
-const { sendModelWebhooks } = require('@open-condo/webhooks/tasks/sendModelWebhooks')
-const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+const { createTask } = require('@open-condo/keystone/tasks')
+
+const { sendModelWebhooks } = require('./sendModelWebhooks')
+const { sendWebhook } = require('./sendWebhook')
 
 module.exports = {
-    sendWebhook,
-    sendModelWebhooks,
+    sendWebhookTask: createTask('sendWebHook', sendWebhook, { priority: 2 }),
+    sendModelWebhooksTask: createTask('sendModelWebhooks', sendModelWebhooks, { priority: 3 }),
 }

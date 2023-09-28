@@ -38,6 +38,7 @@ jest.spyOn(utils, 'trySendData').mockImplementation((url, objs) => {
 
 // eslint-disable-next-line import/order
 const { sendWebhook } = require('@open-condo/webhooks/tasks/sendWebhook')
+
 const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer, entryPointPath) => {
     describe(`sendWebhook task basic tests for ${appName} app`, () => {
         const appEntryPoint = require(entryPointPath)
@@ -61,7 +62,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             })
             expect(subscription).toHaveProperty('syncedAt')
             const initialSyncTime = dayjs(subscription.syncedAt)
-            await sendWebhook.delay.fn(subscription.id)
+            await sendWebhook(subscription.id)
 
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
             expect(updated).toHaveProperty('syncedAt')
@@ -92,7 +93,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             expect(subscription).toHaveProperty('syncedAmount', 0)
             const initialSyncTime = dayjs(subscription.syncedAt)
 
-            await sendWebhook.delay.fn(subscription.id)
+            await sendWebhook(subscription.id)
 
             const updated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
             expect(updated).toHaveProperty('syncedAt')
@@ -104,7 +105,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
             expect(ODD_CALLS).toHaveLength(1)
             expect(ODD_CALLS[0]).toHaveLength(1)
 
-            await sendWebhook.delay.fn(subscription.id)
+            await sendWebhook(subscription.id)
 
             const newUpdated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
             expect(newUpdated).toHaveProperty('syncedAt')
@@ -119,7 +120,7 @@ const SendWebhookTests = (appName, actorsInitializer, userCreator, userDestroyer
                 maxPackSize: null,
             })
 
-            await sendWebhook.delay.fn(subscription.id)
+            await sendWebhook(subscription.id)
 
             const lastUpdated = await WebhookSubscription.getOne(actors.admin, { id: subscription.id })
             expect(lastUpdated).toHaveProperty('syncedAt')

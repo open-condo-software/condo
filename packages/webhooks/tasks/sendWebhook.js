@@ -5,7 +5,7 @@ const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { taskQueue, createTask } = require('@open-condo/keystone/tasks')
+const { taskQueue } = require('@open-condo/keystone/tasks')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
@@ -142,5 +142,5 @@ async function sendWebhook (subscriptionId) {
 
 module.exports = {
     trySendData,
-    sendWebhook: createTask('sendWebHook', sendWebhook, { priority: 2 }),
+    sendWebhook,
 }
