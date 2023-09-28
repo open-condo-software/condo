@@ -4,7 +4,6 @@ const uniq = require('lodash/uniq')
 
 const conf = require('@open-condo/config')
 const { getByCondition, getSchemaCtx, getById } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { TICKET_COMMENT_ADDED_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -121,5 +120,5 @@ const sendTicketCommentNotifications = async ({ operation, ticketId, createdById
 }
 
 module.exports = {
-    sendTicketCommentNotifications: createTask('sendTicketCommentNotifications', sendTicketCommentNotifications),
+    sendTicketCommentNotifications,
 }

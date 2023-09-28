@@ -3,7 +3,6 @@ const { isEmpty, get } = require('lodash')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -85,6 +84,5 @@ const reopenDeferredTickets = async () => {
 }
 
 module.exports = {
-    reopenDeferredTicketsCron: createCronTask('reopenDeferredTickets', '0 0/1 * * *', reopenDeferredTickets),
     reopenDeferredTickets,
 }
