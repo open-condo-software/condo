@@ -30,7 +30,7 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         dummyO10n = o10n
 
         staffClientYes = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [roleYes] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: true })
+        const [roleYes] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadNewsItems: true })
         await createTestOrganizationEmployee(adminClient, o10n, staffClientYes.user, roleYes)
     })
 
@@ -158,7 +158,7 @@ describe('GetNewsItemsRecipientsCountersService', () => {
 
     test('staff without permission can\'t execute', async () => {
         const staffClientNo = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [roleNo] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, { canManageNewsItems: false })
+        const [roleNo] = await createTestOrganizationEmployeeRole(adminClient, dummyO10n, { canReadNewsItems: false })
         await createTestOrganizationEmployee(adminClient, dummyO10n, staffClientNo.user, roleNo)
 
         await expectToThrowAccessDeniedErrorToResult(async () => {

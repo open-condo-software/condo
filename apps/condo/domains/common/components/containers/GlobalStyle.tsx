@@ -365,6 +365,8 @@ export default function GlobalStyle () {
               }
 
               .ant-table-tbody > tr.condo-table-expandable-row {
+                font-weight: ${DEFAULT_STRONG_TEXT_FONT_WEIGHT};
+                
                 &.condo-table-expandable-row-last-row:not(.condo-table-expandable-row-expanded) {
                   & > td:first-child {
                     border-bottom-left-radius: 8px;

@@ -64,8 +64,8 @@ async function canManageTicketExportTasks ({ authentication: { item: user }, ori
                 },
                 {
                     OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                        queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
                     ],
                 },
             ],

@@ -28,8 +28,8 @@ async function canReadNewsItemScopes (attrs) {
         newsItem: {
             organization: {
                 OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
                 ],
                 deletedAt: null,
             },

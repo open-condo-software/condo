@@ -6,7 +6,8 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { CreateContactForm } from '@condo/domains/contact/components/CreateContactForm'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/components/PageAccess'
+
 
 interface ICreateContactPage extends React.FC {
     headerAction?: JSX.Element
@@ -38,6 +39,6 @@ const CreateContactPage: ICreateContactPage = () => {
     )
 }
 
-CreateContactPage.requiredAccess = OrganizationRequired
+CreateContactPage.requiredAccess = ContactsReadAndManagePermissionRequired
 
 export default CreateContactPage

@@ -5460,14 +5460,17 @@ type OrganizationEmployeeRoleHistoryRecord {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
@@ -5489,6 +5492,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -5558,12 +5562,16 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   statusTransitions_not_in: [JSON]
   canManageOrganization: Boolean
   canManageOrganization_not: Boolean
+  canReadEmployees: Boolean
+  canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
   canManageRoles: Boolean
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
   canManageIntegrations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
   canReadTickets: Boolean
@@ -5574,6 +5582,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageMeters_not: Boolean
   canManageMeterReadings: Boolean
   canManageMeterReadings_not: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
   canManageContactRoles: Boolean
@@ -5632,6 +5642,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5723,12 +5735,16 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   description_DESC
   canManageOrganization_ASC
   canManageOrganization_DESC
+  canReadEmployees_ASC
+  canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
   canManageRoles_ASC
   canManageRoles_DESC
   canManageIntegrations_ASC
   canManageIntegrations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
   canReadTickets_ASC
@@ -5739,6 +5755,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageMeters_DESC
   canManageMeterReadings_ASC
   canManageMeterReadings_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
   canManageContactRoles_ASC
@@ -5781,6 +5799,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
   canManageNewsItemTemplates_ASC
@@ -5817,14 +5837,17 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
@@ -5846,6 +5869,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -5876,14 +5900,17 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
@@ -5905,6 +5932,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -5950,14 +5978,17 @@ type OrganizationEmployeeRole {
   """ Employee status transitions map """
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
@@ -5993,6 +6024,7 @@ type OrganizationEmployeeRole {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -6064,12 +6096,16 @@ input OrganizationEmployeeRoleWhereInput {
   description_not_in: [String]
   canManageOrganization: Boolean
   canManageOrganization_not: Boolean
+  canReadEmployees: Boolean
+  canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
   canManageRoles: Boolean
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
   canManageIntegrations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
   canReadTickets: Boolean
@@ -6080,6 +6116,8 @@ input OrganizationEmployeeRoleWhereInput {
   canManageMeters_not: Boolean
   canManageMeterReadings: Boolean
   canManageMeterReadings_not: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
   canManageContactRoles: Boolean
@@ -6124,6 +6162,8 @@ input OrganizationEmployeeRoleWhereInput {
   canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
   canManageNewsItemTemplates: Boolean
@@ -6197,12 +6237,16 @@ enum SortOrganizationEmployeeRolesBy {
   description_DESC
   canManageOrganization_ASC
   canManageOrganization_DESC
+  canReadEmployees_ASC
+  canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
   canManageRoles_ASC
   canManageRoles_DESC
   canManageIntegrations_ASC
   canManageIntegrations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
   canReadTickets_ASC
@@ -6213,6 +6257,8 @@ enum SortOrganizationEmployeeRolesBy {
   canManageMeters_DESC
   canManageMeterReadings_ASC
   canManageMeterReadings_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
   canManageContactRoles_ASC
@@ -6255,6 +6301,8 @@ enum SortOrganizationEmployeeRolesBy {
   canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
   canManageNewsItemTemplates_ASC
@@ -6290,14 +6338,17 @@ input OrganizationEmployeeRoleUpdateInput {
   name: String
   description: String
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
@@ -6319,6 +6370,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
@@ -6345,14 +6397,17 @@ input OrganizationEmployeeRoleCreateInput {
   name: String
   description: String
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
   canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
@@ -6374,6 +6429,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankAccountReports: Boolean
   canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean

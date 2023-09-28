@@ -10,7 +10,7 @@ async function canGetNewsItemsRecipientsCounters ({ authentication: { item: user
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageNewsItems')
+    return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canReadNewsItems')
 }
 
 /*

@@ -127,9 +127,34 @@ const queryOrganizationEmployeeFor = (userId, permission) => {
 
     return { employees_some: baseEmployeeQuery }
 }
-const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId, permission) } })
+const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({
+    relatedOrganizations_some: {
+        AND: [
+            { from: queryOrganizationEmployeeFor(userId, permission), deletedAt: null },
+        ],
+    },
+})
+
+const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, permission }) => {
+    const userEmployeeOrganizations = await find('Organization', {
+        AND: [
+            {
+                id_in: organizationIds,
+            },
+            {
+                OR: [
+                    queryOrganizationEmployeeFor(userId, permission),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId, permission),
+                ],
+            },
+        ],
+    })
+
+    return userEmployeeOrganizations.length === organizationIds.length
+}
 
 module.exports = {
+    checkUserPermissionsInOrganizations,
     checkPermissionInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,

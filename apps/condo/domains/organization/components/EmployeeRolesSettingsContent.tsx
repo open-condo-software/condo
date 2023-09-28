@@ -10,6 +10,7 @@ import {
 import { Col, notification, Row, RowProps } from 'antd'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 import omit from 'lodash/omit'
 import pick from 'lodash/pick'
@@ -266,15 +267,37 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
     permissionsGroup,
 }) => {
     const intl = useIntl()
+    const relatedCheckPermissions = useMemo(() => permissionRow.relatedCheckPermissions || [], [permissionRow.relatedCheckPermissions])
+    const relatedUncheckPermissions = useMemo(() => permissionRow.relatedUncheckPermissions || [], [permissionRow.relatedUncheckPermissions])
+    const getRelatedPermissionsString = useCallback(
+        (relatedPermissions) => relatedPermissions
+            .map(key => {
+                const translationKey = `pages.condo.settings.employeeRoles.permission.${key}`
+                const translation = intl.formatMessage({ id: translationKey })
+
+                if (translation === translationKey) return
+
+                return `«${translation}»`
+            })
+            .filter(Boolean)
+            .join(', '),
+        [intl])
+
     const DisabledTooltipTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.disabledCheckboxTitle' })
+    const relatedCheckPermissionTranslations = useMemo(() => getRelatedPermissionsString(relatedCheckPermissions), [getRelatedPermissionsString, relatedCheckPermissions])
+    const relatedUncheckPermissionTranslations = useMemo(() => getRelatedPermissionsString(relatedUncheckPermissions), [getRelatedPermissionsString, relatedUncheckPermissions])
+    const RelatedPermissionsOnCheckTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.relatedCheckPermissionsTooltip' }, {
+        permissions: relatedCheckPermissionTranslations,
+    })
+    const RelatedPermissionsOnUncheckTitle = intl.formatMessage({ id: 'pages.condo.settings.employeeRoles.relatedUncheckPermissionsTooltip' }, {
+        permissions: relatedUncheckPermissionTranslations,
+    })
 
     let value
     let pathToPermissionsGroupInState
     const b2bAppId = permissionsGroup.b2bAppId
     const permissionKey = permissionRow.key
     const isB2bPermission = !!b2bAppId
-    const relatedCheckPermissions = useMemo(() => permissionRow.relatedCheckPermissions || [], [permissionRow.relatedCheckPermissions])
-    const relatedUncheckPermissions = useMemo(() => permissionRow.relatedUncheckPermissions || [], [permissionRow.relatedUncheckPermissions])
 
     if (isB2bPermission) {
         pathToPermissionsGroupInState = [employeeRoleId, 'b2bAppRoles', b2bAppId, 'permissions']
@@ -314,17 +337,21 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
         relatedUncheckPermissions,
     })
 
+    let tooltipTitle
+
+    if (checkboxDisabled) {
+        tooltipTitle = DisabledTooltipTitle
+    } else if (value && !isEmpty(relatedUncheckPermissionTranslations)) {
+        tooltipTitle = RelatedPermissionsOnUncheckTitle
+    } else if (!value && !isEmpty(relatedCheckPermissionTranslations)) {
+        tooltipTitle = RelatedPermissionsOnCheckTitle
+    }
+
     return (
         <div style={ROLE_COLUMN_STYLE}>
-            {
-                checkboxDisabled ? (
-                    <Tooltip title={DisabledTooltipTitle}>
-                        <Checkbox checked={Boolean(value)} onChange={onChange} disabled />
-                    </Tooltip>
-                ) : (
-                    <Checkbox checked={Boolean(value)} onChange={onChange} />
-                )
-            }
+            <Tooltip title={tooltipTitle}>
+                <Checkbox checked={value} onChange={onChange} disabled={checkboxDisabled} />
+            </Tooltip>
         </div>
     )
 }

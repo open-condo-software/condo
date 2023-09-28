@@ -133,8 +133,11 @@ const MenuItems: React.FC = () => {
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
     const hasAccessToTickets = get(role, 'canReadTickets', false)
     const hasAccessToIncidents = get(role, 'canReadIncidents', false)
+    const hasAccessToEmployees = get(role, 'canReadEmployees', false)
+    const hasAccessToProperties = get(role, 'canReadProperties', false)
+    const hasAccessToContacts = get(role, 'canReadContacts', false)
 
-    const { canRead: canManageNewsItems } = useNewsItemsAccess()
+    const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
     const { appsByCategories, connectedAppsIds } = useConnectedAppsWithIconsContext()
 
@@ -177,7 +180,7 @@ const MenuItems: React.FC = () => {
                     path: 'news',
                     icon: AllIcons['Newspaper'],
                     label: 'global.section.newsItems',
-                    access: canManageNewsItems && isManagingCompany,
+                    access: hasAccessToNewsItems && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -189,7 +192,7 @@ const MenuItems: React.FC = () => {
                     path: 'property',
                     icon: AllIcons['Building'],
                     label: 'global.section.properties',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToProperties,
                 },
             ].filter(checkItemAccess),
         },
@@ -201,7 +204,7 @@ const MenuItems: React.FC = () => {
                     path: 'contact',
                     icon: AllIcons['Contacts'],
                     label: 'global.section.contacts',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToContacts,
                 },
             ].filter(checkItemAccess),
         },
@@ -213,7 +216,7 @@ const MenuItems: React.FC = () => {
                     path: 'employee',
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && hasAccessToEmployees,
                 },
             ].filter(checkItemAccess),
         },
@@ -278,7 +281,7 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [isAssignedVisibilityType, isManagingCompany, hasAccessToTickets, canManageNewsItems, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, connectedAppsIds])
+    ]), [isAssignedVisibilityType, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, connectedAppsIds])
 
     return (
         <>

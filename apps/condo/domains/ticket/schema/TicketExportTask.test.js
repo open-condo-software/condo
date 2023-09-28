@@ -86,8 +86,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
@@ -115,8 +114,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             const [forbiddenOrganization] = await createTestOrganization(adminClient)
@@ -134,8 +132,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             const [obj, attrs] = await createTestTicketExportTask(userClient, userClient.user, {
@@ -179,6 +176,24 @@ describe('TicketExportTask', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
 
+        it('cannot be created if user belongs as employee with canReadTickets: false to requested organization in `where` field', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canReadTickets: false,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicketExportTask(userClient, userClient.user, {
+                    where: {
+                        organization: { id: organization.id },
+                    },
+                })
+            })
+        })
+
         it('cannot be created if user belongs as employee to some of many requested organizations in `where` field', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const {
@@ -201,8 +216,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             await expectToThrowAccessDeniedErrorToObj(async () => {

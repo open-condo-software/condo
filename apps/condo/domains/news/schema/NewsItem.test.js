@@ -314,8 +314,8 @@ describe('NewsItems', () => {
             test('stuff can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const [objCreated] = await createTestNewsItem(adminClient, o10n)
-                const [roleWithAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: true })
-                const [roleWithoutAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageNewsItems: false })
+                const [roleWithAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadNewsItems: true })
+                const [roleWithoutAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadNewsItems: false })
 
                 const clientWithAccess = await makeClientWithNewRegisteredAndLoggedInUser()
                 await createTestOrganizationEmployee(adminClient, o10n, clientWithAccess.user, roleWithAccess)
@@ -331,10 +331,30 @@ describe('NewsItems', () => {
                     id: objCreated.id,
                 })
 
-                expect(objs2).toHaveLength(1)
-                expect(objs2[0]).toMatchObject({
+                expect(objs2).toHaveLength(0)
+            })
+
+            test('stuff can not read if organization was deleted', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [objCreated] = await createTestNewsItem(adminClient, o10n)
+                const [roleWithAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadNewsItems: true })
+                const [roleWithoutAccess] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadNewsItems: false })
+
+                const clientWithAccess = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(adminClient, o10n, clientWithAccess.user, roleWithAccess)
+
+                const clientWithoutAccess = await makeClientWithNewRegisteredAndLoggedInUser()
+                await createTestOrganizationEmployee(adminClient, o10n, clientWithoutAccess.user, roleWithoutAccess)
+
+                const objs = await NewsItem.getAll(clientWithAccess, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs2 = await NewsItem.getAll(clientWithoutAccess, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(objs).toHaveLength(1)
+                expect(objs[0]).toMatchObject({
                     id: objCreated.id,
                 })
+
+                expect(objs2).toHaveLength(0)
             })
 
             test('anonymous can\'t', async () => {
@@ -714,7 +734,7 @@ describe('NewsItems', () => {
 
                     test('staff can\'t', async () => {
                         const staffClient = await makeClientWithNewRegisteredAndLoggedInUser()
-                        const [role] = await createTestOrganizationEmployeeRole(adminClient, user_cant_o10n, { canManageNewsItems: true })
+                        const [role] = await createTestOrganizationEmployeeRole(adminClient, user_cant_o10n, { canReadNewsItems: true })
                         await createTestOrganizationEmployee(adminClient, user_cant_o10n, staffClient.user, role)
 
                         await expectToThrowAccessDeniedToFieldError(async () => {

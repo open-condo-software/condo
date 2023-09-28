@@ -102,6 +102,54 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
             ],
         },
         {
+            key: 'news',
+            permissions: [
+                {
+                    key: 'canReadNewsItems',
+                    relatedUncheckPermissions: ['canManageNewsItems'],
+                },
+                {
+                    key: 'canManageNewsItems',
+                    relatedCheckPermissions: ['canReadNewsItems'],
+                },
+            ],
+        },
+        {
+            key: 'properties',
+            permissions: [
+                {
+                    key: 'canManageProperties',
+                    relatedCheckPermissions: ['canReadProperties'],
+                },
+            ],
+        },
+        {
+            key: 'contacts',
+            permissions: [
+                {
+                    key: 'canReadContacts',
+                    relatedUncheckPermissions: ['canManageContacts'],
+                },
+                {
+                    key: 'canManageContacts',
+                    relatedCheckPermissions: ['canReadContacts'],
+                },
+            ],
+        },
+        {
+            key: 'employees',
+            permissions: [
+                {
+                    key: 'canReadEmployees',
+                    relatedUncheckPermissions: ['canManageEmployees'],
+                },
+                {
+                    key: 'canManageEmployees',
+                    relatedCheckPermissions: ['canReadEmployees'],
+                },
+            ],
+        },
+        {
             key: 'services',
             permissions: [
                 { key: 'canManageB2BApps' },

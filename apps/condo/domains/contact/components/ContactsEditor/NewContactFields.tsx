@@ -7,6 +7,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Radio, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -71,6 +72,9 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const { phoneValidator } = useValidations({ allowLandLine: true })
     const { breakpoints } = useLayoutContext()
 
+    const { link } = useOrganization()
+    const canManageContacts = get(link, ['role', 'canManageContacts'], false)
+
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
             ...value,
@@ -120,6 +124,10 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
 
     const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
+
+    if (!canManageContacts) {
+        return null
+    }
 
     return (
         <Col span={24}>
