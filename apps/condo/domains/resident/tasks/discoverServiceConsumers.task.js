@@ -5,7 +5,7 @@ const { createTask } = require('@open-condo/keystone/tasks')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersTask' } }
-const logger = getLogger('notifyResidentsAboutNewsItem')
+const logger = getLogger('discoverServiceConsumers')
 
 /**
  * @param {DiscoverServiceConsumersInput} data
@@ -16,9 +16,9 @@ async function discoverServiceConsumersTask (data) {
 
     try {
         const result = await discoverServiceConsumers(context, { ...data, ...DV_SENDER })
-        logger.info({ msg: 'discoverServiceConsumers done', result })
+        logger.info({ msg: 'Done', result })
     } catch (err) {
-        logger.error({ msg: 'discoverServiceConsumers fail', err })
+        logger.error({ msg: 'Error', err })
     }
 }
 
