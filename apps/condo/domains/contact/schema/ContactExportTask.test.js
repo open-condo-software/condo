@@ -83,7 +83,7 @@ describe('ContactExportTask', () => {
                 })
             })
 
-            test('user cannot be created if user belongs to requested organization with canReadContacts: false in `where` field', async () => {
+            test('user cannot create if he belongs to requested organization with canReadContacts: false in `where` field', async () => {
                 const [organization] = await createTestOrganization(adminClient)
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
                     canReadContacts: false,

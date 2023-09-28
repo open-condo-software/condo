@@ -256,7 +256,7 @@ describe('Contact', () => {
             expect(objs[0].id).toMatch(obj.id)
         })
 
-        it('cannot be read by employee with canManageContacts: false', async () => {
+        it('cannot be read by employee with canReadContacts: false', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)

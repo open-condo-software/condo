@@ -5462,7 +5462,6 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
-  canReadEmployeeRoles: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canReadProperties: Boolean
@@ -5567,8 +5566,6 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
-  canReadEmployeeRoles: Boolean
-  canReadEmployeeRoles_not: Boolean
   canManageRoles: Boolean
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
@@ -5742,8 +5739,6 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
-  canReadEmployeeRoles_ASC
-  canReadEmployeeRoles_DESC
   canManageRoles_ASC
   canManageRoles_DESC
   canManageIntegrations_ASC
@@ -5844,7 +5839,6 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
-  canReadEmployeeRoles: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canReadProperties: Boolean
@@ -5908,7 +5902,6 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
-  canReadEmployeeRoles: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canReadProperties: Boolean
@@ -5987,7 +5980,6 @@ type OrganizationEmployeeRole {
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
-  canReadEmployeeRoles: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canReadProperties: Boolean
@@ -6108,8 +6100,6 @@ input OrganizationEmployeeRoleWhereInput {
   canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
-  canReadEmployeeRoles: Boolean
-  canReadEmployeeRoles_not: Boolean
   canManageRoles: Boolean
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
@@ -6251,8 +6241,6 @@ enum SortOrganizationEmployeeRolesBy {
   canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
-  canReadEmployeeRoles_ASC
-  canReadEmployeeRoles_DESC
   canManageRoles_ASC
   canManageRoles_DESC
   canManageIntegrations_ASC
@@ -6352,7 +6340,6 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
-  canReadEmployeeRoles: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canReadProperties: Boolean
@@ -6412,7 +6399,6 @@ input OrganizationEmployeeRoleCreateInput {
   canManageOrganization: Boolean
   canReadEmployees: Boolean
   canManageEmployees: Boolean
-  canReadEmployeeRoles: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
   canReadProperties: Boolean
