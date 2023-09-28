@@ -4,6 +4,6 @@ const { sendModelWebhooks } = require('./sendModelWebhooks')
 const { sendWebhook } = require('./sendWebhook')
 
 module.exports = {
-    sendWebhookTask: createTask('sendWebHook', sendWebhook, { priority: 2 }),
+    sendWebhookTask: createTask('sendWebhook', sendWebhook, { priority: 2 }),
     sendModelWebhooksTask: createTask('sendModelWebhooks', sendModelWebhooks, { priority: 3 }),
 }
