@@ -2,9 +2,9 @@ const dayjs = require('dayjs')
 
 const { find } = require('@open-condo/keystone/schema')
 
-const { notifyResidentsAboutNewsItemTaskWorker } = require('./notifyResidentsAboutNewsItemTaskWorker')
+const { notifyResidentsAboutNewsItem } = require('./notifyResidentsAboutNewsItem')
 
-async function notifyResidentsAboutDelayedNewsItemsCronTaskWorker () {
+async function notifyResidentsAboutDelayedNewsItems () {
     const now = dayjs().toISOString()
     /** @type {NewsItem[]} */
     const newsItems = await find(
@@ -19,10 +19,10 @@ async function notifyResidentsAboutDelayedNewsItemsCronTaskWorker () {
     )
 
     for (const newsItem of newsItems) {
-        await notifyResidentsAboutNewsItemTaskWorker.delay(newsItem.id)
+        await notifyResidentsAboutNewsItem.delay(newsItem.id)
     }
 }
 
 module.exports = {
-    notifyResidentsAboutDelayedNewsItemsCronTaskWorker,
+    notifyResidentsAboutDelayedNewsItems,
 }

@@ -68,7 +68,7 @@ const buildExportFile = async ({ rows, locale }) => {
  * @param taskId - id of `NewsItemRecipientsExportTask` record, obtained from job `data` arguments
  * @returns {Promise<void>}
  */
-async function exportRecipientsTaskWorker (taskId) {
+async function exportRecipients (taskId) {
     if (!taskId) {
         logger.error({ msg: 'taskId is undefined' })
         throw new Error('taskId is undefined')
@@ -192,5 +192,5 @@ async function exportRecipientsTaskWorker (taskId) {
 }
 
 module.exports = {
-    exportRecipientsTaskWorker,
+    exportRecipients,
 }

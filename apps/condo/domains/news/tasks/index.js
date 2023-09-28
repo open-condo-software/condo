@@ -1,15 +1,11 @@
 const { createTask, createCronTask } = require('@open-condo/keystone/tasks')
 
-const { exportRecipientsTaskWorker } = require('./exportRecipientsTaskWorker')
-const { notifyResidentsAboutDelayedNewsItemsCronTaskWorker } = require('./notifyResidentsAboutDelayedNewsItemsCronTaskWorker')
-const { notifyResidentsAboutNewsItemTaskWorker } = require('./notifyResidentsAboutNewsItemTaskWorker')
-
-const exportRecipientsTask = createTask('exportRecipients', exportRecipientsTaskWorker, { priority: 2 })
-const notifyResidentsAboutNewsItemCronTask = createCronTask('notifyResidentsAboutDelayedNewsItems', '* * * * *', notifyResidentsAboutDelayedNewsItemsCronTaskWorker)
-const notifyResidentsAboutNewsItemTask = createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItemTaskWorker, { priority: 2 })
+const { exportRecipients } = require('./exportRecipients')
+const { notifyResidentsAboutDelayedNewsItems } = require('./notifyResidentsAboutDelayedNewsItems')
+const { notifyResidentsAboutNewsItem } = require('./notifyResidentsAboutNewsItem')
 
 module.exports = {
-    exportRecipientsTask,
-    notifyResidentsAboutNewsItemCronTask,
-    notifyResidentsAboutNewsItemTask,
+    exportRecipientsTask: createTask('exportRecipients', exportRecipients, { priority: 2 }),
+    notifyResidentsAboutDelayedNewsItemsCronTask: createCronTask('notifyResidentsAboutDelayedNewsItems', '* * * * *', notifyResidentsAboutDelayedNewsItems),
+    notifyResidentsAboutNewsItemTask: createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, { priority: 2 }),
 }

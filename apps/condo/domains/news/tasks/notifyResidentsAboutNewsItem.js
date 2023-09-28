@@ -144,7 +144,7 @@ async function sendNotifications (context, newsItem) {
  * @param {String} newsItemId in uuid format
  * @returns {Promise<void>}
  */
-async function notifyResidentsAboutNewsItemTaskWorker (newsItemId) {
+async function notifyResidentsAboutNewsItem (newsItemId) {
     const { keystone: context } = await getSchemaCtx('NewsItem')
 
     const newsItem = await NewsItem.getOne(context, { id: newsItemId })
@@ -180,5 +180,5 @@ async function notifyResidentsAboutNewsItemTaskWorker (newsItemId) {
 }
 
 module.exports = {
-    notifyResidentsAboutNewsItemTaskWorker,
+    notifyResidentsAboutNewsItem,
 }
