@@ -6,7 +6,7 @@ const { PropertyMeterReading } = require('@condo/domains/meter/utils/serverSchem
 /**
  * Soft delete meter readings after soft delete meter
  */
-async function deleteReadingsOfDeletedMeterWorker (deletedMeter, deletedMeterAt) {
+async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt) {
     const { keystone: context } = await getSchemaCtx('Property')
 
     const isPropertyMeter = deletedMeter.__typename === 'PropertyMeter'
@@ -28,5 +28,5 @@ async function deleteReadingsOfDeletedMeterWorker (deletedMeter, deletedMeterAt)
 }
 
 module.exports = {
-    deleteReadingsOfDeletedMeterWorker,
+    deleteReadingsOfDeletedMeter,
 }

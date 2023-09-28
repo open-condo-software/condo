@@ -11,7 +11,7 @@ const path = require('path')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const dayjs = require('dayjs')
 
-const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
+const { sendVerificationDateReminder } = require('@condo/domains/meter/utils/serverSchema/sendVerificationDateReminder')
 
 
 async function main () {
