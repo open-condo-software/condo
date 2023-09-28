@@ -25,7 +25,7 @@ const { BankAccount, BankIntegrationOrganizationContext } = require('@condo/doma
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { syncSbbolTransactionsBankSyncTask } = require('@condo/domains/organization/tasks/syncSbbolTransactions')
+const { syncSbbolTransactionsTask } = require('@condo/domains/organization/tasks')
 
 
 const BANK_SYNC_TASK_FOLDER_NAME = 'BankSyncTask'
@@ -231,7 +231,7 @@ const BankSyncTask = new GQLListSchema('BankSyncTask', {
                     await importBankTransactionsFrom1CClientBankExchangeTask.delay(updatedItem.id)
                 }
                 if (type === SBBOL) {
-                    await syncSbbolTransactionsBankSyncTask.delay(updatedItem.id)
+                    await syncSbbolTransactionsTask.delay(updatedItem.id)
                 }
             }
         },
