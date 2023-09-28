@@ -46,7 +46,7 @@ rules:
           regex: '^create(Cron){0,1}Task$'
     paths:
       exclude:
-        - domains/*/tasks/index.js
+        - tasks/index.js
 
   - id: name-of-task-should-match-name-of-function
     languages:
