@@ -39,7 +39,7 @@ const {
 } = require('@condo/domains/property/utils/testSchema')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 const { MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC } = require('@condo/domains/resident/constants/constants')
-const { REDIS_KEY } = require('@condo/domains/resident/tasks/discoverServiceConsumersCron.task')
+const { REDIS_KEY } = require('@condo/domains/resident/tasks/discoverServiceConsumersLastDate')
 const {
     createTestResident,
     ServiceConsumer,

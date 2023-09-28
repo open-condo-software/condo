@@ -35,7 +35,7 @@ const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverS
 const { RESIDENT_ORGANIZATION_FIELD } = require('./fields')
 
 
-const { manageResidentToTicketClientConnections } = require('../tasks')
+const { actualizeTicketToResidentUserConnectionsTask } = require('../tasks')
 
 
 
@@ -250,7 +250,7 @@ const Resident = new GQLListSchema('Resident', {
             const changedUnitType = get(originalInput, 'unitType', null)
 
             if (!isNull(changedPropertyId) || !isNull(changedUnitName) || !isNull(changedUnitType)) {
-                await manageResidentToTicketClientConnections.delay(propertyId, unitType, unitName, userId, dv, sender)
+                await actualizeTicketToResidentUserConnectionsTask.delay(propertyId, unitType, unitName, userId, dv, sender)
             }
 
             // handle soft delete

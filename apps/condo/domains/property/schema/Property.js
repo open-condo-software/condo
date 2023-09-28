@@ -32,7 +32,7 @@ const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { PROPERTY_MAP_GRAPHQL_TYPES } = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
-const { manageResidentToPropertyAndOrganizationConnections, discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
+const { actualizeResidentToPropertyAndOrganizationConnectionsTask, discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 const { softDeletePropertyScopeProperties } = require('@condo/domains/scope/utils/serverSchema')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
@@ -361,11 +361,11 @@ const Property = new GQLListSchema('Property', {
                     const userInfo = { dv: updatedItem.dv, sender: updatedItem.sender }
                     await manageTicketPropertyAddressChange.delay(updatedItem.id, userInfo)
                     // Reconnect residents (if any) to oldest non-deleted property with address = updatedItem.address
-                    await manageResidentToPropertyAndOrganizationConnections.delay(updatedItem.address, updatedItem.dv, updatedItem.sender)
+                    await actualizeResidentToPropertyAndOrganizationConnectionsTask.delay(updatedItem.address, updatedItem.dv, updatedItem.sender)
                 }
 
                 // Reconnect residents (if any) to oldest non-deleted property with address = affectedAddress
-                await manageResidentToPropertyAndOrganizationConnections.delay(affectedAddress, updatedItem.dv, updatedItem.sender)
+                await actualizeResidentToPropertyAndOrganizationConnectionsTask.delay(affectedAddress, updatedItem.dv, updatedItem.sender)
 
                 if (isSoftDeleteOperation) {
                     await softDeleteTicketHintPropertiesByProperty(context, updatedItem)

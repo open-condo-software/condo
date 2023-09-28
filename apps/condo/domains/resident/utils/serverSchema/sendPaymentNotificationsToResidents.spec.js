@@ -16,9 +16,10 @@ const { SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE } = require('@cond
 const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
-const { notifyResidentsOnPayday } = require('@condo/domains/resident/tasks/notifyResidentsOnPayday')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
+const { sendPaymentNotificationsToResidents } = require('./sendPaymentNotificationsToResidents')
 
 
 const { keystone } = index
@@ -55,7 +56,7 @@ describe('Push notification on payday about unpaid receipts', () => {
             })
         })
 
-        it('has BillingReceipt with positive toPay field and has not Payments', async () => {
+        it('has BillingReceipt with positive toPay field and has no Payments', async () => {
             const client = await makeClientWithResidentUser()
             const [resident] = await createTestResident(admin, client.user, property)
             await createTestServiceConsumer(admin, resident, organization, {
@@ -66,7 +67,7 @@ describe('Push notification on payday about unpaid receipts', () => {
             })
             const [receipt] = await createTestBillingReceipt(admin, context, billingProperty, account, { period })
 
-            await notifyResidentsOnPayday()
+            await sendPaymentNotificationsToResidents()
 
             const messages = await getNewMessages({ userId: client.user.id })
             expect(messages).toHaveLength(1)
@@ -85,7 +86,7 @@ describe('Push notification on payday about unpaid receipts', () => {
             await createTestBillingReceipt(admin, context, billingProperty, account, { period: dayjs().subtract(1, 'month').set('date', 1).format('YYYY-MM-DD') })
             await createTestBillingReceipt(admin, context, billingProperty, account, { period: dayjs().subtract(3, 'month').set('date', 1).format('YYYY-MM-DD') })
 
-            await notifyResidentsOnPayday()
+            await sendPaymentNotificationsToResidents()
 
             const messages = await getNewMessages({ userId: client.user.id })
             expect(messages).toHaveLength(1)
@@ -109,7 +110,7 @@ describe('Push notification on payday about unpaid receipts', () => {
                 status: PAYMENT_WITHDRAWN_STATUS,
             })
 
-            await notifyResidentsOnPayday()
+            await sendPaymentNotificationsToResidents()
 
             const messages = await getNewMessages({ userId: client.user.id })
             expect(messages).toHaveLength(1)
@@ -156,12 +157,11 @@ describe('Push notification on payday about unpaid receipts', () => {
                 period,
             })
 
-            await notifyResidentsOnPayday()
+            await sendPaymentNotificationsToResidents()
 
             const messages = await getNewMessages({ userId: client.user.id })
 
             expect(messages).toHaveLength(0)
         })
-        
     })
 })
