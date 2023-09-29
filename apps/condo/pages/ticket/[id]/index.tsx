@@ -6,7 +6,6 @@ import {
     SortTicketCommentsBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import styled from '@emotion/styled'
 import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { compact, get, isEmpty, map } from 'lodash'
@@ -332,29 +331,6 @@ const TicketContent = ({ ticket }) => {
     )
 }
 
-const TicketChangeDiff = styled.p`
-  &.statusDisplayName {
-    del, ins {
-      font-weight: bold;
-      color: black;
-    }
-  }
-
-  &.details, &.isEmergency, &.isPayable, &.isWarranty, &.classifierDisplayName {
-    del, ins {
-      color: black;
-
-      span {
-        color: black;
-      }
-    }
-  }
-
-  del, ins {
-    text-decoration: none;
-  }
-`
-
 const TicketActionBar = ({
     ticket,
     organization,
@@ -629,7 +605,6 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         loading={get(ticketChangesResult, 'loading')}
                         title={TicketChangesMessage}
                         useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
-                        Diff={TicketChangeDiff}
                         HistoricalChange={HistoricalChange}
                     />
                     <Col span={24}>

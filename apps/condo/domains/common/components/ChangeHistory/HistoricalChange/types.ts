@@ -1,5 +1,5 @@
 import { Maybe } from '@app/condo/schema'
-import React, { ReactElement } from 'react'
+import { ReactElement } from 'react'
 
 export type BaseChangesType = {
     createdAt?: Maybe<string>
@@ -15,7 +15,6 @@ export type UseChangedFieldMessagesOfType<ChangesType> = (changesValue: ChangesT
 export type HistoricalChangeInputType<ChangesType> = {
     changesValue: ChangesType
     useChangedFieldMessagesOf: UseChangedFieldMessagesOfType<ChangesType>
-    Diff: React.FC<{ className?: string }>
     labelSpan?: number
 }
 

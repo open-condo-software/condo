@@ -16,7 +16,6 @@ type ChangeHistoryInputType<ChangesType extends BaseChangesType> = {
     loading: boolean
     title: string
     useChangedFieldMessagesOf: HistoricalChangeInputType<ChangesType>['useChangedFieldMessagesOf']
-    Diff: HistoricalChangeInputType<ChangesType>['Diff']
     labelSpan?: number
     HistoricalChange: (props: HistoricalChangeInputType<ChangesType>) => HistoricalChangeReturnType,
 }
@@ -37,7 +36,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     const intl = useIntl()
     const FetchMoreTemplate = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
 
-    const { items, total, loading, title, useChangedFieldMessagesOf, Diff, labelSpan, HistoricalChange } = props
+    const { items, total, loading, title, useChangedFieldMessagesOf, labelSpan, HistoricalChange } = props
 
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
 
@@ -60,24 +59,28 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
                     <Typography.Title level={3}>{title}</Typography.Title>
                 </Col>
                 <Col span={24}>
-                    {items.slice(0, displayCount).map(change => (
-                        <HistoricalChange
-                            key={change.id}
-                            changesValue={change}
-                            useChangedFieldMessagesOf={useChangedFieldMessagesOf}
-                            Diff={Diff}
-                            labelSpan={labelSpan}
-                        />
-                    ))}
-                    {displayCount < total && (
-                        <Button
-                            type='text'
-                            onClick={handleFetchMore}
-                            style={TEXT_BUTTON_STYLE}
-                        >
-                            ↓&nbsp;{FetchMoreLabel}
-                        </Button>
-                    )}
+                    <Row gutter={CHANGE_HISTORY_VERTICAL_GUTTER}>
+                        {items.slice(0, displayCount).map(change => (
+                            <Col span={24} key={change.id}>
+                                <HistoricalChange
+                                    changesValue={change}
+                                    useChangedFieldMessagesOf={useChangedFieldMessagesOf}
+                                    labelSpan={labelSpan}
+                                />
+                            </Col>
+                        ))}
+                        <Col span={24}>
+                            {displayCount < total && (
+                                <Button
+                                    type='text'
+                                    onClick={handleFetchMore}
+                                    style={TEXT_BUTTON_STYLE}
+                                >
+                                    ↓&nbsp;{FetchMoreLabel}
+                                </Button>
+                            )}
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         </Col>
