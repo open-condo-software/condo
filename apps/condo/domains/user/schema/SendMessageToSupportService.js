@@ -106,7 +106,7 @@ const SendMessageToSupportService = new GQLCustomSchema('SendMessageToSupportSer
                 for (const resident of residents) {
                     const residentServiceConsumers = serviceConsumers.filter(({ resident: { id } }) => id === resident.id)
 
-                    const residentInfo = { address: resident.address, unitName: resident.unitName, organization: null }
+                    const residentInfo = { address: resident.address, unitName: resident.unitName, organization: null, userId: get(resident, 'user.id', null) }
 
                     if (residentServiceConsumers) {
                         residentInfo.serviceConsumers = [...residentServiceConsumers.map(({ accountNumber, organization: { name: organizationName } }) => ({
