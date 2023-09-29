@@ -13,7 +13,6 @@ import { useIntl } from '@open-condo/next/intl'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
@@ -51,12 +50,11 @@ const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintF
     const queryFilters = useMemo(() => hintFilters ? { filters: hintFilters } : {}, [hintFilters])
     const query = useMemo(() => qs.stringify(
         {
-            tab: SETTINGS_TAB_PROPERTY_HINT,
             ...queryFilters,
         },
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
     ), [queryFilters])
-    const linkHref = useMemo(() => '/settings' + query, [query])
+    const linkHref = useMemo(() => '/settings/hint' + query, [query])
 
     const AlertDescription = useMemo(() => (
         <>
@@ -219,7 +217,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
             }
         }
 
-        await router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_HINT}`)
+        await router.push('/settings/hint')
     }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction])
 
     if (organizationTicketPropertyHintPropertiesLoading) {

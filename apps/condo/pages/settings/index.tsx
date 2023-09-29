@@ -18,40 +18,31 @@ import { MOBILE_FEATURE_CONFIGURATION, SETTINGS_NEW_EMPLOYEE_ROLE_TABLE } from '
 import {
     SETTINGS_TAB_CONTACT_ROLES,
     SETTINGS_TAB_PAYMENT_DETAILS,
-    SETTINGS_TAB_PROPERTY_HINT,
     SETTINGS_TAB_SUBSCRIPTION,
     SETTINGS_TAB_CONTROL_ROOM,
-    SETTINGS_TAB_PROPERTY_SCOPE,
     SETTINGS_TAB_EMPLOYEE_ROLES,
     SETTINGS_TAB_MOBILE_FEATURE_CONFIG,
 } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRolesSettingsContent } from '@condo/domains/contact/components/contactRoles/ContactRolesSettingsContent'
 import {
     EmployeeRolesSettingsContent,
-    EmployeeRoleTicketVisibilityInfo,
 } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
-import { PropertyScopeSettingsContent } from '@condo/domains/scope/components/PropertyScopeSettingsContent'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
-import {
-    SettingsContent as TicketPropertyHintSettings,
-} from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
 
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 
-const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PROPERTY_HINT, SETTINGS_TAB_PROPERTY_SCOPE, SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
+const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
 
 const SettingsPage: React.FC = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
-    const HintTitle = intl.formatMessage({ id: 'Hint' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
     const RolesTitle = intl.formatMessage({ id: 'ContactRoles' })
     const DetailsTitle = intl.formatMessage({ id: 'PaymentDetails' })
     const ControlRoomTitle = intl.formatMessage({ id: 'ControlRoom' })
-    const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
     const EmployeeRolesTitle = intl.formatMessage({ id: 'EmployeeRoles' })
     const MobileFeatureConfigTitle = intl.formatMessage({ id: 'pages.condo.settings.barItem.MobileFeatureConfig' })
 
@@ -65,7 +56,7 @@ const SettingsPage: React.FC = () => {
     const canManageEmployeeRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageRoles'], false), [userOrganization])
     const canManageMobileFeatureConfigsRoles = useMemo(() => get(userOrganization, ['link', 'role', 'canManageMobileFeatureConfigs']), [userOrganization])
 
-    const isEmployeeTabAvailable = hasNewEmployeeRoleTableFeature ? canManageEmployeeRoles : true
+    const isEmployeeTabAvailable = hasNewEmployeeRoleTableFeature && canManageEmployeeRoles
 
     const tabKeysToDisplay = useMemo(() => {
         const availableTabs = ALWAYS_AVAILABLE_TABS
@@ -78,25 +69,6 @@ const SettingsPage: React.FC = () => {
         return availableTabs
     }, [hasSubscriptionFeature, canManageContactRoles, canManageMobileFeatureConfigsRoles, isEmployeeTabAvailable])
 
-    const employeeRolesTab = useMemo(() => {
-        const baseTabData = {
-            key: SETTINGS_TAB_EMPLOYEE_ROLES,
-            label: EmployeeRolesTitle,
-        }
-
-        if (hasNewEmployeeRoleTableFeature && canManageEmployeeRoles) {
-            return {
-                ...baseTabData,
-                children: <EmployeeRolesSettingsContent/>,
-            }
-        } else if (!hasNewEmployeeRoleTableFeature) {
-            return {
-                ...baseTabData,
-                children: <EmployeeRoleTicketVisibilityInfo/>,
-            }
-        }
-    }, [EmployeeRolesTitle, canManageEmployeeRoles, hasNewEmployeeRoleTableFeature])
-
     const settingsTabs: TabItem[] = useMemo(
         () => [
             hasSubscriptionFeature && {
@@ -104,18 +76,11 @@ const SettingsPage: React.FC = () => {
                 label: SubscriptionTitle,
                 children: <SubscriptionPane/>,
             },
-            {
-                key: SETTINGS_TAB_PROPERTY_HINT,
-                label: HintTitle,
-                children: <TicketPropertyHintSettings/>,
+            isEmployeeTabAvailable && {
+                key: SETTINGS_TAB_EMPLOYEE_ROLES,
+                label: EmployeeRolesTitle,
+                children: <EmployeeRolesSettingsContent/>,
             },
-            {
-                key: SETTINGS_TAB_PROPERTY_SCOPE,
-                label: PropertyScopeTitle,
-                children: <PropertyScopeSettingsContent/>,
-                eventName: 'PropertyScopeVisitIndex',
-            },
-            employeeRolesTab,
             {
                 key: SETTINGS_TAB_PAYMENT_DETAILS,
                 label: DetailsTitle,
@@ -137,7 +102,7 @@ const SettingsPage: React.FC = () => {
                 children: <MobileFeatureConfigContent/>,
             },
         ].filter(Boolean),
-        [hasSubscriptionFeature, SubscriptionTitle, HintTitle, PropertyScopeTitle, employeeRolesTab, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, hasMobileFeatureConfigurationFeature, MobileFeatureConfigTitle],
+        [hasSubscriptionFeature, SubscriptionTitle, isEmployeeTabAvailable, EmployeeRolesTitle, DetailsTitle, canManageContactRoles, RolesTitle, ControlRoomTitle, canManageMobileFeatureConfigsRoles, hasMobileFeatureConfigurationFeature, MobileFeatureConfigTitle],
     )
 
     const titleContent = useMemo(() => (
