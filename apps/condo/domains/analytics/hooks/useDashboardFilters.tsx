@@ -80,7 +80,7 @@ type UseDateRangeFilterType = () => {
 }
 
 export const useDateRangeFilter: UseDateRangeFilterType = () => {
-    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'month'), dayjs()])
+    const [dateRange, setDateRange] = useState<[Dayjs, Dayjs]>([dayjs().subtract(1, 'week'), dayjs()])
 
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
