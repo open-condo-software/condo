@@ -5,13 +5,13 @@ const conf = require('@open-condo/config')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const { getLocalized } = require('@open-condo/locales/loader')
 
-const { COUNTRIES } = require('apps/condo/domains/common/constants/countries')
-const { loadListByChunks } = require('apps/condo/domains/common/utils/serverSchema')
-const { Meter } = require('apps/condo/domains/meter/utils/serverSchema/index')
-const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('apps/condo/domains/notification/constants/constants')
-const { sendMessage, Message } = require('apps/condo/domains/notification/utils/serverSchema')
-const { Organization } = require('apps/condo/domains/organization/utils/serverSchema')
-const { Resident, ServiceConsumer } = require('apps/condo/domains/resident/utils/serverSchema')
+const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema/index')
+const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {
     return heads.map(head => {
