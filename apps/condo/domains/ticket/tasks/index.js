@@ -1,6 +1,6 @@
 const { createCronTask, createTask } = require('@open-condo/keystone/tasks')
 
-const { closeCompletedTicketsCron: closeCompletedTickets } = require('./closeCompletedTickets')
+const { closeCompletedTickets } = require('./closeCompletedTickets')
 const { exportIncidents } = require('./exportIncidents')
 const { exportTickets } = require('./exportTickets')
 const { manageTicketPropertyAddressChange } = require('./manageTicketPropertyAddressChange')
