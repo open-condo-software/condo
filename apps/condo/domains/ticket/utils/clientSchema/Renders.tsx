@@ -1,5 +1,4 @@
 import { MeterReportingPeriod, Property, Ticket } from '@app/condo/schema'
-import styled from '@emotion/styled'
 import { Space, Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
@@ -279,7 +278,7 @@ export const getStatusRender = (intl, search?: FilterValue) => {
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' })
+    const PayableMessage = intl.formatMessage({ id: 'Payable' })
 
     return function render (status, record) {
         const { primary: backgroundColor, secondary: color } = status.colors
@@ -306,9 +305,9 @@ export const getStatusRender = (intl, search?: FilterValue) => {
                     )
                 }
                 {
-                    record.isPaid && (
-                        <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>
-                            {PaidMessage}
+                    record.isPayable && (
+                        <TicketTag color={TICKET_TYPE_TAG_COLORS.payable}>
+                            {PayableMessage}
                         </TicketTag>
                     )
                 }

@@ -32,12 +32,12 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue, resetFields, getFieldError }) => {
-                    const isPaid = form.getFieldValue('isPaid')
+                ({ getFieldsValue, getFieldError }) => {
+                    const isPayable = form.getFieldValue('isPayable')
                     const isEmergency = form.getFieldValue('isEmergency')
                     const isWarranty = form.getFieldValue('isWarranty')
 
-                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty) !== null
+                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPayable, isEmergency, isWarranty) !== null
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
 

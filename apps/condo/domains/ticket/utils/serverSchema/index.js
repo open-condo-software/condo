@@ -118,7 +118,7 @@ const buildTicketsLoader = async ({ where = {}, sortBy = ['createdAt_DESC'] }) =
     const statusIndexes = Object.fromEntries(statuses.map(status => ([status.type, status.id])))
     return new GqlWithKnexLoadList({
         listKey: 'Ticket',
-        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPaid isWarranty details createdAt updatedAt deadline deferredUntil feedbackValue feedbackComment feedbackAdditionalOptions feedbackUpdatedAt qualityControlValue qualityControlComment qualityControlAdditionalOptions qualityControlUpdatedAt statusReopenedCounter propertyAddress ',
+        fields: 'id number unitName unitType sectionName sectionType floorName clientName clientPhone isEmergency isPayable isWarranty details createdAt updatedAt deadline deferredUntil feedbackValue feedbackComment feedbackAdditionalOptions feedbackUpdatedAt qualityControlValue qualityControlComment qualityControlAdditionalOptions qualityControlUpdatedAt statusReopenedCounter propertyAddress ',
         singleRelations: [
             ['User', 'createdBy', 'name'],
             ['User', 'operator', 'name'],

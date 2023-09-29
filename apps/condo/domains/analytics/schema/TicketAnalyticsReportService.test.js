@@ -24,7 +24,7 @@ describe('TicketAnalyticsReportService', () => {
         it('receives error when incorrect groupBy field is passed', async () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
-            await createTestTicket(client, client.organization, client.property, { isPaid: true })
+            await createTestTicket(client, client.organization, client.property, { isPayable: true })
             await createTestTicket(client, client.organization, client.property, { isEmergency: true })
 
             const dateStart = dayjs().startOf('week')
@@ -38,7 +38,7 @@ describe('TicketAnalyticsReportService', () => {
                             { createdAt_gte: dateStart.toISOString() },
                             { createdAt_lte: dateEnd.toISOString() },
                             { property: { id_in: [ client.property.id ] } },
-                            { isPaid: false },
+                            { isPayable: false },
                             { isEmergency: false },
                         ],
                     },
@@ -75,7 +75,7 @@ describe('TicketAnalyticsReportService', () => {
         it('can read TicketAnalyticsReportService grouped counts [status, day]', async () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
-            await createTestTicket(client, client.organization, client.property, { isPaid: true })
+            await createTestTicket(client, client.organization, client.property, { isPayable: true })
             await createTestTicket(client, client.organization, client.property, { isEmergency: true })
             const dateStart = dayjs().startOf('week')
             const dateEnd = dayjs().endOf('week')
@@ -101,7 +101,7 @@ describe('TicketAnalyticsReportService', () => {
         it('can read TicketAnalyticsReportService groupped with property filter', async () => {
             const client = await makeClientWithProperty()
             await createTestTicket(client, client.organization, client.property)
-            await createTestTicket(client, client.organization, client.property, { isPaid: true })
+            await createTestTicket(client, client.organization, client.property, { isPayable: true })
             await createTestTicket(client, client.organization, client.property, { isEmergency: true })
 
             const dateStart = dayjs().startOf('week')
@@ -113,7 +113,7 @@ describe('TicketAnalyticsReportService', () => {
                         { createdAt_gte: dateStart.toISOString() },
                         { createdAt_lte: dateEnd.toISOString() },
                         { property: { id_in: [ client.property.id ] } },
-                        { isPaid: false },
+                        { isPayable: false },
                         { isEmergency: false },
                     ],
                 },
@@ -134,7 +134,7 @@ describe('TicketAnalyticsReportService', () => {
             const [categoryClassifier] = await createTestTicketCategoryClassifier(admin)
 
             await createTestTicket(client, client.organization, client.property)
-            await createTestTicket(client, client.organization, client.property, { isPaid: true })
+            await createTestTicket(client, client.organization, client.property, { isPayable: true })
             await createTestTicket(client, client.organization, client.property, { isEmergency: true })
 
             const dateStart = dayjs().startOf('week')
@@ -148,7 +148,7 @@ describe('TicketAnalyticsReportService', () => {
                         { createdAt_lte: dateEnd.toISOString() },
                         { property: { id_in: [ client.property.id ] } },
                         { categoryClassifier: { id_in: [ categoryClassifier.id ] } },
-                        { isPaid: false },
+                        { isPayable: false },
                         { isEmergency: false },
                     ],
                 },

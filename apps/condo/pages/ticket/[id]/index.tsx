@@ -90,7 +90,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' })
+    const PayableMessage = intl.formatMessage({ id: 'Payable' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const ChangedMessage = intl.formatMessage({ id: 'Changed' })
@@ -105,7 +105,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
     const isEmergency = get(ticket, 'isEmergency')
-    const isPaid = get(ticket, 'isPaid')
+    const isPayable = get(ticket, 'isPayable')
     const isWarranty = get(ticket, 'isWarranty')
     const statusReopenedCounter = get(ticket, 'statusReopenedCounter')
     const statusUpdatedAt = useMemo(() => get(ticket, 'statusUpdatedAt'), [ticket])
@@ -277,12 +277,12 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                 <Col span={24}>
                     <Row justify='space-between' align='middle' gutter={[0, 24]}>
                         <Col span={!breakpoints.TABLET_LARGE && 24}
-                            hidden={!isEmergency && !isPaid && !isWarranty && statusReopenedCounter === 0}>
+                            hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0}>
                             <Space direction='horizontal'>
                                 {isEmergency && <TicketTag
                                     color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                {isPaid && <TicketTag
-                                    color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
+                                {isPayable && <TicketTag
+                                    color={TICKET_TYPE_TAG_COLORS.payable}>{PayableMessage.toLowerCase()}</TicketTag>}
                                 {isWarranty && <TicketTag
                                     color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
                                 {
@@ -339,7 +339,7 @@ const TicketChangeDiff = styled.p`
     }
   }
 
-  &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
+  &.details, &.isEmergency, &.isPayable, &.isWarranty, &.classifierDisplayName {
     del, ins {
       color: black;
 
