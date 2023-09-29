@@ -58,7 +58,7 @@ describe('DiscoverServiceConsumersService', () => {
     let support
     let anonymous
 
-    const cronTaskName = 'discoverServiceConsumersCronTask'
+    const cronTaskName = 'discoverServiceConsumersLastDate'
 
     const randomPayload = {
         billingAccountsIds: [faker.datatype.uuid()],
@@ -69,7 +69,7 @@ describe('DiscoverServiceConsumersService', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
 
-        const redisClient = getRedisClient('discoverServiceConsumersCronTask')
+        const redisClient = getRedisClient('discoverServiceConsumersLastDate')
         redisClient.set(REDIS_KEY, dayjs().toISOString())
     })
 
