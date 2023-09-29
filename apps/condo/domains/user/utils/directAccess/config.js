@@ -48,7 +48,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         'Ticket',
     ],
     fields: [
-        { schemaName: 'Organization', fieldName: 'isApproved' }, // canManageOrganizationIsApprovedField
+        { schemaName: 'Organization', fieldName: 'isApproved' },
     ],
     services: [
         'registerNewServiceUser',
