@@ -45,7 +45,11 @@ const {
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessageByTestClient, Message } = require('@condo/domains/notification/utils/testSchema')
-const { Organization, registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const {
+    Organization,
+    registerNewOrganization,
+    createTestOrganization,
+} = require('@condo/domains/organization/utils/testSchema')
 const {
     UserRightsSet,
     createTestUserRightsSet,
@@ -62,6 +66,22 @@ const {
 function expectDeleted (obj) {
     expect(obj).toHaveProperty('deletedAt')
     expect(obj.deletedAt).not.toBeNull()
+}
+
+/**
+ * We don't use  default function from "@condo/domains/organization/utils/testSchema"
+ * because it updates many fields by default
+ */
+async function updateTestOrganization (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const attrs = {
+        dv: 1,
+        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+        ...extraAttrs,
+    }
+    const obj = await Organization.update(client, id, attrs)
+    return [obj, attrs]
 }
 
 describe('UserRightsSet', () => {
@@ -384,6 +404,104 @@ describe('UserRightsSet', () => {
                 expect(deletedRightsUser).toHaveProperty('rightsSet', null)
                 await expectToThrowAccessDeniedErrorToResult(async () => {
                     await registerNewServiceUserByTestClient(executor)
+                })
+            })
+        })
+        describe('canManage<Schema><Field>Field', () => {
+            test('Must give access to update schema field', async () => {
+                const executor = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [org] = await createTestOrganization(support)
+                expect(org).toHaveProperty('isApproved', true)
+
+                // No access by default
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(executor)
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { isApproved: false })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                })
+
+                // Access provided
+                const [rightsSet] = await createTestUserRightsSet(support, {
+                    canReadOrganizations: true,
+                    canManageOrganizationIsApprovedField: true,
+                })
+                const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                    rightsSet: { connect: { id: rightsSet.id } },
+                })
+                expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(executor)
+                })
+                const [updatedOrg] = await updateTestOrganization(executor, org.id, { isApproved: false })
+                expect(updatedOrg).toHaveProperty('isApproved', false)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: true })
+                })
+
+                // Access removed from specific user
+                const [removedAccessUser] = await updateTestUser(support, executor.user.id, {
+                    rightsSet: { disconnectAll: true },
+                })
+                expect(removedAccessUser).toHaveProperty('rightsSet', null)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(executor)
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { isApproved: true })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: true })
+                })
+
+                // Access provided again
+                const [addedAccessUser] = await updateTestUser(support, executor.user.id, {
+                    rightsSet: { connect: { id: rightsSet.id } },
+                })
+                expect(addedAccessUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(executor)
+                })
+                const [updatedOrg2] = await updateTestOrganization(executor, org.id, { isApproved: true })
+                expect(updatedOrg2).toHaveProperty('isApproved', true)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                })
+
+                // User rights set deleted -> User should lose accesses
+                const [deletedSet] = await updateTestUserRightsSet(support, rightsSet.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                expect(deletedSet).toHaveProperty('deletedAt')
+                expect(deletedSet.deletedAt).not.toBeNull()
+                const deletedRightsUser = await User.getOne(support, { id: executor.user.id })
+                expect(deletedRightsUser).toHaveProperty('rightsSet', null)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestOrganization(executor)
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { isApproved: false })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
                 })
             })
         })

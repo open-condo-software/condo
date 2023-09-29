@@ -5,28 +5,40 @@ describe('Direct access utils specs', () => {
     const TEST_CONFIGS = [
         [
             'string-passed list',
-            { lists: ['B2BApp'], services: [] },
+            { lists: ['B2BApp'], fields: [], services: [] },
             ['canReadB2BApps', 'canManageB2BApps'],
         ],
         [
             'config-passed list',
-            { lists: [{ schemaName: 'B2CAppBuild' }], services: [] },
+            { lists: [{ schemaName: 'B2CAppBuild' }], fields: [], services: [] },
             ['canReadB2CAppBuilds', 'canManageB2CAppBuilds'],
         ],
         [
             'config-passed readonly list',
-            { lists: [{ schemaName: 'Organization', readonly: true }], services: [] },
+            { lists: [{ schemaName: 'Organization', readonly: true }], fields: [], services: [] },
             ['canReadOrganizations'],
         ],
         [
             'mutation / query',
-            { lists: [], services: ['allMiniApps', 'registerNewServiceUser'] },
+            { lists: [], fields: [], services: ['allMiniApps', 'registerNewServiceUser'] },
             ['canExecuteAllMiniApps', 'canExecuteRegisterNewServiceUser'],
         ],
         [
+            'field',
+            { lists: [], fields: [{ schemaName: 'Organization', fieldName: 'isApproved' }], services: [] },
+            ['canManageOrganizationIsApprovedField'],
+        ],
+        [
             'complex example',
-            { lists: ['B2BApp', { schemaName: 'Organization', readonly: true }], services: ['registerNewServiceUser'] },
-            ['canReadB2BApps', 'canManageB2BApps', 'canReadOrganizations', 'canExecuteRegisterNewServiceUser'],
+            {
+                lists: ['B2BApp', { schemaName: 'Organization', readonly: true }],
+                fields: [{ schemaName: 'Organization', fieldName: 'isApproved' }],
+                services: ['registerNewServiceUser'],
+            },
+            [
+                'canReadB2BApps', 'canManageB2BApps', 'canReadOrganizations', 'canExecuteRegisterNewServiceUser',
+                'canManageOrganizationIsApprovedField',
+            ],
         ],
     ]
     describe('generateFieldNames', () => {

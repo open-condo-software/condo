@@ -10,6 +10,7 @@ const { find } = require('@open-condo/keystone/schema')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+const { canDirectlyManageSchemaFields } = require('@condo/domains/user/utils/directAccess/server.utils')
 
 async function canReadOrganizations ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
@@ -86,6 +87,9 @@ async function canManageOrganizations ({ authentication: { item: user }, operati
 
     const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
     if (hasDirectAccess) return true
+
+    const hasDirectAccessToFieldUpdating = await canDirectlyManageSchemaFields(user, listKey, originalInput, operation)
+    if (hasDirectAccessToFieldUpdating) return true
 
     // NOTE: The "isApproved" field can only be managed by the admin, support, users with special rights.
     if ('isApproved' in originalInput) return false

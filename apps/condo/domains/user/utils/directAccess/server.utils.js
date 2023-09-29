@@ -1,4 +1,6 @@
 const get = require('lodash/get')
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
 
 const { getByCondition } = require('@open-condo/keystone/schema')
 
@@ -7,6 +9,8 @@ const {
     generateReadSchemaFieldName,
     generateManageSchemaFieldName,
     generateExecuteServiceFieldName,
+    generateFieldNameToManageField,
+    getFieldNamesBySchemaName,
 } = require('./common.utils')
 
 
@@ -18,8 +22,15 @@ const DEFAULT_CHECKBOX_FIELD = {
 }
 
 /**
+ * @typedef {Object} CheckboxField
+ * @property {string} schemaDoc
+ * @property {'Checkbox'} type
+ * @property {false} defaultValue
+ * @property {true} isRequired
+ */
+
+/**
  * Generates a set of Keystone fields based on provided config. Obtained fields are used to form UserRightsSet schema.
- * @typedef {{ schemaDoc: string, type: 'Checkbox', defaultValue: false, isRequired: true }} CheckboxField
  * @param {DirectAccessConfig} config
  * @return {Record<string, CheckboxField>}
  */
@@ -52,25 +63,35 @@ function generateRightSetFields (config) {
         }
     }
 
+    for (const fieldConfig of config.fields) {
+        fields[generateFieldNameToManageField(fieldConfig.schemaName, fieldConfig.fieldName)] = {
+            ...DEFAULT_CHECKBOX_FIELD,
+            schemaDoc:
+                `Enables a user with the given UserRightsSet to update "${fieldConfig.fieldName}" field of model "${fieldConfig.schemaName}"`,
+        }
+    }
+
     return fields
 }
+/**
+ * @typedef {undefined | Record<string, any>} AuthUser
+ */
 
 /**
  * Checks if user has specific right in his UserRightsSet
- * @typedef {undefined | Record<string, any>} AuthUser
  * @param {AuthUser} user - user obtained from Keystone access function
- * @param {string} rightName - name of the right to check
+ * @param {string[]} rightNames - names of the right to check
  * @return {Promise<boolean>}
  * @private
  */
-async function _hasSpecificRight (user, rightName) {
+async function _hasSpecificRights (user, rightNames) {
     if (!user || !user.rightsSet) {
         return false
     }
 
     const rightsSet = await getByCondition( 'UserRightsSet', { id: user.rightsSet, deletedAt: null })
 
-    return get(rightsSet, rightName, false)
+    return !!rightsSet && rightNames.every(rightName => get(rightsSet, rightName, false))
 }
 
 /**
@@ -80,7 +101,7 @@ async function _hasSpecificRight (user, rightName) {
  * @return {Promise<boolean>}
  */
 async function canDirectlyReadSchemaObjects (user, schemaName) {
-    return await _hasSpecificRight(user, generateReadSchemaFieldName(schemaName))
+    return await _hasSpecificRights(user, [generateReadSchemaFieldName(schemaName)])
 }
 
 /**
@@ -90,7 +111,26 @@ async function canDirectlyReadSchemaObjects (user, schemaName) {
  * @return {Promise<boolean>}
  */
 async function canDirectlyManageSchemaObjects (user, schemaName) {
-    return await _hasSpecificRight(user, generateManageSchemaFieldName(schemaName))
+    return await _hasSpecificRights(user, [generateManageSchemaFieldName(schemaName)])
+}
+
+const FIELD_NAMES_TO_SKIP_ACCESS = ['dv', 'sender']
+
+async function canDirectlyManageSchemaFields (user, schemaName, originalInput, operation) {
+    const isUpdateOperation = operation === 'update'
+    const fieldNamesWithAccess = getFieldNamesBySchemaName(schemaName)
+
+    if (isUpdateOperation && isArray(fieldNamesWithAccess) && !isEmpty(fieldNamesWithAccess)) {
+        const originalInputFieldNames = Object.keys(originalInput).filter(fieldName => !FIELD_NAMES_TO_SKIP_ACCESS.includes(fieldName))
+        const fieldNamesToCheckRights = originalInputFieldNames.filter(originalInputFieldName => fieldNamesWithAccess.includes(originalInputFieldName))
+        const deniedFieldNamesToUpdate = originalInputFieldNames.filter(originalInputFieldName => !fieldNamesWithAccess.includes(originalInputFieldName))
+        if (isEmpty(fieldNamesToCheckRights) || !isEmpty(deniedFieldNamesToUpdate)) return false
+
+        const rightNamesToCheck = fieldNamesToCheckRights.map(fieldName => generateFieldNameToManageField(schemaName, fieldName))
+        return await _hasSpecificRights(user, rightNamesToCheck)
+    }
+
+    return false
 }
 
 /**
@@ -100,7 +140,7 @@ async function canDirectlyManageSchemaObjects (user, schemaName) {
  * @return {Promise<boolean>}
  */
 async function canDirectlyExecuteService (user, serviceName) {
-    return await _hasSpecificRight(user, generateExecuteServiceFieldName(serviceName))
+    return await _hasSpecificRights(user, [generateExecuteServiceFieldName(serviceName)])
 }
 
 
@@ -109,4 +149,5 @@ module.exports = {
     canDirectlyReadSchemaObjects,
     canDirectlyManageSchemaObjects,
     canDirectlyExecuteService,
+    canDirectlyManageSchemaFields,
 }
