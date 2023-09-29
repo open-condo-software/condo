@@ -39,7 +39,7 @@ import { TASK_STATUS } from '@condo/domains/common/components/tasks'
 import { TasksContextProvider } from '@condo/domains/common/components/tasks/TasksContextProvider'
 import { TrackingProvider } from '@condo/domains/common/components/TrackingContext'
 import UseDeskWidget from '@condo/domains/common/components/UseDeskWidget'
-import { SERVICE_PROVIDER_PROFILE } from '@condo/domains/common/constants/featureflags'
+import { SERVICE_PROVIDER_PROFILE, ANALYTICS_V3 } from '@condo/domains/common/constants/featureflags'
 import {
     DASHBOARD_CATEGORY,
     COMMUNICATION_CATEGORY,
@@ -126,6 +126,7 @@ const MenuItems: React.FC = () => {
     const orgFeatures = get(organization, 'features', [])
     const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
+    const isDashboardEnabled = useFlag(ANALYTICS_V3)
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
@@ -136,6 +137,10 @@ const MenuItems: React.FC = () => {
     const hasAccessToEmployees = get(role, 'canReadEmployees', false)
     const hasAccessToProperties = get(role, 'canReadProperties', false)
     const hasAccessToContacts = get(role, 'canReadContacts', false)
+    const canReadAnalytics = get(role, 'canReadAnalytics', false)
+    // NOTE: That's because if v3 is disabled -> anyone can see external reports.
+    // Otherwise, you should check canReadAnalytics
+    const hasAccessToAnalytics = isDashboardEnabled ? canReadAnalytics : true
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -154,7 +159,7 @@ const MenuItems: React.FC = () => {
                     path: 'reports',
                     icon: AllIcons['BarChartVertical'],
                     label: 'global.section.analytics',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToAnalytics,
                 },
             ].filter(checkItemAccess),
         },

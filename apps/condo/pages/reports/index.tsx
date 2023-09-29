@@ -2,7 +2,8 @@ import { Typography, Row, Col, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
-import React, { useMemo } from 'react'
+import { useRouter } from 'next/router'
+import React, { useMemo, useEffect } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
@@ -16,7 +17,6 @@ import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListVi
 import { Loader } from '@condo/domains/common/components/Loader'
 import { ANALYTICS_V3 } from '@condo/domains/common/constants/featureflags'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-
 const EXTERNAL_REPORT_ROW_GUTTER: RowProps['gutter'] = [32, 40]
 
 const IndexPage = () => {
@@ -26,6 +26,7 @@ const IndexPage = () => {
 
     const { organization, link } = useOrganization()
     const { useFlag } = useFeatureFlags()
+    const { replace } = useRouter()
     const isDashboardEnabled = useFlag(ANALYTICS_V3)
 
     const {
@@ -43,12 +44,17 @@ const IndexPage = () => {
     const pageContent = useMemo(() => {
         const canReadAnalytics = get(link, [ 'role', 'canReadAnalytics'], false)
 
+        // NOTE: in case of v3 enabled and user has no access to canReadAnalytics -> show loader and redirect to /ticket
+        if (isDashboardEnabled && !canReadAnalytics) {
+            return <Loader size='large' />
+        }
+        // NOTE: v3 enabled and has access canReadAnalytics -> show v3
         if (isDashboardEnabled && canReadAnalytics) {
             return <Dashboard organizationId={organization.id} />
         }
 
         const isEmptyReports = isEmpty(externalReports)
-
+        // Otherwise show external reports
         return (
             <Row
                 gutter={EXTERNAL_REPORT_ROW_GUTTER}
@@ -71,6 +77,14 @@ const IndexPage = () => {
             </Row>
         )
     }, [NoDataTitle, externalReports, organization, link, isDashboardEnabled])
+
+    useEffect(() => {
+        const canReadAnalytics = get(link, [ 'role', 'canReadAnalytics'], false)
+
+        if (isDashboardEnabled && !canReadAnalytics) {
+            replace('/ticket', undefined, { shallow: true })
+        }
+    }, [link, isDashboardEnabled, replace])
 
     return (
         <>
