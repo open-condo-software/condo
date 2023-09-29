@@ -12,12 +12,12 @@ const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { RU_LOCALE } = require('@condo/domains/common/constants/locale')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Meter, MeterReading, MeterReportingPeriod } = require('@condo/domains/meter/utils/serverSchema')
+const { rightJoin, joinResidentsToMeters } = require('@condo/domains/meter/utils/serverSchema/sendVerificationDateReminder')
 const {
     METER_VERIFICATION_DATE_EXPIRED_TYPE, METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE, METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-const { rightJoin, joinResidentsToMeters } = require('apps/condo/domains/meter/utils/serverSchema/sendVerificationDateReminder')
 
 
 dayjs.extend(isBetween)
