@@ -29,6 +29,11 @@ const {
 
 
 describe('BillingRecipient', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Create', () => {
         test('admin can create BillingRecipient', async () => {
             const admin = await makeLoggedInAdminClient()

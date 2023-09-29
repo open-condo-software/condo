@@ -38,6 +38,11 @@ describe('syncSubscriptions', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     setFakeClientMode(index)
 

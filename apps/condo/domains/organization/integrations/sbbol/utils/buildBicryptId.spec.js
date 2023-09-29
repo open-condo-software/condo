@@ -39,6 +39,11 @@ const checkValidationAgainstIncorrectValue = async (field, invalidValue, errorFi
 }
 
 describe('buildBicryptId', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('throws error if `certCenterNum` argument has incorrect value or is not specified', async () => {
         await checkValidationAgainstIncorrectValue('certCenterNum', null, {
             instancePath: '/certCenterNum',

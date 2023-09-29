@@ -3,29 +3,30 @@
  */
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
-const { MessageAppBlackList,
-    createTestB2CApp,
+const {
+    MessageAppBlackList,
     createTestMessageAppBlackList,
     updateTestMessageAppBlackList,
 } = require('@condo/domains/miniapp/utils/testSchema')
 const {
-    B2C_APP_MESSAGE_PUSH_TYPE,
-} = require('@condo/domains/notification/constants/constants')
-const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
-    createTestUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('MessageAppBlackList', () => {
-
     let admin
+
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     beforeEach( async () => {
         admin = await makeLoggedInAdminClient()

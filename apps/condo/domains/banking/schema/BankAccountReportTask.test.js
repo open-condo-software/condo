@@ -29,6 +29,11 @@ describe('BankAccountReportTask', () => {
         ([category] = await createTestBankCategory(admin))
 
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

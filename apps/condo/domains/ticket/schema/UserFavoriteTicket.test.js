@@ -21,6 +21,11 @@ describe('UserFavoriteTicket', () => {
         clientWithProperty1 = await makeClientWithProperty()
         clientWithProperty2 = await makeClientWithProperty()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('Create', () => {
         test('can create UserFavoriteTicket in user organization', async () => {

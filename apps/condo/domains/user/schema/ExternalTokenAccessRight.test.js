@@ -20,7 +20,11 @@ describe('ExternalTokenAccessRight', () => {
         service = await makeClientWithServiceUser()
         user = await makeClientWithNewRegisteredAndLoggedInUser()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

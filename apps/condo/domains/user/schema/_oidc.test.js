@@ -113,6 +113,11 @@ test('getCookie test util', async () => {
 })
 
 describe('OIDC', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('case: code + id_token with refresh (code flow)', async () => {
         const uri = 'https://jwt.io/'
         const clientId = getRandomString()

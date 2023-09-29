@@ -34,7 +34,11 @@ describe('ContactExportTask', () => {
         anotherUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymousClient = await makeClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin: can', async () => {

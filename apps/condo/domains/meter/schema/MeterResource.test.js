@@ -14,6 +14,11 @@ const METER_RESOURCE_NAME_NON_LOCALIZED_TEMPLATE_REGEXP = /^meterResource\.([a-z
 const METER_RESOURCE_MEASURE_NON_LOCALIZED_TEMPLATE_REGEXP = /^meterResource\.([a-zA-Z])+\.measure$/
 
 describe('MeterResource', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Create', () => {
         test('user: cannot create MeterReadingSource', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -38,6 +43,7 @@ describe('MeterResource', () => {
                 await createTestMeterResource(admin)
             })
         })
+
     })
     describe('Update', () => {
         test('user: cannot create MeterReadingSource', async () => {

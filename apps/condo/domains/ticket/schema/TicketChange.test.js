@@ -31,7 +31,11 @@ describe('TicketChange', () => {
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Accesses', () => {
         describe('create', () => {
             it('gets created when Ticket has changes in at least one field', async () => {

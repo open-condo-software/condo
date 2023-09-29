@@ -22,6 +22,11 @@ const {
 
 
 describe('ConfirmPhoneAction CRUD', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('cant create confirm phone action', async () => {
             const admin = await makeLoggedInAdminClient()

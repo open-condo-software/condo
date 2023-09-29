@@ -18,6 +18,11 @@ const { RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('../constan
 
 
 describe('TicketCommentsTime', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('employee', () => {
         describe('create', () => {
             it('create ticketCommentsTime after create comment with resident type', async () => {

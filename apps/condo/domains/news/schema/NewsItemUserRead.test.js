@@ -46,6 +46,11 @@ describe('NewsItemUserRead', () => {
         const [property] = await createTestProperty(adminClient, o10n)
         dummyProperty = property
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('CRUD tests', () => {
         beforeAll(async () => {

@@ -65,6 +65,11 @@ describe('B2BAppPermission', () => {
         organization = org
         await createTestB2BAppContext(manager, app, org)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('Create',  () =>  {
             let permission

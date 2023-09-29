@@ -54,6 +54,12 @@ describe('RecurrentPaymentContext', () => {
         })
     })
 
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

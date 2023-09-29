@@ -10,6 +10,12 @@ const { sendBillingReceiptNotifications } = require('./sendBillingReceiptNotific
 
 
 describe('sendBillingReceiptNotifications', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     setFakeClientMode(index)
 
     describe('feature flag', () => {

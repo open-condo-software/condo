@@ -51,6 +51,11 @@ describe('Organization', () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Basic CRUD', () => {
         describe('Create', () => {
             // Despite just registered user can create Organization from UI, calling `Organization.create`

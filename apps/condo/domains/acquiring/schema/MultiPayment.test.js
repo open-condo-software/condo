@@ -70,6 +70,11 @@ const {
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MultiPayment', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

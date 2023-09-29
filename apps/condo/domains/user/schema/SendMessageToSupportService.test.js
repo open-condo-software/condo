@@ -27,6 +27,11 @@ const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 const EMAIL_FROM = 'doma-test-message-to-support@mailforspam.com'
 
 describe('SendMessageToSupportService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('with attachments, with emailFrom', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()

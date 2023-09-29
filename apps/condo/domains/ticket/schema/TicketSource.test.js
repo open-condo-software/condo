@@ -25,6 +25,11 @@ const SOURCE_IDS = Object.values(TICKET_SOURCE_IDS_BY_TYPE)
 const TICKET_SOURCE_NAME_NON_LOCALIZED_TEMPLATE_REGEXP = /^ticket\.source\.([a-zA-Z_]+)\.name$/
 
 describe('TicketSource', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test.each(getAvailableLocales())('localization [%s]: static sources have translations', async (locale) => {
         const translations = Object.values(getTranslations(locale))
         const admin = await makeLoggedInAdminClient()

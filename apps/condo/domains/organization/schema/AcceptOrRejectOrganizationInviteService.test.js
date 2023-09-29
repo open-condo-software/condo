@@ -15,6 +15,11 @@ const {
 } = require('../utils/testSchema')
 
 describe('AcceptOrRejectOrganizationInviteService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('acceptOrRejectOrganizationInviteById', () => {
         describe('User', () => {
             test('Accept and reject', async () => {

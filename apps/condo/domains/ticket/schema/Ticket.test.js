@@ -125,6 +125,11 @@ describe('Ticket', () => {
         await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
         await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('CRUD', () => {
         test('user: create Ticket', async () => {

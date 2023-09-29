@@ -24,6 +24,11 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 
 
 describe('B2BApp', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         let admin
         let support

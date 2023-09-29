@@ -77,6 +77,11 @@ describe('AcquiringIntegrationContext', () => {
         serviceUser = await makeClientWithServiceUser()
         await createTestAcquiringIntegrationAccessRight(support, integration, serviceUser.user)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     afterEach(async () => {
         if (context) {
             await updateTestAcquiringIntegrationContext(admin, context.id, {

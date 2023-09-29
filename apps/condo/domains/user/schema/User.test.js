@@ -39,6 +39,11 @@ const {
 
 
 describe('SIGNIN', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('anonymous: SIGNIN_MUTATION', async () => {
         const client = await makeClient()
         const { data, errors } = await client.mutate(SIGNIN_MUTATION, {

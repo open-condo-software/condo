@@ -31,7 +31,11 @@ describe('BankCostItem', () => {
         const [_category] = await createTestBankCategory(admin)
         category = _category
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

@@ -41,6 +41,11 @@ describe('NewsItemTemplate', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('CRUD tests', () => {
         beforeAll(async () => {

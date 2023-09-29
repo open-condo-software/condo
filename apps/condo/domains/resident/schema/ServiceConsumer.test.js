@@ -37,6 +37,11 @@ const {
 } = require('../utils/testSchema')
 
 describe('ServiceConsumer', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Create',  () => {
         it('can be created by admin', async () => {
             const userClient = await makeClientWithProperty()

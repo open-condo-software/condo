@@ -25,6 +25,11 @@ const {
 
  
 describe('_internalSyncContactsWithResidentsForOrganizationService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Logic', () => {
         test('sync single contact', async () => {
             const userClient = await makeClientWithProperty()

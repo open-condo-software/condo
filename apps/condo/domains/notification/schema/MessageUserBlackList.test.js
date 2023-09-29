@@ -41,7 +41,11 @@ describe('MessageUserBlackList', () => {
     beforeEach( async () => {
         admin = await makeLoggedInAdminClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('accesses', () => {
         describe('create', () => {
             it('support can create MessageUserBlackList', async () => {

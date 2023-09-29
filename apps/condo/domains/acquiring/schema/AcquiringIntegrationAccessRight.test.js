@@ -22,6 +22,11 @@ const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('AcquiringIntegrationAccessRight', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('user can\'t', async () => {

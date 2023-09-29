@@ -26,6 +26,11 @@ const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketExportTask', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('validations', () => {
         it('throw error if you trying to change status of already completed export', async () => {
             const adminClient = await makeLoggedInAdminClient()

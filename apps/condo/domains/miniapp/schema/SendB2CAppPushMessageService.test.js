@@ -61,6 +61,11 @@ describe('SendB2CAppPushMessageService', () => {
             resident: { id: resident.id },
         }
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('access checks', () => {
         it('Admin can SendB2CAppPushMessageService', async () => {

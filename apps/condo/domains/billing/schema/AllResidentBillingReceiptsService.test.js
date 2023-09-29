@@ -75,7 +75,11 @@ async function init () {
 }
 
 describe('AllResidentBillingReceiptsService', () => {
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('fields for resident',  () => {
         it('returns all required fields', async () => {
             const userClient = await makeClientWithProperty()

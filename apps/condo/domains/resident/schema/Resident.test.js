@@ -45,7 +45,11 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
 
 describe('Resident', () => {
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('resolveInput', () => {
         it('resolves address to address up to building, if flat is presented in address string', async () => {
             const userClient = await makeClientWithProperty()

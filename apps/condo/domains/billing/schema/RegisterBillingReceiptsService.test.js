@@ -49,7 +49,11 @@ describe('RegisterBillingReceiptsService', () => {
         anonymous = await makeClient()
         user = await makeLoggedInClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Execute', () => {
         test('Admin can execute mutation', async () => {
             const [organization] = await createTestOrganization(admin)

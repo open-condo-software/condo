@@ -18,6 +18,11 @@ describe('BankIntegrationOrganizationContext', () => {
         admin = await makeLoggedInAdminClient()
         bankIntegration = await BankIntegration.getOne(admin, { id: BANK_INTEGRATION_IDS.SBBOL })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

@@ -68,6 +68,11 @@ describe('NewsItems', () => {
         const [o10n] = await createTestOrganization(adminClient)
         dummyO10n = o10n
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('CRUD tests', () => {
         describe('create', () => {

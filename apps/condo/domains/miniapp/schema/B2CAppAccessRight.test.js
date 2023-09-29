@@ -27,6 +27,11 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('B2CAppAccessRight', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD operations', () => {
         let admin
         let user

@@ -7,6 +7,11 @@ const { createOnBoardingByTestClient } = require('@condo/domains/onboarding/util
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('CreateOnBoardingService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('user', () => {
         test('can create OnBoarding for ADMINISTRATOR role', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()

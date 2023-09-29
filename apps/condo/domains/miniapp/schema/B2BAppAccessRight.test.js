@@ -32,6 +32,11 @@ const {
 
 
 describe('B2BAppAccessRight', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         let admin
         let support

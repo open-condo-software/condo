@@ -56,6 +56,11 @@ describe('BillingIntegrationProblem', () => {
         anonymous = await makeClient()
     })
     describe('CRUD', () => {
+        afterAll( () => {
+            if (global.gc) {
+                global.gc()
+            }
+        })
         describe('Create', () => {
             test('Admin can', async () => {
                 const [problem] = await createTestBillingIntegrationProblem(admin, context)

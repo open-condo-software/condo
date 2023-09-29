@@ -21,6 +21,11 @@ const { PropertyScope, createTestPropertyScope, updateTestPropertyScope, createT
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('PropertyScope', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('accesses', () => {
         describe('admin', () => {
             it('can create PropertyScope', async () => {

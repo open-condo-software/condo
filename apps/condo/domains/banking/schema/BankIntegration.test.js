@@ -22,7 +22,11 @@ describe('BankIntegration', () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin cannot', async () => {

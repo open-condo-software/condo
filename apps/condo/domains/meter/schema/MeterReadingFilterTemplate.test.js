@@ -21,6 +21,11 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MeterReadingFilterTemplate', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Create', () => {
         test('admin: can create MeterReadingFilterTemplate', async () => {
             const admin = await makeLoggedInAdminClient()

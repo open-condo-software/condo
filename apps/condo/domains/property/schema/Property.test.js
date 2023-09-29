@@ -36,6 +36,11 @@ describe('Property', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         describe('Employee', () => {
             let canManageEmployee

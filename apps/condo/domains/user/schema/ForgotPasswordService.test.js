@@ -17,6 +17,11 @@ const captcha = () => {
 }
 
 describe('ForgotPasswordAction Service', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('can create forgot password recovery action', async () => {
             const admin = await makeLoggedInAdminClient()

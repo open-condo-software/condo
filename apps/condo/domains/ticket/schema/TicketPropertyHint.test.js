@@ -12,6 +12,11 @@ const { TicketPropertyHint, createTestTicketPropertyHint, updateTestTicketProper
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketPropertyHint', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Permissions', () => {
         describe('Create', () => {
             describe('Anonymous', () => {

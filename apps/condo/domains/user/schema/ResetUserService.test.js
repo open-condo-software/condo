@@ -37,7 +37,11 @@ describe('ResetUserService', () => {
         support = await makeClientWithSupportUser()
         admin = await makeLoggedInAdminClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('support can reset user', async () => {
         const [user] = await registerNewUser(await makeClient())
 

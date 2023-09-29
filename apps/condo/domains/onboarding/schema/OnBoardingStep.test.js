@@ -8,6 +8,11 @@ const { OnBoardingStep, createTestOnBoardingStep, createTestOnBoarding, updateTe
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('OnBoardingStep', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('user: create OnBoardingStep', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
 

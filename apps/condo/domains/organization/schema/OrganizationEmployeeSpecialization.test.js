@@ -16,6 +16,11 @@ const { createTestTicketCategoryClassifier } = require('@condo/domains/ticket/ut
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('OrganizationEmployeeSpecialization', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('accesses', () => {
         describe('admin', () => {
             it('can create OrganizationEmployeeSpecialization', async () => {

@@ -28,6 +28,11 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('B2BAppContext', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         let admin
         let support

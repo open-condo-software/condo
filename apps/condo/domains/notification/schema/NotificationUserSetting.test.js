@@ -56,7 +56,11 @@ describe('NotificationUserSetting', () => {
         const [userModel] = await createTestNotificationUserSetting(userClient)
         dummyUserModel = userModel
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

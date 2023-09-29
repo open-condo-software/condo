@@ -39,6 +39,11 @@ describe('CallRecordFragment', () => {
         const [secondRole] = await createTestOrganizationEmployeeRole(admin, secondTestOrganization, { canManageCallRecords: true })
         await createTestOrganizationEmployee(admin, secondTestOrganization, notEmployeeUser.user, secondRole)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     beforeEach(async () => {
         const [testCallRecord] = await createTestCallRecord(admin, organization)
         const [testTicket] = await createTestTicket(admin, organization, property)

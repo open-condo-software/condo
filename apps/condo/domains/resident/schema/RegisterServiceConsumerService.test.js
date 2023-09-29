@@ -21,7 +21,11 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { updateTestUser } = require('@condo/domains/user/utils/testSchema')
  
 describe('RegisterServiceConsumerService', () => {
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('does not create same service consumer twice', async () => {
 
         const userClient = await makeClientWithProperty()

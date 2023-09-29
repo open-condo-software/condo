@@ -14,6 +14,11 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 describe('RegisterNewServiceUserServiceAccess', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('admin can create service user', async () => {
         const client = await makeLoggedInAdminClient()
         const [{ email, password }] = await registerNewServiceUserByTestClient(client)

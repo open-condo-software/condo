@@ -89,6 +89,11 @@ describe('B2BAppRole', () => {
 
         anonymous = await makeClient()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('Create', () => {
             let role

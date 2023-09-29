@@ -28,6 +28,11 @@ const { catchErrorFrom } = require('@miniapp/domains/common/utils/testSchema')
 const { createTestBillingIntegration, createReceiptsReader } = require('../utils/testSchema')
 
 describe('BillingIntegrationOrganizationContext', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         test('admin: create BillingIntegrationOrganizationContext', async () => {
             const { context, integration, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()

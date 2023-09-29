@@ -18,6 +18,11 @@ const { RemoteClient, createTestRemoteClient, updateTestRemoteClient } = require
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 
 describe('RemoteClient', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Anonymous', () => {
         it('disallows to create RemoteClient directly with access denied error', async () => {
             const client = await makeClient()

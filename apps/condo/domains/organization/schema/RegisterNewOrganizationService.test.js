@@ -25,6 +25,11 @@ const getPermissions = (roleName) => Object.fromEntries(
 
 
 describe('RegisterNewOrganizationService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('called by User', () => {
         it('creates new Organization', async () => {
             const admin = await makeLoggedInAdminClient()

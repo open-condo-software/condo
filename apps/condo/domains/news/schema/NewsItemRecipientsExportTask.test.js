@@ -49,6 +49,11 @@ describe('NewsItemRecipientsExportTask', () => {
         dummyO10n = o10n
         await createTestProperty(adminClient, o10n, { map: propertyMap1x9x4 })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('CRUD tests', () => {
         describe('create', () => {

@@ -21,6 +21,11 @@ const { syncUser } = require('./syncUser')
 const { keystone } = index
 
 describe('syncOrganization from SBBOL', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     setFakeClientMode(index)
 
     describe('Organization not exists', () => {

@@ -10,6 +10,11 @@ const notifyResidentsOnPaydayTask = require('./notifyResidentsOnPaydayTask')
 
 
 describe('Meter verification notification', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     setFakeClientMode(index)
     describe('feature flag', () => {
         setAllFeatureFlags(true)

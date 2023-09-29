@@ -39,6 +39,11 @@ describe('MeterReportingPeriod', () => {
         await createTestOrganizationEmployee(admin, commonOrganization, commonClientWithPermission.user, roleWithPermission)
         await createTestOrganizationEmployee(admin, commonOrganization, commonClientWithoutPermission.user, roleWithoutPermission)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('CRUD tests', () => {
         describe('create', () => {

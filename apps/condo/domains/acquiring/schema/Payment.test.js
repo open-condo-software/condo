@@ -60,6 +60,11 @@ const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, m
 
 
 describe('Payment', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('Create', () => {
             test('admin can', async () => {

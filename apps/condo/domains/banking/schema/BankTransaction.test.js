@@ -52,7 +52,11 @@ describe('BankTransaction', () => {
         serviceClient = await makeClientWithServiceUser()
         await createTestBankIntegrationAccessRight(admin, SBBOLBankIntegration, serviceClient.user)
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

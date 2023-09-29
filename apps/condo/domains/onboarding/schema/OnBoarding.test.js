@@ -13,6 +13,11 @@ const { OnBoarding, createTestOnBoarding, updateTestOnBoarding } = require('@con
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('OnBoarding', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('user: create OnBoarding', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
 

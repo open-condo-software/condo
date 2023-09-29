@@ -16,6 +16,11 @@ const { createTestMeter, createTestMeterReading, MeterReadingSource, MeterResour
 
 
 describe('ExportMeterReadingsService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Employee with "canManageMeters"', () => {
         it('returns exported meter readings from selected organization', async () => {
             if (isObsConfigured()) {

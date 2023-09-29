@@ -54,6 +54,11 @@ describe('BillingProperty', () => {
         const { managerUserClient } = await makeOrganizationIntegrationManager(context)
         integrationManager = managerUserClient
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         describe('Create', () => {
             describe('Single object', () => {

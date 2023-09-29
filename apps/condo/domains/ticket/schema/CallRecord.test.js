@@ -57,6 +57,11 @@ describe('CallRecord', () => {
 
         notEmployeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     beforeEach(async () => {
         [testCallRecord] = await createTestCallRecord(admin, organization)
     })

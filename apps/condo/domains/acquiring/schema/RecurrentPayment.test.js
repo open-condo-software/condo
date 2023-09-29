@@ -61,6 +61,11 @@ describe('RecurrentPayment', () => {
             recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
         })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     
     describe('CRUD tests', () => {
         describe('create', () => {

@@ -18,6 +18,12 @@ const { makeBillingReceiptWithResident } = require('./spec.helpers')
 
 
 describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     setFakeClientMode(index)
 
     describe('notifications', () => {

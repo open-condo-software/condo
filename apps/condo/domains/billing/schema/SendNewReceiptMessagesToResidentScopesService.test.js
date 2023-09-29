@@ -85,7 +85,11 @@ describe('SendNewReceiptMessagesToResidentScopesService', () => {
         const [billingAccount] = await createTestBillingAccount(adminClient, integrationContext, billingProperty)
         const [consumer0] = await createTestServiceConsumer(adminClient, resident0, userClient0.organization, { billingAccount: { connect: { id: billingAccount.id } } })
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('sendNewReceiptMessagesToResidentScopes tests', () => {
         describe('check access', () => {
             let payload

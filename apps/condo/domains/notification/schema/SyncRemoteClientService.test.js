@@ -13,6 +13,11 @@ const {
 const { getRandomTokenData } = require('@condo/domains/notification/utils/testSchema/helpers')
 
 describe('SyncRemoteClientService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Anonymous', () => {
         it('registers deviceId + pushTransport (no pushToken/meta | pushToken | meta | pushType | pushToken + meta)', async () => {
             const client = await makeClient()

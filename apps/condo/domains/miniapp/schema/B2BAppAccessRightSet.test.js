@@ -77,7 +77,11 @@ describe('B2BAppAccessRightSet', () => {
         integratedToAnotherAppServiceUser = await makeLoggedInClient({ email: newServiceUser2.email, password: newServiceUser2.password })
         await createTestB2BAppAccessRight(support, integratedToAnotherAppServiceUser.user, anotherApp)
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Accesses', () => {
         afterEach(async () => {
             // reset to default values

@@ -28,6 +28,11 @@ describe('PropertyMeter', () => {
         admin = await makeLoggedInAdminClient();
         [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('employee with "canManageMeters" role: can create Meter', async () => {

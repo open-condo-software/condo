@@ -35,6 +35,11 @@ describe('OrganizationLink', () => {
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         describe('Create', () => {
             let fromUser

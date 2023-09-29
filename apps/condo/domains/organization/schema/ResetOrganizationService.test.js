@@ -26,7 +26,11 @@ describe('ResetOrganizationService', () => {
         support = await makeClientWithSupportUser()
         admin = await makeLoggedInAdminClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('anonymous: can not execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationErrorToResult(async () => {

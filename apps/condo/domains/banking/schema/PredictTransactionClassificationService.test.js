@@ -8,6 +8,11 @@ const { predictTransactionClassificationByTestClient } = require('@condo/domains
 
 
 describe('PredictTransactionClassificationService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('anonymous: execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationError(async () => {

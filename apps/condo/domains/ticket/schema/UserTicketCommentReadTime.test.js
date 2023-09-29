@@ -18,6 +18,11 @@ const { createTestTicket, createTestUserTicketCommentReadTime, updateTestUserTic
 const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('UserTicketCommentReadTime', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('employee', () => {
         describe('create', () => {
             it('can create UserTicketCommentReadTime to comment in employee organization', async () => {

@@ -106,7 +106,11 @@ describe('CreatePaymentByLinkService', () => {
         const [newQrCode] = generateQRCode(qrCodeObj)
         qrCode = newQrCode
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('user: create multiPayment when scanned receipt is the last receipt in out database', async () => {
         const {
             organization,

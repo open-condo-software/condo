@@ -24,6 +24,11 @@ const { keystone } = index
 let adminClient, adminContext, context, commonOrganization
 
 describe('syncBankAccount from SBBOL', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     setFakeClientMode(index)
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()

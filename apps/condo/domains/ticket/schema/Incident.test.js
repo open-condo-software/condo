@@ -56,6 +56,11 @@ describe('Incident', () => {
         const [secondRole] = await createTestOrganizationEmployeeRole(admin, secondTestOrganization)
         await createTestOrganizationEmployee(admin, secondTestOrganization, notEmployeeUser.user, secondRole)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     beforeEach(async () => {
         const [testIncident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)
         incidentByAdmin = testIncident

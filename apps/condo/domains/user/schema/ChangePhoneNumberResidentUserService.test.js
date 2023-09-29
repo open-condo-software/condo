@@ -13,6 +13,11 @@ const { changePhoneNumberResidentUserByTestClient } = require('../utils/testSche
 
 
 describe('ChangePhoneNumberResidentUserService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Anonymous', () => {
         it('can not change phone with token', async () => {
             const client = await makeClient()

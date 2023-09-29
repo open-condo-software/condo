@@ -49,6 +49,11 @@ const receiptData = () => ({
 })
 
 describe('GeneratePaymentLinkService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Execute', () => {
         describe('Resident user', () => {
             test('From receipt', async () => {

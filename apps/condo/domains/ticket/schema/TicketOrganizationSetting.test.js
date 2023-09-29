@@ -29,6 +29,11 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketOrganizationSetting', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         describe('User', () => {
             describe('Employee in organization', () => {

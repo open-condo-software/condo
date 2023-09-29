@@ -21,6 +21,11 @@ const DEFAULT_SEED = {
 }
 
 describe('getSbbolUserInfoErrors', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('no userGuid', () => {
         const errors = getSbbolUserInfoErrors(DEFAULT_SEED)
         expect(errors).toEqual(['must have required property \'userGuid\''])

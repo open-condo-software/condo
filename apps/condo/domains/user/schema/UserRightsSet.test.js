@@ -75,6 +75,11 @@ describe('UserRightsSet', () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('Create', () => {
             test('Admin can', async () => {

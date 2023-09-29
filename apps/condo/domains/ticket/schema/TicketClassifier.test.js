@@ -9,6 +9,11 @@ const { TicketClassifier, createTestTicketClassifier, updateTestTicketClassifier
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketClassifier CRUD', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('can not create', async () => {
             const client = await makeClientWithNewRegisteredAndLoggedInUser()

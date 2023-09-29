@@ -23,6 +23,12 @@ const { syncUser } = require('./syncUser')
 const { keystone } = index
 
 describe('syncUser from SBBOL', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     setFakeClientMode(index)
 
     describe('User with given phone does not exists', function () {

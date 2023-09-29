@@ -40,13 +40,16 @@ const formatDate = (date, timeZone, format = DATE_FORMAT) => {
 
 describe('IncidentExportTask', () => {
     let admin, support, anonymous
-
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         anonymous = await makeClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Accesses', () => {
         describe('Admin', () => {
             let task, taskAttrs, organization, employeeClient

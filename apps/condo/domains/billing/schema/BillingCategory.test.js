@@ -14,7 +14,11 @@ const { BillingCategory, createTestBillingCategory, updateTestBillingCategory } 
 const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('BillingCategory', () => {
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Create', () => {
         test('can be created by Admin', async () => {
             const name = getRandomString()

@@ -19,6 +19,11 @@ const isObsConfigured = () => {
 }
 
 describe('ExportPropertiesToExcelService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('can get properties export from selected organization', async () => {
             if (isObsConfigured()) {

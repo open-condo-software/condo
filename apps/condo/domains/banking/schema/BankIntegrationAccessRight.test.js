@@ -5,7 +5,7 @@
 const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { BANK_INTEGRATION_IDS } = require('@condo/domains/banking/constants')
@@ -19,7 +19,11 @@ describe('BankIntegrationAccessRight', () => {
         serviceUserClient = await makeClientWithServiceUser()
         integration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS.SBBOL })
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('user: create BankIntegrationAccessRight', async () => {
         const client = await makeClientWithNewRegisteredAndLoggedInUser()
         await expectToThrowAccessDeniedErrorToObj(async () => {

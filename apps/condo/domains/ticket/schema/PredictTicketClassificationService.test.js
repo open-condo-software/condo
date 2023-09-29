@@ -8,6 +8,11 @@ const { expectToThrowAuthenticationError } = require('@open-condo/keystone/test.
 const { predictTicketClassificationByTestClient } = require('@condo/domains/ticket/utils/testSchema')
  
 describe('PredictTicketClassificationService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('anonymous: execute', async () => {
         const client = await makeClient()
         await expectToThrowAuthenticationError(async () => {

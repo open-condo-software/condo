@@ -24,6 +24,11 @@ const { TicketStatus, createTestTicketStatus, updateTestTicketStatus } = require
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
 describe('TicketStatus', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('admin: create TicketStatus', async () => {
         const client = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(client)

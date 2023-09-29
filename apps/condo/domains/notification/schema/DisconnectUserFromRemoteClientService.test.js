@@ -13,6 +13,11 @@ const {
 const { getRandomTokenData } = require('../utils/testSchema/helpers')
 
 describe('DisconnectUserFromRemoteClientService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('anonymous', () => {
         it('can disconnect user from device', async () => {
             const user = await makeLoggedInClient()

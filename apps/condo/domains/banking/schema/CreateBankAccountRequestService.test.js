@@ -25,7 +25,11 @@ describe('CreateBankAccountRequestService', () => {
         wrongClient = await makeClientWithProperty()
         anonymousClient = await makeClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('user: can send create bank account request if has canManageBankAccounts access', async () => {
         const [data] = await createBankAccountRequestByTestClient(client, {
             propertyId: client.property.id,

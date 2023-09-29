@@ -10,16 +10,6 @@ const {
     expectToThrowAuthenticationErrorToResult, expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {
-    createTestAcquiringIntegration,
-    createTestAcquiringIntegrationContext,
-} = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    createTestBillingAccount,
-    makeContextWithOrganizationAndIntegrationAsAdmin,
-    createTestBillingProperty,
-} = require('@condo/domains/billing/utils/testSchema')
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const {
     registerNewOrganization,
@@ -46,6 +36,11 @@ describe('manageResidentToPropertyAndOrganizationConnections worker task tests',
     let propertyPayload
     let residentAddress
     let residentAddressMeta
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     beforeEach(() => {
         const { address, addressMeta } = buildFakeAddressAndMeta(true)
         residentAddress = addressMeta.value

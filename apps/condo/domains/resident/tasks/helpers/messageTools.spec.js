@@ -6,6 +6,11 @@ const { WRONG_MESSAGE_TYPE_PROVIDED_ERROR } = require('@condo/domains/notificati
 const { fillDataByMessageTypeMeta, renderTemplateString, hydrateItems } = require('./messageTools')
 
 describe('messageTools', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('renderTemplateString', () => {
         it('properly fills template strings with corresponding values', async () => {
             const template = ['{a}', '{b}', '{c}'].join(':')

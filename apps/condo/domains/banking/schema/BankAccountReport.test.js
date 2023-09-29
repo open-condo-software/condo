@@ -32,7 +32,6 @@ describe('BankAccountReport', () => {
         adminClient = await makeLoggedInAdminClient()
         bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
     })
-
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

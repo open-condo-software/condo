@@ -36,7 +36,6 @@ const CLASSIFIER = {
 
 describe('IncidentClassifierIncident', () => {
     let admin, support, employeeUser, notEmployeeUser, anonymous, organization, incidentByAdmin, incidentClassifierByAdmin
-
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
@@ -56,6 +55,11 @@ describe('IncidentClassifierIncident', () => {
         const [secondTestOrganization] = await createTestOrganization(admin)
         const [secondRole] = await createTestOrganizationEmployeeRole(admin, secondTestOrganization)
         await createTestOrganizationEmployee(admin, secondTestOrganization, notEmployeeUser.user, secondRole)
+    })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
     })
     beforeEach(async () => {
         const [testIncident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)

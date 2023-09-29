@@ -45,7 +45,11 @@ describe('DeleteMeterAndMeterReadingsService', () => {
         source = testSource
         payload = { dv: 1, sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) } }
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('admin can:', function () {
         test('delete one', async () => {
             const [meter] = await createTestMeter(adminClient, organization, firstProperty, resource, {})

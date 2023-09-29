@@ -21,7 +21,11 @@ describe('GetAccessTokenByUserIdService', () => {
         await createTestExternalTokenAccessRight(admin, service.user, SBBOL_IDENTITY_TYPE)
         storage = await getSbbolSecretStorage()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('service: execute', async () => {
         const value = faker.datatype.uuid()
         const userId = faker.datatype.uuid()

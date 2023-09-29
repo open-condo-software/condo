@@ -33,6 +33,11 @@ const secondModel = {
 // NOTE 4: Testing of model switch is optional, for it's correct work second model must be uuided
 // and its fields / filters must not intersect with User ones (see sample above)
 describe('External webhook tests', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     WebhookTests('Condo', initializeActors)
     WebhookSubscriptionBasicTests('Condo', initializeActors)
     WebhookSubscriptionModelSwitchTests('Condo', initializeActors, secondModel)

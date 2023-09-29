@@ -57,7 +57,11 @@ describe('ValidateQRCodeService', () => {
                 .replace(/[,]+/g, '|'),
         )
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('should parse fields correctly', async () => {
         const [integration] = await createTestAcquiringIntegration(adminClient)
         const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })

@@ -27,6 +27,11 @@ const captcha = () => {
 }
 
 describe('ConfirmPhoneActionService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('startConfirmPhoneAction', () => {
         it('can be created by Anonymous', async () => {
             const client = await makeClient()

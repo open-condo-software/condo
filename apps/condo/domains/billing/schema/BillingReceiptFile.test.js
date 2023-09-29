@@ -93,12 +93,6 @@ describe('BillingReceiptFile', () => {
     let anotherAccount
     let organization
     let organizationProperty
-
-    const residentWithVerificationClients = {
-        verified: null,
-        notVerified: null,
-    }
-
     beforeAll(async () => {
         const { admin: adminClient, context: billingContext, integration, organization: adminOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
         admin = adminClient
@@ -127,6 +121,11 @@ describe('BillingReceiptFile', () => {
         receiptByAdmin = receipt
         const [receiptCreatedByIntegration] =  await createTestBillingReceipt(integrationUser, context, property, account)
         receiptByService = receiptCreatedByIntegration
+    })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
     })
     describe('CRUD tests', () => {
         describe('create', () => {

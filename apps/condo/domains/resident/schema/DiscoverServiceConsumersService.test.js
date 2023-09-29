@@ -72,6 +72,11 @@ describe('DiscoverServiceConsumersService', () => {
         const redisClient = getRedisClient('discoverServiceConsumersCronTask')
         redisClient.set(REDIS_KEY, dayjs().toISOString())
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('access', () => {
         test('admin can discover service consumers', async () => {

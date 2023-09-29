@@ -28,9 +28,6 @@ const {
     makePayer,
     updateTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    createTestBillingIntegration,
-} = require('@condo/domains/billing/utils/testSchema')
 
 function generateReceipt (billingAccount) {
     return {
@@ -46,6 +43,11 @@ function generateReceipt (billingAccount) {
 }
 
 describe('RegisterMultiPaymentForVirtualReceiptService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Execute', () => {
         describe('Staff', () => {
             test('From virtual receipt', async () => {

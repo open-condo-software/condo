@@ -62,6 +62,11 @@ describe('BillingAccount', () => {
         integrationManager = managerUserClient
     })
     describe('CRUD', () => {
+        afterAll( () => {
+            if (global.gc) {
+                global.gc()
+            }
+        })
         describe('Create', () => {
             describe('Single object', () => {
                 test('Admin can', async () => {

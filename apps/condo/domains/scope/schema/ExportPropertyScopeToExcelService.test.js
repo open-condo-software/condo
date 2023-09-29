@@ -12,6 +12,11 @@ const { createTestPropertyScope } = require('@condo/domains/scope/utils/testSche
 const { createTestUser, makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
  
 describe('ExportPropertyScopeToExcelService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('can get property scope export from selected organization', async () => {
             const client = await makeClientWithProperty()

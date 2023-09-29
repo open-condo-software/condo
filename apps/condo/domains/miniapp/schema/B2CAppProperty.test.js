@@ -55,6 +55,11 @@ describe('B2CAppProperty', () => {
         const [secondApp] = await createTestB2CApp(admin)
         await createTestB2CAppAccessRight(admin, anotherPermittedUser.user, secondApp)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('Create', () => {
             test('Admin can', async () => {

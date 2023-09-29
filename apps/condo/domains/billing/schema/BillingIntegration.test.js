@@ -36,7 +36,11 @@ describe('BillingIntegration', () => {
         support = await makeClientWithSupportUser()
         serviceUser = await makeClientWithServiceUser()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Validators',  () => {
         describe('Group',  () => {
             let billingIntegrationId

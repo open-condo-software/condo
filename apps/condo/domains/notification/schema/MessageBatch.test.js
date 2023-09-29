@@ -53,7 +53,11 @@ describe('MessageBatch', () => {
         support = await makeClientWithSupportUser()
         userClient = await makeClientWithNewRegisteredAndLoggedInUser()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

@@ -18,6 +18,11 @@ const { makeClientWithRegisteredOrganization } = require('../utils/testSchema/Or
 
 
 describe('OrganizationEmployeeRole', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('defaults', () => {
         it('has default values for ability attributes, according to schema defaults', async () => {
             const admin = await makeLoggedInAdminClient()

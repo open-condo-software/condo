@@ -19,6 +19,11 @@ describe('MobileFeatureConfig', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('accesses', () => {
             describe('admin', () => {

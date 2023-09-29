@@ -17,6 +17,11 @@ const { B2CApp, createTestB2CApp, updateTestB2CApp } = require('@condo/domains/m
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('B2CApp', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD operations', () => {
         let admin
         let user

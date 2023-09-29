@@ -52,7 +52,11 @@ describe('InviteNewOrganizationEmployeeService', () => {
             process.env.CC_DOMAIN = faker.internet.url()
         }
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('inviteNewOrganizationEmployee', () => {
         describe('called by organization owner', () => {
             describe('for not registered User', () => {

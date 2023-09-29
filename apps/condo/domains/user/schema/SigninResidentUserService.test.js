@@ -4,6 +4,11 @@ const { SIGNIN_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, createTestConfirmPhoneAction, ConfirmPhoneAction: ConfirmPhoneActionTestUtils } = require('@condo/domains/user/utils/testSchema')
 
 describe('SigninResidentUserService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Anonymous', () => {
         it('can register with confirmed phone token', async () => {
             const admin = await makeLoggedInAdminClient()

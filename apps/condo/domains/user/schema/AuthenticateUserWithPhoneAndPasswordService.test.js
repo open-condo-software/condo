@@ -6,6 +6,11 @@ const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/g
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Auth by phone and password', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     // We need to check that token is also returned for mobile phones. It's the same as SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION
     const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION_WITH_TOKEN = gql`
         mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {

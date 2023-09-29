@@ -10,6 +10,11 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser, m
 const { BillingIntegrationAccessRight, createTestBillingIntegrationAccessRight, updateTestBillingIntegrationAccessRight, createTestBillingIntegration } = require('../utils/testSchema')
 
 describe('BillingIntegrationAccessRight', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('user: create BillingIntegrationAccessRight', async () => {
         const admin = await makeLoggedInAdminClient()
         const [integration] = await createTestBillingIntegration(admin)

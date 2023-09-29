@@ -30,7 +30,6 @@ let serviceClient
 let SBBOLBankIntegration
 
 describe('BankContractorAccount', () => {
-
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
@@ -39,7 +38,11 @@ describe('BankContractorAccount', () => {
         serviceClient = await makeClientWithServiceUser()
         await createTestBankIntegrationAccessRight(admin, SBBOLBankIntegration, serviceClient.user)
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

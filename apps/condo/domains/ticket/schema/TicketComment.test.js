@@ -56,6 +56,11 @@ describe('TicketComment', () => {
         await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
         await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('employee', () => {
         describe('field access', () => {

@@ -26,6 +26,11 @@ const { TicketFilterTemplate, createTestTicketFilterTemplate, updateTestTicketFi
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketFilterTemplate', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Create', () => {
         test('admin: can create TicketFilterTemplate', async () => {
             const admin = await makeLoggedInAdminClient()

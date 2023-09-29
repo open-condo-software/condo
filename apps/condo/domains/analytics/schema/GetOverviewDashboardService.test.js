@@ -64,6 +64,9 @@ beforeEach(() => {
 
 afterAll(() => {
     setFeatureFlag(ANALYTICS_V3, false)
+    if (global.gc) {
+        global.gc()
+    }
 })
 
 describe('GetOverviewDashboardService', () => {

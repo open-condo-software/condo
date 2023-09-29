@@ -60,7 +60,11 @@ describe('SendMessageToResidentScopesService', () => {
         serviceClient = await makeClientWithServiceUser()
 
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('sendScopeResidentMessage tests', () => {
         describe('check access', () => {
             test('admin can', async () => {

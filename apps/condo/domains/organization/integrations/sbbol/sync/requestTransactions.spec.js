@@ -73,6 +73,11 @@ jest.mock('@condo/domains/organization/integrations/sbbol/utils/getAccessTokenFo
 })
 
 describe('syncBankTransaction from SBBOL', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     setFakeClientMode(index)
     jest.setTimeout(60000)
     let adminClient, commonClient, adminContext, context, commonOrganization, commonBankAccount

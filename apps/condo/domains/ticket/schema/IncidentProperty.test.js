@@ -30,7 +30,6 @@ const INCIDENT_PAYLOAD = {
 
 describe('IncidentProperty', () => {
     let admin, support, employeeUser, notEmployeeUser, anonymous, organization, property, incidentByAdmin, incidentPropertyByAdmin
-
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
@@ -53,6 +52,11 @@ describe('IncidentProperty', () => {
         const [secondTestOrganization] = await createTestOrganization(admin)
         const [secondRole] = await createTestOrganizationEmployeeRole(admin, secondTestOrganization)
         await createTestOrganizationEmployee(admin, secondTestOrganization, notEmployeeUser.user, secondRole)
+    })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
     })
     beforeEach(async () => {
         const [testIncident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)

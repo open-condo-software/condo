@@ -18,6 +18,11 @@ const { Message, createTestMessage, updateTestMessage } = require('@condo/domain
 const { makeClientWithRegisteredOrganization, createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('Message', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('admin: create Message', async () => {
         const client = await makeLoggedInAdminClient()
 

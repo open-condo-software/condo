@@ -12,6 +12,11 @@ const { makeClientWithSupportUser } = require('@condo/domains/user/utils/testSch
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketPlaceClassifier CRUD', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('can not create', async () => {
             const admin = await makeLoggedInAdminClient()

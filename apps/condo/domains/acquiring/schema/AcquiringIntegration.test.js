@@ -38,6 +38,11 @@ describe('AcquiringIntegration', () => {
         await createTestBillingIntegration(admin)
 
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create',  () => {
             test('user can\'t', async () => {

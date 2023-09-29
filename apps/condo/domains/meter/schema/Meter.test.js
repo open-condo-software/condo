@@ -45,6 +45,11 @@ const { METER_ERRORS } = require('./Meter')
 
 
 describe('Meter', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD', () => {
         describe('Create', () => {
             test('employee with "canManageMeters" role: can create Meter', async () => {

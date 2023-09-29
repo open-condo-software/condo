@@ -95,6 +95,11 @@ describe('TicketMultipleUpdateService', () => {
 
         await createTestOrganizationEmployee(admin, secondTestOrganization, notEmployeeUser.user, secondRole)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     beforeEach(async () => {
         const [testTicket] = await createTestTicket(admin, organization, property)

@@ -5,6 +5,11 @@ import { FLAT_WITHOUT_FLAT_TYPE_MESSAGE, getAddressUpToBuildingFrom, normalizePr
 import { buildFakeAddressMeta } from '../testSchema/factories'
 
 describe('helpers', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('getAddressUpToBuildingFrom', () => {
         it('wipes out flat with prefix', () => {
             const withFlat = true

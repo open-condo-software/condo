@@ -11,6 +11,11 @@ const { errors } = require('./RegisterNewUserService')
 
 
 describe('RegisterNewUserService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('register new user', async () => {
         const client = await makeClient()
         const name = faker.fake('{{name.suffix}} {{name.firstName}} {{name.lastName}}')

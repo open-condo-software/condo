@@ -20,7 +20,6 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 describe('IncidentClassifier', () => {
     let admin, support, user, anonymous, classifierByAdmin
-
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
@@ -30,7 +29,11 @@ describe('IncidentClassifier', () => {
         const [classifier] = await createTestIncidentClassifier(admin)
         classifierByAdmin = classifier
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Accesses', () => {
         describe('Admin', () => {
             test('can create', async () => {

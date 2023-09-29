@@ -23,6 +23,11 @@ const { getRandomTokenData } = require('@condo/domains/notification/utils/testSc
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SetMessageStatusService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('Emulates success push notification delivery and checks correct message status transitions', async () => {
         const admin = await makeLoggedInAdminClient()
         const assignee = await makeClientWithNewRegisteredAndLoggedInUser()

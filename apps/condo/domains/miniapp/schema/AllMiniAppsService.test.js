@@ -121,6 +121,11 @@ describe('AllMiniAppsService', () => {
         })
         await updateTestB2BAppContext(support, frozenContext.id, { status: CONTEXT_IN_PROGRESS_STATUS })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Execute access rights', () => {
         test('Admin can for any organization', async () => {
             const [data] = await allMiniAppsByTestClient(admin, organization)

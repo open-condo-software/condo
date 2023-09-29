@@ -56,13 +56,16 @@ describe('BankSyncTask', () => {
     let adminClient
     let bankIntegration
     let anonymousClient
-
     beforeAll(async () => {
         anonymousClient = await makeClient()
         adminClient = await makeLoggedInAdminClient()
         bankIntegration = await BankIntegration.getOne(adminClient, { id: BANK_INTEGRATION_IDS['1CClientBankExchange'] })
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
 

@@ -31,7 +31,11 @@ describe('SendMessageService', () => {
     beforeAll( async () => {
         admin = await makeLoggedInAdminClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('sendMessage', () => {
         describe('called by Admin', () => {
             it('returns sending status', async () => {

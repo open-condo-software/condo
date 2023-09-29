@@ -16,6 +16,11 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 
 
 describe('TicketPropertyHintProperty', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             describe('admin', () => {

@@ -9,6 +9,11 @@ const { makeLoggedInClient } = require('@condo/domains/user/utils/testSchema')
 const { ForgotPasswordAction, createTestForgotPasswordAction, updateTestForgotPasswordAction, createTestUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('ForgotPasswordAction', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('cannot create', async () => {
             const admin = await makeLoggedInAdminClient()

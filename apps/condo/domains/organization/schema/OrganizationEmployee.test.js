@@ -35,6 +35,11 @@ const {
 
 
 describe('OrganizationEmployee', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('admin: can create OrganizationEmployee', async () => {
         const admin = await makeLoggedInAdminClient()
         const [organization] = await createTestOrganization(admin)

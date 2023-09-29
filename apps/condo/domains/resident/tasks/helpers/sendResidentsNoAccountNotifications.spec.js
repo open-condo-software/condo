@@ -15,6 +15,12 @@ const { makeBillingReceiptWithResident } = require('./spec.helpers')
 
 
 describe('sendResidentsNoAccountNotifications', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     setFakeClientMode(index)
 
     let admin

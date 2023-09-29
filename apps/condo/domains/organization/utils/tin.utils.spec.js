@@ -12,6 +12,11 @@ const INVALID_RU_TIN_12 = '0123455678901'
 const SOME_RANDOM_LETTERS = 'ABCDEFGHIJ'
 
 describe('isValidTin()', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     VALID_TINS.forEach(tin => {
         test(`for valid 10 or 12 char RU INN (${tin})`, () => {
             expect(isValidTin(tin, RUSSIA_COUNTRY)).toBe(true)

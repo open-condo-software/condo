@@ -24,6 +24,11 @@ describe('PropertyMeterReading', () => {
         [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID });
         [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {

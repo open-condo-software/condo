@@ -28,6 +28,11 @@ jest.mock('../utils/serverSchema/Organization', () => {
 })
 
 describe('Interaction with sales CRM', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     setFakeClientMode(index)
 
     it('should send to sales crm new organization', async () => {

@@ -12,7 +12,7 @@ const { makeLoggedInAdminClient, makeClient, UUID_RE, waitFor,
 const { UNIQUE_CONSTRAINT_ERROR } = require('@condo/domains/common/constants/errors')
 const {
     DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE,
-    MESSAGE_ERROR_STATUS, MESSAGE_BLACKLISTED_STATUS,
+    MESSAGE_BLACKLISTED_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 const {
@@ -34,6 +34,12 @@ const {
 
 describe('MessageOrganizationBlackList', () => {
     let admin
+
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     beforeEach( async () => {
         admin = await makeLoggedInAdminClient()

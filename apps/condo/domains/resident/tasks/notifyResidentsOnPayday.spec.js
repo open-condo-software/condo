@@ -31,6 +31,11 @@ const getNewMessages = async ({ userId }) => {
 }
 
 describe('Push notification on payday about unpaid receipts', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     setFakeClientMode(index)
     describe('send push',  () => {
         let admin, context, property, billingProperty, account, period, acquiringContext, organization

@@ -59,7 +59,11 @@ describe('IncidentChange', () => {
         incidentByAdmin = testIncident
         await updateTestIncident(admin, testIncident.id, UPDATED_INCIDENT_PAYLOAD)
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Accesses', () => {
         describe('Admin', () => {
             test('Can not create', async () => {

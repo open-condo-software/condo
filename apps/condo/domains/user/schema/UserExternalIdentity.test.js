@@ -50,6 +50,11 @@ const assertIdentity = (identity, request) => {
 }
 
 describe('UserExternalIdentity', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('UserExternalIdentity create', () => {
         test('Denied: RESIDENT', async () => {
             const client = await makeClientWithResidentUser()

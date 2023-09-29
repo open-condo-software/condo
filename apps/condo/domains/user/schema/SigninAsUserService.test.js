@@ -12,6 +12,11 @@ const { signinAsUserByTestClient } = require('@condo/domains/user/utils/testSche
 
 
 describe('SigninAsUserService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Support', () => {
         it('can signin as a simple user', async () => {
             const supportClient = await makeClientWithSupportUser()

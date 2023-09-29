@@ -5,6 +5,11 @@ const { SHARE_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
 const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('ShareTicketService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('can share ticket with same organization', async () => {
             const client = await makeClientWithProperty()

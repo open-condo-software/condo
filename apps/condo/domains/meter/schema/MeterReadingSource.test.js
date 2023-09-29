@@ -21,6 +21,11 @@ const { MeterReadingSource } = require('../utils/testSchema')
 
 
 describe('MeterReadingSource', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     const createPayload = {
         type: METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
         name: faker.name.suffix(),

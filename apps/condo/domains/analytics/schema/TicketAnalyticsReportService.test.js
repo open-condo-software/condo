@@ -20,6 +20,11 @@ const NULL_REPLACES = {
 }
 
 describe('TicketAnalyticsReportService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Validations', () => {
         it('receives error when incorrect groupBy field is passed', async () => {
             const client = await makeClientWithProperty()

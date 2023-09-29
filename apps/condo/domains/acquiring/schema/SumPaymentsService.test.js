@@ -12,6 +12,11 @@ const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = r
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SumPaymentsService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('logic and correct summing', () => {
         test('admin: sum one payment', async () => {
             const { client: admin, organization, sum: manualSum } = await createPaymentsAndGetSum()

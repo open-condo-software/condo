@@ -25,6 +25,11 @@ function prepareVariables (organization) {
 }
 
 describe('ExportPaymentsService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('User', () => {
         it('can get payments export from selected organization', async () => {
             const { admin, billingReceipts, acquiringContext, organization } = await makePayer()

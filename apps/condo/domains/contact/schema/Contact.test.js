@@ -16,6 +16,11 @@ const { makeClientWithProperty, createTestProperty } = require('@condo/domains/p
 const { createTestPhone, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('Contact', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('required fields', async () => {
         const userClient = await makeClientWithProperty()
         const adminClient = await makeLoggedInAdminClient()

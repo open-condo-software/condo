@@ -62,6 +62,11 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 
 
 describe('RegisterMultiPaymentService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Execute', () => {
         describe('Resident', () => {
             const cases = [[1, 1], [1, 2], [2, 1], [2, 2]]

@@ -36,6 +36,11 @@ const {
 } = require('@condo/domains/billing/utils/testSchema')
 
 describe('RegisterMultiPaymentForOneReceiptService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Execute', () => {
         describe('Staff', () => {
             test('From receipt', async () => {

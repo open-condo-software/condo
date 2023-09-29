@@ -33,6 +33,11 @@ describe('GetNewsItemsRecipientsCountersService', () => {
         const [roleYes] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadNewsItems: true })
         await createTestOrganizationEmployee(adminClient, o10n, staffClientYes.user, roleYes)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     test('The data for counters calculated correctly', async () => {
         const [property1] = await createTestProperty(adminClient, dummyO10n, { map: propertyMap1x9x4 })

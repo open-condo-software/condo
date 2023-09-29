@@ -47,6 +47,11 @@ describe('TicketFile', () => {
         await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
         await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('User', () => {
         it('can create temporary TicketFile [no ticket relation]', async () => {

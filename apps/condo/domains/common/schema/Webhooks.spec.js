@@ -32,5 +32,10 @@ async function userDeleter (client, user) {
 // NOTE 2: Passing init function for actors, since their creation may differ from app to app
 // NOTE 3: Passing creator / deleter for testing sending objects with deletedAt
 describe('External webhook specifications', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     SendWebhookTests('Condo', initializeActors, userCreator, userDeleter, '@app/condo/index')
 })

@@ -22,6 +22,11 @@ const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/u
 
 
 describe('PaymentsFilterTemplate', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Create', () => {
         test('admin: can create PaymentsFilterTemplate', async () => {
             const admin = await makeLoggedInAdminClient()

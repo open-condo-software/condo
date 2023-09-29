@@ -14,6 +14,11 @@ const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketReportService', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Validations', () => {
         it('validates periodType field', async () => {
             const client = await makeClientWithProperty()

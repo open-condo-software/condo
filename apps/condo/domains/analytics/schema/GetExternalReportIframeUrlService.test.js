@@ -9,12 +9,16 @@ const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationError
 
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 
 const testIfConfigExists = process.env.METABASE_CONFIG ? test : test.skip
 
 describe('GetExternalReportIframeUrlService', () => {
+    afterAll(() => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('metabase report type', () => {
         testIfConfigExists('admin: can query', async () => {
             const { getExternalReportIframeUrlByTestClient, createTestExternalReport } = require('@condo/domains/analytics/utils/testSchema')
