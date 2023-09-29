@@ -1,5 +1,6 @@
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
+import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
@@ -57,7 +58,7 @@ export const InlineOrganizationSelect: React.FC = () => {
     })
 
     // Note: Filter case where organization was deleted
-    const filteredEmployees = userEmployees.filter(employee => employee.organization)
+    const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
 
