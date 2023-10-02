@@ -213,18 +213,25 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     where: {
                         id_not_in: map(billingAccountItemsData, 'id'),
                         OR: billingAccountItemsData.map((item) => ({
-                            OR: [
+                            AND: [
+                                { deletedAt: null },
+                                { isClosed: false },
+                                { ownerType_not: BILLING_ACCOUNT_OWNER_TYPE_COMPANY },
                                 {
-                                    AND: [
-                                        { property: { address: item.address } },
-                                        { unitType: item.unitType },
-                                        { unitName: item.unitName },
-                                    ],
-                                },
-                                {
-                                    AND: [
-                                        { context: { organization: { id: item.organizationId } } },
-                                        { number: item.number },
+                                    OR: [
+                                        {
+                                            AND: [
+                                                { property: { address: item.address } },
+                                                { unitType: item.unitType },
+                                                { unitName: item.unitName },
+                                            ],
+                                        },
+                                        {
+                                            AND: [
+                                                { context: { organization: { id: item.organizationId } } },
+                                                { number: item.number },
+                                            ],
+                                        },
                                     ],
                                 },
                             ],
