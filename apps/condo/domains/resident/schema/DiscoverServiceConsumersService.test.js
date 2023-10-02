@@ -16,7 +16,7 @@ const {
     createTestAcquiringIntegration, addAcquiringIntegrationAndContext,
 } = require('@condo/domains/acquiring/utils/testSchema')
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY } = require('@condo/domains/billing/constants/constants')
-const { BillingAccount } = require('@condo/domains/billing/utils/testSchema')
+const { BillingAccount, createTestBillingReceipt } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestBillingProperty,
     createTestBillingAccount,
@@ -983,6 +983,53 @@ describe('DiscoverServiceConsumersService', () => {
             const serviceConsumerAfterDiscovering = await ServiceConsumer.getOne(admin, { id: serviceConsumer.id })
 
             expect(serviceConsumerAfterDiscovering.isDiscovered).toEqual(false)
+        })
+
+        test('Do not create duplicates even if not all billing accounts in the same chunk passed to the mutation', async () => {
+            const residentClient = await makeClientWithResidentUser()
+            const { address, addressMeta } = buildFakeAddressAndMeta(true)
+
+            const [organization1] = await createTestOrganization(admin)
+            const [property1] = await createTestProperty(admin, organization1, { address, addressMeta })
+            const { billingIntegrationContext: billingIntegrationContext1 } = await addBillingIntegrationAndContext(admin, organization1, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(admin, organization1, {}, { status: CONTEXT_FINISHED_STATUS })
+            const [billingProperty1] = await createTestBillingProperty(admin, billingIntegrationContext1, { address: property1.address })
+
+            const [organization2] = await createTestOrganization(admin)
+            const [property2] = await createTestProperty(admin, organization2, { address, addressMeta })
+            const { billingIntegrationContext: billingIntegrationContext2 } = await addBillingIntegrationAndContext(admin, organization2, {}, { status: CONTEXT_FINISHED_STATUS })
+            await addAcquiringIntegrationAndContext(admin, organization2, {}, { status: CONTEXT_FINISHED_STATUS })
+            const [billingProperty2] = await createTestBillingProperty(admin, billingIntegrationContext2, { address: property2.address })
+
+            const [resident] = await createTestResident(admin, residentClient.user, property1, { address: billingProperty1.address })
+
+            // create the first account
+            const [billingAccount1] = await createTestBillingAccount(admin, billingIntegrationContext1, billingProperty1, {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            })
+
+            // create duplicate by address
+            const [billingAccount2] = await createTestBillingAccount(admin, billingIntegrationContext2, billingProperty2, {
+                unitName: resident.unitName,
+                unitType: resident.unitType,
+            })
+
+            // create receipts with same address, category, and period
+            const now = dayjs()
+            await createTestBillingReceipt(admin, billingIntegrationContext1, billingProperty1, billingAccount1, {
+                period: now.format('YYYY-MM-01'),
+            })
+            await createTestBillingReceipt(admin, billingIntegrationContext2, billingProperty2, billingAccount2, {
+                period: now.format('YYYY-MM-01'),
+            })
+
+            // start discovering only with the first created billing account
+            await discoverServiceConsumersByTestClient(admin, { billingAccountsIds: [billingAccount1.id] })
+
+            const createdServiceConsumers = await ResidentBillingReceipt.getAll(residentClient, {})
+
+            expect(createdServiceConsumers).toHaveLength(0)
         })
     })
 
