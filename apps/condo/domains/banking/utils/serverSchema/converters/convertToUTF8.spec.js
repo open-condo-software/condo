@@ -7,6 +7,11 @@ const ENCODINGS = [ 'utf-8', 'koi8-r', 'windows-1251', 'ibm866' ]
 
 
 describe('convertToUTF8', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('convert', () => {
         ENCODINGS.forEach(encoding => {
             it(`should convert ${encoding} to UTF-8`, () => {

@@ -5,6 +5,12 @@ import {
     isSafeUrl,
 } from './url.utils'
 
+afterAll( () => {
+    if (global.gc) {
+        global.gc()
+    }
+})
+
 describe('extractHostname', () => {
     expect(extractHostname('http://www.blog.classroom.me.uk/index.php')).toEqual('www.blog.classroom.me.uk')
     expect(extractHostname('http://www.youtube.com/watch?v=ClkQA2Lb_iE')).toEqual('www.youtube.com')

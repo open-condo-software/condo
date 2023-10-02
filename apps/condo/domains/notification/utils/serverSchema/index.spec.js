@@ -14,7 +14,11 @@ const { keystone } = index
 
 describe('notification', () => {
     setFakeClientMode(index)
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('sendMessage', () => {
         it('send DEVELOPER_IMPORTANT_NOTE message', async () => {
             const result = await sendMessage(keystone, {

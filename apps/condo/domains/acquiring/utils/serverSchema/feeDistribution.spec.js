@@ -11,6 +11,11 @@ const {
 
 const { FeeDistribution, compactDistributionSettings } = require('./feeDistribution')
 
+afterAll( () => {
+    if (global.gc) {
+        global.gc()
+    }
+})
 
 const TEST_CASES = [
     {

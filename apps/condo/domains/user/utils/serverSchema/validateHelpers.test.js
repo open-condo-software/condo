@@ -17,6 +17,11 @@ const expectToThrowError = async (func, error) => {
 }
 
 describe('Validate helpers', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Password validations', () => {
         describe('valid cases', () => {
             const validCases = [

@@ -1,6 +1,11 @@
 const { isValidDateValue } = require('./validation.utils')
 
 describe('validation.utils', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('date functions', () => {
         it('tests date format', () => {
             expect(isValidDateValue('2023-01-01')).toBeTruthy()

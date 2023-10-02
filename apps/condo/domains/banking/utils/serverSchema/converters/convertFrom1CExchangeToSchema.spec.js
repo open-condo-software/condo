@@ -24,6 +24,11 @@ describe('convertFrom1CExchangeToSchema', () => {
         const { result } = new ConvertToUTF8(fileBuffer).convert()
         fileStringContent = result
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     it('returns parsed bank account and transactions data', () => {
         const { bankAccountData, bankTransactionsData } = convertFrom1CExchangeToSchema(fileStringContent)

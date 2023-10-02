@@ -53,7 +53,11 @@ describe('create-recurrent-payment-for-new-billing-receipt', () => {
             billingCategory: { connect: { id: batch.billingReceipts[0].category.id } },
         })
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('should create RecurrentPayment - lastDt is start of the month, period - this month', async () => {
         const { batches } = await makePayerWithMultipleConsumers(1, 2)
         const [batch] = batches

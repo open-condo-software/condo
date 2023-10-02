@@ -15,6 +15,11 @@ const APPLE_CONFIG = {
 const getFutureTimeStamp = (timeout) => () => getCurrTimeStamp() + timeout
 
 describe('AppleJSONWebToken', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('Checks proper token expiry and regeneration', async () => {
         const token = new AppleJSONWebToken(APPLE_CONFIG)
         const tokenValue1 = token.value

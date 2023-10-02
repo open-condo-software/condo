@@ -5,6 +5,11 @@ const { SPACE_SYMBOLS, SPACE_SYMBOL_LABLES } = require('@condo/domains/common/ut
 const SPACES = SPACE_SYMBOLS.split('')
 
 describe('validateTin', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Ru', () => {
 
         const COUNTRY_CODE_RU = 'ru'

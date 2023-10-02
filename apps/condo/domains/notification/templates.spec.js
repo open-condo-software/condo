@@ -77,7 +77,11 @@ const TOKEN_URL_PART = 'auth/change-password?token='
 
 describe('Templates', () => {
     setFakeClientMode(index)
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('All messages types have enough templates', () => {
         let result = true
         for (const locale of Object.keys(LOCALES)) {

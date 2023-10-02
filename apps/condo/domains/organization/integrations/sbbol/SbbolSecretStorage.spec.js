@@ -3,6 +3,11 @@ const { faker } = require('@faker-js/faker')
 const { SbbolSecretStorage } = require('./SbbolSecretStorage')
 
 describe('SbbolSecretStorage', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('sets and gets clientSecret', async () => {
         const storage = new SbbolSecretStorage('auth', '12345')
         const value = faker.datatype.uuid()

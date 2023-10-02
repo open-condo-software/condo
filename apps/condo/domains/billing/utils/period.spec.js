@@ -1,6 +1,11 @@
 const { getPreviousPeriods } = require('./period')
 
 describe('period utils test', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('getPreviousPeriods', () => {
         describe('should return []', () => {
             it('if no parameters specified', () => {

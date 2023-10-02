@@ -28,7 +28,11 @@ const APPLE_TEST_PUSHTOKEN = conf[APPLE_CONFIG_TEST_PUSHTOKEN_ENV] || null
 const APPLE_TEST_VOIP_PUSHTOKEN = conf[APPLE_CONFIG_TEST_VOIP_PUSHTOKEN_ENV] || null
 
 describe('Apple adapter utils', () => {
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('should succeed sending push notification to fake success push token ', async () => {
         const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
         const [isOk, result] = await adapter.sendNotification({

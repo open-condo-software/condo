@@ -56,6 +56,11 @@ let helper = new CategoryResolver()
 helper.indexKeywords(mockCategories, mockCategories[0])
 
 describe('Detect Billing Category', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test.each(mockReceipts)('$description', ({ receipt, result, error, description }) => {
         const { error: detectError, categoryId } = helper.detectCategory(receipt)
         expect(categoryId).toEqual(result)

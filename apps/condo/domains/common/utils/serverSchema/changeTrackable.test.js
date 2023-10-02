@@ -74,6 +74,11 @@ const personDisplayNameManyRelationshipResolvers = {
 }
 
 describe('changeTrackable', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('generateChangeTrackableFieldsFrom', () => {
         describe('fields generation', () => {
             it('generates fields for scalars', () => {

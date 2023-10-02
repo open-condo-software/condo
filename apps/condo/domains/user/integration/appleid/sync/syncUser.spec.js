@@ -31,6 +31,11 @@ describe('syncUser from AppleId', () => {
     beforeAll(async () => {
         context = await keystone.createContext({ skipAccessControl: true })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     it('should just return user id: have user with linked identity', async () => {
         const identityId = faker.datatype.uuid()

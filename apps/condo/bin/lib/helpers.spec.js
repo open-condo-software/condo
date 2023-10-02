@@ -17,6 +17,11 @@ const ENTITIES_IDS_UNIQUE5 = { '1': [6], '2': [7], '3': [8, 9] }
 
 
 describe('Script helpers tests', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('getUniqueByField', () => {
         it('correctly extracts plain unique values', () => {
             expect(getUniqueByField(ENTITIES_ARRAY1, 'id')).toStrictEqual(ENTITIES_IDS_UNIQUE1)

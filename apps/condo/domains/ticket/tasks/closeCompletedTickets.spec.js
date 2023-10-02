@@ -23,6 +23,11 @@ describe('closeCompletedTickets', () => {
     setFakeClientMode(index)
     let admin
     let organization, organization2, property, property2
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     beforeEach(async () => {
         admin = await makeLoggedInAdminClient()
         const residentClient = await makeClientWithResidentUser()

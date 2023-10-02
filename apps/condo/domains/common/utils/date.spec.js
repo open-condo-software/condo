@@ -1,6 +1,11 @@
 import { getMonthStart, getStartDates } from './date'
 
 describe('Date helper tests', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('getMonthStart', () => {
         it('returns properly formatted correct date value', () => {
             const thisMonthStart = new Date().toISOString().slice(0, 7) + '-01'

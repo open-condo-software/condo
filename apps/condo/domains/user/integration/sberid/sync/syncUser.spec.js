@@ -32,6 +32,11 @@ describe('syncUser from SberId', () => {
     beforeAll(async () => {
         context = await keystone.createContext({ skipAccessControl: true })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     it('should create user', async () => {
         const identityId = faker.datatype.uuid()

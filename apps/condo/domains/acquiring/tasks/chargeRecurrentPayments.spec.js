@@ -48,7 +48,11 @@ describe('charge-recurrent-payments', () => {
     beforeAll(async () => {
         adminContext = await keystone.createContext({ skipAccessControl: true })
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('processRecurrentPayment', () => {
         let admin,
             getContextRequest,

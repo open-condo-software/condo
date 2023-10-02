@@ -18,6 +18,11 @@ const getReqWithSessionParam = (path, value) => {
 }
 
 describe('Apple id integration params utils', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('getSessionParam', async () => {
         expect(getSessionParam(getReqWithSessionParam('test', 'value'), 'test'))
             .toEqual('value')

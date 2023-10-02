@@ -8,6 +8,11 @@ const { PUSH_TRANSPORT_TYPES } = require('../../constants/constants')
 const UUID_LENGTH = 36
 
 describe('helpers', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('getRandomTokenData', () => {
         it('generates random device data of valid structure', async () => {
             const device = getRandomTokenData()

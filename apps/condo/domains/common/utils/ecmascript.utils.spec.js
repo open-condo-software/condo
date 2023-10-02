@@ -3,6 +3,11 @@
 import { isAsyncFunction, isFunction } from './ecmascript.utils'
 
 describe('Function objects', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     const functionExpression = () => {}
     const functionStatementExpression = function () {}
     const asyncFunctionExpression = async () => {}

@@ -46,6 +46,11 @@ describe('reopenDeferredTickets', () => {
             unitType,
         })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     beforeEach(async () => {
         client = await makeClientWithNewRegisteredAndLoggedInUser()
         client2 = await makeClientWithNewRegisteredAndLoggedInUser()

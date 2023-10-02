@@ -1,6 +1,11 @@
 const { normalizeEmail }  = require('./mail')
 
 describe('normalizeMail()', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('no data', () => {
         expect(normalizeEmail()).toBeUndefined()
         expect(normalizeEmail(null)).toBeUndefined()

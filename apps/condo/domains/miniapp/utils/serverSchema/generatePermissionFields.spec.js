@@ -4,6 +4,11 @@ const {
 
 
 describe('Helper functions for generatePermissionFields function', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('getSchemaDocForReadOnlyPermissionField', () => {
         const validCases = [
             {

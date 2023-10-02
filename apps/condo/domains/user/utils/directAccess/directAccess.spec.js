@@ -2,6 +2,11 @@ const { generateFieldNames } = require('./common.utils')
 const { generateRightSetFields } = require('./server.utils')
 
 describe('Direct access utils specs', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     const TEST_CONFIGS = [
         [
             'string-passed list',

@@ -10,6 +10,12 @@ const {
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
 describe('deleteReadingsOfDeletedMeter', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     it('readings are deleted after the related meter is deleted', async () => {
         const client = await makeClientWithProperty()
 

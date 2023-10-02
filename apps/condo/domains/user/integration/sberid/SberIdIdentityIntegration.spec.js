@@ -8,6 +8,11 @@ const callbackPath = '/api/sber_id/auth/callback'
 const callbackUri = `${conf.SERVER_URL}${callbackPath}`
 
 describe('SberIdIdentityIntegration', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('Generate login form params using checks', async () => {
         const nonce = 'nonce'
         const state = 'state'

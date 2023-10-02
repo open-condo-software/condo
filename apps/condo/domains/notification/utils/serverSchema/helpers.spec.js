@@ -25,7 +25,11 @@ describe('Transport settings for message', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('user disabled all messages of particular type', async () => {
         const [, userAttrs] = await createTestUser(adminClient)
         const userClient = await makeLoggedInClient(userAttrs)

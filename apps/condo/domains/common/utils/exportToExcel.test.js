@@ -6,6 +6,11 @@ const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { EXCEL_TEMPLATES_HEADERS, translationStringKeyForExcelExportHeader } = require('@condo/domains/common/utils/exportToExcel')
 
 describe('Export to excel', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('All Excel templates headers has all translations', () => {
         let result = true
 

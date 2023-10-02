@@ -3,6 +3,11 @@ const { faker } = require('@faker-js/faker')
 const { normalizeText } = require('./text')
 
 describe('normalizeText()', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('empty text', () => {
         expect(normalizeText('')).toBeUndefined()
     })

@@ -1,6 +1,11 @@
 const { executeInSequence, processArrayOf } = require('./parallel')
 
 describe('parallel', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('executeInSequence', () => {
         it('executes async functions in array one after completing another', async (done) => {
             const records = []

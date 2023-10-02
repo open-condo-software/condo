@@ -1,7 +1,13 @@
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 
 const { normalizeTimeZone } = require('./timezone')
+
 describe('normalizeTimeZone()', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('should return null on empty text', () => {
         expect(normalizeTimeZone('')).toBeNull()
     })

@@ -14,6 +14,11 @@ const successBindingPaymentUrl = 'http://testHost/api/payment/success'
 const successNonBindingPaymentUrl = 'http://testHost/payment/form'
 
 describe('PaymentAdapter', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('checkCardToken', () => {
         it('return true for active card', async () => {
             const adapter = new PaymentAdapter({

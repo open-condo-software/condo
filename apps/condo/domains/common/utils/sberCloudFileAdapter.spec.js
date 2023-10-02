@@ -136,6 +136,11 @@ describe('Sbercloud', () => {
             redirect: mockedNext,
         }
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('Huawei SDK', () => {
         it('can add file to s3', async () => {

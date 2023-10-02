@@ -3,6 +3,12 @@ const ESCAPABLE_SYMBOLS_ARRAY = ESCAPABLE_SYMBOLS.split('')
 
 const getTestContents = c => `abcdefg${c}0123456789`
 
+afterAll( () => {
+    if (global.gc) {
+        global.gc()
+    }
+})
+
 describe('getEscaped()', () => {
     describe('escapes all escapable symbols correctly', () => {
 

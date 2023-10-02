@@ -82,7 +82,11 @@ describe('Submit meter readings push notification', () => {
         adminClient = await makeLoggedInAdminClient();
         [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('should not send messages for exists readings in this period and valid nextVerificationDate', async () => {
         // arrange
         const client = await prepareUserAndMeter({

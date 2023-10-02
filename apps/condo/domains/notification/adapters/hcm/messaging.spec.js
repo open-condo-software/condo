@@ -18,6 +18,11 @@ const HCM_PUSH_TOKEN_TEST_RESIDENT = conf[HCM_CONFIG_TEST_PUSHTOKEN_ENV_RESIDENT
 const HCM_PUSH_TOKEN_TEST_MASTER = conf[HCM_CONFIG_TEST_PUSHTOKEN_ENV_MASTER] || null
 
 describe('Firebase adapter utils', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('should succeed sending push notification to real resident push token ', async () => {
         const residentConfig = get(HCM_CONFIG, APP_RESIDENT_KEY)
 

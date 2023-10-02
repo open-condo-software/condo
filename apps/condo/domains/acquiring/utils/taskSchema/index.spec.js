@@ -96,6 +96,11 @@ describe('task schema queries', () => {
     beforeAll(async () => {
         adminContext = await keystone.createContext({ skipAccessControl: true })
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
 
     describe('getAllReadyToPayRecurrentPaymentContexts', () => {
         let admin, getContextRequest, date

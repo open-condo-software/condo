@@ -39,7 +39,11 @@ describe('push transport', () => {
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('Huawei', () => {
         describe('to resident', () => {
             it('successfully sends fake ordinary notification of CUSTOM_CONTENT_MESSAGE_TYPE', async () => {

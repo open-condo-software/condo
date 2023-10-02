@@ -70,7 +70,11 @@ describe('notify-before-recurrent-payment-date', () => {
             recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
         })
     })
-
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('should create notification - receipts exists', async () => {
         const { batches } = await makePayerWithMultipleConsumers(1, 2)
         const [batch] = batches

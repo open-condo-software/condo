@@ -3,6 +3,11 @@ import { catchErrorFrom } from '@open-condo/keystone/test.utils'
 import { setLocaleForKeystoneContext } from './setLocaleForKeystoneContext'
 
 describe('setLocaleForKeystoneContext', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('sets only supported locale to "context.req"', async () => {
         const context = { }
         setLocaleForKeystoneContext(context, 'ru')

@@ -28,6 +28,11 @@ const getTokenSet = (nonce) => {
 }
 
 describe('Sber id integration validations', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('validateState', () => {
         it('QP and session exists', async () => {
             const state = 'state'

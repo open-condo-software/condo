@@ -24,6 +24,11 @@ const {
 } = require('./sendMessageBatch.helpers')
 
 describe('sendMessageBatch', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('helpers', () => {
         describe('selectTarget', () => {
             it('selects proper target type', async () => {

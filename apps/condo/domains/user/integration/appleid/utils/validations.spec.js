@@ -27,6 +27,11 @@ const getTokenSet = (nonce) => {
 }
 
 describe('Apple id integration validations', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('validateState', () => {
         it('QP and session exists', async () => {
             const state = 'state'

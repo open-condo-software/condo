@@ -12,6 +12,11 @@ const callbackPath = '/api/apple_id/auth/callback'
 const callbackUri = redirectUri || `${conf.SERVER_URL}${callbackPath}`
 
 describe('AppleIdIdentityIntegration', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('Generate login form params using checks', async () => {
         const nonce = 'nonce'
         const state = 'state'

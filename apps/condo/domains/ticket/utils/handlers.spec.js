@@ -11,6 +11,11 @@ const { faker } = require('@faker-js/faker')
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
 describe('Ticket request event detection', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     it('correctly detects assignee connection on ticket create', () => {
         const requestData = {
             operation: 'create',

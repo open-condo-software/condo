@@ -8,6 +8,11 @@ const {
 
 
 describe('Helper functions for serviceUserAccessForB2BApp preprocessor', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('generateGqlDataPart', () => {
         const validCases = [
             {

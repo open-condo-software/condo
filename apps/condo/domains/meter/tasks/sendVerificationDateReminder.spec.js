@@ -26,6 +26,12 @@ const getNotificationsFromMeter = async ({ verificationDate, nextVerificationDat
 }
 
 describe('Meter verification notification', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     setFakeClientMode(index)
 
     it('should not send messages on null nextVerificationDate', async () => {

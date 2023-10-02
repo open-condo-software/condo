@@ -9,6 +9,11 @@ const {
 } = require('@condo/domains/notification/constants/constants')
 
 describe('Helpers', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('Message type defined correctly', () => {
         const cases = [
             [NEWS_TYPE_COMMON, NEWS_ITEM_COMMON_MESSAGE_TYPE],

@@ -10,6 +10,12 @@ const sendVerificationDateReminderTask = require('@condo/domains/meter/tasks/sen
 
 
 describe('Meter verification notification task', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     setFakeClientMode(index)
 
     describe('feature flag', () => {

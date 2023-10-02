@@ -19,6 +19,11 @@ describe('freezeBillingReceipt', () => {
         const flatReceipt = await getById('BillingReceipt', billingReceipts[0].id)
         frozenReceipt = await freezeBillingReceipt(flatReceipt)
     })
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('should contains correct dv (=== 1)', () => {
         expect(frozenReceipt).toHaveProperty('dv', 1)
     })

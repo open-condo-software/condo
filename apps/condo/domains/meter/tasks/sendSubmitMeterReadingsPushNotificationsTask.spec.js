@@ -10,6 +10,12 @@ const sendSubmitMeterReadingsPushNotificationsTask = require('@condo/domains/met
 
 
 describe('Meter verification notification', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
+
     setFakeClientMode(index)
 
     describe('feature flag', () => {

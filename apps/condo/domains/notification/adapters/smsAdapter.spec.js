@@ -6,6 +6,11 @@ const TEST_PHONE_NUMBER = conf.SMS_TEST_PHONE || '88009232323'
 const NOT_VALID_PHONE_NUMBER = '+55555555555'
 
 describe('SMS adapters', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     describe('SMS.ru adapter', () => {
         it('should reject bad formatted phones', async () => {
             const Adapter = new SMSAdapter('SMS')

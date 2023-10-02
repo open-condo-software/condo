@@ -5,6 +5,11 @@ const { countryPhoneData } = require('phone')
 const { normalizePhone } = require('./phone')
 
 describe('normalizePhone()', () => {
+    afterAll( () => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('no data', () => {
         expect(normalizePhone()).toBeUndefined()
     })
