@@ -10,8 +10,8 @@ import { Typography, Steps } from '@open-condo/ui'
 import type { StepItem } from '@open-condo/ui'
 
 import { useOnboardingProgress } from '@condo/domains/billing/hooks/useOnboardingProgress'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 import { SelectBilling } from './SelectBilling'
 import { SetupAcquiring } from './SetupAcquiring'
@@ -19,8 +19,8 @@ import { SetupBilling } from './SetupBilling'
 import { Verification } from './Verification'
 import { WelcomeModal } from './WelcomeModal'
 
-
 import type { RowProps } from 'antd'
+
 
 const STEPS_GUTTER: RowProps['gutter'] = [60, 60]
 const FULL_COL_SPAN = 24
@@ -39,7 +39,6 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
     const SetupAcquiringTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.setupAcquiringStep.title' })
     const VerificationTitle = intl.formatMessage({ id: 'accrualsAndPayments.setup.verificationStep.title' })
     const StepNoReturnMessage = intl.formatMessage({ id: 'accrualsAndPayments.setup.noReturn' })
-    const NoPermissionMessage = intl.formatMessage({ id:'global.noPageViewPermission' })
 
     const userOrganization = useOrganization()
     const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
@@ -93,7 +92,7 @@ export const BillingOnboardingPage: React.FC<BillingOnboardingPageProps> = ({ on
     }, [currentStep, onFinish])
 
     if (!canManageIntegrations) {
-        return <LoadingOrErrorPage error={NoPermissionMessage}/>
+        return <AccessDeniedPage />
     }
 
     return (

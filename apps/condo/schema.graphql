@@ -5476,6 +5476,7 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -5594,6 +5595,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canShareTickets_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
+  canImportBillingReceipts: Boolean
+  canImportBillingReceipts_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canInviteNewOrganizationEmployees: Boolean
@@ -5767,6 +5770,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canShareTickets_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
+  canImportBillingReceipts_ASC
+  canImportBillingReceipts_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canInviteNewOrganizationEmployees_ASC
@@ -5853,6 +5858,7 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -5916,6 +5922,7 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -5994,6 +6001,7 @@ type OrganizationEmployeeRole {
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
 
@@ -6128,6 +6136,8 @@ input OrganizationEmployeeRoleWhereInput {
   canShareTickets_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
+  canImportBillingReceipts: Boolean
+  canImportBillingReceipts_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canInviteNewOrganizationEmployees: Boolean
@@ -6269,6 +6279,8 @@ enum SortOrganizationEmployeeRolesBy {
   canShareTickets_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
+  canImportBillingReceipts_ASC
+  canImportBillingReceipts_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canInviteNewOrganizationEmployees_ASC
@@ -6354,6 +6366,7 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -6413,6 +6426,7 @@ input OrganizationEmployeeRoleCreateInput {
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean

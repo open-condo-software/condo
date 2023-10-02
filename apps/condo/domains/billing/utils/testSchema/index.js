@@ -666,7 +666,7 @@ async function makeServiceUserForIntegration(integration) {
     return client
 }
 
-async function makeOrganizationIntegrationManager(context = null) {
+async function makeOrganizationIntegrationManager({ context, employeeRoleArgs } = {}) {
     const admin = await makeLoggedInAdminClient()
     let organization
     let integration
@@ -678,11 +678,12 @@ async function makeOrganizationIntegrationManager(context = null) {
         const [billingIntegration] = await createTestBillingIntegration(admin)
         integration = billingIntegration
     }
-    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+    const roleArgs = employeeRoleArgs || {
         canManageIntegrations: true,
         canReadBillingReceipts: true,
         canReadPayments: true,
-    })
+    }
+    const [role] = await createTestOrganizationEmployeeRole(admin, organization, roleArgs)
     const managerUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
     const [managerEmployee] = await createTestOrganizationEmployee(admin, organization, managerUserClient.user, role)
 

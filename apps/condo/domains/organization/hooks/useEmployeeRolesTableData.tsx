@@ -145,7 +145,32 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
                 },
                 {
                     key: 'canManageEmployees',
-                    relatedCheckPermissions: ['canReadEmployees', 'canManageRoles'],
+                    relatedCheckPermissions: ['canReadEmployees'],
+                },
+                {
+                    key: 'canManageRoles',
+                    relatedCheckPermissions: ['canReadEmployees'],
+                },
+            ],
+        },
+        {
+            key: 'billing',
+            permissions: [
+                {
+                    key: 'canManageIntegrations',
+                    relatedCheckPermissions: ['canReadPayments', 'canReadBillingReceipts'],
+                },
+                {
+                    key: 'canReadPayments',
+                    relatedUncheckPermissions: ['canManageIntegrations'],
+                },
+                {
+                    key: 'canReadBillingReceipts',
+                    relatedUncheckPermissions: ['canManageIntegrations', 'canImportBillingReceipts'],
+                },
+                {
+                    key: 'canImportBillingReceipts',
+                    relatedCheckPermissions: ['canReadBillingReceipts'],
                 },
             ],
         },

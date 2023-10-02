@@ -48043,6 +48043,7 @@ export type OrganizationEmployeeRole = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   /**  Allows employees with this role to be assigned to tickets as responsible  */
@@ -48111,6 +48112,7 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -48176,6 +48178,7 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -48235,6 +48238,7 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -48299,6 +48303,7 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -48416,6 +48421,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
@@ -48587,6 +48594,7 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -48695,6 +48703,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
@@ -70029,6 +70039,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanImportBillingReceiptsAsc = 'canImportBillingReceipts_ASC',
+  CanImportBillingReceiptsDesc = 'canImportBillingReceipts_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanInviteNewOrganizationEmployeesAsc = 'canInviteNewOrganizationEmployees_ASC',
@@ -70134,6 +70146,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanImportBillingReceiptsAsc = 'canImportBillingReceipts_ASC',
+  CanImportBillingReceiptsDesc = 'canImportBillingReceipts_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanInviteNewOrganizationEmployeesAsc = 'canInviteNewOrganizationEmployees_ASC',

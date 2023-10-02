@@ -9,11 +9,10 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Typography, Tag, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 
 import { useBillingAndAcquiringContexts } from './ContextProvider'
-import { EmptyContent } from './EmptyContent'
 import { MainContent } from './MainContent'
 
 
@@ -26,16 +25,15 @@ export const BillingPageContent: React.FC = () => {
     const ConnectedStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.connected' }, { name: billingName })
     const ErrorStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.error' }, { name: billingName })
     const DefaultUploadMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.uploadReceiptsAction.defaultMessage' })
-    const NoPermissionMessage = intl.formatMessage({ id:'global.noPageViewPermission' })
 
     const userOrganization = useOrganization()
     const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
+    const canImportBillingReceipts = get(userOrganization, ['link', 'role', 'canImportBillingReceipts'], false)
 
     const currentProblem = get(billingContext, 'currentProblem')
     const uploadUrl = get(billingContext, ['integration', 'uploadUrl'])
     const uploadMessage = get(billingContext, ['integration', 'uploadMessage'])
-    const lastReport = get(billingContext, 'lastReport')
 
     const tagBg = currentProblem ? colors.red['5'] : colors.green['5']
     const tagMessage = currentProblem ? ErrorStatusMessage : ConnectedStatusMessage
@@ -72,7 +70,7 @@ export const BillingPageContent: React.FC = () => {
     }, [uploadModalId, refetchBilling])
 
     const UploadAction = useMemo(() => {
-        if (!uploadUrl) {
+        if (!uploadUrl || !canImportBillingReceipts) {
             return null
         }
 
@@ -81,10 +79,10 @@ export const BillingPageContent: React.FC = () => {
                 {uploadMessage || DefaultUploadMessage}
             </Button>
         )
-    }, [handleUploadClick, uploadUrl, uploadMessage, DefaultUploadMessage])
+    }, [uploadUrl, canImportBillingReceipts, handleUploadClick, uploadMessage, DefaultUploadMessage])
 
-    if (!canReadBillingReceipts || !canReadPayments) {
-        return <LoadingOrErrorPage error={NoPermissionMessage}/>
+    if (!canReadBillingReceipts && !canReadPayments) {
+        return <AccessDeniedPage />
     }
 
     return (
@@ -95,14 +93,7 @@ export const BillingPageContent: React.FC = () => {
             <PageWrapper>
                 <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} extra={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>}/>
                 <TablePageContent>
-                    {
-                        lastReport
-                            ? (
-                                <MainContent uploadComponent={UploadAction}/>
-                            ) : (
-                                <EmptyContent uploadComponent={UploadAction}/>
-                            )
-                    }
+                    <MainContent uploadComponent={UploadAction}/>
                 </TablePageContent>
             </PageWrapper>
         </>
