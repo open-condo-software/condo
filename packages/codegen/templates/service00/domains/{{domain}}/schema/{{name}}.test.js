@@ -8,6 +8,14 @@ const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToO
 const { {{ convertFirstLetterToLower(name.replace("Service", "")) }}ByTestClient } = require('@condo/domains/{{domain}}/utils/testSchema')
  
 describe('{{ name }}', () => {
+    beforeAll(async () => {
+        // TODO(codegen): generate actors here
+    })
+    afterAll(() => {
+        if (global.gc) {
+            global.gc()
+        }
+    })
     test('user: execute', async () => {
         const client = await makeClient()  // TODO(codegen): use truly useful client!
         const payload = {}  // TODO(codegen): change the 'user: update {{name}}' payload
