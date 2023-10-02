@@ -96,7 +96,7 @@ async function canManageBillingIntegrationOrganizationContexts ({ authentication
     if (canManageIntegrations) return true
 
     // NOTE: employee with canImportBillingReceipts can update only state and settings fields
-    if (operation === 'update' && !canManageIntegrations && canImportBillingReceipts) {
+    if (operation === 'update' && canImportBillingReceipts) {
         const inaccessibleUpdatedFields = omit(originalInput, ['dv', 'sender', 'state', 'settings'])
 
         if (isEmpty(inaccessibleUpdatedFields)) return true
