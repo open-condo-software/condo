@@ -10,12 +10,15 @@ const path = require('path')
 const commander = require('commander')
 const { map } = require('lodash')
 
+const { getLogger } = require('@open-condo/keystone/logging')
 const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
+
+const logger = getLogger('discoverServiceConsumersScript')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersScript' } }
 
@@ -47,16 +50,14 @@ async function main () {
             context: { organization: { id: options.organization } },
             deletedAt: null,
         },
-        chunkSize: 50,
+        chunkSize: 25,
         chunkProcessor: async (/** @type {BillingAccount[]} */ chunk) => {
+            const billingAccountsIds = map(chunk, 'id')
             try {
-                const result = await discoverServiceConsumers(context, {
-                    ...DV_SENDER,
-                    billingAccountsIds: map(chunk, 'id'),
-                })
-                console.log(`chunk[${chunk.length}] result: ${JSON.stringify(result)}`)
+                const result = await discoverServiceConsumers(context, { ...DV_SENDER, billingAccountsIds })
+                logger.info({ msg: `chunk[${chunk.length}]`, billingAccountsIds, result })
             } catch (err) {
-                console.error(`chunk[${chunk.length}] error: ${err.message}`)
+                logger.error({ msg: `chunk[${chunk.length}] error`, billingAccountsIds, err })
             }
 
             return []
