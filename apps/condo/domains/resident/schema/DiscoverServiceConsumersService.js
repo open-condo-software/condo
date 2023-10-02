@@ -22,6 +22,47 @@ const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/ser
 
 const logger = getLogger('DiscoverServiceConsumersMutation')
 
+/**
+ * @typedef {Object} BillingAccountData
+ * @property {string} id
+ * @property {string} organizationId
+ * @property {string} organizationType
+ * @property {string} address
+ * @property {string} addressKey
+ * @property {string} unitType
+ * @property {string} unitName
+ * @property {string} number
+ * @property {string} billingContextId
+ */
+
+/**
+ * @param {BillingAccount} billingAccount
+ * @returns {BillingAccountData}
+ */
+function extractDataFromBillingAccount (billingAccount) {
+    const id = get(billingAccount, 'id')
+    const organizationId = get(billingAccount, ['context', 'organization', 'id'], null)
+    const organizationType = get(billingAccount, ['context', 'organization', 'type'], null)
+    const address = get(billingAccount, ['property', 'address'], null)
+    const addressKey = get(billingAccount, ['property', 'addressKey'], null)
+    const unitType = get(billingAccount, 'unitType', null)
+    const unitName = get(billingAccount, 'unitName', null)
+    const number = get(billingAccount, 'number')
+    const billingContextId = get(billingAccount, ['context', 'id'], null)
+
+    return {
+        id,
+        organizationId,
+        organizationType,
+        address,
+        addressKey,
+        unitType,
+        unitName,
+        number,
+        billingContextId,
+    }
+}
+
 const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceConsumersService', {
     schemaDoc: 'Mutation to create Service Consumers for all residents for address, unitType, unitName, and BillingAccounts for said address' +
         'If a new Resident is created this mutation is called for specific Resident (optional field Resident is provided)' +
@@ -68,7 +109,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 const reqId = get(context, ['req', 'id'])
 
                 /**
-                 * @type {{id: string, organizationId: string, address: string, addressKey: string, unitType: string, unitName: string, number: string, billingContextId: string}[]}
+                 * @type {BillingAccountData[]}
                  */
                 let billingAccountItemsData = []
                 await loadListByChunks({
@@ -84,15 +125,8 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     },
                     chunkProcessor: async (/** @type {BillingAccount[]} */ chunk) => {
                         for (const billingAccount of chunk) {
-                            const id = get(billingAccount, 'id')
                             const organizationId = get(billingAccount, ['context', 'organization', 'id'], null)
                             const organizationType = get(billingAccount, ['context', 'organization', 'type'], null)
-                            const address = get(billingAccount, ['property', 'address'], null)
-                            const addressKey = get(billingAccount, ['property', 'addressKey'], null)
-                            const unitType = get(billingAccount, 'unitType', null)
-                            const unitName = get(billingAccount, 'unitName', null)
-                            const number = get(billingAccount, 'number')
-                            const billingContextId = get(billingAccount, ['context', 'id'], null)
 
                             const shouldDiscover = organizationType === SERVICE_PROVIDER_TYPE ? true : !await featureToggleManager.isFeatureEnabled(
                                 context,
@@ -101,16 +135,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             )
 
                             if (shouldDiscover) {
-                                billingAccountItemsData.push({
-                                    id,
-                                    organizationId,
-                                    address,
-                                    addressKey,
-                                    unitType,
-                                    unitName,
-                                    number,
-                                    billingContextId,
-                                })
+                                billingAccountItemsData.push(extractDataFromBillingAccount(billingAccount))
                             }
                         }
 
@@ -176,36 +201,63 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 billingAccountItemsData = billingAccountItemsData.filter((item) => organizationsIdsWithProperties.has(`${item.organizationId}_${item.address}`))
 
-                // Filter duplicates (same organization and number) of each billing account
-                /** @type {Object<string, string[]>} */
-                const billingAccountsCandidatesForDuplicates = {}
-                await loadListByChunks({
+                // Before filtering duplicates we must load additional billing accounts that may not be included into arguments of this mutation
+                // Filter duplicates (same address, unitType, and unitName) of each billing account
+
+                /**
+                 * @type {BillingAccountData[]}
+                 * */
+                const additionalBillingAccountsData = await loadListByChunks({
                     context,
                     list: BillingAccount,
                     where: {
+                        id_not_in: map(billingAccountItemsData, 'id'),
                         OR: billingAccountItemsData.map((item) => ({
                             AND: [
-                                { context: { organization: { id: item.organizationId } } },
-                                { number: item.number },
+                                { deletedAt: null },
+                                { isClosed: false },
+                                { ownerType_not: BILLING_ACCOUNT_OWNER_TYPE_COMPANY },
+                                {
+                                    OR: [
+                                        {
+                                            AND: [
+                                                { property: { address: item.address } },
+                                                { unitType: item.unitType },
+                                                { unitName: item.unitName },
+                                            ],
+                                        },
+                                        {
+                                            AND: [
+                                                { context: { organization: { id: item.organizationId } } },
+                                                { number: item.number },
+                                            ],
+                                        },
+                                    ],
+                                },
                             ],
                         })),
                     },
                     chunkSize: 50,
-                    chunkProcessor: (/** @type {BillingAccount[]} */ chunk) => {
-                        chunk.forEach((billingAccount) => {
-                            const theKey = `${billingAccount.context.organization.id}_${billingAccount.number}`
-                            set(billingAccountsCandidatesForDuplicates, theKey, uniq([...get(billingAccountsCandidatesForDuplicates, theKey, []), billingAccount.id]))
-                        })
-
-                        return []
+                    chunkProcessor: (chunk) => {
+                        return chunk.map(extractDataFromBillingAccount)
                     },
+                })
+
+                billingAccountItemsData.push(...additionalBillingAccountsData)
+
+                // Filter duplicates (same organization and number) of each billing account
+                /** @type {Object<string, string[]>} */
+                const billingAccountsCandidatesForDuplicatesByNumber = {}
+                billingAccountItemsData.forEach((billingAccount) => {
+                    const theKey = `${billingAccount.organizationId}_${billingAccount.number}`
+                    set(billingAccountsCandidatesForDuplicatesByNumber, theKey, uniq([...get(billingAccountsCandidatesForDuplicatesByNumber, theKey, []), billingAccount.id]))
                 })
 
                 // There should be only one
                 // Keep billing account which has the latest receipt
                 const billingReceiptsIdsWithoutDuplicates = []
-                for (const theKey in billingAccountsCandidatesForDuplicates) {
-                    const billingAccountsIds = billingAccountsCandidatesForDuplicates[theKey]
+                for (const theKey in billingAccountsCandidatesForDuplicatesByNumber) {
+                    const billingAccountsIds = billingAccountsCandidatesForDuplicatesByNumber[theKey]
                     if (billingAccountsIds.length === 1) {
                         billingReceiptsIdsWithoutDuplicates.push(billingAccountsIds[0])
                     } else {
@@ -283,6 +335,10 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 billingAccountItemsData = billingAccountItemsData.filter(({ id }) => !billingAccountsIdsExcludedBySameCategory.includes(id))
                 billingAccountItemsData = billingAccountItemsData.filter(({ id }) => !billingAccountsWithoutReceipts.has(id))
 
+                // filter out additionally added billing accounts
+                const additionalBillingAccountIds = additionalBillingAccountsData.map(({ id }) => id)
+                billingAccountItemsData = billingAccountItemsData.filter(({ id }) => !additionalBillingAccountIds.includes(id))
+
                 const residentsWhere = {
                     deletedAt: null,
                     OR: billingAccountItemsData.map(({ address, addressKey, unitType, unitName }) => ({
@@ -306,7 +362,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             if (
                                 (
                                     resident.address === billingAccountItemData.address
-                                    || resident.addressKey === billingAccountItemData.addressKey
+                                    || (
+                                        !!resident.addressKey
+                                        && !!billingAccountItemData.addressKey
+                                        && resident.addressKey === billingAccountItemData.addressKey
+                                    )
                                 )
                                 && resident.unitType === billingAccountItemData.unitType
                                 && resident.unitName === billingAccountItemData.unitName
