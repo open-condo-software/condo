@@ -919,6 +919,7 @@
   "pages.condo.settings.employeeRoles.permissionGroup.employees": "Сотрудники",
   "pages.condo.settings.employeeRoles.permission.canReadEmployees": "Просмотр сотрудников",
   "pages.condo.settings.employeeRoles.permission.canManageEmployees": "Управление сотрудниками",
+  "pages.condo.settings.employeeRoles.permission.canManageRoles": "Управление ролями сотрудников",
   "pages.condo.settings.employeeRoles.permissionGroup.contacts": "Жители",
   "pages.condo.settings.employeeRoles.permission.canReadContacts": "Просмотр контактов",
   "pages.condo.settings.employeeRoles.permission.canManageContacts": "Управление контактами",
