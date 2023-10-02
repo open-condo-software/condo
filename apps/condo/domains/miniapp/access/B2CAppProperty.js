@@ -46,7 +46,7 @@ async function canManageB2CAppProperties ({ authentication: { item: user }, orig
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
 
     if (operation === 'create') {

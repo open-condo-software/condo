@@ -1,5 +1,4 @@
 const get = require('lodash/get')
-const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
 
 const { getByCondition } = require('@open-condo/keystone/schema')
@@ -12,7 +11,6 @@ const {
     generateFieldNameToManageField,
     getFieldNamesBySchemaName,
 } = require('./common.utils')
-
 
 
 const DEFAULT_CHECKBOX_FIELD = {
@@ -104,33 +102,41 @@ async function canDirectlyReadSchemaObjects (user, schemaName) {
     return await _hasSpecificRights(user, [generateReadSchemaFieldName(schemaName)])
 }
 
+const FIELD_NAMES_TO_SKIP_ACCESS = ['dv', 'sender']
+
 /**
  * Checks if user can create/update/soft-delete all GQLListSchema objects directly.
  * @param {AuthUser} user - user obtained from Keystone access function
  * @param {string} schemaName - name of list to check manage right for
+ * @param {Object} originalInput
+ * @param {string} operation
  * @return {Promise<boolean>}
  */
-async function canDirectlyManageSchemaObjects (user, schemaName) {
-    return await _hasSpecificRights(user, [generateManageSchemaFieldName(schemaName)])
-}
-
-const FIELD_NAMES_TO_SKIP_ACCESS = ['dv', 'sender']
-
-async function canDirectlyManageSchemaFields (user, schemaName, originalInput, operation) {
-    const isUpdateOperation = operation === 'update'
+async function canDirectlyManageSchemaObjects (user, schemaName, originalInput, operation) {
     const fieldNamesWithAccess = getFieldNamesBySchemaName(schemaName)
+    const isUpdateOperation = operation === 'update'
 
-    if (isUpdateOperation && isArray(fieldNamesWithAccess) && !isEmpty(fieldNamesWithAccess)) {
-        const originalInputFieldNames = Object.keys(originalInput).filter(fieldName => !FIELD_NAMES_TO_SKIP_ACCESS.includes(fieldName))
-        const fieldNamesToCheckRights = originalInputFieldNames.filter(originalInputFieldName => fieldNamesWithAccess.includes(originalInputFieldName))
-        const deniedFieldNamesToUpdate = originalInputFieldNames.filter(originalInputFieldName => !fieldNamesWithAccess.includes(originalInputFieldName))
-        if (isEmpty(fieldNamesToCheckRights) || !isEmpty(deniedFieldNamesToUpdate)) return false
+    const originalInputFieldNames = Object.keys(originalInput).filter(fieldName => !FIELD_NAMES_TO_SKIP_ACCESS.includes(fieldName))
+    const fieldNamesToCheckRights = originalInputFieldNames.filter(originalInputFieldName => fieldNamesWithAccess.includes(originalInputFieldName))
+    const commonFieldNamesToUpdate = originalInputFieldNames.filter(originalInputFieldName => !fieldNamesWithAccess.includes(originalInputFieldName))
 
+    const canManageObjects = await _hasSpecificRights(user, [generateManageSchemaFieldName(schemaName)])
+    if (!isUpdateOperation && !canManageObjects) return false
+
+    let canManageFields = false
+    if (!isEmpty(fieldNamesToCheckRights)) {
         const rightNamesToCheck = fieldNamesToCheckRights.map(fieldName => generateFieldNameToManageField(schemaName, fieldName))
-        return await _hasSpecificRights(user, rightNamesToCheck)
+        canManageFields = await _hasSpecificRights(user, rightNamesToCheck)
     }
 
-    return false
+    if (!isEmpty(fieldNamesToCheckRights) && !isEmpty(commonFieldNamesToUpdate)) {
+        return canManageObjects && canManageFields
+    }
+    if (!isEmpty(fieldNamesToCheckRights) && isEmpty(commonFieldNamesToUpdate)) {
+        return canManageFields
+    }
+
+    return canManageObjects
 }
 
 /**
@@ -149,5 +155,4 @@ module.exports = {
     canDirectlyReadSchemaObjects,
     canDirectlyManageSchemaObjects,
     canDirectlyExecuteService,
-    canDirectlyManageSchemaFields,
 }

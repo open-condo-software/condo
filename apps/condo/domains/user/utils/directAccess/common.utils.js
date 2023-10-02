@@ -45,7 +45,7 @@ function generateManageSchemaFieldName (schemaName) {
 }
 
 function generateFieldNameToManageField (schemaName, fieldName) {
-    return `canManage${schemaName}${fieldName.slice(0, 1).toUpperCase() + fieldName.slice(1)}Field`
+    return `canManage${schemaName}${_capitalize(fieldName)}Field`
 }
 
 function generateExecuteServiceFieldName (serviceName) {

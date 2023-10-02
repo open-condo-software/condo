@@ -505,152 +505,390 @@ describe('UserRightsSet', () => {
                 })
             })
         })
-    })
-    describe('Specific right sets', () => {
-        describe('Dev-portal service user', () => {
-            let portalClient
-            beforeAll(async () => {
-                const [portalRightSet] = await createTestUserRightsSet(support, {
-                    canReadB2BApps: true,
-                    canReadB2BAppAccessRights: true,
-                    canReadB2BAppAccessRightSets: true,
-                    canReadB2BAppPermissions: true,
-                    canReadB2CApps: true,
-                    canReadB2CAppAccessRights: true,
-                    canReadB2CAppBuilds: true,
-                    canReadB2CAppProperties: true,
+        describe('Specific right sets', () => {
+            describe('Dev-portal service user', () => {
+                let portalClient
+                beforeAll(async () => {
+                    const [portalRightSet] = await createTestUserRightsSet(support, {
+                        canReadB2BApps: true,
+                        canReadB2BAppAccessRights: true,
+                        canReadB2BAppAccessRightSets: true,
+                        canReadB2BAppPermissions: true,
+                        canReadB2CApps: true,
+                        canReadB2CAppAccessRights: true,
+                        canReadB2CAppBuilds: true,
+                        canReadB2CAppProperties: true,
 
-                    canManageB2BApps: true,
-                    canManageB2BAppAccessRights: true,
-                    canManageB2BAppAccessRightSets: true,
-                    canManageB2BAppPermissions: true,
-                    canManageB2CApps: true,
-                    canManageB2CAppAccessRights: true,
-                    canManageB2CAppBuilds: true,
-                    canManageB2CAppProperties: true,
+                        canManageB2BApps: true,
+                        canManageB2BAppAccessRights: true,
+                        canManageB2BAppAccessRightSets: true,
+                        canManageB2BAppPermissions: true,
+                        canManageB2CApps: true,
+                        canManageB2CAppAccessRights: true,
+                        canManageB2CAppBuilds: true,
+                        canManageB2CAppProperties: true,
 
-                    canExecuteRegisterNewServiceUser: true,
-                    canExecuteSendMessage: true,
+                        canExecuteRegisterNewServiceUser: true,
+                        canExecuteSendMessage: true,
+                    })
+                    portalClient = await makeClientWithServiceUser({
+                        rightsSet: { connect: { id: portalRightSet.id } },
+                    })
                 })
-                portalClient = await makeClientWithServiceUser({
-                    rightsSet: { connect: { id: portalRightSet.id } },
-                })
-            })
-            test('Can manage all miniapp-related models (without context)', async () => {
+                test('Can manage all miniapp-related models (without context)', async () => {
                 // Create / update section
-                const [b2bApp] = await createTestB2BApp(portalClient)
-                expect(b2bApp).toHaveProperty('id')
-                const b2bAppName = faker.commerce.productName()
-                const [updatedB2BApp] = await updateTestB2BApp(portalClient, b2bApp.id, {
-                    name: b2bAppName,
+                    const [b2bApp] = await createTestB2BApp(portalClient)
+                    expect(b2bApp).toHaveProperty('id')
+                    const b2bAppName = faker.commerce.productName()
+                    const [updatedB2BApp] = await updateTestB2BApp(portalClient, b2bApp.id, {
+                        name: b2bAppName,
+                    })
+                    expect(updatedB2BApp).toHaveProperty('name', b2bAppName)
+
+                    const [serviceUser] = await registerNewServiceUserByTestClient(portalClient)
+                    expect(serviceUser).toHaveProperty('id')
+
+                    const [accessRightSet] = await createTestB2BAppAccessRightSet(portalClient, b2bApp, { canManageContacts: false })
+                    expect(accessRightSet).toHaveProperty('id')
+                    expect(accessRightSet).toHaveProperty('canManageContacts', false)
+                    const [b2bAccessRight] = await createTestB2BAppAccessRight(portalClient, serviceUser, b2bApp, accessRightSet)
+                    expect(b2bAccessRight).toHaveProperty('id')
+                    const [updatedRightSet] = await updateTestB2BAppAccessRightSet(portalClient, accessRightSet.id, {
+                        canManageContacts: true,
+                    })
+                    expect(updatedRightSet).toHaveProperty('canManageContacts', true)
+
+                    const permissionKey = generatePermissionKey()
+                    const [permission] = await createTestB2BAppPermission(portalClient, b2bApp, { key: permissionKey })
+                    expect(permission).toHaveProperty('id')
+                    expect(permission).toHaveProperty('key', permissionKey)
+                    const newPermissionKey = generatePermissionKey()
+                    const [updatedPermission] = await updateTestB2BAppPermission(portalClient, permission.id, {
+                        key: newPermissionKey,
+                    })
+                    expect(updatedPermission).toHaveProperty('key', newPermissionKey)
+
+                    const [b2cApp] = await createTestB2CApp(portalClient)
+                    expect(b2cApp).toHaveProperty('id')
+
+                    const [b2cAccessRight] = await createTestB2CAppAccessRight(portalClient, serviceUser, b2cApp)
+                    expect(b2cAccessRight).toHaveProperty('id')
+
+                    const [appProperty] = await createTestB2CAppProperty(portalClient, b2cApp)
+                    expect(appProperty).toHaveProperty('id')
+                    const [newAddress, addressMeta] = getFakeAddress()
+                    const [updatedProperty] = await updateTestB2CAppProperty(portalClient, appProperty.id, {
+                        address: newAddress,
+                        addressMeta,
+                    })
+                    expect(updatedProperty).toHaveProperty('address', newAddress.toLowerCase())
+
+                    const [build] = await createTestB2CAppBuild(portalClient, b2cApp)
+                    expect(build).toHaveProperty('id')
+
+                    const [updatedB2CApp] = await updateTestB2CApp(portalClient, b2cApp.id, {
+                        currentBuild: { connect: { id: build.id } },
+                    })
+                    expect(updatedB2CApp).toHaveProperty(['currentBuild', 'id'], build.id)
+
+                    // Read section
+                    const readB2BApp = await B2BApp.getOne(portalClient, { id: b2bApp.id })
+                    expect(readB2BApp).toHaveProperty('id')
+                    const readB2BAccessRight = await B2BAppAccessRight.getOne(portalClient, { id: b2bAccessRight.id })
+                    expect(readB2BAccessRight).toHaveProperty('id')
+                    const readRightSet = await B2BAppAccessRightSet.getOne(portalClient, { id: accessRightSet.id })
+                    expect(readRightSet).toHaveProperty('id')
+                    const readPermission = await B2BAppPermission.getOne(portalClient, { id: permission.id })
+                    expect(readPermission).toHaveProperty('id')
+                    const readB2CApp = await B2CApp.getOne(portalClient, { id: b2cApp.id })
+                    expect(readB2CApp).toHaveProperty('id')
+                    const readB2CAccessRight = await B2CAppAccessRight.getOne(portalClient, { id: b2cAccessRight.id })
+                    expect(readB2CAccessRight).toHaveProperty('id')
+                    const readBuild = await B2CAppBuild.getOne(portalClient, { id: build.id })
+                    expect(readBuild).toHaveProperty('id')
+                    const readProperty = await B2CAppProperty.getOne(portalClient, { id: appProperty.id })
+                    expect(readProperty).toHaveProperty('id')
+
+                    // Soft-delete section
+                    const [deletedProperty] = await B2CAppProperty.softDelete(portalClient, readProperty.id)
+                    expectDeleted(deletedProperty)
+                    const [deletedBuild] = await B2CAppBuild.softDelete(portalClient, readBuild.id)
+                    expectDeleted(deletedBuild)
+                    const b2cAppWithoutBuild = await B2CApp.getOne(portalClient, { id: readB2CApp.id })
+                    expect(b2cAppWithoutBuild).toHaveProperty('currentBuild', null)
+                    const [deletedB2CAccessRights] = await B2CAppAccessRight.softDelete(portalClient, readB2CAccessRight.id)
+                    expectDeleted(deletedB2CAccessRights)
+                    const [deletedB2CApp] = await B2CApp.softDelete(portalClient, readB2CApp.id)
+                    expectDeleted(deletedB2CApp)
+
+                    const [deletedRightSet] = await B2BAppAccessRightSet.softDelete(portalClient, readRightSet.id)
+                    expectDeleted(deletedRightSet)
+                    const accessRightWithoutSet = await B2BAppAccessRight.getOne(portalClient, { id: readB2BAccessRight.id })
+                    expect(accessRightWithoutSet).toHaveProperty('accessRightSet', null)
+                    const [deletedB2BAccessRights] = await B2BAppAccessRight.softDelete(portalClient, readB2BAccessRight.id)
+                    expectDeleted(deletedB2BAccessRights)
+                    const [deletedPermission] = await B2BAppPermission.softDelete(portalClient, readPermission.id)
+                    expectDeleted(deletedPermission)
+                    const [deletedB2BApp] = await B2BApp.softDelete(portalClient, readB2BApp.id)
+                    expectDeleted(deletedB2BApp)
                 })
-                expect(updatedB2BApp).toHaveProperty('name', b2bAppName)
+                test('Can send SMS-messages', async () => {
+                    const meta = { dv: 1, body: faker.lorem.sentence(5) }
 
-                const [serviceUser] = await registerNewServiceUserByTestClient(portalClient)
-                expect(serviceUser).toHaveProperty('id')
+                    const [data] = await sendMessageByTestClient(portalClient, {
+                        to: { phone: createTestPhone() },
+                        type: DEV_PORTAL_MESSAGE_TYPE,
+                        meta,
+                    })
 
-                const [accessRightSet] = await createTestB2BAppAccessRightSet(portalClient, b2bApp, { canManageContacts: false })
-                expect(accessRightSet).toHaveProperty('id')
-                expect(accessRightSet).toHaveProperty('canManageContacts', false)
-                const [b2bAccessRight] = await createTestB2BAppAccessRight(portalClient, serviceUser, b2bApp, accessRightSet)
-                expect(b2bAccessRight).toHaveProperty('id')
-                const [updatedRightSet] = await updateTestB2BAppAccessRightSet(portalClient, accessRightSet.id, {
-                    canManageContacts: true,
+                    expect(data).toHaveProperty('id')
+                    expect(data).toHaveProperty('status', MESSAGE_SENDING_STATUS)
+
+                    await waitFor(async () => {
+                        const message = await Message.getOne(admin, { id: data.id })
+
+                        expect(message).toBeDefined()
+                        expect(message).toHaveProperty('meta', meta)
+                        expect(message).toHaveProperty('status', MESSAGE_SENT_STATUS)
+                    })
                 })
-                expect(updatedRightSet).toHaveProperty('canManageContacts', true)
-
-                const permissionKey = generatePermissionKey()
-                const [permission] = await createTestB2BAppPermission(portalClient, b2bApp, { key: permissionKey })
-                expect(permission).toHaveProperty('id')
-                expect(permission).toHaveProperty('key', permissionKey)
-                const newPermissionKey = generatePermissionKey()
-                const [updatedPermission] = await updateTestB2BAppPermission(portalClient, permission.id, {
-                    key: newPermissionKey,
-                })
-                expect(updatedPermission).toHaveProperty('key', newPermissionKey)
-
-                const [b2cApp] = await createTestB2CApp(portalClient)
-                expect(b2cApp).toHaveProperty('id')
-
-                const [b2cAccessRight] = await createTestB2CAppAccessRight(portalClient, serviceUser, b2cApp)
-                expect(b2cAccessRight).toHaveProperty('id')
-
-                const [appProperty] = await createTestB2CAppProperty(portalClient, b2cApp)
-                expect(appProperty).toHaveProperty('id')
-                const [newAddress, addressMeta] = getFakeAddress()
-                const [updatedProperty] = await updateTestB2CAppProperty(portalClient, appProperty.id, {
-                    address: newAddress,
-                    addressMeta,
-                })
-                expect(updatedProperty).toHaveProperty('address', newAddress.toLowerCase())
-
-                const [build] = await createTestB2CAppBuild(portalClient, b2cApp)
-                expect(build).toHaveProperty('id')
-
-                const [updatedB2CApp] = await updateTestB2CApp(portalClient, b2cApp.id, {
-                    currentBuild: { connect: { id: build.id } },
-                })
-                expect(updatedB2CApp).toHaveProperty(['currentBuild', 'id'], build.id)
-
-                // Read section
-                const readB2BApp = await B2BApp.getOne(portalClient, { id: b2bApp.id })
-                expect(readB2BApp).toHaveProperty('id')
-                const readB2BAccessRight = await B2BAppAccessRight.getOne(portalClient, { id: b2bAccessRight.id })
-                expect(readB2BAccessRight).toHaveProperty('id')
-                const readRightSet = await B2BAppAccessRightSet.getOne(portalClient, { id: accessRightSet.id })
-                expect(readRightSet).toHaveProperty('id')
-                const readPermission = await B2BAppPermission.getOne(portalClient, { id: permission.id })
-                expect(readPermission).toHaveProperty('id')
-                const readB2CApp = await B2CApp.getOne(portalClient, { id: b2cApp.id })
-                expect(readB2CApp).toHaveProperty('id')
-                const readB2CAccessRight = await B2CAppAccessRight.getOne(portalClient, { id: b2cAccessRight.id })
-                expect(readB2CAccessRight).toHaveProperty('id')
-                const readBuild = await B2CAppBuild.getOne(portalClient, { id: build.id })
-                expect(readBuild).toHaveProperty('id')
-                const readProperty = await B2CAppProperty.getOne(portalClient, { id: appProperty.id })
-                expect(readProperty).toHaveProperty('id')
-
-                // Soft-delete section
-                const [deletedProperty] = await B2CAppProperty.softDelete(portalClient, readProperty.id)
-                expectDeleted(deletedProperty)
-                const [deletedBuild] = await B2CAppBuild.softDelete(portalClient, readBuild.id)
-                expectDeleted(deletedBuild)
-                const b2cAppWithoutBuild = await B2CApp.getOne(portalClient, { id: readB2CApp.id })
-                expect(b2cAppWithoutBuild).toHaveProperty('currentBuild', null)
-                const [deletedB2CAccessRights] = await B2CAppAccessRight.softDelete(portalClient, readB2CAccessRight.id)
-                expectDeleted(deletedB2CAccessRights)
-                const [deletedB2CApp] = await B2CApp.softDelete(portalClient, readB2CApp.id)
-                expectDeleted(deletedB2CApp)
-
-                const [deletedRightSet] = await B2BAppAccessRightSet.softDelete(portalClient, readRightSet.id)
-                expectDeleted(deletedRightSet)
-                const accessRightWithoutSet = await B2BAppAccessRight.getOne(portalClient, { id: readB2BAccessRight.id })
-                expect(accessRightWithoutSet).toHaveProperty('accessRightSet', null)
-                const [deletedB2BAccessRights] = await B2BAppAccessRight.softDelete(portalClient, readB2BAccessRight.id)
-                expectDeleted(deletedB2BAccessRights)
-                const [deletedPermission] = await B2BAppPermission.softDelete(portalClient, readPermission.id)
-                expectDeleted(deletedPermission)
-                const [deletedB2BApp] = await B2BApp.softDelete(portalClient, readB2BApp.id)
-                expectDeleted(deletedB2BApp)
             })
-            test('Can send SMS-messages', async () => {
-                const meta = { dv: 1, body: faker.lorem.sentence(5) }
+            describe('Organization: mix "canManageOrganizations" and "canManageOrganizationIsApprovedField"', () => {
+                describe('canManageOrganizations: true and canManageOrganizationIsApprovedField: true', () => {
+                    test('Must give full access', async () => {
+                        const executor = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const [org] = await createTestOrganization(support)
+                        expect(org).toHaveProperty('isApproved', true)
 
-                const [data] = await sendMessageByTestClient(portalClient, {
-                    to: { phone: createTestPhone() },
-                    type: DEV_PORTAL_MESSAGE_TYPE,
-                    meta,
+                        // No access by default
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id)
+                        })
+
+                        // Access provided
+                        const [rightsSet] = await createTestUserRightsSet(support, {
+                            canReadOrganizations: true,
+                            canManageOrganizations: true,
+                            canManageOrganizationIsApprovedField: true,
+                        })
+                        const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                            rightsSet: { connect: { id: rightsSet.id } },
+                        })
+                        expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor, { isApproved: false })
+                        })
+
+                        const [updatedOrg] = await updateTestOrganization(executor, org.id, { isApproved: false })
+                        expect(updatedOrg).toHaveProperty('isApproved', false)
+
+                        const orgName = faker.company.name()
+                        const [updatedOrg2] = await updateTestOrganization(executor, org.id, { name: orgName })
+                        expect(updatedOrg2).toHaveProperty('name', orgName)
+
+                        const orgName2 = faker.company.name()
+                        const [updatedOrg3] = await updateTestOrganization(executor, org.id, { name: orgName2, isApproved: true })
+                        expect(updatedOrg3).toHaveProperty('name', orgName2)
+                        expect(updatedOrg3).toHaveProperty('isApproved', true)
+
+                        const [updatedOrg4] = await updateTestOrganization(executor, org.id)
+                        expect(updatedOrg4).toHaveProperty('name', orgName2)
+                        expect(updatedOrg4).toHaveProperty('isApproved', true)
+                    })
                 })
+                describe('canManageOrganizations: true and canManageOrganizationIsApprovedField: false', () => {
+                    test('Must give full access if not using <Field> field in payload', async () => {
+                        const executor = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const [org] = await createTestOrganization(support)
+                        expect(org).toHaveProperty('isApproved', true)
 
-                expect(data).toHaveProperty('id')
-                expect(data).toHaveProperty('status', MESSAGE_SENDING_STATUS)
+                        // No access by default
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id)
+                        })
 
-                await waitFor(async () => {
-                    const message = await Message.getOne(admin, { id: data.id })
+                        // Access provided
+                        const [rightsSet] = await createTestUserRightsSet(support, {
+                            canReadOrganizations: true,
+                            canManageOrganizations: true,
+                            canManageOrganizationIsApprovedField: false,
+                        })
+                        const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                            rightsSet: { connect: { id: rightsSet.id } },
+                        })
+                        expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
 
-                    expect(message).toBeDefined()
-                    expect(message).toHaveProperty('meta', meta)
-                    expect(message).toHaveProperty('status', MESSAGE_SENT_STATUS)
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor, { isApproved: false })
+                        })
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { isApproved: false })
+                        })
+
+                        const orgName = faker.company.name()
+                        const [updatedOrg2] = await updateTestOrganization(executor, org.id, { name: orgName })
+                        expect(updatedOrg2).toHaveProperty('name', orgName)
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                        })
+
+                        const [updatedOrg4] = await updateTestOrganization(executor, org.id)
+                        expect(updatedOrg4).toHaveProperty('name', orgName)
+                        expect(updatedOrg4).toHaveProperty('isApproved', true)
+                    })
+                })
+                describe('canManageOrganizations: false and canManageOrganizationIsApprovedField: true', () => {
+                    test('Must give access only to update schema <Field> field', async () => {
+                        const executor = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const [org] = await createTestOrganization(support)
+                        expect(org).toHaveProperty('isApproved', true)
+
+                        // No access by default
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id)
+                        })
+
+                        // Access provided
+                        const [rightsSet] = await createTestUserRightsSet(support, {
+                            canReadOrganizations: true,
+                            canManageOrganizations: false,
+                            canManageOrganizationIsApprovedField: true,
+                        })
+                        const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                            rightsSet: { connect: { id: rightsSet.id } },
+                        })
+                        expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor, { isApproved: false })
+                        })
+
+                        const [updatedOrg] = await updateTestOrganization(executor, org.id, { isApproved: false })
+                        expect(updatedOrg).toHaveProperty('isApproved', false)
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                        })
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                        })
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id)
+                        })
+                    })
+                })
+                describe('canManageOrganizations: false and canManageOrganizationIsApprovedField: false', () => {
+                    test('Must be denied', async () => {
+                        const executor = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const [org] = await createTestOrganization(support)
+                        expect(org).toHaveProperty('isApproved', true)
+
+                        // No access by default
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id)
+                        })
+
+                        // Access provided
+                        const [rightsSet] = await createTestUserRightsSet(support, {
+                            canReadOrganizations: true,
+                            canManageOrganizations: false,
+                            canManageOrganizationIsApprovedField: false,
+                        })
+                        const [updatedUser] = await updateTestUser(support, executor.user.id, {
+                            rightsSet: { connect: { id: rightsSet.id } },
+                        })
+                        expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
+
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor)
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await createTestOrganization(executor, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                        })
+                        await expectToThrowAccessDeniedErrorToObj(async () => {
+                            await updateTestOrganization(executor, org.id)
+                        })
+                    })
                 })
             })
         })
