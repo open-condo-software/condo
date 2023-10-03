@@ -1,5 +1,5 @@
 import { Col, Row, Skeleton, Button, RowProps } from 'antd'
-import React, { ComponentProps, ReactElement, useCallback, useMemo, useState } from 'react'
+import React, { ReactElement, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
@@ -7,17 +7,17 @@ import { colors } from '@open-condo/ui/dist/colors/'
 
 import { fontSizes } from '@condo/domains/common/constants/style'
 
-import { BaseChangesType, HistoricalChange } from './HistoricalChange'
+import { BaseChangesType, HistoricalChangeInputType, HistoricalChangeReturnType } from './HistoricalChange/types'
 
 
-type ChangeHistoryInputType<ChangesType> = {
+type ChangeHistoryInputType<ChangesType extends BaseChangesType> = {
     items: ChangesType[]
     total: number
     loading: boolean
     title: string
-    useChangedFieldMessagesOf: ComponentProps<typeof HistoricalChange>['useChangedFieldMessagesOf']
-    Diff: ComponentProps<typeof HistoricalChange>['Diff']
+    useChangedFieldMessagesOf: HistoricalChangeInputType<ChangesType>['useChangedFieldMessagesOf']
     labelSpan?: number
+    HistoricalChange: (props: HistoricalChangeInputType<ChangesType>) => HistoricalChangeReturnType,
 }
 
 type ChangeHistoryReturnType = ReactElement | null
@@ -36,7 +36,7 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
     const intl = useIntl()
     const FetchMoreTemplate = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.fetchMore' })
 
-    const { items, total, loading, title, useChangedFieldMessagesOf, Diff, labelSpan } = props
+    const { items, total, loading, title, useChangedFieldMessagesOf, labelSpan, HistoricalChange } = props
 
     const [displayCount, setDisplayCount] = useState(CHANGES_PER_CHUNK)
 
@@ -59,30 +59,30 @@ export const ChangeHistory = <ChangesType extends BaseChangesType> (props: Chang
                     <Typography.Title level={3}>{title}</Typography.Title>
                 </Col>
                 <Col span={24}>
-                    {items.slice(0, displayCount).map(change => (
-                        <HistoricalChange
-                            key={change.id}
-                            changesValue={change}
-                            useChangedFieldMessagesOf={useChangedFieldMessagesOf}
-                            Diff={Diff}
-                            labelSpan={labelSpan}
-                        />
-                    ))}
-                    {displayCount < total && (
-                        <Button
-                            type='text'
-                            onClick={handleFetchMore}
-                            style={TEXT_BUTTON_STYLE}
-                        >
-                            ↓&nbsp;{FetchMoreLabel}
-                        </Button>
-                    )}
+                    <Row gutter={CHANGE_HISTORY_VERTICAL_GUTTER}>
+                        {items.slice(0, displayCount).map(change => (
+                            <Col span={24} key={change.id}>
+                                <HistoricalChange
+                                    changesValue={change}
+                                    useChangedFieldMessagesOf={useChangedFieldMessagesOf}
+                                    labelSpan={labelSpan}
+                                />
+                            </Col>
+                        ))}
+                        <Col span={24}>
+                            {displayCount < total && (
+                                <Button
+                                    type='text'
+                                    onClick={handleFetchMore}
+                                    style={TEXT_BUTTON_STYLE}
+                                >
+                                    ↓&nbsp;{FetchMoreLabel}
+                                </Button>
+                            )}
+                        </Col>
+                    </Row>
                 </Col>
             </Row>
         </Col>
     )
-}
-
-export {
-    HistoricalChange,
 }
