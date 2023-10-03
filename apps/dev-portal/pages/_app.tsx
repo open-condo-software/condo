@@ -2,15 +2,16 @@ import { ConfigProvider, Layout } from 'antd'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
 import get from 'lodash/get'
-import { Wix_Madefor_Display, Noto_Sans_Mono }  from 'next/font/google'
+import { Noto_Sans_Mono }  from 'next/font/google'
+import localFont from 'next/font/local'
 import { IntlProvider } from 'react-intl'
 
 import { Header } from '@/domains/common/components/Header'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
-const mainFont = Wix_Madefor_Display({
-    subsets: ['latin', 'cyrillic'],
+const mainFont = localFont({
+    src: '../public/WixMadeForDisplay.woff2',
     variable: '--condo-font-fallback',
 })
 const monoFont = Noto_Sans_Mono({
