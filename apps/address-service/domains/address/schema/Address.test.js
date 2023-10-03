@@ -99,7 +99,7 @@ describe('Address', () => {
                 const [objCreated] = await createTestAddress(adminClient)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestAddress(supportClient, objCreated.id)
+                    await updateTestAddress(supportClient, objCreated.id, { address: faker.address.streetAddress(true) })
                 })
             })
 
@@ -117,6 +117,14 @@ describe('Address', () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestAddress(anonymousClient, objCreated.id)
                 })
+            })
+
+            test('support can update `overrides` field', async () => {
+                const [objCreated] = await createTestAddress(adminClient, { meta: { data: { field: 'someValue' } } })
+                const [updatedObj] = await updateTestAddress(supportClient, objCreated.id, { overrides: { field: 'someOtherValue' } })
+
+                expect(updatedObj.meta.data.field).toEqual('someValue')
+                expect(updatedObj.overrides.field).toEqual('someOtherValue')
             })
         })
 
