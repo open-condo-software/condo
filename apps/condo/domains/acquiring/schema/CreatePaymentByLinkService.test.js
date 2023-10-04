@@ -7,7 +7,7 @@ const Big = require('big.js')
 
 const {
     makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationErrorToResult, catchErrorFrom,
-    expectToThrowAccessDeniedErrorToResult, setXForwardedFor,
+    expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -84,14 +84,22 @@ describe('CreatePaymentByLinkService', () => {
     let qrCode, qrCodeObj
     let admin, support, user, anonymous, staff, service
     beforeAll(async () => {
-        setXForwardedFor(Array(4).fill(null).map(() => faker.random.numeric(3)).join('.'))
+        const generateIpLike = () => Array(4).fill(null).map(() => faker.random.numeric(3)).join('.')
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         user = await makeClientWithResidentUser()
         anonymous = await makeClient()
         staff = await makeClientWithStaffUser()
         service = await makeClientWithServiceUser()
-        setXForwardedFor()
+
+        // to prevent blocking localhost while testing locally
+        admin.setHeaders({ 'x-forwarded-for': generateIpLike() })
+        support.setHeaders({ 'x-forwarded-for': generateIpLike() })
+        user.setHeaders({ 'x-forwarded-for': generateIpLike() })
+        anonymous.setHeaders({ 'x-forwarded-for': generateIpLike() })
+        staff.setHeaders({ 'x-forwarded-for': generateIpLike() })
+        service.setHeaders({ 'x-forwarded-for': generateIpLike() })
+
         qrCodeObj = {
             PersonalAcc: '40702810801500116391',
             PayeeINN: faker.random.numeric(8),

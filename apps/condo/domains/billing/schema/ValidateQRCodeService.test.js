@@ -7,7 +7,7 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     catchErrorFrom,
-    expectToThrowAccessDeniedErrorToResult, setXForwardedFor,
+    expectToThrowAccessDeniedErrorToResult,
 } = require('@open-condo/keystone/test.utils')
 const { expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
 
@@ -168,8 +168,9 @@ describe('ValidateQRCodeService', () => {
     })
 
     test('should throw limit exceeded error on too many calls', async () => {
-        setXForwardedFor(Array(4).fill(null).map(() => faker.random.numeric(3)).join('.'))
+        const ipLike = Array(4).fill(null).map(() => faker.random.numeric(3)).join('.')
         const userClient2 = await makeClientWithResidentUser()
+        userClient2.setHeaders({ 'x-forwarded-for': ipLike })
         const [integration] = await createTestAcquiringIntegration(adminClient)
         const [acquiringContext] = await createTestAcquiringIntegrationContext(adminClient, organization, integration, { status: CONTEXT_FINISHED_STATUS })
 
@@ -191,7 +192,6 @@ describe('ValidateQRCodeService', () => {
                 await validateQRCodeByTestClient(userClient2, { qrCode: qrCodeString })
             }
         }
-        setXForwardedFor()
         await updateTestAcquiringIntegrationContext(adminClient, acquiringContext.id, { deletedAt: faker.date.past() })
     })
 

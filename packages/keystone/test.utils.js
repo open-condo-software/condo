@@ -133,14 +133,6 @@ function setAllFeatureFlags (value) {
     featureFlagsStore.set(FEATURE_FLAGS_STORE_ALL_KEY, value)
 }
 
-/**
- * Use before create the client.
- * @param {string} [ip]
- */
-function setXForwardedFor (ip = undefined) {
-    __x_forwarder_for_header = ip
-}
-
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
     if (__expressApp !== null) return
     if (__isAwaiting) return
@@ -296,7 +288,6 @@ const makeApolloClient = (serverUrl, opts = {}) => {
             cache: 'no-cache',
             mode: 'cors',
             credentials: 'include',
-            ...(__x_forwarder_for_header ? { 'x-forwarded-for': __x_forwarder_for_header } : {}),
         },
         includeExtensions: true,
         isExtractableFile: (value) => {
@@ -831,7 +822,6 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
-    setXForwardedFor,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,
