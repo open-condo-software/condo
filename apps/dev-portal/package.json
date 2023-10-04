@@ -8,7 +8,8 @@
     "build:deps": "turbo build --filter=dev-portal^...",
     "dev": "yarn build:deps && next dev",
     "build": "yarn build:deps && next build",
-    "start": "next start"
+    "start": "next start",
+    "prepare": "node bin/prepare.js"
   },
   "dependencies": {
     "@ant-design/cssinjs": "1.5.6",
@@ -16,7 +17,10 @@
     "@babel/preset-env": "7.20.2",
     "@babel/preset-typescript": "7.18.6",
     "@dev-portal/domains": "link:./domains",
+    "@open-condo/cli": "workspace:^",
+    "@open-condo/config": "workspace:^",
     "@open-condo/icons": "workspace:^",
+    "@open-condo/next": "workspace:^",
     "@open-condo/tsconfig": "workspace:^",
     "@open-condo/ui": "workspace:^",
     "antd": "5.1.7",

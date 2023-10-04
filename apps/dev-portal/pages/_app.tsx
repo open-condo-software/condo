@@ -6,6 +6,7 @@ import { Noto_Sans_Mono }  from 'next/font/google'
 import localFont from 'next/font/local'
 import { IntlProvider } from 'react-intl'
 
+// import { withApollo } from '@open-condo/next/apollo'
 import { Header } from '@/domains/common/components/Header'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
@@ -49,7 +50,7 @@ declare global {
     }
 }
 
-export default function App ({ Component, pageProps, router }: AppProps): ReactNode {
+function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const { locale = DEFAULT_LOCALE } = router
 
     return (
@@ -65,3 +66,9 @@ export default function App ({ Component, pageProps, router }: AppProps): ReactN
         </ConfigProvider>
     )
 }
+
+export default (
+    // withApollo({ ssr: true })(
+    DevPortalApp
+    // )
+)
