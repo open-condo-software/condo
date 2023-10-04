@@ -206,11 +206,11 @@ export class Importer implements IImporter {
                                     return Promise.resolve()
                                 })
                                 .catch((e) => {
-                                    const mutationErrors = get(e, 'graphQLErrors')
+                                    const mutationErrors = get(e, 'graphQLErrors', [])
                                     normalizedRow.errors = normalizedRow.errors || []
 
                                     mutationErrors.forEach(mutationError => {
-                                        const mutationErrorMessages = get(mutationError, ['data', 'messages'])
+                                        const mutationErrorMessages = get(mutationError, ['data', 'messages'], [])
                                         mutationErrorMessages.forEach(message => {
                                             const errorCodes = Object.keys(this.mutationErrorsToMessages)
 
