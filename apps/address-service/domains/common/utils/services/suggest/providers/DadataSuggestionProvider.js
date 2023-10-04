@@ -12,7 +12,7 @@ const DEFAULT_CACHE_TTL = 3600
 const ORGANIZATION_TIN_CACHE_TTL = 84600 // in seconds
 const ADDRESS_TIN_CACHE_TTL = 84600 // in seconds
 const VALID_BUILDING_TYPES = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение', 'здание']
-const TRAILING_DIGIT_RE = /\d$/
+const TRAILING_HOUSE_NUMBER_RE = /\d\s?\D?$/
 
 /**
  * @typedef {Object} DadataObjectData
@@ -260,17 +260,22 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         return null
     }
 
+    static prepareQuery (query) {
+        const trimmedQuery = query.trim()
+
+        // In the case of searching string ends by house number we add a space in the tail of the string (see DOMA-5199)
+        // If there is no number in the end of string, we pass a trimmed string to make dadata search suggestions correctly
+        return TRAILING_HOUSE_NUMBER_RE.test(trimmedQuery) ? `${trimmedQuery} ` : trimmedQuery
+    }
+
     /**
      * @returns {Promise<DadataObject[]>}
      */
     async get ({ query, context = '', count = 20, helpers = {} }) {
         const { tin = null } = helpers
-        const trimmedQuery = query.trim()
 
         const body = {
-            // In the case of searching string ends by house number we add a space in the tail of the string (see DOMA-5199)
-            // If there is no number in the end of string, we pass a trimmed string to make dadata search suggestions correctly
-            query: TRAILING_DIGIT_RE.test(trimmedQuery) ? `${trimmedQuery} ` : trimmedQuery,
+            query: DadataSuggestionProvider.prepareQuery(query),
             ...this.getContext(context),
             ...(isNaN(count) ? {} : { count }),
         }
