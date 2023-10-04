@@ -679,3 +679,49 @@ shell:
   - "yarn workspace @app/documents-next build"
   - "rm -rf /app/.env"
   - "rm -rf /app/.config"
+
+docker:
+  ENV:
+    LANG: C.UTF-8
+---
+image: devportalapi
+fromImage: base
+fromCacheVersion: "1"
+git:
+  - add: /
+    to: /app
+    stageDependencies:
+      install:
+        - "yarn.lock"
+        - "package.json"
+        - "**/yarn.lock"
+        - "**/package.json"
+      setup:
+        - "apps/**"
+        - "packages/**"
+        - "bin/**/*"
+    excludePaths:
+      - .github
+      - .helm
+      - werf.yaml
+      - werf-giterminism.yaml
+    owner: app
+    group: app
+
+shell:
+  install:
+    - "cd /app"
+    - "npm i -g turbo"
+    - "yarn install --immutable"
+  setup:
+  - "cd /app"
+  - "echo '# Build time .env config!' >> /app/.env"
+  - "echo 'COOKIE_SECRET=undefined' >> /app/.env"
+  - "echo 'DATABASE_URL=undefined' >> /app/.env"
+  - "echo 'REDIS_URL=undefined' >> /app/.env"
+  - "echo 'NODE_ENV=production' >> /app/.env"
+  - "echo 'FILE_FIELD_ADAPTER=local' >> /app/.env"
+  - "yarn workspace @app/dev-api next telemetry disable"
+  - "yarn workspace @app/dev-api build"
+  - "rm -rf /app/.env"
+  - "rm -rf /app/.config"

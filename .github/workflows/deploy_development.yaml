@@ -62,6 +62,7 @@ jobs:
           WERF_SET_CI_DEVPORTAL_URL: "global.ci_devportal_url=developers.d.doma.ai"
           WERF_SET_CI_PASSAPP_URL: "global.ci_passapp_url=miniapp-pass.d.doma.ai"
           WERF_SET_CI_DOCUMENTS_URL: "global.ci_documents_url=documents.d.doma.ai"
+          WERF_SET_CI_DEVPORTALAPI_URL: "global.ci_devportalapi_url=developers-api.d.doma.ai"
           WERF_NAMESPACE: "development"
           WERF_VIRTUAL_MERGE_FROM_COMMIT: "true"
           WERF_SET_CI_REF: "ci.werf.io/ref=${GITHUB_REF_NAME}"
