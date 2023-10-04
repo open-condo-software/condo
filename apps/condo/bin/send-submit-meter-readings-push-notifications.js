@@ -9,7 +9,7 @@ const path = require('path')
 
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 
-const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotifications')
+const { sendSubmitMeterReadingsPushNotifications } = require('@condo/domains/meter/utils/serverSchema/sendSubmitMeterReadingsPushNotifications')
 
 
 async function main () {

@@ -15,7 +15,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/ticket/access/IncidentExportTask')
-const { exportIncidents } = require('@condo/domains/ticket/tasks/exportIncidents')
+const { exportIncidentsTask } = require('@condo/domains/ticket/tasks')
 
 const { getFileMetaAfterChange } = FileAdapter
 
@@ -204,7 +204,7 @@ const IncidentExportTask = new GQLListSchema('IncidentExportTask', {
             await setFileMetaAfterChange(args)
 
             if (operation === 'create') {
-                await exportIncidents.delay(updatedItem.id)
+                await exportIncidentsTask.delay(updatedItem.id)
             }
         },
     },

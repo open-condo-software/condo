@@ -57,6 +57,9 @@ async function chargeByRecurrentPaymentAndPaymentAdapter (context, recurrentPaym
     }
 }
 
+/**
+ * Charge RecurrentPayment records that are ready to charge (created, retry and delayed cases)
+ */
 async function chargeRecurrentPayments () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment tasks', taskId })

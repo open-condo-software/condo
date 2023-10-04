@@ -15,7 +15,7 @@ const { EXPORT_STATUS_VALUES, PROCESSING, COMPLETED, ERROR } = require('@condo/d
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/news/access/NewsItemRecipientsExportTask')
-const { exportRecipients } = require('@condo/domains/news/tasks/exportRecipients')
+const { exportRecipientsTask } = require('@condo/domains/news/tasks')
 const { UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
 const RECIPIENTS_EXPORT_TASK_FOLDER_NAME = 'NewsItemNewsItemRecipientsExportTask'
@@ -142,7 +142,7 @@ const NewsItemRecipientsExportTask = new GQLListSchema('NewsItemRecipientsExport
 
             await setFileMetaAfterChange(args)
             if (operation === 'create') {
-                await exportRecipients.delay(updatedItem.id)
+                await exportRecipientsTask.delay(updatedItem.id)
             }
         },
     },

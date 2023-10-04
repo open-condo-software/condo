@@ -1,5 +1,4 @@
 const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 const { PropertyMeterReading } = require('@condo/domains/meter/utils/serverSchema')
@@ -28,4 +27,6 @@ async function deleteReadingsOfDeletedMeter (deletedMeter, deletedMeterAt) {
     }
 }
 
-module.exports = createTask('deleteReadingsOfDeletedMeter', deleteReadingsOfDeletedMeter)
+module.exports = {
+    deleteReadingsOfDeletedMeter,
+}

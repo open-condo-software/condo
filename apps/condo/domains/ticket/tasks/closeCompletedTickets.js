@@ -4,7 +4,6 @@ const { isEmpty, get, isNumber } = require('lodash')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const { MAX_COUNT_COMPLETED_TICKET_TO_CLOSE_FOR_ORGANIZATION_TASK } = require('@condo/domains/common/constants/featureflags')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
@@ -99,7 +98,6 @@ const closeCompletedTickets = async (defaultLimit = 100) => {
 }
 
 module.exports = {
-    closeCompletedTicketsCron: createCronTask('closeCompletedTickets', '0 1 * * *', closeCompletedTickets),
     closeCompletedTickets,
     ERROR_START_TICKET_CLOSING,
 }

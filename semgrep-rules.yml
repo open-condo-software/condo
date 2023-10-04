@@ -1,0 +1,114 @@
+rules:
+  - id: logger-message
+    languages:
+      - js
+    message: logger methods called with objects as argument, must contain "msg" to appear as a message in Kibana
+    patterns:
+      - pattern-inside: |
+          const { getLogger } = require('@open-condo/keystone/logging')
+          ...
+          const $LOGGER = getLogger(...)
+          ...
+      - pattern: $LOGGER.$METHOD({ ... })
+      - pattern-not: '$LOGGER.$METHOD({ ..., msg: $MSG, ... })'
+      - metavariable-regex:
+          metavariable: '$METHOD'
+          regex: '^(trace|debug|info|warn|error|fatal)$'
+    severity: ERROR
+
+  - id: deprecated-server-side-graphql-client
+    languages:
+      - js
+    message: This utils are incompatible with Keystone 6. Additionally, we are attempting to address a problem that can readily be resolved using existing utilities, such as the `execGqlAsUser` function. Recommended data access techniques are described in apps/condo/docs/development/data-access.md
+    patterns:
+      - pattern-inside: const { ... } = require('@keystonejs/server-side-graphql-client')
+      - pattern: '$GETTER'
+      - metavariable-regex:
+          metavariable: '$GETTER'
+          regex: '^get\w+$'
+    metadata:
+      references:
+        - condo/apps/condo/docs/development/data-access.md
+    severity: WARNING
+
+  - id: task-create-only-in-index-files
+    languages:
+      - js
+    message: Cron task should be created only in tasks/index.js files. You can implement corresponding function in a separate module, but usage of "createCronTask" in only allowed in tasks/index.js file to make it easier to find and manage them
+    severity: ERROR
+    patterns:
+      - pattern-inside: |
+          const { $CREATE_TASK } = require('@open-condo/keystone/tasks')
+          ...
+      - pattern: '$CREATE_TASK'
+      - metavariable-regex:
+          metavariable: '$CREATE_TASK'
+          regex: '^create(Cron){0,1}Task$'
+    paths:
+      exclude:
+        - tasks/index.js
+
+  - id: tasks-name-should-match-name-of-function
+    languages:
+      - js
+    message: Name of task should match name of function
+    severity: ERROR
+    patterns:
+      - pattern-inside: $CREATE_TASK('$NAME', ..., $FUNC, ...)
+      - metavariable-regex:
+          metavariable: '$CREATE_TASK'
+          regex: '^create(Cron){0,1}Task$'
+      - metavariable-regex:
+          metavariable: '$NAME'
+          regex: '^\w+$'
+      - metavariable-regex:
+          metavariable: '$FUNC'
+          regex: '^\w+$'
+      - metavariable-comparison:
+          comparison: str($NAME) != str($FUNC)
+
+  - id: task-export-name-should-have-correct-endings
+    languages:
+      - js
+    message: |
+      If you calling "createTask", then export should be named as "...Task".
+      Example: "processSomethingTask = createTask('processSomething', processSomething)"
+    severity: ERROR
+    patterns:
+    - pattern: |
+        const { ..., createTask, ... } = require('@open-condo/keystone/tasks')
+        ...
+        module.exports = { ..., $EXPORT: createTask(...), ... }
+    - metavariable-regex:
+        metavariable: '$EXPORT'
+        regex: '^\w+(?<!Task)$'
+
+  - id: task-cron-export-should-have-correct-endings
+    languages:
+      - js
+    message: |
+      If you calling "createCronTask", then export should be named as "...Task".
+      Example: "processSomethingCronTask = createCronTask('processSomething', '1 * * * *', processSomething)"
+    severity: ERROR
+    patterns:
+    - pattern: |
+        const { ..., createCronTask, ... } = require('@open-condo/keystone/tasks')
+        ...
+        module.exports = { ..., $EXPORT: createCronTask(...), ... }
+    - metavariable-regex:
+        metavariable: '$EXPORT'
+        regex: '^\w+(?<!CronTask)$'
+
+  - id: task-export-should-be-in-module-exports
+    languages:
+      - js
+    message: Don't use intermediate constants or variables, export created task right inside of "module.exports = { ... }"
+    severity: ERROR
+    patterns:
+      - pattern: $DECLARATION = $CREATE_TASK(...)
+      - metavariable-regex:
+          metavariable: '$DECLARATION'
+          regex: '^(const|var|let)\s+\w+$'
+      - metavariable-regex:
+          metavariable: '$CREATE_TASK'
+          regex: '^create(Cron){0,1}Task$'

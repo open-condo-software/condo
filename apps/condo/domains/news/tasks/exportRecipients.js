@@ -10,7 +10,6 @@ const pickBy = require('lodash/pickBy')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { ERROR, COMPLETED } = require('@condo/domains/common/constants/export')
@@ -71,7 +70,7 @@ const buildExportFile = async ({ rows, locale }) => {
  */
 async function exportRecipients (taskId) {
     if (!taskId) {
-        logger.error({ message: 'taskId is undefined' })
+        logger.error({ msg: 'taskId is undefined' })
         throw new Error('taskId is undefined')
     }
     const { keystone: context } = await getSchemaCtx('NewsItemRecipientsExportTask')
@@ -187,11 +186,11 @@ async function exportRecipients (taskId) {
 
     } catch (err) {
         await NewsItemRecipientsExportTask.update(context, taskId, { ...dvAndSender, status: ERROR })
-        logger.error({ message: 'Failed to export incidents', data: { id: taskId }, err })
+        logger.error({ msg: 'Failed to export incidents', data: { id: taskId }, err })
         throw err
     }
 }
 
 module.exports = {
-    exportRecipients: createTask('exportRecipients', exportRecipients, { priority: 2 }),
+    exportRecipients,
 }

@@ -6,7 +6,6 @@ const map = require('lodash/map')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { ERROR, PDF } = require('@condo/domains/common/constants/export')
@@ -328,5 +327,5 @@ async function exportTickets (taskId) {
 }
 
 module.exports = {
-    exportTickets: createTask('exportTickets', exportTickets, { priority: 2 }),
+    exportTickets,
 }

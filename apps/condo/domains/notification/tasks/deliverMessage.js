@@ -9,7 +9,6 @@ const { safeFormatError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const {
     SMS_TRANSPORT,
@@ -222,5 +221,5 @@ async function deliverMessage (messageId) {
 }
 
 module.exports = {
-    deliverMessage: createTask('deliverMessage', deliverMessage, { priority: 1 }),
+    deliverMessage,
 }

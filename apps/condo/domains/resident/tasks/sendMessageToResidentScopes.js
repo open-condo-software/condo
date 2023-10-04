@@ -4,7 +4,6 @@ const { v4: uuid } = require('uuid')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { MESSAGE_META } = require('@condo/domains/notification/constants/constants')
@@ -154,8 +153,6 @@ const sendMessageToResidentScopes = async (json) => {
     return { successCount, attemptsCount: residentsCount, skippedDuplicates }
 }
 
-const sendMessageToResidentScopesTask = createTask('sendMessageToResidentScopesTask', sendMessageToResidentScopes)
-
 module.exports = {
-    sendMessageToResidentScopesTask,
+    sendMessageToResidentScopes,
 }

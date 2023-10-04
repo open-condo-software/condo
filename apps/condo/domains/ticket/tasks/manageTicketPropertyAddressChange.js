@@ -1,5 +1,4 @@
 const { getSchemaCtx, find } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
@@ -27,5 +26,5 @@ async function manageTicketPropertyAddressChange (propertyId, userInfo) {
 }
 
 module.exports = {
-    manageTicketPropertyAddressChange: createTask('manageTicketPropertyAddressChange', manageTicketPropertyAddressChange),
+    manageTicketPropertyAddressChange,
 }

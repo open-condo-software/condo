@@ -22,6 +22,7 @@ const {
 
 const { obsRouterHandler } = require('./sberCloudFileAdapter')
 
+
 const { keystone } = index
 
 const FOLDER_NAME = '__jest_test_api___'
@@ -205,7 +206,7 @@ describe('Sbercloud', () => {
             }
         })
 
-        it('check access for read file by model', async () => {
+        it('check access for read file by model with specified id', async () => {
             if (Api) {
                 const { objectName } = await getFileWithMeta({
                     listkey: 'BillingIntegrationOrganizationContext',
@@ -219,6 +220,22 @@ describe('Sbercloud', () => {
                 )
             }
         })
+
+        it('check access for read file by model with specified ids', async () => {
+            if (Api) {
+                const { objectName } = await getFileWithMeta({
+                    listkey: 'BillingIntegrationOrganizationContext',
+                    ids: [billingContext.id],
+                })
+
+                handler(
+                    mockedReq(objectName, adminClient.user),
+                    { ...mockedRes, redirect: console.log },
+                    mockedNext,
+                )
+            }
+        })
+
         it('check access for read file by model param', async () => {
             if (Api) {
                 const { objectName } = await getFileWithMeta({

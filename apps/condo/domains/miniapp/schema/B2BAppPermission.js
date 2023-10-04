@@ -16,7 +16,7 @@ const {
     MAX_PERMISSION_NAME_LENGTH,
     MIN_PERMISSION_NAME_LENGTH,
 } = require('@condo/domains/miniapp/constants')
-const { updateB2BAppRolesPermissions } = require('@condo/domains/miniapp/tasks')
+const { updateB2BAppRolesPermissionsTask } = require('@condo/domains/miniapp/tasks')
 
 const ERRORS = {
     PERMISSION_KEY_WRONG_FORMAT: {
@@ -104,9 +104,9 @@ const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
             const isSoftDeletedHappened = newDeletedAt && !oldDeletedAt
 
             if (isSoftDeletedHappened) {
-                await updateB2BAppRolesPermissions.delay(appId, oldKey, null)
+                await updateB2BAppRolesPermissionsTask.delay(appId, oldKey, null)
             } else if (newKey !== oldKey) {
-                await updateB2BAppRolesPermissions.delay(appId, oldKey, newKey)
+                await updateB2BAppRolesPermissionsTask.delay(appId, oldKey, newKey)
             }
 
         },

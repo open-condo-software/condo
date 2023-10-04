@@ -10,7 +10,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/banking/access/BankAccountReportTask')
-const { generateReportsTask } = require('@condo/domains/banking/tasks/generateReports')
+const { generateReportsTask } = require('@condo/domains/banking/tasks')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 
 const { BANK_SYNC_TASK_STATUS } = require('../constants')

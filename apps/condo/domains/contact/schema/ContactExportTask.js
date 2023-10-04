@@ -17,7 +17,7 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const access = require('@condo/domains/contact/access/ContactExportTask')
-const { exportContacts } = require('@condo/domains/contact/tasks')
+const { exportContactsTask } = require('@condo/domains/contact/tasks')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 
 const ContactExportTaskFileAdapter = new FileAdapter('ContactExportTask')
@@ -183,7 +183,7 @@ const ContactExportTask = new GQLListSchema('ContactExportTask', {
             await setFileMetaAfterChange(args)
 
             if (operation === 'create') {
-                await exportContacts.delay(updatedItem.id)
+                await exportContactsTask.delay(updatedItem.id)
             }
         },
     },

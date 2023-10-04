@@ -5,7 +5,6 @@ const truncate = require('lodash/truncate')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { SENDING_DELAY_SEC } = require('@condo/domains/news/constants/common')
@@ -29,17 +28,17 @@ const BODY_MAX_LEN = 150
  */
 function checkSendingPossibility (newsItem) {
     if (newsItem.deletedAt) {
-        logger.warn({ message: 'Trying to send deleted news item', newsItem })
+        logger.warn({ msg: 'Trying to send deleted news item', newsItem })
         return false
     }
 
     if (newsItem.sentAt) {
-        logger.warn({ message: 'Trying to send news item which already been sent', newsItem })
+        logger.warn({ msg: 'Trying to send news item which already been sent', newsItem })
         return false
     }
 
     if (!newsItem.isPublished) {
-        logger.warn({ message: 'Trying to send unpublished news item', newsItem })
+        logger.warn({ msg: 'Trying to send unpublished news item', newsItem })
         return false
     }
 
@@ -167,7 +166,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
             const now = dayjs().unix()
             if (now - dayjs(actualNewsItem.publishedAt).unix() < SENDING_DELAY_SEC) {
                 logger.warn({
-                    message: 'NewsItem was re-published before sending timeout passed. Do nothing',
+                    msg: 'NewsItem was re-published before sending timeout passed. Do nothing',
                     actualNewsItem,
                     SENDING_DELAY_SEC,
                     now,
@@ -180,4 +179,6 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
     }
 }
 
-module.exports = createTask('notifyResidentsAboutNewsItem', notifyResidentsAboutNewsItem, { priority: 2 })
+module.exports = {
+    notifyResidentsAboutNewsItem,
+}

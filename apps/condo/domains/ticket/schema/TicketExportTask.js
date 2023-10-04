@@ -15,12 +15,11 @@ const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
 const access = require('@condo/domains/ticket/access/TicketExportTask')
-
+const { exportTicketsTask } = require('@condo/domains/ticket/tasks')
 
 const { TICKET_EXPORT_OPTIONS_FIELD } = require('./fields/TicketExportParameters')
 
 const { getFileMetaAfterChange } = require('../../common/utils/fileAdapter')
-const { exportTickets } = require('../tasks')
 
 const TICKET_EXPORT_TASK_FOLDER_NAME = 'TicketExportTask'
 const TicketExportTaskFileAdapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
@@ -190,7 +189,7 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
             const { updatedItem, operation } = args
             await setFileMetaAfterChange(args)
             if (operation === 'create') {
-                await exportTickets.delay(updatedItem.id)
+                await exportTicketsTask.delay(updatedItem.id)
             }
         },
     },

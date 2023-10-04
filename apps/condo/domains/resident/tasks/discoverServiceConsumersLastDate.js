@@ -3,26 +3,25 @@ const dayjs = require('dayjs')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getRedisClient } = require('@open-condo/keystone/redis')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersCronTask' } }
-const logger = getLogger('discoverServiceConsumersCronTask')
+const logger = getLogger('discoverServiceConsumersLastDate')
 const redisClient = getRedisClient('discoverServiceConsumersCronTask')
 const REDIS_KEY = 'discoverServiceConsumersLastDate'
 
 /**
  * @returns {Promise<void>}
  */
-async function discoverServiceConsumersCronTask () {
+async function discoverServiceConsumersLastDate () {
     const lastDate = await redisClient.get(REDIS_KEY)
     if (!lastDate) {
-        const message = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} ${dayjs().toISOString()}")`
-        logger.warn({ message })
-        throw new Error(message)
+        const msg = `No last date in redis. Please set the ${REDIS_KEY} key with date (for example, "set ${REDIS_KEY} ${dayjs().toISOString()}")`
+        logger.warn({ msg })
+        throw new Error(msg)
     }
 
     const { keystone: context } = getSchemaCtx('BillingAccount')
@@ -64,14 +63,14 @@ async function discoverServiceConsumersCronTask () {
 
     try {
         const result = await discoverServiceConsumers(context, data)
-        logger.info({ message: 'discoverServiceConsumersCronTask done', result })
+        logger.info({ msg: 'Done', result })
         redisClient.set(REDIS_KEY, dayjs(maxDate).toISOString())
     } catch (err) {
-        logger.error({ message: 'discoverServiceConsumersCronTask fail', err })
+        logger.error({ msg: 'Error', err })
     }
 }
 
 module.exports = {
     REDIS_KEY,
-    discoverServiceConsumersCronTask: createCronTask('discoverServiceConsumersCronTask', '13 * * * *', discoverServiceConsumersCronTask, { priority: 10 }),
+    discoverServiceConsumersLastDate,
 }

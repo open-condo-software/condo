@@ -55,6 +55,9 @@ async function notifyRecurrentPaymentContext (context, date, recurrentPaymentCon
     }
 }
 
+/**
+ * Notify end users about tomorrow payment
+ */
 async function notifyBeforeRecurrentPaymentDate () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment notifications tasks', taskId })

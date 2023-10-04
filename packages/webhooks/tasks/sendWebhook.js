@@ -5,7 +5,7 @@ const { execGqlAsUser } = require('@open-condo/codegen/generate.server.utils')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { taskQueue, createTask } = require('@open-condo/keystone/tasks')
+const { taskQueue } = require('@open-condo/keystone/tasks')
 const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
 const { WebhookSubscription } = require('@open-condo/webhooks/schema/utils/serverSchema')
 const { trySendData, buildQuery } = require('@open-condo/webhooks/tasks/tasks.utils')
@@ -26,7 +26,7 @@ async function sendWebhook (subscriptionId) {
 
     const lockKey = `sendWebhook:${subscriptionId}`
     const lock = await rLock.acquire([lockKey], LOCK_DURATION)
-    logger.info({ message: 'Lock acquired', subscriptionId })
+    logger.info({ msg: 'Lock acquired', subscriptionId })
 
     try {
         const subscription = await WebhookSubscription.getOne(keystone, { id: subscriptionId })
@@ -104,16 +104,16 @@ async function sendWebhook (subscriptionId) {
                 }
 
                 if (response.status === 523) {
-                    logger.error({ message: 'Data was not sent. Reason: Unreachable resource', subscriptionId })
+                    logger.error({ msg: 'Data was not sent. Reason: Unreachable resource', subscriptionId })
                     return { status: NO_RESPONSE_STATUS }
                 } else {
-                    logger.error({ message: 'Data was sent, but server response was not ok', status: response.status, subscriptionId })
+                    logger.error({ msg: 'Data was sent, but server response was not ok', status: response.status, subscriptionId })
                     return { status: BAD_RESPONSE_STATUS }
                 }
 
             } else {
                 totalLoaded += lastLoaded
-                logger.info({ message: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
+                logger.info({ msg: 'Data batch was sent', subscriptionId, batchSize: lastLoaded, total: totalLoaded, syncedAt })
             }
 
             // Step 3: Update subscription state if full batch received. Else condition will lead to final update
@@ -135,12 +135,12 @@ async function sendWebhook (subscriptionId) {
         return { status: OK_STATUS }
 
     } finally {
-        logger.info({ message: 'Lock released', subscriptionId })
+        logger.info({ msg: 'Lock released', subscriptionId })
         await lock.release()
     }
 }
 
 module.exports = {
     trySendData,
-    sendWebhook: createTask('sendWebHook', sendWebhook, { priority: 2 }),
+    sendWebhook,
 }

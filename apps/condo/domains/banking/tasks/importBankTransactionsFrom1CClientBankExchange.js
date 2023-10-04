@@ -5,7 +5,6 @@ const { get, isEmpty } = require('lodash')
 const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 const { i18n } = require('@open-condo/locales/loader')
 
 const {
@@ -344,5 +343,5 @@ const importBankTransactionsFrom1CClientBankExchange = async (taskId) => {
 }
 
 module.exports = {
-    importBankTransactionsFrom1CClientBankExchange: createTask('importBankTransactionsFrom1CClientBankExchange', importBankTransactionsFrom1CClientBankExchange),
+    importBankTransactionsFrom1CClientBankExchange,
 }

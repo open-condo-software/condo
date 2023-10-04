@@ -13,7 +13,7 @@ const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema
 const access = require('@condo/domains/scope/access/PropertyScope')
 const { MAX_NAME_LENGTH_ERROR } = require('@condo/domains/scope/constants/errors')
 const { MAX_NAME_LENGTH } = require('@condo/domains/scope/constants/index')
-const { deleteRelatedPropertyScopeOrganizationEmployee, deleteRelatedPropertyScopeProperty } = require('@condo/domains/scope/tasks')
+const { deleteRelatedPropertyScopePropertyTask, deleteRelatedPropertyScopeOrganizationEmployeeTask } = require('@condo/domains/scope/tasks')
 
 const ERRORS = {
     MAX_NAME_LENGTH: {
@@ -65,8 +65,8 @@ const PropertyScope = new GQLListSchema('PropertyScope', {
                 const deletedPropertyScopeAt = get(originalInput, 'deletedAt')
 
                 if (deletedPropertyScopeAt) {
-                    await deleteRelatedPropertyScopeOrganizationEmployee.delay(updatedItem, deletedPropertyScopeAt)
-                    await deleteRelatedPropertyScopeProperty.delay(updatedItem, deletedPropertyScopeAt)
+                    await deleteRelatedPropertyScopeOrganizationEmployeeTask.delay(updatedItem, deletedPropertyScopeAt)
+                    await deleteRelatedPropertyScopePropertyTask.delay(updatedItem, deletedPropertyScopeAt)
                 }
             }
         },

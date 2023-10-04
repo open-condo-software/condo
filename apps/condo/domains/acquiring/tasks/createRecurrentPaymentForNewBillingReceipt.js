@@ -75,6 +75,10 @@ async function scanBillingReceiptsForRecurrentPaymentContext (context, recurrent
     }
 }
 
+/**
+ * Find new billing receipts that have service consumer which have RecurrentPaymentContext with "autoPay" feature enabled.
+ * Notify end-users and create RecurrentPayment with "payAfter" date set to tomorrow
+ */
 async function createRecurrentPaymentForNewBillingReceipt () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing new billing receipts for recurrentPaymentContext tasks', taskId })

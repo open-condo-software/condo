@@ -1,7 +1,6 @@
 const dayjs = require('dayjs')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { MessageBatch } = require('@condo/domains/notification/utils/serverSchema')
 
@@ -77,5 +76,5 @@ async function sendMessageBatch (batchId) {
 }
 
 module.exports = {
-    sendMessageBatch: createTask('sendMessageBatch', sendMessageBatch, { priority: 5 }),
+    sendMessageBatch,
 }

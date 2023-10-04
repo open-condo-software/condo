@@ -5,7 +5,6 @@ const uniq = require('lodash/uniq')
 
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 const { i18n } = require('@open-condo/locales/loader')
 
 const { ERROR, EXCEL } = require('@condo/domains/common/constants/export')
@@ -228,5 +227,5 @@ async function exportIncidents (taskId) {
 }
 
 module.exports = {
-    exportIncidents: createTask('exportIncidents', exportIncidents, { priority: 2 }),
+    exportIncidents,
 }

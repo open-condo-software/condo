@@ -10,7 +10,8 @@ const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { SUCCESS_STATUS } = require('@condo/domains/common/constants')
 const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/resident/access/SendMessageToResidentScopesService')
-const { sendMessageToResidentScopesTask } = require('@condo/domains/resident/tasks/sendMessageToResidentScopes.task')
+
+const { sendMessageToResidentScopesTask } = require('../tasks')
 
 const MUTATION_NAME = 'sendMessageToResidentScopes'
 
@@ -86,7 +87,6 @@ const SendMessageToResidentScopesService = new GQLCustomSchema('SendMessageToRes
             },
         },
     ],
-
 })
 
 module.exports = {

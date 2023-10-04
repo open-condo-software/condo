@@ -48,6 +48,10 @@ async function createRecurrentPaymentForRecurrentPaymentContext (context, date, 
     })
 }
 
+/**
+ * Find billing receipts for billing with specific conditions (period, category, ..)
+ * and create a RecurrentPayments for those receipts
+ */
 async function createRecurrentPaymentForReadyToPayRecurrentPaymentContexts () {
     const taskId = this.id || uuid()
     logger.info({ msg: 'Start processing recurrent payment context', taskId })

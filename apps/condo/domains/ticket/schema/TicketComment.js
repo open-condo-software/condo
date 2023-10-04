@@ -12,7 +12,8 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const access = require('@condo/domains/ticket/access/TicketComment')
 const { COMMENT_TYPES, RESIDENT_COMMENT_TYPE, ORGANIZATION_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { sendTicketCommentNotifications, updateTicketLastCommentTime } = require('@condo/domains/ticket/utils/handlers')
+const { sendTicketCommentNotificationsTask } = require('@condo/domains/ticket/tasks')
+const { updateTicketLastCommentTime } = require('@condo/domains/ticket/utils/handlers')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { createOrUpdateTicketCommentsTime } = require('../utils/handlers')
@@ -95,7 +96,14 @@ const TicketComment = new GQLListSchema('TicketComment', {
                 }
             }
 
-            await sendTicketCommentNotifications(requestData)
+            await sendTicketCommentNotificationsTask.delay({
+                operation,
+                ticketId: get(updatedItem, 'ticket'),
+                createdById: get(updatedItem, 'createdBy'),
+                commentId: updatedItem.id,
+                commentType: get(updatedItem, 'type'),
+                sender: updatedItem.sender,
+            })
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
