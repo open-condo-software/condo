@@ -96,8 +96,12 @@ type PermissionRequiredPageProps = {
 
 const PermissionsRequiredWrapper: React.FC<PermissionRequiredPageProps> = ({ children, permissionKeys }) => {
     const { link } = useOrganization()
+
     const role = useMemo(() => get(link, 'role'), [link])
+
     const isAccessDenied = useMemo(() => {
+        if (!role) return true
+
         for (const permissionKey of permissionKeys) {
             if (!role[permissionKey]) {
                 return true
