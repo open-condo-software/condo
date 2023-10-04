@@ -260,17 +260,22 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         return null
     }
 
+    static prepareQuery (query) {
+        const trimmedQuery = query.trim()
+
+        // In the case of searching string ends by house number we add a space in the tail of the string (see DOMA-5199)
+        // If there is no number in the end of string, we pass a trimmed string to make dadata search suggestions correctly
+        return TRAILING_HOUSE_NUMBER_RE.test(trimmedQuery) ? `${trimmedQuery} ` : trimmedQuery
+    }
+
     /**
      * @returns {Promise<DadataObject[]>}
      */
     async get ({ query, context = '', count = 20, helpers = {} }) {
         const { tin = null } = helpers
-        const trimmedQuery = query.trim()
 
         const body = {
-            // In the case of searching string ends by house number we add a space in the tail of the string (see DOMA-5199)
-            // If there is no number in the end of string, we pass a trimmed string to make dadata search suggestions correctly
-            query: TRAILING_HOUSE_NUMBER_RE.test(trimmedQuery) ? `${trimmedQuery} ` : trimmedQuery,
+            query: DadataSuggestionProvider.prepareQuery(query),
             ...this.getContext(context),
             ...(isNaN(count) ? {} : { count }),
         }
