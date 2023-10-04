@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
+import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import isArray from 'lodash/isArray'
@@ -11,7 +12,7 @@ import React, { useCallback, useMemo } from 'react'
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Typography } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -136,6 +137,16 @@ const NewsTableContainer = ({
 
     const isAllLoaded = !(loading || isNewsFetching || isNewsItemScopeFetching)
 
+    const actionBarButtons: ActionBarProps['actions'] = useMemo(() => [
+        canManage && <Button
+            key='addNews'
+            type='primary'
+            children={CreateNewsLabel}
+            icon={<PlusCircle size='medium'/>}
+            onClick={handleAddNews}
+        />,
+    ], [CreateNewsLabel, canManage, handleAddNews])
+
     return (
         <Row gutter={PAGE_ROW_GUTTER}>
             <Col span={24}>
@@ -148,19 +159,15 @@ const NewsTableContainer = ({
                     onRow={handleRowAction}
                 />
             </Col>
-            <Col span={24}>
-                <ActionBar
-                    actions={[
-                        canManage && <Button
-                            key='addNews'
-                            type='primary'
-                            children={CreateNewsLabel}
-                            icon={<PlusCircle size='medium'/>}
-                            onClick={handleAddNews}
-                        />,
-                    ]}
-                />
-            </Col>
+            {
+                !isEmpty(actionBarButtons.filter(Boolean)) && (
+                    <Col span={24}>
+                        <ActionBar
+                            actions={actionBarButtons}
+                        />
+                    </Col>
+                )
+            }
         </Row>
     )
 }

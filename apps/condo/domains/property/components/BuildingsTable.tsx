@@ -14,7 +14,7 @@ import React, { useMemo, useState } from 'react'
 
 import { FileDown, PlusCircle, Search, Sheet } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
@@ -96,7 +96,7 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const isNoBuildingsData = isEmpty(properties) && isEmpty(filters) && !propertiesLoading && !loading
 
     const canManageProperties = get(role, 'canManageProperties', false)
-    const isDownloadButtonHidden = !get(role, 'canManageProperties', canDownloadProperties === true)
+    const isDownloadButtonHidden = !get(role, 'canReadProperties', canDownloadProperties === true)
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
     const exampleTemplateLink = useMemo(() => `/buildings-import-example-${intl.locale}.xlsx`, [intl.locale])
 
@@ -110,6 +110,62 @@ export default function BuildingsTable (props: BuildingTableProps) {
             },
         })
     }
+
+    const actionBarButtons: ActionBarProps['actions'] = useMemo(() =>
+        [
+            canManageProperties && (
+                <>
+                    <Button
+                        type='primary'
+                        onClick={async () => await router.push('/property/create')}
+                        icon={<PlusCircle size='medium'/>}
+                    >
+                        {CreateLabel}
+                    </Button>
+                    <ImportWrapper
+                        objectsName={PropertiesMessage}
+                        accessCheck={canManageProperties}
+                        onFinish={refetch}
+                        columns={columns}
+                        rowNormalizer={propertyNormalizer}
+                        rowValidator={propertyValidator}
+                        domainTranslate={PropertyTitle}
+                        objectCreator={propertyCreator}
+                        exampleTemplateLink={exampleTemplateLink}
+                    >
+                        <Button
+                            type='secondary'
+                            icon={<FileDown size='medium' />}
+                        >
+                            {ImportButtonMessage}
+                        </Button>
+                    </ImportWrapper>
+                </>
+            ),
+            !isDownloadButtonHidden && (
+                downloadLink
+                    ? (
+                        <Button
+                            type='secondary'
+                            icon={<Sheet size='medium' />}
+                            loading={isXlsLoading}
+                            target='_blank'
+                            href={downloadLink}
+                            rel='noreferrer'>
+                            {DownloadExcelLabel}
+                        </Button>
+                    )
+                    : (
+                        <Button
+                            type='secondary'
+                            icon={<Sheet size='medium' />}
+                            loading={isXlsLoading}
+                            onClick={onExportToExcelButtonClicked}>
+                            {ExportAsExcel}
+                        </Button>
+                    )
+            ),
+        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, ImportButtonMessage, PropertiesMessage, PropertyTitle, canManageProperties, columns, downloadLink, exampleTemplateLink, isDownloadButtonHidden, isXlsLoading, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
 
     return (
         <>
@@ -164,63 +220,14 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         data-cy='property__table'
                     />
                 </Col>
-                <Col span={24}>
-                    <ActionBar actions={[
-                        canManageProperties && (
-                            <>
-                                <Button
-                                    type='primary'
-                                    onClick={async () => await router.push('/property/create')}
-                                    icon={<PlusCircle size='medium'/>}
-                                >
-                                    {CreateLabel}
-                                </Button>
-                                <ImportWrapper
-                                    objectsName={PropertiesMessage}
-                                    accessCheck={canManageProperties}
-                                    onFinish={refetch}
-                                    columns={columns}
-                                    rowNormalizer={propertyNormalizer}
-                                    rowValidator={propertyValidator}
-                                    domainTranslate={PropertyTitle}
-                                    objectCreator={propertyCreator}
-                                    exampleTemplateLink={exampleTemplateLink}
-                                >
-                                    <Button
-                                        type='secondary'
-                                        icon={<FileDown size='medium' />}
-                                    >
-                                        {ImportButtonMessage}
-                                    </Button>
-                                </ImportWrapper>
-                            </>
-                        ),
-                        !isDownloadButtonHidden && (
-                            downloadLink
-                                ? (
-                                    <Button
-                                        type='secondary'
-                                        icon={<Sheet size='medium' />}
-                                        loading={isXlsLoading}
-                                        target='_blank'
-                                        href={downloadLink}
-                                        rel='noreferrer'>
-                                        {DownloadExcelLabel}
-                                    </Button>
-                                )
-                                : (
-                                    <Button
-                                        type='secondary'
-                                        icon={<Sheet size='medium' />}
-                                        loading={isXlsLoading}
-                                        onClick={onExportToExcelButtonClicked}>
-                                        {ExportAsExcel}
-                                    </Button>
-                                )
-                        ),
-                    ]}
-                    />
-                </Col>
+                {
+                    !isEmpty(actionBarButtons.filter(Boolean)) && (
+                        <Col span={24}>
+                            <ActionBar actions={actionBarButtons}
+                            />
+                        </Col>
+                    )
+                }
             </Row>
         </>
     )
