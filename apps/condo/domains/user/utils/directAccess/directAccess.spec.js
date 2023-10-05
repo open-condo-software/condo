@@ -5,7 +5,7 @@ describe('Direct access utils specs', () => {
     const TEST_CONFIGS = [
         [
             'string-passed list',
-            { lists: ['B2BApp'], fields: [], services: [] },
+            { lists: ['B2BApp'], fields: {}, services: [] },
             ['canReadB2BApps', 'canManageB2BApps'],
         ],
         [
