@@ -5,14 +5,8 @@
  */
 
 /**
- * @typedef {Object} DirectAccessField
- * @property {string} schemaName
- * @property {string} fieldName
- */
-
-/**
  * @typedef {Object} DirectAccessConfig
- * @property {Array.<DirectAccessField>} fields
+ * @property {Object.<string, Array.<string>>} fields
  * @property {Array.<DirectAccessList | string>} lists
  * @property {Array.<string>} services
  */
@@ -47,9 +41,9 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
         // Ticket domain
         'Ticket',
     ],
-    fields: [
-        { schemaName: 'Organization', fieldName: 'isApproved' },
-    ],
+    fields: {
+        Organization: ['isApproved'],
+    },
     services: [
         'registerNewServiceUser',
         'sendMessage',

@@ -9,8 +9,8 @@ const {
     generateManageSchemaFieldName,
     generateExecuteServiceFieldName,
     generateFieldNameToManageField,
-    getFieldNamesBySchemaName,
 } = require('./common.utils')
+const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('./config')
 
 
 const DEFAULT_CHECKBOX_FIELD = {
@@ -61,11 +61,14 @@ function generateRightSetFields (config) {
         }
     }
 
-    for (const fieldConfig of config.fields) {
-        fields[generateFieldNameToManageField(fieldConfig.schemaName, fieldConfig.fieldName)] = {
-            ...DEFAULT_CHECKBOX_FIELD,
-            schemaDoc:
-                `Enables a user with the given UserRightsSet to update "${fieldConfig.fieldName}" field of model "${fieldConfig.schemaName}"`,
+    const fieldsConfig = Object.entries(config.fields)
+    for (const [schemaName, fieldNames] of fieldsConfig) {
+        for (const fieldName of fieldNames) {
+            fields[generateFieldNameToManageField(schemaName, fieldName)] = {
+                ...DEFAULT_CHECKBOX_FIELD,
+                schemaDoc:
+                    `Enables a user with the given UserRightsSet to update "${fieldName}" field of model "${schemaName}"`,
+            }
         }
     }
 
@@ -113,7 +116,7 @@ const FIELD_NAMES_TO_SKIP_ACCESS = ['dv', 'sender']
  * @return {Promise<boolean>}
  */
 async function canDirectlyManageSchemaObjects (user, schemaName, originalInput, operation) {
-    const fieldNamesWithAccess = getFieldNamesBySchemaName(schemaName)
+    const fieldNamesWithAccess = get(DIRECT_ACCESS_AVAILABLE_SCHEMAS, ['fields', schemaName], [])
     const isUpdateOperation = operation === 'update'
 
     const originalInputFieldNames = Object.keys(originalInput).filter(fieldName => !FIELD_NAMES_TO_SKIP_ACCESS.includes(fieldName))

@@ -10,29 +10,29 @@ describe('Direct access utils specs', () => {
         ],
         [
             'config-passed list',
-            { lists: [{ schemaName: 'B2CAppBuild' }], fields: [], services: [] },
+            { lists: [{ schemaName: 'B2CAppBuild' }], fields: {}, services: [] },
             ['canReadB2CAppBuilds', 'canManageB2CAppBuilds'],
         ],
         [
             'config-passed readonly list',
-            { lists: [{ schemaName: 'Organization', readonly: true }], fields: [], services: [] },
+            { lists: [{ schemaName: 'Organization', readonly: true }], fields: {}, services: [] },
             ['canReadOrganizations'],
         ],
         [
             'mutation / query',
-            { lists: [], fields: [], services: ['allMiniApps', 'registerNewServiceUser'] },
+            { lists: [], fields: {}, services: ['allMiniApps', 'registerNewServiceUser'] },
             ['canExecuteAllMiniApps', 'canExecuteRegisterNewServiceUser'],
         ],
         [
             'field',
-            { lists: [], fields: [{ schemaName: 'Organization', fieldName: 'isApproved' }], services: [] },
+            { lists: [], fields: { Organization: ['isApproved'] }, services: [] },
             ['canManageOrganizationIsApprovedField'],
         ],
         [
             'complex example',
             {
                 lists: ['B2BApp', { schemaName: 'Organization', readonly: true }],
-                fields: [{ schemaName: 'Organization', fieldName: 'isApproved' }],
+                fields: { Organization: ['isApproved'] },
                 services: ['registerNewServiceUser'],
             },
             [
