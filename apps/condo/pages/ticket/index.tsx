@@ -820,13 +820,12 @@ export const TicketsPageContent = ({
             favoriteTicketsIds
     }
 
-    const { useFlag } = useFeatureFlags()
+    const { useFlag, useFlagValue } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
     const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
 
-    const { useFlagValue } = useFeatureFlags()
     const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
     const canManageTickets = useMemo(() => get(link, ['role', 'canManageTickets'], false), [link])
 
@@ -853,6 +852,9 @@ export const TicketsPageContent = ({
             </ImportWrapper>
         )
     }, [ImportButtonMessage, TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, canManageTickets, columns, exampleTemplateLink, isTicketImportFeatureEnabled, maxTableLength, showImport, ticketCreator, ticketNormalizer, ticketValidator, ticketsWithoutFiltersCount])
+
+    //TODO(DOMA-7354): Remove featureflag after resolve global search problem
+    const disableTicketCounters = useFlag('callcenter-disable-ticket-counters')
 
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null
@@ -881,10 +883,14 @@ export const TicketsPageContent = ({
                     />
                 </Col>
                 <Col span={24}>
-                    <TicketStatusFilterContainer
-                        searchTicketsQuery={searchTicketsQuery}
-                        searchTicketsWithoutStatusQuery={searchTicketsWithoutStatusQuery}
-                    />
+                    {
+                        !disableTicketCounters && (
+                            <TicketStatusFilterContainer
+                                searchTicketsQuery={searchTicketsQuery}
+                                searchTicketsWithoutStatusQuery={searchTicketsWithoutStatusQuery}
+                            />
+                        )
+                    }
                 </Col>
             </Row>
             <TicketsTableContainer
