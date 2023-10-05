@@ -1,3 +1,4 @@
+import { ApolloProvider } from '@apollo/client'
 import { ConfigProvider, Layout } from 'antd'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
@@ -6,7 +7,6 @@ import { Noto_Sans_Mono }  from 'next/font/google'
 import localFont from 'next/font/local'
 import { IntlProvider } from 'react-intl'
 
-// import { withApollo } from '@open-condo/next/apollo'
 import { Header } from '@/domains/common/components/Header'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
@@ -23,6 +23,9 @@ const monoFont = Noto_Sans_Mono({
 
 import type { AppProps } from 'next/app'
 import type { ReactNode } from 'react'
+
+import { useApollo } from '@/lib/apollo'
+import { AuthProvider } from '@/lib/auth'
 
 import 'antd/dist/reset.css'
 import '@open-condo/ui/dist/styles.min.css'
@@ -52,23 +55,24 @@ declare global {
 
 function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const { locale = DEFAULT_LOCALE } = router
+    const client = useApollo(pageProps)
 
     return (
-        <ConfigProvider theme={theme}>
-            <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
-                <main className={`${mainFont.variable} ${monoFont.variable}`}>
-                    <Layout>
-                        <Header/>
-                        <Component {...pageProps}/>
-                    </Layout>
-                </main>
-            </IntlProvider>
-        </ConfigProvider>
+        <ApolloProvider client={client}>
+            <AuthProvider>
+                <ConfigProvider theme={theme}>
+                    <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+                        <main className={`${mainFont.variable} ${monoFont.variable}`}>
+                            <Layout>
+                                <Header/>
+                                <Component {...pageProps}/>
+                            </Layout>
+                        </main>
+                    </IntlProvider>
+                </ConfigProvider>
+            </AuthProvider>
+        </ApolloProvider>
     )
 }
 
-export default (
-    // withApollo({ ssr: true })(
-    DevPortalApp
-    // )
-)
+export default DevPortalApp

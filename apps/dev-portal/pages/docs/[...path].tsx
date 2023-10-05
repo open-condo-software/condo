@@ -25,6 +25,7 @@ import {
     extractLocalizedTitleParts, 
 } from '@/domains/docs/utils/routing'
 
+
 import styles from './path.module.css'
 
 import type { Heading } from '@/domains/docs/utils/mdx'
@@ -32,6 +33,9 @@ import type { NavItem, ArticleInfo } from '@/domains/docs/utils/routing'
 import type { RowProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
+
+import { initializeApollo, extractApolloState } from '@/lib/apollo'
+import { prefetchAuth } from '@/lib/auth'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
@@ -184,6 +188,7 @@ const DocPage: React.FC<DocPageProps> = ({
 export default DocPage
 
 export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params }) => {
+    // Static props
     const navTree = getNavTree(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH)
 
     const articles = Array.from(getFlatArticles(navTree))
@@ -212,8 +217,11 @@ export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ loc
         ? `${DOCS_REPO}/${repoRoute}`
         : null
 
+    // Prefetch props
+    const client = initializeApollo()
+    await prefetchAuth(client)
 
-    return {
+    return extractApolloState<DocPageProps>(client, {
         props: {
             navigation: navTree,
             serializedContent,
@@ -224,5 +232,5 @@ export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ loc
             articleTitle: currentPage.label,
             localizedPageTitleParts,
         },
-    }
+    })
 }

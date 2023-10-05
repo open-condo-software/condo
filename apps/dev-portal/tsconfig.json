@@ -2,6 +2,7 @@
   "schema": "https://json.schemastore.org/tsconfig",
   "extends": "@open-condo/tsconfig/next-app.json",
   "compilerOptions": {
+    "strict": false,
     "baseUrl": ".",
     "preserveSymlinks": true,
     "paths": {
@@ -13,7 +14,7 @@
       {
         "name": "next"
       }
-    ],
+    ]
   },
   "include": [
     "**/*.ts",
