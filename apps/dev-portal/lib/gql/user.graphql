@@ -1,0 +1,27 @@
+query authenticatedUser {
+    authenticatedUser {
+        id
+        name
+        phone
+        isAdmin
+        isSupport
+    }
+}
+
+mutation signIn($phone: String!, $password: String!) {
+    authenticateUserWithPhoneAndPassword(data: {
+        phone: $phone,
+        password: $password
+    }) {
+        token
+        item {
+            id
+        }
+    }
+}
+
+mutation signOut {
+    unauthenticateUser {
+        success
+    }
+}

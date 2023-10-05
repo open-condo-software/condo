@@ -1,57 +1,22 @@
-import { gql, ApolloClient, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import get from 'lodash/get'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
-import { useMutation, useQuery, useApolloClient } from '@/lib/apollo'
+import { useApolloClient } from '@/lib/apollo'
+import {
+    AuthenticatedUserDocument,
+    useAuthenticatedUserQuery,
+    AuthenticatedUserQuery,
+    useSignInMutation,
+    useSignOutMutation,
+} from '@/lib/gql'
+
 
 const AUTH_COOKIE_KEY = 'keystone.sid'
 
-const USER_QUERY = gql`
-    query {
-        authenticatedUser {
-            id
-            name
-            phone
-            isAdmin
-            isSupport
-        }
-    }
-`
-
-const SIGN_IN_MUTATION = gql`
-    mutation signIn($phone: String!, $password: String!) {
-        authenticateUserWithPhoneAndPassword(data: { 
-            phone: $phone,
-            password: $password
-        }) {
-            item {
-              id
-            }
-        }
-    }
-`
-
-const SIGN_OUT_MUTATION = gql`
-    mutation signOut {
-    unauthenticateUser {
-        success
-    }
-}
-`
-
 type HeadersType = Record<string, string>
 
-type AuthenticatedUserType = {
-    id: string
-    name: string
-    phone: string
-    isAdmin: boolean
-    isSupport: boolean
-}
-
-type UserQueryResponseType = {
-    authenticatedUser?: AuthenticatedUserType | null
-}
+type AuthenticatedUserType = AuthenticatedUserQuery['authenticatedUser']
 
 type AuthContextType = {
     isAuthenticated: boolean
@@ -71,11 +36,11 @@ const AuthContext = createContext<AuthContextType>({
 
 export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const apolloClient = useApolloClient()
-    const { data: auth, loading: userLoading, refetch } = useQuery<UserQueryResponseType>(USER_QUERY)
+    const { data: auth, loading: userLoading, refetch } = useAuthenticatedUserQuery()
 
     const [user, setUser] = useState<AuthenticatedUserType>(get(auth, 'authenticatedUser', null))
 
-    const [signInMutation, { loading: signInLoading }] = useMutation(SIGN_IN_MUTATION, {
+    const [signInMutation, { loading: signInLoading }] = useSignInMutation({
         onCompleted: async () => {
             await apolloClient.clearStore()
             await refetch()
@@ -85,7 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
             setUser(null)
         },
     })
-    const [signOutMutation, { loading: signOutLoading }] = useMutation(SIGN_OUT_MUTATION, {
+    const [signOutMutation, { loading: signOutLoading }] = useSignOutMutation({
         onCompleted: async (data) => {
             const success = get(data, ['unauthenticateUser', 'success'])
             if (success) {
@@ -174,7 +139,7 @@ export function extractAuthHeadersFromRequest (req: { cookies: Record<string, st
  */
 export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>, opts: { headers?: HeadersType } = {}): Promise<void> {
     await client.query({
-        query: USER_QUERY,
+        query: AuthenticatedUserDocument,
         context: {
             headers: opts.headers,
         },

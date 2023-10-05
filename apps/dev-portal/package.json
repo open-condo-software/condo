@@ -6,10 +6,12 @@
   },
   "scripts": {
     "build:deps": "turbo build --filter=dev-portal^...",
-    "dev": "yarn build:deps && next dev",
+    "dev": "yarn build:deps && next dev & yarn types:watch",
     "build": "yarn build:deps && next build",
     "start": "next start",
-    "prepare": "node bin/prepare.js"
+    "prepare": "node bin/prepare.js",
+    "maketypes": "graphql-codegen --config codegen.ts",
+    "types:watch": "yarn maketypes --watch"
   },
   "dependencies": {
     "@ant-design/cssinjs": "1.5.6",
@@ -28,6 +30,7 @@
     "cookies-next": "2.1.1",
     "deepmerge": "^4.3.1",
     "glob": "8.1.0",
+    "graphql": "^16.8.1",
     "graphql-tag": "^2.12.6",
     "gray-matter": "4.0.3",
     "lodash": "^4.17.21",
@@ -43,8 +46,16 @@
     "typescript": "4.9.4"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "5.0.0",
+    "@graphql-codegen/client-preset": "4.1.0",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-react-apollo": "^4.0.0",
+    "@graphql-typed-document-node/core": "3.2.0",
+    "@parcel/watcher": "^2.3.0",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
-    "@types/title": "3.4.1"
+    "@types/title": "3.4.1",
+    "ts-node": "^10.9.1"
   }
 }
