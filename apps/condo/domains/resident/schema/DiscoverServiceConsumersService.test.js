@@ -352,6 +352,8 @@ describe('DiscoverServiceConsumersService', () => {
             // Add some receipts
             const now = dayjs()
             const past = now.subtract(1, 'months')
+            const category1 = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
+            const category2 = { id: '11bb27ce-3f11-40f2-8fdf-f6aa1364df08' }
             const payloadReceipts1 = {
                 context: { id: billingIntegrationContext1.id },
                 receipts: [
@@ -362,6 +364,7 @@ describe('DiscoverServiceConsumersService', () => {
                         accountNumber: billingAccount1.number,
                         year: Number(now.format('YYYY')),
                         month: Number(now.format('MM')),
+                        category: category1,
                     }),
                 ],
             }
@@ -375,6 +378,7 @@ describe('DiscoverServiceConsumersService', () => {
                         accountNumber: billingAccount2.number,
                         year: Number(past.format('YYYY')),
                         month: Number(past.format('MM')),
+                        category: category2,
                     }),
                 ],
             }
@@ -427,6 +431,107 @@ describe('DiscoverServiceConsumersService', () => {
                     }),
                 ]))
             }, { delay: 500 })
+        })
+
+        test('not discover service consumers for same flat and category', async () => {
+            const user = await makeClientWithProperty()
+            const serviceUser1 = await makeClientWithServiceUser()
+            const serviceUser2 = await makeClientWithServiceUser()
+
+            await addAcquiringIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const {
+                billingIntegration: billingIntegration1,
+                billingIntegrationContext: billingIntegrationContext1,
+            } = await addBillingIntegrationAndContext(admin, user.organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            // other organization adds same property
+            const [organization] = await createTestOrganization(admin)
+            await createTestProperty(admin, organization, { address: user.property.address }, false, user.property.addressMeta)
+            await addAcquiringIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+            const {
+                billingIntegration: billingIntegration2,
+                billingIntegrationContext: billingIntegrationContext2,
+            } = await addBillingIntegrationAndContext(admin, organization, {}, { status: CONTEXT_FINISHED_STATUS })
+
+            await createTestBillingIntegrationAccessRight(support, billingIntegration1, serviceUser1.user)
+            await createTestBillingIntegrationAccessRight(support, billingIntegration2, serviceUser2.user)
+
+            const [billingProperty1] = await createTestBillingProperty(admin, billingIntegrationContext1, { address: user.property.address })
+            const [billingProperty2] = await createTestBillingProperty(admin, billingIntegrationContext2, { address: user.property.address })
+
+            const unitType1 = FLAT_UNIT_TYPE
+            const unitName1 = faker.lorem.word()
+
+            const [billingAccount1] = await createTestBillingAccount(admin, billingIntegrationContext1, billingProperty1,
+                { unitType: unitType1, unitName: unitName1 },
+            )
+
+            const [billingAccount2] = await createTestBillingAccount(admin, billingIntegrationContext2, billingProperty2,
+                { unitType: unitType1, unitName: unitName1 },
+            )
+
+            // add the resident
+            const residentClient1 = await makeClientWithResidentUser()
+            const [resident1] = await registerResidentByTestClient(
+                residentClient1,
+                {
+                    address: user.property.address,
+                    addressMeta: user.property.addressMeta,
+                    unitType: unitType1,
+                    unitName: unitName1,
+                })
+
+            // Add some receipts with same category and different period
+            const now = dayjs()
+            const past = now.subtract(1, 'months')
+            const category = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
+            const payloadReceipts1 = {
+                context: { id: billingIntegrationContext1.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty1.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        accountNumber: billingAccount1.number,
+                        year: Number(now.format('YYYY')),
+                        month: Number(now.format('MM')),
+                        category,
+                    }),
+                ],
+            }
+            const payloadReceipts2 = {
+                context: { id: billingIntegrationContext2.id },
+                receipts: [
+                    createRegisterBillingReceiptsPayload({
+                        address: billingProperty2.address,
+                        unitType: unitType1,
+                        unitName: unitName1,
+                        accountNumber: billingAccount2.number,
+                        year: Number(past.format('YYYY')),
+                        month: Number(past.format('MM')),
+                        category,
+                    }),
+                ],
+            }
+            await registerBillingReceiptsByTestClient(serviceUser1, payloadReceipts1)
+            await registerBillingReceiptsByTestClient(serviceUser2, payloadReceipts2)
+
+            // run discovering by cron job
+            await _internalScheduleTaskByNameByTestClient(admin, { taskName: cronTaskName })
+
+            await waitFor(async () => {
+                const createdServiceConsumers = await ServiceConsumer.getAll(admin, {
+                    resident: { id: resident1.id },
+                    OR: [
+                        { accountNumber: billingAccount1.number },
+                        { accountNumber: billingAccount2.number },
+                    ],
+                    deletedAt: null,
+                })
+
+                // no consumers, because two receipts for the same flat and the same category
+                expect(createdServiceConsumers).toHaveLength(0)
+            })
         })
 
         test('Each resident of organizations must see only their receipts', async () => {
@@ -1292,6 +1397,8 @@ describe('DiscoverServiceConsumersService', () => {
             // 2/3 upload receipts
             const now = dayjs()
             const past = now.subtract(1, 'months')
+            const category1 = { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' }
+            const category2 = { id: '11bb27ce-3f11-40f2-8fdf-f6aa1364df08' }
             const payload = {
                 context: { id: billingContext.id },
                 receipts: [
@@ -1301,6 +1408,7 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         year: Number(now.format('YYYY')),
                         month: Number(now.format('MM')),
+                        category: category1,
                     }),
                     createRegisterBillingReceiptsPayload({
                         address: residentClient1.property.address,
@@ -1308,6 +1416,7 @@ describe('DiscoverServiceConsumersService', () => {
                         unitName: unitName1,
                         year: Number(past.format('YYYY')),
                         month: Number(past.format('MM')),
+                        category: category2,
                     }),
                 ],
             }

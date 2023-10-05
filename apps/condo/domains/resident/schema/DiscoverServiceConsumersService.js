@@ -263,7 +263,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                         billingAccountsWithoutReceipts.add(item.id)
                     } else {
                         for (const receipt of receipts) {
-                            const theKey = md5(`${item.address}_${item.unitType}_${item.unitName}_${receipt.category.id}_${receipt.period}`)
+                            const theKey = md5(`${item.address}_${item.unitType}_${item.unitName}_${receipt.category.id}`)
                             /** @type {Set<string>} */
                             const current = get(billingAccountsByAddressAndCategoryAndPeriod, theKey, new Set())
                             current.add(item.id)
