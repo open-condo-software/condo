@@ -9,10 +9,14 @@ const { BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { discoverServiceConsumers } = require('@condo/domains/resident/utils/serverSchema')
 
-const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersCronTask' } }
 const logger = getLogger('discoverServiceConsumersCronTask')
 const redisClient = getRedisClient('discoverServiceConsumersCronTask')
+
 const REDIS_KEY = 'discoverServiceConsumersLastDate'
+const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'discoverServiceConsumersCronTask' } }
+
+// Make a limited number of tries of processing of each chunk of billing accounts
+const RETRIES_PER_CHUNK = 3
 
 /**
  * @returns {Promise<void>}
@@ -27,13 +31,12 @@ async function discoverServiceConsumersCronTask () {
 
     const { keystone: context } = getSchemaCtx('BillingAccount')
 
-    const billingAccountsIds = new Set()
     let maxDate = dayjs(lastDate)
 
     await loadListByChunks({
         context,
         list: BillingAccount,
-        chunkSize: 50,
+        chunkSize: 20,
         where: {
             createdAt_gt: dayjs(lastDate).toISOString(),
             deletedAt: null,
@@ -43,35 +46,51 @@ async function discoverServiceConsumersCronTask () {
          * @param {BillingAccount[]} chunk
          * @returns {BillingAccount[]}
          */
-        chunkProcessor: (chunk) => {
+        chunkProcessor: async (chunk) => {
+            let retryNumber = 0
+            const billingAccountsIds = []
+
+            // Gather ids and calculate max date
             chunk.forEach((billingAccount) => {
-                billingAccountsIds.add(billingAccount.id)
+                billingAccountsIds.push(billingAccount.id)
                 const createdAt = dayjs(billingAccount.createdAt)
                 maxDate = createdAt.isAfter(maxDate) ? createdAt : maxDate
             })
 
+            do {
+                retryNumber++
+                try {
+                    const result = await discoverServiceConsumers(context, { ...DV_SENDER, billingAccountsIds })
+                    logger.info({
+                        msg: 'discoverServiceConsumersCronTask chunk done',
+                        billingAccountsIds,
+                        result,
+                        retryNumber,
+                    })
+                    // Save date to cache to prevent double processing
+                    await redisClient.set(REDIS_KEY, dayjs(maxDate).toISOString())
+
+                    // interrupt tries after success
+                    retryNumber = RETRIES_PER_CHUNK
+                    break
+                } catch (err) {
+                    logger.error({
+                        msg: `discoverServiceConsumersCronTask chunk fail: ${err.message}`,
+                        billingAccountsIds,
+                        err,
+                        retryNumber,
+                    })
+                }
+                // Try to process every chunk a number of times
+                // If all tries were fail, so be it: the resident should add account manually
+            } while (retryNumber < RETRIES_PER_CHUNK)
+
             return []
         },
     })
-
-    /**
-     * @type {DiscoverServiceConsumersInput}
-     */
-    const data = {
-        ...DV_SENDER,
-        billingAccountsIds: Array.from(billingAccountsIds),
-    }
-
-    try {
-        const result = await discoverServiceConsumers(context, data)
-        logger.info({ message: 'discoverServiceConsumersCronTask done', result })
-        redisClient.set(REDIS_KEY, dayjs(maxDate).toISOString())
-    } catch (err) {
-        logger.error({ message: 'discoverServiceConsumersCronTask fail', err })
-    }
 }
 
 module.exports = {
     REDIS_KEY,
-    discoverServiceConsumersCronTask: createCronTask('discoverServiceConsumersCronTask', '13 * * * *', discoverServiceConsumersCronTask, { priority: 10 }),
+    discoverServiceConsumersCronTask: createCronTask('discoverServiceConsumersCronTask', '13 */4 * * *', discoverServiceConsumersCronTask, { priority: 10 }),
 }
