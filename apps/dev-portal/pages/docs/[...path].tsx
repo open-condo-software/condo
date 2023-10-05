@@ -35,7 +35,7 @@ import type { GetServerSideProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 
 import { initializeApollo, extractApolloState } from '@/lib/apollo'
-import { prefetchAuth } from '@/lib/auth'
+import { prefetchAuth, extractAuthHeadersFromRequest } from '@/lib/auth'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
@@ -187,7 +187,7 @@ const DocPage: React.FC<DocPageProps> = ({
 
 export default DocPage
 
-export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params }) => {
+export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params, req }) => {
     // Static props
     const navTree = getNavTree(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH)
 
@@ -217,9 +217,10 @@ export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ loc
         ? `${DOCS_REPO}/${repoRoute}`
         : null
 
-    // Prefetch props
+    // Prefetch client queries
     const client = initializeApollo()
-    await prefetchAuth(client)
+    const headers = extractAuthHeadersFromRequest(req)
+    await prefetchAuth(client, { headers })
 
     return extractApolloState<DocPageProps>(client, {
         props: {

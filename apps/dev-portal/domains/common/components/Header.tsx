@@ -15,6 +15,7 @@ import { LOCALES } from '@/domains/common/constants/locales'
 
 import styles from './Header.module.css'
 
+
 const logoFont = Montserrat({
     subsets: ['latin', 'cyrillic'],
     style: ['normal'],
