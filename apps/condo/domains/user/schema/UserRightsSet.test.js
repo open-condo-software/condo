@@ -49,7 +49,6 @@ const {
     Organization,
     registerNewOrganization,
     createTestOrganization,
-    makeEmployeeUserClientWithAbilities,
 } = require('@condo/domains/organization/utils/testSchema')
 const {
     UserRightsSet,
@@ -507,6 +506,72 @@ describe('UserRightsSet', () => {
                 })
             })
         })
+        describe('Mix canManage<Schema> and canManage<Schema><Field>Field', () => {
+            let org
+            beforeEach(async () => {
+                const [organization] = await createTestOrganization(support)
+                org = organization
+            })
+            describe('canManage<Schema>: true and canManage<Schema><Field>Field: true', () => {
+                test('User can direct update any fields', async () => {
+                    const [rightsSet] = await createTestUserRightsSet(support, {
+                        canManageOrganizations: true, canManageOrganizationIsApprovedField: true,
+                    })
+                    const executor = await makeClientWithNewRegisteredAndLoggedInUser({ rightsSet: { connect: { id: rightsSet.id } } })
+                    const [updatedOrg, attrs] = await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
+                    expect(updatedOrg.name).toEqual(attrs.name)
+                    expect(updatedOrg.isApproved).toBeFalsy()
+                })
+            })
+            describe('canManage<Schema>: true and canManage<Schema><Field>Field: false', () => {
+                test('User cannot direct update <Field> field and can other fields', async () => {
+                    const [rightsSet] = await createTestUserRightsSet(support, {
+                        canManageOrganizations: true, canManageOrganizationIsApprovedField: false,
+                    })
+                    const executor = await makeClientWithNewRegisteredAndLoggedInUser({ rightsSet: { connect: { id: rightsSet.id } } })
+                    const [updatedOrg, attrs] = await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                    expect(updatedOrg.name).toEqual(attrs.name)
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestOrganization(executor, org.id, { isApproved: false, name: faker.company.name() })
+                    })
+                })
+            })
+            describe('canManage<Schema>: false and canManage<Schema><Field>Field: true', () => {
+                test('User can direct update <Field> field only', async () => {
+                    const [rightsSet] = await createTestUserRightsSet(support, {
+                        canManageOrganizations: false, canManageOrganizationIsApprovedField: true,
+                    })
+                    const executor = await makeClientWithNewRegisteredAndLoggedInUser({ rightsSet: { connect: { id: rightsSet.id } } })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestOrganization(executor, org.id, { isApproved: false, name: faker.company.name() })
+                    })
+                    const updatedOrg = await Organization.update(executor, org.id, {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        isApproved: false,
+                    })
+                    expect(updatedOrg.isApproved).toBeFalsy()
+                })
+            })
+            describe('canManage<Schema>: false and canManage<Schema><Field>Field: false', () => {
+                test('User cannot direct update any fields', async () => {
+                    const [rightsSet] = await createTestUserRightsSet(support, {
+                        canManageOrganizations: false, canManageOrganizationIsApprovedField: false,
+                    })
+                    const executor = await makeClientWithNewRegisteredAndLoggedInUser({ rightsSet: { connect: { id: rightsSet.id } } })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await Organization.update(executor, org.id, {
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                            isApproved: false,
+                        })
+                    })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestOrganization(executor, org.id, { name: faker.company.name() })
+                    })
+                })
+            })
+        })
         describe('Specific right sets', () => {
             describe('Dev-portal service user', () => {
                 let portalClient
@@ -656,285 +721,16 @@ describe('UserRightsSet', () => {
                 })
             })
             describe('Organization', () => {
-                describe('Mix "canManageOrganizations" and "canManageOrganizationIsApprovedField"', () => {
-                    describe('canManageOrganizations: true and canManageOrganizationIsApprovedField: true', () => {
-                        test('Must give full access', async () => {
-                            const executor = await makeClientWithNewRegisteredAndLoggedInUser()
-                            const [org] = await createTestOrganization(support)
-                            expect(org).toHaveProperty('isApproved', true)
-
-                            // No access by default
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name() })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id)
-                            })
-
-                            // Access provided
-                            const [rightsSet] = await createTestUserRightsSet(support, {
-                                canReadOrganizations: true,
-                                canManageOrganizations: true,
-                                canManageOrganizationIsApprovedField: true,
-                            })
-                            const [updatedUser] = await updateTestUser(support, executor.user.id, {
-                                rightsSet: { connect: { id: rightsSet.id } },
-                            })
-                            expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor, { isApproved: false })
-                            })
-
-                            const [updatedOrg] = await updateTestOrganization(executor, org.id, { isApproved: false })
-                            expect(updatedOrg).toHaveProperty('isApproved', false)
-
-                            const orgName = faker.company.name()
-                            const [updatedOrg2] = await updateTestOrganization(executor, org.id, { name: orgName })
-                            expect(updatedOrg2).toHaveProperty('name', orgName)
-
-                            const orgName2 = faker.company.name()
-                            const [updatedOrg3] = await updateTestOrganization(executor, org.id, { name: orgName2, isApproved: true })
-                            expect(updatedOrg3).toHaveProperty('name', orgName2)
-                            expect(updatedOrg3).toHaveProperty('isApproved', true)
-
-                            const [updatedOrg4] = await updateTestOrganization(executor, org.id)
-                            expect(updatedOrg4).toHaveProperty('name', orgName2)
-                            expect(updatedOrg4).toHaveProperty('isApproved', true)
-                        })
+                test('User with custom rights cannot create organization', async () => {
+                    const [rightsSet] = await createTestUserRightsSet(support, { canManageOrganizations: false })
+                    const executor = await makeClientWithNewRegisteredAndLoggedInUser({ rightsSet: { connect: { id: rightsSet.id } } })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestOrganization(executor)
                     })
-                    describe('canManageOrganizations: true and canManageOrganizationIsApprovedField: false', () => {
-                        test('Must give full access if not using <Field> field in payload', async () => {
-                            const executor = await makeClientWithNewRegisteredAndLoggedInUser()
-                            const [org] = await createTestOrganization(support)
-                            expect(org).toHaveProperty('isApproved', true)
-
-                            // No access by default
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name() })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id)
-                            })
-
-                            // Access provided
-                            const [rightsSet] = await createTestUserRightsSet(support, {
-                                canReadOrganizations: true,
-                                canManageOrganizations: true,
-                                canManageOrganizationIsApprovedField: false,
-                            })
-                            const [updatedUser] = await updateTestUser(support, executor.user.id, {
-                                rightsSet: { connect: { id: rightsSet.id } },
-                            })
-                            expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor, { isApproved: false })
-                            })
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { isApproved: false })
-                            })
-
-                            const orgName = faker.company.name()
-                            const [updatedOrg2] = await updateTestOrganization(executor, org.id, { name: orgName })
-                            expect(updatedOrg2).toHaveProperty('name', orgName)
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
-                            })
-
-                            const [updatedOrg4] = await updateTestOrganization(executor, org.id)
-                            expect(updatedOrg4).toHaveProperty('name', orgName)
-                            expect(updatedOrg4).toHaveProperty('isApproved', true)
-                        })
+                    await createTestUserRightsSet(support, { canManageOrganizations: true, canManageOrganizationIsApprovedField: true })
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestOrganization(executor)
                     })
-                    describe('canManageOrganizations: false and canManageOrganizationIsApprovedField: true', () => {
-                        test('Must give access only to update schema <Field> field', async () => {
-                            const executor = await makeClientWithNewRegisteredAndLoggedInUser()
-                            const [org] = await createTestOrganization(support)
-                            expect(org).toHaveProperty('isApproved', true)
-
-                            // No access by default
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name() })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id)
-                            })
-
-                            // Access provided
-                            const [rightsSet] = await createTestUserRightsSet(support, {
-                                canReadOrganizations: true,
-                                canManageOrganizations: false,
-                                canManageOrganizationIsApprovedField: true,
-                            })
-                            const [updatedUser] = await updateTestUser(support, executor.user.id, {
-                                rightsSet: { connect: { id: rightsSet.id } },
-                            })
-                            expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor, { isApproved: false })
-                            })
-
-                            const [updatedOrg] = await updateTestOrganization(executor, org.id, { isApproved: false })
-                            expect(updatedOrg).toHaveProperty('isApproved', false)
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name() })
-                            })
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
-                            })
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id)
-                            })
-                        })
-                    })
-                    describe('canManageOrganizations: false and canManageOrganizationIsApprovedField: false', () => {
-                        test('Must be denied', async () => {
-                            const executor = await makeClientWithNewRegisteredAndLoggedInUser()
-                            const [org] = await createTestOrganization(support)
-                            expect(org).toHaveProperty('isApproved', true)
-
-                            // No access by default
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name() })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id)
-                            })
-
-                            // Access provided
-                            const [rightsSet] = await createTestUserRightsSet(support, {
-                                canReadOrganizations: true,
-                                canManageOrganizations: false,
-                                canManageOrganizationIsApprovedField: false,
-                            })
-                            const [updatedUser] = await updateTestUser(support, executor.user.id, {
-                                rightsSet: { connect: { id: rightsSet.id } },
-                            })
-                            expect(updatedUser).toHaveProperty(['rightsSet', 'id'], rightsSet.id)
-
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor)
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await createTestOrganization(executor, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name() })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id, { name: faker.company.name(), isApproved: false })
-                            })
-                            await expectToThrowAccessDeniedErrorToObj(async () => {
-                                await updateTestOrganization(executor, org.id)
-                            })
-                        })
-                    })
-                })
-
-                test('Employee with custom access: can read and update field "isApproved". Cannot update "isApproved" at the same time as other fields', async () => {
-                    const userClient = await makeEmployeeUserClientWithAbilities({
-                        canManageOrganization: true,
-                    })
-
-                    {
-                        // Before adding rights user cannot read and update "isApproved"
-                        const o18n = await Organization.getOne(userClient, { id: userClient.organization.id })
-                        expect(o18n.id).toEqual(userClient.organization.id)
-                        expect(o18n.isApproved).toBeTruthy()
-
-                        // User can update other fields
-                        const [updatedO10n, attrs] = await updateTestOrganization(userClient, userClient.organization.id, { name: faker.random.word() })
-                        expect(updatedO10n.name).toEqual(attrs.name)
-
-                        await expectToThrowAccessDeniedErrorToObj(async () => {
-                            await updateTestOrganization(userClient, userClient.organization.id, { isApproved: false })
-                        })
-                    }
-
-                    {
-                        // After adding rights user can read and update "isApproved"
-                        const [userRightsSet] = await createTestUserRightsSet(support, { canReadOrganizations: true, canManageOrganizations: true, canManageOrganizationIsApprovedField: true })
-                        await updateTestUser(support, userClient.user.id, { rightsSet: { connect: { id: userRightsSet.id } } })
-
-                        const o18n = await Organization.getOne(userClient, { id: userClient.organization.id })
-                        expect(o18n.id).toEqual(userClient.organization.id)
-                        expect(o18n.isApproved).toBeTruthy()
-
-                        const [updatedO18n, attrs] = await updateTestOrganization(userClient, userClient.organization.id, { name: faker.random.word() })
-                        expect(updatedO18n.name).toEqual(attrs.name)
-
-                        // NOTE: We use "Organization.update" because "updateTestOrganization" update some other fields
-                        const updatedO18n2 = await Organization.update(userClient, userClient.organization.id, {
-                            dv: 1,
-                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
-                            isApproved: false,
-                        })
-                        expect(updatedO18n2.isApproved).toBeFalsy()
-                    }
                 })
             })
         })
