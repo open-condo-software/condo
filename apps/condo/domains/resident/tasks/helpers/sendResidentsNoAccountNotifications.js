@@ -14,10 +14,10 @@ const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PAYMENT_CATEGORIES_META } = require('@condo/domains/resident/constants')
+const { REDIS_LAST_DATE_KEY } = require('@condo/domains/resident/constants/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629' // billing.category.housing.name
-const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
 const INVALID_CONTEXT_PROVIDED_ERROR = 'Provided context is not in finished status, invalid or skipped.'
 
 const logger = getLogger('sendResidentsNoAccountNotifications')
