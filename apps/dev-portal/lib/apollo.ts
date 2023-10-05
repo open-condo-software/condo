@@ -24,7 +24,7 @@ function createApolloClient (): ApolloClient<NormalizedCacheObject> {
         ssrMode: typeof window === 'undefined',
         link: new HttpLink({
             uri: apolloGraphQLUrl,
-            credentials: 'same-origin',
+            credentials: 'include',
             fetchOptions: {
                 mode: 'cors',
             },
@@ -112,5 +112,5 @@ export function useApollo<PropsType> (pageProps?: PageProps<PropsType>): ApolloC
     return useMemo(() => initializeApollo(state), [state])
 }
 
-export { useQuery, useMutation, useApolloClient } from '@apollo/client'
+export { useQuery, useApolloClient, useMutation } from '@apollo/client'
 
