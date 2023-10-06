@@ -4,31 +4,30 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 
 .condo-input,
+.react-tel-input,
+.react-tel-input .condo-input,
 .condo-input-affix-wrapper {
-  box-sizing: content-box;
-  height: @condo-global-typography-text-l-line-height;
-  padding: @condo-global-spacing-12 - @condo-global-border-width-default;
   color: @condo-global-color-black;
-  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
-  border-radius: @condo-global-border-radius-medium;
-
-  .condo-typography-text-large();
-
-  &-focused {
-    border-color: @condo-global-color-gray-7;
-    box-shadow: none;
-  }
-}
-
-.react-tel-input {
   .condo-typography-text-large();
 }
 
-.react-tel-input .condo-input {
+.condo-input:not(.condo-input-affix-wrapper .condo-input),
+.condo-input-affix-wrapper {
   box-sizing: border-box;
   width: 100%;
   height: @condo-global-typography-text-l-line-height + 2 * @condo-global-spacing-12;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-medium;
+}
+
+.condo-input-affix-wrapper {
+  padding: @condo-global-spacing-12 - @condo-global-border-width-default;
+}
+
+.condo-input-focused,
+.condo-input-affix-wrapper-focused {
+  border-color: @condo-global-color-gray-7;
+  box-shadow: none;
 }
 
 .react-tel-input .flag-dropdown {
@@ -57,12 +56,11 @@
   }
 }
 
-.react-tel-input .form-control.condo-input {
-  font-size: @condo-global-font-size-text-l;
-  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
+.react-tel-input .country-list .country .dial-code {
+  color: @condo-global-color-gray-7;
 }
 
-.condo-input:not(.condo-input-disabled),
+.condo-input:not(.condo-input-affix-wrapper .condo-input, .condo-input-disabled),
 .condo-input-affix-wrapper:not(.condo-input-affix-wrapper-disabled) {
   &:hover,
   &:focus,
@@ -72,10 +70,8 @@
   }
 }
 
-.condo-input::placeholder,
-.condo-input-affix-wrapper > .condo-input::placeholder {
+.condo-input::placeholder {
   color: @condo-global-color-gray-7;
-
   .condo-typography-text-large();
 }
 
