@@ -82,7 +82,7 @@ const DocPage: React.FC<DocPageProps> = ({
 
     const openPaths = useMemo(() => {
         const parts = currentRoute.split('/').filter(Boolean)
-        const result = []
+        const result: Array<string> = []
         for (let i = 0; i < parts.length - 2; ++i) {
             const route = `/${parts.slice(0, parts.length - (i + 1)).join('/')}`
             result.push(route)

@@ -10,6 +10,8 @@
   "global.authForm.labels.phone": "Phone",
   "global.authForm.labels.password": "Password",
   "global.forms.validations.required.message": "This field is required",
+  "global.forms.validations.phoneFormat.message": "Invalid phone number",
+  "global.forms.validations.passwordTooEasy.message": "The specified password is too simple or contains many repeated characters",
   "docs.editPage": "Edit this page on Github",
   "docs.nextArticle": "Next: {title}",
   "docs.prevArticle": "Back: {title}"

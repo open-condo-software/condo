@@ -5,25 +5,43 @@ import { useIntl } from 'react-intl'
 
 import { Tabs, Input, Button } from '@open-condo/ui'
 
+import { useValidations } from '@/domains/common/hooks/useValidations'
+import { getFormErrorHandler } from '@/domains/common/utils/errors'
+import { INCORRECT_PHONE_OR_PASSWORD } from '@dev-api/domains/user/constants/errors'
+
 import styles from './AuthForm.module.css'
 
-import { useAuth } from '@/lib/auth'
+import { useSignInMutation } from '@/lib/gql'
 
 const FUL_SPAN_COL = 24
 
-const LoginForm: React.FC = () => {
+type AuthFormProps =  {
+    onComplete: () => void
+}
+
+const LOGIN_FORM_ERRORS_TO_FIELDS_MAP = {
+    [INCORRECT_PHONE_OR_PASSWORD]: 'password',
+}
+
+const LoginForm: React.FC<AuthFormProps> = ({ onComplete }) => {
     const intl = useIntl()
     const SignInButtonLabel = intl.formatMessage({ id: 'global.action.signIn' })
     const PhoneLabel = intl.formatMessage({ id: 'global.authForm.labels.phone' })
     const PasswordLabel = intl.formatMessage({ id: 'global.authForm.labels.password' })
 
-    const { signIn } = useAuth()
+    const [form] = Form.useForm()
+    const { requiredValidator, phoneFormatValidator } = useValidations()
+
+    const [signInMutation] = useSignInMutation({
+        onCompleted: onComplete,
+        onError: getFormErrorHandler(form, LOGIN_FORM_ERRORS_TO_FIELDS_MAP),
+    })
 
     const onSubmit = useCallback((values) => {
         const phone = get(values, 'phone')
         const password = get(values, 'password')
-        signIn(phone, password)
-    }, [signIn])
+        signInMutation({ variables: { phone, password } })
+    }, [signInMutation])
 
     return (
         <Form
@@ -31,15 +49,16 @@ const LoginForm: React.FC = () => {
             requiredMark={false}
             layout='vertical'
             onFinish={onSubmit}
+            form={form}
         >
             <Row>
                 <Col span={FUL_SPAN_COL}>
-                    <Form.Item name='phone' label={PhoneLabel} >
+                    <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]}>
                         <Input.Phone/>
                     </Form.Item>
                 </Col>
                 <Col span={FUL_SPAN_COL}>
-                    <Form.Item name='password' label={PasswordLabel}>
+                    <Form.Item name='password' label={PasswordLabel} rules={[requiredValidator]}>
                         <Input.Password/>
                     </Form.Item>
                 </Col>
@@ -53,7 +72,7 @@ const LoginForm: React.FC = () => {
     )
 }
 
-export const AuthForm: React.FC = () => {
+export const AuthForm: React.FC<AuthFormProps> = ({ onComplete }) => {
     const intl = useIntl()
     const LoginTabLabel = intl.formatMessage({ id: 'global.authForm.Tabs.login' })
     const RegisterTabLabel = intl.formatMessage({ id: 'global.authForm.Tabs.register' })
@@ -65,7 +84,7 @@ export const AuthForm: React.FC = () => {
                 {
                     key: 'login',
                     label: LoginTabLabel,
-                    children: <LoginForm/>,
+                    children: <LoginForm onComplete={onComplete}/>,
                 },
                 {
                     key: 'register',

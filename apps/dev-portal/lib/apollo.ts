@@ -94,7 +94,7 @@ export function initializeApollo (initialState: NormalizedCacheObject | null = n
  * }
  * ```
  */
-export function extractApolloState<PropsType> (client: ApolloClient<NormalizedCacheObject>, pageProps?: PageProps<PropsType>): PageProps<PropsType> {
+export function extractApolloState<PropsType> (client: ApolloClient<NormalizedCacheObject>, pageProps: PageProps<PropsType>): PageProps<PropsType> {
     if (pageProps?.props) {
         pageProps.props[APOLLO_STATE_PROP_NAME] = client.cache.extract()
     }
@@ -107,7 +107,7 @@ export function extractApolloState<PropsType> (client: ApolloClient<NormalizedCa
  * provides client with a cache from extractApolloState of getServerSideProps
  * @param {PropsType extends EmptyPageProps} pageProps - pageProps received in _app.tsx
  */
-export function useApollo<PropsType> (pageProps?: PageProps<PropsType>): ApolloClient<NormalizedCacheObject> {
+export function useApollo<PropsType> (pageProps: PageProps<PropsType>): ApolloClient<NormalizedCacheObject> {
     const state = pageProps[APOLLO_STATE_PROP_NAME]
     return useMemo(() => initializeApollo(state), [state])
 }

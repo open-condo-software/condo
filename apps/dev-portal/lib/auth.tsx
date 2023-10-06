@@ -7,7 +7,6 @@ import {
     AuthenticatedUserDocument,
     useAuthenticatedUserQuery,
     AuthenticatedUserQuery,
-    useSignInMutation,
     useSignOutMutation,
 } from '@/lib/gql'
 
@@ -22,16 +21,16 @@ type AuthContextType = {
     isAuthenticated: boolean
     isLoading: boolean
     user: AuthenticatedUserType | null
-    signIn: (identity: string, password: string) => void
     signOut: () => void
+    refetchAuth: () => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType>({
     isAuthenticated: false,
     isLoading: false,
     user: null,
-    signIn: () => ({}),
     signOut: () => ({}),
+    refetchAuth: () => Promise.resolve(),
 })
 
 export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
@@ -40,24 +39,18 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
 
     const [user, setUser] = useState<AuthenticatedUserType>(get(auth, 'authenticatedUser', null))
 
-    const [signInMutation, { loading: signInLoading }] = useSignInMutation({
-        onCompleted: async () => {
-            await apolloClient.clearStore()
-            await refetch()
-        },
-        onError: (error) => {
-            console.error(error)
-            setUser(null)
-        },
-    })
+    const refetchAuth = useCallback(async () => {
+        await apolloClient.clearStore()
+        await refetch()
+    }, [apolloClient, refetch])
+
     const [signOutMutation, { loading: signOutLoading }] = useSignOutMutation({
         onCompleted: async (data) => {
             const success = get(data, ['unauthenticateUser', 'success'])
             if (success) {
                 setUser(null)
             }
-            await apolloClient.clearStore()
-            await refetch()
+            await refetchAuth()
         },
         onError: (error) => {
             console.error(error)
@@ -70,15 +63,6 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
         }
     }, [userLoading, auth])
 
-    const signIn = useCallback((phone: string, password: string) => {
-        signInMutation({
-            variables: {
-                phone,
-                password,
-            },
-        })
-    }, [signInMutation])
-
     const signOut = useCallback(() => {
         signOutMutation()
     }, [signOutMutation])
@@ -86,11 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
     return (
         <AuthContext.Provider
             value={{
-                isLoading: userLoading || signInLoading || signOutLoading,
+                isLoading: userLoading || signOutLoading,
                 isAuthenticated: !!user,
                 user,
-                signIn,
                 signOut,
+                refetchAuth,
             }}
             children={children}
         />
@@ -121,8 +105,8 @@ export const useAuth = (): AuthContextType => useContext(AuthContext)
  * }
  * ```
  */
-export function extractAuthHeadersFromRequest (req: { cookies: Record<string, string> }): HeadersType {
-    const ssid = get(req.cookies, AUTH_COOKIE_KEY, null)
+export function extractAuthHeadersFromRequest (req: { cookies: Partial<Record<string, string>> }): HeadersType {
+    const ssid = get(req, ['cookies', AUTH_COOKIE_KEY], null)
     if (!ssid) {
         return {}
     }

@@ -43,7 +43,8 @@
     "remark-custom-heading-id": "1.0.0",
     "remark-gfm": "3.0.1",
     "title": "3.5.3",
-    "typescript": "4.9.4"
+    "typescript": "4.9.4",
+    "zod": "^3.22.4"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "5.0.0",
@@ -56,6 +57,7 @@
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "@types/title": "3.4.1",
+    "rc-field-form": "1.27.1",
     "ts-node": "^10.9.1"
   }
 }
