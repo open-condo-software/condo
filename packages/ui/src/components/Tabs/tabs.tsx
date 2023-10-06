@@ -22,7 +22,8 @@ export type TabsProps = Pick<DefaultTabsProps,
 'defaultActiveKey' |
 'activeKey' |
 'destroyInactiveTabPane' |
-'onChange'> & {
+'onChange' |
+'centered'> & {
     items?: Array<TabItem>
 }
 
