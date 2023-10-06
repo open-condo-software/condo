@@ -5,6 +5,8 @@
   "global.lang.en": "English",
   "global.header.signIn": "Войти",
   "global.header.signOut": "Выйти",
+  "global.authForm.Tabs.login": "Вход",
+  "global.authForm.Tabs.register": "Регистрация",
   "docs.editPage": "Редактировать эту страницу на Github",
   "docs.nextArticle": "Далее: {title}",
   "docs.prevArticle": "Назад: {title}"

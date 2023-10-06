@@ -5,6 +5,8 @@
   "global.lang.en": "English",
   "global.header.signIn": "Sign in",
   "global.header.signOut": "Sign out",
+  "global.authForm.Tabs.login": "Login",
+  "global.authForm.Tabs.register": "Register",
   "docs.editPage": "Edit this page on Github",
   "docs.nextArticle": "Next: {title}",
   "docs.prevArticle": "Back: {title}"
