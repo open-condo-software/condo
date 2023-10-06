@@ -1305,6 +1305,7 @@
   "meter.import.error.MeterNumberExistInOrganization": "Meter with this number already exists in your organization",
   "meter.import.error.MeterResourceNotFound": "Meter type was not found according to specified abbreviation in \"Type\" column",
   "meter.import.error.MeterValueInvalid": "Incorrect format in column \"{columnName}\", must be a positive numeric value",
+  "meter.import.error.InvalidNormalization": "Something went wrong, try uploading again",
   "meter.import.error.UnitNameNotFound": "Unit was not found in property",
   "meter.import.error.WrongDateFormatMessage": "Incorrect date format in column \"{columnName}\". Use either value of String type in format: \"{format}\", or value of Date type",
   "meter.import.error.WrongDateOrMonthFormatMessage": "Wrong date format in column \"{columnName}\". Use either value of String formats \"{format1}\", \"{format2}\" (for month-only); or value of Date type",

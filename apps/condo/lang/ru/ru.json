@@ -1305,6 +1305,7 @@
   "meter.import.error.MeterNumberExistInOrganization": "Прибор учета с таким номером уже существует в вашей организации",
   "meter.import.error.MeterResourceNotFound": "Не найден тип счётчика по указанной аббревиатуре",
   "meter.import.error.MeterValueInvalid": "Неверное значение в столбце \"{columnName}\", должно быть положительное число",
+  "meter.import.error.InvalidNormalization": "Что-то пошло не так, попробуйте загрузить еще раз",
   "meter.import.error.UnitNameNotFound": "Указанное помещение не найдено в доме",
   "meter.import.error.WrongDateFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в формате \"{format}\", либо значение с типом Дата",
   "meter.import.error.WrongDateOrMonthFormatMessage": "Неверное значение даты в столбце \"{columnName}\". Используйте значение с типом Строка в форматах \"{format1}\", \"{format2}\" (для указания только месяца); либо значение с типом Дата",
