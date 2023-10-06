@@ -13,7 +13,6 @@ mutation signIn($phone: String!, $password: String!) {
         phone: $phone,
         password: $password
     }) {
-        token
         item {
             id
         }

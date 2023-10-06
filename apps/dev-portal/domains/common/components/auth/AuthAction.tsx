@@ -11,8 +11,8 @@ import { useAuth } from '@/lib/auth'
 
 export const AuthHeaderAction: React.FC = () => {
     const intl = useIntl()
-    const SignInMessage = intl.formatMessage({ id: 'global.header.signIn' })
-    const SignOutMessage = intl.formatMessage({ id: 'global.header.signOut' })
+    const SignInMessage = intl.formatMessage({ id: 'global.action.signIn' })
+    const SignOutMessage = intl.formatMessage({ id: 'global.action.signOut' })
     const { isLoading, isAuthenticated, user, signOut } = useAuth()
     const [loginModalOpen, setLoginModalOpen] = useState(false)
 

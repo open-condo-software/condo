@@ -1638,7 +1638,7 @@ export type SignInMutationVariables = Exact<{
 }>
 
 
-export type SignInMutation = { __typename?: 'Mutation', authenticateUserWithPhoneAndPassword?: { __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput', token: string, item: { __typename?: 'User', id: string } } | null }
+export type SignInMutation = { __typename?: 'Mutation', authenticateUserWithPhoneAndPassword?: { __typename?: 'AuthenticateUserWithPhoneAndPasswordOutput', item: { __typename?: 'User', id: string } } | null }
 
 export type SignOutMutationVariables = Exact<{ [key: string]: never; }>
 
@@ -1687,7 +1687,6 @@ export type AuthenticatedUserQueryResult = Apollo.QueryResult<AuthenticatedUserQ
 export const SignInDocument = gql`
     mutation signIn($phone: String!, $password: String!) {
   authenticateUserWithPhoneAndPassword(data: {phone: $phone, password: $password}) {
-    token
     item {
       id
     }
