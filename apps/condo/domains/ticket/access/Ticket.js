@@ -56,7 +56,7 @@ async function canManageTickets ({ authentication: { item: user }, operation, it
     if (user.deletedAt) return false
     if (user.isAdmin) return true
 
-    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
 
     if (user.type === RESIDENT) {

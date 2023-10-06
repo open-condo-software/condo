@@ -54,7 +54,7 @@ async function canManageB2BAppContexts ({ authentication: { item: user }, origin
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
 
     if (operation === 'create') {

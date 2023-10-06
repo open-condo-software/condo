@@ -3147,6 +3147,7 @@ type UserRightsSetHistoryRecord {
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3235,6 +3236,8 @@ input UserRightsSetHistoryRecordWhereInput {
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  canManageOrganizationIsApprovedField_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3372,6 +3375,8 @@ enum SortUserRightsSetHistoryRecordsBy {
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
+  canManageOrganizationIsApprovedField_ASC
+  canManageOrganizationIsApprovedField_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3418,6 +3423,7 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3465,6 +3471,7 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3602,6 +3609,10 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation 
   """
   canExecuteSendMessage: Boolean
+
+  """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
+  """
+  canManageOrganizationIsApprovedField: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3698,6 +3709,8 @@ input UserRightsSetWhereInput {
   canExecuteRegisterNewServiceUser_not: Boolean
   canExecuteSendMessage: Boolean
   canExecuteSendMessage_not: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  canManageOrganizationIsApprovedField_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3815,6 +3828,8 @@ enum SortUserRightsSetsBy {
   canExecuteRegisterNewServiceUser_DESC
   canExecuteSendMessage_ASC
   canExecuteSendMessage_DESC
+  canManageOrganizationIsApprovedField_ASC
+  canManageOrganizationIsApprovedField_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3861,6 +3876,7 @@ input UserRightsSetUpdateInput {
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3905,6 +3921,7 @@ input UserRightsSetCreateInput {
   canManageTickets: Boolean
   canExecuteRegisterNewServiceUser: Boolean
   canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
   v: Int
   createdAt: String
   updatedAt: String

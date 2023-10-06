@@ -11,6 +11,7 @@ const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrgani
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
+
 async function canReadOrganizations ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -84,7 +85,7 @@ async function canManageOrganizations ({ authentication: { item: user }, operati
     // You should use "registerNewOrganization"
     if (operation === 'create') return false
 
-    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
 
     // NOTE: The "isApproved" field can only be managed by the admin, support, users with special rights.

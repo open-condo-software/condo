@@ -67,7 +67,7 @@ async function canManageB2BAppPermissions ({ authentication: { item: user }, ori
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey)
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
     if (hasDirectAccess) return true
 
     if (user.type !== SERVICE) {

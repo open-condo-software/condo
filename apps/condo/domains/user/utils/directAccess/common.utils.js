@@ -1,5 +1,6 @@
 const pluralize = require('pluralize')
 
+
 function _capitalize (input) {
     return `${input.charAt(0).toUpperCase()}${input.slice(1)}`
 }
@@ -26,6 +27,10 @@ function generateManageSchemaFieldName (schemaName) {
     return `canManage${pluralize.plural(schemaName)}`
 }
 
+function generateFieldNameToManageField (schemaName, fieldName) {
+    return `canManage${schemaName}${_capitalize(fieldName)}Field`
+}
+
 function generateExecuteServiceFieldName (serviceName) {
     return `canExecute${_capitalize(serviceName)}`
 }
@@ -49,11 +54,19 @@ function generateFieldNames (config) {
         fields.push(generateExecuteServiceFieldName(serviceName))
     }
 
+    const fieldsConfig = Object.entries(config.fields)
+    for (const [schemaName, fieldNames] of fieldsConfig) {
+        for (const fieldName of fieldNames) {
+            fields.push(generateFieldNameToManageField(schemaName, fieldName))
+        }
+    }
+
     return fields
 }
 
 module.exports = {
     getListConfig,
+    generateFieldNameToManageField,
     generateReadSchemaFieldName,
     generateManageSchemaFieldName,
     generateExecuteServiceFieldName,

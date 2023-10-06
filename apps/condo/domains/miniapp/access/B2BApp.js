@@ -24,12 +24,12 @@ async function canReadB2BApps ({ authentication: { item: user } }) {
  * 1. Admin / support
  * 2. Users with direct access
  */
-async function canManageB2BApps ({ authentication: { item: user }, listKey }) {
+async function canManageB2BApps ({ authentication: { item: user }, listKey, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
-    return await canDirectlyManageSchemaObjects(user, listKey)
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 /*
