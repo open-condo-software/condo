@@ -10,7 +10,8 @@ const nextCookie = require('next-cookies')
 const extractReqLocale = (req) => {
     if (!req) return null
     try {
-        const cookieLocale = nextCookie['locale'] || nextCookie['NEXT_LOCALE']
+        const cookies = nextCookie({ req })
+        const cookieLocale = cookies['locale'] || cookies['NEXT_LOCALE']
         // NOTE: Necessary for the correct work of the locale on the share page in Telegram
         const queryLocale = get(req, 'query.locale')
         const headersLocale = get(req, 'headers.accept-language', '').slice(0, 2)

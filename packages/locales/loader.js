@@ -13,14 +13,19 @@ let translations = {}
 
 const loadTranslations = () => {
     const translationsDir = path.join(process.cwd(), 'lang')
-    const localeFolders = fs.readdirSync(translationsDir)
+    const availableLocales = fs.readdirSync(translationsDir, { withFileTypes: true })
 
-    translations = localeFolders
-        .map(languageCode => ({
-            // eslint-disable-next-line import/order
-            [languageCode]: require(path.join(translationsDir, `${languageCode}/${languageCode}.json`)),
-        }))
-        .reduce((prev, curr) => ({ ...prev, ...curr }))
+    translations = Object.assign({}, ...availableLocales.map(dirent => {
+        if (dirent.isDirectory()) {
+            const locale = dirent.name
+            return { [locale]: require(path.join(translationsDir, locale, `${locale}.json`)) }
+        } else if (dirent.isFile() && dirent.name.endsWith('.json')) {
+            const locale = dirent.name.split('.')[0]
+            return { [locale]: require(path.join(translationsDir, dirent.name)) }
+        } else {
+            throw new Error('Unsupported locale config. Must be [lang].json or [lang]/[lang].json file')
+        }
+    }))
 }
 
 const maybeLoadTranslations = () => {
