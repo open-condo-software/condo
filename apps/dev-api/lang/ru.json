@@ -1,3 +1,5 @@
 {
-  "messages.confirmPhoneAction": "Ваш код подтверждения: {code}"
+  "messages.confirmPhoneAction": "Ваш код подтверждения: {code}",
+  "errors.AUTH_ATTEMPTS_DAILY_LIMIT_REACHED.message": "С этого IP-адреса было предпринято слишком много попыток авторизации. Пожалуйста, повторите попытку позже",
+  "errors.INCORRECT_PHONE_OR_PASSWORD.message": "Неверный номер телефона или пароль"
 }

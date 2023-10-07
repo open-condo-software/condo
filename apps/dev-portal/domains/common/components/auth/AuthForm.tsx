@@ -5,8 +5,8 @@ import { useIntl } from 'react-intl'
 
 import { Tabs, Input, Button } from '@open-condo/ui'
 
+import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { getFormErrorHandler } from '@/domains/common/utils/errors'
 import { INCORRECT_PHONE_OR_PASSWORD } from '@dev-api/domains/user/constants/errors'
 
 import styles from './AuthForm.module.css'
@@ -30,11 +30,16 @@ const LoginForm: React.FC<AuthFormProps> = ({ onComplete }) => {
     const PasswordLabel = intl.formatMessage({ id: 'global.authForm.labels.password' })
 
     const [form] = Form.useForm()
+    const onSignInError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: LOGIN_FORM_ERRORS_TO_FIELDS_MAP,
+    })
+
     const { requiredValidator, phoneFormatValidator } = useValidations()
 
     const [signInMutation] = useSignInMutation({
         onCompleted: onComplete,
-        onError: getFormErrorHandler(form, LOGIN_FORM_ERRORS_TO_FIELDS_MAP),
+        onError: onSignInError,
     })
 
     const onSubmit = useCallback((values) => {

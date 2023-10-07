@@ -12,6 +12,7 @@
   "global.forms.validations.required.message": "Необходимо заполнить",
   "global.forms.validations.phoneFormat.message": "Неверный номер телефона",
   "global.forms.validations.passwordTooEasy.message": "Указанный пароль слишком простой или содержит много повторяющихся символов",
+  "global.errors.serverError.title": "Ошибка сервера",
   "docs.editPage": "Редактировать эту страницу на Github",
   "docs.nextArticle": "Далее: {title}",
   "docs.prevArticle": "Назад: {title}"

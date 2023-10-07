@@ -1,3 +1,5 @@
 {
-  "messages.confirmPhoneAction": "Your confirmation code: {code}"
+  "messages.confirmPhoneAction": "Your confirmation code: {code}",
+  "errors.AUTH_ATTEMPTS_DAILY_LIMIT_REACHED.message": "Too many authorization attempts have been made from this IP address. Please try again later",
+  "errors.INCORRECT_PHONE_OR_PASSWORD.message": "Incorrect phone number or password"
 }
