@@ -1,38 +1,28 @@
 /** @jsx jsx */
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
 import { css, jsx } from '@emotion/react'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import Head from 'next/head'
-import { useIntl } from '@condo/next/intl'
-import {
-    PageContent,
-    PageHeader,
-    PageWrapper,
-    useLayoutContext,
-} from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Col, Divider, Form, notification, Radio, Row, Select, TableColumnsType, Tabs, Typography } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useOrganization } from '@condo/next/organization'
+import dayjs, { Dayjs } from 'dayjs'
+import quarterOfYear from 'dayjs/plugin/quarterOfYear'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import sum from 'lodash/sum'
-import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
-import { useApolloClient, useLazyQuery } from '@condo/next/apollo'
-
-import dayjs, { Dayjs } from 'dayjs'
-import quarterOfYear from 'dayjs/plugin/quarterOfYear'
-import { fontSizes } from '@condo/domains/common/constants/style'
-
-import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
-import { Button } from '@condo/domains/common/components/Button'
-import { EditFilled, FilePdfFilled, PlusCircleFilled } from '@ant-design/icons'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import qs from 'qs'
-import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { Edit, PlusCircle, Print } from '@open-condo/icons'
+import { useApolloClient, useLazyQuery } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
+
 import TicketChart, { TicketSelectTypes, ViewModeTypes } from '@condo/domains/analytics/components/TicketChart'
+import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
+import TicketListView from '@condo/domains/analytics/components/TicketListView'
+import { EXPORT_TICKET_ANALYTICS_TO_EXCEL, TICKET_ANALYTICS_REPORT_QUERY } from '@condo/domains/analytics/gql'
 import {
     filterToQuery,
     getAggregatedData,
@@ -41,22 +31,31 @@ import {
     ticketAnalyticsPageFilters,
     isEmptyAnalyticsData,
 } from '@condo/domains/analytics/utils/helpers'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
 import {
-    searchEmployeeUser,
-    searchOrganizationProperty,
-} from '@condo/domains/ticket/utils/clientSchema/search'
-import TicketChartView from '@condo/domains/analytics/components/TicketChartView'
-import TicketListView from '@condo/domains/analytics/components/TicketListView'
+    PageContent,
+    PageHeader,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { BarChartIcon, LinearChartIcon, PieChartIcon } from '@condo/domains/common/components/icons/ChartIcons'
+import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
+import RadioGroupWithIcon from '@condo/domains/common/components/RadioGroupWithIcon'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import {
     DATE_DISPLAY_FORMAT,
     TICKET_REPORT_DAY_GROUP_STEPS,
     TICKET_REPORT_TABLE_MAIN_GROUP,
 } from '@condo/domains/ticket/constants/common'
-import { ExportTicketAnalyticsToExcelTranslates, TicketGroupedCounter, TicketLabel } from '@app/condo/schema'
-import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 import { useTicketWarningModal } from '@condo/domains/ticket/hooks/useTicketWarningModal'
-import { MAX_FILTERED_ELEMENTS, MAX_TAG_TEXT_LENGTH } from '@condo/domains/analytics/utils/helpers'
+import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+import {
+    searchEmployeeUser,
+    searchOrganizationProperty,
+} from '@condo/domains/ticket/utils/clientSchema/search'
 
 dayjs.extend(quarterOfYear)
 
@@ -109,7 +108,7 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
 
     const TicketTypeAll = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.AllTypes' })
     const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
-    const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
+    const TicketTypePayable = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Payable' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
 
     return (
@@ -120,7 +119,7 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
         >
             <Select.Option value='all'>{TicketTypeAll}</Select.Option>
             <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
-            <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
+            <Select.Option value='payable'>{TicketTypePayable}</Select.Option>
             <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
         </Select>
     )
@@ -158,7 +157,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     const executorListRef = useRef([])
     const responsibleListRef = useRef([])
     const [specification, setSpecification] = useState<specificationTypes>(TICKET_REPORT_DAY_GROUP_STEPS[0] as specificationTypes)
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const updateUrlFilters = useCallback(() => {
         const [startDate, endDate] = dateRange
@@ -176,7 +175,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
     }, [dateRange, specification, addressList, responsibleList, responsibleList, classifierList, viewMode, groupTicketsBy])
 
     useEffect(() => {
-        const queryParams = getQueryParams()
+        // TODO(DOMA-5907): Clean this mess with and fix deps array. Also remove a type cast
+        const queryParams = router.query as Record<string, string>
         const addressList = JSON.parse(get(queryParams, 'addressList', '[]'))
         const classifierList = JSON.parse(get(queryParams, 'classifierList', '[]'))
         const executorList = JSON.parse(get(queryParams, 'executorList', '[]'))
@@ -192,6 +192,8 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
             setExecutorList(executorList.length ? executorList.map(e => e.value) : [])
             setResponsibleList(responsibleList.length ? responsibleList.map(e => e.value) : [])
             setDateRange(range)
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
             setSpecification(specificationUrl)
         }
         isEmpty(queryParams) && updateUrlFilters()
@@ -265,7 +267,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         />
                     </Form.Item>
                 </Col>
-                <Col xs={24} sm={12} lg={4} offset={isSmall ? 0 : 1}>
+                <Col xs={24} sm={12} lg={4} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                     <Form.Item label={SpecificationTitle} {...FORM_ITEM_STYLE}>
                         <Select value={specification} onChange={onSpecificationChange}>
                             <Select.Option disabled={dateRange[1].diff(dateRange[0], 'quarter') > 0} value='day'>
@@ -275,7 +277,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                         </Select>
                     </Form.Item>
                 </Col>
-                <Col xs={24} lg={12} offset={isSmall ? 0 : 1}>
+                <Col xs={24} lg={12} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                     <Form.Item label={AddressTitle} {...FORM_ITEM_STYLE}>
                         <GraphQlSearchInput
                             allowClear
@@ -340,7 +342,7 @@ const TicketAnalyticsPageFilter: React.FC<ITicketAnalyticsPageFilterProps> = ({ 
                     </Col>
                 )}
                 <Col span={24}>
-                    <Button onClick={applyFilters} type='sberPrimary'>{ApplyButtonTitle}</Button>
+                    <Button onClick={applyFilters} type='primary'>{ApplyButtonTitle}</Button>
                 </Col>
             </Row>
         </Form>
@@ -377,7 +379,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
     const router = useRouter()
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const filtersRef = useRef<null | ticketAnalyticsPageFilters>(null)
     const mapperInstanceRef = useRef(null)
     const ticketLabelsRef = useRef<TicketLabel[]>([])
@@ -434,7 +436,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
-                        Object.entries(data).map(([groupBy, dataObj]) => {
+                        Object.entries(data).forEach(([groupBy, dataObj]) => {
                             series.push({
                                 name: groupBy,
                                 type: viewMode,
@@ -497,7 +499,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const axisLabels = Object.keys(data.summary)
                             .sort((firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel])
                         const legend = Object.keys(data)
-                        Object.entries(data).map(([name, dataObj]) => {
+                        Object.entries(data).forEach(([name, dataObj]) => {
                             const seriesData = []
                             axisLabels.forEach(axisLabel => {
                                 seriesData.push(dataObj[axisLabel])
@@ -763,11 +765,12 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
         }
     }, [userOrganizationId, viewMode, groupTicketsBy])
 
-    useEffect(() => {
-        const queryParams = getQueryParams()
-        setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status'))
-        setViewMode(get(queryParams, 'viewMode', 'line'))
-    }, [])
+    useDeepCompareEffect(() => {
+        // TODO(DOMA-5907): Clean this mess with and fix deps array. Also remove a type cast
+        const queryParams = router.query as Record<string, string>
+        setGroupTicketsBy(get(queryParams, 'groupTicketsBy', 'status') as GroupTicketsByTypes)
+        setViewMode(get(queryParams, 'viewMode', 'line') as ViewModeTypes)
+    }, [router.query])
 
     useEffect(() => {
         ticketTypeRef.current = ticketType
@@ -896,9 +899,9 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                     <Col xs={24} sm={18}>
                         <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} />
                     </Col>
-                    <Col span={6} hidden={isSmall}>
+                    <Col span={6} hidden={!breakpoints.TABLET_LARGE}>
                         <Tooltip title={NotImplementedYetMessage}>
-                            <Button icon={<PlusCircleFilled />} type='sberPrimary' secondary>{HeaderButtonTitle}</Button>
+                            <Button icon={<PlusCircle size='medium' />} type='secondary'>{HeaderButtonTitle}</Button>
                         </Tooltip>
                     </Col>
                 </Row>
@@ -958,7 +961,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             </Col>
                             <Col
                                 xs={8}
-                                hidden={!isSmall}
+                                hidden={breakpoints.TABLET_LARGE}
                             >
                                 <TicketTypeSelect
                                     ticketType={ticketType}
@@ -983,7 +986,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             >
                                 <Col
                                     style={{ position: 'absolute', top: 0, right: 0, minWidth: '132px' }}
-                                    hidden={isSmall}
+                                    hidden={!breakpoints.TABLET_LARGE}
                                 >
                                     <TicketTypeSelect
                                         ticketType={ticketType}
@@ -992,7 +995,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                                     />
                                 </Col>
                             </TicketChartView>
-                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy, isSmall])}
+                        ), [analyticsData, loading, viewMode, ticketType, userOrganizationId, groupTicketsBy, breakpoints.TABLET_LARGE])}
                     </Col>
                     <Col span={24}>
                         <Row gutter={[0, 20]}>
@@ -1012,24 +1015,32 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                             </Col>
                         </Row>
                     </Col>
-                    <ActionBar hidden={isSmall}>
-                        <Button
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf}
-                            icon={<FilePdfFilled />}
-                            type='sberPrimary'
-                            secondary>
-                            {PrintTitle}
-                        </Button>
-                        <Button
-                            disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}
-                            onClick={downloadExcel}
-                            loading={isXSLXLoading}
-                            icon={<EditFilled />}
-                            type='sberPrimary'
-                            secondary>
-                            {ExcelTitle}
-                        </Button>
-                    </ActionBar>
+                    {
+                        breakpoints.TABLET_LARGE ? (
+                            <ActionBar
+                                actions={[
+                                    <Button
+                                        key='print'
+                                        disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)} onClick={printPdf}
+                                        icon={<Print size='medium'/>}
+                                        type='secondary'
+                                    >
+                                        {PrintTitle}
+                                    </Button>,
+                                    <Button
+                                        key='edit'
+                                        disabled={isControlsDisabled || isEmptyAnalyticsData(analyticsData)}
+                                        onClick={downloadExcel}
+                                        loading={isXSLXLoading}
+                                        icon={<Edit size='medium' />}
+                                        type='secondary'
+                                    >
+                                        {ExcelTitle}
+                                    </Button>,
+                                ]}
+                            />
+                        ) : <></>
+                    }
                 </Row>
                 <TicketWarningModal />
             </PageContent>

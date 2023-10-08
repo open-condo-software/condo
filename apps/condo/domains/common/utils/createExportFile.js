@@ -1,17 +1,19 @@
-const carbone = require('carbone')
-const FileAdapter = require('./fileAdapter')
-const { Duplex } = require('stream')
 const path = require('path')
-const { v4: uuid } = require('uuid')
+const { Duplex } = require('stream')
 const { Readable } = require('stream')
+
+const carbone = require('carbone')
+const { v4: uuid } = require('uuid')
+
+const FileAdapter = require('./fileAdapter')
 
 const EXCEL_FILE_META = {
     mimetype: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
     encoding: 'UTF-8',
 }
 
-const render = (pathToTemplate, replaces) => new Promise((resolve, reject) => {
-    carbone.render(pathToTemplate, replaces, (err, result) => {
+const render = (pathToTemplate, replaces, options = {}) => new Promise((resolve, reject) => {
+    carbone.render(pathToTemplate, replaces, options, (err, result) => {
         if (err) {
             return reject(err)
         } else {
@@ -24,8 +26,11 @@ const render = (pathToTemplate, replaces) => new Promise((resolve, reject) => {
 // It makes unable to save data to `File` field server-side
 // @deprecated use `buildExportFile` like in `apps/condo/domains/ticket/tasks/exportTicketsTask.js`
 async function createExportFile ({ fileName, templatePath, replaces, meta }) {
-    const ExportFileAdapter = new FileAdapter('export')
+    // templatePath is a configured template path - not a user input
+    // all results of export file generation will be accessible only for authorized end users
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const fileContent = await render(path.resolve(templatePath), replaces)
+    const ExportFileAdapter = new FileAdapter('export')
     const buffer = new Duplex()
     buffer.push(fileContent)
     buffer.push(null)
@@ -49,10 +54,13 @@ async function createExportFile ({ fileName, templatePath, replaces, meta }) {
  * TODO(antonal): make this function to work with many formats, not only Excel
  * @param templatePath path to Excel file template
  * @param replaces
+ * @param options
  * @return {Promise<{ stream }>}
  */
-async function buildExportFile ({ templatePath, replaces }) {
-    const content = await render(path.resolve(templatePath), replaces)
+async function buildExportFile ({ templatePath, replaces, options }) {
+    // all results of export file generation will be accessible only for authorized end users
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const content = await render(path.resolve(templatePath), replaces, options)
     const stream = Readable.from(content)
     return { stream }
 }
@@ -61,4 +69,5 @@ module.exports = {
     EXCEL_FILE_META,
     createExportFile,
     buildExportFile,
+    render,
 }

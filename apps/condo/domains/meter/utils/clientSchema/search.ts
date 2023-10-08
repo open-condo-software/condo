@@ -1,5 +1,5 @@
-import isEmpty from 'lodash/isEmpty'
 import { gql } from 'graphql-tag'
+import isEmpty from 'lodash/isEmpty'
 
 const GET_METER_QUERY = gql`
     query getMeter (

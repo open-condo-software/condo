@@ -1,45 +1,45 @@
-import { DatabaseFilled, DiffOutlined } from '@ant-design/icons'
 import { useLazyQuery } from '@apollo/client'
 import {
     OrganizationEmployeeRole,
     PropertyWhereInput,
-    Property as PropertyType,
     SortPropertiesBy,
 } from '@app/condo/schema'
-import { Button } from '@condo/domains/common/components/Button'
-import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Table } from '@condo/domains/common/components/Table/Index'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
-import { PropertyTable } from '@condo/domains/property/utils/clientSchema'
-import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
-import { useIntl } from '@condo/next/intl'
 import { Col, notification, Row } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
 import { Gutter } from 'antd/es/grid/row'
 import { ColumnsType } from 'antd/lib/table'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
-import React, { useState } from 'react'
-import { useImporterFunctions } from '../hooks/useImporterFunctions'
 import isEmpty from 'lodash/isEmpty'
+import { useRouter } from 'next/router'
+import React, { useMemo, useState } from 'react'
+
+import { FileDown, PlusCircle, Search, Sheet } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
+import { ActionBar, ActionBarProps, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
+import { Table } from '@condo/domains/common/components/Table/Index'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { EXPORT_PROPERTIES_TO_EXCEL } from '@condo/domains/property/gql'
+import { useImporterFunctions } from '@condo/domains/property/hooks/useImporterFunctions'
+import { PropertyTable } from '@condo/domains/property/utils/clientSchema'
+import { IFilters, PROPERTY_PAGE_SIZE } from '@condo/domains/property/utils/helpers'
+
 
 type BuildingTableProps = {
     role: OrganizationEmployeeRole
     searchPropertiesQuery: PropertyWhereInput
     tableColumns: ColumnsType
     sortBy: SortPropertiesBy[]
-    onSearch?: (properties: PropertyType[]) => void
     loading?: boolean
+    canDownloadProperties?: boolean
 }
 
 const ROW_VERTICAL_GUTTERS: [Gutter, Gutter] = [0, 40]
-const ROW_SMALL_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [10, 0]
-const ROW_BIG_HORIZONTAL_GUTTERS: [Gutter, Gutter] = [40, 0]
 
 export default function BuildingsTable (props: BuildingTableProps) {
     const intl = useIntl()
@@ -47,16 +47,16 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const ExportAsExcel = intl.formatMessage({ id: 'ExportAsExcel' })
     const CreateLabel = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const PropertiesMessage = intl.formatMessage({ id: 'menu.Property' })
+    const PropertiesMessage = intl.formatMessage({ id: 'global.section.properties' })
     const DownloadExcelLabel = intl.formatMessage({ id: 'pages.condo.property.id.DownloadExcelLabel' })
     const PropertyTitle = intl.formatMessage({ id: 'pages.condo.property.ImportTitle' })
     const EmptyListLabel = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'pages.condo.property.index.EmptyList.text' })
     const CreateProperty = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
+    const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
-    const { role, searchPropertiesQuery, tableColumns, sortBy, loading } = props
+    const { role, searchPropertiesQuery, tableColumns, sortBy, loading, canDownloadProperties } = props
 
-    const { isSmall } = useLayoutContext()
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, PROPERTY_PAGE_SIZE)
@@ -66,16 +66,12 @@ export default function BuildingsTable (props: BuildingTableProps) {
         where: { ...searchPropertiesQuery },
         skip: (currentPageIndex - 1) * PROPERTY_PAGE_SIZE,
         first: PROPERTY_PAGE_SIZE,
-    }, {
-        onCompleted: () => {
-            props.onSearch && props.onSearch(properties)
-        },
     })
 
     const handleRowAction = (record) => {
         return {
-            onClick: () => {
-                router.push(`/property/${record.id}/`)
+            onClick: async () => {
+                await router.push(`/property/${record.id}/`)
             },
         }
     }
@@ -100,7 +96,9 @@ export default function BuildingsTable (props: BuildingTableProps) {
     const isNoBuildingsData = isEmpty(properties) && isEmpty(filters) && !propertiesLoading && !loading
 
     const canManageProperties = get(role, 'canManageProperties', false)
+    const isDownloadButtonHidden = !get(role, 'canReadProperties', canDownloadProperties === true)
     const EMPTY_LIST_VIEW_CONTAINER_STYLE = { display: isNoBuildingsData ? 'flex' : 'none', paddingTop : canManageProperties ? 'inherit' : '5%' }
+    const exampleTemplateLink = useMemo(() => `/buildings-import-example-${intl.locale}.xlsx`, [intl.locale])
 
     function onExportToExcelButtonClicked () {
         exportToExcel({
@@ -112,6 +110,62 @@ export default function BuildingsTable (props: BuildingTableProps) {
             },
         })
     }
+
+    const actionBarButtons: ActionBarProps['actions'] = useMemo(() =>
+        [
+            canManageProperties && (
+                <>
+                    <Button
+                        type='primary'
+                        onClick={async () => await router.push('/property/create')}
+                        icon={<PlusCircle size='medium'/>}
+                    >
+                        {CreateLabel}
+                    </Button>
+                    <ImportWrapper
+                        objectsName={PropertiesMessage}
+                        accessCheck={canManageProperties}
+                        onFinish={refetch}
+                        columns={columns}
+                        rowNormalizer={propertyNormalizer}
+                        rowValidator={propertyValidator}
+                        domainTranslate={PropertyTitle}
+                        objectCreator={propertyCreator}
+                        exampleTemplateLink={exampleTemplateLink}
+                    >
+                        <Button
+                            type='secondary'
+                            icon={<FileDown size='medium' />}
+                        >
+                            {ImportButtonMessage}
+                        </Button>
+                    </ImportWrapper>
+                </>
+            ),
+            !isDownloadButtonHidden && (
+                downloadLink
+                    ? (
+                        <Button
+                            type='secondary'
+                            icon={<Sheet size='medium' />}
+                            loading={isXlsLoading}
+                            target='_blank'
+                            href={downloadLink}
+                            rel='noreferrer'>
+                            {DownloadExcelLabel}
+                        </Button>
+                    )
+                    : (
+                        <Button
+                            type='secondary'
+                            icon={<Sheet size='medium' />}
+                            loading={isXlsLoading}
+                            onClick={onExportToExcelButtonClicked}>
+                            {ExportAsExcel}
+                        </Button>
+                    )
+            ),
+        ], [CreateLabel, DownloadExcelLabel, ExportAsExcel, ImportButtonMessage, PropertiesMessage, PropertyTitle, canManageProperties, columns, downloadLink, exampleTemplateLink, isDownloadButtonHidden, isXlsLoading, onExportToExcelButtonClicked, propertyCreator, propertyNormalizer, propertyValidator, refetch, router])
 
     return (
         <>
@@ -129,11 +183,11 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         rowValidator={propertyValidator}
                         domainTranslate={PropertyTitle}
                         objectCreator={propertyCreator}
+                        exampleTemplateLink={exampleTemplateLink}
                     >
                         <Button
-                            type='sberPrimary'
-                            icon={<DiffOutlined/>}
-                            secondary
+                            type='secondary'
+                            icon={<FileDown size='medium' />}
                         />
                     </ImportWrapper>
                 )}
@@ -144,85 +198,15 @@ export default function BuildingsTable (props: BuildingTableProps) {
             <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS} hidden={isNoBuildingsData}>
                 <Col span={24}>
                     <TableFiltersContainer>
-                        <Row justify='space-between' gutter={ROW_VERTICAL_GUTTERS}>
-                            <Col xs={24} lg={12}>
-                                <Row align='middle' gutter={ROW_BIG_HORIZONTAL_GUTTERS}>
-                                    <Col xs={24} lg={12}>
-                                        <Input
-                                            placeholder={SearchPlaceholder}
-                                            onChange={(e) => {
-                                                handleSearchChange(e.target.value)
-                                            }}
-                                            value={search}
-                                            allowClear={true}
-                                        />
-                                    </Col>
-                                    <Col lg={12} hidden={isSmall || !canManageProperties}>
-                                        {
-                                            downloadLink
-                                                ? (
-                                                    <Button
-                                                        type='inlineLink'
-                                                        icon={<DatabaseFilled/>}
-                                                        loading={isXlsLoading}
-                                                        target='_blank'
-                                                        href={downloadLink}
-                                                        rel='noreferrer'>
-                                                        {DownloadExcelLabel}
-                                                    </Button>
-                                                )
-                                                : (
-                                                    <Button
-                                                        type='inlineLink'
-                                                        icon={<DatabaseFilled/>}
-                                                        loading={isXlsLoading}
-                                                        onClick={onExportToExcelButtonClicked}>
-                                                        {ExportAsExcel}
-                                                    </Button>
-                                                )
-                                        }
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col xs={24} lg={12}>
-                                <Row justify='end' gutter={ROW_SMALL_HORIZONTAL_GUTTERS}>
-                                    <Col hidden={isSmall}>
-                                        {
-                                            canManageProperties && (
-                                                <ImportWrapper
-                                                    objectsName={PropertiesMessage}
-                                                    accessCheck={canManageProperties}
-                                                    onFinish={refetch}
-                                                    columns={columns}
-                                                    rowNormalizer={propertyNormalizer}
-                                                    rowValidator={propertyValidator}
-                                                    domainTranslate={PropertyTitle}
-                                                    objectCreator={propertyCreator}
-                                                    exampleTemplateLink='/buildings-import-example.xlsx'
-                                                >
-                                                    <Button
-                                                        type='sberPrimary'
-                                                        icon={<DiffOutlined/>}
-                                                        secondary
-                                                    />
-                                                </ImportWrapper>
-                                            )
-                                        }
-                                    </Col>
-                                    <Col>
-                                        {
-                                            canManageProperties
-                                                ? (
-                                                    <Button type='sberPrimary' onClick={() => router.push('/property/create')}>
-                                                        {CreateLabel}
-                                                    </Button>
-                                                )
-                                                : null
-                                        }
-                                    </Col>
-                                </Row>
-                            </Col>
-                        </Row>
+                        <Input
+                            placeholder={SearchPlaceholder}
+                            onChange={(e) => {
+                                handleSearchChange(e.target.value)
+                            }}
+                            value={search}
+                            allowClear={true}
+                            suffix={<Search size='medium' color={colors.gray[7]} />}
+                        />
                     </TableFiltersContainer>
                 </Col>
                 <Col span={24}>
@@ -233,8 +217,17 @@ export default function BuildingsTable (props: BuildingTableProps) {
                         onRow={handleRowAction}
                         columns={tableColumns}
                         pageSize={PROPERTY_PAGE_SIZE}
+                        data-cy='property__table'
                     />
                 </Col>
+                {
+                    !isEmpty(actionBarButtons.filter(Boolean)) && (
+                        <Col span={24}>
+                            <ActionBar actions={actionBarButtons}
+                            />
+                        </Col>
+                    )
+                }
             </Row>
         </>
     )

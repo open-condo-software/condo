@@ -1,13 +1,21 @@
 /** @jsx jsx */
+import { InfoCircleOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
-import React, { useCallback, useContext, useEffect, useState } from 'react'
 import styled from '@emotion/styled'
-import { InfoCircleOutlined, MinusOutlined } from '@ant-design/icons'
-import { useIntl } from '@condo/next/intl'
 import { Col, List, notification, Progress, Row, Typography } from 'antd'
 import isFunction from 'lodash/isFunction'
-import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS, TASK_PROCESSING_STATUS, TASK_CANCELLED_STATUS } from '@condo/domains/common/constants/tasks'
+import React, { useCallback, useContext, useEffect, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import { colors } from '@condo/domains/common/constants/style'
+import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS, TASK_PROCESSING_STATUS, TASK_CANCELLED_STATUS } from '@condo/domains/common/constants/tasks'
+
+import { CheckIcon } from '../icons/Check'
+import { CloseCircleIcon } from '../icons/CloseCircleIcon'
+import { CrossIcon } from '../icons/CrossIcon'
+
 import {
     ITaskTrackableItem,
     TASK_PROGRESS_UNKNOWN,
@@ -18,10 +26,7 @@ import {
     TaskRecordProgress,
     TasksContext,
 } from './index'
-import { CheckIcon } from '../icons/Check'
-import { CrossIcon } from '../icons/CrossIcon'
-import { CloseCircleIcon } from '../icons/CloseCircleIcon'
-import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
+
 
 const InfiniteSpinningStyle = css`
   @keyframes rotate {
@@ -60,30 +65,33 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
     />
 )
 
-const TaskIconsHoverSwitcher = styled.div`
+const TaskIconsWrapper = styled.div`
     cursor: pointer;
+    align-self: flex-start;
   
     > * {
       position: relative;
       right: 3px;
     }
-   
-     > *:first-child {
-       display: block;
-     }
-     > *:last-child {
-       display: none;
-     }
-   
-     &:hover {
-       > *:first-child {
-         display: none;
-       }
-       > *:last-child {
-         display: block;
-       }
-     }
 `
+
+const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
+    const [isHovered, setIsHovered] = useState(false)
+
+    return (
+        <TaskIconsWrapper
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+            onClick={removeTask}
+        >
+            {
+                taskStatus === TASK_COMPLETED_STATUS ? (isHovered ? <CrossIcon/> : <CheckIcon/>) :
+                    taskStatus === TASK_ERROR_STATUS ? <CloseCircleIcon/> :
+                        (isHovered ? <CrossIcon/> : <CircularProgress progress={progress}/>)
+            }
+        </TaskIconsWrapper>
+    )
+}
 
 interface ITaskProgressProps {
     task: TaskRecord
@@ -105,21 +113,14 @@ export const TaskProgress = ({ task, translations, progress, removeTask }: ITask
             }
             description={translations.description(task)}
         />
-        {task.status === TASK_COMPLETED_STATUS ? (
-            <TaskIconsHoverSwitcher onClick={removeTask}>
-                <CheckIcon />
-                <CrossIcon />
-            </TaskIconsHoverSwitcher>
-        ) : (task.status === TASK_ERROR_STATUS) ? (
-            <CloseCircleIcon onClick={removeTask} />
-        ) : (
-            <TaskIconsHoverSwitcher onClick={removeTask}>
-                <CircularProgress progress={progress}/>
-                <CrossIcon />
-            </TaskIconsHoverSwitcher>
-        )}
+        <TaskIconsHoverSwitcher
+            progress={progress}
+            taskStatus={task.status}
+            removeTask={removeTask}
+        />
     </List.Item>
 )
+
 
 
 interface ITaskProgressTrackerProps {
@@ -135,7 +136,7 @@ const handledTerminalStatesOfTasksIds = []
  * Polls tasks record for updates and handles its transition to completed status.
  */
 export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task }) => {
-    const { storage, removeStrategy, calculateProgress, onComplete, onCancel, translations } = task
+    const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
     const { deleteTask: deleteTaskFromContext } = useContext(TasksContext)
@@ -169,13 +170,17 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
         if (record && record.status !== TASK_PROCESSING_STATUS) {
             stopPolling()
             if (!handledTerminalStatesOfTasksIds.includes(record.id)) {
-                if (record?.status === TASK_COMPLETED_STATUS && isFunction(onComplete)) {
+                if (record.status === TASK_COMPLETED_STATUS && isFunction(onComplete)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onComplete(record)
                 }
-                if (record?.status === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
+                if (record.status === TASK_CANCELLED_STATUS && isFunction(onCancel)) {
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onCancel(record)
+                }
+                if (record.status === TASK_ERROR_STATUS && isFunction(onError)) {
+                    handledTerminalStatesOfTasksIds.push(record.id)
+                    onError(record)
                 }
             }
         }

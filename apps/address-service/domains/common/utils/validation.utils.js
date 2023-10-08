@@ -1,8 +1,8 @@
-const validate = require('validate.js')
-const nextCookies = require('next-cookies')
 const isNull = require('lodash/isNull')
-const isUndefined = require('lodash/isUndefined')
 const isObject = require('lodash/isObject')
+const isUndefined = require('lodash/isUndefined')
+const nextCookies = require('next-cookies')
+const validate = require('validate.js')
 
 const {
     JSON_WRONG_VERSION_FORMAT_ERROR,

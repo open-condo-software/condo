@@ -8,20 +8,23 @@ import {
     BuildingUnitSubType,
     BuildingFloorType, BuildingSectionType, BuildingMapType,
 } from '@app/condo/schema'
-import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
-import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
 import Ajv from 'ajv'
 import cloneDeep from 'lodash/cloneDeep'
 import compact from 'lodash/compact'
 import find from 'lodash/find'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import invert from 'lodash/invert'
 import isEmpty from 'lodash/isEmpty'
 import isObjectEmpty from 'lodash/isEmpty'
 import isNil from 'lodash/isNil'
+import isNull from 'lodash/isNull'
 import last from 'lodash/last'
 import uniq from 'lodash/uniq'
-import invert from 'lodash/invert'
+
+import { buildingEmptyMapJson } from '@condo/domains/property/constants/property'
+import { NUMERIC_REGEXP } from '@condo/domains/property/constants/regexps'
+
 import MapSchemaJSON from './MapJsonSchema.json'
 
 const ajv = new Ajv()
@@ -149,24 +152,31 @@ class Map {
         }
         return true
     }
-
-    public validateUniqueUnitLabel (renamedUnit: string = null, destination: keyof typeof MapViewMode = null): boolean {
-        const unitLabels = this.map.sections
+    get getUnitLabelsWithoutPreview (): string[] {
+        return this.map.sections
             ?.map((section) => section.floors
                 ?.map(floor => floor.units
-                    ?.map(unit => unit.label)
+                    ?.map(unit => !unit.preview && unit.label)
+                    .filter(unit => !!unit)
                 )
             )
             .flat(2)
-        const parkingUnitLabels = this.map.parking
+    }
+    get getParkingUnitLabelsWithoutPreview (): string[] {
+        return this.map.parking
             ?.map((parkingSection) => parkingSection.floors
                 ?.map(parkingFloor => parkingFloor.units
-                    ?.map(parkingUnit => parkingUnit.label)
+                    ?.map(parkingUnit => !parkingUnit.preview && parkingUnit.label)
                 )
             ).flat(2)
+    }
+    public validateUniqueUnitLabel (selectedUnit: BuildingUnit = null, destination: keyof typeof MapViewMode = null): boolean {
+        const unitLabels = this.getUnitLabelsWithoutPreview
+        const parkingUnitLabels = this.getParkingUnitLabelsWithoutPreview
+        const selectedUnitLabel = get(selectedUnit, 'label', null)
 
-        if (renamedUnit && destination) {
-            destination === 'section' ? unitLabels.push(renamedUnit) : parkingUnitLabels.push(renamedUnit)
+        if (selectedUnitLabel && destination) {
+            destination === 'section' ? unitLabels.push(selectedUnitLabel) : parkingUnitLabels.push(selectedUnitLabel)
         }
 
         const notUniqSectionLabels = unitLabels && unitLabels.length !== new Set(unitLabels).size
@@ -514,15 +524,36 @@ class MapView extends Map {
 
 
 class MapEdit extends MapView {
-    public previewSectionId: string
-    public previewParkingId: string
-    public previewSectionFloor: number | null = null
-    public previewUnitId: string
-    public previewParkingUnitId: string
+    private _previewSectionId: string | null = null
+    private _previewParkingId: string | null = null
+    private _previewSectionFloor: number | null = null
+    private _previewUnitId: string | null = null
+    private _previewParkingUnitId: string | null = null
+    private _duplicatedUnits: string[] | null = []
     private mode = null
 
     constructor (map: Maybe<BuildingMap>, private updateMap?: Maybe<(map: BuildingMap) => void>) {
         super(map)
+    }
+
+    get previewParkingUnitId (): string | null {
+        return this._previewParkingUnitId
+    }
+    get previewUnitId (): string | null {
+        return this._previewUnitId
+    }
+    get previewSectionFloor (): number | null {
+        return this._previewSectionFloor
+    }
+    get previewParkingId (): string | null {
+        return this._previewParkingId
+    }
+    get previewSectionId (): string | null {
+        return this._previewSectionId
+    }
+
+    get duplicatedUnits (): string[] | null {
+        return this._duplicatedUnits
     }
 
     get nextUnitNumber (): number {
@@ -633,6 +664,65 @@ class MapEdit extends MapView {
         this.mode = mode
     }
 
+    get hasPreviewComponents (): boolean {
+        return !isNull(this._previewSectionId)
+            || !isNull(this._previewParkingId)
+            || !isNull(this._previewUnitId)
+            || !isNull(this._previewParkingUnitId)
+            || !isNull(this._previewSectionFloor)
+    }
+
+    public validateInputUnitLabel (selectedUnit: BuildingUnit = null, newLabel = '', destination: keyof typeof MapViewMode = null): boolean {
+        const unitLabels = this.map.sections
+            ?.map((section) => section.floors
+                ?.map(floor => floor.units
+                    ?.map(unit => unit)
+                    .filter(unit => {
+                        if (unit.preview) return
+                        else if (this.mode !== 'editUnit') return unit.label
+                        else if (unit.id !== get(selectedUnit, 'id')) return unit.label
+                    }))
+            ).flat(2)
+
+        this._duplicatedUnits = []
+        const notUniqSectionLabels = unitLabels && !isEmpty(unitLabels.filter(unit => {
+            if (unit.label === newLabel) {
+                this._duplicatedUnits.push(unit.id)
+                return unit
+            }
+        }))
+        if (notUniqSectionLabels) {
+            this.validationErrors = ['Name of unit label must be unique']
+            return false
+        }
+        return true
+    }
+    public validateInputParkingUnitLabel (selectedUnit: BuildingUnit = null, newLabel = '', destination: keyof typeof MapViewMode = null): boolean {
+        const parkingUnitLabels = this.map.parking
+            ?.map((parkingSection) => parkingSection.floors
+                ?.map(parkingFloor => parkingFloor.units
+                    ?.map(parkingUnit => parkingUnit)
+                    .filter(parkingUnit => {
+                        if (parkingUnit.preview) return
+                        else if (this.mode !== 'editParkingUnit') return parkingUnit.label
+                        else if (parkingUnit.id !== get(selectedUnit, 'id')) return parkingUnit.label
+                    }))
+            ).flat(2)
+
+        this._duplicatedUnits = []
+        const notUniqParkingLabels = parkingUnitLabels && !isEmpty(parkingUnitLabels.filter(parking => {
+            if (parking.label === newLabel) {
+                this._duplicatedUnits.push(parking.id)
+                return parking
+            }
+        }))
+        if (notUniqParkingLabels) {
+            this.validationErrors = ['Name of unit label must be unique']
+            return false
+        }
+        return true
+    }
+
     public setSelectedSection (section: BuildingSection): void {
         if (this.isSectionSelected(section.id)) {
             this.selectedSection = null
@@ -688,9 +778,9 @@ class MapEdit extends MapView {
     }
 
     public removePreviewParkingUnit (renameNextUnits = true): void {
-        if (this.previewParkingUnitId) {
-            this.removeParkingUnit(this.previewParkingUnitId, renameNextUnits)
-            this.previewParkingUnitId = null
+        if (this._previewParkingUnitId) {
+            this.removeParkingUnit(this._previewParkingUnitId, renameNextUnits)
+            this._previewParkingUnitId = null
         }
     }
 
@@ -713,27 +803,27 @@ class MapEdit extends MapView {
     }
 
     public removePreviewSection (): void {
-        if (this.previewSectionId) {
-            const sectionPreviewIndex = this.map.sections.findIndex(mapSection => mapSection.id === this.previewSectionId)
+        if (this._previewSectionId) {
+            const sectionPreviewIndex = this.map.sections.findIndex(mapSection => mapSection.id === this._previewSectionId)
             this.map.sections.splice(sectionPreviewIndex, 1)
-            this.previewSectionId = null
+            this._previewSectionId = null
             this.notifyUpdater()
         }
     }
 
     public removePreviewUnit (renameNextUnits = true): void {
-        if (this.previewUnitId) {
-            this.removeUnit(this.previewUnitId, renameNextUnits)
-            this.previewUnitId = null
+        if (this._previewUnitId) {
+            this.removeUnit(this._previewUnitId, renameNextUnits)
+            this._previewUnitId = null
         }
     }
 
     public removePreviewSectionFloor (): void {
-        if (this.sectionFloorIndex !== null && this.previewSectionFloor !== null) {
-            this.removeFloor(this.sectionFloorIndex, this.previewSectionFloor)
+        if (this.sectionFloorIndex !== null && this._previewSectionFloor !== null) {
+            this.removeFloor(this.sectionFloorIndex, this._previewSectionFloor)
 
             this.sectionFloorIndex = null
-            this.previewSectionFloor = null
+            this._previewSectionFloor = null
             this.sectionFloorMap = {}
         }
     }
@@ -746,8 +836,9 @@ class MapEdit extends MapView {
             unit.preview = true
             return unit
         }))
-        this.previewSectionId = newSection.id
+        this._previewSectionId = newSection.id
         this.map.sections.push(newSection)
+        this.notifyUpdater()
     }
 
     public addSection (section: Partial<BuildingSectionArg>, unitType: BuildingUnitSubType = BuildingUnitSubType.Flat): void {
@@ -789,6 +880,8 @@ class MapEdit extends MapView {
         if (renameNextUnits && previousUnit && Number(get(invert(this.sectionFloorMap), floorIndex, -1)) > 0) {
             this.updateUnitNumbers(previousUnit)
         }
+
+        this._previewSectionFloor = null
         this.notifyUpdater()
     }
 
@@ -815,7 +908,7 @@ class MapEdit extends MapView {
             return floor
         }, newSection.floors[0])
 
-        this.previewSectionId = newSection.id
+        this._previewSectionId = newSection.id
         this.map.sections.push(newSection)
         this.notifyUpdater()
     }
@@ -861,6 +954,7 @@ class MapEdit extends MapView {
 
         this.selectedSection = null
         this.mode = null
+        this.editMode = null
         this.notifyUpdater()
     }
 
@@ -882,14 +976,15 @@ class MapEdit extends MapView {
 
         this.selectedParking = null
         this.mode = null
+        this.editMode = null
         this.notifyUpdater()
     }
 
     public removePreviewParking (): void {
-        if (this.previewParkingId) {
-            const previewParkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === this.previewParkingId)
+        if (this._previewParkingId) {
+            const previewParkingIndex = this.map.parking.findIndex(mapParking => mapParking.id === this._previewParkingId)
             this.map.parking.splice(previewParkingIndex, 1)
-            this.previewParkingId = null
+            this._previewParkingId = null
         }
     }
 
@@ -901,7 +996,7 @@ class MapEdit extends MapView {
             unit.preview = true
             return unit
         }))
-        this.previewParkingId = newParking.id
+        this._previewParkingId = newParking.id
         this.map.parking.push(newParking)
     }
 
@@ -939,7 +1034,7 @@ class MapEdit extends MapView {
             return floor
         }, newParking.floors[0])
 
-        this.previewParkingId = newParking.id
+        this._previewParkingId = newParking.id
         this.map.parking.push(newParking)
         this.notifyUpdater()
     }
@@ -990,7 +1085,7 @@ class MapEdit extends MapView {
             newUnit.id = String(++this.autoincrement)
         }
         this.map.sections[sectionIndex].floors[floorIndex].units.push(newUnit)
-        this.previewUnitId = newUnit.id
+        this._previewUnitId = newUnit.id
     }
 
     public addPreviewParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
@@ -1016,7 +1111,7 @@ class MapEdit extends MapView {
             newUnit.id = String(++this.autoincrement)
         }
         this.map.parking[sectionIndex].floors[floorIndex].units.push(newUnit)
-        this.previewParkingUnitId = newUnit.id
+        this._previewParkingUnitId = newUnit.id
     }
 
     public addParkingUnit (unit: Partial<BuildingUnitArg>, renameNextUnits = true): void {
@@ -1370,7 +1465,7 @@ class MapEdit extends MapView {
             }
         }
 
-        this.previewSectionFloor = insertIndex
+        this._previewSectionFloor = insertIndex
         return insertIndex
     }
 

@@ -1,4 +1,5 @@
 import { AddressMetaField } from '@app/condo/schema'
+
 import { VALID_HOUSE_TYPES } from './common'
 
 // "д" - "дом" or "к" - "корпус"

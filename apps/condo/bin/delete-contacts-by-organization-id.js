@@ -1,7 +1,10 @@
 const path = require('path')
-const { find } = require('@condo/keystone/schema')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const isEmpty = require('lodash/isEmpty')
+
+const { find } = require('@open-condo/keystone/schema')
+
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 
 class DeleteContactsByOrganizationId{

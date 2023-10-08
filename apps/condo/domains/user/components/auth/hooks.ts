@@ -1,7 +1,9 @@
 import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
-import { useIntl } from '@condo/next/intl'
 
 type ValidatorsMap = {
     [key: string]: Rule[]
@@ -15,9 +17,9 @@ export const useRegisterFormValidators = () => {
     const PleaseConfirmYourPasswordMsg = intl.formatMessage({ id: 'pages.auth.PleaseConfirmYourPassword' })
     const TwoPasswordDontMatchMsg = intl.formatMessage({ id: 'pages.auth.TwoPasswordDontMatch' })
     const PasswordIsTooShortMsg = intl.formatMessage({ id: 'pages.auth.PasswordIsTooShort' })
-    const NameContainsOnlyMsg = intl.formatMessage({ id: 'pages.auth.NameContainsOnly' })
     const NameMustContainMsg = intl.formatMessage({ id: 'pages.auth.NameMustContain' })
     const NameMustNotStartOrAndMsg = intl.formatMessage({ id: 'pages.auth.NameMustNotStartOrAnd' })
+    const NameInvalidCharMessage = intl.formatMessage({ id:'field.FullName.invalidChar' })
 
     return useMemo<ValidatorsMap>(() => {
         return {
@@ -29,14 +31,15 @@ export const useRegisterFormValidators = () => {
                     whitespace: true,
                     type: 'string',
                 }, {
-                    message: NameContainsOnlyMsg,
-                    pattern: /^([a-zA-Zа-яА-ЯЁё\s][-'’`]?)+$/,
+                    message: NameInvalidCharMessage,
+                    // NOTE(pahaz): test it here https://regex101.com/r/sIntkL/1
+                    pattern: /^([\p{L}-][ ]?)+$/ug,
                 }, {
                     message: NameMustContainMsg,
-                    pattern: /[a-zA-Zа-яА-ЯЁё]+/,
+                    pattern: /\p{L}+/u,
                 }, {
                     message: NameMustNotStartOrAndMsg,
-                    validator: (_, value) => !/^[-'’`]|[-'’`]$/.test(value && value.trim()) ? Promise.resolve() : Promise.reject(),
+                    validator: (_, value) => !/[-]\s|\s[-]/.test(value && value.trim()) ? Promise.resolve() : Promise.reject(),
                 },
             ],
             email: [

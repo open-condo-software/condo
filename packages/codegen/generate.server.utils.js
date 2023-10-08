@@ -1,8 +1,8 @@
 const { pickBy, get, isEmpty, isObject } = require('lodash')
 
-const conf = require('@condo/config')
-const { getById } = require('@condo/keystone/schema')
-const { GQLError } = require('@condo/keystone/errors')
+const conf = require('@open-condo/config')
+const { GQLError } = require('@open-condo/keystone/errors')
+const { getById } = require('@open-condo/keystone/schema')
 
 const IS_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
@@ -30,7 +30,7 @@ function _throwIfError (context, errors, data, errorMessage, errorMapping) {
 
         /** NOTE(pahaz): you can use it like so:
          *
-         *    const errors = {
+         *    const ERRORS = {
          *        PASSWORD_IS_TOO_SHORT: {
          *            mutation: 'registerNewUser',
          *            variable: ['data', 'password'],
@@ -46,7 +46,7 @@ function _throwIfError (context, errors, data, errorMessage, errorMapping) {
          *
          *    const user = await User.create(context, userData, {
          *        errorMapping: {
-         *            '[password:minLength:User:password]': errors.PASSWORD_IS_TOO_SHORT,
+         *            '[password:minLength:User:password]': ERRORS.PASSWORD_IS_TOO_SHORT,
          *        },
          *    })
          *
@@ -80,7 +80,15 @@ function _checkOptions (options) {
     }
 }
 
-async function execGqlAsUser (context, user, { query, variables, errorMessage = '[error] Internal Exec as user GQL Error', authedListKey = 'User', dataPath = 'obj', errorMapping = null }) {
+async function execGqlAsUser (context, user, {
+    query,
+    variables,
+    errorMessage = '[error] Internal Exec as user GQL Error',
+    authedListKey = 'User',
+    dataPath = 'obj',
+    errorMapping = null,
+    deleted = false,
+}) {
     if (!context) throw new Error('missing context argument')
     if (!context.executeGraphQL) throw new Error('wrong context argument: no executeGraphQL')
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
@@ -91,7 +99,14 @@ async function execGqlAsUser (context, user, { query, variables, errorMessage = 
     if (!item) throw new Error('unknown user id')
     const { errors, data } = await context.executeGraphQL({
         context: {
-            req: context.req,
+            req: {
+                ...context.req,
+                query: {
+                    query,
+                    variables,
+                    deleted,
+                },
+            },
             ...context.createContext({
                 authentication: { item, listKey: authedListKey },
                 skipAccessControl: false,
@@ -112,6 +127,7 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
     if (!context.createContext) throw new Error('wrong context argument: no createContext')
     if (!query) throw new Error('wrong query argument')
     if (!variables) throw new Error('wrong variables argument')
+
     const { errors, data } = await context.executeGraphQL({
         context: {
             req: context.req,
@@ -127,6 +143,8 @@ async function execGqlWithoutAccess (context, { query, variables, errorMessage =
 }
 
 function generateServerUtils (gql) {
+    if (!gql) throw new Error('you are trying to generateServerUtils without gql argument')
+
     async function getAll (context, where, { sortBy, first, skip } = {}, options = {}) {
         if (!context) throw new Error('no context')
         if (!where) throw new Error('no where')
@@ -215,6 +233,20 @@ function generateServerUtils (gql) {
         })
     }
 
+    async function updateMany (context, data, options = {}) {
+        if (!context) throw new Error('no context')
+        if (!data) throw new Error('no data')
+        _checkOptions(options)
+
+        return await execGqlWithoutAccess(context, {
+            query: gql.UPDATE_OBJS_MUTATION,
+            variables: { data },
+            errorMessage: `[error] Update ${gql.PLURAL_FORM} internal error`,
+            dataPath: 'objs',
+            ...options,
+        })
+    }
+
     async function delete_ (context, id, options = {}) {
         if (!context) throw new Error('no context')
         if (!id) throw new Error('no id')
@@ -252,9 +284,8 @@ function generateServerUtils (gql) {
         _checkOptions(options)
 
         const existingItem = await getOne(context, where, options)
-        const shouldUpdate = Boolean(existingItem && existingItem.id)
 
-        return shouldUpdate
+        return get(existingItem, 'id')
             ? await update(context, existingItem.id, data, options)
             : await create(context, data, options)
     }
@@ -266,6 +297,7 @@ function generateServerUtils (gql) {
         count,
         create,
         update,
+        updateMany,
         updateOrCreate,
         delete: delete_,
         softDelete,

@@ -7,7 +7,9 @@ import {
     OrganizationEmployeeRoleUpdateInput,
     QueryAllOrganizationEmployeeRolesArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { OrganizationEmployeeRole as OrganizationEmployeeRoleGQL } from '@condo/domains/organization/gql'
 
 export interface IOrganizationEmployeeRoleSelectState {

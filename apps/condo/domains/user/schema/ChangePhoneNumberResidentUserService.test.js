@@ -1,10 +1,16 @@
 
-const { makeLoggedInAdminClient, makeClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
-const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
-const { createTestUser, createTestConfirmPhoneAction, UserAdmin, makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
+const { faker } = require('@faker-js/faker')
+
+const { makeLoggedInAdminClient, makeClient, makeLoggedInClient, expectToThrowInternalError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@open-condo/keystone/test.utils')
+
 const { STAFF, RESIDENT } = require('@condo/domains/user/constants/common')
+const { SBER_ID_IDP_TYPE } = require('@condo/domains/user/constants/common')
+const { CHANGE_PHONE_NUMBER_RESIDENT_USER_MUTATION } = require('@condo/domains/user/gql')
+const { createTestUser, createTestConfirmPhoneAction, UserAdmin, makeClientWithResidentUser, makeClientWithStaffUser, createTestPhone, createTestUserExternalIdentity } = require('@condo/domains/user/utils/testSchema')
+
 const { changePhoneNumberResidentUserByTestClient } = require('../utils/testSchema')
-const { expectToThrowAccessDeniedErrorToResult, expectToThrowAuthenticationErrorToResult } = require('@condo/keystone/test.utils')
+
 
 describe('ChangePhoneNumberResidentUserService', () => {
     describe('Anonymous', () => {
@@ -33,6 +39,31 @@ describe('ChangePhoneNumberResidentUserService', () => {
                     phone: phone,
                     isPhoneVerified: true,
                 })
+            })
+            it('can change phone with token if user with same phone and staff type exists', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+                await createTestUser(admin, { phone: phone, type: STAFF })
+
+                const [result] = await changePhoneNumberResidentUserByTestClient(client, { token })
+                expect(result).toEqual({ 'status': 'ok' })
+                const updatedUser = await UserAdmin.getOne(admin, { phone, type: RESIDENT })
+                expect(updatedUser).toMatchObject({
+                    id: client.user.id,
+                    phone: phone,
+                    isPhoneVerified: true,
+                })
+            })
+            it('can not change phone with token if user with same phone and resident type exists', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+                await createTestUser(admin, { phone: phone, type: RESIDENT })
+
+                await expectToThrowInternalError(async () => {
+                    await changePhoneNumberResidentUserByTestClient(client, { token })
+                }, '[error] Update User internal error', 'result')
             })
             it('can not change phone with expired token', async () => {
                 const admin = await makeLoggedInAdminClient()
@@ -81,6 +112,65 @@ describe('ChangePhoneNumberResidentUserService', () => {
                         type: 'NOT_FOUND',
                     },
                 }])
+            })
+            it('can not change phone with connected external identity pointed to another phone', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const anotherPhone = createTestPhone()
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+
+                // create user external identity pointed to another phone
+                await createTestUserExternalIdentity(admin, {
+                    user: { connect: { id: client.user.id } },
+                    identityId: faker.random.alphaNumeric(8),
+                    identityType: SBER_ID_IDP_TYPE,
+                    meta: {
+                        dv: 1, city: faker.address.city(), county: faker.address.county(), phoneNumber: anotherPhone,
+                    },
+                })
+
+                await catchErrorFrom(async () => {
+                    await changePhoneNumberResidentUserByTestClient(client, { token })
+                }, ({ errors }) => {
+                    expect(errors).toMatchObject([{
+                        message: 'Unable to change phone number since user has external identity and phone number are different',
+                        name: 'GQLError',
+                        path: ['result'],
+                        extensions: {
+                            code: 'BAD_USER_INPUT',
+                            type: 'WRONG_VALUE',
+                            mutation: 'changePhoneNumberResidentUser',
+                            message: 'Unable to change phone number since user has external identity and phone number are different',
+                            variable: ['data', 'token'],
+                        },
+                    }])
+                })
+            })
+            it('can change phone with connected external identity pointed to another phone if remove flag provided', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const anotherPhone = createTestPhone()
+                const [{ token, phone }] = await createTestConfirmPhoneAction(admin, { isPhoneVerified: true })
+                const client = await makeClientWithResidentUser({ type: RESIDENT, isPhoneVerified: true })
+
+                // create user external identity pointed to another phone
+                await createTestUserExternalIdentity(admin, {
+                    user: { connect: { id: client.user.id } },
+                    identityId: faker.random.alphaNumeric(8),
+                    identityType: SBER_ID_IDP_TYPE,
+                    meta: {
+                        dv: 1, city: faker.address.city(), county: faker.address.county(), phoneNumber: anotherPhone,
+                    },
+                })
+                const [result] = await changePhoneNumberResidentUserByTestClient(client,
+                    { token, removeUserExternalIdentitiesIfPhoneDifferent: true },
+                )
+                expect(result).toEqual({ 'status': 'ok' })
+                const updatedUser = await UserAdmin.getOne(admin, { phone })
+                expect(updatedUser).toMatchObject({
+                    id: client.user.id,
+                    phone: phone,
+                    isPhoneVerified: true,
+                })
             })
         })
         describe('Staff', () => {

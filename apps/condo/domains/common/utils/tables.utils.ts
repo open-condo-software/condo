@@ -1,6 +1,15 @@
-import React from 'react'
-import get from 'lodash/get'
 import { ParsedUrlQuery } from 'querystring'
+
+import { FilterDropdownProps } from 'antd/es/table/interface'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import React from 'react'
+
+import { TableRecord } from '@condo/domains/common/components/Table/Index'
+import { getTextRender } from '@condo/domains/common/components/Table/Renders'
+
+import { preciseFloor } from './helpers'
+
 import {
     getDateFilterDropdown,
     getFilterIcon,
@@ -8,11 +17,6 @@ import {
     getOptionFilterDropdown,
     getTextFilterDropdown,
 } from '../components/Table/Filters'
-import { getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { TableRecord } from '@condo/domains/common/components/Table/Index'
-import { preciseFloor } from './helpers'
-import { FilterDropdownProps } from 'antd/es/table/interface'
-import dayjs from 'dayjs'
 
 export type DataIndexType = string | Array<string>
 export type QueryArgType = string | Array<string>
@@ -193,6 +197,26 @@ export const getDayLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIn
     }
 }
 
+export const getDateTimeGteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    const filter = getFilter(dataIndex, 'single', 'dateTime', 'gte')
+    return function searchDayGte (search) {
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
+        if (!date.isValid()) return
+        return filter(date.toISOString())
+    }
+}
+
+export const getDateTimeLteFilter: (dataIndex: DataIndexType) => FilterType = (dataIndex) => {
+    const filter = getFilter(dataIndex, 'single', 'dateTime', 'lte')
+    return function searchDayLte (search) {
+        if (!search || Array.isArray(search)) return
+        const date = dayjs(search)
+        if (!date.isValid()) return
+        return filter(date.toISOString())
+    }
+}
+
 const datesFromTextQuery = (text) => {
     const possibleDates = text.match(/[0-9.]+/g) || []
     const [currentYear, currentMonth] = dayjs().format('YYYY-MM').split('-')
@@ -353,11 +377,14 @@ export const convertColumns = (
             const filter = column.filter
             baseColumnInfo.filterIcon = getFilterIcon
             if (filter.type === 'string') {
-                const placeHolder = filter.placeholder || column.title
-                baseColumnInfo.filterDropdown = getTextFilterDropdown(placeHolder)
+                const placeholder = filter.placeholder || column.title
+                baseColumnInfo.filterDropdown = getTextFilterDropdown({ inputProps: { placeholder } })
             } else if (filter.type === 'stringOption' && filter.options.length > 0) {
                 const loading = get(filter, 'loading', false)
-                baseColumnInfo.filterDropdown = getOptionFilterDropdown(filter.options, loading)
+                baseColumnInfo.filterDropdown = getOptionFilterDropdown({ checkboxGroupProps: {
+                    options: filter.options,
+                    disabled: loading,
+                } })
             } else if (filter.type === 'date') {
                 baseColumnInfo.filterDropdown = getDateFilterDropdown()
             } else if (filter.type === 'custom') {
@@ -379,4 +406,24 @@ export const convertColumns = (
 
 export const getSorterMap: SorterMapType = (sorters) => {
     return Object.assign({}, ...sorters.map((sorter) => ({ [sorter.columnKey]: sorter.order })))
+}
+
+export const categoryToSearchQuery: (search: string, translations: Record<string, string>) => FilterType = (search, translations) => {
+    if (!search) return () => null
+
+    const searchLowerCase = search.toLowerCase()
+    const whereIn = translations ? Object.keys(translations).filter(
+        key => (
+            key.includes('billing.category')
+            && !key.includes('description')
+            && translations[key].toLowerCase().includes(searchLowerCase)
+        )
+    ) : []
+
+    return (search) =>  ({
+        category: { 'OR': [
+            { name_in: whereIn },
+            { name_contains_i: search },
+        ] },
+    }) 
 }

@@ -20,6 +20,7 @@ class OidcModelClientAdapter {
      *
      */
     constructor (name, context) {
+        if (name !== 'Client') throw new Error('OidcModelClientAdapter can work only with OidcClient schema')
         this.name = name
         this.context = context
     }
@@ -164,7 +165,12 @@ class OidcModelClientAdapter {
                 fingerprint: OIDC_FINGERPRINT,
             },
         }
-        return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
+        const item = await OidcClient.getOne(this.context, { clientId: id })
+        if (!item) {
+            return await OidcClient.create(this.context, { ...dvAndSender, clientId: id, payload, expiresAt })
+        } else {
+            return await OidcClient.update(this.context, item.id, { ...dvAndSender, clientId: id, payload, expiresAt })
+        }
     }
 
     /**

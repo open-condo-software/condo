@@ -1,20 +1,23 @@
-import React, { useCallback, useContext, useState } from 'react'
-import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
+import { Col, Form, Row, RowProps } from 'antd'
 import get from 'lodash/get'
-import { useMutation } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
+import React, { useCallback, useContext, useState } from 'react'
+
+import { useMutation } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { Typography, Button } from '@open-condo/ui'
+
+import Input from '@condo/domains/common/components/antd/Input'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
 import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
+import { REGISTER_NEW_USER_MUTATION } from '@condo/domains/user/gql'
+
 import { useRegisterFormValidators } from './hooks'
 import { RegisterContext } from './RegisterContextProvider'
-import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
-import { colors } from '@condo/domains/common/constants/style'
-import { RequiredFlagWrapper } from '@condo/domains/user/components/containers/styles'
 
 
 interface IRegisterFormProps {
@@ -24,15 +27,9 @@ interface IRegisterFormProps {
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
 }
-const FORM_TITLE_STYLES: React.CSSProperties = {
-    fontWeight: 700,
-}
 const FORM_PHONE_STYLES: React.CSSProperties = {
     borderRadius: 8,
     borderColor: colors.inputBorderGrey,
-}
-const BUTTON_STYLES: React.CSSProperties = {
-    width: '100%',
 }
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 
@@ -101,11 +98,10 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
             validateTrigger={['onBlur', 'onSubmit']}
         >
             <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <Row>
                         <Col span={24}>
-                            <Typography.Title style={FORM_TITLE_STYLES}
-                                level={2}>{RegistrationTitle}</Typography.Title>
+                            <Typography.Title level={2}>{RegistrationTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
                             <RequiredFlagWrapper>
@@ -113,6 +109,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     name='phone'
                                     label={PhoneMsg}
                                     rules={validators.phone}
+                                    validateFirst
                                 >
                                     <PhoneInput style={FORM_PHONE_STYLES} disabled={true} placeholder={ExamplePhoneMsg} block/>
                                 </Form.Item>
@@ -125,6 +122,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     label={NameMsg}
                                     rules={validators.name}
                                     data-cy='register-name-item'
+                                    validateFirst
                                 >
                                     <RequiredFlagWrapper><Input placeholder={ExampleNameMsg}/></RequiredFlagWrapper>
                                 </Form.Item>
@@ -137,6 +135,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     label={EmailMsg}
                                     rules={validators.email}
                                     data-cy='register-email-item'
+                                    validateFirst
                                 >
                                     <Input autoComplete='chrome-off' placeholder={EmailPlaceholder}/>
                                 </Form.Item>
@@ -149,6 +148,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     label={PasswordMsg}
                                     rules={validators.password}
                                     data-cy='register-password-item'
+                                    validateFirst
                                 >
                                     <Input.Password autoComplete='new-password'/>
                                 </Form.Item>
@@ -162,6 +162,7 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                                     dependencies={['password']}
                                     rules={validators.confirm}
                                     data-cy='register-confirmpassword-item'
+                                    validateFirst
                                 >
                                     <Input.Password/>
                                 </Form.Item>
@@ -169,14 +170,14 @@ export const RegisterForm: React.FC<IRegisterFormProps> = ({ onFinish }) => {
                         </Col>
                     </Row>
                 </ResponsiveCol>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <Form.Item>
                         <Button
                             key='submit'
-                            type='sberDefaultGradient'
+                            type='primary'
                             htmlType='submit'
                             loading={isLoading}
-                            style={BUTTON_STYLES}
+                            block
                             data-cy='registercomplete-button'
                         >
                             {RegisterMsg}

@@ -1,5 +1,6 @@
-const { DateInterval } = require('./Implementation')
 const { Text } = require('@keystonejs/fields')
+
+const { DateInterval } = require('./Implementation')
 
 module.exports = {
     type: 'DateInterval',

@@ -1,18 +1,20 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
-import { useIntl } from '@condo/next/intl'
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, Input, Row, Typography } from 'antd'
 import get from 'lodash/get'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { Button } from '@condo/domains/common/components/Button'
-import { colors } from '@condo/domains/common/constants/style'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
-import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { ClipIcon } from '@condo/domains/common/components/icons/ClipIcon'
 import { Module, useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { colors } from '@condo/domains/common/constants/style'
+import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { getIconByMimetype } from '@condo/domains/common/utils/clientSchema/files'
+import { MAX_COMMENT_LENGTH } from '@condo/domains/ticket/constants'
 
 import { CommentWithFiles } from './index'
 
@@ -22,7 +24,7 @@ const Holder = styled.div`
 
     button.ant-btn {
       position: absolute;
-      right: 8px;
+      right: 20px;
       top: 2px;
       padding: 0;
     }
@@ -48,6 +50,7 @@ const Holder = styled.div`
 const ENTER_KEY_CODE = 13
 const COMMENT_HELPERS_ROW_STYLES: CSSProperties = { padding: '0 8px 8px 8px' }
 const INPUT_WITH_COUNTER_AUTOSIZE_CONFIG = { minRows: 1, maxRows: 6 }
+const EMPTY_FILLER_STYLE: CSSProperties = { height: 5 }
 
 const CommentHelperWrapper = styled(Col)`
   background-color: ${colors.textSecondary};
@@ -90,6 +93,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
     const HelperMessage = intl.formatMessage({ id: 'Comments.form.helper' })
 
     const { InputWithCounter, Counter, setTextLength: setCommentLength, textLength: commentLength } = useInputWithCounter(Input.TextArea, MAX_COMMENT_LENGTH)
+    const { getEventName, logEvent } = useTracking()
     const [form, setForm] = useState<FormInstance>()
 
     const editableCommentFiles = get(editableComment, 'files')
@@ -110,17 +114,21 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         }
     }, [editableComment, fieldName, form, setCommentLength])
 
-    const handleKeyUp = useCallback(async (event, form) => {
+    const handleKeyUp = useCallback((form: FormInstance) => async (event) => {
         if (event.keyCode === ENTER_KEY_CODE && !event.shiftKey) {
             const content = form.getFieldValue(fieldName)
             if (content && content.trim().length > 0 || filesCount > 0) {
                 setSending(true)
+                form.submit()
+                const eventName = getEventName(TrackingEventType.Input)
+                logEvent({
+                    eventName,
+                    eventProperties: { components: { value: content, id: 'comment-input' } },
+                })
+                setCommentLength(0)
             }
-
-            form.submit()
-            setCommentLength(0)
         }
-    }, [fieldName, filesCount, setCommentLength, setSending])
+    }, [fieldName, filesCount, getEventName, logEvent, setCommentLength, setSending])
 
     const handleKeyDown = useCallback((event) => {
         if (event.keyCode === ENTER_KEY_CODE) {
@@ -143,27 +151,32 @@ const CommentForm: React.FC<ICommentFormProps> = ({
         setSending(false)
     }, [action, fieldName, form, resetModifiedFiles, setSending, syncModifiedFiles])
 
-    const MemoizedUploadComponent = useCallback(() => (
-        <UploadComponent
-            initialFileList={editableCommentFiles}
-            UploadButton={
-                <Button type='text'>
-                    <ClipIcon />
-                </Button>
-            }
-            uploadProps={{
-                iconRender: (file) => {
-                    return getIconByMimetype(file.type)
-                },
-            }}
-        />
-    ), [UploadComponent, editableComment, sending])
+    const MemoizedUploadComponent = useCallback(() => {
+        // NOTE: UploadComponent have 5px height if empty
+        if (sending) return <div style={EMPTY_FILLER_STYLE} />
+
+        return (
+            <UploadComponent
+                initialFileList={editableCommentFiles}
+                UploadButton={
+                    <Button type='text'>
+                        <ClipIcon/>
+                    </Button>
+                }
+                uploadProps={{
+                    iconRender: (file) => {
+                        return getIconByMimetype(file.type)
+                    },
+                }}
+            />
+        )
+    }, [UploadComponent, editableCommentFiles, sending])
 
     const initialCommentFormValues = useMemo(() => ({
         [fieldName]: initialValue,
     }), [fieldName, initialValue])
 
-    const showHelperMessage = useMemo(() => commentLength > 0 || editableComment, [commentLength, editableComment])
+    const showHelperMessage = useMemo(() => commentLength > 0 || (editableComment && !sending), [commentLength, editableComment, sending])
 
     return (
         <FormWithAction
@@ -203,7 +216,7 @@ const CommentForm: React.FC<ICommentFormProps> = ({
                                     className='white'
                                     autoSize={INPUT_WITH_COUNTER_AUTOSIZE_CONFIG}
                                     onKeyDown={handleKeyDown}
-                                    onKeyUp={(event) => {handleKeyUp(event, form)}}
+                                    onKeyUp={handleKeyUp(form)}
                                 />
                             </Form.Item>
                             <MemoizedUploadComponent />

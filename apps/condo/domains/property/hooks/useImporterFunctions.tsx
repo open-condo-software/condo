@@ -1,14 +1,18 @@
-import { useOrganization } from '@condo/next/organization'
-import { useApolloClient } from '@condo/next/apollo'
-import { useEffect, useRef } from 'react'
-import { useAddressApi } from '../../common/components/AddressApi'
-import get from 'lodash/get'
-import { Property } from '../utils/clientSchema'
-import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
-import { MapEdit } from '../components/panels/Builder/MapConstructor'
 import { BuildingMapType, PropertyTypeType } from '@app/condo/schema'
+import get from 'lodash/get'
+import { useEffect, useRef } from 'react'
+
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
-import { useIntl } from '@condo/next/intl'
+import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
+import { validHouseTypes } from '@condo/domains/property/constants/property'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+import { searchProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+
 
 const createPropertyUnitsMap = (units, sections, floors) => {
     const unitsOnFloor = Math.floor(units / (floors * sections))
@@ -42,11 +46,12 @@ const createPropertyUnitsMap = (units, sections, floors) => {
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
     const AddressNotFoundMessage = intl.formatMessage({ id: 'errors.import.AddressNotFound' })
+    const AddressValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.AddressValidationErrorMsg' })
     const PropertyDuplicateMessage = intl.formatMessage({ id: 'errors.import.PropertyDuplicate' })
-    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
-    const UnitLabel = intl.formatMessage({ id: 'field.Unit' })
-    const SectionLabel = intl.formatMessage({ id: 'field.Section' })
-    const FloorLabel = intl.formatMessage({ id: 'field.Floor' })
+    const AddressLabel = intl.formatMessage({ id: 'property.import.column.Address' })
+    const UnitLabel = intl.formatMessage({ id: 'property.import.column.Units' })
+    const SectionLabel = intl.formatMessage({ id: 'property.import.column.Sections' })
+    const FloorLabel = intl.formatMessage({ id: 'property.import.column.Floors' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -61,41 +66,57 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const createPropertyAction = Property.useCreate({})
 
     const columns: Columns = [
-        { name: 'address', type: 'string', required: true, label: AddressLabel },
-        { name: 'units', type: 'number', required: true, label: UnitLabel },
-        { name: 'sections', type: 'number', required: true, label: SectionLabel },
-        { name: 'floors', type: 'number', required: true, label: FloorLabel },
+        { name: AddressLabel, type: 'string', required: true },
+        { name: UnitLabel, type: 'number', required: true },
+        { name: SectionLabel, type: 'number', required: true },
+        { name: FloorLabel, type: 'number', required: true },
     ]
 
-    const propertyNormalizer: RowNormalizer = (row: TableRow) => {
+    const propertyNormalizer: RowNormalizer = async (row: TableRow) => {
         const [address] = row
-        return addressApi.getSuggestions(String(address.value)).then((result) => {
-            let suggestion = get(result, ['suggestions', 0], null)
-            if (get(suggestion, 'value') !== get(address, 'value')) suggestion = null
-            return Promise.resolve({ row, addons: { suggestion } })
-        })
+        const suggestions = await addressApi.getSuggestions(String(address.value))
+
+        let suggestion = get(suggestions, ['suggestions', 0], null)
+        if (get(suggestion, 'value') !== get(address, 'value')) suggestion = null
+
+        const suggestionType = get(suggestion, 'type')
+        const houseTypeFull = get(suggestion, ['data', 'house_type_full'])
+
+        return {
+            row,
+            addons: {
+                suggestion,
+                isHouse: suggestionType === 'building' || (houseTypeFull && validHouseTypes.includes(houseTypeFull)),
+            },
+        }
     }
 
-    const propertyValidator: RowValidator = (row) => {
-        if (!row ) return Promise.resolve(false)
+    const propertyValidator: RowValidator = async (row) => {
+        if (!row) return false
         const address = get(row, ['addons', 'suggestion', 'value'])
+        const isHouse = get(row, ['addons', 'isHouse'])
         if (!address) {
             row.errors = [AddressNotFoundMessage]
-            return Promise.resolve(false)
+            return false
+        }
+
+        if (!isHouse) {
+            row.errors = [AddressValidationErrorMessage]
+            return false
         }
 
         const where = {
             address: address,
             organization: { id: userOrganizationIdRef.current },
         }
-        return searchProperty(client, where, undefined)
-            .then((res) => {
-                if (res.length > 0) {
-                    row.errors = [PropertyDuplicateMessage]
-                    return false
-                }
-                return true
-            })
+
+        const properties = await searchProperty(client, where, undefined)
+
+        if (properties.length > 0) {
+            row.errors = [PropertyDuplicateMessage]
+            return false
+        }
+        return true
     }
 
     const propertyCreator: ObjectCreator = (row) => {

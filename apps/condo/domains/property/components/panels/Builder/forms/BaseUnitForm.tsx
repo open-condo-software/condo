@@ -1,13 +1,15 @@
 /** @jsx jsx */
-import React from 'react'
-import { RowProps } from 'antd'
 import { css, jsx } from '@emotion/react'
+import { RowProps } from 'antd'
+import React from 'react'
+
 import { colors } from '@condo/domains/common/constants/style'
 import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 
 export interface IPropertyMapModalForm {
     builder: MapEdit
     refresh(): void
+    setDuplicatedUnitIds?: React.Dispatch<React.SetStateAction<string[]>>
 }
 
 export const MODAL_FORM_ROW_GUTTER: RowProps['gutter'] = [0, 24]

@@ -1,5 +1,5 @@
 {
-  "name": "@condo/apollo-server-client",
+  "name": "@open-condo/apollo-server-client",
   "version": "1.0.0",
   "description": "Graphql apollo client to use on server side",
   "main": "index.js",

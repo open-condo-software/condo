@@ -1,0 +1,28 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/table";
+
+.condo-table {
+  text-align: left;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+  border-radius: @condo-global-border-radius-medium;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  th {
+    padding: @condo-global-spacing-20 @condo-global-spacing-16;
+    color: @condo-global-color-gray-7;
+    border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    .condo-typography-h6();
+  }
+
+  td {
+    padding: @condo-global-spacing-16;
+    border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    .condo-typography-text-medium();
+  }
+
+  & > tbody > tr:last-child > td {
+    border-bottom: none;
+  }
+}

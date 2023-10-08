@@ -33,6 +33,14 @@ Rollback last applied migration:
 docker-compose run app yarn workspace @app/condo kmigrator down
 ```
 
+## Reversible and not reversible migrations
+
+When some migration is removing a constraint, it may not be reversible, because the constraint may be violated by records, inserted after migration was applied.
+
+For example, we have a migration, that is removing a constraint to require a value for a field.
+After applying the migration, records without value for the field may be inserted.
+When the migration is reversed ("down"), it may not be able to bring the constraint back because some rows may violate it.
+
 ## Workflow cases
 
 ### Changed a schema during work in progress — recreate corresponding migration

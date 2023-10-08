@@ -4,10 +4,10 @@
 
 import { pick, get } from 'lodash'
 
-import { getClientSideSenderInfo } from '@miniapp/domains/common/utils/userid.utils'
 import { generateReactHooks } from '@miniapp/domains/common/utils/codegeneration/generate.hooks'
-
+import { getClientSideSenderInfo } from '@miniapp/domains/common/utils/userid.utils'
 import { User as UserGQL } from '@miniapp/domains/condo/gql'
+
 import { User, UserUpdateInput, QueryAllUsersArgs } from '../../../../schema'
 
 const FIELDS = ['id', 'deletedAt', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'name', 'isAdmin', 'isSupport', 'type']
@@ -33,7 +33,7 @@ function convertToUIFormState (state: IUserUIState): IUserFormState | undefined 
     const result = {}
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr]
+        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? attrId || state[attr] : state[attr] // NOSONAR
     }
     return result as IUserFormState
 }
@@ -43,7 +43,7 @@ function convertToGQLInput (state: IUserFormState): UserUpdateInput {
     const result = { dv: 1, sender }
     for (const attr of Object.keys(state)) {
         const attrId = get(state[attr], 'id')
-        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr]
+        result[attr] = (RELATIONS.includes(attr) && state[attr]) ? { connect: { id: (attrId || state[attr]) } } : state[attr] // NOSONAR
     }
     return result
 }

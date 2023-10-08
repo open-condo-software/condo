@@ -1,19 +1,19 @@
-import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
-import { Form, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
+import { BaseQueryOptions } from '@apollo/client'
+import { Form } from 'antd'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import getConfig from 'next/config'
+import React, { useState, Dispatch, SetStateAction, useCallback } from 'react'
 
-import { BaseQueryOptions } from '@apollo/client'
-import { useIntl } from '@condo/next/intl'
-import { useAuth } from '@condo/next/auth'
-import { useOrganization } from '@condo/next/organization'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { Radio, RadioGroup, Space } from '@open-condo/ui'
 
-import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import Input from '@condo/domains/common/components/antd/Input'
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-
-import { TIN_LENGTH } from '@condo/domains/organization/constants/common'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { EMPTY_NAME_ERROR, TIN_TOO_SHORT_ERROR, TIN_VALUE_INVALID } from '@condo/domains/organization/constants/errors'
 import { REGISTER_NEW_ORGANIZATION_MUTATION } from '@condo/domains/organization/gql'
 import { convertUIStateToGQLItem, OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -30,16 +30,19 @@ interface IUseCreateOrganizationModalFormProps {
 
 const MODAL_VALIDATE_TRIGGERS = ['onBlur', 'onSubmit']
 const FORM_ITEM_STYLES = { width: '60%' }
+const ORGANIZATION_TYPE_FORM_ITEM_STYLES = { marginBottom: 8 }
 const FETCH_OPTIONS: BaseQueryOptions = { fetchPolicy: 'network-only' }
-const MUTATION_EXTRA_DATA = { country: RUSSIA_COUNTRY }
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
+const MUTATION_EXTRA_DATA = { country: defaultLocale }
 
 const adaptOrganizationMeta = (values) => {
-    const { name, tin } = values
+    const { name, tin, type } = values
 
     return convertUIStateToGQLItem({
         name,
         tin: tin.trim(),
         meta: { dv: 1 },
+        type: type || MANAGING_COMPANY_TYPE,
     })
 }
 const findPropByValue = (list, path, value) => list.find(item => get(item, path) === value)
@@ -72,12 +75,11 @@ const prepareValidationErrorsMapping = ({ ValueIsTooShortMsg, TinTooShortMsg, Ti
         errors: [TinValueIsInvalid],
     },
 })
-const prepareValidators = ({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }) => ({
-    name: [requiredValidator],
+const prepareValidators = ({ requiredValidator, tinValidator, trimValidator, locale }) => ({
+    name: [requiredValidator, trimValidator],
     tin: [
         requiredValidator,
-        changeMessage(minLengthValidator(TIN_LENGTH), TinTooShortMsg),
-        tinValidator(MUTATION_EXTRA_DATA.country),
+        tinValidator(locale),
     ],
 })
 
@@ -86,8 +88,9 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
 
     const ValueIsTooShortMsg = intl.formatMessage({ id: 'ValueIsTooShort' })
     const CreateOrganizationModalTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationModalTitle' })
-    const CreateOrganizationModalMsg = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationMessage' })
     const CreateOrganizationPlaceholder = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationPlaceholder' })
+    const ManagingCompanyMessage = intl.formatMessage({ id: 'pages.organizations.managingCompany' })
+    const ServiceProviderMessage = intl.formatMessage({ id: 'pages.organizations.serviceProvider' })
 
     const NameMsg = intl.formatMessage({ id: 'pages.organizations.OrganizationName' })
     const InnMessage = intl.formatMessage({ id: 'pages.organizations.tin' })
@@ -100,14 +103,20 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
     )
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
-    const { selectLink } = useOrganization()
+    const { selectLink, organization } = useOrganization()
     const { user } = useAuth()
     const userId = get(user, 'id')
+    const locale = get(organization, 'country', defaultLocale)
 
-    const { requiredValidator, minLengthValidator, changeMessage, tinValidator } = useValidations()
+    const { requiredValidator, tinValidator, trimValidator } = useValidations()
     const validators = React.useMemo(
-        () => prepareValidators({ requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator }),
-        [requiredValidator, changeMessage, minLengthValidator, TinTooShortMsg, tinValidator]
+        () => prepareValidators({
+            requiredValidator,
+            tinValidator,
+            trimValidator,
+            locale,
+        }),
+        [requiredValidator, tinValidator, trimValidator, locale],
     )
 
     const fetchParams = React.useMemo(() => ({ where: userId ? prepareFetchParams(userId) : {} }), [userId])
@@ -154,16 +163,19 @@ export const useCreateOrganizationModalForm = ({ onFinish }: IUseCreateOrganizat
             showCancelButton={false}
             validateTrigger={MODAL_VALIDATE_TRIGGERS}
         >
-            <Typography.Paragraph>
-                {CreateOrganizationModalMsg}
-            </Typography.Paragraph>
-
+            <Form.Item name='type' style={ORGANIZATION_TYPE_FORM_ITEM_STYLES}>
+                <RadioGroup defaultValue={MANAGING_COMPANY_TYPE}>
+                    <Space direction='vertical' size={16}>
+                        <Radio value={MANAGING_COMPANY_TYPE} label={ManagingCompanyMessage}/>
+                        <Radio value={SERVICE_PROVIDER_TYPE} label={ServiceProviderMessage}/>
+                    </Space>
+                </RadioGroup>
+            </Form.Item>
             <Form.Item name='name' label={NameMsg} rules={validators.name} validateFirst>
                 <Input
                     placeholder={CreateOrganizationPlaceholder}
                 />
             </Form.Item>
-
             <Form.Item name='tin' style={FORM_ITEM_STYLES} label={InnMessage} rules={validators.tin} validateFirst>
                 <Input />
             </Form.Item>

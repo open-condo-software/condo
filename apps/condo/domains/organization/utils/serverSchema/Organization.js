@@ -1,19 +1,21 @@
 const axios = require('axios').default
 const { get } = require('lodash')
 
-const conf = require('@condo/config')
-const { getById } = require('@condo/keystone/schema')
-const { execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getById } = require('@open-condo/keystone/schema')
+
+const { DEFAULT_ROLES } = require('../../constants/common')
+const { Organization, OrganizationEmployee } = require('../../gql')
+const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/constants')
 
 const { OrganizationEmployeeRole } = require('./index')
-const { Organization, OrganizationEmployee } = require('../../gql')
-const { DEFAULT_ROLES } = require('../../constants/common')
-const { SBBOL_FINGERPRINT_NAME } = require('../../integrations/sbbol/constants')
-const { getLogger } = require('@condo/keystone/logging')
+
 
 const logger = getLogger('sales_crm')
 const SALES_CRM_WEBHOOKS_URL = (conf.SALES_CRM_WEBHOOKS_URL) ? JSON.parse(conf.SALES_CRM_WEBHOOKS_URL) : null
-if (SALES_CRM_WEBHOOKS_URL && !SALES_CRM_WEBHOOKS_URL.subscriptions && !SALES_CRM_WEBHOOKS_URL.organizations) {
+if (SALES_CRM_WEBHOOKS_URL && !SALES_CRM_WEBHOOKS_URL.organizations) {
     throw new Error('Wrong SALES_CRM_WEBHOOKS_URL value')
 }
 
@@ -68,19 +70,6 @@ async function createConfirmedEmployee (context, organization, user, role, data)
     })
 }
 
-async function findOrganizationEmployee (context, query) {
-    if (!context) throw new Error('no context')
-    if (!query) throw new Error('no query')
-    return await execGqlWithoutAccess(context, {
-        query: OrganizationEmployee.GET_ALL_OBJS_QUERY,
-        variables: {
-            where: query,
-        },
-        errorMessage: '[error] Unable to query organization employees',
-        dataPath: 'objs',
-    })
-}
-
 async function pushOrganizationToSalesCRM (organization) {
     if (!SALES_CRM_WEBHOOKS_URL) {
         logger.error({ msg: 'SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', data: SALES_CRM_WEBHOOKS_URL })
@@ -105,28 +94,9 @@ async function pushOrganizationToSalesCRM (organization) {
     }
 }
 
-async function pushSubscriptionActivationToSalesCRM (payerInn, startAt, finishAt, isTrial) {
-    if (!SALES_CRM_WEBHOOKS_URL) {
-        logger.error({ msg: 'SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', data: SALES_CRM_WEBHOOKS_URL })
-        return
-    }
-    try {
-        await axios.post(SALES_CRM_WEBHOOKS_URL.subscriptions, {
-            payerInn,
-            startAt,
-            finishAt,
-            isTrial,
-        })
-    } catch (error) {
-        logger.warn({ msg: 'Request to sales crm failed', error })
-    }
-}
-
 module.exports = {
     createOrganization,
     createDefaultRoles,
     createConfirmedEmployee,
-    findOrganizationEmployee,
     pushOrganizationToSalesCRM,
-    pushSubscriptionActivationToSalesCRM,
 }

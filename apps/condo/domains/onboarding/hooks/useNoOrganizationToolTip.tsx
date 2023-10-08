@@ -1,9 +1,13 @@
-import React from 'react'
 import { TooltipPlacement } from 'antd/es/tooltip'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@condo/next/intl'
+
 
 export interface INoOrganizationToolTipWrapper {
+    key?: string,
     element: JSX.Element,
     placement: TooltipPlacement,
 }
@@ -19,6 +23,7 @@ export const useNoOrganizationToolTip = (): INoOrganizationToolTipHook => {
     const wrapElementIntoNoOrganizationToolTip = (params: INoOrganizationToolTipWrapper): JSX.Element => {
         return (
             <Tooltip
+                key={params.key}
                 title={CreateOrgWarning}
                 placement={params.placement}
                 trigger='click'

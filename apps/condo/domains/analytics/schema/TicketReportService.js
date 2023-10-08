@@ -1,10 +1,12 @@
-const { GQLCustomSchema } = require('@condo/keystone/schema')
-const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const dayjs = require('dayjs')
 const isoWeek = require('dayjs/plugin/isoWeek')
 const quarterOfYear = require('dayjs/plugin/quarterOfYear')
+
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/ticket/access/TicketReportService')
 const { TICKET_STATUS_TYPES: ticketStatusTypes } = require('@condo/domains/ticket/constants')
+const { Ticket, TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const PERIOD_TYPES = ['calendarWeek', 'month', 'quarter', 'year']
 const PERIOD_OFFSET_MAP = {
     calendarWeek: 'week',

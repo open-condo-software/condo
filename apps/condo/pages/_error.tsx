@@ -1,15 +1,15 @@
+import Custom500 from '@app/condo/pages/500'
 import get from 'lodash/get'
 import { NextPageContext } from 'next'
 import NextErrorComponent from 'next/error'
 import React from 'react'
 
-import Custom500, { ErrorLayout } from '@app/condo/pages/500'
 
 export default function ErrorPage (): React.ReactElement {
     return <Custom500/>
 }
 
-ErrorPage.container = ErrorLayout
+ErrorPage.container = <></>
 
 ErrorPage.getInitialProps = async (props: NextPageContext) => {
     const { req, asPath, pathname, res, err } = props

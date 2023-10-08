@@ -1,18 +1,22 @@
+import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
-import Link from 'next/link'
-import { useIntl } from '@condo/next/intl'
 import React, { useMemo } from 'react'
-import { Ticket } from '@app/condo/schema'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
+
 import { TicketUserInfoField } from './TicketUserInfoField'
 
 type TicketClientFieldProps = {
     ticket: Ticket
+    phonePrefix?: string
 }
 
-export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket }) => {
+const ELLIPSIS_CONFIG = { rows: 2 }
+
+export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
     const ResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.ResidentClient' })
     const NotResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.NotResidentClient' })
@@ -32,19 +36,18 @@ export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket }) 
     }), [ticket])
 
     return (
-        <PageFieldRow title={ClientMessage} highlight ellipsis={{ rows: 2 }}>
+        <PageFieldRow title={ClientMessage} ellipsis={ELLIPSIS_CONFIG}>
             {
                 contactId
-                    ? <Link href={`/contact/${contactId}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <TicketUserInfoField
-                                user={contactUser}
-                            />
-                        </Typography.Link>
-                    </Link>
+                    ? <TicketUserInfoField
+                        user={contactUser}
+                        nameLink={`/contact/${contactId}`}
+                        phonePrefix={phonePrefix}
+                    />
                     : <Typography.Text>
                         <TicketUserInfoField
                             user={clientUser}
+                            phonePrefix={phonePrefix}
                         />
                     </Typography.Text>
             }

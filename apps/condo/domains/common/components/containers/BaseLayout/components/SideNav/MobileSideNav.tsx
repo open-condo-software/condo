@@ -1,18 +1,17 @@
-/** @jsx jsx */
-import { CloseOutlined } from '@ant-design/icons'
-import { jsx } from '@emotion/react'
+/** @jsx jsx */import { jsx } from '@emotion/react'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect } from 'react'
-import { useOrganization } from '@condo/next/organization'
+
+import { Close } from '@open-condo/icons'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { OrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
+
 import {
     MobileMenuItemsContainer,
-    MOBILE_SIDE_NAV_STYLES,
     MobileSideNavHeader,
-    OrganizationSelectWrapper,
 } from '../styles'
 
 interface ISideNavProps {
@@ -48,15 +47,12 @@ export const MobileSideNav: React.FC<ISideNavProps> = (props) => {
         <Layout.Sider
             collapsed={isCollapsed}
             theme='light'
-            css={MOBILE_SIDE_NAV_STYLES}
+            className='menu mobile-menu'
             width='100%'
             collapsedWidth={0}
         >
             <MobileSideNavHeader>
-                <CloseOutlined onClick={toggleCollapsed}/>
-                <OrganizationSelectWrapper>
-                    <OrganizationSelect/>
-                </OrganizationSelectWrapper>
+                <Close size='medium' onClick={toggleCollapsed}/>
             </MobileSideNavHeader>
             <MobileMenuItemsContainer>
                 {menuData}

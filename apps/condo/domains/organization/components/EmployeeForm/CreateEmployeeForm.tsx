@@ -1,34 +1,35 @@
 /** @jsx jsx */
-import { Card, Col, Form, Row } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
-import { Rule } from 'rc-field-form/lib/interface'
-import React, { useEffect } from 'react'
-import { useOrganization } from '@condo/next/organization'
-import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
-import { useApolloClient } from '@condo/next/apollo'
-import get from 'lodash/get'
+import { jsx } from '@emotion/react'
+import { Col, Form, Row } from 'antd'
 import find from 'lodash/find'
-import isEmpty from 'lodash/isEmpty'
-import { normalizePhone } from '@condo/domains/common/utils/phone'
-import { normalizeEmail } from '@condo/domains/common/utils/mail'
-import { Button } from '@condo/domains/common/components/Button'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import { Rule } from 'rc-field-form/lib/interface'
+import React, { useEffect, useMemo } from 'react'
+
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Alert, Button } from '@open-condo/ui'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
+import { useEmployeeValidations } from '@condo/domains/organization/hooks/useEmployeeValidations'
 import {
-    OrganizationEmployee,
     OrganizationEmployeeRole,
     useInviteNewOrganizationEmployee,
 } from '@condo/domains/organization/utils/clientSchema'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { colors, shadows } from '@condo/domains/common/constants/style'
-import { css, jsx } from '@emotion/react'
-import { ClassifiersQueryRemote, TicketClassifierTypes } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import {
+    ClassifiersQueryRemote,
+    TicketClassifierTypes,
+} from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
+
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -37,16 +38,7 @@ const INPUT_LAYOUT_PROPS = {
     wrapperCol: {
         span: 14,
     },
-    style: {
-        paddingBottom: '24px',
-    },
 }
-
-const CardCss = css`
-  width: 300px;
-  height: fit-content;
-  box-shadow: ${shadows.elevated};
-`
 
 export const CreateEmployeeForm: React.FC = () => {
     const intl = useIntl()
@@ -63,42 +55,22 @@ export const CreateEmployeeForm: React.FC = () => {
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
-    const PhoneIsNotValidMsg = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
-    const UserAlreadyInListMsg = intl.formatMessage({ id: 'pages.users.UserIsAlreadyInList' })
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
+    const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
 
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
     const { organization } = useOrganization()
     const router = useRouter()
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
-    const { objs: employee } = OrganizationEmployee.useObjects(
-        { where: { organization: { id: organization.id } } },
-        { fetchPolicy: 'network-only' },
-    )
+    const organizationId = get(organization, 'id', null)
 
     const { objs: employeeRoles, loading, error } = OrganizationEmployeeRole.useObjects(
-        { where: { organization: { id: get(organization, 'id') } } }
+        { where: { organization: { id: organizationId } } }
     )
 
     const { changeMessage, requiredValidator, emailValidator, phoneValidator, trimValidator, specCharValidator } = useValidations()
-    const alreadyRegisteredPhoneValidator = {
-        validator: (_, value) => {
-            if (employee.find(emp => emp.phone === value)) return Promise.reject(UserAlreadyInListMsg)
-            const v = normalizePhone(value)
-            if (!v) return Promise.reject(PhoneIsNotValidMsg)
-            return Promise.resolve()
-        },
-    }
-    const alreadyRegisteredEmailValidator = {
-        validator: (_, value) => {
-            if (isEmpty(value)) {
-                return  Promise.resolve()
-            }
-            if (employee.find(emp => emp.email === normalizeEmail(value))) return Promise.reject(UserAlreadyInListMsg)
-            return Promise.resolve()
-        },
-    }
+    const { alreadyRegisteredEmailValidator, alreadyRegisteredPhoneValidator } = useEmployeeValidations(organizationId)
 
     const validations: { [key: string]: Rule[] } = {
         phone: [requiredValidator, phoneValidator, alreadyRegisteredPhoneValidator],
@@ -125,11 +97,23 @@ export const CreateEmployeeForm: React.FC = () => {
         return () => classifiersLoader.clear()
     }, [])
 
+    const specializationsFormItemProps = useMemo(() => ({
+        name: 'specializations',
+        label: SpecializationsLabel,
+        validateFirst: true,
+        ...INPUT_LAYOUT_PROPS,
+    }), [SpecializationsLabel])
+
+    const specializationsSelectProps = useMemo(() => ({
+        search: searchClassifers,
+    }), [searchClassifers])
+
     if (loading || error)
         return <LoadingOrErrorPage title={InviteEmployeeLabel} loading={loading} error={error ? ServerErrorMsg : null} />
 
     const initialValues = {
         role: get(employeeRoles, [0, 'id'], ''),
+        hasAllSpecializations: true,
     }
 
     return (
@@ -144,25 +128,25 @@ export const CreateEmployeeForm: React.FC = () => {
                 const role = get(values, 'role')
                 const specializations = get(values, 'specializations')
 
+                if (specializations) {
+                    values.specializations = specializations.map(specId => ({ id: specId }))
+                }
+
                 if (role) {
                     values.role = { id: String(role) }
-                }
-                if (specializations) {
-                    values.specializations = { connect: specializations.map(id => ({ id })) }
                 }
                 return values
             }}
         >
             {
-                ({ handleSave, isLoading }) => {
-
+                ({ handleSave, isLoading, form }) => {
                     return (
                         <>
                             <Row>
                                 <Col lg={14} xs={24}>
-                                    <Row gutter={[0, 40]}>
+                                    <Row gutter={[0, 60]}>
                                         <Col span={24}>
-                                            <Row gutter={[0, 24]}>
+                                            <Row gutter={[0, 40]}>
                                                 <Col span={24}>
                                                     <Form.Item name='role' label={RoleLabel} {...INPUT_LAYOUT_PROPS} labelAlign='left' >
                                                         <EmployeeRoleSelect
@@ -177,6 +161,7 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         {...INPUT_LAYOUT_PROPS}
                                                         labelAlign='left'
                                                         required
+                                                        validateFirst
                                                         rules={validations.name}
                                                     >
                                                         <Input placeholder={FullNamePlaceholder} />
@@ -187,6 +172,30 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         <Input />
                                                     </Form.Item>
                                                 </Col>
+                                                <Form.Item noStyle dependencies={['role']}>
+                                                    {
+                                                        ({ getFieldsValue }) => {
+                                                            const { role } = getFieldsValue(['role'])
+                                                            const selectedRole = find(employeeRoles, { id: role })
+
+                                                            return (
+                                                                get(selectedRole, 'canBeAssignedAsExecutor') && (
+                                                                    <Col span={24}>
+                                                                        <GraphQlSearchInputWithCheckAll
+                                                                            checkAllFieldName='hasAllSpecializations'
+                                                                            checkAllInitialValue={true}
+                                                                            selectFormItemProps={specializationsFormItemProps}
+                                                                            selectProps={specializationsSelectProps}
+                                                                            CheckAllMessage={CheckAllMessage}
+                                                                            checkBoxOffset={8}
+                                                                            form={form}
+                                                                        />
+                                                                    </Col>
+                                                                )
+                                                            )
+                                                        }
+                                                    }
+                                                </Form.Item>
                                                 <Col span={24}>
                                                     <Form.Item
                                                         name='phone'
@@ -212,35 +221,35 @@ export const CreateEmployeeForm: React.FC = () => {
                                                         <Input placeholder={ExampleEmailMsg}/>
                                                     </Form.Item>
                                                 </Col>
-                                                <Form.Item noStyle dependencies={['role']}>
-                                                    {
-                                                        ({ getFieldsValue }) => {
-                                                            const { role } = getFieldsValue(['role'])
-                                                            const selectedRole = find(employeeRoles, { id: role })
-
-                                                            return (
-                                                                get(selectedRole, 'canBeAssignedAsExecutor') && (
-                                                                    <Col span={24}>
-                                                                        <Form.Item
-                                                                            name='specializations'
-                                                                            label={SpecializationsLabel}
-                                                                            labelAlign='left'
-                                                                            validateFirst
-                                                                            {...INPUT_LAYOUT_PROPS}
-                                                                        >
-                                                                            <GraphQlSearchInput mode='multiple' search={searchClassifers} />
-                                                                        </Form.Item>
-                                                                    </Col>
-                                                                )
-                                                            )
-                                                        }
-                                                    }
-                                                </Form.Item>
                                             </Row>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item noStyle dependencies={['phone']}>
+                                                {
+                                                    ({ getFieldsValue }) => {
+                                                        const { phone } = getFieldsValue(['phone'])
+                                                        return (
+                                                            <ActionBar
+                                                                actions={[
+                                                                    <Button
+                                                                        key='submit'
+                                                                        onClick={handleSave}
+                                                                        type='primary'
+                                                                        loading={isLoading}
+                                                                        disabled={!phone}
+                                                                    >
+                                                                        {InviteEmployeeLabel}
+                                                                    </Button>,
+                                                                ]}
+                                                            />
+                                                        )
+                                                    }
+                                                }
+                                            </Form.Item>
                                         </Col>
                                     </Row>
                                 </Col>
-                                {!isSmall && (
+                                {breakpoints.TABLET_LARGE && (
                                     <Col span={10}>
                                         <Form.Item dependencies={['role']}>
                                             {({ getFieldValue }) => {
@@ -248,50 +257,22 @@ export const CreateEmployeeForm: React.FC = () => {
                                                 const role = employeeRoles.find(x => x.id === roleId)
                                                 if (!role) return null
                                                 return (
-                                                    <Card
-                                                        title={role.name}
-                                                        bordered={false}
-                                                        css={CardCss}
-                                                        headStyle={{
-                                                            color: colors.lightGrey[10],
-                                                            fontSize: 24,
-                                                            fontWeight: 'bold',
-                                                        }}
-                                                    >
-                                                        {role.description}
-                                                    </Card>
+                                                    <Alert
+                                                        type='info'
+                                                        showIcon
+                                                        message={intl.formatMessage({ id: 'employee.Role.whoIs' }, { roleName: role.name.toLowerCase() })}
+                                                        description={role.description}
+                                                    />
                                                 )
                                             }}
                                         </Form.Item>
                                     </Col>
                                 )}
                             </Row>
-                            <Form.Item noStyle dependencies={['phone']}>
-                                {
-                                    ({ getFieldsValue }) => {
-                                        const { phone } = getFieldsValue(['phone'])
-                                        return (
-                                            <ActionBar>
-                                                <Button
-                                                    key='submit'
-                                                    onClick={handleSave}
-                                                    type='sberPrimary'
-                                                    loading={isLoading}
-                                                    disabled={!phone}
-                                                >
-                                                    {InviteEmployeeLabel}
-                                                </Button>
-
-                                            </ActionBar>
-                                        )
-                                    }
-                                }
-                            </Form.Item>
                         </>
                     )
                 }
             }
         </FormWithAction>
-
     )
 }

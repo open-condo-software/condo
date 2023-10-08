@@ -3,23 +3,20 @@ import { jsx } from '@emotion/react'
 import { Layout } from 'antd'
 import get from 'lodash/get'
 import React from 'react'
-import { useOrganization } from '@condo/next/organization'
+
+import { ChevronLeft, ChevronRight } from '@open-condo/icons'
+import { useOrganization } from '@open-condo/next/organization'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
-import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
 import { Logo } from '@condo/domains/common/components/Logo'
-import { LeftOutlined, RightOutlined } from '@ant-design/icons'
-import { Button } from '../../../../Button'
+import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { SERVICE_PROVIDER_TYPE, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
+import { ServiceSubscriptionIndicator } from '@condo/domains/subscription/components/ServiceSubscriptionIndicator'
+
 import {
-    LayoutTriggerWrapper,
-    LogoContainer,
-    SIDE_NAV_STYLES,
-    ActionsContainer,
-    MenuItemsContainer,
     SIDE_MENU_WIDTH,
     COLLAPSED_SIDE_MENU_WIDTH,
 } from '../styles'
-
 interface ISideNavProps {
     onLogoClick: (...args) => void
     menuData?: React.ElementType
@@ -27,8 +24,11 @@ interface ISideNavProps {
 
 export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     const { onLogoClick, menuData } = props
-    const { link } = useOrganization()
-    const { isSmall, toggleCollapsed, isCollapsed } = useLayoutContext()
+    const { link, organization } = useOrganization()
+
+    const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
+
+    const { breakpoints, toggleCollapsed, isCollapsed } = useLayoutContext()
 
     const isEmployeeBlocked = get(link, 'isBlocked', false)
 
@@ -37,7 +37,7 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
     }
 
     // TODO: (Dimitreee) implement mobile nav later
-    if (isSmall) {
+    if (!breakpoints.TABLET_LARGE) {
         return null
     }
 
@@ -46,30 +46,28 @@ export const DesktopSideNav: React.FC<ISideNavProps> = (props) => {
             <Layout.Sider
                 collapsed={isCollapsed}
                 theme='light'
-                css={SIDE_NAV_STYLES}
+                className='menu desktop-menu desktop-sider'
                 width={SIDE_MENU_WIDTH}
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}
             >
-                <LogoContainer>
+                <div className='logo-container'>
                     <Logo onClick={onLogoClick} minified={isCollapsed}/>
-                </LogoContainer>
-                <LayoutTriggerWrapper>
-                    <Button
-                        onClick={toggleCollapsed}
-                        size='small'
-                        shape='circle'
-                        icon={isCollapsed ? <RightOutlined style={{ fontSize: '13px' }} /> : <LeftOutlined style={{ fontSize: '13px' }}/>}
-                    />
-                </LayoutTriggerWrapper>
-                <ActionsContainer minified={isCollapsed}>
-                    <ResidentActions minified={isCollapsed}/>
-                </ActionsContainer>
-                <MenuItemsContainer>
+                </div>
+                <div className='expand-button' onClick={toggleCollapsed}>
+                    {isCollapsed ? <ChevronRight size='small'/> : <ChevronLeft size='small'/>}
+                </div>
+                {hasAccessToAppeals && (
+                    <div className='actions-container'>
+                        <ResidentActions minified={isCollapsed}/>
+                    </div>
+                )}
+                <div className='menu-items-container'>
                     {menuData}
-                </MenuItemsContainer>
+                </div>
                 <ServiceSubscriptionIndicator/>
             </Layout.Sider>
             <Layout.Sider
+                className='desktop-sider'
                 collapsed={isCollapsed}
                 width={SIDE_MENU_WIDTH}
                 collapsedWidth={COLLAPSED_SIDE_MENU_WIDTH}

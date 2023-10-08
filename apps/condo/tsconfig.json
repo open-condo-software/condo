@@ -27,6 +27,8 @@
   "exclude": [
     "node_modules",
     ".next",
-    "out"
+    "out",
+    "cypress/cypress.config.ts",
+    "cypress/**/*.ts"
   ]
 }

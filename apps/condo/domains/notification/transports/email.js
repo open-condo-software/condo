@@ -1,9 +1,11 @@
-const fetch = require('node-fetch')
-const FormData = require('form-data')
-const https = require('https')
 const http = require('http')
+const https = require('https')
 
-const conf = require('@condo/config')
+const FormData = require('form-data')
+const { get } = require('lodash')
+const fetch = require('node-fetch')
+
+const conf = require('@open-condo/config')
 
 const { EMAIL_TRANSPORT } = require('../constants/constants')
 const { renderTemplate } = require('../templates')
@@ -13,8 +15,9 @@ const EMAIL_API_CONFIG = (conf.EMAIL_API_CONFIG) ? JSON.parse(conf.EMAIL_API_CON
 const HTTPX_REGEXP = /^http:/
 
 async function prepareMessageToSend (message) {
-    const email = message.email || (message.user && message.user.email) || null
-    if (!email) throw new Error('no email to send')
+    const email = get(message, 'email') || get(message, ['user', 'email']) || null
+
+    if (!email) throw new Error('no email to send message')
 
     const { subject, text, html } = await renderTemplate(EMAIL_TRANSPORT, message)
 

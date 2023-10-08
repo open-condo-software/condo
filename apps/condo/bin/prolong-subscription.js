@@ -23,9 +23,11 @@
 const fs = require('fs')
 const path = require('path')
 const readline = require('readline')
-const { values, identity, filter } = require('lodash')
-const dayjs = require('dayjs')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
+const dayjs = require('dayjs')
+const { values, identity, filter } = require('lodash')
+
 const { SUBSCRIPTION_TYPE } = require('@condo/domains/subscription/constants')
 const { ServiceSubscription } = require('@condo/domains/subscription/utils/serverSchema')
 

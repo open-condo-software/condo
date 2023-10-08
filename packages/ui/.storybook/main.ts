@@ -1,4 +1,8 @@
+import get from 'lodash/get'
+const lessLoader = require('../less-loader.config.js')
+
 import type { StorybookConfig } from '@storybook/react/types'
+import type { RuleSetRule } from 'webpack'
 
 const baseCssLoaders = [
     'style-loader',
@@ -22,9 +26,10 @@ const config: StorybookConfig = {
     },
     'staticDirs': [{ from: '../public', to: '/ui' }],
     'webpackFinal': async (config) => {
-        const configRules = config && config.module ? config.module.rules : []
+        const configRules: Array<RuleSetRule> = get(config, ['module', 'rules'], [])
         const modifiedRules = configRules.map(rule => {
-            if (rule.test && rule.test.constructor === RegExp && rule.test.test('some.css')) {
+            if (typeof rule === 'object' && 'test' in rule && rule.test &&
+                rule.test.constructor === RegExp && rule.test.test('some.css')) {
                 return {...rule, use: baseCssLoaders}
             }
 
@@ -34,7 +39,7 @@ const config: StorybookConfig = {
         modifiedRules.push({
             test: /\.less$/,
             sideEffects: true,
-            use: [...baseCssLoaders, 'less-loader']
+            use: [...baseCssLoaders, lessLoader]
         })
 
         config.module = { ...config.module, rules: modifiedRules }

@@ -1,5 +1,14 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+
+const {
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowValidationFailureError,
+} = require('@open-condo/keystone/test.utils')
+const { DEFAULT_MAX_PACK_SIZE } = require('@open-condo/webhooks/constants')
+const { WebHookModelValidator } = require('@open-condo/webhooks/model-validator')
 const {
     createTestWebhook,
     softDeleteTestWebhook,
@@ -7,15 +16,7 @@ const {
     updateTestWebhookSubscription,
     softDeleteTestWebhookSubscription,
     WebhookSubscription,
-} = require('@condo/webhooks/schema/utils/testSchema')
-const { WebHookModelValidator } = require('@condo/webhooks/model-validator')
-const {
-    expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObj,
-    expectToThrowAuthenticationErrorToObjects,
-    expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
-const { DEFAULT_MAX_PACK_SIZE } = require('@condo/webhooks/constants')
+} = require('@open-condo/webhooks/schema/utils/testSchema')
 
 const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
     describe(`WebhookSubscription tests for ${appName} app`, () => {
@@ -236,7 +237,7 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                         }, 'Invalid maxPackSize value')
                     })
                 })
-                describe('Must pass with correct values', async () => {
+                describe('Must pass with correct values', () => {
                     const cases = [
                         ['Positive values: small', 20],
                         ['Single record', 1],
@@ -269,6 +270,31 @@ const WebhookSubscriptionBasicTests = (appName, actorsInitializer) => {
                     syncedAmount: 7,
                 })
                 expect(bothUpdate).toHaveProperty('syncedAmount', 7)
+                await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
+            })
+            test('failuresCount should be reset on "synced" fields update', async () => {
+                const [subscription] = await createTestWebhookSubscription(actors.admin, hook)
+                expect(subscription).toBeDefined()
+                expect(subscription).toHaveProperty('failuresCount', 0)
+                const [failuresUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    failuresCount: 1,
+                })
+                expect(failuresUpdate).toHaveProperty('failuresCount', 1)
+                const [batchSentUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    syncedAmount: 30,
+                })
+                expect(batchSentUpdate).toHaveProperty('failuresCount', 0)
+                const [newFailuresUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    failuresCount: 1,
+                })
+                expect(newFailuresUpdate).toHaveProperty('failuresCount', 1)
+                expect(newFailuresUpdate).toHaveProperty('syncedAmount', 30)
+
+                const [allSentUpdate] = await updateTestWebhookSubscription(actors.admin, subscription.id, {
+                    syncedAt: dayjs().toISOString(),
+                })
+                expect(allSentUpdate).toHaveProperty('syncedAmount', 0)
+                expect(allSentUpdate).toHaveProperty('failuresCount', 0)
                 await softDeleteTestWebhookSubscription(actors.admin, subscription.id)
             })
         })

@@ -1,10 +1,12 @@
 import { Typography, Row, Col } from 'antd'
+import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
-import Head from 'next/head'
-import { useIntl } from '@condo/next/intl'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketReadAndManagePermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 
 const TicketUpdatePage = () => {
@@ -31,6 +33,6 @@ const TicketUpdatePage = () => {
     )
 }
 
-TicketUpdatePage.requiredAccess = OrganizationRequired
+TicketUpdatePage.requiredAccess = TicketReadAndManagePermissionRequired
 
 export default TicketUpdatePage

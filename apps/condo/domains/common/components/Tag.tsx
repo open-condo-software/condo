@@ -1,9 +1,10 @@
-import React from 'react'
-import { colors } from '@condo/domains/common/constants/style'
 import { Tag as DefaultTag, Typography } from 'antd'
 import get from 'lodash/get'
+import React from 'react'
 
-export type TagType = 'red' | 'orange' | 'green'
+import { colors } from '@condo/domains/common/constants/style'
+
+export type TagType = 'red' | 'orange' | 'green' | 'gray'
 
 type TagTheme = {
     textColor: string
@@ -27,6 +28,10 @@ const TAG_THEMES: { [key in TagType]: TagTheme } = {
     green: {
         textColor: colors.green[7],
         backgroundColor: colors.green[2],
+    },
+    gray: {
+        textColor: colors.textSecondary,
+        backgroundColor: colors.backgroundLightGrey,
     },
 }
 

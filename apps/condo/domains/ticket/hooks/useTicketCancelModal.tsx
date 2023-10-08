@@ -1,13 +1,10 @@
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { Typography } from 'antd'
+import React, { useCallback, useMemo, useState } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { Button } from '@app/condo/domains/common/components/Button'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+import { Typography, Button, Modal } from '@open-condo/ui'
+
 
 type useTicketCancelModalType = (updateTicket: (id: string) => void) => { openModal: (statusCanceledId: string) => void, cancelTicketModal: JSX.Element, closeModal: () => void }
-
-const MODAL_BUTTON_CANCEL_STYLE: CSSProperties = { fontSize: 16 }
 
 export const useTicketCancelModal: useTicketCancelModalType = (updateTicket) => {
     const intl = useIntl()
@@ -35,12 +32,12 @@ export const useTicketCancelModal: useTicketCancelModalType = (updateTicket) => 
 
     const cancelTicketModal = useMemo(() => (
         <Modal
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={closeModal}
             title={CancelModalTitleMessage}
-            footer={<Button onClick={handleCancelTicket} type='sberDefaultGradient'>{CancelButtonLabelMessage}</Button>}
+            footer={<Button onClick={handleCancelTicket} type='primary'>{CancelButtonLabelMessage}</Button>}
         >
-            <Typography.Text type='secondary' style={MODAL_BUTTON_CANCEL_STYLE}>
+            <Typography.Text type='secondary'>
                 {CancelModalContentMessage}
             </Typography.Text>
         </Modal>

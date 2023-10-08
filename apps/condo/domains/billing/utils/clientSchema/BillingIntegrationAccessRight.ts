@@ -7,7 +7,9 @@ import {
     BillingIntegrationAccessRightUpdateInput,
     QueryAllBillingIntegrationAccessRightsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { BillingIntegrationAccessRight as BillingIntegrationAccessRightGQL } from '@condo/domains/billing/gql'
 
 const {

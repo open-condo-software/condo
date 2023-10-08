@@ -3,8 +3,10 @@
  */
 
 const { Relationship } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/miniapp/access/B2CAppAccessRight')
 const { SERVICE_USER_FIELD } = require('@condo/domains/miniapp/schema/fields/accessRight')
 
@@ -14,14 +16,23 @@ const B2CAppAccessRight = new GQLListSchema('B2CAppAccessRight', {
     fields: {
         user: SERVICE_USER_FIELD,
         app: {
-            schemaDoc: 'Link to B2BApp.accessRights',
+            schemaDoc: 'Link to B2СApp.accessRights',
             type: Relationship,
             ref: 'B2CApp.accessRights',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
-
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['app'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'b2с_app_access_right_unique_app',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

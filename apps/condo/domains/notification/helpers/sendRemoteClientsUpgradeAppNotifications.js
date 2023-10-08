@@ -2,15 +2,14 @@
  * Sends notifications to devices that have old style (before release 2.0.0) app, that is incompatible with current API
  */
 
-const { isEmpty } = require('lodash')
 const dayjs = require('dayjs')
+const { isEmpty } = require('lodash')
 
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLogger } = require('@condo/keystone/logging')
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
-
 const { RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE, PUSH_TRANSPORT_FIREBASE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage, RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 
@@ -44,13 +43,9 @@ const prepareAndSendNotification = async (context, remoteClient) => {
         uniqKey: notificationKey,
     }
 
-    try {
-        const { isDuplicateMessage } = await sendMessage(context, messageData)
-        return (isDuplicateMessage) ? 0 : 1
-    } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
-        return 0
-    }
+    const { isDuplicateMessage } = await sendMessage(context, messageData)
+    
+    return (isDuplicateMessage) ? 0 : 1
 }
 
 const sendRemoteClientsUpgradeAppNotifications = async (where = {}) => {

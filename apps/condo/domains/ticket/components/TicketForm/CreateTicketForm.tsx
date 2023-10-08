@@ -1,25 +1,29 @@
-import { Col, Form, Row, Typography } from 'antd'
-import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
-import { get } from 'lodash'
+import { B2BAppGlobalFeature } from '@app/condo/schema'
+import { Form, Typography } from 'antd'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
 
-import { useApolloClient } from '@condo/next/apollo'
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar } from '@open-condo/ui'
 
 import { colors } from '@condo/domains/common/constants/style'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
+import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
+import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
-import { ErrorsContainer } from '@condo/domains/ticket/components/BaseTicketForm/ErrorsContainer'
+import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
+import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { REQUIRED_TICKET_FIELDS } from '@condo/domains/ticket/constants/common'
 import { useCacheUtils } from '@condo/domains/ticket/hooks/useCacheUtils'
 import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+
 
 dayjs.extend(isToday)
 
@@ -38,10 +42,10 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                 ({ getFieldsValue, getFieldError }) => {
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
-                    const isPaid = form.getFieldValue('isPaid')
+                    const isPayable = form.getFieldValue('isPayable')
                     const isEmergency = form.getFieldValue('isEmergency')
                     const isWarranty = form.getFieldValue('isWarranty')
-                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty) !== null
+                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPayable, isEmergency, isWarranty) !== null
                     const disabledCondition = !property
                         || !details
                         || !placeClassifier
@@ -50,32 +54,25 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
                         || ticketSettingLoading
 
                     return (
-                        <ActionBar isFormActionBar>
-                            <Col>
-                                <Row gutter={[0, 24]}>
-                                    <Button
-                                        key='submit'
-                                        onClick={handleSave}
-                                        type='sberDefaultGradient'
-                                        loading={isLoading}
-                                        disabled={disabledCondition}
-                                        data-cy='ticket__submit-button'
-                                        style={{ marginRight: '12px' }}
-                                    >
-                                        {CreateTicketMessage}
-                                    </Button>
-                                    <ErrorsContainer
-                                        isVisible={disabledCondition}
-                                        property={property}
-                                        details={details}
-                                        placeClassifier={placeClassifier}
-                                        categoryClassifier={categoryClassifier}
-                                        deadline={deadline}
-                                        propertyMismatchError={propertyMismatchError}
-                                        isRequiredDeadline={isRequiredDeadline}
-                                    />
-                                </Row>
-                            </Col>
+                        <ActionBar
+                            actions={[
+                                <TicketSubmitButton
+                                    key='submit'
+                                    data-cy='ticket__submit-button'
+                                    ApplyChangesMessage={CreateTicketMessage}
+                                    handleSave={handleSave}
+                                    isLoading={isLoading}
+                                    disabledCondition={disabledCondition}
+                                    property={property}
+                                    details={details}
+                                    placeClassifier={placeClassifier}
+                                    categoryClassifier={categoryClassifier}
+                                    deadline={deadline}
+                                    propertyMismatchError={propertyMismatchError}
+                                    isRequiredDeadline={isRequiredDeadline}
+                                />,
+                            ]}
+                        >
                         </ActionBar>
                     )
                 }
@@ -95,31 +92,60 @@ export const CreateTicketForm: React.FC = () => {
     const auth = useAuth() as { user: { id: string } }
     const client = useApolloClient()
     const { addTicketToQueryCacheForTicketCardList } = useCacheUtils(client.cache)
+    const { requestFeature } = useGlobalAppsFeaturesContext()
+
+    const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
+    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
         },
-        (ticket) => {
+        async (ticket) => {
             addTicketToQueryCacheForTicketCardList(ticket)
-            router.push('/ticket')
+            if (redirectToClientCard) {
+                const clientPhone = ticket.clientPhone
+                const ticketPropertyId = get(ticket, 'property.id')
+                const isResidentTicket = !!get(ticket, 'contact')
+                if (clientPhone && ticketPropertyId) {
+                    const clientCardTabType = isResidentTicket ? ClientType.Resident : ClientType.NotResident
+                    await router.push(
+                        `/phone/${clientPhone}?tab=${
+                            getClientCardTabKey(ticketPropertyId, clientCardTabType, ticket.unitName, ticket.unitType)
+                        }`
+                    )
+                }
+            } else {
+                await router.push('/ticket')
+            }
         })
 
-    const createAction = useCallback((variables) => {
+    const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
         let deadline = get(variables, 'deadline')
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
-        return action({
+        const ticket = await action({
             ...Ticket.formValuesProcessor({ ...variables, deadline }),
             organization: { connect: { id: organization.id } },
         })
-    }, [organization, action])
+
+        if (attachCallRecord) {
+            requestFeature({
+                feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
+                ticketId: ticket.id,
+                ticketOrganizationId: organization.id,
+            })
+        }
+
+        return ticket
+    }, [action, organization.id, requestFeature])
 
     const initialValues = useMemo(() => ({
+        ...initialValuesFromQuery,
         assignee: auth.user.id,
         executor: auth.user.id,
-    }), [auth.user.id])
+    }), [auth.user.id, initialValuesFromQuery])
 
     const getCompletedNotification = useCallback((data) => ({
         message: (

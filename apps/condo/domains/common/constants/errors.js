@@ -43,6 +43,15 @@ const UNKNOWN_ATTRIBUTE = 'UNKNOWN_ATTRIBUTE'
 
 const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violates unique constraint'
 
+const COMMON_ERRORS = {
+    WRONG_PHONE_FORMAT: {
+        code: 'BAD_USER_INPUT',
+        type: WRONG_PHONE_FORMAT,
+        message: 'Wrong phone number format',
+        messageForUser: 'api.common.INVALID_PHONE_NUMBER_FORMAT',
+    },
+}
+
 module.exports = {
     PHONE_WRONG_FORMAT_ERROR,
     EMAIL_WRONG_FORMAT_ERROR,
@@ -75,4 +84,5 @@ module.exports = {
     UNEQUAL_CONTEXT_ERROR,
     VALUE_TOO_SHORT,
     OPERATION_FORBIDDEN,
+    COMMON_ERRORS,
 }

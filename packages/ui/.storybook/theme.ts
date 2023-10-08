@@ -1,7 +1,7 @@
 import { create } from '@storybook/theming'
 import get from 'lodash/get'
-import tokens from '@condo/ui/src/tokens/tokens.json'
-import colors from '@condo/ui/src/colors/colors.json'
+import tokens from '@open-condo/ui/src/tokens/tokens.json'
+import colors from '@open-condo/ui/src/colors/colors.json'
 
 export default create({
     base: 'light',

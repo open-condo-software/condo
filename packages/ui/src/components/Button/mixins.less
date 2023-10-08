@@ -1,0 +1,65 @@
+.condo-btn-base(@line-height, @vert-padding, @border-width) {
+  box-sizing: border-box;
+  height: @line-height + @vert-padding * 2;
+  line-height: @line-height;
+  border-width: @border-width;
+}
+
+.condo-btn(@line-height, @vert-padding, @hor-padding, @border-width) {
+  .condo-btn-base(@line-height, @vert-padding, @border-width);
+
+  padding: @vert-padding - @border-width @hor-padding - @border-width;
+}
+
+.condo-btn-href(@line-height, @vert-padding, @hor-padding, @border-width) {
+  .condo-btn-base(@line-height, @vert-padding, @border-width);
+
+  padding: @vert-padding - @border-width @hor-padding - @border-width !important;
+}
+
+.condo-btn-layer(@margin) {
+  position: absolute;
+  top: @margin;
+  right: @margin;
+  bottom: @margin;
+  left: @margin;
+  display: block;
+  border-radius: inherit;
+  content: "";
+}
+
+.condo-btn-gradient-text-layer (@text-color, @hover-text-color) {
+  & > .condo-btn-text {
+    position: relative;
+    color: @text-color;
+
+    &::before {
+      background: @hover-text-color;
+      .condo-btn-layer(0);
+
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0;
+      transition: opacity @condo-global-transition-duration-default ease-out;
+      content: attr(data-before);
+    }
+  }
+}
+
+.condo-btn-static-text-color (@text-color) {
+  & > .condo-btn-text {
+    color: @text-color;
+    transition: color @condo-global-transition-duration-default ease-out;
+  }
+}
+
+.condo-btn-content-color (@icon-color) {
+  & > span {
+    color: @icon-color;
+    transition: color @condo-global-transition-duration-default ease-out;
+
+    & svg {
+      fill: currentcolor;
+    }
+  }
+}

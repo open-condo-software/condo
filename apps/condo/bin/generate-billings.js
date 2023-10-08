@@ -1,7 +1,9 @@
-const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
-const faker = require('faker')
 const path = require('path')
+
+const { faker } = require('@faker-js/faker')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+
+const { BillingIntegration } = require('@condo/domains/billing/utils/serverSchema')
 const { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_ERROR_STATUS } = require('@condo/domains/miniapp/constants')
 
 const DV = 1
@@ -39,9 +41,8 @@ const InProgressBilling = {
     sender: SENDER,
     name: 'ГИС ЖКХ (IN PROGRESS STATUS)',
     shortDescription: 'Государственная информационная система ЖКХ',
-    instruction: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
+    detailedDescription: 'Вам нужно подать заявку на интеграцию через ваш личный кабинет в ГИС ЖКХ. Дальше, мы сделаем всё сами.\n' +
         'В результате, вы будете видеть все данные биллинга внутри платформы «Домá».',
-    connectedMessage: 'Все начисления вы будете видеть в разделе «[Биллинг](/billing)». Данные в разделе будут автоматически обновляться',
     contextDefaultStatus: CONTEXT_IN_PROGRESS_STATUS,
     dataFormat: Lvl1DataFormat,
     developer: DEVELOPER_NAME,
@@ -52,9 +53,8 @@ const SuccessfulBilling = {
     sender: SENDER,
     name: 'Интеграция через загрузку вашего реестра (DONE STATUS)',
     shortDescription: 'Поддерживаемые форматы: 1С, СБ Бизнес Онлайн 8_2 и 9_1',
-    instruction: 'Выберите формат, в котором хотите загружать ваши реестры в Домá.\n' +
+    detailedDescription: 'Выберите формат, в котором хотите загружать ваши реестры в «Домá».\n' +
         'Мы запомним ваш выбор и в следующий раз не будем спрашивать про формат файлов.',
-    connectedMessage: 'Все начисления вы будете видеть в разделе «[Биллинг](/billing)». Данные в разделе будут автоматически обновляться',
     contextDefaultStatus: CONTEXT_FINISHED_STATUS,
     billingPageTitle: 'Биллинг, реестровый обмен',
     dataFormat: Lvl3DataFormat,

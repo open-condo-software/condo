@@ -1,6 +1,6 @@
-const isString = require('lodash/isString')
 const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
+const isString = require('lodash/isString')
 
 dayjs.extend(duration)
 

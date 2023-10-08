@@ -1,10 +1,12 @@
 import { Typography, Row, Col, RowProps } from 'antd'
 import Head from 'next/head'
 import React from 'react'
-import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
-import { useIntl } from '@condo/next/intl'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { PropertyForm } from '@condo/domains/property/components/PropertyForm'
 
 const PROPERTY_CREATE_PAGE_GUTTER: RowProps['gutter'] = [0, 40]
 const PROPERTY_CREATE_PAGE_TITLE_STYLE: React.CSSProperties = { margin: 0 }

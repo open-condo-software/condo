@@ -1,10 +1,11 @@
-import { useCallback, useMemo } from 'react'
+import { Ticket } from '@app/condo/schema'
+import { Typography } from 'antd'
 import { get, isEmpty } from 'lodash'
 import Link from 'next/link'
-import { Typography } from 'antd'
+import { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { Ticket } from '@app/condo/schema'
+import { useIntl } from '@open-condo/next/intl'
+
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
@@ -87,7 +88,7 @@ export const TicketPropertyField: React.FC<TicketPropertyFieldProps> = ({ ticket
     ), [TicketUnitMessage, renderPostfix, streetPart, ticket])
 
     return (
-        <PageFieldRow title={AddressMessage} highlight ellipsis>
+        <PageFieldRow title={AddressMessage} ellipsis>
             {
                 propertyWasDeleted ? (
                     <DeletedPropertyAddressMessage />

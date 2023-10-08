@@ -8,15 +8,13 @@ const {
     UUID_RE,
     DATETIME_RE,
     makeLoggedInClient,
-} = require('@condo/keystone/test.utils')
-
-const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationError,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowGQLError,
-} = require('@address-service/domains/common/utils/testSchema')
+    expectToThrowAuthenticationErrorToObj,
+} = require('@open-condo/keystone/test.utils')
 
 const {
     User,
@@ -57,7 +55,7 @@ describe('User', () => {
             })
 
             test('user can\'t', async () => {
-                const client = await makeLoggedInClient()
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await createTestUser(client)
@@ -66,10 +64,9 @@ describe('User', () => {
 
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
-
-                await expectToThrowAuthenticationError(async () => {
+                await expectToThrowAuthenticationErrorToObj(async () => {
                     await createTestUser(client)
-                }, 'obj')
+                })
             })
         })
 

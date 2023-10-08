@@ -1,5 +1,5 @@
 {
-    "name": "@condo/config",
+    "name": "@open-condo/config",
     "main": "index.js",
     "version": "1.0.0",
     "dependencies": {

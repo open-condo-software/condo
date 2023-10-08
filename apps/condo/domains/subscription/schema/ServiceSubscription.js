@@ -3,18 +3,16 @@
  */
 
 const { Text, Select, Checkbox, DateTimeUtc, Integer, Decimal } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const get = require('lodash/get')
+
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/subscription/access/ServiceSubscription')
-const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
-const get = require('lodash/get')
-const { SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } = require(
-    './fields/SbbolOfferAcceptField')
-const { sbbolOfferAcceptJsonValidator, SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES } = require('./fields/SbbolOfferAcceptField')
-const { Json } = require('@condo/keystone/fields')
+
 const { OVERLAPPING_ERROR } = require('../constants/errors')
-const { pushSubscriptionActivationToSalesCRM } = require('@condo/domains/organization/utils/serverSchema/Organization')
+const { ServiceSubscription: ServiceSubscriptionAPI } = require('../utils/serverSchema')
 
 
 const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
@@ -76,24 +74,6 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             // defaultValue: 'RUB',
             isRequired: false,
         },
-
-        sbbolOfferAccept: {
-            schemaDoc: 'It is necessary to save the offer confirmation data that is transmitted in the response of the advance-acceptances method',
-            type: Json,
-            extendGraphQLTypes: [SBBOL_OFFER_ACCEPT_GRAPHQL_TYPES],
-            graphQLAdminFragment: `{ ${SBBOL_OFFER_ACCEPT_FIELD_QUERY_LIST } }`,
-            graphQLReturnType: 'SbbolOfferAccept',
-            graphQLInputType: 'SbbolOfferAcceptInput',
-            hooks: {
-                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (!sbbolOfferAcceptJsonValidator(resolvedData[fieldPath])) {
-                        sbbolOfferAcceptJsonValidator.errors.forEach(error => {
-                            addFieldValidationError(`${fieldPath} field validation error. JSON not in the correct format - path:${error.instancePath} msg:${error.message}`)
-                        })
-                    }
-                },
-            },
-        },
     },
     kmigratorOptions: {
         constraints: [
@@ -111,11 +91,6 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
                 type: 'models.CheckConstraint',
                 check: 'Q(currency__in=["RUB"])',
                 name: 'currency_check',
-            },
-            {
-                type: 'models.CheckConstraint',
-                check: '(Q(isTrial=True) & Q(unitsCount__isnull=True) & Q(unitPrice__isnull=True) & Q(totalPrice__isnull=True) & Q(currency__isnull=True)) | (Q(isTrial=False) & Q(totalPrice__isnull=False) & Q(currency__isnull=False))',
-                name: 'trial_and_prices_check',
             },
             {
                 type: 'models.CheckConstraint',
@@ -165,11 +140,6 @@ const ServiceSubscription = new GQLListSchema('ServiceSubscription', {
             })
             if (overlappedSubscriptionsCount > 0) {
                 return addValidationError(`${OVERLAPPING_ERROR} subscription for current organization overlaps already existing by its time period`)
-            }
-        },
-        afterChange: async ({ operation, updatedItem }) => {
-            if (operation === 'create' && updatedItem.isTrial === false && updatedItem.sbbolOfferAccept){
-                await pushSubscriptionActivationToSalesCRM(updatedItem.sbbolOfferAccept.payerInn, updatedItem.startAt, updatedItem.finishAt)
             }
         },
     },

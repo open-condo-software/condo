@@ -8,7 +8,9 @@ import {
     B2CAppBuildUpdateInput,
     QueryAllB2CAppBuildsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { B2CAppBuild as B2CAppBuildGQL } from '@condo/domains/miniapp/gql'
 
 const {

@@ -8,7 +8,9 @@ import {
     PaymentUpdateInput,
     QueryAllPaymentsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { Payment as PaymentGQL } from '@condo/domains/acquiring/gql'
 
 const {

@@ -1,10 +1,13 @@
-const faker = require('faker')
 const path = require('path')
+
+const { faker } = require('@faker-js/faker')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
-const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
 const get = require('lodash/get')
+
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { createTestEmail, createTestPhone } = require('@condo/domains/user/utils/testSchema')
+
 
 const DV = 1
 const SENDER = { dv: DV, fingerprint: faker.random.alphaNumeric(8) }

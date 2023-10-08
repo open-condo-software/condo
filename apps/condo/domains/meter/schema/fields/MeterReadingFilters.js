@@ -1,5 +1,6 @@
 const Ajv = require('ajv')
-const { Json } = require('@condo/keystone/fields')
+
+const { Json } = require('@open-condo/keystone/fields')
 
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 

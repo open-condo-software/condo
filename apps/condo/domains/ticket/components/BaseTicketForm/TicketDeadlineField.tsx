@@ -1,18 +1,19 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
-import dayjs from 'dayjs'
-import { useIntl } from '@condo/next/intl'
-import get from 'lodash/get'
-import isNull from 'lodash/isNull'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import isNull from 'lodash/isNull'
+import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
-import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { useIntl } from '@open-condo/next/intl'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
-import { convertDurationToDays, getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
-import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
+import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
 import { TicketFormItem } from './index'
+
 
 const isDateDisabled = date => date.startOf('day').isBefore(dayjs().startOf('day'))
 const AUTO_DETECTED_DEADLINE_COL_STYLE = { height: '48px' }
@@ -21,8 +22,6 @@ const TICKET_DEADLINE_FIELD_ROW_GUTTER: [Gutter, Gutter] = [0, 24]
 const DATE_PICKER_STYLE = { width: '100%' }
 const AUTO_COMPLETE_MESSAGE_STYLE: CSSProperties = { whiteSpace:'nowrap' }
 
-const DEFAULT_DEADLINE_VALUE = dayjs().add(convertDurationToDays(DEFAULT_TICKET_DEADLINE_DURATION), 'days')
-
 export const TicketDeadlineField = ({ initialValues, form }) => {
     const intl = useIntl()
     const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
@@ -30,28 +29,33 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
     const AutoCompletionTodayMessage = intl.formatMessage({ id: 'ticket.deadline.AutoCompletion.today' })
     const TicketWithoutDeadlineMessage = intl.formatMessage({ id: 'pages.condo.ticket.WithoutDeadline' })
 
-    const { isSmall } = useLayoutContext()
-    const COL_SPAN = useMemo(() => isSmall ? 24 : 11, [isSmall])
+    const { breakpoints } = useLayoutContext()
+    const COL_SPAN = useMemo(() => !breakpoints.TABLET_LARGE ? 24 : 11, [breakpoints.TABLET_LARGE])
 
     const { ticketSetting, isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue, isExistedTicket } = useTicketFormContext()
-    const { isPaid, isEmergency, isWarranty } = form.getFieldsValue(['isPaid', 'isEmergency', 'isWarranty'])
-    const isTouchedTicketType = form.isFieldsTouched(['isPaid', 'isEmergency', 'isWarranty'])
+    const { isPayable, isEmergency, isWarranty } = form.getFieldsValue(['isPayable', 'isEmergency', 'isWarranty'])
+    const isTouchedTicketType = form.isFieldsTouched(['isPayable', 'isEmergency', 'isWarranty'])
 
     const autoAddDays: null | number = useMemo(
-        () => getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty),
-        [isEmergency, isPaid, isWarranty, ticketSetting]
+        () => getTicketDefaultDeadline(ticketSetting, isPayable, isEmergency, isWarranty),
+        [isEmergency, isPayable, isWarranty, ticketSetting]
     )
 
+    const createdAt = get(initialValues, 'createdAt', null)
+    const ticketSettingId = get(ticketSetting, 'id', null)
+
     const autoDeadlineValue = useMemo(() => {
-        return isNull(autoAddDays) ? autoAddDays : dayjs().add(autoAddDays, 'day')
-    }, [autoAddDays])
+        const startDate = createdAt ? dayjs(createdAt) : dayjs()
+        return isNull(autoAddDays) ? autoAddDays : startDate.add(autoAddDays, 'day')
+    }, [autoAddDays, createdAt])
 
     const initialDeadline = get(initialValues, 'deadline', null)
+    const initialDeadlineInString = initialDeadline && dayjs(initialDeadline).toISOString()
     const isShowDeadline = isExistedTicket && !isTouchedTicketType
-        ? !(isNull(autoDeadlineValue) && isNull(initialDeadline))
+        ? !(isNull(autoDeadlineValue) && isNull(initialDeadlineInString))
         : !isNull(autoDeadlineValue)
     const isShowAutoDeadlineLabel = !isNull(autoDeadlineValue) && isAutoDetectedDeadlineValue
-    const isShowHiddenLabel = initialDeadline ? isTouchedTicketType && isNull(autoDeadlineValue) : isNull(autoDeadlineValue)
+    const isShowHiddenLabel = initialDeadlineInString ? isTouchedTicketType && isNull(autoDeadlineValue) : isNull(autoDeadlineValue)
 
     const handleTicketDeadlineChange = useCallback(() => {
         setIsAutoDetectedDeadlineValue(false)
@@ -63,7 +67,7 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
         const DaysMessage = intl.formatMessage({ id: 'DaysShort' }, { days: autoAddDays })
 
         return (
-            <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={isSmall ? 24 : 11}>
+            <Col style={AUTO_DETECTED_DEADLINE_COL_STYLE} span={!breakpoints.TABLET_LARGE ? 24 : 11}>
                 <Row justify='start' align='middle' style={AUTO_DETECTED_DEADLINE_ROW_STYLE}>
                     <Col span={24}>
                         <Typography.Text type='secondary' style={AUTO_COMPLETE_MESSAGE_STYLE}>
@@ -77,22 +81,15 @@ export const TicketDeadlineField = ({ initialValues, form }) => {
                 </Row>
             </Col>
         )
-    }, [AutoCompletionMessage, AutoCompletionTodayMessage, autoAddDays, intl, isAutoDetectedDeadlineValue, isSmall])
+    }, [AutoCompletionMessage, AutoCompletionTodayMessage, autoAddDays, intl, isAutoDetectedDeadlineValue, breakpoints.TABLET_LARGE])
 
     useEffect(() => {
-        if (isExistedTicket) {
-            form.setFields([{ name: 'deadline', value: isNull(initialDeadline) ? initialDeadline : dayjs(initialDeadline) }])
-            setIsAutoDetectedDeadlineValue(false)
-        } else {
+        if (!isExistedTicket) {
             form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
+            setIsAutoDetectedDeadlineValue(true)
         }
-    }, [isExistedTicket, initialDeadline])
-
-    useEffect(() => {
-        if (!isExistedTicket || isTouchedTicketType) {
-            form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
-        }
-    }, [isExistedTicket, isTouchedTicketType, ticketSetting])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [isExistedTicket, ticketSettingId])
 
     return (
         <>

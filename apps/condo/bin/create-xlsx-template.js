@@ -1,5 +1,5 @@
-const xlsx = require('xlsx')
 const mkdirp = require('mkdirp')
+const xlsx = require('xlsx')
 /**
  * Required process arguments:
  * 1) Domain directory name <string> (Example: ticket) - this locates generated template to domain related path
@@ -14,6 +14,7 @@ const createXlsxTemplate = async () => {
         await Promise.reject('3 positional args required - domainDir, templateName, dataMapperPath')
     }
     const [domainDir, templateName, dataMapperPath] = process.argv.slice(2)
+    // eslint-disable-next-line import/order
     const { header, rows } = require(dataMapperPath)({})
     const rowKeys = Object.keys(rows)
 

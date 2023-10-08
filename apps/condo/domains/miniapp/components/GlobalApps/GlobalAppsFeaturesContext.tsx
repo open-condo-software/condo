@@ -1,7 +1,7 @@
-import React, { createContext, useCallback, useState, useContext } from 'react'
-import pick from 'lodash/pick'
-import { EventEmitter } from 'eventemitter3'
 import { B2BAppGlobalFeature, Scalars } from '@app/condo/schema'
+import { EventEmitter } from 'eventemitter3'
+import pick from 'lodash/pick'
+import React, { createContext, useCallback, useState, useContext } from 'react'
 
 // Specify all data needed for specific feature
 type MapGenerationFeatureContext = {
@@ -9,8 +9,14 @@ type MapGenerationFeatureContext = {
     propertyId: Scalars['ID']
 }
 
+type AttachCallRecordToTicketFeatureContext = {
+    feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
+    ticketId: Scalars['ID'],
+    ticketOrganizationId: Scalars['ID'],
+}
+
 // Group all features contexts using |
-export type FeatureContext = MapGenerationFeatureContext
+export type FeatureContext = MapGenerationFeatureContext | AttachCallRecordToTicketFeatureContext
 
 // Store all miniapps available features
 type IFeaturesType = { [key in B2BAppGlobalFeature]?: string }

@@ -1,9 +1,9 @@
+import { Ticket, TicketStatusTypeType } from '@app/condo/schema'
 import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import React from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { Ticket, TicketStatusTypeType } from '@app/condo/schema'
+import { useIntl } from '@open-condo/next/intl'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 

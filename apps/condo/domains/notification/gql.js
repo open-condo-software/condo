@@ -5,11 +5,11 @@
  */
 const gql = require('graphql-tag')
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const MESSAGE_FIELDS = `{ organization { id } user { id email phone } email emailFrom phone lang type meta status processingMeta sentAt deliveredAt readAt uniqKey ${COMMON_FIELDS} }`
+const MESSAGE_FIELDS = `{ organization { id } user { id email phone } remoteClient { id } email emailFrom phone lang type meta status processingMeta sentAt deliveredAt readAt uniqKey ${COMMON_FIELDS} }`
 const Message = generateGqlQueries('Message', MESSAGE_FIELDS)
 
 const SEND_MESSAGE = gql`
@@ -24,7 +24,7 @@ const RESEND_MESSAGE = gql`
     }
 `
 
-const REMOTE_CLIENT_FIELDS = `{deviceId appId pushToken pushTransport devicePlatform meta owner { id, type } ${COMMON_FIELDS}}`
+const REMOTE_CLIENT_FIELDS = `{deviceId appId pushToken pushTransport devicePlatform pushType meta pushTokenVoIP pushTransportVoIP pushTypeVoIP owner { id, type } ${COMMON_FIELDS}}`
 
 const RemoteClient = generateGqlQueries('RemoteClient', REMOTE_CLIENT_FIELDS)
 
@@ -55,6 +55,9 @@ const MessageOrganizationBlackList = generateGqlQueries('MessageOrganizationBlac
 const MESSAGE_BATCH_FIELDS = `{ messageType title message deepLink targets status processingMeta ${COMMON_FIELDS} }`
 const MessageBatch = generateGqlQueries('MessageBatch', MESSAGE_BATCH_FIELDS)
 
+const NOTIFICATION_USER_SETTING_FIELDS = `{ user { id } messageType messageTransport isEnabled ${COMMON_FIELDS} }`
+const NotificationUserSetting = generateGqlQueries('NotificationUserSetting', NOTIFICATION_USER_SETTING_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -68,5 +71,6 @@ module.exports = {
     MessageUserBlackList,
     MessageOrganizationBlackList,
     MessageBatch,
+    NotificationUserSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -1,3 +1,9 @@
+import { get } from 'lodash'
+import { useRouter } from 'next/router'
+import { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import {
     getColumnTooltip,
     getDateRender,
@@ -6,10 +12,6 @@ import {
     getTextRender,
 } from '@condo/domains/common/components/Table/Renders'
 import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useIntl } from '@condo/next/intl'
-import { get } from 'lodash'
-import { useRouter } from 'next/router'
-import { useMemo } from 'react'
 
 export function usePaymentsTableColumns (currencyCode: string, openStatusDescModal): Record<string, unknown>[] {
     const intl = useIntl()

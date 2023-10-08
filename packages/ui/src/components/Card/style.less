@@ -1,0 +1,86 @@
+@import "antd/lib/card/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-card {
+  border: none;
+  border-radius: @condo-global-border-radius-large;
+
+  &-head {
+    min-height: 0;
+    padding: @condo-global-spacing-24;
+    overflow: hidden;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    border-radius: @condo-global-border-radius-large @condo-global-border-radius-large 0 0;
+  }
+
+  &-body {
+    overflow: hidden;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    border-radius: @condo-global-border-radius-large;
+
+    &:not(:first-child) {
+      border-top: 0;
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+    }
+  }
+
+  &-head-title {
+    padding: 0;
+    overflow: visible;
+  }
+
+  &-hoverable {
+    transition-duration: @condo-global-transition-duration-default;
+    transition-property: box-shadow;
+
+    .condo-card-head {
+      transition-duration: @condo-global-transition-duration-default, @condo-global-transition-duration-default;
+      transition-property: border-color, background-color;
+    }
+
+    .condo-card-body {
+      transition-duration: @condo-global-transition-duration-default;
+      transition-property: border-color;
+    }
+  }
+
+  &-active {
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      @condo-global-color-brand-gradient-5 border-box;
+    border: @condo-global-border-width-default solid transparent;
+    box-shadow: @condo-global-box-shadow-active;
+
+    .condo-card-body {
+      // can't use "none" because it produces black border flicker
+      border: 0 solid transparent;
+    }
+
+    .condo-card-head {
+      // can't use "none" because it produces black border flicker
+      border: 0 solid transparent;
+      border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    }
+  }
+
+  &-hoverable:hover {
+    box-shadow: @condo-global-box-shadow-default;
+
+    .condo-card-head {
+      background-color: @condo-global-color-gray-1;
+      border-color: @condo-global-color-gray-1;
+    }
+
+    .condo-card-body {
+      border-color: @condo-global-color-white;
+    }
+  }
+
+  &-active&-hoverable:hover {
+    background:
+      linear-gradient(#fff, #fff) padding-box,
+      @condo-global-color-brand-gradient-7 border-box;
+    box-shadow: @condo-global-box-shadow-active;
+  }
+}

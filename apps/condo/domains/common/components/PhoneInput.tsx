@@ -1,5 +1,7 @@
-import { ConfigProvider, InputProps } from 'antd'
+import { ConfigProvider } from 'antd'
 import { SizeType } from 'antd/es/config-provider/SizeContext'
+import get from 'lodash/get'
+import getConfig from 'next/config'
 import React, {
     useRef,
     useImperativeHandle,
@@ -8,21 +10,29 @@ import React, {
     useContext,
     useCallback,
     useMemo,
-    forwardRef,
+    forwardRef, CSSProperties,
 } from 'react'
-import ReactPhoneInput from 'react-phone-input-2'
-import 'react-phone-input-2/lib/style.css'
-import { useOrganization } from '@condo/next/organization'
-import get from 'lodash/get'
-import { colors } from '@condo/domains/common/constants/style'
+import ReactPhoneInput, { PhoneInputProps } from 'react-phone-input-2'
 
-interface IPhoneInputProps extends InputProps {
+import { useOrganization } from '@open-condo/next/organization'
+
+import { colors } from '@condo/domains/common/constants/style'
+import 'react-phone-input-2/lib/style.css'
+
+interface IPhoneInputProps extends Omit<PhoneInputProps, 'onChange'> {
     block?: boolean
     autoFormat?: boolean
     /*
         Make this component compatible with `AutoComplete` component, when used as a custom input.
      */
     compatibilityWithAntAutoComplete?: boolean,
+    masks?: { ru?: string }
+
+    style?: CSSProperties
+    tabIndex?: number
+    onChange?: (data) => void
+    allowClear?: boolean
+    showCountryPrefix?: boolean
 }
 
 type PhoneInputRef = {
@@ -30,6 +40,8 @@ type PhoneInputRef = {
         focus: () => void,
     } & ComponentProps<'input'>,
 }
+
+const { publicRuntimeConfig: { defaultLocale } } = getConfig()
 
 const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
     let height = '32px'
@@ -52,23 +64,22 @@ const getPhoneInputStyles = (style, size: SizeType, block?: boolean) => {
 const BUTTON_INPUT_PHONE_STYLE: React.CSSProperties = { margin: 5, backgroundColor: colors.backgroundWhiteSecondary, border: 0, borderRadius: 8 }
 
 export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) => {
-    const { value, placeholder, style, disabled, block, ...otherProps } = props
+    const { value, placeholder, style, disabled, block, showCountryPrefix = true, country, ...otherProps } = props
     const configSize = useContext<SizeType>(ConfigProvider.SizeContext)
     const { organization } = useOrganization()
-    const userOrganizationCountry = get(organization, 'country', 'ru')
+    const userOrganizationCountry = showCountryPrefix && get(organization, 'country', defaultLocale)
+    const countryFromProps = showCountryPrefix && country
     const inputRef = useRef<PhoneInputRef>()
 
-    // `AutoComplete` component needs `focus` method of it's direct child component (custom input)
-    useImperativeHandle(ref, () => ({
-        focus: () => {
-            inputRef.current.numberInputRef.focus()
-        },
-    }))
+    /*
+     * For custom inputs `AutoComplete` component needs that inputRef.current will be equal to event.target,
+     * otherwise in the onMouseDown event (in rc-select/Selector) the preventDefault will work
+     */
+    useImperativeHandle(ref, () => inputRef.current.numberInputRef)
 
     useEffect(() => {
         inputRef.current.numberInputRef.tabIndex = props.tabIndex
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [props.tabIndex])
 
     const onChange = useCallback((value) => {
         const formattedValue = value ? '+' + value : value
@@ -86,7 +97,6 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
                     value: formattedValue,
                 },
             }
-            // @ts-ignore
             props.onChange(event)
         } else {
             props.onChange(formattedValue)
@@ -104,12 +114,13 @@ export const PhoneInput: React.FC<IPhoneInputProps> = forwardRef((props, ref) =>
             ref={inputRef}
             inputClass='ant-input'
             value={String(value)}
-            country={userOrganizationCountry}
+            country={countryFromProps || userOrganizationCountry}
             onChange={onChange}
             disabled={disabled}
             inputStyle={inputStyles}
             placeholder={placeholder}
             buttonStyle={BUTTON_INPUT_PHONE_STYLE}
+            copyNumbersOnly={false}
         />
     )
 })

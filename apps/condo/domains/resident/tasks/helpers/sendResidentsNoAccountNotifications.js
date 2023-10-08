@@ -1,25 +1,24 @@
-const { get, isEmpty, uniq } = require('lodash')
 const dayjs = require('dayjs')
+const { get, isEmpty, uniq } = require('lodash')
 
-const conf = require('@condo/config')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getRedisClient } = require('@condo/keystone/redis')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
+const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { getStartDates, DATE_FORMAT_Z } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-
-const { BillingIntegrationOrganizationContext, BillingProperty, BillingReceipt, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
-
 const { BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
+const { PAYMENT_CATEGORIES_META } = require('@condo/domains/resident/constants')
+const { REDIS_LAST_DATE_KEY } = require('@condo/domains/resident/constants/constants')
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLogger } = require('@condo/keystone/logging')
 
-const REDIS_LAST_DATE_KEY = 'LAST_SEND_RESIDENTS_NO_ACCOUNT_NOTIFICATION_CREATED_AT'
+const CATEGORY_ID = '928c97ef-5289-4daa-b80e-4b9fed50c629' // billing.category.housing.name
+const INVALID_CONTEXT_PROVIDED_ERROR = 'Provided context is not in finished status, invalid or skipped.'
 
 const logger = getLogger('sendResidentsNoAccountNotifications')
 
@@ -38,14 +37,19 @@ const prepareAndSendNotification = async (context, resident, period) => {
 
     // TODO(DOMA-3376): Detect locale by resident locale instead of organization country.
     const country = get(resident, 'residentOrganization.country', conf.DEFAULT_LOCALE)
+    const tin = get(resident, 'residentOrganization.tin')
     const locale = get(COUNTRIES, country).locale
     const notificationKey = makeMessageKey(period, resident.property.id, resident.id)
     const organizationId = get(resident, 'residentOrganization.id')
+    // TODO(DOMA-5729): Get rid of PAYMENT_CATEGORIES_META
+    const paymentCategoryData = PAYMENT_CATEGORIES_META.find(item => item.uuid === CATEGORY_ID)
+    const paymentCategoryId = get(paymentCategoryData, 'id', null)
+    const url = `${conf.SERVER_URL}/payments/addaccount/?residentId=${resident.id}&categoryId=${paymentCategoryId}&organizationTIN=${tin}`
 
     const data = {
         residentId: resident.id,
         userId: resident.user.id,
-        url: `${conf.SERVER_URL}/billing/receipts/`,
+        url,
         propertyId: resident.property.id,
         period,
     }
@@ -60,14 +64,9 @@ const prepareAndSendNotification = async (context, resident, period) => {
         organization: organizationId && { id: organizationId },
     }
 
-    try {
-        const { isDuplicateMessage } = await sendMessage(context, messageData)
+    const { isDuplicateMessage } = await sendMessage(context, messageData)
 
-        return (isDuplicateMessage) ? 0 : 1
-    } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
-        return 0
-    }
+    return (isDuplicateMessage) ? 0 : 1
 }
 
 const makeAddress = (address, unitType, unitName) => `${address}:${unitType}:${unitName}`.toLowerCase()
@@ -186,20 +185,31 @@ const sendResidentsNoAccountNotificationsForPeriod = async (period, billingConte
     const today = dayjs().format(DATE_FORMAT_Z)
 
     const requestPeriod = period || thisMonthStart
-    const contextWhere = { status: CONTEXT_FINISHED_STATUS, deletedAt: null }
+    const contextWhere = {
+        status: CONTEXT_FINISHED_STATUS,
+        deletedAt: null,
+    }
     const billingContexts = billingContextId
         ? [ await BillingIntegrationOrganizationContext.getOne(context, { id: billingContextId, ...contextWhere }) ]
         : await loadListByChunks({ context, list: BillingIntegrationOrganizationContext, where: contextWhere })
 
-    if (isEmpty(billingContexts) || isEmpty(billingContexts[0])) {
-        throw new Error('Provided context is not in finished status or invalid.')
-    }
+    if (isEmpty(billingContexts) || isEmpty(billingContexts[0])) throw new Error(INVALID_CONTEXT_PROVIDED_ERROR)
 
     logger.info({ msg: 'Billing context proceed', billingContextsCount: billingContexts.length, requestPeriod, billingContextId })
 
     let totalSuccessCount = 0, totalAttemptsCount = 0, totalProcessedCount = 0
 
     for (const billingContext of billingContexts) {
+        if (billingContext.integration.skipNoAccountNotifications) {
+            logger.info({
+                msg: 'Skipping billing context due to enabled integration skipNoAccountNotifications flag',
+                integrationId: billingContext.integration.id,
+                contextId: billingContext.id,
+            })
+
+            continue
+        }
+
         const redisVarName = `${REDIS_LAST_DATE_KEY}-${requestPeriod}-${billingContext.id}`
 
         /**
@@ -254,4 +264,5 @@ module.exports = {
     sendResidentsNoAccountNotifications,
     sendResidentsNoAccountNotificationsForPeriod,
     makeMessageKey,
+    INVALID_CONTEXT_PROVIDED_ERROR,
 }

@@ -1,8 +1,11 @@
-import { catchErrorFrom } from '@condo/keystone/test.utils'
-const { generateChangeTrackableFieldsFrom, ResolversValidationError } = require('./changeTrackable')
-const { GQLListSchema } = require('@condo/keystone/schema')
+import { catchErrorFrom } from '@open-condo/keystone/test.utils'
+
 const { Text, Relationship, Uuid } = require('@keystonejs/fields')
-const { Json, LocalizedText } = require('@condo/keystone/fields')
+
+const { Json, LocalizedText } = require('@open-condo/keystone/fields')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const { generateChangeTrackableFieldsFrom, ResolversValidationError } = require('./changeTrackable')
 
 const House = new GQLListSchema('House', {
     schemaDoc: 'Sample house, where a person will live',

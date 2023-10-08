@@ -1,14 +1,18 @@
-import { useCallback } from 'react'
+import { ApolloQueryResult, QueryHookOptions } from '@apollo/client'
+import { FetchMoreOptions } from '@apollo/client/core/ObservableQuery'
+import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
+import { TypedDocumentNode } from '@graphql-typed-document-node/core'
+import dayjs from 'dayjs'
 import { DocumentNode } from 'graphql'
 import isFunction from 'lodash/isFunction'
-import { FetchMoreQueryOptions } from '@apollo/client/core/watchQueryOptions'
-import { FetchMoreOptions } from '@apollo/client/core/ObservableQuery'
-import { TypedDocumentNode } from '@graphql-typed-document-node/core'
-import { ApolloQueryResult, QueryHookOptions } from '@apollo/client'
-import { useMutation, useQuery } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
-import dayjs from 'dayjs'
-import { getClientSideSenderInfo } from '@condo/codegen/utils/userId'
+import { useCallback, useEffect, useState } from 'react'
+
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
+import { useMutation, useQuery } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+
+
+import { useDeepCompareEffect } from './utils/useDeepCompareEffect'
 
 type IUUIDObject = { id: string }
 type IOnCompleteType<GQLObject> = (obj: GQLObject) => void
@@ -35,15 +39,18 @@ type IUseObjectsReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQL
     objs: GQLObject[]
     count: number | null
 }
+type IUseAllObjectsReturnType<GQLObject, QueryVariables> = IUseObjectsReturnType<GQLObject, QueryVariables> & {
+    allDataLoaded: boolean
+}
 type IUseObjectReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     obj: GQLObject | null
 }
 type IUseCountReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLObject, QueryVariables> & {
     count: number
 }
-type IUseCreateActionType<GQLObject, GQLCreateInput> = (values: Partial<GQLCreateInput>) => Promise<GQLObject>
-type IUseUpdateActionType<GQLObject, GQLUpdateInput> = (values: Partial<GQLUpdateInput>, obj: IUUIDObject) => Promise<GQLObject>
-type IUseSoftDeleteActionType<GQLObject> = (obj: IUUIDObject) => Promise<GQLObject>
+export type IUseCreateActionType<GQLObject, GQLCreateInput> = (values: Partial<GQLCreateInput>) => Promise<GQLObject>
+export type IUseUpdateActionType<GQLObject, GQLUpdateInput> = (values: Partial<GQLUpdateInput>, obj: IUUIDObject) => Promise<GQLObject>
+export type IUseSoftDeleteActionType<GQLObject> = (obj: IUUIDObject) => Promise<GQLObject>
 
 
 export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {
@@ -52,9 +59,11 @@ export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput,
     useUpdate: (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<GQLObject>)
     => IUseUpdateActionType<GQLObject, GQLUpdateInput>
     useSoftDelete: (onComplete?: IOnCompleteType<GQLObject>)
-    => IUseSoftDeleteActionType<GQLObject> 
+    => IUseSoftDeleteActionType<GQLObject>
     useObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectsReturnType<GQLObject, QueryVariables>
+    useAllObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
+    => IUseAllObjectsReturnType<GQLObject, QueryVariables>
     useObject: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectReturnType<GQLObject, QueryVariables>
     useCount: (variables: QueryVariables, options?: QueryHookOptions<IUseCountQueryReturnType, QueryVariables>)
@@ -242,6 +251,53 @@ export function generateReactHooks<
         }
     }
 
+    function useAllObjects (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
+        const { objs, count, error, loading, refetch: _refetch, fetchMore, stopPolling } = useObjects(variables, options)
+        const [data, setData] = useState(objs)
+        const [fetchMoreError, setFetchMoreError] = useState()
+
+        const refetch: IRefetchType<GQLObject, QueryVariables> = useCallback((...args) => {
+            setData([])
+            return _refetch(...args)
+        }, [_refetch])
+
+        useDeepCompareEffect(() => {
+            setData([])
+        }, [variables])
+
+        useEffect(() => {
+            const isAllDataLoaded = objs.length === count || data.length === count
+            if (isAllDataLoaded || loading || error || fetchMoreError) {
+                return
+            }
+
+            if (data.length === 0) {
+                setData(objs)
+                return
+            }
+
+            fetchMore({
+                variables: {
+                    skip: data.length,
+                },
+            })
+                // @ts-ignore
+                .then(({ data }) => setData(prevData => [...prevData, ...data.objs]))
+                .catch(e => setFetchMoreError(e))
+        }, [loading, data.length])
+
+        return {
+            loading,
+            allDataLoaded: data.length === 0 ? objs.length === count : data.length === count,
+            objs: data.length === 0 ? objs : data,
+            count,
+            error: error || fetchMoreError,
+            refetch,
+            fetchMore,
+            stopPolling,
+        }
+    }
+
     function useObject (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>) {
         const { objs, count, error, loading, refetch, fetchMore, stopPolling } = useObjects(variables, options)
         if (count && count > 1) throw new Error('Wrong query condition! useObject hook must return single value!')
@@ -264,5 +320,6 @@ export function generateReactHooks<
         useUpdate,
         useSoftDelete,
         useCount,
+        useAllObjects,
     }
 }

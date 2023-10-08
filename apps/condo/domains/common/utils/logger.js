@@ -1,4 +1,4 @@
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const appLogger = getLogger('common/deprecated/appLogger')
 

@@ -8,7 +8,9 @@ import {
     TicketPropertyHintPropertyUpdateInput,
     QueryAllTicketPropertyHintPropertiesArgs, 
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { TicketPropertyHintProperty as TicketPropertyHintPropertyGQL } from '@condo/domains/ticket/gql'
 
 const {

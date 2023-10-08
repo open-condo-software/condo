@@ -39,6 +39,7 @@ ignore.*
 *.p8
 *.p12
 *.key
+*.pem
 *.mobileprovision
 *.orig.*
 .kmigratorknex.connection.json
@@ -53,3 +54,10 @@ ignore.*
 
 # Condo UI-kit static
 apps/condo/public/ui
+
+# Turborepo local cache
+.turbo
+
+# semgrep
+semgrep.sarif
+semgrep_results/*

@@ -6,17 +6,17 @@
 
 const { gql } = require('graphql-tag')
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ORGANIZATION_FIELDS = `{ country name description avatar { publicUrl } meta tin statusTransitions defaultEmployeeRoleStatusTransitions importId importRemoteSystem ${COMMON_FIELDS} }`
+const ORGANIZATION_FIELDS = `{ country name type description avatar { publicUrl } meta tin features statusTransitions defaultEmployeeRoleStatusTransitions importId importRemoteSystem phone phoneNumberPrefix isApproved ${COMMON_FIELDS} }`
 const Organization = generateGqlQueries('Organization', ORGANIZATION_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name nameNonLocalized description descriptionNonLocalized statusTransitions canManageOrganization canManageEmployees canInviteNewOrganizationEmployees canManageRoles canManageTicketPropertyHints canManageIntegrations canReadBillingReceipts canReadPayments canManageProperties canManageTickets canManageContacts canManageContactRoles canManageTicketComments canManageDivisions canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings canReadEntitiesOnlyInScopeOfDivision id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
+const ORGANIZATION_EMPLOYEE_ROLE_FIELDS = '{ organization { id } name nameNonLocalized description descriptionNonLocalized statusTransitions canReadAnalytics canManageOrganization canManageCallRecords canDownloadCallRecords canReadEmployees canManageEmployees canInviteNewOrganizationEmployees canManageRoles canManageTicketPropertyHints canManageIntegrations canImportBillingReceipts canReadBillingReceipts canReadPayments canManageProperties canReadProperties canReadTickets canManageTickets canReadContacts canManageContacts canManageContactRoles canManageTicketComments canManagePropertyScopes canShareTickets canBeAssignedAsResponsible canBeAssignedAsExecutor canManageMeters canManageMeterReadings ticketVisibilityType canManageBankAccounts canManageBankContractorAccounts canManageBankIntegrationAccountContexts canManageBankIntegrationOrganizationContexts canManageBankTransactions canManageBankAccountReports canManageBankAccountReportTasks canManageBankAccountReports canReadIncidents canManageIncidents canReadNewsItems canManageNewsItems canManageNewsItemTemplates canManageMobileFeatureConfigs canManageB2BApps id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } createdAt updatedAt }'
 const OrganizationEmployeeRole = generateGqlQueries('OrganizationEmployeeRole', ORGANIZATION_EMPLOYEE_ROLE_FIELDS)
 
-const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone specializations { id name } role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
+const ORGANIZATION_EMPLOYEE_FIELDS = `{ organization ${ORGANIZATION_FIELDS} user { id name } name email phone role ${ORGANIZATION_EMPLOYEE_ROLE_FIELDS} hasAllSpecializations isRejected isAccepted isBlocked id dv sender { dv fingerprint } v createdBy { id name } updatedBy { id name } position createdAt deletedAt updatedAt }`
 const OrganizationEmployee = generateGqlQueries('OrganizationEmployee', ORGANIZATION_EMPLOYEE_FIELDS)
 
 const ORGANIZATION_LINK_FIELDS = `{ from ${ORGANIZATION_FIELDS} to { id name } ${COMMON_FIELDS} }`
@@ -90,6 +90,15 @@ const ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION = gql`
     }
 `
 
+const ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS = `{ employee { id } specialization { id name } ${COMMON_FIELDS} }`
+const OrganizationEmployeeSpecialization = generateGqlQueries('OrganizationEmployeeSpecialization', ORGANIZATION_EMPLOYEE_SPECIALIZATION_FIELDS)
+
+const RESET_ORGANIZATION_MUTATION = gql`
+    mutation resetOrganization ($data: ResetOrganizationInput!) {
+        result: resetOrganization(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -106,5 +115,8 @@ module.exports = {
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_CODE_MUTATION,
-}
+    OrganizationEmployeeSpecialization,
+    RESET_ORGANIZATION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
+}
+

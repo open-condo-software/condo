@@ -1,8 +1,10 @@
-import React, { useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
-import { TableRecord } from '@condo/domains/common/components/Table/Index'
 import get from 'lodash/get'
+import React, { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { TableRecord } from '@condo/domains/common/components/Table/Index'
+import { getTextRender, getMoneyRender } from '@condo/domains/common/components/Table/Renders'
 
 type AlignType = 'right' | 'left' | 'center'
 
@@ -42,7 +44,7 @@ const getAdvancedMoneyRender = (intl, currencyCode: string) => {
 
 export const useServicesTableColumns = (detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
-    const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
+    const ToPayTitle = intl.formatMessage({ id: 'field.TotalCharged' })
     const ServiceTitle = intl.formatMessage({ id: 'BillingServiceName' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
     const VolumeTitle = intl.formatMessage({ id: 'Volume' })

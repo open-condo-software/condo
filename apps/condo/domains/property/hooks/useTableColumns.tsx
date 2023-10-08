@@ -1,15 +1,15 @@
-import { useCallback, useMemo } from 'react'
+import { PropertyWhereInput } from '@app/condo/schema'
 import { FilterValue } from 'antd/es/table/interface'
 import { useRouter } from 'next/router'
+import { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
-import { PropertyWhereInput } from '@app/condo/schema'
 
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getAddressRender } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 
 export interface ITableColumn {
     title: string,

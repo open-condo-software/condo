@@ -1,0 +1,241 @@
+/* Side-menu */
+
+.menu.desktop-menu {
+  position: fixed;
+  z-index: 10;
+  box-sizing: border-box;
+  height: 100vh;
+  padding: 28px 0 0;
+  border-color: var(--condo-global-color-gray-3);
+  border-style: solid;
+  border-width: 0 1px 0 0;
+}
+
+.menu.mobile-menu {
+  position: fixed;
+  z-index: 100;
+  box-sizing: border-box;
+  height: 100vh;
+  padding: 16px 0 60px;
+  overflow-y: scroll;
+}
+
+.desktop-menu .logo-container {
+  height: 36px;
+  margin-bottom: 40px;
+
+  /* -9px = Sun logo part */
+  padding: 0 28px 0 19px;
+}
+
+.desktop-menu.ant-layout-sider-collapsed .logo-container {
+  padding: 0 32px;
+}
+
+.desktop-menu .logo-container > * {
+  cursor: pointer;
+}
+
+.desktop-menu .actions-container {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 0 20px;
+}
+
+.desktop-menu .actions-container::after {
+  position: absolute;
+  right: 0;
+  bottom: -32px;
+  left: 0;
+  height: 24px;
+  background: linear-gradient(180deg, #fff 21.92%, rgb(255 255 255 / 0%) 106.02%);
+  content: "";
+}
+
+.desktop-menu .menu-items-container {
+  /* 28px offset to logo + 36px logo + 40px offset = 104px */
+  height: calc(100vh - 104px);
+
+  /* 32px - 8px of margin - 12px padding of first menu item */
+  padding: 12px 28px 40px;
+  overflow-x: hidden;
+}
+
+.desktop-menu .actions-container + .menu-items-container {
+  /* Same as above, but include resident actions button (48px) + offset (8px) = 104 + 56 = 160px */
+  height: calc(100vh - 160px);
+}
+
+.desktop-menu .expand-button {
+  position: absolute;
+  top: 32px;
+  right: -12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--condo-global-color-gray-7);
+  background: var(--condo-global-color-white);
+  border-radius: 8px;
+  box-shadow: var(--condo-global-box-shadow-default);
+  cursor: pointer;
+}
+
+.desktop-menu .expand-button:hover {
+  color: var(--condo-global-color-black);
+}
+
+/* Header */
+.desktop-header {
+  z-index: 9;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 1600px;
+  height: 84px;
+  padding: 24px 40px 12px;
+  line-height: 1.5;
+  background: var(--condo-global-color-white);
+}
+
+.desktop-header .top-menu-items {
+  margin-left: auto;
+}
+
+.mobile-header {
+  width: 100%;
+  height: 104px;
+  padding: 0;
+}
+
+.mobile-header .appeals-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+  padding: 8px 16px;
+  background: var(--condo-global-color-white);
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}
+
+.mobile-header .appeals-bar .logo {
+  /* Note: to align center position with space between */
+  transform: translateX(12px);
+}
+
+.mobile-header .context-bar {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 10px 16px;
+  background: var(--condo-global-color-gray-1);
+}
+
+.organization-dropdown.ant-dropdown-open .arrow-icon {
+  transform: rotate(180deg);
+}
+
+.organization-dropdown-overlay .ant-dropdown-menu {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.organization-selector .condo-typography {
+  display: inline-block;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
+.user-dropdown {
+  cursor: pointer;
+}
+
+.user-dropdown .expand-icon-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.organization-dropdown-overlay .ant-dropdown-menu-item-active,
+.user-dropdown-overlay .ant-dropdown-menu-item-active {
+  background: var(--condo-global-color-gray-1);
+}
+
+/* Appeals special button */
+
+.appeals-dropdown-menu .condo-typography,
+.menu .menu-item .condo-typography {
+  color: inherit;
+}
+
+.appeals-button {
+  min-width: 48px;
+  padding: 11px;
+  border-color: var(--condo-global-color-white);
+  cursor: initial;
+  transition: background 0.3s ease;
+}
+
+.appeals-button:hover {
+  background: var(--condo-global-color-brand-gradient-5);
+}
+
+.appeals-button:active {
+  background: var(--condo-global-color-brand-gradient-7);
+}
+
+.appeals-button > span {
+  color: var(--condo-global-color-green-5);
+}
+
+.appeals-button:hover > span,
+.appeals-button:active > span {
+  color: var(--condo-global-color-white);
+}
+
+.appeals-button::before {
+  background: var(--condo-global-color-brand-gradient-5) border-box;
+  opacity: 1;
+}
+
+/* Notifications */
+
+/* Note: all notifications must be below modal */
+.ant-notification {
+  z-index: 999;
+}
+
+/* Button */
+
+.condo-btn.condo-btn-sbbol {
+  border-color: var(--condo-global-color-teal-5);
+}
+
+.condo-btn.condo-btn-sbbol .condo-btn-text {
+  color: var(--condo-global-color-teal-5);
+}
+
+.condo-btn.condo-btn-sbbol:hover .condo-btn-text {
+  color: var(--condo-global-color-green-5);
+}
+
+.condo-btn.condo-btn-sbbol:active .condo-btn-text {
+  color: var(--condo-global-color-green-7);
+}
+
+.condo-btn.condo-btn-sbbol:hover .condo-btn-icon svg path {
+  fill: var(--condo-global-color-green-5);
+}
+
+.condo-btn.condo-btn-sbbol:active .condo-btn-icon svg path {
+  fill: var(--condo-global-color-green-7);
+}

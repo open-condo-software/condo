@@ -1,14 +1,17 @@
-const faker = require('faker')
-const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { faker } = require('@faker-js/faker')
+
+const { expectToThrowAuthenticationErrorToResult, expectToThrowGraphQLRequestError, expectToThrowAccessDeniedErrorToResult } = require('@open-condo/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { getTicketReport } = require('@condo/domains/analytics/utils/testSchema')
 const { createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const { makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
-const { getTicketReport } = require('@condo/domains/analytics/utils/testSchema')
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { expectToThrowAuthenticationErrorToResult, expectToThrowGraphQLRequestError } = require('@condo/keystone/test.utils')
-const { makeClient } = require('@condo/keystone/test.utils')
+const { createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketReportService', () => {
     describe('Validations', () => {
@@ -69,15 +72,15 @@ describe('TicketReportService', () => {
             })
             const managerClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const managerClient1 = await makeClientWithNewRegisteredAndLoggedInUser()
-            const userRejectOrganizationInvite = { isBlocked: false, isAccepted: false, isRejected: true }
-            const userAcceptOrganizationInvite = { isBlocked: false, isAccepted: true, isRejected: false }
+            const userRejectOrganizationInvite = { isAccepted: false, isBlocked: false, isRejected: true }
+            const userAcceptOrganizationInvite = { isAccepted: true, isBlocked: false, isRejected: false }
             await createTestOrganizationEmployee(
                 admin, organization, managerClient.user, role, { ...userRejectOrganizationInvite }
             )
             const [employee] = await createTestOrganizationEmployee(
                 admin, organization, managerClient1.user, role, { ...userAcceptOrganizationInvite }
             )
-            const [data] = await getTicketReport(managerClient, 'calendarWeek', {
+            const [data] = await getTicketReport(managerClient1, 'calendarWeek', {
                 userOrganizationId: employee.organization.id,
             })
 
@@ -102,6 +105,18 @@ describe('TicketReportService', () => {
             expect(clientTicket).toBeDefined()
             expect(clientTicket.currentValue).toEqual(1)
             expect(clientTicket.growth).toEqual(0)
+        })
+
+        it('can\'t get ticket report from organization he not belongs to', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await registerNewOrganization(admin)
+            const client = await makeClientWithProperty()
+
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await getTicketReport(client, 'year', {
+                    userOrganizationId: organization.id,
+                })
+            })
         })
     })
 

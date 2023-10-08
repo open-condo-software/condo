@@ -1,6 +1,8 @@
-const { CONTEXT_STATUSES } = require('../../constants')
 const { Select } = require('@keystonejs/fields')
-const { getById } = require('@condo/keystone/schema')
+
+const { getById } = require('@open-condo/keystone/schema')
+
+const { CONTEXT_STATUSES } = require('../../constants')
 
 const getStatusResolver =  (modelName, idFieldName) => {
     return async function resolveInput ({ resolvedData, fieldPath, operation }) {

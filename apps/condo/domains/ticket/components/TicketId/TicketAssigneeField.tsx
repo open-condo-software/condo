@@ -1,17 +1,22 @@
+import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
-import Link from 'next/link'
-import { useMemo } from 'react'
+import { FC, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
 
 import { TicketUserInfoField } from './TicketUserInfoField'
 
-export const TicketAssigneeField = ({ ticket }) => {
+
+type TicketAssigneeFieldProps = {
+    ticket: Ticket
+    phonePrefix?: string
+}
+
+export const TicketAssigneeField: FC<TicketAssigneeFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
     const AssigneeMessage = intl.formatMessage({ id: 'field.Responsible' })
     const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
@@ -40,13 +45,14 @@ export const TicketAssigneeField = ({ ticket }) => {
         <PageFieldRow title={AssigneeMessage} ellipsis>
             {
                 assignee
-                    ? <Link href={`/employee/${get(assignee, 'id')}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <Typography.Text strong>
-                                <TicketUserInfoField user={assigneeUser}/>
-                            </Typography.Text>
-                        </Typography.Link>
-                    </Link>
+                    ?
+                    <Typography.Text strong>
+                        <TicketUserInfoField
+                            user={assigneeUser}
+                            nameLink={`/employee/${get(assignee, 'id')}`}
+                            phonePrefix={phonePrefix}
+                        />
+                    </Typography.Text>
                     : <Typography.Text type='secondary'>
                         {EmployeeIsNullOrWasDeletedMessage}
                     </Typography.Text>

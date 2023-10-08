@@ -1,10 +1,11 @@
 const https = require('https')
 const querystring = require('querystring')
 const { URL } = require('url')
+
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const REQUEST_TIMEOUT = 10 * 1000
 const REQUEST_TIMEOUT_ERROR = '[request:timeout:expires'
@@ -35,6 +36,8 @@ class SbbolRequestApi {
     constructor (options) {
         const { accessToken, host, port, certificate, passphrase } = options
         const { host: hostname } = new URL(host)
+
+        // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
         this.options = {
             hostname,
             port,

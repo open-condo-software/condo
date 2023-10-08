@@ -1,10 +1,13 @@
-const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const get = require('lodash/get')
-const { TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
-const groupBy = require('lodash/groupBy')
 const dayjs = require('dayjs')
 const isoWeek = require('dayjs/plugin/isoWeek')
+const get = require('lodash/get')
+const groupBy = require('lodash/groupBy')
+
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
+const { GqlToKnexBaseAdapter } = require('@condo/domains/common/utils/serverSchema/GqlToKnexBaseAdapter')
+const { TICKET_REPORT_DAY_GROUP_STEPS } = require('@condo/domains/ticket/constants/common')
+
 dayjs.extend(isoWeek)
 
 const DATE_FORMATS = {
@@ -46,14 +49,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
-            return Object.fromEntries(
-                Object.entries(condition).map(([field, query]) => (
-                    get(query, 'id') ? [field, query.id] : [field, query]
-                ))
-            )
-        })
-        this.whereIn = {}
+        this.whereIn = Object.fromEntries(this.whereIn)
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
             const [groupName, groupCondition] = Object.entries(currentFilter)[0]
@@ -72,26 +68,26 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
             .count('id')
             .select(this.groups)
         if (this.aggregateBy.includes('dayGroup')) {
-            query.select(knex.raw(`date_trunc('${this.dayGroup}',  "createdAt") as "dayGroup"`))
+            query.select(knex.raw(`to_char(date_trunc('${this.dayGroup}',  "createdAt"), 'DD.MM.YYYY') as "dayGroup"`))
         }
 
         switch (Object.keys(this.whereIn).length) {
             case 2:
                 this.result = await query.groupBy(this.aggregateBy)
-                    .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
+                    .where(this.knexWhere)
                     .whereIn([Object.keys(this.whereIn)[0]], Object.values(this.whereIn)[0])
                     .whereIn([Object.keys(this.whereIn)[1]], Object.values(this.whereIn)[1])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             case 1:
                 this.result = await query.groupBy(this.aggregateBy)
-                    .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
+                    .where(this.knexWhere)
                     .whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             default:
                 this.result = await query.groupBy(this.aggregateBy)
-                    .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
+                    .where(this.knexWhere)
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
         }
     }
@@ -128,8 +124,8 @@ const getCombinations = ({ options = {}, optionIndex = 0, results = [], current 
     const optionKey = allKeys[optionIndex]
     const option = options[optionKey]
 
-    for (let i = 0; i < option.length; i++) {
-        current[optionKey] = option[i]
+    for (const element of option) {
+        current[optionKey] = element
         if (optionIndex + 1 < allKeys.length) {
             getCombinations({ options, optionIndex: optionIndex + 1, results, current })
         } else {
@@ -147,7 +143,7 @@ const getCombinations = ({ options = {}, optionIndex = 0, results = [], current 
 
 const enumerateDaysBetweenDates = function (startDate, endDate, step = 'day') {
     const dateStringFormat = DATE_FORMATS[step]
-    let currentDate = dayjs(startDate).startOf(step).isoWeekday(1)
+    let currentDate = dayjs(startDate)
     const lastDate = dayjs(endDate).startOf(step)
     const dates = [currentDate.format(dateStringFormat)]
 

@@ -1,3 +1,4 @@
+import { Editor } from '@tinymce/tinymce-react'
 import { Alert, Col, Form, Input, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get, isEmpty } from 'lodash'
@@ -6,21 +7,19 @@ import { useRouter } from 'next/router'
 import qs from 'qs'
 import { Rule } from 'rc-field-form/lib/interface'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
-import { Editor } from '@tinymce/tinymce-react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { colors } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
 import {
     searchOrganizationProperty,
     searchOrganizationPropertyWithoutPropertyHint,
 } from '@condo/domains/ticket/utils/clientSchema/search'
-import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -51,12 +50,11 @@ const TicketPropertyHintAlert: React.FC<TicketPropertyHintAlertProps> = ({ hintF
     const queryFilters = useMemo(() => hintFilters ? { filters: hintFilters } : {}, [hintFilters])
     const query = useMemo(() => qs.stringify(
         {
-            tab: SETTINGS_TAB_PROPERTY_HINT,
             ...queryFilters,
         },
         { arrayFormat: 'comma', skipNulls: true, addQueryPrefix: true },
     ), [queryFilters])
-    const linkHref = useMemo(() => '/settings' + query, [query])
+    const linkHref = useMemo(() => '/settings/hint' + query, [query])
 
     const AlertDescription = useMemo(() => (
         <>
@@ -155,8 +153,8 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
         return initialTicketPropertyHintId ?
             organizationTicketPropertyHintProperties
-                .filter(ticketPropertyHintProperty => ticketPropertyHintProperty.ticketPropertyHint.id === initialTicketPropertyHintId)
-                .map(ticketPropertyHintProperty => ticketPropertyHintProperty.property) : []
+                .filter(ticketPropertyHintProperty => get(ticketPropertyHintProperty, 'ticketPropertyHint.id') === initialTicketPropertyHintId)
+                .map(ticketPropertyHintProperty => get(ticketPropertyHintProperty, 'property')) : []
     }, [initialValues, organizationTicketPropertyHintProperties])
 
     const initialPropertyIds = useMemo(() => {
@@ -190,7 +188,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
 
             for (const propertyId of properties) {
                 await createTicketPropertyHintPropertyAction({
-                    ticketPropertyHint: { connect: { id: ticketPropertyHint.id } },
+                    ticketPropertyHint: { connect: { id: get(ticketPropertyHint, 'id') } },
                     property: { connect: { id: propertyId } },
                 })
             }
@@ -210,8 +208,8 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                 if (!properties.includes(initialPropertyId)) {
                     const ticketPropertyHintProperty = organizationTicketPropertyHintProperties
                         .find(
-                            ticketPropertyHintProperty => ticketPropertyHintProperty.property.id === initialPropertyId &&
-                                ticketPropertyHintProperty.ticketPropertyHint.id === initialTicketPropertyHintId
+                            ticketPropertyHintProperty => get(ticketPropertyHintProperty, 'property.id') === initialPropertyId &&
+                                get(ticketPropertyHintProperty, 'ticketPropertyHint.id') === initialTicketPropertyHintId
                         )
 
                     await softDeleteTicketPropertyHintPropertyAction(ticketPropertyHintProperty)
@@ -219,7 +217,7 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
             }
         }
 
-        await router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_HINT}`)
+        await router.push('/settings/hint')
     }, [action, createTicketPropertyHintPropertyAction, initialPropertyIds, initialValues, organizationId, organizationTicketPropertyHintProperties, router, softDeleteTicketPropertyHintPropertyAction])
 
     if (organizationTicketPropertyHintPropertiesLoading) {
@@ -306,7 +304,9 @@ export const BaseTicketPropertyHintForm: React.FC<BaseTicketPropertyHintFormProp
                                     </Col>
                                 </Row>
                             </Col>
-                            {children({ handleSave, isLoading, form })}
+                            <Col span={24}>
+                                {children({ handleSave, isLoading, form })}
+                            </Col>
                         </Row>
                     )}
                 </FormWithAction>

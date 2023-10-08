@@ -1,20 +1,25 @@
 const passwordGenerator = require('generate-password')
-const { GQLCustomSchema } = require('@condo/keystone/schema')
-const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { Organization, OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
-const guards = require('../utils/serverSchema/guards')
 const get = require('lodash/get')
-const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { getById } = require('@condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@condo/keystone/errors')
-const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
-const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
 
-const errors = {
+const conf = require('@open-condo/config')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+
+const { WRONG_FORMAT, NOT_FOUND, WRONG_PHONE_FORMAT, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE, DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const access = require('@condo/domains/organization/access/InviteNewOrganizationEmployeeService')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
+const { Organization, OrganizationEmployee, OrganizationEmployeeSpecialization } = require('@condo/domains/organization/utils/serverSchema')
+const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
+
+const { ALREADY_ACCEPTED_INVITATION, ALREADY_INVITED, UNABLE_TO_REGISTER_USER } = require('../constants/errors')
+const guards = require('../utils/serverSchema/guards')
+
+const ERRORS = {
     inviteNewOrganizationEmployee: {
         ALREADY_INVITED: {
             mutation: 'inviteNewOrganizationEmployee',
@@ -88,7 +93,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
     types: [
         {
             access: true,
-            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput, position: String, specializations: TicketCategoryClassifierRelateToManyInput }',
+            type: 'input InviteNewOrganizationEmployeeInput { dv: Int!, sender: SenderFieldInput!, organization: OrganizationWhereUniqueInput!, email: String, phone: String!, name: String, role: OrganizationEmployeeRoleWhereUniqueInput!, position: String, specializations: [TicketCategoryClassifierWhereUniqueInput], hasAllSpecializations: Boolean }',
         },
         {
             access: true,
@@ -106,21 +111,23 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     'It tries to find already existing User with type "staff" first by phone, then by email.',
                     'If User is not found, it will be registered.',
                 ].join('\n'),
-                errors: errors.inviteNewOrganizationEmployee,
+                errors: ERRORS.inviteNewOrganizationEmployee,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                let { organization, email, phone, role, position, name, specializations, ...restData } = data
+                let { organization, email, phone, role, position, name, specializations = [], hasAllSpecializations, ...restData } = data
+                const dvSenderData = { dv: restData.dv, sender: restData.sender }
+
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
-                if (restData.dv !== 1) throw new GQLError(errors.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH)
-                if (!phone) throw new GQLError(errors.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
+                if (dvSenderData.dv !== 1) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.DV_VERSION_MISMATCH)
+                if (!phone) throw new GQLError(ERRORS.inviteNewOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 const userOrganization = await Organization.getOne(context, { id: organization.id })
                 let user = await guards.checkStaffUserExistency(context, email, phone)
                 const existedEmployee = await guards.checkEmployeeExistency(context, userOrganization, email, phone, user)
 
                 if (existedEmployee) {
-                    throw new GQLError(errors.inviteNewOrganizationEmployee.ALREADY_INVITED, context)
+                    throw new GQLError(ERRORS.inviteNewOrganizationEmployee.ALREADY_INVITED, context)
                 }
 
                 if (!user) {
@@ -133,7 +140,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                         email,
                         phone,
                         password,
-                        ...restData,
+                        ...dvSenderData,
                     }
 
                     const { data: registerData, errors: registerErrors } = await context.executeGraphQL({
@@ -144,7 +151,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                     })
 
                     if (registerErrors) {
-                        throw new GQLError({ ...errors.UNABLE_TO_REGISTER_USER, data: { registerErrors } }, context)
+                        throw new GQLError({ ...ERRORS.UNABLE_TO_REGISTER_USER, data: { registerErrors } }, context)
                     }
 
                     user = registerData.user
@@ -153,30 +160,39 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const employee = await OrganizationEmployee.create(context, {
                     user: { connect: { id: user.id } },
                     organization: { connect: { id: userOrganization.id } },
-                    ...role && { role: { connect: { id: role.id } } },
+                    role: { connect: { id: role.id } },
                     position,
                     email,
                     name,
                     phone,
-                    specializations,
-                    ...restData,
+                    hasAllSpecializations,
+                    ...dvSenderData,
                 })
+
+                for (const specializationIdObj of specializations) {
+                    await OrganizationEmployeeSpecialization.create(context, {
+                        employee: { connect: { id: employee.id } },
+                        specialization: { connect: specializationIdObj },
+                        ...dvSenderData,
+                    })
+                }
 
                 const organizationCountry = get(userOrganization, 'country', 'en')
                 const organizationName = get(userOrganization, 'name')
                 const organizationId = get(userOrganization, 'id')
+                const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
+                const serverUrl = userOrganization.type === HOLDING_TYPE && get(conf, 'CC_DOMAIN') ? conf['CC_DOMAIN'] : conf['SERVER_URL']
 
                 await sendMessage(context, {
                     lang: organizationCountry,
                     to: {
-                        user: {
-                            id: user.id,
-                        },
+                        user: { id: user.id },
                         phone: !email ? phone : undefined,
                         email,
                     },
-                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type,
                     meta: {
+                        serverUrl,
                         organizationName,
                         dv: 1,
                     },
@@ -192,7 +208,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
             schema: 'reInviteOrganizationEmployee(data: ReInviteOrganizationEmployeeInput!): OrganizationEmployee',
             doc: {
                 summary: 'Tries to send notification message again to already invited user',
-                errors: errors.reInviteOrganizationEmployee,
+                errors: ERRORS.reInviteOrganizationEmployee,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
@@ -200,44 +216,45 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 phone = normalizePhone(phone)
                 email = normalizeEmail(email)
                 if (!phone) {
-                    throw new GQLError(errors.reInviteOrganizationEmployee.WRONG_PHONE_FORMAT, context)
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.WRONG_PHONE_FORMAT, context)
                 }
 
                 const employeeOrganization = await Organization.getOne(context, { id: organization.id })
 
                 if (!employeeOrganization) {
-                    throw new GQLError(errors.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND, context)
                 }
 
                 const existedUser = await guards.checkStaffUserExistency(context, email, phone)
                 if (!existedUser) {
-                    throw new GQLError(errors.reInviteOrganizationEmployee.USER_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.USER_NOT_FOUND, context)
                 }
 
                 const existedEmployee = await guards.checkEmployeeExistency(context, organization, email, phone, existedUser)
                 if (!existedEmployee) {
-                    throw new GQLError(errors.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.EMPLOYEE_NOT_FOUND, context)
                 }
 
                 if (get(existedEmployee, 'isAccepted')) {
-                    throw new GQLError(errors.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION, context)
+                    throw new GQLError(ERRORS.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION, context)
                 }
 
                 const organizationCountry = get(employeeOrganization, 'country', 'en')
                 const organizationName = get(employeeOrganization, 'name')
                 const organizationId = get(employeeOrganization, 'id')
+                const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
+                const serverUrl = employeeOrganization.type === HOLDING_TYPE && get(conf, 'CC_DOMAIN') ? conf['CC_DOMAIN'] : conf['SERVER_URL']
 
                 await sendMessage(context, {
                     lang: organizationCountry,
                     to: {
-                        user: {
-                            id: existedUser.id,
-                        },
+                        user: { id: existedUser.id },
                         phone: !email ? phone : undefined,
                         email,
                     },
-                    type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+                    type,
                     meta: {
+                        serverUrl,
                         organizationName,
                         dv: 1,
                     },

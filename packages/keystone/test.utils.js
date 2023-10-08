@@ -1,24 +1,31 @@
-const axios = require('axios').default
-const axiosCookieJarSupport = require('axios-cookiejar-support').default
-const { gql } = require('graphql-tag')
-const { CookieJar, Cookie } = require('tough-cookie')
-const urlParse = require('url').parse
 const crypto = require('crypto')
-const express = require('express')
-const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
-const { createUploadLink } = require('apollo-upload-client')
-const FormData = require('form-data')
-const fetch = require('node-fetch')
+const fs = require('fs')
 const http = require('http')
 const https = require('https')
-const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template } = require('lodash')
-const fs = require('fs')
+const urlLib = require('url')
+
+const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
+const { faker } = require('@faker-js/faker')
+const { createUploadLink } = require('apollo-upload-client')
+const axiosLib = require('axios')
+const axiosCookieJarSupportLib = require('axios-cookiejar-support')
+const debug = require('debug')('@open-condo/keystone/test.utils')
+const express = require('express')
 const falsey = require('falsey')
-const { getTranslations } = require('@condo/locales/loader')
+const FormData = require('form-data')
+const { gql } = require('graphql-tag')
+const { flattenDeep, fromPairs, toPairs, get, isFunction, isEmpty, template } = require('lodash')
+const fetch = require('node-fetch')
+const { CookieJar, Cookie } = require('tough-cookie')
+
+const conf = require('@open-condo/config')
+const { getTranslations } = require('@open-condo/locales/loader')
 
 const EXTRA_LOGGING = falsey(get(process, 'env.DISABLE_LOGGING'))
 
-const conf = require('@condo/config')
+const urlParse = urlLib.parse
+const axios = axiosLib.default
+const axiosCookieJarSupport = axiosCookieJarSupportLib.default
 
 const getRandomString = () => crypto.randomBytes(6).hexSlice()
 
@@ -31,11 +38,12 @@ const DEFAULT_TEST_USER_IDENTITY = conf.DEFAULT_TEST_USER_IDENTITY || 'user@exam
 const DEFAULT_TEST_USER_SECRET = conf.DEFAULT_TEST_USER_SECRET || '1a92b3a07c78'
 const DEFAULT_TEST_ADMIN_IDENTITY = conf.DEFAULT_TEST_ADMIN_IDENTITY || 'admin@example.com'
 const DEFAULT_TEST_ADMIN_SECRET = conf.DEFAULT_TEST_ADMIN_SECRET || '3a74b3f07978'
+const TESTS_TLS_IGNORE_UNAUTHORIZED = conf.TESTS_TLS_IGNORE_UNAUTHORIZED === 'true'
 const TESTS_LOG_REQUEST_RESPONSE = conf.TESTS_LOG_REQUEST_RESPONSE
 // TODO(pahaz): remove this old consts! we have TESTS_LOG_REQUEST_RESPONSE
 const TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS = conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
 const TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS = !conf.TESTS_FAKE_CLIENT_MODE && conf.TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
-const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `http://127.0.0.1:3000${API_PATH}`
+const TESTS_REAL_CLIENT_REMOTE_API_URL = conf.TESTS_REAL_CLIENT_REMOTE_API_URL || `${conf.SERVER_URL}${API_PATH}`
 
 const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     mutation authenticateUserWithPhoneAndPassword ($phone: String!, $password: String!) {
@@ -47,9 +55,19 @@ const SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION = gql`
     }
 `
 
+/**
+ * Should be used to pass file uploading to variables of Keystone mutations
+ * Pay attention to close stream in case when instance of this class is used more than one time in tests,
+ * that examining a function (without mutation call).
+ */
 class UploadingFile {
     constructor (filePath) {
         this.stream = fs.createReadStream(filePath)
+    }
+
+    // Used for testing code, that reads data from this object
+    createReadStream () {
+        return this.stream
     }
 }
 
@@ -67,10 +85,52 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
-let __isFeatureFlagsEnabled = true
 
-function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
-    __isFeatureFlagsEnabled = isFeatureFlagsEnabled
+/**
+ * Something looks like an ip address. Need to test calls limit from one ip address.
+ * @type {string}
+ */
+let __x_forwarder_for_header
+
+/**
+ * @type {Map<string, any>}
+ */
+const featureFlagsStore = new Map()
+const FEATURE_FLAGS_STORE_ALL_KEY = '*'
+
+/**
+ * Sets the feature flag value and returns the previous one
+ * @param {string} id
+ * @param value
+ * @returns {*}
+ */
+function setFeatureFlag (id, value) {
+    const prev = featureFlagsStore.get(id)
+    featureFlagsStore.set(id, value)
+
+    return prev
+}
+
+/**
+ * @param context The keystone context
+ * @param {string} id
+ * @returns {*}
+ */
+function getFeatureFlag (context, id) {
+    // We pass featureFlagsStore via headers in the case when worker & condo are in different Node.js processes
+    const featureFlagsStoreFromReqHeaders = new Map(JSON.parse(get(context, ['req', 'headers', 'feature-flags'], '[]')))
+    return featureFlagsStore.get(id)
+        || featureFlagsStore.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || featureFlagsStoreFromReqHeaders.get(id)
+        || featureFlagsStoreFromReqHeaders.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || false
+}
+
+/**
+ * @param value
+ */
+function setAllFeatureFlags (value) {
+    featureFlagsStore.set(FEATURE_FLAGS_STORE_ALL_KEY, value)
 }
 
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
@@ -85,6 +145,8 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
             const res = await prepareKeystoneExpressApp(entryPoint, prepareKeystoneOptions)
             __expressApp = res.app
             __keystone = res.keystone
+            // tests express for a fake gql client
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
             __expressServer = http.createServer(__expressApp).listen(0)
         })
         afterAll(async () => {
@@ -100,17 +162,21 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
 }
 
 const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
+    debug('prepareKeystoneExpressApp(%s) excludeApps=%j cwd=%s', entryPoint, excludeApps, process.cwd())
     const dev = process.env.NODE_ENV === 'development'
     const {
-        distDir,
         keystone,
         apps,
         configureExpress,
+        cors,
+        pinoOptions,
     } = (typeof entryPoint === 'string') ? require(entryPoint) : entryPoint
     const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
-    if (excludeApps && dev) console.info('prepareKeystoneExpressApp() with excluded apps:', excludeApps, 'apps:', newApps.map(x => x.constructor.name))
-    const { middlewares } = await keystone.prepare({ apps: newApps, distDir, dev })
+    const { middlewares } = await keystone.prepare({ apps: newApps, dev, cors, pinoOptions })
     await keystone.connect()
+
+    // not a csrf case: used for test & development scripts purposes
+    // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
     const app = express()
     if (configureExpress) configureExpress(app)
     app.use(middlewares)
@@ -120,6 +186,7 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
 /**
  * @param {function} callable
  * @param {Object} params
+ * @param logRequestResponse
  * @returns {Promise<Object>}
  */
 async function doGqlRequest (callable, { mutation, query, variables }, logRequestResponse) {
@@ -177,12 +244,13 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
 
 /**
  * @param {string} serverUrl
- * @param {boolean} logRequestResponse
+ * @param {{customHeaders?: Record<string, string>, logRequestResponse?: boolean}} opts
  * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
  */
-const makeApolloClient = (serverUrl, logRequestResponse = false) => {
+const makeApolloClient = (serverUrl, opts = {}) => {
     let cookiesObj = {}
-    let customHeaders = {}
+    let customHeaders =  opts.hasOwnProperty('customHeaders') ? opts.customHeaders : {}
+    let logRequestResponse =  Boolean(opts.logRequestResponse)
 
     /**
      * @returns {string}
@@ -205,6 +273,10 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         }
     }
 
+    // test apollo client with disabled tls
+    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
+    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
+
     const apolloLinks = []
     // Terminating link must be in the end of links chain
     apolloLinks.push(createUploadLink({
@@ -216,7 +288,6 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
             cache: 'no-cache',
             mode: 'cors',
             credentials: 'include',
-            'feature-flags': __isFeatureFlagsEnabled,
         },
         includeExtensions: true,
         isExtractableFile: (value) => {
@@ -228,10 +299,12 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
-            options.headers = { ...options.headers, ...customHeaders }
+            options.headers = { ...options.headers, 'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders }
             if (cookiesObj && Object.keys(cookiesObj).length > 0) {
                 options.headers = { ...options.headers, cookie: restoreCookies() }
             }
+
+            if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.agent = httpsAgentWithUnauthorizedTls
 
             return fetch(uri, options)
                 .then((response) => {
@@ -269,10 +342,14 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
     }
 }
 
-const makeClient = async () => {
+const makeClient = async (opts = { generateIP: true }) => {
     // Data for real client
     let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
     let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
+    const customHeaders = {}
+    if (opts.generateIP) {
+        customHeaders['x-forwarded-for'] = faker.internet.ip()
+    }
 
     if (__expressApp) {
         const port = __expressServer.address().port
@@ -283,7 +360,7 @@ const makeClient = async () => {
         logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
     }
 
-    return makeApolloClient(serverUrl, TESTS_LOG_REQUEST_RESPONSE || logErrors)
+    return makeApolloClient(serverUrl, { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE || logErrors, customHeaders })
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
@@ -291,6 +368,10 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     const cookieJar = new CookieJar()
     const domain = (urlParse(cookieDomain).protocol || 'http:') + '//' + urlParse(cookieDomain).host
     cookies.forEach((cookie) => cookieJar.setCookieSync(cookie, domain))
+    // test axios client with disabled tls
+    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
+    const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
+    if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
     const client = axios.create({
         withCredentials: true,
         adapter: require('axios/lib/adapters/http'),
@@ -349,6 +430,14 @@ const makeLoggedInAdminClient = async () => {
     return await makeLoggedInClient({ email: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET })
 }
 
+/**
+ * Used for async action waiting in tests. Pass in callback and options.
+ * Will retry executing callback again and again each $interval ms for $timeout ms.
+ * You can also set $delay before trying callback if you sure that async action won't take less.
+ * @param callback
+ * @param options { timeout: 15000, interval: 150, delay: 0 }
+ * @returns {Promise<unknown>}
+ */
 async function waitFor (callback, options = null) {
     const timeout = get(options, 'timeout', 15000)
     const interval = get(options, 'interval', 150)
@@ -413,7 +502,6 @@ const isMongo = () => {
  * @return {Promise<*>}
  */
 const catchErrorFrom = async (testFunc, inspect) => {
-    console.debug('>>> catchErrorFrom testFunc.constructor.name', testFunc.constructor.name)
     if (testFunc.constructor.name !== 'AsyncFunction') throw new Error('catchErrorFrom( testFunc ) testFunc is not an AsyncFunction!')
     if (!isFunction(inspect)) throw new Error('catchErrorFrom( inspect ) inspect is not a function!')
     let thrownError = null
@@ -448,7 +536,8 @@ const catchErrorFrom = async (testFunc, inspect) => {
  * @return {Promise<void>}
  */
 const expectToThrowAccessDeniedError = async (testFunc, path) => {
-    if (!path) throw new Error('expectToThrowAccessDeniedError(): no path argument')
+    if (!path) throw new Error('path is not specified')
+
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -499,7 +588,7 @@ const expectToThrowAccessDeniedErrorToResult = async (testFunc) => {
  * @return {Promise<void>}
  */
 const expectToThrowAuthenticationError = async (testFunc, path) => {
-    if (!path) throw new Error('expectToThrowAccessDeniedError(): no path argument')
+    if (!path) throw new Error('path argument is not specified')
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
@@ -595,23 +684,28 @@ const expectToThrowGQLError = async (testFunc, errorFields, path = 'obj') => {
         if (!interpolatedMessageForUser) throw new Error(`expectToThrowGQLError(): you need to set ${errorFields.messageForUser} for locale=${locale}`)
     }
     const message = template(errorFields.message)(errorFields.messageInterpolation)
+    // NOTE: In case where only type and code provided message should not be checked
+    const messageFields = message ? { message } : {}
+    // NOTE: In case where is no errorFields.messageForUser interpolatedMessageForUser becomes undefined,
+    // so we should not check it
+    const messageForUserFields = interpolatedMessageForUser ? { messageForUser: interpolatedMessageForUser } : {}
 
     await catchErrorFrom(testFunc, (caught) => {
         expect(caught).toMatchObject({
             name: 'TestClientResponseError',
             data: { [path]: null },
             errors: [expect.objectContaining({
-                'message': message,
+                ...messageFields,
                 'name': 'GQLError',
                 'path': [path],
                 'locations': [expect.objectContaining({
                     line: expect.anything(),
                     column: expect.anything(),
                 })],
-                'extensions': {
+                'extensions': expect.objectContaining({
                     ...errorFields,
-                    messageForUser: interpolatedMessageForUser,
-                },
+                    ...messageForUserFields,
+                }),
             })],
         })
     })
@@ -636,6 +730,78 @@ const expectToThrowGraphQLRequestError = async (testFunc, message) => {
     })
 }
 
+const expectValuesOfCommonFields = (obj, attrs, client) => {
+    expect(obj.id).toMatch(UUID_RE)
+    expect(obj.dv).toEqual(1)
+    expect(obj.sender).toEqual(attrs.sender)
+    expect(obj.v).toEqual(1)
+    expect(obj.newId).toEqual(null)
+    expect(obj.deletedAt).toEqual(null)
+    expect(obj.createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
+    expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+    expect(obj.createdAt).toMatch(DATETIME_RE)
+    expect(obj.updatedAt).toMatch(DATETIME_RE)
+}
+
+/**
+ * Returns actual name of database entity, that may be different from specified at Keystone level
+ * @param name
+ * @returns {*}
+ */
+const actualDatabaseEntityName = (name) => {
+    // The system uses no more than NAMEDATALEN-1 bytes of an identifier; longer names can be written in commands, but they will be truncated.
+    // By default, NAMEDATALEN is 64 so the maximum identifier length is 63 bytes.
+    // https://www.postgresql.org/docs/13/sql-syntax-lexical.html
+    const NAMEDATALEN = 63
+    return name.slice(0, NAMEDATALEN)
+}
+
+
+/**
+ * Handles maximum characters count of Postgres for naming of database entities while checking violation of a specified unique constraint
+ * @param testFunc
+ * @param constraintName - full name of constraint as presented in Keystone schema
+ * @returns {Promise<void>}
+ */
+const expectToThrowUniqueConstraintViolationError = async (testFunc, constraintName) => {
+    await catchErrorFrom(async () => {
+        await testFunc()
+    }, ({ errors }) => {
+        expect(errors[0].message).toContain(`duplicate key value violates unique constraint "${actualDatabaseEntityName(constraintName)}"`)
+    })
+}
+
+/**
+ * @param testFunc
+ * @param {string} path
+ * @param {string} field
+ * @param {Number} [count]
+ * @returns {Promise<void>}
+ */
+const expectToThrowAccessDeniedToFieldError = async (testFunc, path, field, count = 1) => {
+    if (!path) throw new Error('path is not specified')
+    if (!field) throw new Error('field is not specified')
+
+    await catchErrorFrom(testFunc, (caught) => {
+        expect(caught).toMatchObject({
+            name: 'TestClientResponseError',
+            data: { [path]: Array(count).fill(null) },
+            errors: Array(count).fill(null).map((v, i) => expect.objectContaining({
+                'message': 'You do not have access to this resource',
+                'name': 'AccessDeniedError',
+                'path': [path, i, field],
+                'locations': [expect.objectContaining({
+                    line: expect.anything(),
+                    column: expect.anything(),
+                })],
+                'extensions': {
+                    'code': 'INTERNAL_SERVER_ERROR',
+                },
+            })),
+        })
+    })
+}
+
 module.exports = {
     waitFor,
     isPostgres, isMongo,
@@ -656,7 +822,6 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
-    setIsFeatureFlagsEnabled,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,
@@ -670,4 +835,10 @@ module.exports = {
     expectToThrowInternalError,
     expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
+    expectValuesOfCommonFields,
+    expectToThrowUniqueConstraintViolationError,
+    expectToThrowAccessDeniedToFieldError,
+    setFeatureFlag,
+    getFeatureFlag,
+    setAllFeatureFlags,
 }

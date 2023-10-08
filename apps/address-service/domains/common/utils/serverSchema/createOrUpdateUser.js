@@ -1,6 +1,8 @@
-const { User } = require('@address-service/domains/user/utils/serverSchema')
-const { getById } = require('@condo/keystone/schema')
 const isEqual = require('lodash/isEqual')
+
+const { getById } = require('@open-condo/keystone/schema')
+
+const { User } = require('@address-service/domains/user/utils/serverSchema')
 
 const OIDC_SENDER_FIELD_VALUE = {
     dv: 1,

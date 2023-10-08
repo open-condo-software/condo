@@ -1,13 +1,18 @@
-const conf = require('@condo/config')
-const { i18n } = require('@condo/locales/loader')
-const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const fs = require('fs')
+
+const conf = require('@open-condo/config')
+const { i18n } = require('@open-condo/locales/loader')
+
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 
 const EXPORT_TYPE_PAYMENTS = 'payments'
 const EXPORT_TYPE_CONTACTS = 'contacts'
 const EXPORT_TYPE_METERS = 'meters'
 const EXPORT_TYPE_BUILDINGS = 'buildings'
 const EXPORT_TYPE_TICKETS = 'tickets'
+const EXPORT_TYPE_PROPERTY_SCOPES = 'propertyScopes'
+const EXPORT_TYPE_INCIDENTS = 'incidents'
+const EXPORT_TYPE_NEWS_RECIPIENTS = 'newsRecipients'
 
 const TICKETS_REPORTS_PREFIX = 'ticket_report_'
 const TICKET_REPORT_PROPERTY_STATUS = 'property_status'
@@ -19,7 +24,7 @@ const TICKET_REPORT_STATUS_PROPERTY = 'status_property'
 
 const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_PAYMENTS]: ['date', 'account', 'address', 'unitName', 'type', 'transaction', 'order', 'status', 'amount'],
-    [EXPORT_TYPE_CONTACTS]: ['name', 'address', 'unitName', 'unitType', 'phone', 'email', 'role'],
+    [EXPORT_TYPE_CONTACTS]: ['name', 'address', 'unitName', 'unitType', 'phone', 'email', 'role', 'isVerified'],
     [EXPORT_TYPE_METERS]: [
         'date', 'address', 'unitName', 'unitType', 'accountNumber', 'resource',
         'number', 'place', 'value1', 'value2', 'value3', 'value4', 'clientName', 'source',
@@ -27,9 +32,11 @@ const EXCEL_TEMPLATES_HEADERS = {
     [EXPORT_TYPE_BUILDINGS]: ['organization', 'address', 'unitsCount', 'uninhabitedUnitsCount', 'ticketsInWork', 'ticketsClosed'],
     [EXPORT_TYPE_TICKETS]: [
         'number', 'source', 'organization', 'property', 'unitName', 'unitType', 'entranceName', 'floorName', 'clientName', 'contact', 'clientPhone',
-        'details', 'isEmergency', 'isWarranty', 'isPaid', 'place', 'category', 'description',
+        'details', 'isEmergency', 'isWarranty', 'isPayable', 'place', 'category', 'description',
         'createdAt', 'updatedAt', 'inworkAt', 'completedAt', 'closedAt', 'status', 'operator', 'executor', 'assignee',
-        'organizationComments', 'residentComments', 'deadline', 'deferredUntil', 'reviewValue', 'reviewComment', 'statusReopenedCounter',
+        'organizationComments', 'residentComments', 'deadline', 'deferredUntil', 'statusReopenedCounter',
+        'feedbackValue', 'feedbackComment', 'feedbackAdditionalOptions', 'feedbackUpdatedAt',
+        'qualityControlValue', 'qualityControlComment', 'qualityControlAdditionalOptions', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy',
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_PROPERTY_STATUS}`]: [
         'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
@@ -48,6 +55,16 @@ const EXCEL_TEMPLATES_HEADERS = {
     ],
     [`${TICKETS_REPORTS_PREFIX}${TICKET_REPORT_STATUS_PROPERTY}`]: [
         'address', 'processing', 'completed', 'canceled', 'deferred', 'closed', 'new_or_reopened',
+    ],
+    [EXPORT_TYPE_PROPERTY_SCOPES]: [
+        'name', 'properties', 'employees',
+    ],
+    [EXPORT_TYPE_INCIDENTS]: [
+        'number', 'addresses', 'classifiers', 'details', 'textForResident', 'status', 'workStart', 'workFinish',
+        'organization', 'createdBy', 'createdAt', 'workType',
+    ],
+    [EXPORT_TYPE_NEWS_RECIPIENTS]: [
+        'address', 'unitName', 'hasResident',
     ],
 }
 
@@ -105,6 +122,8 @@ module.exports = {
     EXPORT_TYPE_METERS,
     EXPORT_TYPE_BUILDINGS,
     EXPORT_TYPE_TICKETS,
+    EXPORT_TYPE_INCIDENTS,
+    EXPORT_TYPE_NEWS_RECIPIENTS,
     TICKETS_REPORTS_PREFIX,
     TICKET_REPORT_PROPERTY_STATUS,
     TICKET_REPORT_STATUS_ASSIGNEE,
@@ -113,6 +132,7 @@ module.exports = {
     TICKET_REPORT_STATUS_EXECUTOR,
     TICKET_REPORT_STATUS_PROPERTY,
     EXCEL_TEMPLATES_HEADERS,
+    EXPORT_TYPE_PROPERTY_SCOPES,
     getHeadersTranslations,
     translationStringKeyForExcelExportHeader,
     ticketStatusesTranslations,

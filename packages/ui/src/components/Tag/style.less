@@ -1,0 +1,32 @@
+@import "antd/lib/tag/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+
+.condo-tag {
+  .condo-typography-h6();
+
+  margin: 0;
+  padding: 0.2em 0.83em 0.3em;
+  border: none;
+  border-radius: @condo-global-border-radius-large;
+
+  &-content {
+    position: relative;
+    display: flex;
+    align-items: center;
+
+    .condo-tag-icon-start,
+    .condo-tag-icon-end {
+      position: relative;
+      display: inline-flex;
+    }
+
+    .condo-tag-icon-start {
+      margin-right: 4px;
+    }
+
+    .condo-tag-icon-end {
+      margin-left: 4px;
+    }
+  }
+}

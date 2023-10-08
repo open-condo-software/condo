@@ -1,33 +1,30 @@
-const get = require('lodash/get')
 const dayjs = require('dayjs')
+const get = require('lodash/get')
 
-const conf = require('@condo/config')
-const { getByCondition, find, getById } = require('@condo/keystone/schema')
+const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getByCondition, find, getById } = require('@open-condo/keystone/schema')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-
+const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
+const { TWO_OR_MORE_SPACES_REGEXP } = require('@condo/domains/common/constants/regexps')
+const { md5 } = require('@condo/domains/common/utils/crypto')
 const {
-    TICKET_ASSIGNEE_CONNECTED_TYPE,
-    TICKET_EXECUTOR_CONNECTED_TYPE,
-    TICKET_STATUS_OPENED_TYPE,
-    TICKET_STATUS_IN_PROGRESS_TYPE,
-    TICKET_STATUS_COMPLETED_TYPE,
-    TICKET_STATUS_RETURNED_TYPE,
-    TICKET_STATUS_DECLINED_TYPE,
-    TICKET_COMMENT_ADDED_TYPE,
-    TRACK_TICKET_IN_DOMA_APP_TYPE,
+    TICKET_ASSIGNEE_CONNECTED_TYPE, TICKET_EXECUTOR_CONNECTED_TYPE, TICKET_STATUS_OPENED_TYPE,
+    TICKET_STATUS_IN_PROGRESS_TYPE, TICKET_STATUS_COMPLETED_TYPE, TICKET_STATUS_RETURNED_TYPE,
+    TICKET_STATUS_DECLINED_TYPE, TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const {
+    sendTicketCommentNotifications: sendTicketCommentNotificationsTask,
+} = require('@condo/domains/ticket/tasks/sendTicketCommentNotifications')
+const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { Ticket, TicketCommentsTime } = require('./serverSchema')
-const { RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
-const { SMS_AFTER_TICKET_CREATION } = require('@condo/domains/common/constants/featureflags')
 
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
@@ -41,7 +38,7 @@ const TICKET_WITHOUT_RESIDENT_CREATED_EVENT_TYPE = 'TICKET_WITHOUT_RESIDENT_CREA
  * @param updatedItem
  * @returns {{}}
  */
-const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
+const detectTicketEventTypes = ({ operation, existingItem, updatedItem }) => {
     const isCreateOperation = operation === 'create'
     const isUpdateOperation = operation === 'update'
     const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
@@ -103,7 +100,7 @@ const detectEventTypes = ({ operation, existingItem, updatedItem }) => {
  * @returns {Promise<void>}
  */
 const sendTicketNotifications = async (requestData) => {
-    const eventTypes = detectEventTypes(requestData)
+    const eventTypes = detectTicketEventTypes(requestData)
     const { operation, existingItem, updatedItem, context } = requestData
     const isCreateOperation =  operation === 'create'
     const prevAssigneeId = !isCreateOperation && get(existingItem, 'assignee')
@@ -147,6 +144,7 @@ const sendTicketNotifications = async (requestData) => {
                     ticketNumber: updatedItem.number,
                     userId,
                     url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                    organizationId: organization.id,
                 },
             },
             sender: updatedItem.sender,
@@ -168,6 +166,7 @@ const sendTicketNotifications = async (requestData) => {
                     ticketNumber: updatedItem.number,
                     userId,
                     url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
+                    organizationId: organization.id,
                 },
             },
             sender: updatedItem.sender,
@@ -242,7 +241,11 @@ const sendTicketNotifications = async (requestData) => {
 
         if (isFeatureEnabled) {
             const today = dayjs().format('YYYY-MM-DD')
-            const uniqKey = `${today}_${clientPhone}`
+            const uniqKey = `${today}_${md5(clientPhone)}`
+            const ticketOrganizationName = get(organization, 'name', '')
+                .replace(ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP, ' ')
+                .trim()
+                .replace(TWO_OR_MORE_SPACES_REGEXP, ' ')
 
             await sendMessage(context, {
                 lang,
@@ -251,6 +254,9 @@ const sendTicketNotifications = async (requestData) => {
                 uniqKey,
                 meta: {
                     dv: 1,
+                    data: {
+                        organization: ticketOrganizationName,
+                    },
                 },
                 sender: updatedItem.sender,
                 organization: { id: organization.id },
@@ -258,67 +264,17 @@ const sendTicketNotifications = async (requestData) => {
         }
     }
 }
-
 const sendTicketCommentNotifications = async (requestData) => {
-    const { updatedItem, context, operation } = requestData
-    const createdBy = get(updatedItem, 'createdBy')
-    const isCreateOperation =  operation === 'create'
+    const { operation, updatedItem } = requestData
 
-    const ticket = await Ticket.getOne(context, { id: updatedItem.ticket })
-    const clientId = get(ticket, 'client.id')
-    const commentType = get(updatedItem, 'type')
-    const client = get(ticket, 'client.id')
-    const organizationId = get(ticket, 'organization.id')
-    const propertyId = get(ticket, 'property.id')
-    const unitName = get(ticket, 'unitName')
-    const unitType = get(ticket, 'unitType')
-    const canReadByResident = get(ticket, 'canReadByResident')
-
-    // Don't send notifications on tickets with canReadByResident === FALSE
-    if (!canReadByResident) return
-
-    if (client && isCreateOperation && createdBy !== client && commentType === RESIDENT_COMMENT_TYPE) {
-        // TODO(DOMA-2822): get rid of this extra request by returning country within nested organization data
-        const organization = await getByCondition('Organization', {
-            id: organizationId,
-            deletedAt: null,
-        })
-
-        /**
-         * Detect message language
-         * Use DEFAULT_LOCALE if organization.country is unknown
-         * (not defined within @condo/domains/common/constants/countries)
-         */
-        const lang = get(COUNTRIES, [organization.country, 'locale'], conf.DEFAULT_LOCALE)
-
-        const where = {
-            user: { id: clientId },
-            property: { id: propertyId },
-            organization: { id: organizationId },
-            unitName,
-            unitType,
-        }
-        const resident = await Resident.getOne(context, where)
-
-        await sendMessage(context, {
-            lang,
-            to: { user: { id: clientId } },
-            type: TICKET_COMMENT_ADDED_TYPE,
-            meta: {
-                dv: 1,
-                data: {
-                    ticketId: ticket.id,
-                    ticketNumber: ticket.number,
-                    userId: clientId,
-                    commentId: updatedItem.id,
-                    url: `${conf.SERVER_URL}/ticket/${ticket.id}`,
-                    residentId: get(resident, 'id', null),
-                },
-            },
-            sender: updatedItem.sender,
-            organization: { id: organization.id },
-        })
-    }
+    await sendTicketCommentNotificationsTask.delay({
+        operation,
+        ticketId: get(updatedItem, 'ticket'),
+        createdById: get(updatedItem, 'createdBy'),
+        commentId: updatedItem.id,
+        commentType: get(updatedItem, 'type'),
+        sender: updatedItem.sender,
+    })
 }
 
 const createOrUpdateTicketCommentsTime = async (context, updatedItem, userType) => {
@@ -402,7 +358,7 @@ const updateTicketLastCommentTime = async (context, updatedItem, userType) => {
 module.exports = {
     sendTicketNotifications,
     sendTicketCommentNotifications,
-    detectEventTypes,
+    detectTicketEventTypes,
     createOrUpdateTicketCommentsTime,
     updateTicketLastCommentTime,
     ASSIGNEE_CONNECTED_EVENT_TYPE,

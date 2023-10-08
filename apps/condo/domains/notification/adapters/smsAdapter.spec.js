@@ -1,5 +1,6 @@
+const conf = require('@open-condo/config')
+
 const { SMSAdapter } = require('./smsAdapter')
-const conf = require('@condo/config')
 
 const TEST_PHONE_NUMBER = conf.SMS_TEST_PHONE || '88009232323'
 const NOT_VALID_PHONE_NUMBER = '+55555555555'

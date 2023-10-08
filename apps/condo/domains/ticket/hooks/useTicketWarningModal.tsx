@@ -1,9 +1,9 @@
-import React, { Dispatch, SetStateAction, useCallback, useState } from 'react'
 import { Col, Row, Typography } from 'antd'
+import React, { Dispatch, SetStateAction, useCallback, useState } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
+import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button } from '@open-condo/ui'
+
 import { MAX_FILTERED_ELEMENTS } from '@condo/domains/ticket/constants/restrictions'
 
 interface IUseTicketWarningModal {
@@ -30,14 +30,12 @@ export const useTicketWarningModal: IUseTicketWarningModal = (selectedEntity) =>
 
     const TicketWarningModal: React.FC = () => (
         <Modal
-            closable={false}
-            visible={isVisible}
+            open={isVisible}
             onCancel={closeModal}
             footer={[
                 <Button
                     key='submit'
-                    size='large'
-                    type='sberPrimary'
+                    type='primary'
                     onClick={closeModal}
                 >{ConfirmTitle}</Button>,
             ]}

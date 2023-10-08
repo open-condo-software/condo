@@ -1,8 +1,10 @@
-const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@open-condo/keystone/test.utils')
 
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj } = require('@condo/keystone/test.utils')
 
+const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../gql')
 const {
     createTestOrganizationEmployee,
     createTestOrganizationEmployeeRole,
@@ -11,8 +13,6 @@ const {
     inviteNewOrganizationEmployee,
     makeClientWithRegisteredOrganization,
 } = require('../utils/testSchema')
-const { GET_ORGANIZATION_EMPLOYEE_BY_ID_WITH_INVITE_CODE_QUERY } = require('../gql')
-const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 
 describe('AcceptOrRejectOrganizationInviteService', () => {
     describe('acceptOrRejectOrganizationInviteById', () => {
@@ -21,7 +21,8 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const client1 = await makeClientWithRegisteredOrganization()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
                 const [accepted] = await acceptOrRejectOrganizationInviteById(client2, invite)
 
                 expect(accepted).toEqual(expect.objectContaining({
@@ -40,7 +41,8 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const client1 = await makeClientWithRegisteredOrganization()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
 
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite))
                 await expectToThrowAccessDeniedErrorToObj(async () => await acceptOrRejectOrganizationInviteById(client1, invite, { isRejected: true }))
@@ -53,7 +55,8 @@ describe('AcceptOrRejectOrganizationInviteService', () => {
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const anonymous = await makeClient()
 
-                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs)
+                const [role] = await createTestOrganizationEmployeeRole(client1, client1.organization)
+                const [invite] = await inviteNewOrganizationEmployee(client1, client1.organization, client2.userAttrs, role)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await acceptOrRejectOrganizationInviteById(anonymous, invite)

@@ -4,10 +4,11 @@
 
 const { Relationship } = require('@keystonejs/fields')
 
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const access = require('@condo/domains/ticket/access/TicketPropertyHintProperty')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const access = require('@condo/domains/ticket/access/TicketPropertyHintProperty')
 
 const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty', {
     schemaDoc: 'Join entity for many-to-many relations, that determines a Property to which the TicketPropertyHint belongs',

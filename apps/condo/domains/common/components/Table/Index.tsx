@@ -1,20 +1,25 @@
-import React, { useCallback, useMemo } from 'react'
-import { ColumnsType } from 'antd/es/table/interface'
 import { Table as DefaultTable, TableProps } from 'antd'
-import get from 'lodash/get'
+import { ColumnsType } from 'antd/es/table/interface'
+import { TablePaginationConfig } from 'antd/lib/table/interface'
 import debounce from 'lodash/debounce'
+import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import { useRouter } from 'next/router'
+import { GetRowKey } from 'rc-table/lib/interface'
+import { TableProps as RcTableProps } from 'rc-table/lib/Table'
+import React, { useCallback, useMemo } from 'react'
+
+import { ChevronDown, ChevronUp } from '@open-condo/icons'
+
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import {
     getPageIndexFromOffset,
     parseQuery,
     FULL_TO_SHORT_ORDERS_MAP,
     FiltersFromQueryType,
 } from '@condo/domains/common/utils/tables.utils'
-import isEqual from 'lodash/isEqual'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
-import { TableProps as RcTableProps } from 'rc-table/lib/Table'
-import { TablePaginationConfig } from 'antd/lib/table/interface'
-import { GetRowKey } from 'rc-table/lib/interface'
+
 import { useLayoutContext } from '../LayoutContext'
 
 export type TableRecord = any
@@ -28,10 +33,10 @@ interface ITableProps extends TableProps<TableRecord> {
     columns: Array<Record<string, unknown>> | ColumnsType<TableRecord>
     onRow?: (record: TableRecord, index?: number) => React.HTMLAttributes<HTMLElement>
     applyQuery?: (queryParams) => Promise<boolean>
-    shouldHidePaginationOnSinglePage?: boolean,
+    shouldHidePaginationOnSinglePage?: boolean
 }
 
-type TableScrollConfig = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; }
+type TableScrollConfig = RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean }
 
 export const DEFAULT_PAGE_SIZE = 30
 const TABLE_STYLE = { width: 'auto' }
@@ -126,9 +131,8 @@ export const Table: React.FC<ITableProps> = ({
             return applyQuery(queryParams)
         }
         else {
-            // The `queryParams` contains only filters, sort and offset, so we can use `updateQuery`.
-            // In case of additional parameters, we have to use custom code or modify `updateQuery` signature.
-            return updateQuery(router, newFilters, newSorters, newOffset)
+            const newParameters = getFiltersQueryData(newFilters, newSorters, newOffset)
+            return updateQuery(router, { newParameters }, { resetOldParameters: false })
         }
     }, 400)
 
@@ -148,4 +152,57 @@ export const Table: React.FC<ITableProps> = ({
             {...otherTableProps}
         />
     )
+}
+
+const DEFAULT_EXPANDABLE_COLUMN_WIDTH = '60px'
+const ICON_STUB_WIDTH = { width: '20px' }
+export const EXPANDABLE_COLUMN_STUB = {
+    width: DEFAULT_EXPANDABLE_COLUMN_WIDTH,
+    render: () => <div style={ICON_STUB_WIDTH} />,
+}
+
+export const ExpandableTable: React.FC<ITableProps> = (props) => {
+    const { expandable, ...tableProps } = props
+    const dataSource = props.dataSource
+
+    const getExpandIcon = useCallback(({ expanded, onExpand, record }) =>
+        expanded ? (
+            <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
+        ) : (
+            <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
+        ), [])
+
+    const getRowClassName = useCallback((record, index) => {
+        const classNames = ['condo-table-expandable-row']
+
+        if (record.expanded) {
+            classNames.push('condo-table-expandable-row-expanded')
+        }
+        if (index === dataSource.length - 1) {
+            classNames.push('condo-table-expandable-row-last-row')
+        }
+
+        return classNames.join(' ')
+    }, [dataSource.length])
+
+    const getExpandedRowClassName = useCallback(() => 'condo-table-expandable-row-inner-row', [])
+
+    const handleExpand = useCallback((expanded, record) => record.expanded = expanded, [])
+
+    const expandableConfig = useMemo(() => ({
+        indentSize: 0,
+        expandRowByClick: true,
+        columnWidth: DEFAULT_EXPANDABLE_COLUMN_WIDTH,
+        expandedRowClassName: getExpandedRowClassName,
+        onExpand: handleExpand,
+        expandIcon: getExpandIcon,
+        ...expandable,
+    }), [expandable, getExpandIcon, getExpandedRowClassName, handleExpand])
+
+    return <Table
+        sticky
+        rowClassName={getRowClassName}
+        expandable={expandableConfig}
+        {...tableProps}
+    />
 }

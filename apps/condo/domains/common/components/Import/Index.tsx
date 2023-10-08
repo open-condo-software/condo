@@ -1,4 +1,13 @@
+import { DownloadOutlined } from '@ant-design/icons'
+import { Modal, Popover, Typography, Space } from 'antd'
+import isFunction from 'lodash/isFunction'
 import React, { useCallback, useRef } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
+import { useImporter } from '@condo/domains/common/hooks/useImporter'
 import {
     Columns,
     RowNormalizer,
@@ -7,9 +16,8 @@ import {
     ProcessedRow,
     MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
-import { Modal, Popover, Typography, Space } from 'antd'
-import { useImporter } from '@condo/domains/common/hooks/useImporter'
-import { useIntl } from '@condo/next/intl'
+
+
 import {
     ModalContext,
     getUploadSuccessModalConfig,
@@ -17,12 +25,11 @@ import {
     getUploadProgressModalConfig,
     getPartlyLoadedModalConfig,
 } from './ModalConfigs'
-import { DataImporter } from '../DataImporter'
+
 import { Button } from '../Button'
-import { DownloadOutlined } from '@ant-design/icons'
-import { DEFAULT_RECORDS_LIMIT_FOR_IMPORT } from '@condo/domains/common/constants/import'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
-import isFunction from 'lodash/isFunction'
+import { DataImporter } from '../DataImporter'
+
+
 
 interface IColumnsInfoBoxProps {
     columns: Columns
@@ -66,7 +73,7 @@ const ColumnsInfoBox: React.FC<IColumnsInfoBoxProps> = ({ columns, domainTransla
         [exampleTemplateLink],
     )
 
-    const fieldsString = columns.filter(({ required }) => required).map(column => `"${column.label}"`).join(', ')
+    const fieldsString = columns.filter(({ required }) => required).map(column => `"${column.name}"`).join(', ')
 
     return (
         <Space direction='vertical' size={10} style={{ maxWidth: 300 }}>
@@ -203,7 +210,9 @@ const ImportWrapper: React.FC<IImportWrapperProps> = (props) => {
                             exampleTemplateLink={exampleTemplateLink}
                             domainTranslate={domainTranslate}
                         />}
-                    >{props.children}</Popover>
+                    >
+                        {props.children}
+                    </Popover>
                 </DataImporter>
                 {contextHolder}
             </ModalContext.Provider>

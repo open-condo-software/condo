@@ -1,5 +1,5 @@
-import React from 'react'
 import { User } from '@app/condo/schema'
+import React from 'react'
 
 // Should be used in case when there is no technical way to tell exactly the progress of the task
 export const TASK_PROGRESS_UNKNOWN = 'TASK_PROGRESS_UNKNOWN'
@@ -55,7 +55,7 @@ export type TaskRecord = {
  */
 export type TaskProgressTranslations = {
     title: (task: TaskRecord) => string
-    description: (task: TaskRecord) => string
+    description: (task: TaskRecord) => string | React.ReactNode
 }
 
 // Meaning of task progress is domain specific
@@ -65,6 +65,7 @@ export type CalculateProgressFunc = (taskRecord: unknown) => TaskRecordProgress
 
 export type OnCompleteFunc = (taskRecord: unknown) => void
 export type OnCancelFunc = (taskRecord: unknown) => void
+export type OnErrorFunc = (taskRecord: unknown) => void
 
 type StopPollingFunction = () => void
 
@@ -108,6 +109,7 @@ export interface ITask {
     calculateProgress: CalculateProgressFunc
     onComplete: OnCompleteFunc
     onCancel: OnCancelFunc
+    onError?: OnErrorFunc
 }
 
 /**

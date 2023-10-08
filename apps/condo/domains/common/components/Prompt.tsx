@@ -1,11 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { useRouter } from 'next/router'
-import { isEqual, pick } from 'lodash'
 import { FormInstance } from 'antd'
+import { isEqual, pick } from 'lodash'
+import { useRouter } from 'next/router'
+import React, { useEffect, useState, useRef } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
+import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button } from '@open-condo/ui'
 
 interface IPromptProps {
     title: string
@@ -42,42 +41,48 @@ const Prompt: React.FC<IPromptProps> = ({ children, title, form, handleSave: for
         return !isEqual(initialFormState.current, newFormFields)
     }
     useEffect(() => {
-        initialFormState.current = form.getFieldsValue()
-        // Todo(zuch): find a better way to turn off Prompt on form submit
-        const oldFormSubmit = form.submit
-        form.submit = () => {
-            isIgnoringPrompt.current = true
-            oldFormSubmit.call(form)
-        }
-        const onRouteChange = url => {
-            if (!isIgnoringPrompt.current) {
-                if (isFormChanged()) {
-                    setNext(url)
-                    showModal()
-                    // Todo(zuch): wait for next.js implement router abort method and remove custom error
-                    // https://github.com/vercel/next.js/issues/2476
-                    throw 'Preventing form from close (ignore this error)'
+        if (typeof window !== 'undefined') {
+            const isWebview = document.querySelector('body.webview')
+            if (isWebview) {
+                return
+            }
+
+            initialFormState.current = form.getFieldsValue()
+            // Todo(zuch): find a better way to turn off Prompt on form submit
+            const oldFormSubmit = form.submit
+            form.submit = () => {
+                isIgnoringPrompt.current = true
+                oldFormSubmit.call(form)
+            }
+            const onRouteChange = url => {
+                if (!isIgnoringPrompt.current) {
+                    if (isFormChanged()) {
+                        setNext(url)
+                        showModal()
+                        // Todo(zuch): wait for next.js implement router abort method and remove custom error
+                        // https://github.com/vercel/next.js/issues/2476
+                        throw 'Preventing form from close (ignore this error)'
+                    }
                 }
             }
-        }
-        router.events.on('routeChangeStart', onRouteChange)
-        return () => {
-            router.events.off('routeChangeStart', onRouteChange)
-            form.submit = oldFormSubmit
+            router.events.on('routeChangeStart', onRouteChange)
+            return () => {
+                router.events.off('routeChangeStart', onRouteChange)
+                form.submit = oldFormSubmit
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
     return (
         <Modal
-            visible={isModalVisible}
+            open={isModalVisible}
             onCancel={hideModal}
             title={title}
-            centered
             footer={[
-                <Button key='back' type='sberDanger' style={{ margin: '16px' }} onClick={handleCancel}>
+                <Button key='back' danger type='secondary' onClick={handleCancel}>
                     {LeaveLabel}
                 </Button>,
-                <Button key='submit' type='sberPrimary' onClick={handleSave}>
+                <Button key='submit' type='primary' onClick={handleSave}>
                     {SaveLabel}
                 </Button>,
             ]}

@@ -1,19 +1,20 @@
 const Queue = require('bull')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
-const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
-const { getRedisClient } = require('./redis')
+const { _internalGetExecutionContextAsyncLocalStorage } = require('./executionContext')
 const { getLogger } = require('./logging')
+const { getRedisClient } = require('./redis')
+const { prepareKeystoneExpressApp, getRandomString } = require('./test.utils')
 
 const TASK_TYPE = 'TASK'
 const WORKER_CONCURRENCY = parseInt(conf.WORKER_CONCURRENCY || '2')
-
+const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
 // NOTE: If this is True, all tasks will be executed in the node process with setTimeout.
 const FAKE_WORKER_MODE = conf.TESTS_FAKE_WORKER_MODE
 const logger = getLogger('worker')
 
-const taskQueue = new Queue('tasks', {
+const taskQueue = (IS_BUILD) ? undefined : new Queue('tasks', {
     /**
      * @param {'client' | 'subscriber' | 'bclient'} type
      * @return {import('ioredis')}
@@ -63,6 +64,7 @@ async function _scheduleRemoteTask (name, preparedArgs, preparedOpts) {
     logger.info({ msg: 'Scheduling task', name, data: { preparedArgs, preparedOpts } })
     const job = await taskQueue.add(name, { args: preparedArgs }, preparedOpts)
     return {
+        id: String(job.id),
         getState: async () => {
             return await job.getState()
         },
@@ -104,6 +106,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
             logger.info({ msg: 'Executing task', name, data: { preparedArgs, preparedOpts } })
             result = await executeTask(name, preparedArgs, job)
             status = 'completed'
+            logger.info({ msg: 'Task result', name, status, data: { result, preparedArgs, preparedOpts } })
         } catch (e) {
             logger.error({ msg: 'Error executing task', name, error: e, data: { preparedArgs, preparedOpts } })
             status = 'error'
@@ -114,6 +117,7 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     setTimeout(executor, 1)
 
     return {
+        id: job.id,
         getState: async () => { return Promise.resolve(status) },
         awaitResult: async () => {
             return new Promise((res, rej) => {
@@ -131,22 +135,36 @@ async function _scheduleInProcessTask (name, preparedArgs, preparedOpts) {
     }
 }
 
+/**
+ * Internal function! please don't use it directly! Use `task.delay(..)`
+ * @deprecated for any external usage!
+ */
+async function scheduleTaskByNameWithArgsAndOpts (name, args, opts = {}) {
+    if (typeof name !== 'string' || !name) throw new Error('task name invalid or empty')
+    if (!isSerializable(args)) throw new Error('task args is not serializable')
+
+    const preparedArgs = createSerializableCopy([...args])
+    const preparedOpts = {
+        ...globalTaskOptions,
+        ...opts,
+    }
+
+    if (FAKE_WORKER_MODE) {
+        return await _scheduleInProcessTask(name, preparedArgs, preparedOpts)
+    }
+
+    return await _scheduleRemoteTask(name, preparedArgs, preparedOpts)
+}
+
 function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     async function applyAsync (args, taskOptions) {
-        if (!isSerializable(args)) throw new Error('arguments is not serializable')
-
-        const preparedArgs = createSerializableCopy([...args])
         const preparedOpts = {
             ...globalTaskOptions,
             ...defaultTaskOptions,
             ...taskOptions,
         }
 
-        if (FAKE_WORKER_MODE) {
-            return await _scheduleInProcessTask(name, preparedArgs, preparedOpts)
-        }
-
-        return await _scheduleRemoteTask(name, preparedArgs, preparedOpts)
+        return await scheduleTaskByNameWithArgsAndOpts(name, args, preparedOpts)
     }
 
     async function delay () {
@@ -156,6 +174,8 @@ function createTaskWrapper (name, fn, defaultTaskOptions = {}) {
     function errorTaskCallPrevent () {
         throw new Error('This function is converted to a task, and you need to use fn.delay(...) to call the tasks')
     }
+
+    if (fn.delay || fn.applyAsync) throw new Error('You trying to create two tasks for one function! You MUST use one function only for one task!')
 
     fn.delay = delay
     fn.applyAsync = applyAsync
@@ -194,12 +214,18 @@ function isSerializable (data) {
 }
 
 function executeTask (name, args, job = null) {
+    // Since executeTask is synchronous we should use enterWith:
+    // From the docs:
+    // Transitions into the context for the remainder of the current synchronous execution and then persists the store through any following asynchronous calls.
+    _internalGetExecutionContextAsyncLocalStorage().enterWith({ taskId: job.id, taskName: job.name })
+
     if (!TASKS.has(name)) throw new Error(`executeTask: Unknown task name ${name}`)
     if (!isSerializable(args)) throw new Error('executeTask: args is not serializable')
 
     const fn = TASKS.get(name)
+    const result = fn.apply(job, args)
 
-    return fn.apply(job, args)
+    return result
 }
 
 function getTaskLoggingContext (job) {
@@ -270,4 +296,5 @@ module.exports = {
     removeCronTask,
     registerTasks,
     createWorker,
+    scheduleTaskByNameWithArgsAndOpts,
 }

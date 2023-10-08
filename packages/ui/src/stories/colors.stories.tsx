@@ -1,10 +1,13 @@
-import React from 'react'
-import get from 'lodash/get'
-import { styled } from '@storybook/theming'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { colors } from '@condo/ui/colors'
-import tokens from '@condo/ui/src/tokens/tokens.json'
+import { styled } from '@storybook/theming'
 import { identity } from 'lodash'
+import get from 'lodash/get'
+import React from 'react'
+
+import { Space } from '@open-condo/ui/src'
+import { Typography, Card } from '@open-condo/ui/src'
+import { colors } from '@open-condo/ui/src/colors'
+import tokens from '@open-condo/ui/src/tokens/tokens.json'
 
 type SwatchColors = { [key: string]: string }
 type SwatchColorsWithDescription = { [key: string]: { value: string, description?: string } }
@@ -61,27 +64,42 @@ type ColorItemProps = {
     value: string
     description?: string
 }
+
+const ColorBox = styled.div`
+  width: 100%;
+  height: 100px;
+`
+
 const ColorItem: React.FC<ColorItemProps> = ({ name, value, description }) => {
     return (
-        <div className='item'>
-            <div className='color' style={{ background: value }}/>
-            <span>
-                <span className='name'>{name}&nbsp;</span>
-                <span className='value'>{value}</span>
-            </span>
-            <span className='description'>{description}</span>
-        </div>
+        <Card
+            title={<ColorBox style={{ background: value }}/>}
+            titlePadding={0}
+            bodyPadding={12}
+        >
+            <Space direction='vertical' size={12}>
+                <Typography.Paragraph>
+                    <Typography.Text strong>{name}&nbsp;</Typography.Text>
+                    <Typography.Text type='secondary'>{value}</Typography.Text>
+                </Typography.Paragraph>
+                {Boolean(description) && (
+                    <Typography.Paragraph type='secondary' size='medium'>
+                        {description}
+                    </Typography.Paragraph>
+                )}
+            </Space>
+        </Card>
     )
 }
+
 const StyledSwatch = styled.div`
   width: 100%;
   max-width: 100%;
   &:not(:first-child) {
     margin-top: 40px;
   }
-  & > .title {
+  & > *:first-child {
     margin-bottom: 20px;
-    font-weight: 700;
   }
   & > .container {
     display: grid;
@@ -94,38 +112,12 @@ const StyledSwatch = styled.div`
     @media(max-width: 480px) {
       grid-template-columns: repeat(2, 1fr);
     }
-    & > .item {
-      display: flex;
-      flex-direction: column;
-      & > .color {
-        width: 100%;
-        height: 80px;
-        border-radius: 12px;
-        box-shadow: 0 4px 14px #E6E8F1;
-      }
-      & > * {
-        word-break: break-word;
-      }
-      & .name {
-        //TODO(DOMA-4415): Replace with typography story / our component
-        color: #222;
-        font-weight: 600;
-      }
-      & *:not(.name) {
-        //TODO(DOMA-4415): Replace with typography story / our component
-        color: #707695;
-      }
-      & > *:not(:last-child) {
-        margin-bottom: 12px;
-      }
-    }
   }
 `
 const ColorSwatch: React.FC<SwatchWithDescription> = ({ title, colors }) => {
     return (
         <StyledSwatch>
-            {/*TODO(DOMA-4415): Replace with typography story / our component*/}
-            <h2 className='title'>{title}</h2>
+            <Typography.Title level={2}>{title}</Typography.Title>
             <div className='container'>
                 {Object.keys(colors).map((name, index) => (
                     <ColorItem

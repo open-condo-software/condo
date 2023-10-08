@@ -1,6 +1,6 @@
-const { createCronTask } = require('@condo/keystone/tasks')
-const { getLogger } = require('@condo/keystone/logging')
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 
 const { SEND_SUBMIT_METER_READINGS_PUSH_NOTIFICATIONS_TASK } = require('@condo/domains/common/constants/featureflags')
 
@@ -24,6 +24,6 @@ const sendSubmitMeterReadingsPushNotificationsTaskFn = async (context = null) =>
 /**
  * Syncs new and cancelled subscriptions
  */
-const sendSubmitMeterReadingsPushNotificationsTask = createCronTask('sendSubmitMeterReadingsPushNotifications', '0 14 21 * *', sendSubmitMeterReadingsPushNotificationsTaskFn)
+const sendSubmitMeterReadingsPushNotificationsTask = createCronTask('sendSubmitMeterReadingsPushNotifications', '0 14 * * *', sendSubmitMeterReadingsPushNotificationsTaskFn)
 
 module.exports = sendSubmitMeterReadingsPushNotificationsTask

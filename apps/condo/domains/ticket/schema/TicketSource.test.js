@@ -1,11 +1,10 @@
 const isEmpty = require('lodash/isEmpty')
 
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { getAvailableLocales, getTranslations } = require('@open-condo/locales/loader')
 
-const { getAvailableLocales, getTranslations } = require('@condo/locales/loader')
-
-const { TicketSource } = require('@condo/domains/ticket/utils/testSchema')
 const { TICKET_SOURCE_PREFIX } = require('@condo/domains/ticket/constants/common')
+const { TicketSource } = require('@condo/domains/ticket/utils/testSchema')
 
 const TICKET_SOURCE_IDS_BY_TYPE = {
     EMAIL: '0e9af80b-b5f0-4667-9f8e-577f1cab1a21',

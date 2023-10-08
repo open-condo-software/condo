@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react'
-import get from 'lodash/get'
 import { Input as BaseInput, InputProps } from 'antd'
+import get from 'lodash/get'
+import React, { useEffect, useRef } from 'react'
+
 import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '../TrackingContext'
 
 export interface CustomInputProps extends InputProps {

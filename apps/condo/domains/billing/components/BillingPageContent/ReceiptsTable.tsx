@@ -1,81 +1,81 @@
-import React, { useCallback, useState } from 'react'
-import { IContextProps } from './index'
+import { SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'
+import { Row, Col, Typography, Space } from 'antd'
+import dayjs from 'dayjs'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo, useState, CSSProperties } from 'react'
+
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useIntl } from '@open-condo/next/intl'
+
+import { ServicesModal } from '@condo/domains/billing/components/BillingPageContent/ServicesModal'
+import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
+import { useReceiptTableFilters } from '@condo/domains/billing/hooks/useReceiptTableFilters'
+import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
+import Input from '@condo/domains/common/components/antd/Input'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import DatePicker from '@condo/domains/common/components/Pickers/DatePicker'
+import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
+import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
+import { updateQuery } from '@condo/domains/common/utils/helpers'
 import {
-    QueryMeta,
-    getStringContainsFilter,
     getPageIndexFromOffset,
     parseQuery,
 } from '@condo/domains/common/utils/tables.utils'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
-import { Table, DEFAULT_PAGE_SIZE } from '@condo/domains/common/components/Table/Index'
-import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
-import { BillingReceiptWhereInput, SortBillingReceiptsBy, BillingReceipt as BillingReceiptType } from '@app/condo/schema'
-import get from 'lodash/get'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
-import { usePeriodSelector } from '@condo/domains/billing/hooks/usePeriodSelector'
-import { Row, Col, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
-import Select from '@condo/domains/common/components/antd/Select'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { useReceiptTableColumns } from '@condo/domains/billing/hooks/useReceiptTableColumns'
-import { ServicesModal } from '../ServicesModal'
 
-const addressFilter = getStringContainsFilter(['property', 'address'])
-const unitNameFilter = getStringContainsFilter(['account', 'unitName'])
-const accountFilter = getStringContainsFilter(['account', 'number'])
-const periodFilter = (period: string) => ({ period })
-const staticQueryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
-    { keyword: 'address', filters: [addressFilter] },
-    { keyword: 'unitName', filters: [unitNameFilter] },
-    { keyword: 'account', filters: [accountFilter] },
-]
+import { useBillingAndAcquiringContexts } from './ContextProvider'
 
 const SORTABLE_PROPERTIES = ['toPay']
+const INPUT_STYLE: CSSProperties = { width: '18em' }
 
-export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
+export const ReceiptsTable: React.FC = () => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
-    const DataForTitle = intl.formatMessage({ id: 'DataFor' })
     const LoadingErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
+
+    const { billingContext } = useBillingAndAcquiringContexts()
+    const currencyCode = get(billingContext, ['integration', 'currencyCode'], 'RUB')
+    const reportPeriod = get(billingContext, ['lastReport', 'period'], null)
+    const contextId = get(billingContext, 'id', null)
+    const hasToPayDetails = get(billingContext, ['integration', 'dataFormat', 'hasToPayDetails'], false)
+    const hasServices = get(billingContext, ['integration', 'dataFormat', 'hasServices'], false)
+    const hasServicesDetails = get(billingContext, ['integration', 'dataFormat', 'hasServicesDetails'], false)
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const filtersFromQuery: Record<string, string | unknown> = useMemo(() => getFiltersFromQuery(router.query), [router.query])
 
-    const contextPeriod = get(context, ['lastReport', 'period'], null)
-    const currencyCode = get(context, ['integration', 'currencyCode'], 'RUB')
+    const [search, handleSearchChange] = useSearch()
+    const filterMetas = useReceiptTableFilters(reportPeriod, search)
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, SORTABLE_PROPERTIES)
 
-    const queryMetas: Array<QueryMeta<BillingReceiptWhereInput>> = [
-        ...staticQueryMetas,
-        { keyword: 'period', filters: [periodFilter], defaultValue: contextPeriod },
-        { keyword: 'search', filters: [addressFilter, unitNameFilter, accountFilter], combineType: 'OR' },
-    ]
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, SORTABLE_PROPERTIES)
+    const onPeriodChange = useMemo(() => async (periodString) => {
+        setPeriod(periodString)
+        const newParameters = getFiltersQueryData({ ...filtersFromQuery, period: periodString ? dayjs(periodString).format( 'YYYY-MM-01') : null })
+        await updateQuery(router, { newParameters })
+    }, [router, filtersFromQuery])
+
     const {
         loading,
         count: total,
         objs: receipts,
         error,
     } = BillingReceipt.useObjects({
-        where: { ...filtersToWhere(filters), context: { id: context.id } },
+        where: { ...filtersToWhere(filters), context: { id: contextId } },
         sortBy: sortersToSortBy(sorters) as SortBillingReceiptsBy[],
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     })
 
-    const [search, handleSearchChange] = useSearch()
-    const [period, options, handlePeriodChange] = usePeriodSelector(contextPeriod)
-
-    const hasToPayDetails = get(context, ['integration', 'dataFormat', 'hasToPayDetails'], false)
-    const hasServices = get(context, ['integration', 'dataFormat', 'hasServices'], false)
-    const hasServicesDetails = get(context, ['integration', 'dataFormat', 'hasServicesDetails'], false)
-
-    const mainTableColumns = useReceiptTableColumns(hasToPayDetails, currencyCode)
+    const mainTableColumns = useReceiptTableColumns(filterMetas, hasToPayDetails, currencyCode)
 
     const [modalIsVisible, setModalIsVisible] = useState(false)
     const [detailedReceipt, setDetailedReceipt] = useState<BillingReceiptType>(null)
+    const [period, setPeriod] = useState(dayjs(reportPeriod))
     const showServiceModal = (receipt: BillingReceiptType) => {
         setModalIsVisible(true)
         setDetailedReceipt(receipt || null)
@@ -84,6 +84,27 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     const hideServiceModal = () => {
         setModalIsVisible(false)
     }
+    
+    useDeepCompareEffect(()=>{
+        const filtersPeriod = get(filters, 'period')
+        if (filtersPeriod) {
+            setPeriod(dayjs(filtersPeriod as string))
+        }
+    }, [filters])
+
+    const periodMetaSelect = useMemo(() => {
+        return (
+            <Space direction='vertical' size={12}>
+                <DatePicker
+                    style={INPUT_STYLE}
+                    value={period}
+                    onChange={onPeriodChange}
+                    picker='month'
+                    format='MMMM YYYY'
+                />
+            </Space>
+        )
+    }, [period, onPeriodChange])
 
     const onRow = useCallback((record: BillingReceiptType) => {
         return {
@@ -108,34 +129,19 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
     return (
         <>
             <Row gutter={[0, 40]}>
-                <Col span={7}>
-                    <Input
-                        placeholder={SearchPlaceholder}
-                        onChange={(e) => {handleSearchChange(e.target.value)}}
-                        value={search}
-                        allowClear
-                    />
+                <Col span={24}>
+                    <Row gutter={[20, 20]}>
+                        <Col xs={24} md={7}>
+                            <Input
+                                placeholder={SearchPlaceholder}
+                                onChange={(e) => {handleSearchChange(e.target.value)}}
+                                value={search}
+                                allowClear
+                            />
+                        </Col>
+                        <Col xs={24} md={8}>{periodMetaSelect}</Col>
+                    </Row>
                 </Col>
-                {options.length > 0 && (
-                    <Col span={7} offset={1}>
-                        <Select
-                            defaultValue={contextPeriod}
-                            value={period}
-                            onChange={(newValue) => handlePeriodChange(newValue)}
-                        >
-                            {
-                                options.map((option, index) => {
-                                    return (
-                                        <Select.Option value={option.value} key={index}>
-                                            {`${DataForTitle} ${option.title}`}
-                                        </Select.Option>
-                                    )
-                                })
-                            }
-                        </Select>
-                    </Col>
-
-                )}
                 <Col span={24}>
                     <Table
                         loading={loading}
@@ -149,7 +155,6 @@ export const ReceiptsTable: React.FC<IContextProps> = ({ context }) => {
             <ServicesModal
                 receipt={detailedReceipt}
                 visible={modalIsVisible}
-                onOk={hideServiceModal}
                 onCancel={hideServiceModal}
                 isDetailed={hasServicesDetails}
                 currencyCode={currencyCode}

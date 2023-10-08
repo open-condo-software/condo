@@ -18,7 +18,7 @@ const getMonthStart = (dateRaw, shouldFormat = false) => {
 /**
  * Returns dates for first day of previous, current and next months formatted to DATE_FORMAT
  * Usable for periods of billing receipts, etc.
- * @returns {{thisMonthStart, nextMonthStart}}
+ * @returns {{prevMonthStart, thisMonthStart, nextMonthStart}}
  */
 const getStartDates = (dateRaw) => {
     const date = getMonthStart(dateRaw)
@@ -30,9 +30,16 @@ const getStartDates = (dateRaw) => {
     }
 }
 
+/**
+ * Returns current seconds count from Epoch start UTC
+ * @returns {number}
+ */
+const getCurrTimeStamp = () => Math.floor(Date.now() / 1000)
+
 module.exports = {
     getMonthStart,
     getStartDates,
+    getCurrTimeStamp,
     DATE_FORMAT,
     DATE_FORMAT_Z,
 }

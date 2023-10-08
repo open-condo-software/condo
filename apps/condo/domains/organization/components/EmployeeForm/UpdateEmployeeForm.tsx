@@ -1,52 +1,49 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import { Card, Col, Form, Row, Space, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
+import { jsx } from '@emotion/react'
+import { Col, Form, Row, Typography } from 'antd'
+import { difference, find, get } from 'lodash'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { useApolloClient } from '@condo/next/apollo'
-import { Button } from '@condo/domains/common/components/Button'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
-import { useAuth } from '@condo/next/auth'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { EmployeeRoleSelect } from '../EmployeeRoleSelect'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { Rule } from 'rc-field-form/lib/interface'
+import React, { useCallback, useEffect, useMemo } from 'react'
+
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Alert, Button } from '@open-condo/ui'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { EmployeeRoleSelect } from '@condo/domains/organization/components/EmployeeRoleSelect'
+import { useEmployeeValidations } from '@condo/domains/organization/hooks/useEmployeeValidations'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { OrganizationEmployee, OrganizationEmployeeRole } from '@condo/domains/organization/utils/clientSchema'
 import {
     ClassifiersQueryRemote,
     TicketClassifierTypes,
 } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
-import { find, get } from 'lodash'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
-import { colors, shadows } from '@condo/domains/common/constants/style'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
-        span: 11,
+        span: 8,
     },
     wrapperCol: {
-        span: 13,
-    },
-    style: {
-        maxWidth: '453px',
+        span: 14,
     },
 }
-const CardCss = css`
-  width: 300px;
-  height: fit-content;
-  box-shadow: ${shadows.elevated};
-`
 
-export const UpdateEmployeeForm = () => {
+export const UpdateEmployeeForm: React.FC = () => {
     const intl = useIntl()
     const ApplyChangesMessage = intl.formatMessage({ id: 'ApplyChanges' })
-    const EmployeeUpdateTitle = intl.formatMessage({ id: 'profile.Employee.Update' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
     const RoleLabel = intl.formatMessage({ id: 'employee.Role' })
     const EmailLabel = intl.formatMessage({ id: 'field.EMail' })
     const ExampleEmailMsg = intl.formatMessage({ id: 'example.Email' })
@@ -54,21 +51,35 @@ export const UpdateEmployeeForm = () => {
     const PositionLabel = intl.formatMessage({ id: 'employee.Position' })
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
+    const CheckAllMessage = intl.formatMessage({ id: 'CheckAll' })
+    const PromptTitle = intl.formatMessage({ id: 'form.prompt.title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
 
+    const { organization } = useOrganization()
     const { query, push } = useRouter()
     const classifiersLoader = new ClassifiersQueryRemote(useApolloClient())
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
-    const { obj: employee, loading: employeeLoading, error: employeeError, refetch } = OrganizationEmployee.useObject({ where: { id: String(get(query, 'id', '')) } })
+    const organizationId = get(organization, 'id')
+
+    const employeeId = String(get(query, 'id', ''))
+    const { obj: employee, loading: employeeLoading, error: employeeError } = OrganizationEmployee.useObject({ where: { id: employeeId } })
     const { objs: employeeRoles, loading: employeeRolesLoading, error: employeeRolesError } = OrganizationEmployeeRole.useObjects({ where: { organization: { id:  get(employee, ['organization', 'id']) } } })
-    const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => {
-        refetch().then(() => {
-            push(`/employee/${get(query, 'id')}/`)
-        })
+    const updateEmployeeAction = OrganizationEmployee.useUpdate({})
+    const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
+        where: {
+            employee: { id: employeeId },
+        },
     })
+    const createOrganizationEmployeeSpecializationAction = OrganizationEmployeeSpecialization.useCreate({})
+    const updateOrganizationEmployeeSpecializationAction = OrganizationEmployeeSpecialization.useUpdate({})
+    const initialSpecializations = useMemo(() => organizationEmployeeSpecializations.map(scope => scope.specialization),
+        [organizationEmployeeSpecializations])
+
     const { emailValidator } = useValidations()
+    const { alreadyRegisteredEmailValidator } = useEmployeeValidations(organizationId, employeeId)
     const validations: { [key: string]: Rule[] } = {
-        email: [emailValidator],
+        email: [emailValidator, alreadyRegisteredEmailValidator],
     }
 
     const { user } = useAuth()
@@ -87,24 +98,65 @@ export const UpdateEmployeeForm = () => {
         return () => classifiersLoader.clear()
     }, [])
 
+    const initialValues = useMemo(() => ({
+        role: get(employee, ['role', 'id']),
+        position: get(employee, 'position'),
+        email: get(employee, 'email'),
+        specializations: initialSpecializations.map(spec => spec.id),
+        hasAllSpecializations: get(employee, 'hasAllSpecializations'),
+    }), [employee, initialSpecializations])
+
+    const onCancel = useCallback(() => {
+        push(`/employee/${employeeId}`)
+    }, [employeeId, push])
+
+    const formAction = useCallback(async (formValues) => {
+        const { specializations, ...updateEmployeeFormValues } = formValues
+        const initialSpecializationIds = initialSpecializations.map(spec => spec.id)
+
+        const deletedSpecializations = difference(initialSpecializationIds, specializations)
+        const newSpecializations = difference(specializations, initialSpecializationIds)
+
+        const organizationEmployeeSpecializationsToDelete = organizationEmployeeSpecializations
+            .filter(scope => deletedSpecializations.includes(scope.specialization.id))
+        for (const organizationEmployeeSpecializationToDelete of organizationEmployeeSpecializationsToDelete) {
+            await updateOrganizationEmployeeSpecializationAction({
+                deletedAt: 'true',
+            }, organizationEmployeeSpecializationToDelete)
+        }
+
+        for (const newSpecialization of newSpecializations) {
+            await createOrganizationEmployeeSpecializationAction({
+                employee: { connect: { id: employeeId } },
+                specialization: { connect: { id: newSpecialization } },
+            })
+        }
+
+        await updateEmployeeAction(OrganizationEmployee.formValuesProcessor(updateEmployeeFormValues), employee)
+
+        await push(`/employee/${employeeId}/`)
+    }, [createOrganizationEmployeeSpecializationAction, employee, employeeId, initialSpecializations, push, organizationEmployeeSpecializations,
+        updateEmployeeAction, updateOrganizationEmployeeSpecializationAction])
+
     const error = employeeError || employeeRolesError
     const loading = employeeLoading || employeeRolesLoading
+
+    const specializationsFormItemProps = {
+        name: 'specializations',
+        label: SpecializationsLabel,
+        validateFirst: true,
+        ...INPUT_LAYOUT_PROPS,
+    }
+
+    const specializationsSelectProps = {
+        search: searchClassifers,
+    }
 
     if (error) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
     }
     if (loading) {
         return <Loader />
-    }
-    const formAction = (formValues) => {
-        return updateEmployeeAction(OrganizationEmployee.formValuesProcessor(formValues), employee)
-    }
-
-    const initialValues = {
-        role: get(employee, ['role', 'id']),
-        position: get(employee, 'position'),
-        email: get(employee, 'email'),
-        specializations: employee.specializations.map(spec => spec.id),
     }
 
     return (
@@ -115,22 +167,9 @@ export const UpdateEmployeeForm = () => {
             validateTrigger={['onBlur', 'onSubmit']}
             formValuesToMutationDataPreprocessor={(values)=> {
                 const isRoleDeleted = !values.role && initialValues.role
-                const role = values.role
-                const selectedRole = find(employeeRoles, { id: role })
-                const specializations = values.specializations
 
                 if (isRoleDeleted) {
                     values.role = null
-                }
-
-                if (specializations && specializations.length) {
-                    values.specializations = specializations.map(id => id)
-                } else {
-                    values.specializations = null
-                }
-
-                if (!selectedRole.canBeAssignedAsExecutor) {
-                    values.specializations = null
                 }
 
                 if (isRoleDeleted) {
@@ -140,122 +179,131 @@ export const UpdateEmployeeForm = () => {
                 return values
             }}
         >
-            {({ handleSave, isLoading }) => {
+            {({ handleSave, isLoading, form }) => {
                 return (
-                    <Row gutter={[0, 40]} justify='center'>
-                        <Col xs={10} lg={2}>
-                            <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
-                        </Col>
-                        <Col xs={24} lg={12} offset={1}>
-                            <Row gutter={[0, 40]}>
-                                <Col span={24}>
-                                    <Typography.Title
-                                        level={1}
-                                        style={{ margin: 0, fontWeight: 'bold' }}
-                                    >
-                                        {EmployeeUpdateTitle}
-                                    </Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        {...INPUT_LAYOUT_PROPS}
-                                        labelAlign='left'
-                                        name='role'
-                                        label={RoleLabel}
-                                    >
-                                        <EmployeeRoleSelect employeeRoles={employeeRoles} disabled={isMyEmployee} />
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        {...INPUT_LAYOUT_PROPS}
-                                        labelAlign='left'
-                                        name='position'
-                                        label={PositionLabel}
-                                    >
-                                        <Input/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        {...INPUT_LAYOUT_PROPS}
-                                        labelAlign='left'
-                                        name='email'
-                                        label={EmailLabel}
-                                        validateFirst
-                                        rules={validations.email}
-                                    >
-                                        <Input placeholder={ExampleEmailMsg}/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item noStyle dependencies={['role']}>
-                                        {
-                                            ({ getFieldValue })=> {
-                                                const role = getFieldValue('role')
-                                                const selectedRole = find(employeeRoles, { id: role })
-
-                                                if (get(selectedRole, 'canBeAssignedAsExecutor'))
-                                                    return (<Col span={24}>
-                                                        <Form.Item
-                                                            name='specializations'
-                                                            label={SpecializationsLabel}
-                                                            labelAlign='left'
-                                                            validateFirst
-                                                            {...INPUT_LAYOUT_PROPS}
-                                                        >
-                                                            <GraphQlSearchInput mode='multiple' search={searchClassifers} />
-                                                        </Form.Item>
-                                                    </Col>)
-                                            }
-                                        }
-                                    </Form.Item>
-                                    <Space size={40} style={{ paddingTop: '36px' }}>
-                                        <FormResetButton
-                                            type='sberPrimary'
-                                            secondary
-                                        />
-                                        <Button
-                                            key='submit'
-                                            onClick={handleSave}
-                                            type='sberPrimary'
-                                            loading={isLoading}
-                                        >
-                                            {ApplyChangesMessage}
-                                        </Button>
-                                    </Space>
-                                </Col>
-                            </Row>
-                        </Col>
-                        {!isSmall && (
-                            <Col lg={9}>
-                                <Form.Item dependencies={['role']}>
-                                    {({ getFieldValue }) => {
-                                        const roleId = getFieldValue('role')
-                                        const role = employeeRoles.find(x => x.id === roleId)
-                                        if (!role) return null
-                                        return (
-                                            <Card
-                                                title={role.name}
-                                                bordered={false}
-                                                css={CardCss}
-                                                headStyle={{
-                                                    color: colors.lightGrey[10],
-                                                    fontSize: 24,
-                                                    fontWeight: 'bold',
-                                                }}
-                                            >
-                                                {role.description}
-                                            </Card>
-                                        )
-                                    }}
-                                </Form.Item>
+                    <>
+                        <Prompt
+                            title={PromptTitle}
+                            form={form}
+                            handleSave={handleSave}
+                        >
+                            <Typography.Paragraph>
+                                {PromptHelpMessage}
+                            </Typography.Paragraph>
+                        </Prompt>
+                        <Row gutter={[0, 40]}>
+                            <Col xs={10} lg={2}>
+                                <UserAvatar borderRadius={24} isBlocked={get(employee, 'isBlocked')}/>
                             </Col>
-                        )}
-                    </Row>
+                            <Col xs={24} lg={12} offset={1}>
+                                <Row gutter={[0, 60]}>
+                                    <Col>
+                                        <Row gutter={[0, 40]}>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                    labelAlign='left'
+                                                    name='role'
+                                                    label={RoleLabel}
+                                                >
+                                                    <EmployeeRoleSelect employeeRoles={employeeRoles} disabled={isMyEmployee} />
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                    labelAlign='left'
+                                                    name='position'
+                                                    label={PositionLabel}
+                                                >
+                                                    <Input/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item
+                                                    {...INPUT_LAYOUT_PROPS}
+                                                    labelAlign='left'
+                                                    name='email'
+                                                    label={EmailLabel}
+                                                    validateFirst
+                                                    rules={validations.email}
+                                                >
+                                                    <Input placeholder={ExampleEmailMsg}/>
+                                                </Form.Item>
+                                            </Col>
+                                            <Col span={24}>
+                                                <Form.Item noStyle dependencies={['role']}>
+                                                    {
+                                                        ({ getFieldValue })=> {
+                                                            const role = getFieldValue('role')
+                                                            const selectedRole = find(employeeRoles, { id: role })
+
+                                                            if (get(selectedRole, 'canBeAssignedAsExecutor'))
+                                                                return (
+                                                                    <Col span={24}>
+                                                                        <GraphQlSearchInputWithCheckAll
+                                                                            checkAllFieldName='hasAllSpecializations'
+                                                                            checkAllInitialValue={initialValues.hasAllSpecializations}
+                                                                            selectFormItemProps={specializationsFormItemProps}
+                                                                            selectProps={specializationsSelectProps}
+                                                                            CheckAllMessage={CheckAllMessage}
+                                                                            checkBoxOffset={8}
+                                                                            form={form}
+                                                                        />
+                                                                    </Col>
+                                                                )
+                                                        }
+                                                    }
+                                                </Form.Item>
+                                            </Col>
+                                        </Row>
+                                    </Col>
+                                    <Col span={24}>
+                                        <ActionBar
+                                            actions={[
+                                                <Button
+                                                    key='submit'
+                                                    onClick={handleSave}
+                                                    type='primary'
+                                                    loading={isLoading}
+                                                >
+                                                    {ApplyChangesMessage}
+                                                </Button>,
+                                                <Button
+                                                    key='cancel'
+                                                    type='secondary'
+                                                    onClick={onCancel}
+                                                >
+                                                    {CancelLabel}
+                                                </Button>,
+                                            ]}
+                                        />
+                                    </Col>
+                                </Row>
+                            </Col>
+                            {breakpoints.TABLET_LARGE && (
+                                <Col lg={9}>
+                                    <Form.Item dependencies={['role']}>
+                                        {({ getFieldValue }) => {
+                                            const roleId = getFieldValue('role')
+                                            const role = employeeRoles.find(x => x.id === roleId)
+                                            if (!role) return null
+                                            return (
+                                                <Alert
+                                                    type='info'
+                                                    showIcon
+                                                    message={role.name}
+                                                    description={role.description}
+                                                />
+                                            )
+                                        }}
+                                    </Form.Item>
+                                </Col>
+                            )}
+                        </Row>
+                    </>
                 )
             }}
         </FormWithAction>
     )
 }
-

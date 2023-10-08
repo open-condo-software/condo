@@ -1,5 +1,6 @@
-const { LocalizedText } = require('./Implementation')
 const { Text } = require('@keystonejs/fields')
+
+const { LocalizedText } = require('./Implementation')
 
 module.exports = {
     type: 'LocalizedText',

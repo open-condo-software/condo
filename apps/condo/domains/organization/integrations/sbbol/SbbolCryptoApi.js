@@ -1,7 +1,8 @@
-const Ajv = require('ajv')
 const fs = require('fs')
 
-const { getLogger } = require('@condo/keystone/logging')
+const Ajv = require('ajv')
+
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { SbbolRequestApi } = require('./SbbolRequestApi')
 const { buildBicryptId } = require('./utils/buildBicryptId')

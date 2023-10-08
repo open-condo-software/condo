@@ -1,20 +1,24 @@
-import React, { useCallback, useMemo, useState } from 'react'
 import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
+import getConfig from 'next/config'
 import Router, { useRouter } from 'next/router'
-import { FormattedMessage } from '@condo/next/intl'
-import { useIntl } from '@condo/next/intl'
+import React, { useCallback, useMemo, useState } from 'react'
+
+import { useMutation } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+import { FormattedMessage } from '@open-condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
 import { Button } from '@condo/domains/common/components/Button'
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { WRONG_PASSWORD_ERROR, WRONG_PHONE_ERROR } from '@condo/domains/user/constants/errors'
 import { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } from '@condo/domains/user/gql'
-import { useMutation } from '@condo/next/apollo'
-import { useAuth } from '@condo/next/auth'
-import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
-import { colors } from '@condo/domains/common/constants/style'
-import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -37,10 +41,11 @@ export const SignInForm = (): React.ReactElement => {
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ResetMsg = intl.formatMessage({ id: 'pages.auth.signin.ResetPasswordLinkTitle' })
     const PasswordOrPhoneMismatch = intl.formatMessage({ id: 'pages.auth.WrongPhoneOrPassword' })
-    const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
 
     const LOGIN_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
     const PASSWORD_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PasswordMsg}</label>
+
+    const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
 
     const [form] = Form.useForm()
     const router = useRouter()
@@ -61,7 +66,7 @@ export const SignInForm = (): React.ReactElement => {
                 errors: [PasswordOrPhoneMismatch],
             },
         }
-    }, [intl])
+    }, [PasswordOrPhoneMismatch])
 
     const onFormSubmit = useCallback((values) => {
         setIsLoading(true)
@@ -85,7 +90,7 @@ export const SignInForm = (): React.ReactElement => {
         }).catch(() => {
             setIsLoading(false)
         })
-    }, [intl, form])
+    }, [intl, form, ErrorToFormFieldMsgMapping, redirectUrl, refetch, router, signinByPhoneAndPassword])
 
     const initialValues = { password: '', phone: '' }
 
@@ -158,23 +163,19 @@ export const SignInForm = (): React.ReactElement => {
                                 </Button>
                             </Form.Item>
                         </Col>
-                        <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
-                            <FormattedMessage id='Or'/>
-                        </Col>
-                        <Col span={24}>
-                            <Form.Item>
-                                <Button
-                                    key='submit'
-                                    type='sberAction'
-                                    secondary
-                                    icon={<SberIconWithoutLabel/>}
-                                    href='/api/sbbol/auth'
-                                    block
-                                >
-                                    {LoginBySBBOLMsg}
-                                </Button>
-                            </Form.Item>
-                        </Col>
+                        {(hasSbbolAuth) ?
+                            <>
+                                <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
+                                    <FormattedMessage id='Or'/>
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item>
+                                        <LoginWithSBBOLButton block checkTlsCert/>
+                                    </Form.Item>
+                                </Col>
+                            </>
+                            : null
+                        }
                     </Row>
                 </ResponsiveCol>
             </Row>

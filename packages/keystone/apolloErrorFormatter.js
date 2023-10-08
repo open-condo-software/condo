@@ -26,12 +26,11 @@ const {
     isInstance: isKeystoneErrorInstance,
 } = require('apollo-errors')
 const { ApolloError, AuthenticationError } = require('apollo-server-errors')
-const { printError } = require('graphql')
-
 const ensureError = require('ensure-error')
+const { printError } = require('graphql')
 const { pick, pickBy, identity, toArray, _, toString, get, set, isArray } = require('lodash')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const IS_HIDE_INTERNALS = conf.NODE_ENV === 'production'
 const COMMON_ERROR_CASES = {}
@@ -97,6 +96,11 @@ function _patchKnownErrorCases (error, result) {
     }
 }
 
+function _extractInnerGQLError (error) {
+    const innerErrors = get(error, 'errors', [])
+    return innerErrors.find(err => get(err, 'name') === 'GQLError')
+}
+
 /**
  * Use it if you need to safely prepare error for logging or ApolloServer result
  * @param {Error} error -- any error
@@ -140,10 +144,39 @@ const safeFormatError = (error, hideInternals = false, applyPatches = true) => {
         }
     }
 
-    const originalError = get(error, 'originalError')
-    if (!hideInternals && originalError) {
+    let originalError = get(error, 'originalError')
+    const originalErrorClassNames = originalError ?  _getClassList(originalError) : []
+    // NOTE 1: If GQLError is thrown at ASYNC field hook, it will be wrapped like following:
+    // GraphQLError + Wrapper: {
+    //      originalError (Error): {
+    //          errors: [
+    //              GQLError
+    //          ]
+    //      }
+    // }
+    // So we need to unwrap this specific scenario
+    // NOTE 2: addFieldValidationError will do the same wrap, but its originalError will have a `name` prop,
+    // and it also will have additional classNames on top or Error
+    // We can use this info, but I've decided to be more straightforward:
+    // Obtain inner GQLError. If not found - use default behaviour
+    let isInnerGQLErrorFound = false
+    if (errorClassNames.includes('GraphQLError') && errorClassNames.includes('Wrapper') && originalErrorClassNames.includes('Error')) {
+        const innerError = _extractInnerGQLError(originalError)
+        if (innerError) {
+            isInnerGQLErrorFound = true
+            const formattedInnerError = safeFormatError(innerError, hideInternals, applyPatches)
+            Object.assign(result, formattedInnerError)
+            // Note: Inner error extraction, if no originals -> originalError = self
+            originalError = get(formattedInnerError, 'originalError', formattedInnerError)
+            result.originalError = originalError === formattedInnerError ? formattedInnerError : safeFormatError(originalError, hideInternals, false)
+        }
+    }
+
+    if (!isInnerGQLErrorFound && !hideInternals && originalError) {
         result.originalError = safeFormatError(originalError, hideInternals, false)
     }
+
+
 
     // KeystoneJS hotfixes! Taken from KeystoneJS sources. Probably useless in a future but we already have a tests for that!
     if (originalError) {

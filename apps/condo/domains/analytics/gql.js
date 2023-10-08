@@ -4,9 +4,10 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
-
 const { gql } = require('graphql-tag')
+
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
@@ -16,6 +17,83 @@ const ExternalReport = generateGqlQueries('ExternalReport', EXTERNAL_REPORT_FIEL
 const GET_EXTERNAL_REPORT_IFRAME_URL_QUERY = gql`
     query getExternalReportIframeUrl ($data: GetExternalReportIframeUrlInput!) {
         result: getExternalReportIframeUrl(data: $data) { title iframeUrl }
+    }
+`
+
+const GET_OVERVIEW_DASHBOARD_MUTATION = gql`
+    query getOverviewDashboard ($data: GetOverviewDashboardInput!) {
+        result: getOverviewDashboard(data: $data) { 
+            overview { 
+                ticketByDay {
+                    tickets {
+                        count
+                        dayGroup
+                        status
+                    }
+                }
+                ticketByProperty {
+                    tickets {
+                        count
+                        property
+                        status
+                    }
+                }
+                ticketByExecutor {
+                    tickets {
+                        count
+                        executor
+                        status
+                    }
+                }
+                ticketByCategory {
+                    tickets {
+                        categoryClassifier
+                        count
+                        status
+                    }
+                }
+                ticketQualityControlValue {
+                    tickets {
+                        count
+                        dayGroup
+                        qualityControlValue
+                    }
+                    translations {
+                        key
+                        value
+                    }
+                }
+                property {
+                    sum
+                }
+                payment {
+                    payments {
+                        dayGroup
+                        count
+                        createdBy
+                        sum
+                    }
+                    sum
+                }
+                resident {
+                    residents {
+                        count
+                        address
+                    }
+                }
+                receipt {
+                    receipts {
+                        count
+                        dayGroup
+                        sum
+                    }
+                    sum
+                }
+                incident {
+                    count
+                }
+            } 
+        }
     }
 `
 
@@ -44,5 +122,6 @@ module.exports = {
     TICKET_ANALYTICS_REPORT_QUERY,
     EXPORT_TICKET_ANALYTICS_TO_EXCEL,
     GET_EXTERNAL_REPORT_IFRAME_URL_QUERY,
+    GET_OVERVIEW_DASHBOARD_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

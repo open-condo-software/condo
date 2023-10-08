@@ -1,11 +1,14 @@
-import React from 'react'
-import { Row, Col, Typography, Space } from 'antd'
-import Link from 'next/link'
-import dayjs from 'dayjs'
-import { LOCALES } from '../../constants/locale'
-import { useIntl } from '@condo/next/intl'
 import { green } from '@ant-design/colors'
+import { Row, Col, Typography, Space } from 'antd'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
+import Link from 'next/link'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { LOCALES } from '../../constants/locale'
+
 
 type TTicket = {
     id: string,

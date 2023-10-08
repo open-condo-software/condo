@@ -1,0 +1,9 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-radio-gradient-border(@inner-color, @border-color) {
+  background-image: @inner-color, @border-color;
+  background-clip: content-box, border-box;
+  background-origin: border-box;
+  border: double @condo-global-border-width-default transparent;
+  box-shadow: none;
+}

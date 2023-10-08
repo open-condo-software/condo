@@ -1,10 +1,14 @@
-const { getById } = require('@condo/keystone/schema')
-const { createAdapterClass } = require('./adapter')
 const { get } = require('lodash')
+
+const { getById } = require('@open-condo/keystone/schema')
+
+const { createAdapterClass } = require('./adapter')
 
 const HTTPS_REGEXP = /^https:/
 
 module.exports = function createConfiguration (context, conf) {
+    const jwksStr = get(conf, 'JWKS')
+
     return {
         adapter: createAdapterClass(context),
         async findAccount (ctx, id) {
@@ -26,23 +30,43 @@ module.exports = function createConfiguration (context, conf) {
                 },
             }
         },
+        /**
+         * @see https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#issuerefreshtoken
+         * @param ctx
+         * @param client
+         * @param code
+         * @returns {Promise<boolean>}
+         */
+        async issueRefreshToken (ctx, client, code) {
+            return client.grantTypeAllowed('refresh_token')
+        },
         async loadExistingGrant (ctx) {
             // This is modified version of default function
             // https://github.com/panva/node-oidc-provider/blob/HEAD/docs/README.md#loadexistinggrant
+
+            // NOTE: OIDC Session lives separately from keystone one,
+            // so below is a quick fix to properly validate existing grant
+            // If existing grant is returned -> user will be redirected directly to callback section
+            // If no grant found (undefined return) -> user will be redirected to interaction page
+
             const grantId = (ctx.oidc.result
                 && ctx.oidc.result.consent
                 && ctx.oidc.result.consent.grantId) || ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId)
+
             if (grantId) {
                 const grant = await ctx.oidc.provider.Grant.find(grantId)
 
-                const condoUserId = get(ctx, 'req.query.condoUserId', null)
+                const userId = get(ctx, ['req', 'user', 'id'], null)
                 const accountId = get(grant, 'accountId', null)
-                if (!!condoUserId && !!accountId && accountId !== condoUserId) {
-                    return undefined
+
+                // If grant exists and its accountId is equal to current keystone user id = return existing grant
+                if (userId && accountId && accountId === userId) {
+                    return grant
                 }
 
-                return grant
+                return undefined
             }
+
             return undefined
         },
         interactions: {
@@ -96,10 +120,21 @@ module.exports = function createConfiguration (context, conf) {
             Session: 365 * 24 * 60 * 60, // 365 day in seconds
             Interaction: 60 * 60, // 1 hour in seconds
         },
-
+        // https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#responsetypes
+        responseTypes: [
+            'code id_token',
+            'code',
+            'id_token',
+            'id_token token', // implicit flow with token!
+        ],
         // TODO(pahaz): think about pkce and keys!
         pkce: {
             required: () => false,
         },
+        /**
+         * @link https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#jwks
+         * The key set may be generated with {@link https://mkjwk.org/}
+         */
+        jwks: jwksStr ? JSON.parse(jwksStr) : undefined,
     }
 }

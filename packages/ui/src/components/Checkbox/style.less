@@ -1,0 +1,162 @@
+@import "antd/lib/checkbox/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import "./mixins";
+
+@checkbox-border-width: @condo-global-border-width-default;
+@checkbox-border-radius: @condo-global-border-radius-small;
+@checkbox-size: (@condo-global-spacing-24 - (@checkbox-border-width * 2));
+@checkbox-inner-border-radius: @checkbox-border-radius - @checkbox-border-width;
+
+@condo-checkbox-checkmark-top: ((@checkbox-size / 2));
+@condo-checkbox-checkmark-left: ((@checkbox-size / 4) - 0.5);
+@condo-checkbox-checkmark-width: (@checkbox-size / 4) - 1;
+@condo-checkbox-checkmark-height: (@checkbox-size / 2) - 1.5;
+
+@condo-checkbox-hidden-area: @condo-global-spacing-8;
+
+.condo-checkbox-wrapper {
+  align-items: center;
+
+  .condo-checkbox {
+    top: 0;
+
+    &-input {
+      margin: 0;
+    }
+
+    &-inner {
+      box-sizing: content-box;
+      border-color: @condo-global-color-gray-5;
+
+      &::after {
+        transition: none;
+      }
+    }
+
+    &-indeterminate > .condo-checkbox-inner {
+      &::after {
+        width: @condo-global-spacing-12;
+        height: @condo-global-spacing-4;
+        background: @condo-global-color-brand-gradient-5 border-box;
+        border-radius: @condo-global-border-width-default;
+      }
+
+      &::before {
+        .condo-checkbox-inner-layer(@condo-global-color-brand-gradient-1, @checkbox-inner-border-radius);
+      }
+    }
+
+    &-checked::after {
+      border: none;
+    }
+
+    &-checked > .condo-checkbox-inner {
+      box-sizing: content-box;
+      background: @condo-global-color-gray-5 border-box;
+      border-color: transparent;
+
+      &::before {
+        .condo-checkbox-inner-layer(@condo-global-color-brand-gradient-1, @checkbox-inner-border-radius);
+      }
+
+      &::after {
+        top: @condo-checkbox-checkmark-top - 1;
+        left: @condo-checkbox-checkmark-left;
+        box-sizing: content-box;
+        width: @condo-checkbox-checkmark-width;
+        height: @condo-checkbox-checkmark-height;
+        border-width: 3px;
+        border-image-source: linear-gradient(45deg, #4cd174 0%, #6db8f2 100%);
+        border-image-slice: 1;
+        transform: rotate(48deg) scale(1) translate(-50%, -50%);
+        transition: none;
+      }
+    }
+
+    &-disabled {
+      & > .condo-checkbox-inner {
+        background-color: @condo-global-color-gray-1;
+        //border color in disabled is defined with !important so I need to use it to override
+        border-color: @condo-global-color-gray-3 !important;
+      }
+
+      &.condo-checkbox-checked > .condo-checkbox-inner {
+        &::before {
+          background: @condo-global-color-gray-1;
+        }
+
+        &::after {
+          border-color: @condo-global-color-gray-5;
+          border-image-source: none;
+        }
+      }
+    }
+
+    &-input:focus + .condo-checkbox-inner {
+      background: @condo-global-color-brand-gradient-5 border-box;
+      border-color: transparent;
+
+      &::before {
+        .condo-checkbox-inner-layer(@condo-global-color-white, @checkbox-inner-border-radius);
+      }
+    }
+
+    &-indeterminate.condo-checkbox-disabled > .condo-checkbox-inner {
+      &::after {
+        background: @condo-global-color-gray-5;
+      }
+
+      &::before {
+        .condo-checkbox-inner-layer(@condo-global-color-white, @checkbox-inner-border-radius);
+      }
+    }
+
+    &::after {
+      position: absolute;
+      top: (-1 * (@condo-checkbox-hidden-area / 2));
+      left: (-1 * (@condo-checkbox-hidden-area / 2));
+      width: @checkbox-size + @checkbox-border-width * 2 + @condo-checkbox-hidden-area;
+      height: @checkbox-size + @checkbox-border-width * 2 + @condo-checkbox-hidden-area;
+      background-color: transparent;
+      border-radius: @checkbox-border-radius;
+      visibility: visible;
+      content: "";
+    }
+  }
+
+  &:hover > .condo-checkbox > .condo-checkbox-inner {
+    border-color: @condo-global-color-gray-7;
+  }
+
+  &:hover > .condo-checkbox-checked > .condo-checkbox-inner::before {
+    border-radius: @checkbox-inner-border-radius;
+  }
+
+  .condo-checkbox-indeterminate > .condo-checkbox-input:focus + .condo-checkbox-inner::before {
+    .condo-checkbox-inner-layer(@condo-global-color-brand-gradient-1, @checkbox-inner-border-radius);
+  }
+
+  &:hover > .condo-checkbox-checked > .condo-checkbox-inner {
+    background: @condo-global-color-brand-gradient-5 border-box;
+    border-color: transparent;
+  }
+
+  &:hover > .condo-checkbox-disabled > .condo-checkbox-inner {
+    background: @condo-global-color-gray-1 border-box;
+    border-color: transparent;
+  }
+
+  .condo-checkbox-checked > .condo-checkbox-input:focus + .condo-checkbox-inner {
+    background: @condo-global-color-brand-gradient-5 border-box;
+    border-color: transparent;
+
+    &::before {
+      .condo-checkbox-inner-layer(@condo-global-color-brand-gradient-1, @checkbox-inner-border-radius);
+    }
+  }
+
+  &:hover > .condo-checkbox::after {
+    visibility: visible;
+  }
+}

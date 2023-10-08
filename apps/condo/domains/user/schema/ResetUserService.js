@@ -16,18 +16,22 @@
  * 2. User wants to remove all his data from our system.
  */
 
-const { GQLCustomSchema, getById } = require('@condo/keystone/schema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
 
+const { removeOrphansRecurrentPaymentContexts } = require('@condo/domains/acquiring/tasks')
+const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/user/access/ResetUserService')
 const { DELETED_USER_NAME } = require('@condo/domains/user/constants')
 const { User } = require('@condo/domains/user/utils/serverSchema')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, FORBIDDEN } } = require('@condo/keystone/errors')
-const { DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
-const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
-const errors = {
+const { USER_NOT_FOUND, CANNOT_RESET_ADMIN_USER } = require('../constants/errors')
+const { UserExternalIdentity } = require('../utils/serverSchema')
+
+
+const ERRORS = {
     DV_VERSION_MISMATCH: {
         mutation: 'resetUser',
         variable: ['data', 'dv'],
@@ -55,7 +59,7 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
     types: [
         {
             access: true,
-            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput! }',
+            type: 'input ResetUserInput { dv: Int! sender: SenderFieldInput! user: UserWhereUniqueInput!, saveName: Boolean }',
         },
         {
             access: true,
@@ -69,45 +73,66 @@ const ResetUserService = new GQLCustomSchema('ResetUserService', {
             schema: 'resetUser(data: ResetUserInput!): ResetUserOutput',
             doc: {
                 summary: 'Used by QA for cleaning existing test user record to avoid utilizing every time new phone and email, which is hard to obtain again and again for every manual testing procedure',
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
-                const { dv, sender, user } = data
+                const { dv, sender, user, saveName } = data
                 if (!user.id) throw new Error('resetUser(): no user.id')
 
                 if (dv !== 1) {
-                    throw new GQLError(errors.DV_VERSION_MISMATCH, context)
+                    throw new GQLError(ERRORS.DV_VERSION_MISMATCH, context)
                 }
 
                 const userEntity = await getById('User', user.id)
                 if (!userEntity) {
-                    throw new GQLError(errors.USER_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.USER_NOT_FOUND, context)
                 }
 
                 if (userEntity.isAdmin) {
-                    throw new GQLError(errors.CANNOT_RESET_ADMIN_USER, context)
+                    throw new GQLError(ERRORS.CANNOT_RESET_ADMIN_USER, context)
                 }
 
-                await User.update(context, user.id, {
+                const newUserData = {
                     dv: 1,
                     sender,
                     phone: null,
                     email: null,
                     password: null,
-                    name: DELETED_USER_NAME,
                     isPhoneVerified: false,
                     isEmailVerified: false,
-                    importId: null,
-                    importRemoteSystem: null,
                     isAdmin: false,
                     isSupport: false,
-                })
+                }
 
-                const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id } })
+                if (!saveName) {
+                    newUserData.name = DELETED_USER_NAME
+                }
+
+                await User.update(context, user.id, newUserData)
+
+                const employees = await OrganizationEmployee.getAll(context, { user: { id: user.id }, deletedAt: null })
                 for (const employee of employees) {
                     await OrganizationEmployee.softDelete(context, employee.id, { dv: 1, sender })
                 }
+
+                const accordingUserExternalIdentity = await UserExternalIdentity.getAll(context, {
+                    user: {
+                        id: user.id,
+                    },
+                    deletedAt: null,
+                })
+
+                for (const externalIdentity of accordingUserExternalIdentity) {
+                    await UserExternalIdentity.softDelete(context, externalIdentity.id, { dv: 1, sender })
+                }
+
+                // remove RecurrentPaymentContext
+                await removeOrphansRecurrentPaymentContexts.delay({
+                    userId: user.id,
+                    dv,
+                    sender,
+                })
 
                 return { status: 'ok' }
             },

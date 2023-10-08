@@ -2,10 +2,13 @@
  * @jest-environment node
  */
 
-const { freezeBillingReceipt } = require('./freezeBillingReceipt')
-const { prepareKeystoneExpressApp, setFakeClientMode } = require('@condo/keystone/test.utils')
+const { getById } = require('@open-condo/keystone/schema')
+const { prepareKeystoneExpressApp, setFakeClientMode } = require('@open-condo/keystone/test.utils')
+
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
-const { getById } = require('@condo/keystone/schema')
+
+const { freezeBillingReceipt } = require('./freezeBillingReceipt')
+
 
 describe('freezeBillingReceipt', () => {
     setFakeClientMode(require.resolve('../../../index'))

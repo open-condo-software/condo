@@ -1,16 +1,19 @@
-import get from 'lodash/get'
-import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import { Upload, UploadProps } from 'antd'
-import isEmpty from 'lodash/isEmpty'
 import { DeleteFilled, EditFilled } from '@ant-design/icons'
-import { UploadRequestOption } from 'rc-upload/lib/interface'
-import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
-
-import { useIntl } from '@condo/next/intl'
 import { File } from '@app/condo/schema'
+import { Upload, UploadProps } from 'antd'
+import { UploadFile, UploadFileStatus } from 'antd/lib/upload/interface'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import { UploadRequestOption } from 'rc-upload/lib/interface'
+import React, { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 
 import { Button } from '@condo/domains/common/components/Button'
 import { MAX_UPLOAD_FILE_SIZE } from '@condo/domains/common/constants/uploads'
+
+import { useTracking, TrackingEventType } from './TrackingContext'
 
 type DBFile = {
     id: string
@@ -187,6 +190,7 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
     } = props
 
     const [listFiles, setListFiles] = useState<UploadListFile[]>([])
+    const { getEventName, logEvent } = useTracking()
 
     useEffect(() => {
         const convertedFiles = convertFilesToUploadFormat(fileList)
@@ -251,6 +255,11 @@ const MultipleFileUpload: React.FC<IMultipleFileUploadProps> = (props) => {
                 onSuccess(uploadFile, null)
                 onFilesChange({ type: 'add', payload: dbFile })
                 setFilesCount(filesCount => filesCount + 1)
+
+                logEvent({
+                    eventName: getEventName(TrackingEventType.FileUpload),
+                    eventProperties: { components: { value: dbFile.id } },
+                })
             }).catch(err => {
                 const error = new Error(UploadFailedErrorMessage)
                 console.error('Upload failed', err)

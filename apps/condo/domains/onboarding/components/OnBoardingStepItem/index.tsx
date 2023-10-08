@@ -1,8 +1,10 @@
 import { Space } from 'antd'
 import React from 'react'
-import { colors } from '@condo/domains/common/constants/style'
-import { ActivateStepIcon, IconContainer, StepContainer, StepTitle, StepDescription } from './components'
+
 import { ArrowSemiBoldRightSvg } from '@condo/domains/common/components/icons/ArrowSemiBold'
+import { colors } from '@condo/domains/common/constants/style'
+
+import { ActivateStepIcon, IconContainer, StepContainer, StepTitle, StepDescription } from './components'
 
 export enum OnBoardingStepType {
     DEFAULT = 'Default',

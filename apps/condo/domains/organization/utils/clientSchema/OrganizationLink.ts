@@ -8,10 +8,13 @@ import {
     OrganizationLinkUpdateInput,
     QueryAllOrganizationLinksArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { OrganizationLink as OrganizationLinkGQL } from '@condo/domains/organization/gql'
 
 const {
+    useAllObjects,
     useObject,
     useObjects,
     useCreate,
@@ -20,6 +23,7 @@ const {
 } = generateReactHooks<OrganizationLink, OrganizationLinkCreateInput, OrganizationLinkUpdateInput, QueryAllOrganizationLinksArgs>(OrganizationLinkGQL)
 
 export {
+    useAllObjects,
     useObject,
     useObjects,
     useCreate,

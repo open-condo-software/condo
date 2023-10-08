@@ -1,7 +1,7 @@
 const { Virtual } = require('@keystonejs/fields')
 const { pick } = require('lodash')
 
-const { getById } = require('@condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { RESIDENT_ORGANIZATION_FIELDS } = require('@condo/domains/resident/gql')
 

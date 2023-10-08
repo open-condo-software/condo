@@ -1,18 +1,19 @@
 /** @jsx jsx */
-import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
+import { jsx } from '@emotion/core'
+import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import { get } from 'lodash'
-import React, { useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { useRouter } from 'next/router'
-import { jsx } from '@emotion/core'
 import Head from 'next/head'
-import { Col, Row, Typography } from 'antd'
+import { useRouter } from 'next/router'
+import React, { useMemo } from 'react'
 
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { useIntl } from '@open-condo/next/intl'
+
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [0, 40]

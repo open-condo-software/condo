@@ -1,7 +1,8 @@
-const { getOnBoardingProgress } = require('@condo/domains/onboarding/utils/serverSideStepUtils')
-const { ONBOARDING_COMPLETED_PROGRESS } = require('@condo/domains/onboarding/constants')
+const { find, getByCondition } = require('@open-condo/keystone/schema')
 
-const { find, getByCondition } = require('@condo/keystone/schema')
+const { ONBOARDING_COMPLETED_PROGRESS } = require('@condo/domains/onboarding/constants')
+const { getOnBoardingProgress } = require('@condo/domains/onboarding/utils/serverSideStepUtils')
+
 
 async function getOnBoardingStatus (user) {
     const onBoarding = await getByCondition('OnBoarding', { user: { id: user.id } })

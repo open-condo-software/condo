@@ -1,16 +1,27 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
+const isEmpty = require('lodash/isEmpty')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+
+const { BANK_INTEGRATION_IDS, SBBOL } = require('@condo/domains/banking/constants')
+const { BankSyncTask, BankAccount, BankIntegrationOrganizationContext } = require('@condo/domains/banking/utils/serverSchema')
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { getOrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema/OrganizationEmployee')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+
+const { syncFeatures } = require('./features')
+const { syncBankAccounts } = require('./syncBankAccounts')
+const { syncOrganization } = require('./syncOrganization')
+const { syncServiceSubscriptions } = require('./syncServiceSubscriptions')
+const { syncTokens } = require('./syncTokens')
+const { syncUser } = require('./syncUser')
+
+const { dvSenderFields } = require('../constants')
 const { SBBOL_IMPORT_NAME } = require('../constants')
 const { getSbbolSecretStorage } = require('../utils')
-const { dvSenderFields } = require('../constants')
-const { syncUser } = require('./syncUser')
-const { syncOrganization } = require('./syncOrganization')
-const { syncSubscriptions } = require('./syncSubscriptions')
-const { syncTokens } = require('./syncTokens')
+
+const SYNC_BANK_ACCOUNTS_FROM_SBBOL = 'sync-bank-accounts-from-sbbol'
 
 /**
  * Params for direct execution of GraphQL queries and mutations using Keystone
@@ -56,9 +67,10 @@ const { syncTokens } = require('./syncTokens')
  * @param {UserInfo} userInfo data from OAuth client about user
  * @param {TokenSet} tokenSet
  * @param {string} reqId
+ * @param {Array<string>} features list of features to sync
  * @return {Promise<void>}
  */
-const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
+const sync = async ({ keystone, userInfo, tokenSet, features  }) => {
     const adminContext = await keystone.createContext({ skipAccessControl: true })
     const context = {
         keystone,
@@ -86,31 +98,84 @@ const sync = async ({ keystone, userInfo, tokenSet, reqId }) => {
     const userData = {
         ...dvSenderFields,
         name: userInfo.name || userInfo.OrgName,
-        importId: userInfo.userGuid,
-        importRemoteSystem: SBBOL_IMPORT_NAME,
         email: normalizeEmail(userInfo.email),
-        phone: normalizePhone(userInfo.phone_number),
+        phone: normalizePhone(userInfo.phone_number) || userInfo.phone_number,
         isPhoneVerified: true,
         isEmailVerified: true,
         password: faker.internet.password(),
     }
 
-    const user = await syncUser({ context, userInfo: userData })
-    const organization = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
+    const user = await syncUser({ context, userInfo: userData, identityId: userInfo.userGuid })
+    const { organization, employee } = await syncOrganization({ context, user, userData, organizationInfo, dvSenderFields })
     const sbbolSecretStorage = getSbbolSecretStorage()
     await sbbolSecretStorage.setOrganization(organization.id)
-    await syncTokens(tokenSet)
-    await syncSubscriptions()
+    await syncTokens(tokenSet, user.id)
+    await syncServiceSubscriptions(userInfo.inn)
+    await syncFeatures({ context, organization, features })
 
-    const organizationEmployee = await getOrganizationEmployee({ context, user, organization })
-    if (!organizationEmployee) {
-        throw new Error('Failed to bind user to organization')
+    if (await featureToggleManager.isFeatureEnabled(adminContext, SYNC_BANK_ACCOUNTS_FROM_SBBOL, { organization: organization.id })) {
+        await syncBankAccounts(user.id, organization)
+
+        const foundOrganizationContext = await BankIntegrationOrganizationContext.getAll(adminContext, {
+            organization: { id: organization.id },
+            integration: { id: BANK_INTEGRATION_IDS.SBBOL },
+            deletedAt: null,
+        })
+
+        if (isEmpty(foundOrganizationContext)) {
+            await BankIntegrationOrganizationContext.create(adminContext, {
+                organization: { connect: { id: organization.id } },
+                integration: { connect: { id: BANK_INTEGRATION_IDS.SBBOL } },
+                ...dvSenderFields,
+            })
+
+        }
+
+        const bankAccounts = await BankAccount.getAll(adminContext, {
+            organization: {
+                id: organization.id,
+            },
+            integrationContext: {
+                integration: {
+                    id: BANK_INTEGRATION_IDS.SBBOL,
+                },
+                deletedAt: null,
+            },
+            deletedAt: null,
+        })
+        for (let bankAccount of bankAccounts) {
+            const bankSyncTask = await BankSyncTask.getAll(adminContext, {
+                account: { id: bankAccount.id },
+                options: {
+                    type: SBBOL,
+                },
+            }, { first: 1 })
+            /*
+                If this account has already been loading transactions, then I do not do it again.
+                Without this check, each time the user logs in, there will be spam from a large number of progressBars.
+                1 progressBar per bankAccount
+            */
+            if (isEmpty(bankSyncTask)) {
+                await BankSyncTask.create(adminContext, {
+                    account: { connect: { id: bankAccount.id } },
+                    organization: { connect: { id: organization.id } },
+                    user: { connect: { id: user.id } },
+                    totalCount: 0,
+                    options: {
+                        type: SBBOL,
+                        dateFrom: dayjs().subtract(1, 'day').format('YYYY-MM-DD'), // a full statement can be obtained only for the past day
+                        dateTo: dayjs().subtract(1, 'day').format('YYYY-MM-DD'),
+                    },
+                    ...dvSenderFields,
+                })
+            }
+        }
     }
 
     return {
         user,
         organization,
-        organizationEmployee,
+        organizationEmployee: employee,
     }
 }
 

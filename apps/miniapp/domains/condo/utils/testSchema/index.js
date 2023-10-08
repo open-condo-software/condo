@@ -3,10 +3,10 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
-const { getRandomString, makeLoggedInClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { faker } = require('@faker-js/faker')
+const { getRandomString, makeLoggedInClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { STAFF_USER_TYPE, RESIDENT_USER_TYPE } = require('@miniapp/domains/condo/constants/user')
 
 const { User: UserGQL } = require('@miniapp/domains/condo/gql')
@@ -16,7 +16,7 @@ const User = generateGQLTestUtils(UserGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const createTestEmail = () => ('test.' + getRandomString() + '@example.com').toLowerCase()
-const createTestPhone = () => faker.phone.phoneNumber('+79#########')
+const createTestPhone = () => faker.phone.number('+79#########')
 
 async function createTestUser (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')

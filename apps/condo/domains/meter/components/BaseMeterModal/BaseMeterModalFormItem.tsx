@@ -1,7 +1,7 @@
-import React from 'react'
-import { FormItemProps } from 'antd/es'
-import { Form } from 'antd'
 import styled from '@emotion/styled'
+import { Form } from 'antd'
+import { FormItemProps } from 'antd/es'
+import React from 'react'
 
 import { colors } from '@condo/domains/common/constants/style'
 

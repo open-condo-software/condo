@@ -1,3 +1,7 @@
+const Ajv = require('ajv')
+
+const { Json } = require('@open-condo/keystone/fields')
+
 const {
     FEE_DISTRIBUTION_FIELD_NAME,
     FEE_DISTRIBUTION_INPUT_NAME,
@@ -5,8 +9,6 @@ const {
     FEE_DISTRIBUTION_SCHEMA_INPUT_NAME,
 } = require('@condo/domains/acquiring/constants/gql')
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
-const { Json } = require('@condo/keystone/fields')
-const Ajv = require('ajv')
 
 const FeeDistributionFields = {
     recipient: 'String!',

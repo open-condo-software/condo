@@ -8,7 +8,9 @@ import {
     TicketChangeUpdateInput,
     QueryAllTicketChangesArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { TicketChange as TicketChangeGQL } from '@condo/domains/ticket/gql'
 
 const {

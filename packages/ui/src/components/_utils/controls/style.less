@@ -1,0 +1,39 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+@condo-control-lg-size: 40px;
+@condo-control-sm-size: 28px;
+
+.condo-control(@size, @gap) {
+  gap: @gap;
+  width: @size !important;
+  height: @size !important;
+}
+
+.condo-control {
+  .condo-control(@condo-control-lg-size, (@condo-control-lg-size / 4));
+
+  display: flex !important;
+  align-items: center;
+  box-sizing: border-box;
+  color: @condo-global-color-gray-7 !important;
+  background: @condo-global-color-white !important;
+  border: @condo-global-border-width-default solid @condo-global-color-white !important;
+  border-radius: 50%;
+  box-shadow: @condo-global-box-shadow-default;
+  transition-timing-function: ease-out;
+  transition-duration: @condo-global-transition-duration-default;
+  transition-property: color, border;
+
+  &:hover {
+    color: @condo-global-color-black !important;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-3 !important;
+  }
+
+  &-prev {
+    scale: -1 1;
+  }
+
+  &-small {
+    .condo-control(@condo-control-sm-size, ((@condo-control-sm-size - @condo-global-spacing-16) / 2));
+  }
+}

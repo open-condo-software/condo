@@ -8,7 +8,9 @@ import {
     B2BAppAccessRightUpdateInput,
     QueryAllB2BAppAccessRightsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { B2BAppAccessRight as B2BAppAccessRightGQL } from '@condo/domains/miniapp/gql'
 
 const {

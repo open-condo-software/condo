@@ -1,20 +1,27 @@
-import { useCallback, useMemo } from 'react'
-import { get } from 'lodash'
+import compact from 'lodash/compact'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
-import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {
     getDateRender,
     renderMeterReading,
     getTextRender,
-    getTableCellRenderer, getAddressRender,
+    getAddressRender, getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 import { getResourceRender, getUnitRender } from '@condo/domains/meter/utils/clientSchema/Renders'
+import {
+    getMeterReportingPeriodRender,
+    getTicketUserNameRender,
+} from '@condo/domains/ticket/utils/clientSchema/Renders'
+
 
 const renderMeterRecord = (record) => {
     const value1 = get(record, 'value1')
@@ -27,7 +34,7 @@ const renderMeterRecord = (record) => {
     return renderMeterReading([value1, value2, value3, value4], resourceId, measure)
 }
 
-export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
+export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>, meterPageType: MeterPageTypes = METER_PAGE_TYPES.meter) {
     const intl = useIntl()
     const ClientNameMessage = intl.formatMessage({ id: 'Contact' })
     const AddressMessage = intl.formatMessage({ id: 'field.Address' })
@@ -40,6 +47,8 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
     const AccountNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
+    const PeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.Period' })
+    const CustomPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.Table.customPeriod' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -47,12 +56,46 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
 
     const search = getFilteredValue(filters, 'search')
 
-    const renderAddress = useCallback((_, meterReading) =>
-        getAddressRender(get(meterReading, ['meter', 'property']), DeletedMessage, search),
-    [DeletedMessage, search])
+    const isPropertyMeter = meterPageType === METER_PAGE_TYPES.propertyMeter
+
+    const renderAddress = useCallback((_, record) => {
+        const property = meterPageType === METER_PAGE_TYPES.reportingPeriod ? get(record, ['property']) : get(record, ['meter', 'property'])
+        if (property) {
+            return getAddressRender(
+                property,
+                DeletedMessage,
+                search
+            )
+        }
+
+        if (record.organization) {
+            return CustomPeriodMessage
+        }
+    }, [DeletedMessage, search, meterPageType])
+
+    const renderSource = useCallback((source) => getTableCellRenderer({ search })(source.name), [search])
 
     return useMemo(() => {
-        return [
+        return meterPageType === METER_PAGE_TYPES.reportingPeriod ? [
+            {
+                title: AddressMessage,
+                filteredValue: getFilteredValue(filters, 'address'),
+                key: 'address',
+                width: '70%',
+                render: renderAddress,
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
+                filterIcon: getFilterIcon,
+            },
+            {
+                title: PeriodMessage,
+                sortOrder: get(sorterMap, 'reportingPeriod'),
+                key: 'reportingPeriod',
+                sorter: true,
+                width: '30%',
+                render: getMeterReportingPeriodRender(search, intl),
+                filterIcon: getFilterIcon,
+            },
+        ] : compact([
             {
                 title: MeterReadingDateMessage,
                 sortOrder: get(sorterMap, 'date'),
@@ -73,7 +116,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'address'),
                 filterIcon: getFilterIcon,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: UnitMessage,
                 filteredValue: getFilteredValue(filters, 'unitName'),
                 key: 'unitName',
@@ -93,7 +136,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: getResourceRender(intl, search),
                 filterIcon: getFilterIcon,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: AccountNumberMessage,
                 filteredValue: getFilteredValue(filters, 'accountNumber'),
                 dataIndex: ['meter', 'accountNumber'],
@@ -113,7 +156,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 render: getTextRender(search),
                 filterIcon: getFilterIcon,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: PlaceMessage,
                 filteredValue: getFilteredValue(filters, 'place'),
                 dataIndex: ['meter', 'place'],
@@ -130,7 +173,7 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 width: '15%',
                 render: renderMeterRecord,
             },
-            {
+            isPropertyMeter ? undefined : {
                 title: ClientNameMessage,
                 sortOrder: get(sorterMap, 'clientName'),
                 filteredValue: getFilteredValue(filters, 'clientName'),
@@ -139,38 +182,21 @@ export function useTableColumns <T> (filterMetas: Array<FiltersMeta<T>>) {
                 sorter: true,
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'clientName'),
-                render: getTableCellRenderer(search, true),
+                render: getTicketUserNameRender(search),
                 filterIcon: getFilterIcon,
             },
             {
                 title: SourceMessage,
                 sortOrder: get(sorterMap, 'source'),
                 filteredValue: getFilteredValue(filters, 'source'),
-                dataIndex: ['source', 'name'],
+                dataIndex: 'source',
                 key: 'source',
                 sorter: true,
                 width: '12%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'source'),
-                render: getTextRender(search),
+                render: renderSource,
                 filterIcon: getFilterIcon,
             },
-        ]
-    }, [
-        intl,
-        AccountNumberMessage,
-        AddressMessage,
-        ClientNameMessage,
-        MeterNumberMessage,
-        MeterReadingMessage,
-        MeterReadingDateMessage,
-        PlaceMessage,
-        SourceMessage,
-        ServiceMessage,
-        UnitMessage,
-        filterMetas,
-        filters,
-        search,
-        sorterMap,
-        renderAddress,
-    ])
+        ])
+    }, [meterPageType, MeterReadingDateMessage, sorterMap, filters, intl, search, filterMetas, AddressMessage, renderAddress, UnitMessage, ServiceMessage, AccountNumberMessage, MeterNumberMessage, PlaceMessage, MeterReadingMessage, ClientNameMessage, SourceMessage, renderSource])
 }

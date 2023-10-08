@@ -1,8 +1,6 @@
-import { Grid } from 'antd'
-import { ScreenMap } from 'antd/es/_util/responsiveObserve'
 import React, { createContext, useContext } from 'react'
 
-const { useBreakpoint } = Grid
+import { ScreenMap, useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 interface ILayoutContext {
     isMobile?: boolean
@@ -23,8 +21,8 @@ const LayoutContext = createContext<ILayoutContext>({})
 export const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
 
 export const LayoutContextProvider: React.FC = (props) => {
-    const breakpoints = useBreakpoint()
-    const isSmall = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.lg
+    const breakpoints = useBreakpoints()
+    const isSmall = (breakpoints.TABLET_LARGE || breakpoints.MOBILE_SMALL || breakpoints.TABLET_SMALL) && !breakpoints.DESKTOP_SMALL
 
     return (
         <LayoutContext.Provider value={{

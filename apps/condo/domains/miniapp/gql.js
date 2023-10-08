@@ -5,12 +5,16 @@
  */
 
 const { gql } = require('graphql-tag')
+const pluralize = require('pluralize')
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
+const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('./constants')
+
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const APP_FIELDS = '{ id name shortDescription connected type category logo }'
+const APP_FIELDS = '{ id name shortDescription connected accessible category logo label icon menuCategory }'
  
 const ALL_MINI_APPS_QUERY = gql`
     query getAllMiniApps ($data: AllMiniAppsInput!) {
@@ -18,13 +22,23 @@ const ALL_MINI_APPS_QUERY = gql`
     }
 `
 
-const B2B_APP_FIELDS = `{ name logo { publicUrl } shortDescription about developer partnerUrl instruction connectedMessage appUrl category setupButtonMessage features ${COMMON_FIELDS} }`
+const SEND_B2C_APP_PUSH_MESSAGE_MUTATION = gql`
+    mutation sendB2CAppPushMessage ($data: SendB2CAppPushMessageInput!) {
+        result: sendB2CAppPushMessage(data: $data) { id status }
+    }
+`
+
+const B2B_APP_FIELDS = `{ name logo { publicUrl } icon shortDescription detailedDescription developer partnerUrl appUrl category label gallery price features ${COMMON_FIELDS} }`
 const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 
-const B2B_APP_CONTEXT_FIELDS = `{ app { id } organization { id } status ${COMMON_FIELDS} }`
+const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
-const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } ${COMMON_FIELDS} }`
+const B2B_ACCESSES_FIELDS = Object.keys(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG)
+    .map(schemaName => `canManage${pluralize.plural(schemaName)} canRead${pluralize.plural(schemaName)}`)
+    .join(' ')
+
+const B2B_APP_ACCESS_RIGHT_FIELDS = `{ app { id } user { id } accessRightSet { id deletedAt ${B2B_ACCESSES_FIELDS} } ${COMMON_FIELDS} }`
 const B2BAppAccessRight = generateGqlQueries('B2BAppAccessRight', B2B_APP_ACCESS_RIGHT_FIELDS)
 
 const B2C_APP_FIELDS = `{ name isHidden colorSchema { main secondary } currentBuild { id } ${COMMON_FIELDS} }`
@@ -39,16 +53,37 @@ const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 const B2C_APP_PROPERTY_FIELDS = `{ app { id } address ${COMMON_FIELDS} }`
 const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
 
+const B2B_APP_PERMISSION_FIELDS = `{ app { id } key name ${COMMON_FIELDS} }`
+const B2BAppPermission = generateGqlQueries('B2BAppPermission', B2B_APP_PERMISSION_FIELDS)
+
+const B2B_APP_PROMO_BLOCK_FIELDS = `{ title subtitle textVariant backgroundColor backgroundImage { publicUrl } targetUrl external priority ${COMMON_FIELDS} }`
+const B2BAppPromoBlock = generateGqlQueries('B2BAppPromoBlock', B2B_APP_PROMO_BLOCK_FIELDS)
+
+const B2B_APP_ROLE_FIELDS = `{ app { id } role { id } permissions ${COMMON_FIELDS} }`
+const B2BAppRole = generateGqlQueries('B2BAppRole', B2B_APP_ROLE_FIELDS)
+
+const MESSAGE_APP_BLACK_LIST_FIELDS = `{ app { id } description ${COMMON_FIELDS} }`
+const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_APP_BLACK_LIST_FIELDS)
+
+const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${B2B_ACCESSES_FIELDS} ${COMMON_FIELDS} }`
+const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     ALL_MINI_APPS_QUERY,
+    SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
     B2BApp,
     B2BAppContext,
     B2BAppAccessRight,
+    B2BAppAccessRightSet,
+    B2BAppPermission,
+    B2BAppPromoBlock,
+    B2BAppRole,
     B2CApp,
     B2CAppAccessRight,
     B2CAppBuild,
     B2CAppProperty,
+    MessageAppBlackList,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

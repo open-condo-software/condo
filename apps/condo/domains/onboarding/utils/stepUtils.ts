@@ -1,5 +1,6 @@
-import get from 'lodash/get'
 import { OnBoarding, OnBoardingStep, OnBoardingStep as OnBoardingStepInterface } from '@app/condo/schema'
+import get from 'lodash/get'
+
 import { OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 
 export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${step.entity}`
@@ -7,7 +8,7 @@ export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${s
 export const getParentStep = (stepTransitions: Record<string, Array<string>>, stepKey: string, steps: Array<OnBoardingStepInterface>) => {
     let parentKey: string | undefined
 
-    Object.keys(stepTransitions).map((key) => {
+    Object.keys(stepTransitions).forEach((key) => {
         if (!parentKey && stepTransitions[key].includes(stepKey)) {
             parentKey = key
         }

@@ -1,7 +1,9 @@
-import React from 'react'
-import { useIntl } from '@condo/next/intl'
-import Router from 'next/router'
 import { Tabs } from 'antd'
+import Router from 'next/router'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { RemoveTabsLineWrapper } from '@condo/domains/user/components/containers/styles'
 
 interface ITabsActionsProps {

@@ -3,14 +3,21 @@
  */
 
 const { Relationship, DateTimeUtc, Decimal } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { CONTACT_FIELD, CLIENT_EMAIL_FIELD, CLIENT_NAME_FIELD, CLIENT_PHONE_FIELD, CLIENT_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/MeterReading')
-const get = require('lodash/get')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { addClientInfoToResidentMeterReading } = require('../utils/serverSchema/resolveHelpers')
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
+const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
+const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+
 
 const MeterReading = new GQLListSchema('MeterReading', {
     schemaDoc: 'Meter reading taken from a client or billing',
@@ -18,7 +25,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
         date: {
             schemaDoc: 'Date when the readings were taken',
             type: DateTimeUtc,
-            isRequired: true,
         },
 
         meter: {
@@ -68,11 +74,30 @@ const MeterReading = new GQLListSchema('MeterReading', {
 
     },
     hooks: {
-        resolveInput: async ({ operation, context, resolvedData }) => {
+        resolveInput: async ({ operation, context, resolvedData, existingItem }) => {
             const user = get(context, ['req', 'user'])
 
+            if (operation === 'create' && isEmpty(resolvedData['date'])) {
+                resolvedData['date'] = new Date().toISOString()
+            }
+
             if (operation === 'create' && user.type === RESIDENT) {
-                await addClientInfoToResidentMeterReading(context, resolvedData)
+                addClientInfoToResidentMeterReading(context, resolvedData)
+            }
+
+            const meter = await Meter.getOne(context, {
+                id: get(resolvedData, 'meter', null),
+            })
+            if (meter && resolvedData.clientName && resolvedData.clientPhone) {
+                const contactCreationData = {
+                    ...resolvedData,
+                    organization: get(meter, ['organization', 'id']),
+                    property: get(meter, ['property', 'id']),
+                    unitName: get(meter, 'unitName'),
+                    unitType: get(meter, 'unitType'),
+                }
+
+                resolvedData.contact = await connectContactToMeterReading(context, contactCreationData, existingItem)
             }
 
             return resolvedData
@@ -86,6 +111,7 @@ const MeterReading = new GQLListSchema('MeterReading', {
         softDeleted(),
         dvAndSender(),
         historical(),
+        serviceUserAccessForB2BApp(),
     ],
     access: {
         read: access.canReadMeterReadings,

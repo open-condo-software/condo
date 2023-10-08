@@ -1,14 +1,4 @@
-import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
-import { IFrameWrapper } from '@condo/domains/common/components/IFrame'
-import '@condo/domains/common/components/wdyr'
-import { messagesImporter as condoMessageImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
-import { withApollo } from '@condo/next/apollo'
-import { withAuth } from '@condo/next/auth'
-import { useIntl, withIntl } from '@condo/next/intl'
 import { CacheProvider } from '@emotion/core'
-import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
-import { withOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
-import { withOrganization } from '@miniapp/domains/common/utils/organization'
 import { ConfigProvider } from 'antd'
 import enUS from 'antd/lib/locale/en_US'
 import ruRU from 'antd/lib/locale/ru_RU'
@@ -17,6 +7,18 @@ import { cache } from 'emotion'
 import { gql } from 'graphql-tag'
 import Head from 'next/head'
 import React from 'react'
+
+import { withApollo } from '@open-condo/next/apollo'
+import { withAuth } from '@open-condo/next/auth'
+import { useIntl, withIntl } from '@open-condo/next/intl'
+
+import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
+import { messagesImporter as condoMessageImporter } from '@condo/domains/common/utils/clientSchema/messagesImporter'
+import { AppFrameWrapper } from '@condo/domains/miniapp/components/AppFrameWrapper'
+import { BaseLayout, LayoutContextProvider } from '@miniapp/domains/common/components/BaseLayout'
+import { withOidcAuth } from '@miniapp/domains/common/utils/oidcAuth'
+import '@condo/domains/common/components/wdyr'
+import '@open-condo/ui/dist/styles.min.css'
 
 const ANT_LOCALES = {
     ru: ruRU,
@@ -29,7 +31,7 @@ const MyApp = ({ Component, pageProps }) => {
 
     const LayoutComponent = Component.container || BaseLayout
     return (
-        <IFrameWrapper withUser withOrganization>
+        <AppFrameWrapper>
             <ConfigProvider locale={ANT_LOCALES[intl.locale || 'en']} componentSize='large'>
                 <CacheProvider value={cache}>
                     <Head>
@@ -47,7 +49,7 @@ const MyApp = ({ Component, pageProps }) => {
                     </LayoutContextProvider>
                 </CacheProvider>
             </ConfigProvider>
-        </IFrameWrapper>
+        </AppFrameWrapper>
     )
 }
 
@@ -84,11 +86,9 @@ const customAuthMutations = {
 export default (
     withApollo({ ssr: true })(
         withIntl({ ssr: true, messagesImporter })(
-            withOrganization()( // organization is needed for oidc auth
-                withAuth({ ssr: true, ...customAuthMutations })( // Auth is mandatory to detection is oauth needed or not
-                    withOidcAuth()(
-                        MyApp,
-                    ),
+            withAuth({ ssr: true, ...customAuthMutations })( // Auth is mandatory to detection is oauth needed or not
+                withOidcAuth()(
+                    MyApp,
                 ),
             ),
         ),

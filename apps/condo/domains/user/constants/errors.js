@@ -1,3 +1,5 @@
+const { MIN_PASSWORD_LENGTH, MAX_PASSWORD_LENGTH, MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD } = require('./common')
+
 const WRONG_PASSWORD_ERROR = '[passwordAuth:secret:mismatch'
 const EMPTY_PASSWORD_ERROR = '[passwordAuth:secret:notSet'
 const WRONG_EMAIL_ERROR = '[passwordAuth:identity:notFound'
@@ -16,7 +18,6 @@ const UNABLE_TO_CREATE_USER = 'UNABLE_TO_CREATE_USER'
 const UNABLE_TO_CREATE_CONTACT_DUPLICATE = 'UNABLE_TO_CREATE_CONTACT'
 const UNABLE_TO_UPDATE_CONTACT_DUPLICATE = 'UNABLE_TO_UPDATE_CONTACT_DUPLICATE'
 
-const PASSWORD_IS_TOO_SHORT = 'PASSWORD_IS_TOO_SHORT'
 const TOKEN_EXPIRED_ERROR = '[resetPassword:token:expired'
 
 const MIN_PASSWORD_LENGTH_ERROR = '[register:password:minLength'
@@ -48,11 +49,21 @@ const CAPTCHA_CHECK_FAILED = 'CAPTCHA_CHECK_FAILED'
 const UNABLE_TO_FIND_CONFIRM_PHONE_ACTION = 'UNABLE_TO_FIND_CONFIRM_PHONE_ACTION'
 const CANNOT_RESET_ADMIN_USER = 'CANNOT_RESET_ADMIN_USER'
 
+const EMPTY_EXTERNAL_IDENTITY_ID_VALUE = 'EMPTY_EXTERNAL_IDENTITY_ID_VALUE'
+
+const WRONG_PASSWORD_FORMAT = 'WRONG_PASSWORD_FORMAT'
+const INVALID_PASSWORD_LENGTH = 'INVALID_PASSWORD_LENGTH'
+const PASSWORD_CONTAINS_EMAIL = 'PASSWORD_CONTAINS_EMAIL'
+const PASSWORD_CONTAINS_PHONE = 'PASSWORD_CONTAINS_PHONE'
+const PASSWORD_IS_FREQUENTLY_USED = 'PASSWORD_IS_FREQUENTLY_USED'
+const PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS = 'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS'
+
 const GQL_ERRORS = {
     TOO_MANY_REQUESTS: {
         code: 'BAD_USER_INPUT',
         type: TOO_MANY_REQUESTS,
         message: 'You have to wait {secondsRemaining} seconds to be able to send request again',
+        messageForUser: 'api.user.TOO_MANY_REQUESTS',
     },
     SMS_FOR_PHONE_DAY_LIMIT_REACHED: {
         code: 'BAD_USER_INPUT',
@@ -63,6 +74,55 @@ const GQL_ERRORS = {
         code: 'BAD_USER_INPUT',
         type: SMS_FOR_IP_DAY_LIMIT_REACHED,
         message: 'Too many sms requests from this ip address. Try again tomorrow',
+    },
+    WRONG_PASSWORD_FORMAT: {
+        variable: ['data', 'password'],
+        code: 'BAD_USER_INPUT',
+        type: WRONG_PASSWORD_FORMAT,
+        message: 'Password must be in string format',
+        messageForUser: 'api.user.WRONG_PASSWORD_FORMAT',
+    },
+    INVALID_PASSWORD_LENGTH: {
+        variable: ['data', 'password'],
+        code: 'BAD_USER_INPUT',
+        type: INVALID_PASSWORD_LENGTH,
+        message: `Password length must be between ${MIN_PASSWORD_LENGTH} and ${MAX_PASSWORD_LENGTH} characters`,
+        messageForUser: 'api.user.INVALID_PASSWORD_LENGTH',
+        messageInterpolation: {
+            min: MIN_PASSWORD_LENGTH,
+            max: MAX_PASSWORD_LENGTH,
+        },
+    },
+    PASSWORD_CONTAINS_EMAIL: {
+        variable: ['data', 'password'],
+        code: 'BAD_USER_INPUT',
+        type: PASSWORD_CONTAINS_EMAIL,
+        message: 'Password must not contain email',
+        messageForUser: 'api.user.PASSWORD_CONTAINS_EMAIL',
+    },
+    PASSWORD_CONTAINS_PHONE: {
+        variable: ['data', 'password'],
+        code: 'BAD_USER_INPUT',
+        type: PASSWORD_CONTAINS_PHONE,
+        message: 'Password must not contain phone',
+        messageForUser: 'api.user.PASSWORD_CONTAINS_PHONE',
+    },
+    PASSWORD_IS_FREQUENTLY_USED: {
+        variable: ['data', 'password'],
+        code: 'BAD_USER_INPUT',
+        type: PASSWORD_IS_FREQUENTLY_USED,
+        message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
+        messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
+    },
+    PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS: {
+        variable: ['data', 'password'],
+        code: 'BAD_USER_INPUT',
+        type: PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+        message: `Password must contain at least ${MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD} different characters`,
+        messageForUser: 'api.user.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
+        messageInterpolation: {
+            min: MIN_COUNT_OF_DIFFERENT_CHARACTERS_IN_PASSWORD,
+        },
     },
 }
 
@@ -87,7 +147,6 @@ module.exports = {
     UNABLE_TO_CREATE_CONTACT_DUPLICATE,
     UNABLE_TO_UPDATE_CONTACT_DUPLICATE,
     UNABLE_TO_CREATE_USER,
-    PASSWORD_IS_TOO_SHORT,
     TOKEN_EXPIRED_ERROR,
     MIN_PASSWORD_LENGTH_ERROR,
     PASSWORD_IS_FREQUENTLY_USED_ERROR,
@@ -104,5 +163,10 @@ module.exports = {
     SMS_FOR_PHONE_DAY_LIMIT_REACHED,
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
     CANNOT_RESET_ADMIN_USER,
+    EMPTY_EXTERNAL_IDENTITY_ID_VALUE,
     GQL_ERRORS,
+    WRONG_PASSWORD_FORMAT,
+    INVALID_PASSWORD_LENGTH,
+    PASSWORD_CONTAINS_EMAIL,
+    PASSWORD_CONTAINS_PHONE,
 }

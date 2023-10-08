@@ -3,10 +3,12 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Resident } = require('./Resident')
+const { DiscoverServiceConsumersService } = require('./DiscoverServiceConsumersService')
 const { RegisterResidentService } = require('./RegisterResidentService')
-const { ServiceConsumer } = require('./ServiceConsumer')
 const { RegisterServiceConsumerService } = require('./RegisterServiceConsumerService')
+const { Resident } = require('./Resident')
+const { SendMessageToResidentScopesService } = require('./SendMessageToResidentScopesService')
+const { ServiceConsumer } = require('./ServiceConsumer')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -14,5 +16,7 @@ module.exports = {
     RegisterResidentService,
     ServiceConsumer,
     RegisterServiceConsumerService,
+    SendMessageToResidentScopesService,
+    DiscoverServiceConsumersService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

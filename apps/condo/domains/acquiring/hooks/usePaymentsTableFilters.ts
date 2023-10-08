@@ -1,4 +1,9 @@
 import { BillingIntegrationOrganizationContext, PaymentWhereInput } from '@app/condo/schema'
+import { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { searchAcquiringIntegration, searchBillingProperty } from '@condo/domains/acquiring/utils/clientSchema/search'
 import {
     ComponentType,
@@ -7,9 +12,7 @@ import {
     FiltersMeta,
 } from '@condo/domains/common/utils/filters.utils'
 import { getDayRangeFilter, getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
-import { useIntl } from '@condo/next/intl'
-import { useMemo } from 'react'
-import { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
+
 
 const addressFilter = getStringContainsFilter(['receipt', 'property', 'address'])
 const accountFilter = getStringContainsFilter(['accountNumber'])

@@ -7,7 +7,9 @@ import {
     MeterResourceCreateInput,
     MeterResourceUpdateInput,
     QueryAllMeterResourcesArgs } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { MeterResource as MeterResourceGQL } from '@condo/domains/meter/gql'
 
 const {

@@ -1,14 +1,4 @@
-const qs = require('qs')
 const { JAVASCRIPT_URL_XSS } = require('@condo/domains/common/constants/regexps')
-
-function getQueryParams () {
-    if (typeof global === 'undefined' || !global.location) return {}
-    let startIndex = global.location.href.indexOf('?')
-    let endIndex = global.location.href.indexOf('#')
-    if (startIndex === -1) return {}
-    if (endIndex === -1) endIndex = global.location.href.length
-    return qs.parse(global.location.href.substring(startIndex + 1, endIndex))
-}
 
 // refs to: https://stackoverflow.com/questions/8498592/extract-hostname-name-from-string
 function extractHostname (url) {
@@ -65,7 +55,6 @@ function isSafeUrl (url) {
 module.exports = {
     extractHostname,
     extractRootDomain,
-    getQueryParams,
     extractOrigin,
     isSafeUrl,
 }

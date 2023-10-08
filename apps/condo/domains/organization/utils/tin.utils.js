@@ -1,5 +1,5 @@
-const isString = require('lodash/isString')
 const isNumber = require('lodash/isNumber')
+const isString = require('lodash/isString')
 
 const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 
@@ -33,7 +33,7 @@ const isValidTin = (tinValue = null, country = RUSSIA_COUNTRY) => {
     if (country === RUSSIA_COUNTRY) return validateTinRU(tinValue)
 
     // TODO: DOMA-663 add tin validations for countries other than Russian Federation
-    return false
+    return true
 }
 
 const getIsValidTin = (country = RUSSIA_COUNTRY) => (tinValue = null) => isValidTin(tinValue, country)

@@ -1,4 +1,15 @@
 import { InboxOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
+import { Button, Col, Form, Progress, Row, Table, Typography, Upload } from 'antd'
+import React, { useEffect, useState } from 'react'
+import { useImmer } from 'use-immer'
+import XLSX from 'xlsx'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { TABLE_UPLOAD_ACCEPT_FILES } from '@condo/domains/common/constants/fileExtensions'
 import {
     defaultValidator,
@@ -7,17 +18,7 @@ import {
     makeAntdData,
     reValidateExData,
 } from '@condo/domains/common/utils/excel.utils'
-import { useIntl } from '@condo/next/intl'
-import styled from '@emotion/styled'
-import { Button, Col, Form, Progress, Row, Table, Typography, Upload } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import Input from '@condo/domains/common/components/antd/Input'
-import Select from '@condo/domains/common/components/antd/Select'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-nocheck
-import React, { useEffect, useState } from 'react'
-import { useImmer } from 'use-immer'
-import XLSX from 'xlsx'
+
 import { CreateFormListItemButton } from './FormList'
 
 const ErrorText = styled.div`

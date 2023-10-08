@@ -1,4 +1,29 @@
+/**
+ * @jest-environment node
+ */
+const index = require('@app/condo/index')
 const ObsClient = require('esdk-obs-nodejs')
+
+const {
+    setFakeClientMode,
+    makeLoggedInAdminClient,
+} = require('@open-condo/keystone/test.utils')
+
+const {
+    createTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingIntegration,
+} = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const {
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
+
+const { obsRouterHandler } = require('./sberCloudFileAdapter')
+
+const { keystone } = index
+
 const FOLDER_NAME = '__jest_test_api___'
 
 
@@ -9,7 +34,7 @@ class SberCloudObsTest {
             throw new Error('SberCloudAdapter: S3Adapter requires a bucket name.')
         }
         this.obs = new ObsClient(config.s3Options)
-        this.folder = config.folder     
+        this.folder = config.folder
     }
 
     async checkBucket () {
@@ -44,10 +69,10 @@ class SberCloudObsTest {
         return serverAnswer
     }
 
-    async getMeta (filename) {
-        const result  = await this.s3.getObjectMetadata({
+    async getMeta (name) {
+        const result = await this.obs.getObjectMetadata({
             Bucket: this.bucket,
-            Key: filename,
+            Key: `${this.folder}/${name}`,
         })
         if (result.CommonMsg.Status < 300) {
             return result.InterfaceResult.Metadata
@@ -56,17 +81,17 @@ class SberCloudObsTest {
         }
     }
 
-    async setMeta (filename, newMeta = {} ) {
-        const result = await this.s3.setObjectMetadata({
+    async setMeta (name, newMeta = {}) {
+        const result = await this.obs.setObjectMetadata({
             Bucket: this.bucket,
-            Key: filename,
+            Key: `${this.folder}/${name}`,
             Metadata: newMeta,
             MetadataDirective: 'REPLACE_NEW',
         })
-        const  { CommonMsg: { Status } } = result 
+        const { CommonMsg: { Status } } = result
         return Status < 300
-    }    
-    
+    }
+
     static async initApi () {
         const S3Config = {
             ...(process.env.SBERCLOUD_OBS_CONFIG ? JSON.parse(process.env.SBERCLOUD_OBS_CONFIG) : {}),
@@ -83,11 +108,35 @@ class SberCloudObsTest {
             return null
         }
         return Api
-    }    
+    }
 }
 
 
 describe('Sbercloud', () => {
+    let handler
+    let mockedNext, mockedReq, mockedRes
+
+    setFakeClientMode(index)
+
+    beforeAll(async () => {
+        handler = obsRouterHandler({ keystone })
+        mockedNext = () => {
+            throw new Error('calling method not expected by test cases')
+        }
+        mockedReq = (file, user) => ({
+            get: (header) => header,
+            params: { file },
+            user,
+        })
+        mockedRes = {
+            sendStatus: mockedNext,
+            status: mockedNext,
+            end: mockedNext,
+            json: mockedNext,
+            redirect: mockedNext,
+        }
+    })
+
     describe('Huawei SDK', () => {
         it('can add file to s3', async () => {
             const Api = await SberCloudObsTest.initApi()
@@ -125,6 +174,66 @@ describe('Sbercloud', () => {
                 const { CommonMsg: { Status: checkStatus } } = await Api.checkObjectExists(name)
                 expect(checkStatus).toBe(404)
             }
-        })    
+        })
+    })
+    describe('Check access to read file', () => {
+        let userClient, support, adminClient,
+            integration, billingContext, Api,
+            getFileWithMeta
+
+        beforeAll(async () => {
+            Api = await SberCloudObsTest.initApi()
+            if (Api) {
+                userClient = await makeClientWithProperty()
+                support = await makeClientWithSupportUser()
+                adminClient = await makeLoggedInAdminClient()
+
+                integration = (await createTestBillingIntegration(support))[0]
+                billingContext = (await createTestBillingIntegrationOrganizationContext(userClient, userClient.organization, integration))[0]
+            }
+
+            getFileWithMeta = async (meta) => {
+                const name = `testFile_${Math.random()}.txt` // NOSONAR
+                const objectName = `${FOLDER_NAME}/${name}`
+                await Api.uploadObject(name, `Random text ${Math.random()}`) // NOSONAR
+                const setMetaResult = await Api.setMeta(name, meta)
+                expect(setMetaResult).toBe(true)
+
+                return {
+                    name, objectName,
+                }
+            }
+        })
+
+        it('check access for read file by model', async () => {
+            if (Api) {
+                const { objectName } = await getFileWithMeta({
+                    listkey: 'BillingIntegrationOrganizationContext',
+                    id: billingContext.id,
+                })
+
+                handler(
+                    mockedReq(objectName, adminClient.user),
+                    { ...mockedRes, redirect: console.log },
+                    mockedNext,
+                )
+            }
+        })
+        it('check access for read file by model param', async () => {
+            if (Api) {
+                const { objectName } = await getFileWithMeta({
+                    listkey: 'BillingIntegrationOrganizationContext',
+                    id: billingContext.id,
+                    propertyquery: 'organization { id }',
+                    propertyvalue: userClient.organization.id,
+                })
+
+                handler(
+                    mockedReq(objectName, adminClient.user),
+                    { ...mockedRes, redirect: console.log },
+                    mockedNext,
+                )
+            }
+        })
     })
 })

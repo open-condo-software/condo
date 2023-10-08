@@ -4,8 +4,8 @@
  * @param {GraphQLError} error
  */
 
-import conf from '@condo/config'
-import { getTranslations } from '@condo/locales/loader'
+import conf from '@open-condo/config'
+import { getTranslations } from '@open-condo/locales/loader'
 import { template } from 'lodash'
 
 /**

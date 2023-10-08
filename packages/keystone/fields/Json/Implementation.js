@@ -1,12 +1,19 @@
-const { Implementation } = require('@keystonejs/fields')
-const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 const { KnexFieldAdapter } = require('@keystonejs/adapter-knex')
+const { MongooseFieldAdapter } = require('@keystonejs/adapter-mongoose')
 const { PrismaFieldAdapter } = require('@keystonejs/adapter-prisma')
+const { Implementation } = require('@keystonejs/fields')
 const stringify = JSON.stringify
+const isFunction = require('lodash/isFunction')
 
 class JsonImplementation extends Implementation {
     // NOTE: argument names are based no Virtual field
-    constructor (path, { isMultiline, graphQLInputType = 'JSON', graphQLReturnType = 'JSON', extendGraphQLTypes = [], graphQLAdminFragment = '' }) {
+    constructor (path, {
+        isMultiline,
+        graphQLInputType = 'JSON',
+        graphQLReturnType = 'JSON',
+        extendGraphQLTypes = [],
+        graphQLAdminFragment = '',
+    }) {
         super(...arguments)
         this.isMultiline = isMultiline
         this.isOrderable = false
@@ -56,6 +63,15 @@ class JsonImplementation extends Implementation {
     getGqlAuxTypes () {
         // NOTE: based on Virtual field source code
         return this.extendGraphQLTypes
+    }
+
+    gqlAuxFieldResolvers (args) {
+        const { schemaName } = args
+        if (isFunction(this.config.gqlAuxFieldResolver)) {
+            return this.config.gqlAuxFieldResolver(args)
+        }
+
+        return super.gqlAuxFieldResolvers({ schemaName })
     }
 
     // Admin

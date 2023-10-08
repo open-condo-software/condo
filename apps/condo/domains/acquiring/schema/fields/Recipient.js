@@ -1,6 +1,8 @@
-const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
-const { Json } = require('@condo/keystone/fields')
 const Ajv = require('ajv')
+
+const { Json } = require('@open-condo/keystone/fields')
+
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const RECIPIENT_FIELDS_DEFINITION = {
     name: 'String',

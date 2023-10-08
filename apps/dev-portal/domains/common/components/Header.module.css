@@ -1,0 +1,46 @@
+.logo-container {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  width: 304px;
+  height: 28px;
+  padding-right: 40px;
+  column-gap: 10px;
+}
+
+.logo-image-wrapper {
+  width: 28px;
+  height: 28px;
+}
+
+.logo-text {
+  color: var(--condo-global-color-black);
+  font-size: 20px;
+  line-height: 24px;
+}
+
+.dropout-wrapper {
+  cursor: pointer;
+}
+
+.logo {
+  object-fit: contain;
+  object-position: left;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 72px !important;
+  padding: 0 48px;
+  line-height: inherit !important;
+  background-color: var(--condo-global-color-white) !important;
+  border-bottom: 1px solid var(--condo-global-color-gray-3);
+}

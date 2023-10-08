@@ -1,28 +1,46 @@
-const faker = require('faker')
-const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
+const { faker } = require('@faker-js/faker')
+
+const { makeLoggedInAdminClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
 const {
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
     MESSAGE_SENT_STATUS,
+    EMAIL_TRANSPORT,
+    PUSH_TRANSPORT,
+    VOIP_INCOMING_CALL_MESSAGE_TYPE,
+    DEVICE_PLATFORM_ANDROID,
+    APP_RESIDENT_ID_ANDROID,
+    APP_RESIDENT_ID_IOS,
+    DEVICE_PLATFORM_IOS,
+    PUSH_TRANSPORT_FIREBASE,
+    PUSH_TRANSPORT_HUAWEI,
+    PUSH_TRANSPORT_APPLE, PUSH_TYPE_SILENT_DATA,
 } = require('@condo/domains/notification/constants/constants')
+const { syncRemoteClientWithPushTokenByTestClient } = require('@condo/domains/notification/utils/testSchema')
+const { getRandomFakeSuccessToken } = require('@condo/domains/notification/utils/testSchema/helpers')
+const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
 
 const { sendMessageByTestClient, resendMessageByTestClient, Message, createTestMessage } = require('../utils/testSchema')
 
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
 
 describe('SendMessageService', () => {
+    let admin
+
+    beforeAll( async () => {
+        admin = await makeLoggedInAdminClient()
+    })
+
     describe('sendMessage', () => {
         describe('called by Admin', () => {
             it('returns sending status', async () => {
-                const admin = await makeLoggedInAdminClient()
-
                 const [data] = await sendMessageByTestClient(admin)
                 expect(data.id).toMatch(UUID_RE)
                 expect(data.status).toEqual(MESSAGE_SENDING_STATUS)
             })
 
             it('returns uniqKey value', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const uniqKey = faker.datatype.uuid()
 
                 const [data] = await sendMessageByTestClient(admin, { uniqKey })
@@ -33,13 +51,12 @@ describe('SendMessageService', () => {
             })
 
             it('creates Message sets "sent" status on successful delivery', async () => {
-                const admin = await makeLoggedInAdminClient()
-
                 const [data, attrs] = await sendMessageByTestClient(admin)
 
                 // give worker some time
                 await waitFor(async () => {
                     const message = await Message.getOne(admin, { id: data.id })
+                    const transportMeta = message.processingMeta.transportsMeta[0]
 
                     expect(message.lang).toEqual(attrs.lang)
                     expect(message.type).toEqual(attrs.type)
@@ -49,20 +66,151 @@ describe('SendMessageService', () => {
                     expect(message.updatedBy).toEqual(null)
                     expect(message.organization).toEqual(null)
                     expect(message.user).toEqual(expect.objectContaining({ id: admin.user.id }))
-                    expect(message.processingMeta).toEqual(expect.objectContaining({
-                        dv: 1,
-                        step: MESSAGE_SENT_STATUS,
-                        transport: 'email',
-                        messageContext: expect.objectContaining({
-                            to: attrs.to.email,
-                        }),
-                    }))
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(EMAIL_TRANSPORT)
+                    expect(transportMeta.messageContext.to).toEqual(attrs.to.email)
                 })
             })
 
+            describe('VoIP messages', () => {
+                it('correctly detects VoIP message type and sends notification to proper FireBase token', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const payload = {
+                        devicePlatform: DEVICE_PLATFORM_ANDROID,
+                        appId: APP_RESIDENT_ID_ANDROID,
+                        pushTransport: PUSH_TRANSPORT_FIREBASE,
+                        pushTypeVoIP: PUSH_TYPE_SILENT_DATA,
+                        pushTokenVoIP: getRandomFakeSuccessToken(),
+                    }
+
+                    await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
+
+                    const messageAttrs = {
+                        to: { user: { id: userClient.user.id } },
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                        meta: {
+                            dv: 1,
+                            body: faker.random.alphaNumeric(8),
+                            title: faker.random.alphaNumeric(8),
+                            data: {
+                                B2CAppId: faker.datatype.uuid(),
+                                callId: faker.datatype.uuid(),
+                            },
+                        },
+                    }
+                    const [data] = await sendMessageByTestClient(admin, messageAttrs)
+
+                    let message
+
+                    await waitFor(async () => {
+                        message = await Message.getOne(admin, { id: data.id })
+
+                        expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message.user.id).toEqual(userClient.user.id)
+                    })
+
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(message.processingMeta.isVoIP).toBeTruthy()
+                    expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).toEqual(payload.pushTokenVoIP)
+                    expect(transportMeta.deliveryMetadata.pushContext[payload.pushTypeVoIP].token).not.toEqual(payload.pushToken)
+                })
+
+                it('correctly detects VoIP message type and sends notification to proper Huawei token', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const payload = {
+                        devicePlatform: DEVICE_PLATFORM_ANDROID,
+                        appId: APP_RESIDENT_ID_ANDROID,
+                        pushTransport: PUSH_TRANSPORT_HUAWEI,
+                        pushTokenVoIP: getRandomFakeSuccessToken(),
+                    }
+
+                    await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
+
+                    const messageAttrs = {
+                        to: { user: { id: userClient.user.id } },
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                        meta: {
+                            dv: 1,
+                            body: faker.random.alphaNumeric(8),
+                            title: faker.random.alphaNumeric(8),
+                            data: {
+                                B2CAppId: faker.datatype.uuid(),
+                                callId: faker.datatype.uuid(),
+                            },
+                        },
+                    }
+                    const [data] = await sendMessageByTestClient(admin, messageAttrs)
+
+                    let message
+
+                    await waitFor(async () => {
+                        message = await Message.getOne(admin, { id: data.id })
+
+                        expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message.user.id).toEqual(userClient.user.id)
+                    })
+
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(message.processingMeta.isVoIP).toBeTruthy()
+                    expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
+                    expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
+                })
+
+                it('correctly detects VoIP message type and sends notification to proper Apple token', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const payload = {
+                        devicePlatform: DEVICE_PLATFORM_IOS,
+                        appId: APP_RESIDENT_ID_IOS,
+                        pushTransport: PUSH_TRANSPORT_APPLE,
+                        pushTokenVoIP: getRandomFakeSuccessToken(),
+                    }
+
+                    await syncRemoteClientWithPushTokenByTestClient(userClient, payload)
+
+                    const messageAttrs = {
+                        to: { user: { id: userClient.user.id } },
+                        type: VOIP_INCOMING_CALL_MESSAGE_TYPE,
+                        meta: {
+                            dv: 1,
+                            body: faker.random.alphaNumeric(8),
+                            title: faker.random.alphaNumeric(8),
+                            data: {
+                                B2CAppId: faker.datatype.uuid(),
+                                callId: faker.datatype.uuid(),
+                            },
+                        },
+                    }
+                    const [data] = await sendMessageByTestClient(admin, messageAttrs)
+
+                    let message
+
+                    await waitFor(async () => {
+                        message = await Message.getOne(admin, { id: data.id })
+
+                        expect(message.status).toEqual(MESSAGE_SENT_STATUS)
+                        expect(message.user.id).toEqual(userClient.user.id)
+                    })
+
+                    const transportMeta = message.processingMeta.transportsMeta[0]
+
+                    expect(transportMeta.status).toEqual(MESSAGE_SENT_STATUS)
+                    expect(transportMeta.transport).toEqual(PUSH_TRANSPORT)
+                    expect(message.processingMeta.isVoIP).toBeTruthy()
+                    expect(transportMeta.deliveryMetadata.pushContext.default.token).toEqual(payload.pushTokenVoIP)
+                    expect(transportMeta.deliveryMetadata.pushContext.default.token).not.toEqual(payload.pushToken)
+                })
+
+            })
+
+
             describe('with INVITE_NEW_EMPLOYEE message type', () => {
                 it('throws error when "inviteCode" is not specified in meta', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     await catchErrorFrom(async () => {
                         await sendMessageByTestClient(admin, {
                             meta: {
@@ -86,7 +234,6 @@ describe('SendMessageService', () => {
                 })
 
                 it('throws error when unregistered attribute is provided in "meta"', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     await catchErrorFrom(async () => {
                         await sendMessageByTestClient(admin, {
                             meta: {
@@ -113,7 +260,6 @@ describe('SendMessageService', () => {
             })
 
             it('throws error when "emailFrom" attribute is not provided', async () => {
-                const admin = await makeLoggedInAdminClient()
                 await catchErrorFrom(async () => {
                     await sendMessageByTestClient(admin, {
                         emailFrom: faker.internet.email(),
@@ -140,8 +286,7 @@ describe('SendMessageService', () => {
                 })
             })
 
-            it('throws error when "email", "phone" and "user" attributes are not provided', async () => {
-                const admin = await makeLoggedInAdminClient()
+            it('throws error when "email", "phone", "user" and "remoteClient" attributes are not provided', async () => {
                 await catchErrorFrom(async () => {
                     await sendMessageByTestClient(admin, {
                         emailFrom: faker.internet.email(),
@@ -149,14 +294,14 @@ describe('SendMessageService', () => {
                     })
                 }, ({ errors, data }) => {
                     expect(errors).toMatchObject([{
-                        message: 'You should provide either "user" or "email" or "phone" attribute',
+                        message: 'You should provide either "user", "email", "phone" or "remoteClient" attribute',
                         path: ['result'],
                         extensions: {
                             mutation: 'sendMessage',
                             variable: ['data'],
                             code: 'BAD_USER_INPUT',
                             type: 'REQUIRED',
-                            message: 'You should provide either "user" or "email" or "phone" attribute',
+                            message: 'You should provide either "user", "email", "phone" or "remoteClient" attribute',
                         },
                     }])
                     expect(data).toEqual({ 'result': null })
@@ -164,7 +309,6 @@ describe('SendMessageService', () => {
             })
 
             it('throws error when not supported value provided for "type" variable', async () => {
-                const admin = await makeLoggedInAdminClient()
                 await catchErrorFrom(async () => {
                     await sendMessageByTestClient(admin, {
                         emailFrom: faker.internet.email(),
@@ -179,7 +323,6 @@ describe('SendMessageService', () => {
             })
 
             it('throws error when not supported value of "meta.dv" attribute is provided', async () => {
-                const admin = await makeLoggedInAdminClient()
                 await catchErrorFrom(async () => {
                     await sendMessageByTestClient(admin, {
                         emailFrom: faker.internet.email(),
@@ -206,7 +349,6 @@ describe('SendMessageService', () => {
     describe('resendMessage', () => {
         describe('called by Admin', () => {
             it('returns "resending" status', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [message] = await createTestMessage(admin, { status: MESSAGE_SENT_STATUS })
                 const [data] = await resendMessageByTestClient(admin, message)
                 expect(data.id).toMatch(UUID_RE)

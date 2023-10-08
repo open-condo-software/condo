@@ -14,6 +14,7 @@ const TEST_EXAMPLE = {
 }
 
 function assertPluginCall (fn) {
+    // NOTE: we want to check that the plugin is a pure function! It should not save or use any global state!
     fn(TEST_EXAMPLE, { schemaName: 'Test', addSchema: () => undefined })
 }
 

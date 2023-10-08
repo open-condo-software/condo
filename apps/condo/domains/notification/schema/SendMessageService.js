@@ -1,21 +1,17 @@
-const { GQLCustomSchema, getByCondition } = require('@condo/keystone/schema')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { REQUIRED, UNKNOWN_ATTRIBUTE, WRONG_VALUE, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-
-const { Message } = require('@condo/domains/notification/utils/serverSchema')
 const access = require('@condo/domains/notification/access/SendMessageService')
-
 const {
-    MESSAGE_TYPES,
-    MESSAGE_META,
-    MESSAGE_SENDING_STATUS,
-    MESSAGE_RESENDING_STATUS,
-} = require('../constants/constants')
-const { deliverMessage } = require('../tasks')
+    MESSAGE_TYPES, MESSAGE_META,
+    MESSAGE_SENDING_STATUS, MESSAGE_RESENDING_STATUS,
+} = require('@condo/domains/notification/constants/constants')
+const { deliverMessage } = require('@condo/domains/notification/tasks')
+const { Message } = require('@condo/domains/notification/utils/serverSchema')
 
-const errors = {
+const ERRORS = {
     EMAIL_FROM_REQUIRED: {
         mutation: 'sendMessage',
         variable: ['data', 'to', 'email'],
@@ -23,12 +19,12 @@ const errors = {
         type: REQUIRED,
         message: 'You can not use emailFrom without to.email',
     },
-    USER_OR_EMAIL_OR_PHONE_REQUIRED: {
+    USER_OR_EMAIL_OR_PHONE_OR_REMOTE_CLIENT_REQUIRED: {
         mutation: 'sendMessage',
         variable: ['data'],
         code: BAD_USER_INPUT,
         type: REQUIRED,
-        message: 'You should provide either "user" or "email" or "phone" attribute',
+        message: 'You should provide either "user", "email", "phone" or "remoteClient" attribute',
     },
     UNKNOWN_META_ATTRIBUTE: {
         mutation: 'sendMessage',
@@ -61,21 +57,21 @@ const errors = {
 }
 
 async function checkSendMessageMeta (type, meta, context) {
-    if (meta.dv !== 1) throw new GQLError(errors.DV_VERSION_MISMATCH, context)
+    if (meta.dv !== 1) throw new GQLError(ERRORS.DV_VERSION_MISMATCH, context)
     const schema = MESSAGE_META[type]
     if (!schema) {
-        throw new GQLError({ ...errors.UNKNOWN_MESSAGE_TYPE, messageInterpolation: { type } }, context)
+        throw new GQLError({ ...ERRORS.UNKNOWN_MESSAGE_TYPE, messageInterpolation: { type } }, context)
     }
     for (const attr of Object.keys(schema)) {
         const value = meta[attr]
         const { required } = schema[attr]
         if (required && !value) {
-            throw new GQLError({ ...errors.MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
+            throw new GQLError({ ...ERRORS.MISSING_VALUE_FOR_REQUIRED_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
         }
     }
     for (const attr of Object.keys(meta)) {
         if (!schema[attr]) {
-            throw new GQLError({ ...errors.UNKNOWN_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
+            throw new GQLError({ ...ERRORS.UNKNOWN_META_ATTRIBUTE, messageInterpolation: { attr } }, context)
         }
     }
 }
@@ -88,7 +84,7 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
         },
         {
             access: true,
-            type: 'input SendMessageToInput { user: UserWhereUniqueInput, email: String, phone: String }',
+            type: 'input SendMessageToInput { user: UserWhereUniqueInput, email: String, phone: String, remoteClient: RemoteClientWhereInput }',
         },
         {
             access: true,
@@ -118,19 +114,20 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
             doc: {
                 summary: 'Sends message of specified type to specified contact',
                 description: `Each message type has specific set of required fields: \n\n\`${JSON.stringify(MESSAGE_META, null, '\t')}\``,
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 // TODO(pahaz): think about sending emails with attachments
                 const { data } = args
                 const { dv, sender, to, emailFrom, type, meta, lang, uniqKey, organization } = data
-                if (!to.user && !to.email && !to.phone) throw new GQLError(errors.USER_OR_EMAIL_OR_PHONE_REQUIRED, context)
 
-                if (emailFrom && !to.email) throw new GQLError(errors.EMAIL_FROM_REQUIRED, context)
+                if (!to.user && !to.email && !to.phone && !to.remoteClient) throw new GQLError(ERRORS.USER_OR_EMAIL_OR_PHONE_OR_REMOTE_CLIENT_REQUIRED, context)
+                if (emailFrom && !to.email) throw new GQLError(ERRORS.EMAIL_FROM_REQUIRED, context)
 
                 await checkSendMessageMeta(type, meta, context)
 
                 const messageAttrs = { dv, sender, status: MESSAGE_SENDING_STATUS, type, meta, lang, emailFrom, uniqKey }
+
                 if (organization) {
                     messageAttrs['organization'] = { connect: organization }
                 }
@@ -139,8 +136,10 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                 if (to.email) messageAttrs.email = to.email
                 if (to.phone) messageAttrs.phone = to.phone
                 if (to.user) messageAttrs.user = { connect: to.user }
+                if (to.remoteClient) messageAttrs.remoteClient = { connect: to.remoteClient }
 
                 let messageWithSameUniqKey
+
                 if (uniqKey) {
                     messageWithSameUniqKey = await getByCondition('Message', {
                         uniqKey,
@@ -149,11 +148,11 @@ const SendMessageService = new GQLCustomSchema('SendMessageService', {
                     })
                 }
 
-                const message = messageWithSameUniqKey ? messageWithSameUniqKey : await Message.create(context, messageAttrs)
+                const message = messageWithSameUniqKey
+                    ? messageWithSameUniqKey
+                    : await Message.create(context, messageAttrs)
 
-                if (!messageWithSameUniqKey) {
-                    await deliverMessage.delay(message.id)
-                }
+                if (!messageWithSameUniqKey) await deliverMessage.delay(message.id)
 
                 return {
                     isDuplicateMessage: !!messageWithSameUniqKey,

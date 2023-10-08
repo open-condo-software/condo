@@ -1,20 +1,24 @@
-const faker = require('faker')
-const { v4: uuid } = require('uuid')
+const { faker } = require('@faker-js/faker')
 const { Text, Checkbox, Relationship, Uuid, Select } = require('@keystonejs/fields')
 const { byTracking, atTracking } = require('@keystonejs/list-plugins')
+const { v4: uuid } = require('uuid')
 
-const { GQLListSchema, GQLCustomSchema } = require('@condo/keystone/schema')
-const access = require('@condo/keystone/access')
+const access = require('@open-condo/keystone/access')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { GQLListSchema, GQLCustomSchema } = require('@open-condo/keystone/schema')
+
+const { User } = require('./User')
+
 const { getByCondition } = require('../schema')
 const { find } = require('../schema')
 const { getById } = require('../schema')
-const { User } = require('./User')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+
+
 
 const Organization = new GQLListSchema('Organization', {
     fields: {
         name: {
-            factory: () => faker.company.companyName(),
+            factory: () => faker.company.name(),
             type: Text,
             isRequired: true,
             kmigratorOptions: { null: false },
@@ -495,7 +499,7 @@ async function accessAllowOnlyForRoleOwner ({ operation, authentication: { item:
     return res.length === 1
 }
 
-async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ authentication: { item: user }, args }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.data || !args.data.organization || !args.data.organization.id) return false
@@ -508,7 +512,7 @@ async function allowAccessForRoleOwnerForInviteNewUserToOrganizationService ({ a
     return res.length === 1
 }
 
-async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.id) return false
@@ -520,7 +524,7 @@ async function allowAccessForOwnInviteForAcceptOrRejectOrganizationInviteService
     return String(link.user) === String(user.id)
 }
 
-async function allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args, context }) {
+async function allowAccessForNotAssignedInvitesForAcceptOrRejectOrganizationInviteService ({ authentication: { item: user }, args }) {
     if (!user || !user.id) return false
     if (user.isAdmin) return true
     if (!args || !args.code) return false

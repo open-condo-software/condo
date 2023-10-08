@@ -1,22 +1,27 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import isFunction from 'lodash/isFunction'
+import { TicketStatusTypeType } from '@app/condo/schema'
+import styled from '@emotion/styled'
+import { Dayjs } from 'dayjs'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import styled from '@emotion/styled'
+import isFunction from 'lodash/isFunction'
+import React, { useCallback, useMemo, useState } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
-import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
 import Select from '@condo/domains/common/components/antd/Select'
-
-import { useStatusTransitions } from '../hooks/useStatusTransitions'
-import { TicketStatusTypeType } from '@app/condo/schema'
+import { transitions, colors } from '@condo/domains/common/constants/style'
+import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { useTicketCancelModal } from '@condo/domains/ticket/hooks/useTicketCancelModal'
 import { useTicketDeferModal } from '@condo/domains/ticket/hooks/useTicketDeferModal'
-import { Dayjs } from 'dayjs'
-import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
+import { Ticket, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
+import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/helpers'
+
+import { useStatusTransitions } from '../hooks/useStatusTransitions'
+
+
+
+
 
 interface IStyledSelect {
     color: string
@@ -25,33 +30,39 @@ interface IStyledSelect {
 
 const StyledSelect = styled(Select)<IStyledSelect>`
   min-width: 175px;
-  width: fit-content;
   font-weight: 700;
   border-radius: 8px;
   color: ${({ color }) => color};
   background-color: ${({ backgroundColor }) => backgroundColor};
+  transition: ${transitions.easeInOut};
 
-  &.ant-select-disabled {
-    .ant-select-selection-item {
-      color: ${({ color }) => color};
-    }
+  &.ant-select-disabled .ant-select-selector .ant-select-selection-item {
+    color: ${({ color }) => color};
+  }
+
+  &.ant-select-open .ant-select-selector .ant-select-selection-item {
+    color: ${({ color }) => color};
+  }
+
+  .ant-select-selector .ant-select-selection-item {
+    font-weight: 600;
+    color: ${colors.white};
+    transition: ${transitions.easeInOut};
   }
   
   .ant-select-arrow svg {
     fill: ${({ color }) => color};
-  }
-  
-  &.ant-select-open .ant-select-selector .ant-select-selection-item {
-    color: ${({ color }) => color};
+    transition: ${transitions.easeInOut};
   }
 `
 
-export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, loading: parentLoading, ...props }) => {
+export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, ...props }) => {
     const intl = useIntl()
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
 
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
+    const canManageTickets = useMemo(() => get(employee, ['role', 'canManageTickets'], false), [employee])
     const [isUpdating, setUpdating] = useState(false)
     const handleUpdate = useCallback(() => {
         if (isFunction(onUpdate)) onUpdate()
@@ -100,7 +111,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
     }), [statuses, ticket])
 
     const handleChange = useCallback(({ value }) => {
-        const selectedStatus = statuses.find((status) => status.id === value)
+        const selectedStatus = statuses.find((status) => get(status, 'id') === value)
         if (selectedStatus.type === TicketStatusTypeType.Canceled) {
             openCancelModal(value)
         } else if (selectedStatus.type === TicketStatusTypeType.Deferred) {
@@ -112,12 +123,12 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, l
 
     const { primary: backgroundColor, secondary: color } = ticket.status.colors
     const selectValue = useMemo(
-        () => ({ value: ticket.status.id, label: getTicketLabel(intl, ticket) }),
-        [ticket.status.id, getTicketLabel, intl, ticket]
+        () => ({ value: get(ticket, 'status.id'), label: getTicketLabel(intl, ticket) }),
+        [get(ticket, 'status.id'), getTicketLabel, intl, ticket]
     )
 
-    const isLoading = parentLoading || loading || isUpdating
-    const isDisabled = isEmpty(statuses) || isLoading
+    const isLoading = loading || isUpdating
+    const isDisabled = isEmpty(statuses) || isLoading || !canManageTickets
 
     return (
         <>

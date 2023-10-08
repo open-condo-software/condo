@@ -3,27 +3,29 @@
  */
 
 const dayjs = require('dayjs')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+
+const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
 const {
-    makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser,
-} = require('@condo/domains/user/utils/testSchema')
+    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
+    expectToThrowGraphQLRequestError,
+} = require('@open-condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
+const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
     updateTestB2BAppContext,
     B2BAppContext,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const {
-    expectToThrowAccessDeniedErrorToObj,
-    expectToThrowAuthenticationErrorToObj,
-    expectToThrowAuthenticationErrorToObjects,
-    expectToThrowGraphQLRequestError,
-} = require('@condo/keystone/test.utils')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { CONTEXT_STATUSES } = require('@condo/domains/miniapp/constants')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const {
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('B2BAppContext', () => {
     describe('CRUD', () => {
@@ -59,10 +61,10 @@ describe('B2BAppContext', () => {
                 expect(context).toHaveProperty(['app', 'id'], app.id)
             })
             describe('User', () => {
-                test('Employee with canManageIntegrations can', async () => {
+                test('Employee with canManageB2BApps can', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManageIntegrations: true,
+                        canManageB2BApps: true,
                     })
                     await createTestOrganizationEmployee(admin, organization, client.user, role, {
                         isAccepted: true,
@@ -171,7 +173,7 @@ describe('B2BAppContext', () => {
             })
             test('User cannot', async () => {
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, user.user, role, {
                     isAccepted: true,
@@ -207,7 +209,7 @@ describe('B2BAppContext', () => {
                     await B2BAppContext.delete(support, context.id)
                 })
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, user.user, role, {
                     isAccepted: true,

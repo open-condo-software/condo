@@ -1,76 +1,67 @@
-import getConfig from 'next/config'
-import get from 'lodash/get'
 import { AddressMetaField } from '@app/condo/schema'
+import getConfig from 'next/config'
 
-type SuggestionsResponse = Promise<{ suggestions: Array<AddressMetaField> }>
+import { makeId } from './makeid.utils'
+import { getCurrentUserId } from './userid.utils'
+
+type TSuggestion = AddressMetaField & {
+    rawValue: string,
+    type: 'building' | 'village' | null
+}
+
+type SuggestionsResponse = Promise<{ suggestions: Array<TSuggestion> }>
 
 export interface IAddressApi {
-    getAddressMeta(address: string): AddressMetaField
+    getRawAddress(address: string): string
     getSuggestions(query: string): SuggestionsResponse
-    cacheAddressMeta(address: string, addressMeta: AddressMetaField): void
+    cacheRawAddress(address: string, rawValue: string): void
 }
 
 export class AddressApi implements IAddressApi {
     constructor () {
         this.setAddressSuggestionsConfig()
+        this.setSessionConfig()
     }
 
     public getSuggestions (query: string): SuggestionsResponse {
-        return fetch(this.suggestionsUrl, this.getAddressSuggestionRequestParams(query))
-            .then(response => response.text())
-            .then((res) => JSON.parse(res))
+        return fetch(`${this.suggestionsUrl}?s=${query}&context=suggestHouse&session=${this.session}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+        })
+            .then((response) => response.json())
+            .then((suggestions) => ({ suggestions }))
     }
 
-    public getAddressMeta (address: string): AddressMetaField | undefined {
-        const addressMeta = this.addressMetaCache.get(address)
+    public getRawAddress (address: string): string | undefined {
+        const ret = this.rawAddressCache.get(address)
 
-        if (!addressMeta) {
+        if (!ret) {
             throw new Error('addressMetaError')
         }
 
-        return addressMeta
+        return ret
     }
 
-    public cacheAddressMeta (address: string, addressMeta: AddressMetaField): void {
-        this.addressMetaCache.set(address, addressMeta)
+    public cacheRawAddress (address: string, rawAddress: string): void {
+        this.rawAddressCache.set(address, rawAddress)
     }
 
     private setAddressSuggestionsConfig () {
         const {
-            publicRuntimeConfig: { addressSuggestionsConfig },
+            publicRuntimeConfig: { addressServiceUrl: apiUrl },
         } = getConfig()
-        const apiUrl = get(addressSuggestionsConfig, 'apiUrl', '')
-        const apiToken = get(addressSuggestionsConfig, 'apiToken', '')
-        if (!apiToken || !apiUrl) console.error('Wrong AddressSuggestionsConfig! no apiUrl/apiToken')
-
-        this.apiToken = apiToken
-        this.suggestionsUrl = apiUrl
+        this.suggestionsUrl = `${apiUrl}/suggest`
     }
 
-    private getAddressSuggestionRequestParams (query: string) {
-        return {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Token ${this.apiToken}`,
-            },
-            body: JSON.stringify(
-                {
-                    query,
-                    ...this.defaultSearchApiParams,
-                }
-            ),
-        }
+    private setSessionConfig () {
+        const user = getCurrentUserId()
+        const session = makeId(8)
+        this.session = `${user}-${session}`
     }
 
     private suggestionsUrl: string
-    private apiToken: string
-    private defaultSearchApiParams = {
-        from_bound: { value: 'country' },
-        to_bound: { value: 'house' },
-        restrict_value: true,
-        count: 20,
-    }
-    private addressMetaCache: Map<string, AddressMetaField> = new Map()
+    private session: string
+    private rawAddressCache: Map<string, string> = new Map()
 }

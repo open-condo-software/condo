@@ -1,8 +1,12 @@
-const path = require('path')
-const addon = require(path.join(__dirname, '../build/Release/condo-bicrypt-sign-native'))
 const { existsSync: checkPath } = require('fs')
-const { DOMParser } = require('xmldom')
-const c14n = require('xml-c14n')()
+const path = require('path')
+
+const { DOMParser } = require('@xmldom/xmldom')
+const xmlC14n = require('xml-c14n')
+// eslint-disable-next-line import/order
+const addon = require(path.join(__dirname, '../build/Release/condo-bicrypt-sign-native'))
+
+const c14n = xmlC14n()
 
 const formatXml = (xmlData) => new Promise((resolve, reject) => {
     const document = (new DOMParser()).parseFromString(xmlData, 'text/xml')

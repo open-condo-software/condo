@@ -1,9 +1,10 @@
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
-// TODO (DOMA-3868) Remove domain specific logic from here
-const RESIDENT_TYPE_USER = 'resident'
 const { get } = require('lodash')
-const { find } = require('@condo/keystone/schema')
 
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+// TODO (DOMA-3868) Remove domain specific logic from here
+const { find } = require('@open-condo/keystone/schema')
+
+const RESIDENT_TYPE_USER = 'resident'
 const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
 const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
 
@@ -81,7 +82,7 @@ const canReadOnlyIfUserIsActiveOrganizationEmployee = async (args) => {
 
     if (user.isAdmin || user.isSupport)
         return true
-    
+
     if (!userIsNotResidentUser(args))
         return false
 
@@ -131,6 +132,7 @@ const isSoftDelete = (originalInput) => {
 
 // Operation is forbidden for user of any kind
 // Operation is allowed for server utils without user request, for example, workers, that creating Keystone context via `getSchemaCtx` that skips access checks
+// Should be used for fields only
 const canOnlyServerSideWithoutUserRequest = () => false
 
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments

@@ -1,9 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react'
-import { useQuery } from './apollo'
 import { gql } from 'graphql-tag'
 import cookie from 'js-cookie'
-import { useAuth } from './auth'
 import nextCookie from 'next-cookies'
+import React, { createContext, useContext, useEffect, useState } from 'react'
+
+import { useQuery } from './apollo'
+import { useAuth } from './auth'
+
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 
@@ -74,28 +76,31 @@ const OrganizationProvider = ({ children, initialLinkValue }) => {
         }
     }, [initialLinkValue, cookieOrganizationEmployee])
 
-    const { loading: linkLoading, refetch } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
+    const { loading: linkLoading, refetch, data } = useQuery(GET_ORGANIZATION_TO_USER_LINK_BY_ID_QUERY, {
         variables: { id: linkIdState },
         skip: auth.isLoading || !auth.user || !linkIdState,
-        onCompleted: (data) => {
-            if (!data) return // TODO(pahaz): remove ofter resolve: https://github.com/apollographql/react-apollo/issues/3492
-            // NOTE: if skip == true the data = null
-            const { obj } = data
-            if (JSON.stringify(obj) === JSON.stringify(link)) return
-            if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', obj)
-            const isLinkActive = !obj.isRejected && !obj.isBlocked && obj.isAccepted
-            if (!isLinkActive) {
-                setCookieLinkId('')
-                setLinkIdState(null)
-                setLink(null)
-            } else {
-                setCookieLinkId(obj.id)
-                setLinkIdState(obj.id)
-                setLink(obj)
-            }
-        },
         onError,
     })
+
+    useEffect(() => {
+        if (!data) return
+
+        const employee = data.obj
+        if (JSON.stringify(employee) === JSON.stringify(link)) return
+        if (DEBUG_RERENDERS) console.log('OrganizationProvider() newState', employee)
+
+        const isEmployeeActive = !employee.isRejected && !employee.isBlocked && employee.isAccepted
+
+        if (!isEmployeeActive) {
+            setCookieLinkId('')
+            setLinkIdState(null)
+            setLink(null)
+        } else {
+            setCookieLinkId(employee.id)
+            setLinkIdState(employee.id)
+            setLink(employee)
+        }
+    }, [data, link])
 
     useEffect(() => {
         if (auth.isLoading) return

@@ -1,8 +1,10 @@
-const { get, isPlainObject } = require('lodash')
 const { getType } = require('@keystonejs/utils')
+const { get } = require('lodash')
 
 const { composeResolveInputHook, evaluateKeystoneAccessResult } = require('./utils')
 const { plugin } = require('./utils/typing')
+
+const { queryHasField } = require('../queryHasField')
 
 const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}) => plugin(({ fields = {}, hooks = {}, access, ...rest }, { schemaName }) => {
     // TODO(pahaz):
@@ -64,7 +66,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
     const originalResolveInput = hooks.resolveInput
     hooks.resolveInput = composeResolveInputHook(originalResolveInput, newResolveInput)
 
-    const newAccess = async (args) => {
+    const softDeletePluginWrapperForAccess = async (args) => {
         const { operation } = args
         if (operation === 'read') {
             const current = await evaluateKeystoneAccessResult(access, 'read', args)
@@ -76,7 +78,7 @@ const softDeleted = ({ deletedAtField = 'deletedAt', newIdField = 'newId' } = {}
         }
     }
 
-    return { fields, hooks, access: newAccess, ...rest }
+    return { fields, hooks, access: softDeletePluginWrapperForAccess, ...rest }
 })
 
 /**
@@ -109,48 +111,6 @@ function getWhereVariables (args) {
 }
 
 /**
- * Checks if query has the soft deleted property on first level of depth
- * @param {Object} whereQuery
- * @param {string} deletedAtField
- * @return {boolean}
- */
-function queryHasSoftDeletedField (whereQuery, deletedAtField) {
-    return Object.keys(whereQuery).find((x) => x.startsWith(deletedAtField))
-}
-
-/**
- * Checks if query has the soft deleted property on any level of depth
- * todo(toplenboren) learn how to process very complex queries:
- * todo(toplenboren) see https://github.com/open-condo-software/condo/pull/232/files#r664256921
- * @param {Object} whereQuery
- * @param {string} deletedAtField
- * @return {boolean}
- */
-function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
-    // undefined case
-    if (!whereQuery) return false
-    // { deletedAt: null } case
-    if (queryHasSoftDeletedField(whereQuery, deletedAtField)) {
-        return true
-    }
-    for (const queryValue of Object.values(whereQuery)) {
-        // OR: [ { deletedAt: null }, { ... } ] case
-        if (Array.isArray(queryValue)) {
-            for (const innerQuery of queryValue) {
-                if (_queryHasSoftDeletedFieldDeep(innerQuery, deletedAtField))
-                    return true
-            }
-        // property: { deletedAt: null } case
-        } else if (isPlainObject(queryValue)){
-            if (_queryHasSoftDeletedFieldDeep(queryValue, deletedAtField)) {
-                return true
-            }
-        }
-    }
-    return false
-}
-
-/**
  * SYNOPSIS:
  * We dont want developer to manually set the filter on every query like this:
  * getAllEntities where : {deletedAt: null}
@@ -178,19 +138,19 @@ function _queryHasSoftDeletedFieldDeep (whereQuery, deletedAtField) {
  * For more info look up to the https://github.com/open-condo-software/condo/pull/232/files#r664256921
  */
 function applySoftDeletedFilters (access, deletedAtField, args) {
+    const currentWhereFilters = getWhereVariables(args)
+    // If the filtering parameter is called not "where" or we want to skip this logic
+    const queryDeleted = get(args, ['context', 'req', 'query', 'deleted'])
+
+    // If we explicitly pass the deletedAt filter - we wont hide deleted items
+    if (queryDeleted || queryHasField(currentWhereFilters, deletedAtField)) {
+        return access
+    }
+
     const type = getType(access)
     if (type === 'Boolean') {
         return (access) ? { [deletedAtField]: null } : false
     } else if (type === 'Object') {
-        const currentWhereFilters = getWhereVariables(args)
-        // If the filtering parameter is called not "where" or we want to skip this logic
-        const queryDeleted = get(args, ['context', 'req', 'query', 'deleted'])
-
-        // If we explicitly pass the deletedAt filter - we wont hide deleted items
-        if (queryDeleted || _queryHasSoftDeletedFieldDeep(currentWhereFilters, deletedAtField)) {
-            return access
-        }
-
         const anyFilterByDeleted = Object.keys(access).find((x) => x.startsWith(deletedAtField))
         if (anyFilterByDeleted) return access
         return {
@@ -198,6 +158,7 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
             [deletedAtField]: null,
         }
     }
+
     throw new Error(
         `applySoftDeletedFilters() accept a boolean or a object, received ${type}.`,
     )
@@ -205,5 +166,4 @@ function applySoftDeletedFilters (access, deletedAtField, args) {
 
 module.exports = {
     softDeleted,
-    _queryHasSoftDeletedFieldDeep,
 }

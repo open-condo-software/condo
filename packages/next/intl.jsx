@@ -1,8 +1,11 @@
-import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
-import React, { useEffect, useState } from 'react'
 import cookie from 'js-cookie'
+import get from 'lodash/get'
 import nextCookie from 'next-cookies'
+import React, { useEffect, useState } from 'react'
+import { IntlProvider, useIntl, FormattedMessage } from 'react-intl'
+
 import { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } from './_utils'
+import { useAuth } from './auth'
 
 const LocaleContext = React.createContext({})
 
@@ -66,8 +69,18 @@ const initOnRestore = async (ctx) => {
 }
 
 const Intl = ({ children, initialLocale, initialMessages, onError }) => {
+    const { user, isLoading: isUserLoading } = useAuth()
     const [locale, setLocale] = useState(initialLocale)
     const [messages, setMessages] = useState(initialMessages)
+
+    useEffect(() => {
+        if (!isUserLoading && !!user) {
+            setLocale((prevLocale) => {
+                return get(user, 'locale', prevLocale || initialLocale) || prevLocale || initialLocale
+            })
+        }
+    }, [isUserLoading, user])
+
     useEffect(() => {
         getMessages(locale).then(importedMessages => {
             if (JSON.stringify(messages) === JSON.stringify(importedMessages)) return
@@ -75,7 +88,7 @@ const Intl = ({ children, initialLocale, initialMessages, onError }) => {
             setMessages(importedMessages)
             cookie.set('locale', locale, { expires: 365 })
         })
-    }, [locale])
+    }, [locale, messages])
 
     if (DEBUG_RERENDERS) console.log('IntlProvider()', locale)
 
@@ -146,4 +159,5 @@ export {
     withIntl,
     useIntl,
     FormattedMessage,
+    LocaleContext,
 }

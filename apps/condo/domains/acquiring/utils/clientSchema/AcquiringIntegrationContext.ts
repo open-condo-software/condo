@@ -8,7 +8,9 @@ import {
     AcquiringIntegrationContextUpdateInput,
     QueryAllAcquiringIntegrationContextsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { AcquiringIntegrationContext as AcquiringIntegrationContextGQL } from '@condo/domains/acquiring/gql'
 
 const {

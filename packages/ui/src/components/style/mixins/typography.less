@@ -1,0 +1,113 @@
+.condo-typography-layer(@font-family, @font-weight, @line-height, @font-size, @letter-spacing, @paragraph-spacing) {
+  margin: 0;
+  font-weight: @font-weight;
+  font-size: @font-size;
+  font-family: @font-family;
+  line-height: @line-height;
+  letter-spacing: @letter-spacing;
+}
+
+.condo-typography-header(@font-family, @font-weight, @line-height, @font-size, @letter-spacing, @paragraph-spacing) {
+  .condo-typography-layer(@font-family, @font-weight, @line-height, @font-size, @letter-spacing, @paragraph-spacing);
+
+  margin: 0;
+}
+
+.condo-typography-h1() {
+  .condo-typography-header(
+    @condo-global-typography-h1-font-family,
+    @condo-global-typography-h1-font-weight,
+    @condo-global-typography-h1-line-height,
+    @condo-global-typography-h1-font-size,
+    @condo-global-typography-h1-letter-spacing,
+    @condo-global-typography-h1-paragraph-spacing
+  );
+}
+
+.condo-typography-h2() {
+  .condo-typography-header(
+    @condo-global-typography-h2-font-family,
+    @condo-global-typography-h2-font-weight,
+    @condo-global-typography-h2-line-height,
+    @condo-global-typography-h2-font-size,
+    @condo-global-typography-h2-letter-spacing,
+    @condo-global-typography-h2-paragraph-spacing
+  );
+}
+
+.condo-typography-h3() {
+  .condo-typography-header(
+    @condo-global-typography-h3-font-family,
+    @condo-global-typography-h3-font-weight,
+    @condo-global-typography-h3-line-height,
+    @condo-global-typography-h3-font-size,
+    @condo-global-typography-h3-letter-spacing,
+    @condo-global-typography-h3-paragraph-spacing
+  );
+}
+
+.condo-typography-h4() {
+  .condo-typography-header(
+    @condo-global-typography-h4-font-family,
+    @condo-global-typography-h4-font-weight,
+    @condo-global-typography-h4-line-height,
+    @condo-global-typography-h4-font-size,
+    @condo-global-typography-h4-letter-spacing,
+    @condo-global-typography-h4-paragraph-spacing
+  );
+}
+
+.condo-typography-h5() {
+  .condo-typography-header(
+    @condo-global-typography-h5-font-family,
+    @condo-global-typography-h5-font-weight,
+    @condo-global-typography-h5-line-height,
+    @condo-global-typography-h5-font-size,
+    @condo-global-typography-h5-letter-spacing,
+    @condo-global-typography-h5-paragraph-spacing
+  );
+}
+
+.condo-typography-h6() {
+  .condo-typography-header(
+    @condo-global-typography-h6-font-family,
+    @condo-global-typography-h6-font-weight,
+    @condo-global-typography-h6-line-height,
+    @condo-global-typography-h6-font-size,
+    @condo-global-typography-h6-letter-spacing,
+    @condo-global-typography-h6-paragraph-spacing
+  );
+}
+
+.condo-typography-text-large() {
+  .condo-typography-layer(
+    @condo-global-typography-text-l-font-family,
+    @condo-global-typography-text-l-font-weight,
+    @condo-global-typography-text-l-line-height,
+    @condo-global-typography-text-l-font-size,
+    @condo-global-typography-text-l-letter-spacing,
+    @condo-global-typography-text-l-paragraph-spacing
+  );
+}
+
+.condo-typography-text-medium() {
+  .condo-typography-layer(
+    @condo-global-typography-text-m-font-family,
+    @condo-global-typography-text-m-font-weight,
+    @condo-global-typography-text-m-line-height,
+    @condo-global-typography-text-m-font-size,
+    @condo-global-typography-text-m-letter-spacing,
+    @condo-global-typography-text-m-paragraph-spacing
+  );
+}
+
+.condo-typography-text-small() {
+  .condo-typography-layer(
+    @condo-global-typography-text-s-font-family,
+    @condo-global-typography-text-s-font-weight,
+    @condo-global-typography-text-s-line-height,
+    @condo-global-typography-text-s-font-size,
+    @condo-global-typography-text-s-letter-spacing,
+    @condo-global-typography-text-s-paragraph-spacing
+  );
+}

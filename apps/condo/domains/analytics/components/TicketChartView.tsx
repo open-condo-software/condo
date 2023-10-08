@@ -1,23 +1,25 @@
-import React, { useRef, useEffect, useState, useCallback, useLayoutEffect } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { DownOutlined } from '@ant-design/icons'
+import { TicketGroupedCounter } from '@app/condo/schema'
+import styled from '@emotion/styled'
 import { Skeleton, Typography, List } from 'antd'
-import get from 'lodash/get'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import ReactECharts from 'echarts-for-react'
+import get from 'lodash/get'
+import React, { useRef, useEffect, useState, useCallback } from 'react'
+import InfiniteScroll from 'react-infinite-scroller'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import TicketChart, {
     ChartConfigResult,
     EchartsSeries,
     ViewModeTypes,
 } from '@condo/domains/analytics/components/TicketChart'
-import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
-import { TicketGroupedCounter } from '@app/condo/schema'
-import { colors } from '@condo/domains/common/constants/style'
-import InfiniteScroll from 'react-infinite-scroller'
 import { TICKET_CHART_PAGE_SIZE } from '@condo/domains/analytics/utils/helpers'
 import { getChartOptions, GroupTicketsByTypes } from '@condo/domains/analytics/utils/helpers'
-import styled from '@emotion/styled'
 import { Button } from '@condo/domains/common/components/Button'
-import { DownOutlined } from '@ant-design/icons'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { CHART_COLOR_SET } from '@condo/domains/common/constants/style'
+import { colors } from '@condo/domains/common/constants/style'
 
 export interface ITicketAnalyticsPageWidgetProps {
     data: null | TicketGroupedCounter[]
@@ -46,6 +48,13 @@ const ScrollContainer = styled.div<{ height: string }>`
   height: ${({ height }) => height};
 `
 
+const EMPTY_CONTAINER_STYLE: React.CSSProperties = {
+    height: '300px',
+    display: 'flex',
+    justifyContent: 'start',
+    alignItems: 'start',
+}
+
 const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
     const {
         children,
@@ -55,7 +64,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
         onChartReady,
         chartConfig,
         mapperInstance,
-        mainGroup = 'ticket',
+        mainGroup = 'status',
     } = props
 
     const intl = useIntl()
@@ -107,7 +116,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
     }, [data, viewMode])
 
     // Way to await moment when all pie chart instance were rendered (needed for client side pdf generation)
-    useLayoutEffect(() => {
+    useEffect(() => {
         if (viewMode === 'pie' && onChartReady !== undefined) {
             if (seriesRef.current.length !== 0 && seriesCacheRef.current.length !== 0 && seriesRef.current.length === seriesCacheRef.current.length) {
                 onChartReady()
@@ -125,7 +134,7 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
                 return () => cancelAnimationFrame(animationFrameId)
             }
         }
-    }, [chartReadyCounter])
+    }, [chartReadyCounter, viewMode, onChartReady])
 
     const loadMore = useCallback(() => { setChartPage(chartPage + 1) }, [chartPage])
 
@@ -165,9 +174,9 @@ const TicketChartView: React.FC<ITicketAnalyticsPageChartProps> = (props) => {
         return <ChartViewContainer>
             {isEmptyDataSet ? (
                 <>
-                    <BasicEmptyListView>
+                    <div style={EMPTY_CONTAINER_STYLE}>
                         <Typography.Text>{NoData}</Typography.Text>
-                    </BasicEmptyListView>
+                    </div>
                     {children}
                 </>
             ) : (

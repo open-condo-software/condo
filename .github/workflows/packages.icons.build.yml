@@ -1,0 +1,30 @@
+name: Icon-kit
+
+# Check that UI-kit is in valid state (all tokens are valid, and lib can be built)
+# If anything in source code changes (except stories, since they're not affecting lib itself)
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#example-including-and-excluding-paths
+
+on:
+  pull_request:
+    paths:
+      - 'packages/icons/src/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+
+      - name: Build lib
+        run: yarn workspace @open-condo/icons build

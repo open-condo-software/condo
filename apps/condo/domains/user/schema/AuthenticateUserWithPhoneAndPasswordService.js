@@ -1,17 +1,19 @@
-const { getSchemaCtx, getById } = require('@condo/keystone/schema')
-const { GQLCustomSchema } = require('@condo/keystone/schema')
-const { User } = require('@condo/domains/user/utils/serverSchema')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+
+const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { STAFF } = require('@condo/domains/user/constants/common')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
+const { User } = require('@condo/domains/user/utils/serverSchema')
+
 const { USER_NOT_FOUND, WRONG_PASSWORD } = require('../constants/errors')
 
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     WRONG_PHONE_FORMAT: {
         mutation: 'authenticateUserWithPhoneAndPassword',
         code: BAD_USER_INPUT,
@@ -58,11 +60,11 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const { data: { phone: inputPhone, password } } = args
                 const phone = normalizePhone(inputPhone)
                 if (!phone) {
-                    throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
+                    throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
                 const users = await User.getAll(context, { phone, type: STAFF, deletedAt: null })
                 if (users.length !== 1) {
-                    throw new GQLError(errors.USER_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.USER_NOT_FOUND, context)
                 }
                 const user = await getById('User', users[0].id)
                 const { keystone } = await getSchemaCtx('User')
@@ -70,7 +72,7 @@ const AuthenticateUserWithPhoneAndPasswordService = new GQLCustomSchema('Authent
                 const list = PasswordStrategy.getList()
                 const { success } = await PasswordStrategy._matchItem(user, { password }, list.fieldsByPath['password'] )
                 if (!success) {
-                    throw new GQLError(errors.WRONG_PASSWORD, context)
+                    throw new GQLError(ERRORS.WRONG_PASSWORD, context)
                 }
                 const token = await context.startAuthedSession({ item: users[0], list: keystone.lists['User'] })
                 return {

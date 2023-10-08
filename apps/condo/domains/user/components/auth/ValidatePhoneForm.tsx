@@ -1,13 +1,18 @@
-import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { Col, Form, Row, Space, Typography, RowProps } from 'antd'
+import { Col, Form, Row, Space, Typography as DefaultTypography, RowProps } from 'antd'
+import React, { CSSProperties, useCallback, useContext, useEffect, useMemo, useState } from 'react'
+
+import { useMutation } from '@open-condo/next/apollo'
+import { FormattedMessage } from '@open-condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
+
 import Input from '@condo/domains/common/components/antd/Input'
-import { FormattedMessage } from '@condo/next/intl'
-import { useMutation } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
 import { CountDownTimer } from '@condo/domains/common/components/CountDownTimer'
+import { colors } from '@condo/domains/common/constants/style'
 import { formatPhone } from '@condo/domains/common/utils/helpers'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { SMS_CODE_LENGTH, SMS_CODE_TTL } from '@condo/domains/user/constants/common'
 import {
     CONFIRM_PHONE_ACTION_EXPIRED,
@@ -16,9 +21,8 @@ import {
     CONFIRM_PHONE_SMS_CODE_VERIFICATION_FAILED, TOO_MANY_REQUESTS,
 } from '@condo/domains/user/constants/errors'
 import { COMPLETE_CONFIRM_PHONE_MUTATION, RESEND_CONFIRM_PHONE_SMS_MUTATION } from '@condo/domains/user/gql'
+
 import { RegisterContext } from './RegisterContextProvider'
-import { colors } from '@condo/domains/common/constants/style'
-import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 
 
 const ROW_STYLES: React.CSSProperties = {
@@ -34,6 +38,7 @@ interface IValidatePhoneFormProps {
 const SMS_CODE_CLEAR_REGEX = /[^0-9]/g
 const BUTTON_FORM_GUTTER: RowProps['gutter'] = [0, 40]
 const FORM_ITEMS_GUTTER: RowProps['gutter'] = [0, 24]
+const INPUT_STYLE: CSSProperties = { maxWidth: '120px' }
 
 export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElement<IValidatePhoneFormProps> => {
     const intl = useIntl()
@@ -167,35 +172,35 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
             layout='vertical'
         >
             <Row gutter={BUTTON_FORM_GUTTER} style={ROW_STYLES}>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <Row gutter={FORM_ITEMS_GUTTER}>
                         <Col span={24}>
-                            <Typography.Title level={3}>{title}</Typography.Title>
+                            <Typography.Title level={2}>{title}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <Typography.Text>
+                            <DefaultTypography.Text>
                                 <FormattedMessage
                                     id='pages.auth.register.info.SmsCodeSent'
                                     values={{
                                         phone: (
                                             <span style={{ whiteSpace: 'nowrap' }}>
                                                 {`${formatPhone(showPhone)} `}
-                                                <Typography.Link
+                                                <DefaultTypography.Link
                                                     underline
                                                     style={{ color: 'black' }}
                                                     onClick={() => setIsPhoneVisible(!isPhoneVisible)}
                                                 >
                                                     ({PhoneToggleLabel})
-                                                </Typography.Link>
+                                                </DefaultTypography.Link>
                                             </span>),
                                     }}
                                 />
-                            </Typography.Text>
+                            </DefaultTypography.Text>
                         </Col>
-                        <Col>
-                            <Typography.Link underline style={{ color: colors.textSecondary }} onClick={onReset}>
+                        <Col span={24}>
+                            <DefaultTypography.Link underline style={{ color: colors.textSecondary }} onClick={onReset}>
                                 {ChangePhoneNumberLabel}
-                            </Typography.Link>
+                            </DefaultTypography.Link>
                         </Col>
                         <Col span={24}>
                             <Form.Item
@@ -209,12 +214,13 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                     inputMode='numeric'
                                     pattern='[0-9]*'
                                     onChange={handleVerifyCode}
+                                    style={INPUT_STYLE}
                                 />
                             </Form.Item>
                         </Col>
                     </Row>
                 </ResponsiveCol>
-                <ResponsiveCol span={18}>
+                <ResponsiveCol span={24}>
                     <CountDownTimer action={resendSms} id='RESEND_SMS' timeout={SMS_CODE_TTL} autostart={true}>
                         {({ countdown, runAction }) => {
                             const isCountDownActive = countdown > 0
@@ -222,26 +228,26 @@ export const ValidatePhoneForm = ({ onFinish, onReset, title }): React.ReactElem
                                 isCountDownActive ?
 
                                     <Space direction='horizontal' size={8}>
-                                        <Typography.Link
+                                        <DefaultTypography.Link
                                             style={{ color: colors.textSecondary }}
                                             disabled={true}
                                         >
                                             {SMSAvailableLabel}
-                                        </Typography.Link>
-                                        <Typography.Text type='secondary'>
+                                        </DefaultTypography.Link>
+                                        <DefaultTypography.Text type='secondary'>
                                             {`${new Date(countdown * 1000).toISOString().substr(14, 5)}`}
-                                        </Typography.Text>
+                                        </DefaultTypography.Text>
                                     </Space>
 
                                     :
 
-                                    <Typography.Link
+                                    <DefaultTypography.Link
                                         underline
                                         style={{ color: colors.textSecondary }}
                                         onClick={runAction}
                                     >
                                         {ResendSmsLabel}
-                                    </Typography.Link>
+                                    </DefaultTypography.Link>
 
                             )
                         }}

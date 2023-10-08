@@ -1,5 +1,5 @@
 {
-  "name": "condo",
+  "name": "root",
   "description": "Easy and Fast StartUp development kit",
   "private": true,
   "repository": "https://github.com/open-condo-software/condo",
@@ -10,6 +10,10 @@
     "packages/*"
   ],
   "scripts": {
+    "analysis": "./bin/run-semgrep.sh -a",
+    "build:packages": "turbo run build --filter='./packages/*'",
+    "build:apps": "turbo run build --filter='./apps/*' --concurrency=100%",
+    "build": "turbo run build",
     "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"
@@ -18,171 +22,41 @@
     "@babel/plugin-proposal-private-methods": "^7.18.6",
     "@commitlint/cli": "^17.1.2",
     "@commitlint/config-conventional": "^17.1.0",
+    "@faker-js/faker": "^7.6.0",
     "@graphql-codegen/cli": "1.21.8",
     "@graphql-codegen/typescript": "1.23.0",
-    "@qiwi/multi-semantic-release": "^6.5.1",
+    "@mono-pub/commit-analyzer": "^1.0.1",
+    "@mono-pub/git": "^1.0.1",
+    "@mono-pub/github": "^1.0.1",
+    "@mono-pub/npm": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "babel-eslint": "^10.1.0",
-    "conventional-changelog-conventionalcommits": "^5.0.0",
+    "commander": "^9.4.0",
     "eslint": "^7.13.0",
+    "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jest": "^24.1.0",
     "eslint-plugin-react": "^7.21.5",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "execa": "^5",
     "husky": "7.0.4",
-    "jest": "^26.6.3",
-    "jest-diff": "^26.0.0",
+    "jest": "^29.4.0",
+    "jest-diff": "^29.4.0",
+    "jest-environment-jsdom": "^29.4.0",
+    "jest-jasmine2": "^29.4.0",
+    "mono-pub": "^1.0.1",
     "postcss-less": "^6.0.0",
-    "semantic-release": "^19.0.5",
     "stylelint": "^14.11.0",
     "stylelint-config-rational-order": "^0.1.2",
     "stylelint-config-standard": "^28.0.0",
+    "turbo": "^1.9.8",
     "typescript": "^4.1.5"
   },
   "engines": {
-    "node": ">=14.19",
+    "node": ">=16.11",
     "yarn": ">=3.2.0"
   },
-  "eslintConfig": {
-    "env": {
-      "browser": true,
-      "es2021": true,
-      "node": true,
-      "jest/globals": true
-    },
-    "extends": [
-      "eslint:recommended",
-      "plugin:react/recommended",
-      "plugin:react-hooks/recommended",
-      "plugin:@typescript-eslint/eslint-recommended",
-      "plugin:@typescript-eslint/recommended"
-    ],
-    "parser": "@typescript-eslint/parser",
-    "parserOptions": {
-      "ecmaFeatures": {
-        "jsx": true
-      },
-      "ecmaVersion": 2019,
-      "sourceType": "module"
-    },
-    "plugins": [
-      "react",
-      "jest",
-      "@typescript-eslint"
-    ],
-    "settings": {
-      "react": {
-        "version": "detect"
-      }
-    },
-    "ignorePatterns": [
-      "dist",
-      "*schema.ts"
-    ],
-    "rules": {
-      "comma-spacing": "off",
-      "@typescript-eslint/comma-spacing": "error",
-      "indent": "off",
-      "@typescript-eslint/indent": [
-        "error",
-        4,
-        {
-          "SwitchCase": 1
-        }
-      ],
-      "quotes": "off",
-      "jsx-quotes": [
-        "error",
-        "prefer-single"
-      ],
-      "@typescript-eslint/quotes": [
-        "error",
-        "single"
-      ],
-      "semi": "off",
-      "@typescript-eslint/semi": [
-        "error",
-        "never"
-      ],
-      "space-before-function-paren": "off",
-      "@typescript-eslint/space-before-function-paren": [
-        "error",
-        "always"
-      ],
-      "comma-dangle": "off",
-      "@typescript-eslint/comma-dangle": [
-        "error",
-        {
-          "functions": "only-multiline",
-          "arrays": "always-multiline",
-          "imports": "always-multiline",
-          "exports": "always-multiline",
-          "objects": "always-multiline",
-          "enums": "always-multiline",
-          "tuples": "always-multiline",
-          "generics": "always-multiline"
-        }
-      ],
-      "object-curly-spacing": "off",
-      "@typescript-eslint/object-curly-spacing": [
-        "error",
-        "always"
-      ],
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": [
-        "warn",
-        {
-          "args": "none"
-        }
-      ],
-      "no-array-constructor": "off",
-      "@typescript-eslint/no-array-constructor": [
-        "error"
-      ],
-      "no-loop-func": "off",
-      "@typescript-eslint/no-loop-func": [
-        "warn"
-      ],
-      "no-loss-of-precision": "off",
-      "@typescript-eslint/no-loss-of-precision": [
-        "error"
-      ],
-      "no-useless-constructor": "off",
-      "@typescript-eslint/no-useless-constructor": [
-        "error"
-      ],
-      "no-prototype-builtins": "off",
-      "react/react-in-jsx-scope": "off",
-      "react/prop-types": "off",
-      "react/no-children-prop": "off",
-      "react/display-name": "warn",
-      "react/jsx-curly-brace-presence": [
-        "error",
-        {
-          "props": "never",
-          "children": "never"
-        }
-      ],
-      "jest/no-disabled-tests": "warn",
-      "jest/no-focused-tests": "error",
-      "jest/no-identical-title": "error",
-      "jest/prefer-to-have-length": "warn",
-      "jest/valid-expect": "error",
-      "@typescript-eslint/no-var-requires": "off",
-      "@typescript-eslint/ban-ts-comment": "warn",
-      "@typescript-eslint/type-annotation-spacing": "error",
-      "@typescript-eslint/func-call-spacing": "error",
-      "@typescript-eslint/keyword-spacing": "error",
-      "@typescript-eslint/space-infix-ops": [
-        "error",
-        {
-          "int32Hint": false
-        }
-      ]
-    }
-  },
   "dependencies": {
-    "@condo/ui": "link:./packages/ui/src",
     "bull": "^4.8.4",
     "bull-repl": "^0.27.2",
     "commitlint-plugin-function-rules": "^1.3.2"
@@ -194,7 +68,18 @@
   },
   "packageManager": "yarn@3.2.2",
   "resolutions": {
-    "@types/react": "16.9.17",
-    "npm": "latest-6"
+    "npm": "latest-6",
+    "graphql-upload": "^15.0.2",
+    "@keystonejs/app-admin-ui/@types/react": "16.9.17",
+    "react-intl/@types/react": "16.9.17",
+    "@types/react-transition-group@npm:2.9.2/@types/react": "16.9.17",
+    "@types/react-infinite-scroller@npm:1.2.3/@types/react": "16.9.17",
+    "@types/hoist-non-react-statics@npm:3.3.1/@types/react": "16.9.17",
+    "es5-ext": "0.10.53",
+    "debuglog": "1.0.1",
+    "debug": "4.3.4",
+    "knex": "0.95.15",
+    "@keystonejs/keystone": "patch:@keystonejs/keystone@npm:19.3.4#.yarn/patches/@keystonejs-keystone-npm-19.3.4-2a53e53061.patch",
+    "@keystonejs/app-graphql": "patch:@keystonejs/app-graphql@npm:6.3.2#.yarn/patches/@keystonejs-app-graphql-npm-6.3.2-26fe50b988.patch"
   }
 }

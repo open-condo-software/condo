@@ -1,7 +1,7 @@
 const { get } = require('lodash')
 
-const { getLogger } = require('@condo/keystone/logging')
-const { getSchemaCtx } = require('@condo/keystone/schema')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { createAdapterClass } = require('./adapter')
 
@@ -49,6 +49,13 @@ function OIDCBearerTokenKeystonePatch (app, context) {
         const oidcToken = getOidcToken(req)
         if (oidcToken && !req.path.startsWith('/oidc')) {
             const token = await tokens.find(oidcToken)
+
+            if (!token) {
+                // the token is expired
+                res.sendStatus(401)
+                return res.end()
+            }
+
             const account = get(token, 'accountId')
 
             if (token && account) {

@@ -4,29 +4,36 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
 const { gql } = require('graphql-tag')
+
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const CONTACT_FIELDS = `{ organization { id name } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } name phone unitName unitType email role { id name } isVerified ${COMMON_FIELDS} }`
+const CONTACT_FIELDS = `{ organization { id name phone phoneNumberPrefix } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } name phone unitName unitType email role { id name } isVerified ${COMMON_FIELDS} }`
 const Contact = generateGqlQueries('Contact', CONTACT_FIELDS)
 
 const CONTACT_ROLE_FIELDS = `{ name organization { id name } ${COMMON_FIELDS} }`
 const ContactRole = generateGqlQueries('ContactRole', CONTACT_ROLE_FIELDS)
 
-/* AUTOGENERATE MARKER <CONST> */
+const CONTACT_EXPORT_TASK_FIELDS = `{ status format exportedRecordsCount totalRecordsCount file { id originalFilename publicUrl mimetype } where sortBy locale timeZone user { id } __typename meta ${COMMON_FIELDS} }`
+const ContactExportTask = generateGqlQueries('ContactExportTask', CONTACT_EXPORT_TASK_FIELDS)
 
-const EXPORT_CONTACTS_TO_EXCEL =  gql`
-    query exportContactsToExcel ($data: ExportContactsToExcelInput!) {
-        result: exportContactsToExcel(data: $data) { status, linkToFile }
+
+const _INTERNAL_SYNC_CONTACTS_WITH_RESIDENTS_FOR_ORGANIZATION_MUTATION = gql`
+    mutation _internalSyncContactsWithResidentsForOrganization ($data: _internalSyncContactsWithResidentsForOrganizationInput!) {
+        result: _internalSyncContactsWithResidentsForOrganization(data: $data) ${CONTACT_FIELDS}
     }
 `
 
+/* AUTOGENERATE MARKER <CONST> */
+
 module.exports = {
     Contact,
-    EXPORT_CONTACTS_TO_EXCEL,
     ContactRole,
+    ContactExportTask,
+    _INTERNAL_SYNC_CONTACTS_WITH_RESIDENTS_FOR_ORGANIZATION_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

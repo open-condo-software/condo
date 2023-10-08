@@ -1,10 +1,12 @@
 // Todo(zuch): need to write JWT verification
 
-const { Issuer, custom } = require('openid-client') // certified openid client will all checks
-const jwtDecode = require('jwt-decode') // decode jwt without validation
 const util = require('util')
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+
+const jwtDecode = require('jwt-decode') // decode jwt without validation
+const { Issuer, custom } = require('openid-client') // certified openid client will all checks
+
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 const SBBOL_PFX = conf.SBBOL_PFX ? JSON.parse(conf.SBBOL_PFX) : {}

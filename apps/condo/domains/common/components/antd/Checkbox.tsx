@@ -1,6 +1,7 @@
-import React from 'react'
 import { Checkbox as DefaultCheckbox, CheckboxProps } from 'antd'
 import get from 'lodash/get'
+import React from 'react'
+
 import { useTracking, TrackingEventPropertiesType, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
 
 export interface CustomCheckboxProps extends CheckboxProps {

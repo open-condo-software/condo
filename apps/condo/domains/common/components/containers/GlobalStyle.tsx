@@ -1,16 +1,19 @@
-import React from 'react'
 import { css, Global } from '@emotion/react'
+import React from 'react'
+
+import { colors as UIColors } from '@open-condo/ui/dist/colors'
+
 import { colors, DEFAULT_STRONG_TEXT_FONT_WEIGHT, gradients } from '@condo/domains/common/constants/style'
 
 export default function GlobalStyle () {
     return (
         <Global
             styles={css`
-              @import url('https://fonts.googleapis.com/css?family=Open+Sans:400,600,700&display=swap');
+              @import url('https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;600;700&display=swap');
               body {
                 max-width: 100%;
                 overflow-x: hidden;
-                font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+                font-family: 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
                 line-height: 1.5;
 
                 text-decoration-skip: ink;
@@ -63,27 +66,45 @@ export default function GlobalStyle () {
                   position: relative;
                   bottom: 4px;
                 }
+                
+                .ant-checkbox {
+                  .ant-checkbox-inner {
+                    background-color: ${colors.white};
+                    border: 1px solid ${colors.inputBorderGrey};
+                    border-radius: 4px;
+                    
+                    width: 24px;
+                    height: 24px;
+                      
+                    &:focus {
+                      background-color: inherit;
+                    }                      
+                  }
+                  
+                  &:not(.ant-checkbox-indeterminate) {
+                    .ant-checkbox-inner::after {
+                      left: 36%;
+                      width: 7px;
+                      height: 12px;
+                    }
+                  }                  
+                }
+              }
+              
+              .ant-checkbox-wrapper:hover .ant-checkbox-inner, .ant-checkbox:hover .ant-checkbox-inner,
+              .ant-checkbox-input:focus + .ant-checkbox-inner {
+                border-color: ${colors.inputBorderHover};
               }
               
               .ant-checkbox {
                 width: 24px;
                 height: 24px;
-              }
-              
-              .ant-checkbox-inner {
-                  width: 24px;
-                  height: 24px;
+                border-color: ${colors.inputBorderGrey};
               }
 
               .ant-form-item input[type="checkbox"] {
                 width: 24px;
                 height: 24px;
-              }  
-              
-              .ant-checkbox-inner::after {
-                left: 36%;
-                width: 7.714px;
-                height: 12.143px;
               }
               
               .ant-checkbox-checked {
@@ -151,7 +172,7 @@ export default function GlobalStyle () {
               }
 
               .ant-input-affix-wrapper input, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
-                border-color: ${colors.black};
+                border-color: ${colors.inputBorderHover};
                 box-shadow: none !important;
               }
 
@@ -163,18 +184,6 @@ export default function GlobalStyle () {
               .ant-form-item-has-error .ant-input-affix-wrapper > input.ant-input:focus, .ant-input-affix-wrapper > input.ant-input:focus {
                 -webkit-box-shadow: none !important;
                 box-shadow: none !important;
-              }
-              
-              .ant-checkbox {
-                border-color: ${colors.inputBorderGrey};
-              }
-              
-              .ant-checkbox-inner {
-                border-radius: 4px;
-              }
-              
-              .ant-checkbox-input:focus:not(:checked) + .ant-checkbox-inner {
-                background-color: ${colors.ultraLightGrey};
               }
 
               .ant-form-item-explain, .ant-form-item-extra {
@@ -211,6 +220,76 @@ export default function GlobalStyle () {
                   border-right: none;
                 }
               }
+              
+              .ant-table.ant-table-bordered .ant-table-thead > tr > th:not(.ant-table-selection-column):not(.ant-table-column-sort):not(.ant-table-column-has-sorters):not(:hover) {
+                background: ${colors.white};
+              }
+              
+              .ant-table.ant-table-bordered .ant-table-thead th.ant-table-column-sort,
+              .ant-table.ant-table-bordered .ant-table-thead th:hover {
+                background: ${colors.backgroundLightGrey};
+              }
+              .ant-table.ant-table-bordered .ant-table-tbody > tr > td.ant-table-column-sort {
+                background: inherit;
+              }
+              
+              .ant-table.ant-table-bordered > .ant-table-container {
+                border: 1px solid #E1E5ED;
+                border-radius: 12px;
+              }
+              .ant-table.ant-table-bordered .ant-table-thead > tr > th,
+              .ant-table.ant-table-bordered .ant-table-tbody > tr > td {
+                border-color: #E1E5ED;
+              }
+              .ant-table.ant-table-bordered .ant-table-sticky-holder {
+                border-radius: unset;
+                background-color: transparent;
+              }
+              
+              .ant-table .ant-table-container::before, .ant-table .ant-table-container::after {
+                display: none;
+              }
+              
+              .ant-table.ant-table-bordered .ant-table-tbody tr:last-of-type > td {
+                border-bottom: none;
+              }
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table > thead > tr > th,
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td,
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > tbody > tr > td,
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table > thead > tr > th {
+                border-right: none;
+              }
+              
+              .ant-table.ant-table-bordered > .ant-table-container > .ant-table-content > table, .ant-table.ant-table-bordered > .ant-table-container > .ant-table-header > table {
+                border: none;
+              }
+              
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-track {
+                border: none;
+                border-radius: 12px;
+              }
+              
+              .ant-table.ant-table-bordered div::-webkit-scrollbar {
+                width: 14px;
+                border-right: 5px solid transparent;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-thumb {
+                background-color: ${colors.inputBorderGrey};
+                border-radius: 12px;
+                border: 4px solid transparent;
+                background-clip: padding-box;
+                width: 5px;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-thumb:hover {
+                border: 2px solid transparent;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-track {
+                border-radius: 12px;
+              }
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-track,
+              .ant-table.ant-table-bordered div::-webkit-scrollbar-corner {
+                background-color: transparent;
+              }
 
               .ant-table-pagination.ant-pagination {
                 margin: 40px 0 16px;
@@ -225,6 +304,12 @@ export default function GlobalStyle () {
               }
 
               .ant-table-cell {
+                .icon {
+                  color: #707695 !important;
+                  &:hover {
+                    color: #222 !important;
+                  }
+                }
                 &:hover {
                   .ant-table-column-sorter, .ant-table-filter-trigger {
                     visibility: visible;
@@ -232,9 +317,13 @@ export default function GlobalStyle () {
                 }
               }
 
-              .ant-table-thead > tr > th {
-                font-weight: 700;
-              }
+               .ant-table-thead > tr > th {
+                 font-size: 12px;
+                 line-height: 20px;
+                 letter-spacing: -0.01em;
+                 color: ${colors.textSecondary};
+                 font-weight: ${DEFAULT_STRONG_TEXT_FONT_WEIGHT};
+               }
 
               .ant-table-row {
                 &:hover {
@@ -244,6 +333,75 @@ export default function GlobalStyle () {
               
               .ant-table-row-expand-icon-spaced {
                 display: none;
+              }
+              
+              .ant-table-container {
+                border-bottom-left-radius: 12px;
+                border-bottom-right-radius: 12px;
+              }
+              .ant-table-tbody > tr > td {
+                vertical-align: top;
+                letter-spacing: -0.01em;
+                line-height: 22px;
+              }
+              .ant-table-tbody > tr > td * {
+                word-break: initial;
+              }
+              
+              .ant-table-tbody > tr:last-child > td:first-child {
+                border-bottom-left-radius: 12px;
+              }
+
+              .ant-table-tbody > tr:last-child > td:last-child {
+                border-bottom-right-radius: 12px;
+              }
+              
+              .ant-table-summary {
+                background-color: transparent;
+                .ant-table-cell {
+                    border: none !important;
+                    border-top: 1px solid #D0D3E5 !important;
+                  }
+              }
+
+              .ant-table-tbody > tr.condo-table-expandable-row {
+                font-weight: ${DEFAULT_STRONG_TEXT_FONT_WEIGHT};
+                
+                &.condo-table-expandable-row-last-row:not(.condo-table-expandable-row-expanded) {
+                  & > td:first-child {
+                    border-bottom-left-radius: 8px;
+                  }
+                  
+                  & > td:last-child {
+                    border-bottom-right-radius: 8px;
+                  }
+                }
+                
+                &:hover > td {
+                  background-color: ${UIColors.gray[1]};
+                }
+
+                &-expanded {
+                  background-color: ${UIColors.gray[1]};
+                }
+              }
+
+              .ant-table-tbody > .condo-table-expandable-row-inner-row {
+                & > td > .ant-table-wrapper .ant-table {
+                  margin-left: 0 !important;
+
+                  & > .ant-table-container {
+                    border-left: 0;
+                    border-right: 0;
+                    border-radius: 0;
+                    border-top: 0;
+                    border-bottom: 0;
+                  }
+                }
+
+                & > td {
+                  padding-left: 0;
+                }
               }
               
               h1.ant-typography {
@@ -286,13 +444,16 @@ export default function GlobalStyle () {
                 line-height: 32px; 
                 font-weight: 700;
               }
+              .ant-modal-footer button + .ant-btn:not(.ant-dropdown-trigger) {
+                margin-left: 8px;
+              }
               
               ${uploadControlCss}
               ${radioGroupCss}
               ${inputControlCss}
               ${page}
-              ${carouselCss}
               ${cardCSS}
+              ${previewCSS}
               
               .ant-notification-notice.tasks {
                 padding: 17px;
@@ -384,6 +545,13 @@ const uploadControlCss = css`
     order:1;
     margin-top:5px;
   }
+  .ant-upload-select-block {
+    width: 100%;
+    
+    .ant-upload {
+      width: 100%;
+    }
+  }
   .upload-control-wrapper .ant-upload-list-item-card-actions .anticon.anticon-delete {
     font-size:18px;
   }
@@ -437,23 +605,49 @@ const page = css`
   }
 `
 
-const carouselCss = css`
-  .ant-carousel {
-    width: 100%;
-    background: ${colors.backgroundLightGrey};
-    padding: 12px;
-    border-radius: 12px;
-  }
-  .slick-slide {
-    padding: 12px;
-  }
-`
-
 const cardCSS = css`
   .ant-card-bordered {
     border: 1px solid ${colors.backgroundWhiteSecondary};
   }
   .ant-card-head {
     border-color: ${colors.backgroundWhiteSecondary};
+  }
+`
+
+const previewCSS = css`
+  .ant-image-preview-switch-left {
+    left: 60px;
+  },
+  .ant-image-preview-switch-right {
+    right: 60px;
+  },
+  .ant-image-preview-switch-left,
+  .ant-image-preview-switch-right {
+    width: 60px;
+    height: 60px;
+    background: transparent;
+  }
+  .ant-image-preview-img {
+    width: auto;
+    max-width: calc(100vw - 260px) !important;
+    height: 600px;
+    object-fit: contain;
+  }
+  @media (max-width: 768px) {
+    .ant-image-preview-switch-left {
+      left: 40px;
+    },
+    .ant-image-preview-switch-right {
+      right: 40px;
+    },
+    .ant-image-preview-switch-left,
+    .ant-image-preview-switch-right {
+      width: 40px;
+      height: 40px;
+    }
+    .ant-image-preview-img {
+      max-width: calc(100vw - 180px) !important;
+      height: 330px;
+    }
   }
 `

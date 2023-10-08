@@ -1,10 +1,12 @@
 /** @jsx jsx */
-import { Button } from '@condo/domains/common/components/Button'
-import React, { useState } from 'react'
-import { Affix, Alert, AlertProps, Space } from 'antd'
 import { InfoCircleFilled } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
+import { Affix, Alert, AlertProps, Space } from 'antd'
+import React, { useState } from 'react'
+
+import { Button } from '@condo/domains/common/components/Button'
 import { colors } from '@condo/domains/common/constants/style'
+
 import { useLayoutContext } from './LayoutContext'
 
 
@@ -61,7 +63,8 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
     }
 
     const TopNotificationComponent: React.FC = () => {
-        const { isSmall } = useLayoutContext()
+        const { breakpoints } = useLayoutContext()
+        if (topNotifications.length === 0) return null
         return (
             <>
                 <Affix>{
@@ -73,7 +76,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
                                 message={notification.message}
                                 type={notification.type}
                                 key={notification.id}
-                                css={notificationAlert({ isSmall })}
+                                css={notificationAlert({ isSmall: !breakpoints.TABLET_LARGE })}
                                 action={<Space size={20}>
                                     {
                                         notification.actions.map((action, idx) => {
@@ -83,7 +86,7 @@ export const useTopNotificationsHook = (): ITopNotificationHookResult => {
                                                         await action.action()
                                                         removeNotification(notification.id)
                                                     }}
-                                                    size={isSmall ? 'middle' : 'large'}
+                                                    size={!breakpoints.TABLET_LARGE ? 'middle' : 'large'}
                                                     type='sberPrimary'
                                                     secondary={action.secondary}
                                                     key={idx}

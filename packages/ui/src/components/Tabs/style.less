@@ -1,0 +1,77 @@
+@import "antd/lib/tabs/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+
+@tabs-horizontal-gutter: @condo-global-spacing-40;
+@tabs-card-active-color: @condo-global-color-black;
+@tabs-highlight-color: @condo-global-color-black;
+@tabs-ink-bar-color: @condo-global-color-black;
+@tabs-active-color: @condo-global-color-black;
+@tabs-hover-color: @condo-global-color-black;
+@tabs-horizontal-padding: @condo-global-spacing-4 0 @condo-global-spacing-12;
+@tabs-bar-margin: 0 0 @condo-global-spacing-40 0;
+
+.condo-tabs {
+  &-tab-btn {
+    .condo-typography-h4();
+
+    color: @condo-global-color-gray-7;
+  }
+
+  &-tab-label {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    & > *:not(:last-child) {
+      margin-right: @condo-global-spacing-8;
+    }
+  }
+
+  &-tab-disabled {
+    .condo-tabs-tab-btn,
+    .condo-tabs-tab-btn:active {
+      color: @condo-global-color-gray-7 !important;
+      opacity: @condo-global-opacity-disabled;
+    }
+  }
+
+  &-tab.condo-tabs-tab-active {
+    .condo-tabs-tab-btn {
+      text-shadow: none;
+    }
+  }
+
+  &-top {
+    & > .condo-tabs-nav .condo-tabs-ink-bar {
+      height: 3px;
+    }
+
+    .condo-tabs-nav::before {
+      display: none;
+    }
+  }
+
+  &-dropdown {
+    &-menu {
+      border-radius: @condo-global-border-radius-medium;
+
+      &-item:hover {
+        background-color: @condo-global-color-gray-1;
+      }
+
+      &-item-disabled {
+        .condo-tabs-tab-label > span {
+          opacity: @condo-global-opacity-disabled;
+        }
+      }
+    }
+
+    & .condo-tabs-tab-label {
+      justify-content: start;
+      color: @condo-global-color-gray-7;
+      .condo-typography-h5();
+    }
+  }
+}

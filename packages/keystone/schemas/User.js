@@ -1,7 +1,7 @@
 const { Text, Checkbox, Password } = require('@keystonejs/fields')
 
-const { GQLListSchema } = require('@condo/keystone/schema')
-const access = require('@condo/keystone/access')
+const access = require('@open-condo/keystone/access')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const User = new GQLListSchema('User', {
     fields: {

@@ -1,19 +1,19 @@
-import getConfig from 'next/config'
-import React, { useContext, useEffect, useState, createContext } from 'react'
-import Router, { useRouter } from 'next/router'
 import { ServiceSubscription, SortServiceSubscriptionsBy } from '@app/condo/schema'
-import { Typography } from 'antd'
-
-import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
 import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
 import duration from 'dayjs/plugin/duration'
-import { Button } from '@condo/domains/common/components/Button'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
-import { useOrganization } from '@condo/next/organization'
-import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { get } from 'lodash'
+import getConfig from 'next/config'
+import Router, { useRouter } from 'next/router'
+import React, { useContext, useEffect, useState, createContext } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { Modal, Button, Typography } from '@open-condo/ui'
+
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+
+import { ServiceSubscription as ServiceSubscriptionUtil } from '../utils/clientSchema'
 import { isExpired } from '../utils/helpers'
 
 dayjs.extend(relativeTime)
@@ -74,9 +74,9 @@ const ExpiredModal: React.FC = () => {
     return (
         <Modal
             title={ExpiredTitleMessage}
-            visible={visible}
+            open={visible}
             footer={[
-                <Button key='submit' type='sberPrimary' onClick={() => setVisible(false)}>
+                <Button key='submit' type='primary' onClick={() => setVisible(false)}>
                     {OKMessage}
                 </Button>,
             ]}

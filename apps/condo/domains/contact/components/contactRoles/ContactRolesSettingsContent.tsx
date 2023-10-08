@@ -1,13 +1,4 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
 import { SortContactRolesBy } from '@app/condo/schema'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { useContactRolesTableColumns } from '@condo/domains/contact/hooks/useContactRolesTableColumns'
-import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { useOrganization } from '@condo/next/organization'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -16,7 +7,17 @@ import lowerCase from 'lodash/lowerCase'
 import orderBy from 'lodash/orderBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+
+import { PlusCircle } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
+
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
+import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useContactRolesTableColumns } from '@condo/domains/contact/hooks/useContactRolesTableColumns'
+import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
 const SORTABLE_PROPERTIES = ['name']
 const DEFAULT_SORT_BY = ['createdAt_DESC']
@@ -118,15 +119,18 @@ export const ContactRolesSettingsContent = () => {
             {
                 canManageContactRoles && (
                     <Col span={24}>
-                        <ActionBar>
-                            <Button
-                                type='sberDefaultGradient'
-                                icon={<PlusCircleOutlined/>}
-                                onClick={handleAddHintButtonClick}
-                            >
-                                {AddMessage}
-                            </Button>
-                        </ActionBar>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='submit'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium'/>}
+                                    onClick={handleAddHintButtonClick}
+                                >
+                                    {AddMessage}
+                                </Button>,
+                            ]}
+                        />
                     </Col>
                 )
             }

@@ -1,28 +1,34 @@
 import { BuildingUnitSubType } from '@app/condo/schema'
+import { Col, Form, Row } from 'antd'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
+import { useRouter } from 'next/router'
+import { Rule } from 'rc-field-form/lib/interface'
+import React, { CSSProperties, useEffect, useMemo, useRef, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
+
+import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ContactRoleSelect } from '@condo/domains/contact/components/contactRoles/ContactRoleSelect'
 import { ErrorsContainer } from '@condo/domains/contact/components/ErrorsContainer'
+import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
+import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
-import styled from '@emotion/styled'
-import { Col, Form, Row } from 'antd'
-import get from 'lodash/get'
-import { useRouter } from 'next/router'
-import { Rule } from 'rc-field-form/lib/interface'
-import React, { CSSProperties, useEffect, useRef, useState } from 'react'
-import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 import { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } from '@condo/domains/user/constants/errors'
-import Checkbox from '@condo/domains/common/components/antd/Checkbox'
-import { fontSizes } from '@condo/domains/common/constants/style'
+
+import { ButtonWithDisabledTooltip } from '../../common/components/ButtonWithDisabledTooltip'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -38,12 +44,7 @@ const INPUT_LAYOUT_PROPS = {
 }
 const ADDRESS_SEARCH_WRAPPER_COL = { span: 14 }
 
-const BottomLineWrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-`
+
 const CHECKBOX_STYLE: CSSProperties = { paddingLeft: '0px', fontSize: fontSizes.content }
 
 export const CreateContactForm: React.FC = () => {
@@ -67,7 +68,10 @@ export const CreateContactForm: React.FC = () => {
     const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
     const ContactDuplicateError = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
     const Verified = intl.formatMessage({ id: 'pages.condo.contact.Verified' })
-
+    const NameLabel = intl.formatMessage({ id: 'field.FullName.short' })
+    const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
+    const ContactDuplicateMessage = intl.formatMessage({ id: 'contact.ContactDuplicateError' })
+    
     const { organization, link } = useOrganization()
     const router = useRouter()
 
@@ -79,6 +83,9 @@ export const CreateContactForm: React.FC = () => {
     const selectedUnitTypeRef = useRef(selectedUnitType)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const [isFieldsChanged, setIsFieldsChanged] = useState(false)
+
+    const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
+    const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
     const { changeMessage, phoneValidator, emailValidator, requiredValidator, specCharValidator, trimValidator } = useValidations({ allowLandLine: true })
     const { addressValidator } = usePropertyValidations()
@@ -135,8 +142,16 @@ export const CreateContactForm: React.FC = () => {
 
     const action = Contact.useCreate({
         organization: { connect: { id: organization.id } },
-    }, () => {
-        router.push('/contact/')
+    }, async (contact) => {
+        if (redirectToClientCard) {
+            const phone = contact.phone
+            const propertyId = get(contact, 'property.id')
+            if (phone && propertyId) {
+                await router.push(`/phone/${phone}?tab=${getClientCardTabKey(propertyId, ClientType.Resident, contact.unitName, contact.unitType)}`)
+            }
+        } else {
+            await router.push('/contact/')
+        }
     })
 
     const actionWithHandleSubmit = async (data) => {
@@ -149,6 +164,7 @@ export const CreateContactForm: React.FC = () => {
     return (
         <FormWithAction
             action={actionWithHandleSubmit}
+            initialValues={initialValuesFromQuery}
             layout='horizontal'
             validateTrigger={['onBlur', 'onSubmit']}
             colon={false}
@@ -317,33 +333,36 @@ export const CreateContactForm: React.FC = () => {
                                                 || hasContactDuplicate
                                                 || hasNameSpecCharError
                                                 || !canManageContacts
+
+                                            const messageLabels = []
+                                            if (!property) messageLabels.push(`"${AddressLabel}"`)
+                                            if (!unitName) messageLabels.push(`"${UnitLabel}"`)
+                                            if (hasNameTrimValidateError) messageLabels.push(`"${NameLabel}"`)
+                                            if (!phone) messageLabels.push(`"${PhoneLabel}"`)
+
+                                            const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
+                                            const contactDuplicateError = hasContactDuplicate ? ContactDuplicateMessage : undefined
+                                            const nameSpecCharError = hasNameSpecCharError ? FullNameInvalidCharMessage : undefined
+
+                                            const errors = [requiredErrorMessage, contactDuplicateError, nameSpecCharError]
+                                                .filter(Boolean)
+                                                .join(', ')
+
                                             return (
-                                                <Row gutter={[0, 24]}>
-                                                    <Col span={24}>
-                                                        <BottomLineWrapper>
-                                                            <Button
-                                                                key='submit'
-                                                                onClick={handleSave}
-                                                                type='sberDefaultGradient'
-                                                                loading={isLoading}
-                                                                disabled={isDisabled}
-                                                                style={{ marginRight: 24 }}
-                                                            >
-                                                                {SubmitButtonLabel}
-                                                            </Button>
-                                                            <ErrorsContainer
-                                                                phone={phone}
-                                                                address={property}
-                                                                unit={unitName}
-                                                                name={name}
-                                                                propertyMismatchError={propertyMismatchError}
-                                                                hasContactDuplicate={hasContactDuplicate}
-                                                                hasNameSpecCharError={hasNameSpecCharError}
-                                                                hasNameTrimValidateError={hasNameTrimValidateError}
-                                                            />
-                                                        </BottomLineWrapper>
-                                                    </Col>
-                                                </Row>
+                                                <ActionBar
+                                                    actions={[
+                                                        <ButtonWithDisabledTooltip
+                                                            key='submit'
+                                                            type='primary'
+                                                            disabled={isDisabled}
+                                                            title={errors}
+                                                            onClick={handleSave}
+                                                            loading={isLoading}
+                                                        >
+                                                            {SubmitButtonLabel}
+                                                        </ButtonWithDisabledTooltip>,
+                                                    ]}
+                                                />
                                             )
                                         }
                                     }

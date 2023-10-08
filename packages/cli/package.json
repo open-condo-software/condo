@@ -1,0 +1,19 @@
+{
+  "name": "@open-condo/cli",
+  "description": "Helpers for CLI and local bin files and utils",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "cli"
+  ],
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git"
+  },
+  "license": "MIT",
+  "main": "index.js",
+  "dependencies": {
+    "@open-condo/config": "workspace:^"
+  }
+}

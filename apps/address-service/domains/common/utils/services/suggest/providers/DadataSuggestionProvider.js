@@ -1,8 +1,18 @@
-const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/AbstractSuggestionProvider')
-const conf = require('@condo/config')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
+
+const conf = require('@open-condo/config')
+const { getRedisClient } = require('@open-condo/keystone/redis')
+
+const { BUILDING_ADDRESS_TYPE } = require('@address-service/domains/common/constants/addressTypes')
 const { DADATA_PROVIDER } = require('@address-service/domains/common/constants/providers')
+const { AbstractSuggestionProvider } = require('@address-service/domains/common/utils/services/suggest/providers/AbstractSuggestionProvider')
+
+const DEFAULT_CACHE_TTL = 3600
+const ORGANIZATION_TIN_CACHE_TTL = 84600 // in seconds
+const ADDRESS_TIN_CACHE_TTL = 84600 // in seconds
+const VALID_BUILDING_TYPES = ['дом', 'корпус', 'строение', 'домовладение', 'сооружение', 'владение', 'здание']
+const TRAILING_HOUSE_NUMBER_RE = /\d\s?\D?$/
 
 /**
  * @typedef {Object} DadataObjectData
@@ -112,17 +122,23 @@ const CONFIG_KEY = 'DADATA_SUGGESTIONS'
 const CONFIG_KEY_URL = 'url'
 const CONFIG_KEY_TOKEN = 'token'
 
+const ORGANIZATION_KLADR_FIELDS = ['settlement_kladr_id', 'city_kladr_id', 'region_kladr_id']
+
 /**
  * The dadata suggestions provider
  * @link https://dadata.ru/api/suggest/address/
  */
 class DadataSuggestionProvider extends AbstractSuggestionProvider {
-    constructor () {
-        super()
+
+    /**
+     * @param {ProviderDetectorArgs} args
+     */
+    constructor (args) {
+        super(args)
 
         const dadataConfigStr = get(conf, CONFIG_KEY)
         if (!dadataConfigStr) {
-            throw new Error(`There is no '${CONFIG_KEY}' in config.`)
+            throw new Error(`There is no '${CONFIG_KEY}' in .env.`)
         }
 
         /**
@@ -144,16 +160,19 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
         this.token = token
     }
 
-    getProviderContextName () {
+    getProviderName () {
         return DADATA_PROVIDER
     }
 
     /**
-     * @returns {Promise<DadataObject[]>}
+     * @param {string} url
+     * @param {Object} body
+     * @returns {Promise<*|null>}
      */
-    async get ({ query, context = null, count = 20 }) {
+    async callToDadata (url, body) {
+        this.logger.info({ msg: 'call to dadata', url, body, reqId: this.req.id })
         const result = await fetch(
-            this.url,
+            url,
             {
                 method: 'POST',
                 headers: {
@@ -161,42 +180,240 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
                     'Accept': 'application/json',
                     'Authorization': `Token ${this.token}`,
                 },
-                body: JSON.stringify(
-                    {
-                        query,
-                        ...this.getContext(context),
-                        ...(isNaN(count) ? {} : { count }),
-                    },
-                ),
+                body: JSON.stringify(body),
             },
         )
 
         const status = result.status
         if (status === 200) {
-            const response = await result.json()
-            return get(response, 'suggestions', [])
-        } else {
-            //TODO(nas) need to log erroneous status
-            return []
+            return await result.json()
+        } else if (status === 403) {
+            /**
+             * See all cases for 403 error
+             * @link https://dadata.ru/api/suggest/address/#return
+             */
+
+            /**
+             * In the case of 403, we may check if our limit exceeded
+             * If yes, we should create a separate token rotator for dadata provider (search & suggest)
+             * @link https://dadata.ru/api/stat/
+             */
         }
+
+        this.logger.warn({ msg: 'dadata responded with error status code', status, url, body })
+
+        return null
+    }
+
+    /**
+     * @param {string} tin
+     * @returns {Promise<*|null>}
+     */
+    async getOrganization (tin) {
+        return await this.callToDadataCached({
+            cacheClient: getRedisClient('organization', 'tin'),
+            searchKey: tin,
+            apiUrl: 'findById/party',
+            ttl: ORGANIZATION_TIN_CACHE_TTL,
+        })
+    }
+
+    /**
+     * @param {string} fiasId
+     * @returns {Promise<DadataObject|null>}
+     */
+    async getAddressByFiasId (fiasId) {
+        return await this.callToDadataCached({
+            cacheClient: getRedisClient('address', 'fiasId'),
+            searchKey: fiasId,
+            apiUrl: 'findById/address',
+            ttl: ADDRESS_TIN_CACHE_TTL,
+        })
+    }
+
+    /**
+     * @param {import('ioredis')} cacheClient
+     * @param {string} searchKey
+     * @param {string} apiUrl
+     * @param {number} ttl
+     * @returns {Promise<*|null>}
+     */
+    async callToDadataCached ({ cacheClient, searchKey, apiUrl, ttl = DEFAULT_CACHE_TTL }) {
+        const cached = await cacheClient.get(searchKey)
+
+        if (cached) {
+            return JSON.parse(cached)
+        }
+
+        const result = await this.callToDadata(`${this.url}/${apiUrl}`, { query: searchKey })
+
+        if (result) {
+            const data = get(result, ['suggestions', 0], null)
+
+            if (data) {
+                await cacheClient.set(searchKey, JSON.stringify(data), 'EX', ttl)
+            }
+
+            return data
+        }
+
+        return null
+    }
+
+    static prepareQuery (query) {
+        const trimmedQuery = query.trim()
+
+        // In the case of searching string ends by house number we add a space in the tail of the string (see DOMA-5199)
+        // If there is no number in the end of string, we pass a trimmed string to make dadata search suggestions correctly
+        return TRAILING_HOUSE_NUMBER_RE.test(trimmedQuery) ? `${trimmedQuery} ` : trimmedQuery
+    }
+
+    /**
+     * @returns {Promise<DadataObject[]>}
+     */
+    async get ({ query, context = '', count = 20, helpers = {} }) {
+        const { tin = null } = helpers
+
+        const body = {
+            query: DadataSuggestionProvider.prepareQuery(query),
+            ...this.getContext(context),
+            ...(isNaN(count) ? {} : { count }),
+        }
+
+        if (tin) {
+            const organizationInfo = await this.getOrganization(tin)
+
+            if (organizationInfo) {
+                body.locations_boost = ORGANIZATION_KLADR_FIELDS
+                    .map(fieldName => get(organizationInfo, `data.address.data.${fieldName}`))
+                    .filter(Boolean)
+                    .map((kladr_id) => ({ kladr_id }))
+            }
+        }
+
+        const result = await this.callToDadata(`${this.url}/suggest/address`, body)
+
+        if (result) {
+            return get(result, 'suggestions', [])
+        }
+
+        return []
     }
 
     /**
      * @param {DadataObject[]} data
-     * @returns {NormalizedSuggestion[]}
+     * @returns {(NormalizedBuilding & {rawValue: string})[]}
      */
     normalize (data) {
-        // TODO(nas) add other fields
-        return data.map((item) => ({ value: item.value }))
-    }
-
-    /**
-     *
-     * @param data
-     * @returns {DadataObject[]}
-     */
-    denormalize (data) {
-        return data
+        // I wanna decrease a dependency from possible data changes got from dadata
+        // So, transform data field-by-field
+        // Yes, at the beginning it will be 1-to-1 copying
+        return data.map((item) => (
+            {
+                value: get(item, 'value'),
+                unrestricted_value: get(item, 'unrestricted_value'),
+                rawValue: get(item, 'value'),
+                data: {
+                    postal_code: get(item, ['data', 'postal_code']),
+                    country: get(item, ['data', 'country']),
+                    country_iso_code: get(item, ['data', 'country_iso_code']),
+                    federal_district: get(item, ['data', 'federal_district']),
+                    region_fias_id: get(item, ['data', 'region_fias_id']),
+                    region_kladr_id: get(item, ['data', 'region_kladr_id']),
+                    region_iso_code: get(item, ['data', 'region_iso_code']),
+                    region_with_type: get(item, ['data', 'region_with_type']),
+                    region_type: get(item, ['data', 'region_type']),
+                    region_type_full: get(item, ['data', 'region_type_full']),
+                    region: get(item, ['data', 'region']),
+                    area_fias_id: get(item, ['data', 'area_fias_id']),
+                    area_kladr_id: get(item, ['data', 'area_kladr_id']),
+                    area_with_type: get(item, ['data', 'area_with_type']),
+                    area_type: get(item, ['data', 'area_type']),
+                    area_type_full: get(item, ['data', 'area_type_full']),
+                    area: get(item, ['data', 'area']),
+                    city_fias_id: get(item, ['data', 'city_fias_id']),
+                    city_kladr_id: get(item, ['data', 'city_kladr_id']),
+                    city_with_type: get(item, ['data', 'city_with_type']),
+                    city_type: get(item, ['data', 'city_type']),
+                    city_type_full: get(item, ['data', 'city_type_full']),
+                    city: get(item, ['data', 'city']),
+                    city_area: get(item, ['data', 'city_area']),
+                    city_district_fias_id: get(item, ['data', 'city_district_fias_id']),
+                    city_district_kladr_id: get(item, ['data', 'city_district_kladr_id']),
+                    city_district_with_type: get(item, ['data', 'city_district_with_type']),
+                    city_district_type: get(item, ['data', 'city_district_type']),
+                    city_district_type_full: get(item, ['data', 'city_district_type_full']),
+                    city_district: get(item, ['data', 'city_district']),
+                    settlement_fias_id: get(item, ['data', 'settlement_fias_id']),
+                    settlement_kladr_id: get(item, ['data', 'settlement_kladr_id']),
+                    settlement_with_type: get(item, ['data', 'settlement_with_type']),
+                    settlement_type: get(item, ['data', 'settlement_type']),
+                    settlement_type_full: get(item, ['data', 'settlement_type_full']),
+                    settlement: get(item, ['data', 'settlement']),
+                    street_fias_id: get(item, ['data', 'street_fias_id']),
+                    street_kladr_id: get(item, ['data', 'street_kladr_id']),
+                    street_with_type: get(item, ['data', 'street_with_type']),
+                    street_type: get(item, ['data', 'street_type']),
+                    street_type_full: get(item, ['data', 'street_type_full']),
+                    street: get(item, ['data', 'street']),
+                    stead_fias_id: get(item, ['data', 'stead_fias_id']),
+                    stead_cadnum: get(item, ['data', 'stead_cadnum']),
+                    stead_type: get(item, ['data', 'stead_type']),
+                    stead_type_full: get(item, ['data', 'stead_type_full']),
+                    stead: get(item, ['data', 'stead']),
+                    house_fias_id: get(item, ['data', 'house_fias_id']),
+                    house_kladr_id: get(item, ['data', 'house_kladr_id']),
+                    house_cadnum: get(item, ['data', 'house_cadnum']),
+                    house_type: get(item, ['data', 'house_type']),
+                    house_type_full: get(item, ['data', 'house_type_full']),
+                    house: get(item, ['data', 'house']),
+                    block_type: get(item, ['data', 'block_type']),
+                    block_type_full: get(item, ['data', 'block_type_full']),
+                    block: get(item, ['data', 'block']),
+                    entrance: get(item, ['data', 'entrance']),
+                    floor: get(item, ['data', 'floor']),
+                    flat_fias_id: get(item, ['data', 'flat_fias_id']),
+                    flat_cadnum: get(item, ['data', 'flat_cadnum']),
+                    flat_type: get(item, ['data', 'flat_type']),
+                    flat_type_full: get(item, ['data', 'flat_type_full']),
+                    flat: get(item, ['data', 'flat']),
+                    flat_area: get(item, ['data', 'flat_area']),
+                    square_meter_price: get(item, ['data', 'square_meter_price']),
+                    flat_price: get(item, ['data', 'flat_price']),
+                    postal_box: get(item, ['data', 'postal_box']),
+                    fias_id: get(item, ['data', 'fias_id']),
+                    fias_code: get(item, ['data', 'fias_code']),
+                    fias_level: get(item, ['data', 'fias_level']),
+                    fias_actuality_state: get(item, ['data', 'fias_actuality_state']),
+                    kladr_id: get(item, ['data', 'kladr_id']),
+                    geoname_id: get(item, ['data', 'geoname_id']),
+                    capital_marker: get(item, ['data', 'capital_marker']),
+                    okato: get(item, ['data', 'okato']),
+                    oktmo: get(item, ['data', 'oktmo']),
+                    tax_office: get(item, ['data', 'tax_office']),
+                    tax_office_legal: get(item, ['data', 'tax_office_legal']),
+                    timezone: get(item, ['data', 'timezone']),
+                    geo_lat: get(item, ['data', 'geo_lat']),
+                    geo_lon: get(item, ['data', 'geo_lon']),
+                    beltway_hit: get(item, ['data', 'beltway_hit']),
+                    beltway_distance: get(item, ['data', 'beltway_distance']),
+                    metro: get(item, ['data', 'metro']),
+                    divisions: get(item, ['data', 'divisions']),
+                    qc_geo: get(item, ['data', 'qc_geo']),
+                    qc_complete: get(item, ['data', 'qc_complete']),
+                    qc_house: get(item, ['data', 'qc_house']),
+                    history_values: get(item, ['data', 'history_values']),
+                    unparsed_parts: get(item, ['data', 'unparsed_parts']),
+                    source: get(item, ['data', 'source']),
+                    qc: get(item, ['data', 'qc']),
+                },
+                provider: {
+                    name: DADATA_PROVIDER,
+                    rawData: item,
+                },
+                type: VALID_BUILDING_TYPES.includes(get(item, ['data', 'house_type_full'])) ? BUILDING_ADDRESS_TYPE : null,
+            }
+        ))
     }
 }
 

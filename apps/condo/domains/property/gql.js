@@ -4,15 +4,18 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
-const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('./schema/fields/AddressMetaField')
 const { gql } = require('graphql-tag')
+
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
 const { PARKING_UNIT_TYPE, FLAT_UNIT_TYPE, WAREHOUSE_UNIT_TYPE, COMMERCIAL_UNIT_TYPE, APARTMENT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST, ADDRESS_META_SUBFIELDS_TABLE_LIST } = require('./schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt organization { id name} newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const PROPERTY_MAP_SECTION_FIELDS = 'id type index name preview floors { id type index name units { id type unitType name label preview } }'
 const PROPERTY_MAP_JSON_FIELDS = `dv type sections { ${PROPERTY_MAP_SECTION_FIELDS} } parking { ${PROPERTY_MAP_SECTION_FIELDS} }`
-const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed unitsCount uninhabitedUnitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} isApproved }`
+const PROPERTY_FIELDS = `{ name address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } type ticketsInWork yearOfConstruction area ticketsClosed ticketsDeferred unitsCount uninhabitedUnitsCount map { ${PROPERTY_MAP_JSON_FIELDS} } ${COMMON_FIELDS} isApproved addressKey }`
 const PROPERTY_TABLE_FIELDS = `{ ${COMMON_FIELDS} unitsCount uninhabitedUnitsCount addressMeta { ${ADDRESS_META_SUBFIELDS_TABLE_LIST} }  ticketsInWork }`
 const Property = generateGqlQueries('Property', PROPERTY_FIELDS)
 const PropertyTable = generateGqlQueries('Property', PROPERTY_TABLE_FIELDS)
@@ -101,27 +104,6 @@ const PROPERTY_MAP_GRAPHQL_TYPES = `
     union PropertyMap = BuildingMap | VillageMap
 `
 
-const GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY = gql`
-    query GetTicketInWorkCountForProperty ($propertyId: ID!) {
-        inwork: _allTicketsMeta(where: { status: { type_not:  closed }, property: { id: $propertyId } }) {
-            count
-        }  
-  }
-`
-const GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY = gql`
-    query GetTicketInWorkCountForProperty ($propertyId: ID!) {
-        closed: _allTicketsMeta(where: { status: { type:  closed }, property: { id: $propertyId } }) {
-            count
-        }  
-  }
-`
-
-const CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY = gql`
-    query checkPropertyWithAddressExist ($data: CheckPropertyWithAddressExistInput!) {
-        result: checkPropertyWithAddressExist(data: $data) { isFound }
-    }
-`
-
 const EXPORT_PROPERTIES_TO_EXCEL =  gql`
     query exportPropertiesToExcel ($data: ExportPropertiesToExcelInput!) {
         result: exportPropertiesToExcel(data: $data) { status, linkToFile }
@@ -134,10 +116,7 @@ module.exports = {
     Property,
     PropertyTable,
     PROPERTY_MAP_GRAPHQL_TYPES,
-    GET_TICKET_INWORK_COUNT_BY_PROPERTY_ID_QUERY,
-    GET_TICKET_CLOSED_COUNT_BY_PROPERTY_ID_QUERY,
-    CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY,
     EXPORT_PROPERTIES_TO_EXCEL,
     PROPERTY_MAP_JSON_FIELDS,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

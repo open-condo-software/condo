@@ -1,23 +1,26 @@
-import get from 'lodash/get'
-import groupBy from 'lodash/groupBy'
-import dayjs, { Dayjs } from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import duration from 'dayjs/plugin/duration'
-import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
 import {
     TicketAnalyticsGroupBy,
     TicketGroupedCounter,
     TicketWhereInput,
 } from '@app/condo/schema'
-import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
+import dayjs, { Dayjs } from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { EChartsOption, EChartsReactProps } from 'echarts-for-react'
+import { isEmpty } from 'lodash'
+import get from 'lodash/get'
+import groupBy from 'lodash/groupBy'
+
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { TICKET_REPORT_DAY_GROUP_STEPS } from '@condo/domains/ticket/constants/common'
+
 import {
     AnalyticsDataType,
     ChartConfigResult,
     TicketSelectTypes,
     ViewModeTypes,
 } from '../components/TicketChart'
-import { isEmpty } from 'lodash'
+
 
 dayjs.extend(duration)
 dayjs.extend(relativeTime)
@@ -92,7 +95,7 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
         AND.push(...[
             { isEmergency: ticketType === 'emergency' },
             { isWarranty: ticketType === 'warranty' },
-            { isPaid: ticketType === 'paid' },
+            { isPayable: ticketType === 'payable' },
         ])
     }
 
@@ -172,8 +175,8 @@ export const getChartOptions: IGetChartOptions = ({
         animation: animationEnabled,
         color,
         grid: {
-            left: 0,
-            right: 0,
+            left: '3%',
+            right: '3%',
             bottom: 0,
             containLabel: true,
             borderWidth: 1,

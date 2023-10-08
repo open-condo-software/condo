@@ -1,12 +1,13 @@
-const get = require('lodash/get')
-const uniq = require('lodash/uniq')
-const { getById, find } = require('@condo/keystone/schema')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { get, uniq, isArray, isEmpty } = require('lodash')
+
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getById, find } = require('@open-condo/keystone/schema')
+
 const { SERVICE } = require('@condo/domains/user/constants/common')
 
 async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     if (!userId) return false
-    if (!Array.isArray(integrationIds) || !integrationIds.length || !integrationIds.every(Boolean)) return false
+    if (!isArray(integrationIds) || isEmpty(integrationIds) || !integrationIds.every(Boolean)) return false
 
     const rights = await find('BillingIntegrationAccessRight', {
         integration: { id_in: integrationIds },
@@ -17,7 +18,7 @@ async function checkBillingIntegrationsAccessRights (userId, integrationIds) {
     const permittedIntegrations = new Set(rights.map(right => right.integration))
     const nonPermittedIntegrations = integrationIds.filter(id => !permittedIntegrations.has(id))
 
-    return nonPermittedIntegrations.length === 0
+    return isEmpty(nonPermittedIntegrations)
 }
 
 /**

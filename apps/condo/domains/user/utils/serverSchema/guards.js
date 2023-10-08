@@ -1,8 +1,9 @@
 const dayjs = require('dayjs')
 const utc = require('dayjs/plugin/utc')
 
-const { GQLError } = require('@condo/keystone/errors')
-const { getRedisClient } = require('@condo/keystone/redis')
+const { GQLError } = require('@open-condo/keystone/errors')
+const { getRedisClient } = require('@open-condo/keystone/redis')
+
 const { GQL_ERRORS } = require('@condo/domains/user/constants/errors')
 
 dayjs.extend(utc)
@@ -18,7 +19,14 @@ class RedisGuard {
         this.counterPrefix = 'guard_counter:'
     }
 
-    async checkLock (lockName, action) {
+    /**
+     *
+     * @param {string} lockName
+     * @param {string} action
+     * @param {Object | undefined} context - Keystone context
+     * @return {Promise<void>}
+     */
+    async checkLock (lockName, action, context = undefined) {
         const isLocked = await this.isLocked(lockName, action)
         if (isLocked) {
             const secondsRemaining = await this.lockTimeRemain(lockName, action)
@@ -27,11 +35,19 @@ class RedisGuard {
                 messageInterpolation: {
                     secondsRemaining,
                 },
-            })
+            }, context)
         }
     }
 
-    async checkCustomLimitCounters (variable, windowSize, counterLimit) {
+    /**
+     *
+     * @param {string} variable
+     * @param {number} windowSize
+     * @param {number} counterLimit
+     * @param {Object | undefined} context - Keystone context
+     * @return {Promise<void>}
+     */
+    async checkCustomLimitCounters (variable, windowSize, counterLimit, context = undefined) {
         const expiryAnchorDate = dayjs().add(windowSize, 'second')
         const counter = await this.incrementCustomCounter(variable, expiryAnchorDate)
         if (counter > counterLimit) {
@@ -41,7 +57,7 @@ class RedisGuard {
                 messageInterpolation: {
                     secondsRemaining,
                 },
-            })
+            }, context)
         }
     }
 
@@ -62,7 +78,7 @@ class RedisGuard {
     }
 
     // Counter
-    // 1. Set variable to reddis with TTL
+    // 1. Set variable to redis with TTL
     // 2. Check if counter exists
     // 3. Get counter remain time
     async counterTimeRemain (variable) {
@@ -71,9 +87,8 @@ class RedisGuard {
         return Math.max(time, 0)
     }
 
-
     // Lock
-    // 1. Set variable to reddis with TTL
+    // 1. Set variable to redis with TTL
     // 2. Check if lock exists
     // 3. Get lock remain time
     // Example usage after failed attempt to confirm phone - lock phoneNumber for some time

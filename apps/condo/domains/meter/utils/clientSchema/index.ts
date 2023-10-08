@@ -3,22 +3,25 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+import { BulbIcon } from '@condo/domains/common/components/icons/BulbIcon'
+import { FireIcon } from '@condo/domains/common/components/icons/FireIcon'
+import { RadiatorIcon } from '@condo/domains/common/components/icons/RadiatorIcon'
+import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
+import { StoveIcon } from '@condo/domains/common/components/icons/StoveIcon'
 import {
     COLD_WATER_METER_RESOURCE_ID, ELECTRICITY_METER_RESOURCE_ID,
     GAS_SUPPLY_METER_RESOURCE_ID, HEAT_SUPPLY_METER_RESOURCE_ID,
     HOT_WATER_METER_RESOURCE_ID,
-} from '../../constants/constants'
-import { SnowflakeIcon } from '@condo/domains/common/components/icons/SnowflakeIcon'
-import { FireIcon } from '@condo/domains/common/components/icons/FireIcon'
-import { StoveIcon } from '@condo/domains/common/components/icons/StoveIcon'
-import { BulbIcon } from '@condo/domains/common/components/icons/BulbIcon'
-import { RadiatorIcon } from '@condo/domains/common/components/icons/RadiatorIcon'
+} from '@condo/domains/meter/constants/constants'
 
 export * as MeterResource from './MeterResource'
 export * as MeterReadingSource from './MeterReadingSource'
 export * as MeterReading from './MeterReading'
 export * as Meter from './Meter'
 export * as MeterReadingFilterTemplate from './MeterReadingFilterTemplate'
+export * as PropertyMeter from './PropertyMeter'
+export * as PropertyMeterReading from './PropertyMeterReading'
+export * as MeterReportingPeriod from './MeterReportingPeriod'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
 
 
@@ -44,4 +47,16 @@ export const resourceIdToCreateMeterTitleIdMap = {
     [GAS_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddGasSupplyMeterModalTitle',
     [ELECTRICITY_METER_RESOURCE_ID]: 'pages.condo.meter.AddElectricityMeterModalTitle',
     [HEAT_SUPPLY_METER_RESOURCE_ID]: 'pages.condo.meter.AddHeatSupplyMeterModalTitle',
+}
+
+export type MeterPageTypes = 'property-meter' | 'meter' | 'meter-reporting-period'
+type MeterPageTypesSwitch = {
+    propertyMeter: MeterPageTypes
+    meter: MeterPageTypes
+    reportingPeriod: MeterPageTypes
+}
+export const METER_PAGE_TYPES: MeterPageTypesSwitch = {
+    propertyMeter: 'property-meter',
+    meter: 'meter',
+    reportingPeriod: 'meter-reporting-period',
 }

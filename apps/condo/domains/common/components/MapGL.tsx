@@ -1,11 +1,10 @@
 /** @jsx jsx */
-import React, { useEffect, useState } from 'react'
-import { Card, Tag } from 'antd'
 import { load } from '@2gis/mapgl'
 import { InterpolationWithTheme } from '@emotion/core'
 import { jsx } from '@emotion/react'
-
+import { Card, Tag } from 'antd'
 import getConfig from 'next/config'
+import React, { useEffect, useState } from 'react'
 
 import { DEFAULT_CENTER, MARKER_SVG_URL } from '../constants/map'
 

@@ -1,0 +1,23 @@
+.condo-link() {
+  color: @condo-global-color-black;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+  text-decoration-color: @condo-global-color-gray-7;
+  outline: none;
+  cursor: pointer;
+  transition-duration: @condo-global-transition-duration-default;
+  transition-property: color, text-decoration-color;
+
+  &:focus-visible,
+  &:hover {
+    color: @condo-global-color-green-5;
+    text-decoration-color: @condo-global-color-green-5;
+  }
+
+  &:active {
+    color: @condo-global-color-green-5;
+    opacity: 0.8;
+    text-decoration-color: @condo-global-color-green-5;
+  }
+}

@@ -3,12 +3,12 @@
  */
 const get = require('lodash/get')
 
-const { GQLCustomSchema, getById, getByCondition } = require('@condo/keystone/schema')
+const { GQLCustomSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SyncRemoteClientService')
 const { RemoteClient } = require('@condo/domains/notification/utils/serverSchema')
 
-const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES } = require('../constants/constants')
+const { PUSH_TRANSPORT_TYPES, DEVICE_PLATFORM_TYPES, PUSH_TYPES } = require('../constants/constants')
 
 const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
     types: [
@@ -22,7 +22,11 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
         },
         {
             access: true,
-            type: 'input SyncRemoteClientInput { dv: Int!, sender: SenderFieldInput!, deviceId: String!, appId: String!, pushToken: String, pushTransport: PushTransportType, devicePlatform: DevicePlatformType, meta: JSON }',
+            type: `enum PushType { ${PUSH_TYPES.join(' ')} }`,
+        },
+        {
+            access: true,
+            type: 'input SyncRemoteClientInput { dv: Int!, sender: SenderFieldInput!, deviceId: String!, appId: String!, pushToken: String, pushTransport: PushTransportType, devicePlatform: DevicePlatformType, pushType: PushType, meta: JSON, pushTokenVoIP: String, pushTransportVoIP: PushTransportType, pushTypeVoIP: PushType }',
         },
     ],
     
@@ -31,7 +35,13 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
             access: access.canSyncRemoteClient,
             schema: 'syncRemoteClient(data: SyncRemoteClientInput!): RemoteClient',
             resolver: async (parent, args, context) => {
-                const { data: { dv, sender, deviceId, appId, pushToken, pushTransport, devicePlatform, meta } } = args
+                const {
+                    data: {
+                        dv, sender, deviceId, appId,
+                        pushToken, pushTransport, devicePlatform, pushType, meta,
+                        pushTokenVoIP, pushTransportVoIP, pushTypeVoIP,
+                    },
+                } = args
 
                 /**
                  * Clear already used pushToken to avoid collisions
@@ -44,10 +54,25 @@ const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
                     }
                 }
 
+                /**
+                 * Clear already used pushTokenVoIP to avoid collisions
+                 */
+                if (pushTokenVoIP) {
+                    const presentRemoteClient = await getByCondition('RemoteClient', { pushTokenVoIP })
+
+                    if (get(presentRemoteClient, 'id')) {
+                        await RemoteClient.update(context, presentRemoteClient.id, { dv, sender, pushTokenVoIP: null })
+                    }
+                }
+
                 const userId = get(context, 'authedItem.id', null)
                 const owner = userId ? { disconnectAll: true, connect: { id: userId } } : null
-                const attrs = { dv, sender, deviceId, appId, pushToken, pushTransport, devicePlatform, meta, owner }
-                const where = { deviceId, appId, pushTransport, devicePlatform }
+                const attrs = {
+                    dv, sender, deviceId, appId, owner,
+                    pushToken, pushTransport, devicePlatform, pushType, meta,
+                    pushTokenVoIP, pushTransportVoIP, pushTypeVoIP,
+                }
+                const where = { deviceId, appId }
                 const data = await RemoteClient.updateOrCreate(context, where, attrs)
 
                 return await getById('RemoteClient', data.id)

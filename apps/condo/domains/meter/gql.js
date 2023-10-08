@@ -5,8 +5,9 @@
  */
 const { gql } = require('graphql-tag')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
@@ -20,7 +21,7 @@ const MeterReadingSource = generateGqlQueries('MeterReadingSource', METER_READIN
 const METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } ${COMMON_FIELDS} }`
 const Meter = generateGqlQueries('Meter', METER_FIELDS)
 
-const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS} organization { id name } client { id } clientName clientEmail clientPhone contact { id } source { id name type } ${COMMON_FIELDS} }`
+const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS} organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } ${COMMON_FIELDS} }`
 const MeterReading = generateGqlQueries('MeterReading', METER_READING_FIELDS)
 
 const EXPORT_METER_READINGS_QUERY = gql`
@@ -33,6 +34,21 @@ const METER_READING_FILTERS_FIELDS = '{ organization address accountNumber place
 const METER_READING_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${METER_READING_FILTERS_FIELDS} ${COMMON_FIELDS} }`
 const MeterReadingFilterTemplate = generateGqlQueries('MeterReadingFilterTemplate', METER_READING_FILTER_TEMPLATE_FIELDS)
 
+const PROPERTY_METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate isAutomatic organization { id name } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } resource { ${METER_RESOURCE_FIELDS} } b2bApp { id } meta ${COMMON_FIELDS} }`
+const PropertyMeter = generateGqlQueries('PropertyMeter', PROPERTY_METER_FIELDS)
+
+const PROPERTY_METER_READING_FIELDS = `{ organization { id name } date meter ${PROPERTY_METER_FIELDS} value1 value2 value3 value4 source { id name type } ${COMMON_FIELDS} }`
+const PropertyMeterReading = generateGqlQueries('PropertyMeterReading', PROPERTY_METER_READING_FIELDS)
+
+const METER_REPORTING_PERIOD_FIELDS = `{ organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } notifyStartDay notifyEndDay ${COMMON_FIELDS} }`
+const MeterReportingPeriod = generateGqlQueries('MeterReportingPeriod', METER_REPORTING_PERIOD_FIELDS)
+
+const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
+    mutation _internalDeleteMeterAndMeterReadings ($data: _internalDeleteMeterAndMeterReadingsInput!) {
+        result: _internalDeleteMeterAndMeterReadings(data: $data) { status }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -42,6 +58,10 @@ module.exports = {
     MeterReading,
     EXPORT_METER_READINGS_QUERY,
     MeterReadingFilterTemplate,
+    PropertyMeter,
+    PropertyMeterReading,
+    MeterReportingPeriod,
+    DELETE_METER_AND_METER_READINGS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

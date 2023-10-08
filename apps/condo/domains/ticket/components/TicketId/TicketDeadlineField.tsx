@@ -1,17 +1,17 @@
+import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import dayjs from 'dayjs'
 import { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { Ticket } from '@app/condo/schema'
+import { useIntl } from '@open-condo/next/intl'
 
-import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import {
     getDeadlineType,
     getHumanizeDeadlineDateDifference,
     isCompletedTicket,
     TicketDeadlineType,
 } from '@app/condo/domains/ticket/utils/helpers'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 
 type TicketDeadlineFieldProps = {
     ticket: Ticket

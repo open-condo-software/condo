@@ -1,0 +1,116 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-promo-block {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 100%;
+  height: 320px;
+  overflow: hidden;
+  border-radius: @condo-global-border-radius-large;
+  cursor: pointer;
+
+  &-image-container,
+  &-content-container {
+    box-sizing: border-box;
+    width: 50%;
+    height: 100%;
+  }
+
+  &-content-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: @condo-global-spacing-60 @condo-global-spacing-32 @condo-global-spacing-60 @condo-global-spacing-60;
+  }
+
+  &-md > &-content-container,
+  &-sm > &-content-container {
+    padding: @condo-global-spacing-52 @condo-global-spacing-32 @condo-global-spacing-52 @condo-global-spacing-40;
+  }
+
+  &-xs > &-content-container {
+    padding: @condo-global-spacing-40;
+  }
+
+  &-xxs > &-content-container {
+    padding: @condo-global-spacing-40 @condo-global-spacing-32;
+  }
+
+  &-no-image > &-content-container {
+    width: 100%;
+    padding-right: @condo-global-spacing-60;
+  }
+
+  &-text-container {
+    & > *:not(:last-child) {
+      margin-bottom: @condo-global-spacing-16;
+    }
+  }
+
+  &-small {
+    height: 180px;
+
+    .condo-promo-block-content-container {
+      padding: @condo-global-spacing-32 @condo-global-spacing-40 @condo-global-spacing-32 @condo-global-spacing-40;
+
+      .condo-promo-block-text-container {
+        width: 100%;
+
+        h4.condo-typography {
+          margin-bottom: @condo-global-spacing-12;
+        }
+      }
+    }
+  }
+
+  &-sm.condo-promo-block-small,
+  &-xs.condo-promo-block-small,
+  &-xxs.condo-promo-block-small {
+    height: 172px;
+
+    .condo-promo-block-content-container {
+      padding: @condo-global-spacing-24 @condo-global-spacing-24 @condo-global-spacing-32;
+    }
+  }
+
+  &-xs.condo-promo-block-small,
+  &-xxs.condo-promo-block-small {
+    height: 196px;
+  }
+
+  &-md.condo-promo-block-no-image > &-content-container,
+  &-sm.condo-promo-block-no-image > &-content-container {
+    padding-right: @condo-global-spacing-52;
+  }
+
+  &:not(.condo-promo-block-no-image) .condo-promo-block-text-container {
+    max-width: 420px;
+  }
+
+  &-action-link {
+    display: flex;
+    align-items: center;
+
+    & > .condo-typography {
+      margin-right: @condo-global-spacing-4;
+    }
+
+    .condo-promo-block-action-icon {
+      margin-top: 3px;
+    }
+  }
+
+  &-image-container {
+    & > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: right center;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+  }
+}

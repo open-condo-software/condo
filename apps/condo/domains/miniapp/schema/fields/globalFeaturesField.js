@@ -1,5 +1,7 @@
 const Ajv = require('ajv')
-const { Json } = require('@condo/keystone/fields')
+
+const { Json } = require('@open-condo/keystone/fields')
+
 const { getValidator } = require('@condo/domains/common/schema/json.utils')
 const { SUPPORTED_GLOBAL_FEATURES, GLOBAL_FEATURE_GRAPHQL_TYPE } = require('@condo/domains/miniapp/constants')
 

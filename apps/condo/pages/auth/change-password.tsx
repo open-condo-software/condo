@@ -1,40 +1,45 @@
-import React, { useState, useEffect, useContext } from 'react'
-import Router from 'next/router'
+import styled from '@emotion/styled'
+import { Col, Form, Row, RowProps } from 'antd'
+import Router, { useRouter } from 'next/router'
+import React, { useState, useEffect, useContext, useCallback } from 'react'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
-import { useIntl } from '@condo/next/intl'
-import { Col, Form, Row, RowProps, Typography } from 'antd'
+
+import { useLazyQuery, useMutation } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { Button } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
+
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
-import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
-import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
-import { getQueryParams } from '@condo/domains/common/utils/url.utils'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { useLazyQuery, useMutation } from '@condo/next/apollo'
-import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
-import { useAuth } from '@condo/next/auth'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
+import { AuthLayoutContext } from '@condo/domains/user/components/containers/AuthLayoutContext'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+import { MIN_PASSWORD_LENGTH } from '@condo/domains/user/constants/common'
+import { CHANGE_PASSWORD_WITH_TOKEN_MUTATION, GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY } from '@condo/domains/user/gql'
 
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
 }
-const FORM_TITLE_STYLES: React.CSSProperties = {
-    fontWeight: 700, fontSize: 20,
-}
-const BUTTON_STYLES: React.CSSProperties = {
-    width: '100%',
-}
 const BUTTON_GUTTER: RowProps['gutter'] = [0, 40]
 const TYPOGRAPHY_GUTTER: RowProps['gutter'] = [0, 20]
+const FORM_GUTTER: RowProps['gutter'] = [0, 24]
+const FOOTER_GUTTER: RowProps['gutter'] = [0, 20]
+
+const FormItemOnlyError = styled(Form.Item)`
+  .ant-form-item-control-input {
+    display: none;
+  }
+`
 
 const ChangePasswordPage: AuthPage = () => {
+    const router = useRouter()
     const [form] = Form.useForm()
-    const { token } = getQueryParams()
+    const { token } = router.query
     const initialValues = { token, password: '', confirm: '' }
     const [isLoading, setIsLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
@@ -102,6 +107,8 @@ const ChangePasswordPage: AuthPage = () => {
         })
     }
 
+    const onResetPasswordClick = useCallback(() => Router.push('/auth/forgot'), [])
+
     const [checkConfirmPhoneActionToken] = useLazyQuery(GET_PHONE_BY_CONFIRM_PHONE_TOKEN_QUERY, {
         onError: error => {
             setRecoveryTokenError(error)
@@ -134,17 +141,12 @@ const ChangePasswordPage: AuthPage = () => {
                         <Col span={24}>
                             <Row gutter={TYPOGRAPHY_GUTTER}>
                                 <Col span={24}>
-                                    <Typography.Title
-                                        level={3}
-                                        style={FORM_TITLE_STYLES}
-                                    >
+                                    <Typography.Title level={2}>
                                         {ChangePasswordTokenErrorLabel}
                                     </Typography.Title>
                                 </Col>
                                 <Col span={24}>
-                                    <Typography.Text
-                                        style={{ fontSize: fontSizes.content }}
-                                    >
+                                    <Typography.Text>
                                         {ChangePasswordTokenErrorMessage}
                                     </Typography.Text>
                                 </Col>
@@ -152,9 +154,9 @@ const ChangePasswordPage: AuthPage = () => {
                         </Col>
                         <Col span={24}>
                             <Button
-                                type='sberDefaultGradient'
-                                style={BUTTON_STYLES}
-                                onClick={() => Router.push('/auth/forgot')}
+                                type='primary'
+                                onClick={onResetPasswordClick}
+                                block
                             >
                                 {ChangePasswordTokenErrorConfirmLabel}
                             </Button>
@@ -176,14 +178,11 @@ const ChangePasswordPage: AuthPage = () => {
         >
             <Row>
                 <ResponsiveCol>
-                    <Row style={ROW_STYLES} gutter={BUTTON_GUTTER}>
+                    <Row style={ROW_STYLES} gutter={FORM_GUTTER}>
                         <Col span={24}>
                             <Row>
                                 <Form.Item>
-                                    <Typography.Title
-                                        level={2}
-                                        style={FORM_TITLE_STYLES}
-                                    >
+                                    <Typography.Title level={2}>
                                         {ResetTitle}
                                     </Typography.Title>
                                 </Form.Item>
@@ -212,17 +211,23 @@ const ChangePasswordPage: AuthPage = () => {
                             </Row>
                         </Col>
                         <Col span={24}>
-                            <Form.Item>
-                                <Button
-                                    key='submit'
-                                    type='sberDefaultGradient'
-                                    loading={isSaving}
-                                    htmlType='submit'
-                                    style={BUTTON_STYLES}
-                                >
-                                    {SaveMsg} {AndSignInMsg}
-                                </Button>
-                            </Form.Item>
+                            <Row gutter={FOOTER_GUTTER}>
+                                <Col span={24}>
+                                    <FormItemOnlyError name='phone' />
+                                </Col>
+                                <Col span={24}>
+                                    <Form.Item>
+                                        <Button
+                                            key='submit'
+                                            type='primary'
+                                            loading={isSaving}
+                                            htmlType='submit'
+                                            children={`${SaveMsg} ${AndSignInMsg}`}
+                                            block
+                                        />
+                                    </Form.Item>
+                                </Col>
+                            </Row>
                         </Col>
                     </Row>
                 </ResponsiveCol>

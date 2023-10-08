@@ -2,7 +2,14 @@
  * @type {Cypress.PluginConfig}
  */
 const isEmpty = require('lodash/isEmpty')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const {
     createTestUser,
     createTestForgotPasswordAction,
@@ -10,11 +17,6 @@ const {
     makeLoggedInClient,
     makeClientWithSupportUser, updateTestUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
-const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 
 let userObject = {}
 let supportObject = {}
@@ -33,8 +35,8 @@ module.exports = async (on, config) => {
         async 'keystone:getConfirmPhoneAction' (phone) {
             return await ConfirmPhoneAction.getAll(admin, { phone })
         },
-        async 'keystone:createUserWithProperty' () {
-            if (isEmpty(userObject)) {
+        async 'keystone:createUserWithProperty' (forceCreate = false) {
+            if (forceCreate || isEmpty(userObject)) {
                 const result = await makeClientWithProperty()
                 const client = await makeLoggedInClient(result.userAttrs)
                 const cookie = client.getCookie()
@@ -112,7 +114,7 @@ module.exports = async (on, config) => {
 
             const [ticket] = await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true, ...ticketExtraFields })
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true, ...ticketExtraFields })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true, ...ticketExtraFields })
+            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPayable: true, ...ticketExtraFields })
             return ticket
         },
     })

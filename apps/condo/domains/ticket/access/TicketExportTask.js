@@ -3,9 +3,11 @@
  */
 const Ajv = require('ajv')
 const { get, compact, uniq } = require('lodash')
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { find } = require('@open-condo/keystone/schema')
+
 const { CANCELLED } = require('@condo/domains/common/constants/export')
-const { find } = require('@condo/keystone/schema')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
@@ -62,8 +64,8 @@ async function canManageTicketExportTasks ({ authentication: { item: user }, ori
                 },
                 {
                     OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                        queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
                     ],
                 },
             ],

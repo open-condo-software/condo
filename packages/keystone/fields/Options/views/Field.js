@@ -1,11 +1,11 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import { useEffect, useState } from 'react'
+import { CheckboxPrimitive } from '@arch-ui/controls'
 import { FieldContainer, FieldDescription, FieldInput } from '@arch-ui/fields'
-import { ShieldIcon } from '@primer/octicons-react'
 import { Lozenge } from '@arch-ui/lozenge'
 import { colors, gridSize } from '@arch-ui/theme'
-import { CheckboxPrimitive } from '@arch-ui/controls'
+import { css, jsx } from '@emotion/react'
+import { ShieldIcon } from '@primer/octicons-react'
+import { useEffect, useState } from 'react'
 
 const Checkbox = ({ label, value, onChange }) => {
     const checked = value || false

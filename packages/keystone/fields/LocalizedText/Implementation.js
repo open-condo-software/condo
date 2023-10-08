@@ -1,8 +1,9 @@
-const minimatch = require('minimatch')
 const { Text } = require('@keystonejs/fields')
-const conf = require('@condo/config')
-const { getTranslations } = require('@condo/locales/loader')
-const { extractReqLocale } = require('@condo/locales/extractReqLocale')
+const minimatch = require('minimatch')
+
+const conf = require('@open-condo/config')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { getTranslations } = require('@open-condo/locales/loader')
 
 // docs: https://github.com/keystonejs/keystone-5/blob/a7b19759a007fd2d6dcfcf6a998c9706d5dfdaa6/packages/fields/src/Implementation.js
 class LocalizedText extends Text.implementation {

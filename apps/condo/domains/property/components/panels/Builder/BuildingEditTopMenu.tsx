@@ -1,9 +1,12 @@
 /** @jsx jsx */
-import React, { useMemo } from 'react'
 import { css, jsx } from '@emotion/react'
 import { Dropdown, DropDownProps, Menu, MenuProps } from 'antd'
+import React, { useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
-import { useIntl } from '@condo/next/intl'
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import {
     FlatIcon,
     FloorIcon,
@@ -12,7 +15,7 @@ import {
     SectionIcon,
 } from '@condo/domains/common/components/icons/PropertyMapIcons'
 import { colors } from '@condo/domains/common/constants/style'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+
 import { MapEdit } from './MapConstructor'
 
 const DROPDOWN_TRIGGER: DropDownProps['trigger'] = ['hover', 'click']
@@ -83,9 +86,14 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
     const addSectionFloorDisabled = mapEdit.isEmptySections || !hasFeature('add_section_floor')
 
     const menuOverlay = useMemo(() => (
-        <Menu css={MenuCss} onClick={menuClick}>
+        <Menu css={MenuCss} onClick={menuClick} data-cy='property-map__edit-menu-container'>
             <Menu.Item key='addSection'>
-                <Button type='sberDefaultGradient' secondary icon={<SectionIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-section-button'
+                    secondary
+                    icon={<SectionIcon />}
+                >
                     {AddSection}
                 </Button>
             </Menu.Item>
@@ -95,7 +103,13 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
             <Menu.Item key='addUnit' disabled={mapEdit.isEmptySections}>
-                <Button type='sberDefaultGradient' secondary disabled={mapEdit.isEmptySections} icon={<FlatIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-unit-button'
+                    secondary
+                    disabled={mapEdit.isEmptySections}
+                    icon={<FlatIcon />}
+                >
                     {AddUnit}
                 </Button>
             </Menu.Item>
@@ -105,7 +119,12 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
             <Menu.Item key='addParking'>
-                <Button type='sberDefaultGradient' secondary icon={<ParkingIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-parking-button'
+                    secondary
+                    icon={<ParkingIcon />}
+                >
                     {AddParkingLabel}
                 </Button>
             </Menu.Item>
@@ -115,7 +134,13 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
                 </Button>
             </Menu.Item>
             <Menu.Item key='addParkingUnit' disabled={mapEdit.isEmptyParking}>
-                <Button type='sberDefaultGradient' secondary disabled={mapEdit.isEmptyParking} icon={<ParkingPlaceIcon />}>
+                <Button
+                    type='sberDefaultGradient'
+                    data-cy='property-map__edit-menu__add-parking-unit-button'
+                    secondary
+                    disabled={mapEdit.isEmptyParking}
+                    icon={<ParkingPlaceIcon />}
+                >
                     {AddParkingPlace}
                 </Button>
             </Menu.Item>
@@ -129,7 +154,13 @@ const BuildingEditTopMenu: React.FC<IBuildingTopModalProps> = ({ menuClick, mapE
             css={DropdownCss}
             mouseEnterDelay={0}
         >
-            <Button type='sberDefaultGradient' secondary>{AddElementTitle}<span>...</span></Button>
+            <Button
+                type='sberDefaultGradient'
+                secondary
+                data-cy='property-map__edit-menu-dropdown'
+            >
+                {AddElementTitle}<span>...</span>
+            </Button>
         </Dropdown>
     )
 }

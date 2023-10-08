@@ -1,0 +1,6 @@
+{
+  "show-notification": "CondoWebAppShowNotification",
+  "show-progress-bar": "CondoWebAppShowProgressBar",
+  "get-active-progress-bars": "CondoWebAppGetActiveProgressBars",
+  "update-progress-bar": "CondoWebAppUpdateProgressBar"
+}

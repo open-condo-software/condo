@@ -3,14 +3,16 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { _internalSyncContactsWithResidentsForOrganizationService } = require('./_internalSyncContactsWithResidentsForOrganizationService')
 const { Contact } = require('./Contact')
-const { ExportContactsService } = require('./ExportContactsService')
+const { ContactExportTask } = require('./ContactExportTask')
 const { ContactRole } = require('./ContactRole')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     Contact,
-    ExportContactsService,
     ContactRole,
+    ContactExportTask,
+    _internalSyncContactsWithResidentsForOrganizationService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

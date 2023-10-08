@@ -1,11 +1,11 @@
-import React, { useState, Dispatch, SetStateAction } from 'react'
-import { useRouter } from 'next/router'
 import styled from '@emotion/styled'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
+import { useRouter } from 'next/router'
+import React, { useState, Dispatch, SetStateAction, CSSProperties } from 'react'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
+import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button, Typography } from '@open-condo/ui'
+
 import { Poster } from '@condo/domains/common/components/Poster'
 
 const PosterWrapper = styled.div`
@@ -18,6 +18,9 @@ interface IApplySubscriptionModal {
     setIsVisible: Dispatch<SetStateAction<boolean>>
     isVisible: boolean
 }
+
+const IMAGE_WRAPPER_STYLE: CSSProperties = { maxHeight: '100%', display: 'flex', justifyContent: 'center' }
+const IMAGE_STYLE: CSSProperties = { maxHeight: '100%', maxWidth: '100%', width: 'auto' }
 
 export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
     const intl = useIntl()
@@ -32,11 +35,10 @@ export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
 
     const OnBoardingCompleteModal: React.FC = () => (
         <Modal
-            closable={false}
-            title={<Typography.Title level={3}>{OnBoardingCompleteTitle}</Typography.Title>}
-            visible={isVisible}
+            title={OnBoardingCompleteTitle}
+            open={isVisible}
             footer={[
-                <Button size='large' key='submit' type='sberPrimary' onClick={() => {
+                <Button key='submit' type='primary' onClick={() => {
                     setIsVisible(false)
                     if (router.pathname === '/onboarding') {
                         router.push('/')
@@ -47,7 +49,11 @@ export const useOnBoardingCompleteModal = (): IApplySubscriptionModal => {
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <PosterWrapper>
-                        <Poster src='/onBoardingSuccess.png'/>
+                        <Poster
+                            src='/onBoardingSuccess.png'
+                            imageWrapperStyle={IMAGE_WRAPPER_STYLE}
+                            imageStyle={IMAGE_STYLE}
+                        />
                     </PosterWrapper>
                 </Col>
                 <Col span={24}>

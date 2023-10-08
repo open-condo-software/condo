@@ -1,5 +1,6 @@
+import { faker } from '@faker-js/faker'
+
 import TrackerInstance, { ITrackerLogEventType } from './TrackerInstance'
-import faker from 'faker'
 
 const TRACKER_DOMAIN = faker.datatype.string().replace(/\//g, '')
 const TRACKER_DOMAIN_PAGES = ['id', 'about', 'create', 'update']

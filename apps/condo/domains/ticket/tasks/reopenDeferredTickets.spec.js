@@ -2,27 +2,29 @@
  * @jest-environment node
  */
 
-const faker = require('faker')
+const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 const { get } = require('lodash')
 
-const { makeLoggedInAdminClient, setFakeClientMode } = require('@condo/keystone/test.utils')
-const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
+
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
     updateTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident } = require('@condo/domains/resident/utils/testSchema')
 const { Ticket, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { makeClientWithResidentUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { reopenDeferredTickets } = require('./reopenDeferredTickets')
+
 const { STATUS_IDS } = require('../constants/statusTransitions')
 
-const index = require('@app/condo/index')
 
 describe('reopenDeferredTickets', () => {
     setFakeClientMode(index)
@@ -47,9 +49,7 @@ describe('reopenDeferredTickets', () => {
     beforeEach(async () => {
         client = await makeClientWithNewRegisteredAndLoggedInUser()
         client2 = await makeClientWithNewRegisteredAndLoggedInUser()
-        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-            canReadEntitiesOnlyInScopeOfDivision: true,
-        })
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization)
         const [testEmployee] = await createTestOrganizationEmployee(admin, organization, client.user, role, {})
         employee = testEmployee
         const [testEmployee2] = await createTestOrganizationEmployee(admin, organization, client2.user, role, {})
@@ -58,7 +58,7 @@ describe('reopenDeferredTickets', () => {
 
     const cases = ['blocked', 'deleted']
 
-    describe.each(cases)('%p employees', async (type) => {
+    describe.each(cases)('%p employees', (type) => {
         let employeePayload = {}
         beforeAll(() => {
             switch (type) {

@@ -1,13 +1,13 @@
 const get = require('lodash/get')
 
-const { getSchemaCtx, getById, find } = require('@condo/keystone/schema')
-const { createTask } = require('@condo/keystone/tasks')
+const { getSchemaCtx, getById, find } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
 
 const { sleep } = require('@condo/domains/common/utils/sleep')
-
+const { MANAGING_COMPANY_TYPE } = require('@condo/domains/organization/constants/common')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
-const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { disconnectResidents, connectResidents } = require('@condo/domains/resident/utils/helpers')
+const { Resident: ResidentAPI } = require('@condo/domains/resident/utils/serverSchema')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -25,8 +25,9 @@ async function manageResidentToPropertyAndOrganizationConnections (address, dv, 
     const [oldestProperty] = await PropertyAPI.getAll(context, {
         address_i: address,
         deletedAt: null,
+        organization: { type: MANAGING_COMPANY_TYPE },
     }, {
-        sortBy: ['isApproved_ASC', 'createdAt_ASC'], // sorting order is essential here
+        sortBy: ['isApproved_DESC', 'createdAt_ASC'], // sorting order is essential here
         first: 1,
     })
 

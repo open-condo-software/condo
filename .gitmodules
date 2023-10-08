@@ -26,3 +26,15 @@
 [submodule "apps/property-importer"]
 	path = apps/property-importer
 	url = git@github.com:open-condo-software/condo-property-importer.git
+[submodule "apps/telephony"]
+	path = apps/telephony
+	url = git@github.com:open-condo-software/condo-telephony.git
+[submodule "apps/telephony-integration"]
+    path = apps/telephony-integration
+    url = git@github.com:open-condo-software/condo-telephony-integration.git
+[submodule "apps/pass"]
+	path = apps/pass
+	url = git@github.com:open-condo-software/condo-pass.git
+[submodule "apps/documents-next"]
+	path = apps/documents-next
+	url = git@github.com:open-condo-software/condo-documents-next.git

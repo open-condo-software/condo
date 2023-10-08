@@ -1,7 +1,9 @@
-import { getFilter } from '@condo/domains/common/utils/tables.utils'
-import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { PropertyWhereInput } from '@app/condo/schema'
-import { useIntl } from '@condo/next/intl'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
+import { getFilter } from '@condo/domains/common/utils/tables.utils'
 
 
 export const useTableFilters = () => {

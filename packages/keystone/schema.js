@@ -1,7 +1,9 @@
 /** @type {import('ow').default} */
-const ow = require('ow')
-const { pickBy, identity, isFunction, isArray } = require('lodash')
+const debug = require('debug')('@open-condo/keystone/schema')
 const Emittery = require('emittery')
+const { pickBy, identity, isFunction, isArray, memoize } = require('lodash')
+const get = require('lodash/get')
+const ow = require('ow')
 
 const { GQL_SCHEMA_PLUGIN } = require('./plugins/utils/typing')
 
@@ -10,7 +12,6 @@ let SCHEMAS = new Map()
 const GQL_LIST_SCHEMA_TYPE = 'GQLListSchema'
 const GQL_CUSTOM_SCHEMA_TYPE = 'GQLCustomSchema'
 const GQL_SCHEMA_TYPES = [GQL_LIST_SCHEMA_TYPE, GQL_CUSTOM_SCHEMA_TYPE]
-const IS_DEV = process.env.NODE_ENV === 'development'
 
 /**
  * This function is Keystone v5 only compatible and will be removed soon!
@@ -124,11 +125,13 @@ function applyPlugins (schema, plugins, { schemaName, addSchema }) {
 
 function transformByPreprocessors (preprocessors, schemaType, name, schema) {
     if (!isArray(preprocessors)) throw new Error('wrong preprocessors type')
-    if (preprocessors.length > 0 && IS_DEV) console.info('✔ Transform schema by global preprocessors')
+    debug('Transform %s %s by preprocessors', name, schemaType)
     return preprocessors.reduce((schema, fn) => {
         if (!isFunction(fn)) throw new Error('preprocessor is not a function! Check your global preprocessors')
+        const fnName = Object(fn).name
         const newSchema = fn(schemaType, name, schema)
-        if (!newSchema) throw new Error('preprocessor should return a new schema object! Check your global preprocessors')
+        if (!newSchema) throw new Error(`Preprocessor "${fnName}" should return a new schema object!`)
+        debug('Processed by %s', fnName)
         return newSchema
     }, schema)
 }
@@ -152,7 +155,7 @@ async function getById (schemaName, id) {
     return await getByCondition(schemaName, { id })
 }
 
-async function getSchemaCtx (schemaObjOrName) {
+function getSchemaCtx (schemaObjOrName) {
     let name
     if (typeof schemaObjOrName === 'object' && GQL_SCHEMA_TYPES.includes(schemaObjOrName._type) && schemaObjOrName.name) {
         name = schemaObjOrName.name
@@ -165,10 +168,63 @@ async function getSchemaCtx (schemaObjOrName) {
     if (!SCHEMAS.has(name)) throw new Error(`Schema ${name} is not registered yet`)
     const schema = SCHEMAS.get(name)
     return {
+        type: schema._type,
         name: schema.name,
+        list: get(schema, ['_keystone', 'lists', schema.name], null),
         keystone: schema._keystone,
     }
 }
+
+/**
+ * Outputs gql schema
+ */
+function getSchemaContexts () {
+    if (SCHEMAS.size === 0) throw new Error('Schemas are not registered yet')
+    const result = new Map()
+    for (const [name] of SCHEMAS) {
+        result[name] = getSchemaCtx(name)
+    }
+    return result
+}
+
+
+/**
+ * Gets all relations in the schema
+ */
+const getAllRelations = memoize(() => {
+    const schemas = getSchemaContexts()
+    const listSchemas = Object.values(schemas).filter(x => x.type === GQL_LIST_SCHEMA_TYPE)
+    const relations = []
+    listSchemas.forEach(listSchema => {
+        const listFields = get(listSchema, ['list', 'fields'], [])
+        const listRelations = listFields.filter(x => x.isRelationship === true)
+        listRelations.forEach(listRelation => {
+            relations.push({
+                label: listRelation.label,
+                from: listRelation.listKey,
+                to: listRelation.refListKey,
+                path: listRelation.path,
+                config: listRelation.config,
+            })
+        })
+    })
+
+    return relations
+})
+
+
+/**
+ * Gets all relations that depend on provided list
+ * Note: this function is computationally complex, but exported as cached function with finite number of arguments.
+ */
+const getListDependentRelations = memoize((list) => {
+    if (!SCHEMAS.has(list)) throw new Error(`Schema ${list} is not registered yet`)
+    if (SCHEMAS.get(list)._type !== GQL_LIST_SCHEMA_TYPE) throw new Error(`Schema ${list} type != ${GQL_LIST_SCHEMA_TYPE}`)
+
+    const allRelations = getAllRelations()
+
+    return allRelations.filter(x => x.to === list)
+})
 
 module.exports = {
     GQLListSchema,
@@ -179,6 +235,8 @@ module.exports = {
     find,
     getById,
     getByCondition,
+    getSchemaContexts,
+    getListDependentRelations,
     GQL_SCHEMA_TYPES,
     GQL_CUSTOM_SCHEMA_TYPE,
     GQL_LIST_SCHEMA_TYPE,

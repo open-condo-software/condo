@@ -1,41 +1,55 @@
-const express = require('express')
-const { isObject } = require('lodash')
+const { isObject, get } = require('lodash')
 const { generators } = require('openid-client') // certified openid client will all checks
 
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLogger } = require('@condo/keystone/logging')
-const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
-const { expressErrorHandler } = require('@condo/domains/common/utils/expressErrorHandler')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+
+
+const { isSafeUrl } = require('@condo/domains/common/utils/url.utils')
+
 const { SBBOL_SESSION_KEY } = require('./constants')
 const sync = require('./sync')
 const { getOnBoardingStatus } = require('./sync/getOnBoadringStatus')
 const { initializeSbbolAuthApi } = require('./utils')
+const { getSbbolUserInfoErrors } = require('./utils/getSbbolUserInfoErrors')
+
+const SBBOL_AUTH_CONFIG = conf.SBBOL_AUTH_CONFIG ? JSON.parse(conf.SBBOL_AUTH_CONFIG) : {}
 
 const logger = getLogger('sbbol/routes')
 
 class SbbolRoutes {
-
     async startAuth (req, res, next) {
-        const sbbolAuthApi = await initializeSbbolAuthApi()
-
-        // nonce: to prevent several callbacks from same request
-        // state: to validate user browser on callback
-        const checks = { nonce: generators.nonce(), state: generators.state() }
-        req.session[SBBOL_SESSION_KEY] = checks
-        await req.session.save()
+        const reqId = req.id
         try {
-            const redirectUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
-            return res.redirect(redirectUrl)
+            if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
+            const sbbolAuthApi = await initializeSbbolAuthApi()
+            const query = get(req, 'query', {})
+            const redirectUrl = get(query, 'redirectUrl')
+            const queryFeatures = get(query, 'features', [])
+            const features = Array.isArray(queryFeatures) ? queryFeatures : [queryFeatures]
+
+            if (redirectUrl && !isSafeUrl(redirectUrl)) throw new Error('redirectUrl is incorrect')
+            // nonce: to prevent several callbacks from same request
+            // state: to validate user browser on callback
+            const checks = { nonce: generators.nonce(), state: generators.state() }
+            req.session[SBBOL_SESSION_KEY] = { checks, redirectUrl, features }
+            await req.session.save()
+            const authUrl = sbbolAuthApi.authorizationUrlWithParams(checks)
+            return res.redirect(authUrl)
         } catch (error) {
+            logger.error({ msg: 'SBBOL start-auth error', err: error, reqId })
             return next(error)
         }
     }
 
     async completeAuth (req, res, next) {
         const reqId = req.id
-        const sbbolAuthApi = await initializeSbbolAuthApi()
         try {
-            if (!isObject(req.session[SBBOL_SESSION_KEY])) {
+            if (!SBBOL_AUTH_CONFIG.client_id) throw new Error('SBBOL_AUTH_CONFIG.client_id is not configured')
+            const sbbolAuthApi = await initializeSbbolAuthApi()
+            const checks = get(req, ['session', SBBOL_SESSION_KEY, 'checks'])
+            if (!isObject(checks)) {
                 logger.info({ msg: 'SBBOL invalid nonce and state', reqId })
                 return res.status(400).send('ERROR: Invalid nonce and state')
             }
@@ -44,7 +58,7 @@ class SbbolRoutes {
             let tokenSet, userInfo
 
             try {
-                tokenSet = await sbbolAuthApi.completeAuth(req, req.session[SBBOL_SESSION_KEY])
+                tokenSet = await sbbolAuthApi.completeAuth(req, checks)
             } catch (err) {
                 logger.error({ msg: 'SBBOL completeAuth error', err, reqId })
                 throw err
@@ -64,12 +78,15 @@ class SbbolRoutes {
                 return res.status(400).send(`ERROR: Invalid SBBOL userInfo: ${errors.join(';')}`)
             }
 
+            const redirectUrl = get(req.session[SBBOL_SESSION_KEY], 'redirectUrl')
+            const features = get(req.session[SBBOL_SESSION_KEY], 'features', [])
+
             const { keystone } = await getSchemaCtx('User')
             const {
                 user,
                 organization,
                 organizationEmployee,
-            } = await sync({ keystone, userInfo, tokenSet, reqId })
+            } = await sync({ keystone, userInfo, tokenSet, reqId, features })
             await keystone._sessionManager.startAuthedSession(req, { item: { id: user.id }, list: keystone.lists['User'] })
 
             if (organizationEmployee) {
@@ -81,7 +98,7 @@ class SbbolRoutes {
             const { finished } = await getOnBoardingStatus(user)
 
             logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id, data: { finished } })
-
+            if (redirectUrl) return res.redirect(redirectUrl)
             return res.redirect(finished ? '/' : '/onboarding')
         } catch (error) {
             logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })
@@ -90,18 +107,6 @@ class SbbolRoutes {
     }
 }
 
-class SbbolMiddleware {
-    async prepareMiddleware () {
-        const Auth = new SbbolRoutes()
-        const app = express()
-        // TODO(zuch): find a way to remove bind
-        app.get('/api/sbbol/auth', Auth.startAuth.bind(Auth))
-        app.get('/api/sbbol/auth/callback', Auth.completeAuth.bind(Auth))
-        app.use(expressErrorHandler)
-        return app
-    }
-}
-
 module.exports = {
-    SbbolMiddleware,
+    SbbolRoutes,
 }

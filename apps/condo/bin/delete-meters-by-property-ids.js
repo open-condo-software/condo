@@ -1,8 +1,13 @@
 const path = require('path')
-const { find } = require('@condo/keystone/schema')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { isEmpty } = require('lodash')
+
+const { find } = require('@open-condo/keystone/schema')
+
+const { Meter } = require('@condo/domains/meter/utils/serverSchema')
+
+
 const { prompt } = require('./lib/prompt')
 
 class DeleteMeters {

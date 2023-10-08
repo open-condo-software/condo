@@ -1,9 +1,13 @@
 import styled from '@emotion/styled'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
-import { useFocusContext } from './FocusContextProvider'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { gradients } from '@condo/domains/common/constants/style'
+
+import { useFocusContext } from './FocusContextProvider'
+
 
 const FocusWrapper = styled.div`
   position: relative;

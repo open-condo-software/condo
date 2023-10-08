@@ -8,4 +8,5 @@ export * as RemoteClient from './RemoteClient'
 export * as MessageUserBlackList from './MessageUserBlackList'
 export * as MessageOrganizationBlackList from './MessageOrganizationBlackList'
 export * as MessageBatch from './MessageBatch'
+export * as NotificationUserSetting from './NotificationUserSetting'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

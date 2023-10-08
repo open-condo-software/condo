@@ -23,10 +23,15 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: Install packages
-        run: yarn install --immutable
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+
+      - name: Build dependencies
+        run: yarn workspace @open-condo/ui build:deps
 
       - name: Build styles from tokens
-        run: yarn workspace @condo/ui build:styles --web less css
+        run: yarn workspace @open-condo/ui build:styles --web less css
 
       - name: Strict lint token values (CSS vars)
         run: yarn stylelint "packages/ui/src/tokens/**/*.css"
@@ -34,8 +39,11 @@ jobs:
       - name: Basic lint of Less variables
         run: yarn stylelint "packages/ui/src/tokens/**/*.less"
 
+      - name: Lint less files
+        run: yarn stylelint "packages/ui/**/*.less"
+
       - name: Generate color set
-        run: yarn workspace @condo/ui build:colors
+        run: yarn workspace @open-condo/ui build:colors
 
       - name: Build lib
-        run: yarn workspace @condo/ui build:lib
+        run: yarn workspace @open-condo/ui build:lib

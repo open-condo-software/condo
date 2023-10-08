@@ -4,11 +4,9 @@
  */
 
 const { ServiceSubscription } = require('./ServiceSubscription')
-const { ServiceSubscriptionPayment } = require('./ServiceSubscriptionPayment')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     ServiceSubscription,
-    ServiceSubscriptionPayment,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

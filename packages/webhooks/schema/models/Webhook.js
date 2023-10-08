@@ -1,6 +1,6 @@
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const access = require('@condo/webhooks/schema/access/Webhook')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const access = require('@open-condo/webhooks/schema/access/Webhook')
 
 const Webhook = new GQLListSchema('Webhook', {
     schemaDoc: 'Webhooks are a way that the APP can send automated web callback with some messages ' +

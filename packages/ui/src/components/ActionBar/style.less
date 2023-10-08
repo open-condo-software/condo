@@ -1,0 +1,64 @@
+@import "antd/lib/affix/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/_utils/controls/style";
+@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
+
+@condo-action-bar-overflow-width: @condo-global-spacing-16;
+@condo-action-bar-width: calc(100% + @condo-action-bar-overflow-width * 2);
+@condo-action-bar-large-screen-bottom-indent: @condo-global-spacing-24;
+
+.condo-affix-content-wrapper {
+  box-sizing: border-box;
+  height: fit-content !important;
+  padding: @condo-action-bar-overflow-width;
+  transition: box-shadow @condo-global-transition-duration-default ease-out;
+
+  @media @from-mobile-small and @to-tablet-small {
+    width: 100%;
+
+    & > .condo-space-item {
+      width: 100%;
+
+      & > * {
+        width: 100%;
+      }
+    }
+  }
+
+  @media @from-tablet-large {
+    position: relative;
+    right: @condo-action-bar-overflow-width;
+    width: @condo-action-bar-width;
+  }
+}
+
+.condo-affix {
+  height: auto !important;
+
+  & .condo-affix-content-wrapper {
+    height: 100%;
+    background: @condo-global-color-white;
+    border-radius: @condo-global-border-radius-medium;
+    box-shadow: @condo-global-box-shadow-default;
+  }
+
+  @media @from-mobile-small and @to-tablet-small {
+    right: 0;
+    bottom: 0;
+    left: 0;
+    width: auto !important;
+
+    & .condo-affix-content-wrapper {
+      padding-bottom: @condo-global-spacing-32;
+
+      & > .condo-space-item {
+        padding: 0  @condo-global-spacing-16;
+      }
+    }
+  }
+
+  @media @from-tablet-large {
+    bottom: @condo-action-bar-large-screen-bottom-indent !important;
+  }
+}

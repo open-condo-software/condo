@@ -1,108 +1,95 @@
-import getConfig from 'next/config'
-import React from 'react'
-import { Col, Row, Typography } from 'antd'
+import styled from '@emotion/styled'
+import { Col, Row } from 'antd'
+import React, { CSSProperties } from 'react'
+
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Poster } from '@condo/domains/common/components/Poster'
 import { colors } from '@condo/domains/common/constants/style'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useIntl, FormattedMessage } from '@condo/next/intl'
-import { ChildrenWrapper, Footer, Layout, PageContent, PosterWrapper, ReCaptchaContainer } from './styles'
-import { AuthHeader } from './AuthHeader'
+
+import {
+    ChildrenWrapper,
+    Layout,
+    MobileHeader,
+    PageContent,
+    PosterWrapperFullHeight,
+    ReCaptchaContainer,
+} from './styles'
+
 
 interface IPosterLayoutProps {
-    headerAction: React.ReactElement
+    Header?: React.ReactElement
+    Footer?: React.ReactElement
     layoutBgColor?: string
     layoutBgImage?: { poster: string, placeholder: string }
 }
-const TYPOGRAPHY_CONTACT_STYLE: React.CSSProperties = { color: colors.black }
-const ROW_STYLE = { margin: '65px 0 65px', justifyContent: 'center' }
-const FOOTER_ROW_STYLE = { width: '45%', justifyContent: 'stretch' }
 
-const {
-    publicRuntimeConfig: { HelpRequisites: { support_email: SUPPORT_EMAIL = null, support_phone: SUPPORT_PHONE = null } },
-} = getConfig()
+const PosterMobileFooter = styled.div`
+  width: 95%;
+  color: ${colors.gray};
+  white-space: pre-line;
+  font-size: 12px;
+  line-height: 20px;
+  background-color: inherit;
+  margin-top: auto;
+  padding-top: 40px;
+`
 
-export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, headerAction, layoutBgColor, layoutBgImage }) => {
-    const { isSmall } = useLayoutContext()
-    const intl = useIntl()
-    const PrivacyPolicy = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
-    const TermsOfService = intl.formatMessage({ id: 'pages.auth.register.info.termsOfService' })
+const POSTER_WRAPPER_STUMB_STYLE: CSSProperties = { padding: '36px 0 36px 36px', height: '100vh' }
+const POSTER_WRAPPER_COL_STYLE: CSSProperties = { position: 'fixed', left: '36px', top: '36px', bottom: '36px', width: '100%' }
+const PAGE_WRAPPER_STYLE: CSSProperties = { minHeight: '100vh' }
+const IMAGE_STYLE: CSSProperties = { maxWidth: '300px', maxHeight: '300px', height: '100%', width: 'auto' }
+const IMAGE_WRAPPER_STYLE: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', maxHeight: '50%' }
+const POSTER_CONTENT_STYLE: CSSProperties = { padding: '24px', height: '100%', display: 'flex', flexFlow: 'column', justifyContent: 'space-between' }
+
+export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, Footer, layoutBgColor, layoutBgImage }) => {
+    const { breakpoints } = useLayoutContext()
+
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
-    const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.png'
-    const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.png'
+    const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.webp'
+    const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.jpg'
+    const pageWrapperStyle = !breakpoints.TABLET_LARGE && PAGE_WRAPPER_STYLE
 
     return (
         <Layout style={LAYOUT_STYLE}>
-            <Row align='stretch' justify='center'>
-                <AuthHeader headerAction={headerAction}/>
-                <Col lg={12} md={24} hidden={isSmall}>
-                    <PosterWrapper>
+            <Row align='stretch' justify={breakpoints.TABLET_LARGE ? 'space-between' : 'center'} style={pageWrapperStyle}>
+                {
+                    Header && !breakpoints.TABLET_LARGE && (
+                        <Col span={24}>
+                            <MobileHeader>
+                                {Header}
+                            </MobileHeader>
+                        </Col>
+                    )
+                }
+                <Col md={12} sm={24} hidden={!breakpoints.TABLET_LARGE} style={POSTER_WRAPPER_STUMB_STYLE} />
+                <Col md={12} sm={24} hidden={!breakpoints.TABLET_LARGE} style={POSTER_WRAPPER_COL_STYLE}>
+                    <PosterWrapperFullHeight>
                         <Poster
+                            Header={breakpoints.TABLET_LARGE && Header}
+                            Footer={breakpoints.TABLET_LARGE && Footer}
                             src={BG_POSTER}
                             placeholderSrc={BG_POSTER_PLACEHOLDER}
-                            placeholderColor={colors.black}
+                            imageStyle={IMAGE_STYLE}
+                            imageWrapperStyle={IMAGE_WRAPPER_STYLE}
+                            posterContentStyle={POSTER_CONTENT_STYLE}
                         />
-                    </PosterWrapper>
+                    </PosterWrapperFullHeight>
                 </Col>
-                <Col lg={12} md={24}>
-                    <PageContent isSmall={isSmall}>
+                <Col md={11} sm={24}>
+                    <PageContent>
                         <ReCaptchaContainer id='ReCaptchaContainer'/>
-                        <ChildrenWrapper isSmall={isSmall}>
-                            <Row style={ROW_STYLE}>
-                                <Col span={24}>
-                                    {children}
-                                </Col>
-                            </Row>
+                        <ChildrenWrapper isSmall={!breakpoints.TABLET_LARGE}>
+                            {children}
                         </ChildrenWrapper>
                     </PageContent>
                 </Col>
-                <Col span={24}>
-                    <Footer isSmall={isSmall} >
-                        <Row style={FOOTER_ROW_STYLE}>
-                            {SUPPORT_EMAIL && SUPPORT_PHONE && <Row>
-                                <Typography.Paragraph type='secondary' >
-                                    <Typography.Link
-                                        href={`mailto:${SUPPORT_EMAIL}`}
-                                        style={TYPOGRAPHY_CONTACT_STYLE}
-                                    >
-                                        {SUPPORT_EMAIL}
-                                    </Typography.Link>
-                                    ,&nbsp;
-                                    <Typography.Link
-                                        href={`tel:${SUPPORT_PHONE}`}
-                                        style={TYPOGRAPHY_CONTACT_STYLE}
-                                    >
-                                        {SUPPORT_PHONE}
-                                    </Typography.Link>
-                                </Typography.Paragraph>
-                            </Row>}
-                            <Typography.Paragraph type='secondary' >
-                                <FormattedMessage
-                                    id='pages.auth.register.info.RecaptchaPrivacyPolicyContent'
-                                    values={{
-                                        PrivacyPolicy: (
-                                            <Typography.Link
-                                                style={TYPOGRAPHY_CONTACT_STYLE}
-                                                target='_blank'
-                                                href='//policies.google.com/privacy'
-                                                rel='noreferrer'>
-                                                {PrivacyPolicy}
-                                            </Typography.Link>
-                                        ),
-                                        TermsOfService: (
-                                            <Typography.Link
-                                                style={TYPOGRAPHY_CONTACT_STYLE}
-                                                target='_blank'
-                                                href='//policies.google.com/terms'
-                                                rel='noreferrer'>
-                                                {TermsOfService}
-                                            </Typography.Link>
-                                        ),
-                                    }}
-                                />
-                            </Typography.Paragraph>
-                        </Row>
-                    </Footer>
-                </Col>
+                {
+                    Footer && !breakpoints.TABLET_LARGE && (
+                        <PosterMobileFooter>
+                            {Footer}
+                        </PosterMobileFooter>
+                    )
+                }
             </Row>
         </Layout>
     )

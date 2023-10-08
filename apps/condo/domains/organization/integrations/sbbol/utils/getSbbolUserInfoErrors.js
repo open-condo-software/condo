@@ -1,4 +1,5 @@
 const Ajv = require('ajv')
+
 const { SbbolUserInfoSchema } = require('../constants')
 
 function getSbbolUserInfoErrors (userInfo) {

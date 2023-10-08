@@ -1,4 +1,5 @@
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 
 async function canReadTicketReportWidgetData ({ authentication: { item: user } }) {

@@ -1,23 +1,24 @@
-const { GQLCustomSchema, getById } = require('@condo/keystone/schema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
-const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
-const { STAFF } = require('@condo/domains/user/constants/common')
-const { isEmpty, get } = require('lodash')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@condo/keystone/errors')
-const { NOT_UNIQUE, WRONG_FORMAT, WRONG_VALUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
-const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('../constants/errors')
+const { isEmpty, pick } = require('lodash')
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
+const { GQLCustomSchema, getById } = require('@open-condo/keystone/schema')
+
+const { NOT_UNIQUE, WRONG_PHONE_FORMAT } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { STAFF } = require('@condo/domains/user/constants/common')
+const { GQL_ERRORS: USER_ERRORS } = require('@condo/domains/user/constants/errors')
+const { UNABLE_TO_FIND_CONFIRM_PHONE_ACTION, UNABLE_TO_CREATE_USER } = require('@condo/domains/user/constants/errors')
+const { ConfirmPhoneAction, User } = require('@condo/domains/user/utils/serverSchema')
+
 
 /**
  * List of possible errors, that this custom schema can throw
  * They will be rendered in documentation section in GraphiQL for this custom schema
  */
-const errors = {
+const ERRORS = {
     UNABLE_TO_FIND_CONFIRM_PHONE_ACTION: {
         mutation: 'registerNewUser',
         variable: ['data', 'confirmPhoneActionToken'],
@@ -35,25 +36,13 @@ const errors = {
         messageForUser: 'api.common.WRONG_PHONE_FORMAT',
         correctExample: '+79991234567',
     },
-    PASSWORD_IS_TOO_SHORT: {
-        mutation: 'registerNewUser',
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'Password length is less then {min} characters',
-        messageForUser: 'api.user.PASSWORD_IS_TOO_SHORT',
-        messageInterpolation: {
-            min: MIN_PASSWORD_LENGTH,
-        },
-    },
-    PASSWORD_IS_FREQUENTLY_USED: {
-        mutation: 'registerNewUser',
-        variable: ['data', 'password'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'The password is too simple. We found it in the list of stolen passwords. You need to use something more secure',
-        messageForUser: 'api.user.PASSWORD_IS_FREQUENTLY_USED',
-    },
+    ...pick(USER_ERRORS, [
+        'INVALID_PASSWORD_LENGTH',
+        'PASSWORD_CONTAINS_EMAIL',
+        'PASSWORD_CONTAINS_PHONE',
+        'PASSWORD_IS_FREQUENTLY_USED',
+        'PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS',
+    ]),
     USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS: {
         mutation: 'registerNewUser',
         variable: ['data', 'phone'],
@@ -83,8 +72,8 @@ async function ensureNotExists (context, field, value) {
     const existed = await User.getOne(context, { [field]: value, type: STAFF })
     if (existed) {
         throw new GQLError({
-            phone: errors.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS,
-            email: errors.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS,
+            phone: ERRORS.USER_WITH_SPECIFIED_PHONE_ALREADY_EXISTS,
+            email: ERRORS.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS,
         }[field], context)
     }
 }
@@ -104,7 +93,7 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
             doc: {
                 summary: 'Registers new user and sends notification',
                 description: 'User will be registered only in case of correct provided token of phone confirmation action. After successful registration, phone confirmation action will be marked as completed and will not be allowed for further usage',
-                errors,
+                errors: ERRORS,
             },
             resolver: async (parent, args, context) => {
                 const { data } = args
@@ -120,10 +109,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                     dv,
                 }
 
-                if (get(userData, 'password.length', 0) < MIN_PASSWORD_LENGTH) {
-                    throw new GQLError(errors.PASSWORD_IS_TOO_SHORT, context)
-                }
-
                 let action = null
                 if (confirmPhoneActionToken) {
                     action = await ConfirmPhoneAction.getOne(context, {
@@ -132,53 +117,49 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
                         completedAt: null,
                         isPhoneVerified: true,
                     }, {
-                        doesNotExistError: errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
+                        doesNotExistError: ERRORS.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
                     })
                     userData.phone = action.phone
                     userData.isPhoneVerified = action.isPhoneVerified
                 }
                 if (!normalizePhone(userData.phone)) {
-                    throw new GQLError(errors.WRONG_PHONE_FORMAT, context)
+                    throw new GQLError(ERRORS.WRONG_PHONE_FORMAT, context)
                 }
                 await ensureNotExists(context, 'phone', userData.phone)
                 if (!isEmpty(userData.email)) {
                     await ensureNotExists(context, 'email', userData.email)
                 }
+
+                if (!userData.password) {
+                    throw new GQLError(ERRORS.INVALID_PASSWORD_LENGTH, context)
+                }
+
                 const user = await User.create(context, userData, {
                     errorMapping: {
-                        '[password:minLength:User:password]': errors.PASSWORD_IS_TOO_SHORT,
-                        '[password:rejectCommon:User:password]': errors.PASSWORD_IS_FREQUENTLY_USED,
+                        '[password:minLength:User:password]': ERRORS.INVALID_PASSWORD_LENGTH,
+                        '[password:rejectCommon:User:password]': ERRORS.PASSWORD_IS_FREQUENTLY_USED,
+                        [ERRORS.INVALID_PASSWORD_LENGTH.message]: ERRORS.INVALID_PASSWORD_LENGTH,
+                        [ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS.message]: ERRORS.PASSWORD_CONSISTS_OF_SMALL_SET_OF_CHARACTERS,
+                        [ERRORS.PASSWORD_CONTAINS_EMAIL.message]: ERRORS.PASSWORD_CONTAINS_EMAIL,
+                        [ERRORS.PASSWORD_CONTAINS_PHONE.message]: ERRORS.PASSWORD_CONTAINS_PHONE,
                     },
                 })
                 if (action) {
                     const completedAt = new Date().toISOString()
                     await ConfirmPhoneAction.update(context, action.id, { completedAt, sender, dv: 1 })
                 }
-                const sendChannels = [{
-                    to: { phone: userData.phone },
-                }]
-                if (!isEmpty(userData.email)) {
-                    sendChannels.push({
-                        to: { email: userData.email },
-                    })
-                }
-                await Promise.all(sendChannels.map(async channel => {
-                    await sendMessage(context, {
-                        to: {
-                            user: {
-                                id: user.id,
-                            },
-                            ...channel.to,
-                        },
-                        type: REGISTER_NEW_USER_MESSAGE_TYPE,
-                        meta: {
-                            userPassword: userData.password,
-                            userPhone: userData.phone,
-                            dv: 1,
-                        },
-                        sender,
-                    })
-                }))
+
+                await sendMessage(context, {
+                    to: { user: { id: user.id } },
+                    type: REGISTER_NEW_USER_MESSAGE_TYPE,
+                    meta: {
+                        userPassword: userData.password,
+                        userPhone: userData.phone,
+                        dv: 1,
+                    },
+                    sender,
+                })
+
                 return await getById('User', user.id)
             },
         },
@@ -186,6 +167,6 @@ const RegisterNewUserService = new GQLCustomSchema('RegisterNewUserService', {
 })
 
 module.exports = {
-    errors,
+    errors: ERRORS,
     RegisterNewUserService,
 }

@@ -3,14 +3,14 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const {
     Organization: OrganizationGQL,
     OrganizationEmployee: OrganizationEmployeeGQL,
@@ -28,6 +28,9 @@ const {
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
 } = require('./Organization')
+const { ORGANIZATION_TICKET_VISIBILITY, HOLDING_TYPE} = require('@condo/domains/organization/constants/common')
+const { OrganizationEmployeeSpecialization: OrganizationEmployeeSpecializationGQL } = require('@condo/domains/organization/gql')
+const { RESET_ORGANIZATION_MUTATION } = require('@condo/domains/organization/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const OrganizationEmployeeRole = generateGQLTestUtils(OrganizationEmployeeRoleGQL)
@@ -35,6 +38,7 @@ const Organization = generateGQLTestUtils(OrganizationGQL)
 const OrganizationEmployee = generateGQLTestUtils(OrganizationEmployeeGQL)
 const OrganizationLink = generateGQLTestUtils(OrganizationLinkGQL)
 
+const OrganizationEmployeeSpecialization = generateGQLTestUtils(OrganizationEmployeeSpecializationGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -48,7 +52,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = DEFAULT_ENGLISH_COUNTRY
-    const name = faker.company.companyName()
+    const name = faker.company.name()
     const description = faker.company.catchPhrase()
     const tin = generateTin(country)
     const meta = {
@@ -56,7 +60,7 @@ async function createTestOrganization (client, extraAttrs = {}) {
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(),
+        street: faker.address.street(),
         number: faker.address.secondaryAddress(),
         country: country,
     }
@@ -85,7 +89,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         kpp: faker.random.alphaNumeric(9),
         city: faker.address.city(),
         zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(),
+        street: faker.address.street(),
         number: faker.address.secondaryAddress(),
     }
 
@@ -94,7 +98,7 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         sender,
         meta,
         tin,
-        name: faker.company.companyName(),
+        name: faker.company.name(),
         description: faker.company.catchPhrase(),
         country: DEFAULT_ENGLISH_COUNTRY,
         ...extraAttrs,
@@ -148,6 +152,7 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
         name: faker.random.alphaNumeric(8),
         description: faker.random.words(8),
         organization: { connect: { id: organization.id } },
+        ticketVisibilityType: ORGANIZATION_TICKET_VISIBILITY,
         ...extraAttrs,
     }
     const obj = await OrganizationEmployeeRole.create(client, attrs)
@@ -157,13 +162,13 @@ async function createTestOrganizationEmployeeRole (client, organization, extraAt
 /**
  * Simplifies creating series of instances
  */
-async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee () {
+async function makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee (roleAttrs = {}) {
     const admin = await makeLoggedInAdminClient()
     const [organization] = await createTestOrganization(admin)
-    const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+    const [role] = await createTestOrganizationEmployeeRole(admin, organization, roleAttrs)
     const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
     const [employee] = await createTestOrganizationEmployee(admin, organization, userClient.user, role)
-    return { employee, role, organization, admin }
+    return { employee, role, organization, admin, userClient }
 }
 
 async function updateTestOrganizationEmployeeRole (client, id, extraAttrs = {}) {
@@ -214,26 +219,27 @@ async function updateTestOrganizationLink (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestOrganizationWithAccessToAnotherOrganization () {
+async function createTestOrganizationWithAccessToAnotherOrganization ({ roleExtraAttrs = {} } = {}) {
     const admin = await makeLoggedInAdminClient()
     // createClientWithProperty creates an employee inside himself, this behavior is not needed here
     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
-    const [organizationFrom] = await createTestOrganization(admin)
+    const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
     const [propertyFrom] = await createTestProperty(admin, organizationFrom)
-    const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom)
-    const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
+    const [roleFrom] = await createTestOrganizationEmployeeRole(admin, organizationFrom, roleExtraAttrs)
+    const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, roleFrom)
 
     const clientTo = await makeClientWithProperty()
     const [organizationTo] = await createTestOrganization(admin)
     const [propertyTo] = await createTestProperty(admin, organizationTo)
-    const [employeeTo] = await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
+    const [roleTo] = await createTestOrganizationEmployeeRole(admin, organizationTo, roleExtraAttrs)
+    const [employeeTo] = await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, roleTo)
 
     const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
 
     return {
         clientFrom, propertyFrom, employeeFrom, organizationFrom,
         clientTo, propertyTo, employeeTo, organizationTo,
-        link,
+        link, roleFrom, roleTo,
     }
 }
 
@@ -297,6 +303,51 @@ function generateTin(country) {
     }
 }
 
+async function createTestOrganizationEmployeeSpecialization (client, employee, specialization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!employee || !employee.id) throw new Error('no employee.id')
+    if (!specialization || !specialization.id) throw new Error('no specialization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        employee: { connect: { id: employee.id } },
+        specialization: { connect: { id: specialization.id } },
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeSpecialization.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestOrganizationEmployeeSpecialization (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await OrganizationEmployeeSpecialization.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
+async function resetOrganizationByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(RESET_ORGANIZATION_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -319,6 +370,8 @@ module.exports = {
     acceptOrRejectOrganizationInviteById,
     acceptOrRejectOrganizationInviteByCode,
     makeClientWithRegisteredOrganization,
-    generateTin
+    generateTin,
+    OrganizationEmployeeSpecialization, createTestOrganizationEmployeeSpecialization, updateTestOrganizationEmployeeSpecialization,
+    resetOrganizationByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

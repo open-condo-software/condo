@@ -1,12 +1,15 @@
+import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import { Col, Row, Skeleton, Tag, Typography } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback } from 'react'
-import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
-import { useIntl } from '@condo/next/intl'
+import uniqBy from 'lodash/uniqBy'
+import React, { useCallback, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
-import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
 
 interface IOrganizationName {
     name: string
@@ -104,23 +107,29 @@ const OrganizationEmployeeItem: React.FC<IOrganizationEmployeeItem> = (props) =>
 }
 
 export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQuery }) => {
-    const { objs: userOrganizations, loading } = OrganizationEmployee.useObjects(
+    const { objs: userOrganizations, allDataLoaded } = OrganizationEmployee.useAllObjects(
         organizationEmployeesQuery,
         { fetchPolicy: 'network-only' }
     )
 
-    const list = userOrganizations.map((employee, index) => (
-        <OrganizationEmployeeItem
-            employee={employee}
-            key={index}
-            userOrganization={userOrganization}
-        />
-    ))
+    const list = useMemo(() => {
+        return uniqBy(userOrganizations, employee => get(employee, 'organization.id')).slice()
+            .sort((optionA, optionB) =>
+                get(optionA, 'organization.name', '').toLowerCase().localeCompare(get(optionB, 'organization.name', '').toLowerCase())
+            )
+            .map((employee, index) => (
+                <OrganizationEmployeeItem
+                    employee={employee}
+                    key={index}
+                    userOrganization={userOrganization}
+                />
+            ))
+    }, [userOrganization, userOrganizations])
 
     return (
         <Row gutter={[0, 60]}>
             {
-                loading
+                !allDataLoaded
                     ? <Skeleton active/>
                     : list
             }

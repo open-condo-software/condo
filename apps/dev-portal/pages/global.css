@@ -1,0 +1,21 @@
+.ant-anchor-link-title-active > .condo-typography {
+  color: var(--condo-global-color-black);
+  transition: color 0.3s ease-in-out;
+}
+
+.ant-anchor-link {
+  padding: 6px 0 6px 24px !important;
+}
+
+.ant-anchor-ink-ball {
+  width: 3px !important;
+  background-color: var(--condo-global-color-black) !important;
+}
+
+.ant-anchor-ink::before {
+  display: none !important;
+}
+
+.condo-markdown div[role="tabpanel"] > pre {
+  margin-top: 0;
+}

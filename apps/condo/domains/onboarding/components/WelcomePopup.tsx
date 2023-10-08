@@ -1,11 +1,14 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/react'
-import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 import { Col, Image, Row, Typography, Modal } from 'antd'
+import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Button } from '@condo/domains/common/components/Button'
 import { CrossIcon } from '@condo/domains/common/components/icons/CrossIcon'
 import { fontSizes, colors, WELCOME_POPUP_BACKGROUND_COLORS } from '@condo/domains/common/constants/style'
-import { Button } from '@condo/domains/common/components/Button'
-import { useIntl } from '@condo/next/intl'
+
 
 const modalCss = css`
   .ant-modal-content {

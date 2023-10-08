@@ -1,41 +1,44 @@
-import { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
-import { useRouter } from 'next/router'
+import { Ticket } from '@app/condo/schema'
+import { ColumnsType } from 'antd/lib/table'
+import { ColumnType } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import map from 'lodash/map'
 import { identity } from 'lodash/util'
+import { useRouter } from 'next/router'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo } from 'react'
 
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
-import { Ticket } from '@app/condo/schema'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     getAddressRender,
     getDateRender,
     getTableCellRenderer,
 } from '@condo/domains/common/components/Table/Renders'
-import { getFilteredValue } from '@condo/domains/common/utils/helpers'
-import { getOptionFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useFeatureFlags } from '@condo/featureflags/FeatureFlagsContext'
-import { useOrganization } from '@condo/next/organization'
-import { RE_FETCH_TICKETS_IN_CONTROL_ROOM } from '@condo/domains/common/constants/featureflags'
-
-import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '../utils/clientSchema'
-import { convertGQLItemToFormSelectState } from '../utils/clientSchema/TicketStatus'
-import { IFilters } from '../utils/helpers'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useAutoRefetchTickets } from '@condo/domains/ticket/contexts/AutoRefetchTicketsContext'
+import { TicketCommentsTime, TicketStatus, UserTicketCommentReadTime } from '@condo/domains/ticket/utils/clientSchema'
 import {
-    getClassifierRender,
+    FavoriteTicketIndicator,
+    getClassifierRender, getCommentsIndicatorRender,
     getStatusRender,
     getTicketDetailsRender,
     getTicketNumberRender,
     getTicketUserNameRender,
     getUnitRender,
-} from '../utils/clientSchema/Renders'
+} from '@condo/domains/ticket/utils/clientSchema/Renders'
+import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 const COLUMNS_WIDTH = {
-    number: '8%',
+    commentsIndicator: '0%',
+    favorite: '4%',
+    number: '6%',
     createdAt: '8%',
     status: '8%',
     address: '14%',
@@ -47,15 +50,13 @@ const COLUMNS_WIDTH = {
     assignee: '10%',
 }
 
-const TICKETS_RE_FETCH_INTERVAL = 60 * 1000
-
-export function useTableColumns <T> (
+export function useTableColumns<T> (
     filterMetas: Array<FiltersMeta<T>>,
     tickets: Ticket[],
     refetchTickets: () => Promise<undefined>,
     isRefetching: boolean,
     setIsRefetching: Dispatch<SetStateAction<boolean>>,
-) {
+): { columns: ColumnsType<Ticket>,  loading: boolean } {
     const intl = useIntl()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
     const DateMessage = intl.formatMessage({ id: 'Date' })
@@ -77,16 +78,15 @@ export function useTableColumns <T> (
 
     const { loading: statusesLoading, objs: ticketStatuses } = TicketStatus.useObjects({})
 
-    const renderStatusFilterDropdown = useCallback(({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => {
-        const adaptedStatuses = ticketStatuses.map(convertGQLItemToFormSelectState).filter(identity)
-        const filterProps = {
-            setSelectedKeys,
-            selectedKeys,
-            confirm,
-            clearFilters,
-        }
-
-        return getOptionFilterDropdown(adaptedStatuses, statusesLoading)(filterProps)
+    const renderStatusFilterDropdown: ColumnType<Ticket>['filterDropdown'] = useCallback((filterProps) => {
+        const adaptedStatuses = ticketStatuses.map(status => ({ label: status.name, value: status.type })).filter(identity)
+        return getOptionFilterDropdown({
+            checkboxGroupProps: {
+                options: adaptedStatuses,
+                disabled: statusesLoading,
+                id: 'statusFilterDropdown',
+            },
+        })(filterProps)
     }, [statusesLoading, ticketStatuses])
 
     const renderAddress = useCallback(
@@ -94,11 +94,11 @@ export function useTableColumns <T> (
         [DeletedMessage, search])
 
     const renderExecutor = useCallback(
-        (executor) => getTableCellRenderer(search)(get(executor, ['name'])),
+        (executor) => getTableCellRenderer({ search })(get(executor, ['name'])),
         [search])
 
     const renderAssignee = useCallback(
-        (assignee) => getTableCellRenderer(search)(get(assignee, ['name'])),
+        (assignee) => getTableCellRenderer({ search })(get(assignee, ['name'])),
         [search])
 
     const { user } = useAuth()
@@ -110,7 +110,7 @@ export function useTableColumns <T> (
         loading: userTicketCommentReadTimesLoading,
     } = UserTicketCommentReadTime.useObjects({
         where: {
-            user: { id: user.id },
+            user: { id: get(user, 'id', null) },
             ticket: {
                 id_in: ticketIds,
             },
@@ -128,14 +128,7 @@ export function useTableColumns <T> (
         },
     })
 
-    const { useFlag, updateContext } = useFeatureFlags()
-    const { organization } = useOrganization()
-
-    useEffect(() => {
-        updateContext({ organization: organization.id })
-    }, [organization, updateContext])
-
-    const isRefetchTicketsFeatureEnabled = useFlag(RE_FETCH_TICKETS_IN_CONTROL_ROOM)
+    const { isRefetchTicketsFeatureEnabled, refetchInterval } = useAutoRefetchTickets()
 
     const refetch = useCallback(async () => {
         await refetchTickets()
@@ -149,15 +142,39 @@ export function useTableColumns <T> (
                 setIsRefetching(true)
                 await refetch()
                 setIsRefetching(false)
-            }, TICKETS_RE_FETCH_INTERVAL)
+            }, refetchInterval)
             return () => {
                 clearInterval(handler)
             }
         }
-    }, [isRefetchTicketsFeatureEnabled, refetch, setIsRefetching])
+    }, [isRefetchTicketsFeatureEnabled, refetch, refetchInterval, setIsRefetching])
+
+    const renderIsFavoriteTicket = useCallback((ticket) => {
+        return (
+            <FavoriteTicketIndicator
+                ticketId={ticket.id}
+            />
+        )
+    }, [])
 
     return useMemo(() => ({
         columns: [
+            {
+                key: 'commentsIndicator',
+                width: COLUMNS_WIDTH.commentsIndicator,
+                render: getCommentsIndicatorRender({
+                    intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints,
+                }),
+                align: 'center',
+                className: 'comments-column',
+            },
+            {
+                key: 'favorite',
+                width: COLUMNS_WIDTH.favorite,
+                render: renderIsFavoriteTicket,
+                align: 'center',
+                className: 'favorite-column',
+            },
             {
                 title: NumberMessage,
                 sortOrder: get(sorterMap, 'number'),
@@ -168,8 +185,9 @@ export function useTableColumns <T> (
                 width: COLUMNS_WIDTH.number,
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
                 filterIcon: getFilterIcon,
-                render: getTicketNumberRender(intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search),
-                align: 'center',
+                render: getTicketNumberRender(intl, search),
+                align: 'left',
+                className: 'number-column',
             },
             {
                 title: DateMessage,
@@ -281,6 +299,100 @@ export function useTableColumns <T> (
                 ellipsis: true,
             },
         ],
-        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading || statusesLoading,
-    }), [NumberMessage, sorterMap, filters, filterMetas, intl, breakpoints, userTicketCommentReadTimes, ticketsCommentTimes, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading, statusesLoading])
+        loading: userTicketCommentReadTimesLoading || ticketCommentTimesLoading,
+    }), [intl, ticketsCommentTimes, userTicketCommentReadTimes, breakpoints, NumberMessage, sorterMap, filters, filterMetas, search, DateMessage, StatusMessage, renderStatusFilterDropdown, AddressMessage, renderAddress, UnitMessage, DescriptionMessage, ClassifierTitle, ClientNameMessage, ExecutorMessage, renderExecutor, ResponsibleMessage, renderAssignee, userTicketCommentReadTimesLoading, ticketCommentTimesLoading])
+}
+
+export function useTicketQualityTableColumns (): { columns: ColumnsType<Ticket> } {
+    const intl = useIntl()
+    const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
+    const DateMessage = intl.formatMessage({ id: 'Date' })
+    const DescriptionMessage = intl.formatMessage({ id: 'Description' })
+    const AddressMessage = intl.formatMessage({ id: 'field.Address' })
+    const DeletedMessage = intl.formatMessage({ id: 'Deleted' })
+    const ClassifierTitle = intl.formatMessage({ id: 'Classifier' })
+    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+    const FeedbackMessage = intl.formatMessage({ id: 'ticket.feedback' })
+
+    const router = useRouter()
+    const { filters } = parseQuery(router.query)
+    const search = getFilteredValue(filters, 'search')
+
+    const renderAddress = useCallback(
+        (property) => getAddressRender(property, DeletedMessage, search),
+        [DeletedMessage, search])
+
+    const renderFeedback = (intl) => {
+        return function render (feedback: string, ticket: Ticket) {
+            return intl.formatMessage({ id: `ticket.feedback.${ticket.feedbackValue || feedback}` })
+        }
+    }
+
+    return useMemo(() => ({
+        columns: [
+            {
+                title: NumberMessage,
+                dataIndex: 'number',
+                key: 'number',
+                sorter: true,
+                width: COLUMNS_WIDTH.number,
+                render: getTicketNumberRender(intl, search),
+                align: 'left',
+                className: 'number-column',
+            },
+            {
+                title: DateMessage,
+                filteredValue: getFilteredValue<IFilters>(filters, 'createdAt'),
+                dataIndex: 'createdAt',
+                key: 'createdAt',
+                sorter: true,
+                width: COLUMNS_WIDTH.createdAt,
+                render: getDateRender(intl, String(search)),
+            },
+            {
+                title: AddressMessage,
+                dataIndex: 'property',
+                filteredValue: getFilteredValue<IFilters>(filters, 'property'),
+                key: 'property',
+                sorter: true,
+                width: COLUMNS_WIDTH.address,
+                render: renderAddress,
+            },
+            {
+                title: UnitMessage,
+                dataIndex: 'unitName',
+                filteredValue: getFilteredValue(filters, 'unitName'),
+                key: 'unitName',
+                sorter: true,
+                width: COLUMNS_WIDTH.unitName,
+                render: getUnitRender(intl, search),
+                ellipsis: true,
+            },
+            {
+                title: DescriptionMessage,
+                dataIndex: 'details',
+                filteredValue: getFilteredValue<IFilters>(filters, 'details'),
+                key: 'details',
+                width: COLUMNS_WIDTH.details,
+                render: getTicketDetailsRender(search),
+            },
+            {
+                title: ClassifierTitle,
+                dataIndex: ['classifier', 'category', 'name'],
+                filteredValue: getFilteredValue(filters, 'categoryClassifier'),
+                key: 'categoryClassifier',
+                width: COLUMNS_WIDTH.categoryClassifier,
+                render: getClassifierRender(intl, search),
+                ellipsis: true,
+            },
+            {
+                title: FeedbackMessage,
+                dataIndex: 'qualityControlValue',
+                key: 'qualityControlValue',
+                width: '10%',
+                render: renderFeedback(intl),
+            },
+        ],
+    }), [AddressMessage, ClassifierTitle, DateMessage, DescriptionMessage, FeedbackMessage,
+        NumberMessage, UnitMessage, filters, intl, renderAddress, search])
 }

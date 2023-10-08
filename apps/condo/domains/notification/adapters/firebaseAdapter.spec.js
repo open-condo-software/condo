@@ -1,17 +1,20 @@
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
 
 const {
     PUSH_FAKE_TOKEN_SUCCESS,
     PUSH_FAKE_TOKEN_FAIL,
     FIREBASE_CONFIG_TEST_PUSHTOKEN_ENV,
+    PUSH_TYPE_SILENT_DATA,
+    PUSH_TYPE_DEFAULT,
+    FAKE_SUCCESS_MESSAGE_PREFIX,
+    CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 
 const {
     FirebaseAdapter,
-    FAKE_SUCCESS_MESSAGE_PREFIX,
     EMPTY_NOTIFICATION_TITLE_BODY_ERROR,
 } = require('./firebaseAdapter')
 
@@ -48,14 +51,18 @@ describe('Firebase adapter utils', () => {
 
         const tokens = [FIREBASE_TEST_PUSHTOKEN]
         const [isOk, result] = await adapter.sendNotification({
+            type: CUSTOM_CONTENT_MESSAGE_PUSH_TYPE,
             tokens,
             notification: {
                 title: 'Doma.ai',
                 body: `${dayjs().format()} Condo greets you!`,
             },
             data: {
-                app: 'condo',
-                type: 'notification',
+                // app: 'condo',
+                // type: 'notification',
+                recurrentPaymentContextId: faker.datatype.uuid(),
+                recurrentPaymentContext: { id: 'faker.datatype.uuid()' },
+                errorCode: 'test2',
             },
         })
 
@@ -121,21 +128,72 @@ describe('Firebase adapter utils', () => {
         expect(result.responses[1].error.errorInfo.message).toBeDefined()
     })
 
-    // it('should fail to initialize FirebaseAdapter with broken config', async () => {
-    //     await expect(
-    //         () => {
-    //             const adapter1 = new FirebaseAdapter(BROKEN_CONFIG, true)
-    //         }
-    //     ).toThrow(`Failed to parse service account json file: Error: ENOENT: no such file or directory, open '${BROKEN_CONFIG}'`)
-    // })
-    //
-    // it('should fail to initialize FirebaseAdapter with empty config', async () => {
-    //     await expect(
-    //         () => {
-    //             const adapter1 = new FirebaseAdapter('', true)
-    //         }
-    //     ).toThrow(EMPTY_CONFIG_ERROR)
-    // })
+    it('sends push notification of proper structure on pushType = PUSH_TYPE_DEFAULT', async () => {
+        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const pushData = {
+            tokens,
+            notification: {
+                title: 'Doma.ai',
+                body: `${dayjs().format()} Condo greets you!`,
+            },
+            data: {
+                app : 'condo',
+                type: 'notification',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_DEFAULT,
+            },
+        }
+        const [isOk, result] = await adapter.sendNotification(pushData)
+
+        expect(isOk).toBeTruthy()
+        expect(result).toBeDefined()
+        expect(result.successCount).toEqual(1)
+        expect(result.responses).toBeDefined()
+        expect(result.responses).toHaveLength(1)
+        expect(result.pushContext).toBeDefined()
+
+        const pushContext = result.pushContext[PUSH_TYPE_DEFAULT]
+
+        expect(pushContext).toBeDefined()
+        expect(pushContext.notification).toBeDefined()
+        expect(pushContext.notification.title).toEqual(pushData.notification.title)
+        expect(pushContext.notification.body).toEqual(pushData.notification.body)
+    })
+
+    it('sends push notification of proper structure on pushType = PUSH_TYPE_SILENT_DATA', async () => {
+        const tokens = [PUSH_FAKE_TOKEN_SUCCESS]
+        const pushData = {
+            tokens,
+            notification: {
+                title: 'Doma.ai',
+                body: `${dayjs().format()} Condo greets you!`,
+            },
+            data: {
+                app : 'condo',
+                type: 'notification',
+            },
+            pushTypes: {
+                [PUSH_FAKE_TOKEN_SUCCESS]: PUSH_TYPE_SILENT_DATA,
+            },
+        }
+        const [isOk, result] = await adapter.sendNotification(pushData)
+
+        expect(isOk).toBeTruthy()
+        expect(result).toBeDefined()
+        expect(result.successCount).toEqual(1)
+        expect(result.responses).toBeDefined()
+        expect(result.responses).toHaveLength(1)
+        expect(result.pushContext).toBeDefined()
+
+        const pushContext = result.pushContext[PUSH_TYPE_SILENT_DATA]
+
+        expect(pushContext).toBeDefined()
+        expect(pushContext.notification).toBeUndefined()
+        expect(pushContext.data).toBeDefined()
+        expect(pushContext.data._title).toEqual(pushData.notification.title)
+        expect(pushContext.data._body).toEqual(pushData.notification.body)
+    })
 
     it('should fail to send invalid push notification with missing title to fake success push token ', async () => {
         await expect(
@@ -177,6 +235,5 @@ describe('Firebase adapter utils', () => {
 
         expect(typeof preparedData.ticketNumber).toEqual('string')
     })
-
 
 })

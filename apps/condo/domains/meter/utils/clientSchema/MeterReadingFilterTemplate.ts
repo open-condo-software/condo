@@ -8,7 +8,9 @@ import {
     MeterReadingFilterTemplateUpdateInput,
     QueryAllMeterReadingFilterTemplatesArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { MeterReadingFilterTemplate as MeterReadingFilterTemplateGQL } from '@condo/domains/meter/gql'
 
 const {

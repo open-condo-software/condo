@@ -1,6 +1,11 @@
 import React from 'react'
-import { ThemeProvider, convert, Global, createReset } from '@storybook/theming'
-import customTheme from './theme'
+import { styled } from '@storybook/theming'
+import '@open-condo/ui/src/components/style/core/global.less'
+
+const PaddedContentWrapper = styled.div`
+  max-width: 1200px;
+  padding: 40px;
+`
 
 export const parameters = {
     actions: { argTypesRegex: '^on[A-Z].*' },
@@ -11,15 +16,13 @@ export const parameters = {
         },
     },
     backgrounds: { disable: true },
+    layout: 'fullscreen'
 }
 
 export const decorators = [
-    (StoryFn: React.FC) => {
-        return (
-            <ThemeProvider theme={convert(customTheme)}>
-                <Global styles={createReset}/>
-                <StoryFn/>
-            </ThemeProvider>
-        )
-    }
+    (Story: any) => (
+        <PaddedContentWrapper>
+            <Story/>
+        </PaddedContentWrapper>
+    )
 ]

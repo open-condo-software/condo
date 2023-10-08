@@ -1,13 +1,16 @@
-import React, { useContext } from 'react'
-import { Dayjs } from 'dayjs'
-import dayjsGenerateConfig from 'rc-picker/lib/generate/dayjs'
+/** @jsx jsx */
+import { css, jsx } from '@emotion/react'
+import { ConfigProvider } from 'antd'
 import generatePicker, {
     PickerDateProps,
     PickerProps,
     PickerTimeProps,
     RangePickerProps,
 } from 'antd/lib/date-picker/generatePicker'
-import { ConfigProvider } from 'antd'
+import { Dayjs } from 'dayjs'
+import dayjsGenerateConfig from 'rc-picker/lib/generate/dayjs'
+import React, { useContext } from 'react'
+
 
 type PickerType =
     React.ComponentClass<PickerProps<Dayjs>, any>
@@ -26,12 +29,18 @@ type DatePickerType = React.FC<PropsWithRef<PickerProps<Dayjs>>> & {
     QuarterPicker: React.FC<PropsWithRef<Omit<PickerTimeProps<Dayjs>, 'picker'>>>,
 }
 
+const PickerStyle = css`
+  .ant-picker-input > input {
+    font-size: 16px;
+  }
+`
+
 const DefaultDatePicker = generatePicker<Dayjs>(dayjsGenerateConfig)
 
 const generateDatePickerWithLocale = (Picker: PickerType) => (props) => {
     const { locale } = useContext(ConfigProvider.ConfigContext)
 
-    return <Picker locale={locale.DatePicker} {...props} />
+    return <Picker css={PickerStyle} locale={locale.DatePicker} {...props} />
 }
 
 const DatePicker = generateDatePickerWithLocale(DefaultDatePicker) as DatePickerType

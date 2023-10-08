@@ -1,5 +1,7 @@
 const Ajv = require('ajv')
-const { ToPayDetailsFields } = require('@condo/domains/billing/schema/fields/BillingReceipt/ToPayDetailsField')
+
+const { Json } = require('@open-condo/keystone/fields')
+
 const {
     BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELD_NAME,
     BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_INPUT_NAME,
@@ -8,8 +10,9 @@ const {
     BILLING_RECEIPT_SERVICES_FIELD,
     BILLING_RECEIPT_SERVICES_INPUT,
 } = require('@condo/domains/billing/constants/constants')
+const { ToPayDetailsFields } = require('@condo/domains/billing/schema/fields/BillingReceipt/ToPayDetailsField')
 const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
-const { Json } = require('@condo/keystone/fields')
+
 
 const ServiceToPayDetailsFields = {
     ...ToPayDetailsFields,

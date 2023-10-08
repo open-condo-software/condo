@@ -1,16 +1,18 @@
 {
-  "name": "@condo/ui",
+  "name": "@open-condo/ui",
   "description": "A set of React UI components for developing applications inside the condo ecosystem",
   "keywords": [
     "condo",
     "open-condo-software",
     "UI",
-    "React"
+    "React",
+    "components"
   ],
   "version": "0.0.0-development",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/open-condo-software/condo.git"
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/ui"
   },
   "author": {
     "name": "Matthew Savelev",
@@ -26,14 +28,15 @@
     "not IE 10"
   ],
   "scripts": {
-    "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less",
+    "build:deps": "turbo build --filter=ui^...",
+    "build:styles": "find src/tokens -mindepth 1 -not -name 'tokens.json' -delete && node bin/prepare-tokens.js && node bin/buildStyleVars/runner.js --web less css",
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
     "build:tokens": "yarn build:styles && yarn build:colors",
-    "build:lib": "webpack && tsc --project tsconfig.prod.json",
-    "build": "yarn build:tokens && yarn build:lib",
-    "build:sb": "yarn build:tokens && build-storybook",
-    "dev": "yarn build:tokens && start-storybook -p 6006",
-    "prepack": "yarn install --mode update-lockfile && yarn build"
+    "build:lib": "webpack --config webpack.prod.js && tsc --project tsconfig.prod.json",
+    "build": "yarn build:deps && yarn build:tokens && yarn build:lib",
+    "build:sb": "yarn build:deps && yarn build:tokens && build-storybook",
+    "dev": "yarn build:deps && yarn build:tokens && start-storybook -p 6006",
+    "watch": "yarn build:deps && yarn build:tokens && webpack --config webpack.dev.js"
   },
   "files": [
     "dist"
@@ -41,11 +44,21 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json",
     "./colors": "./dist/colors/index.js",
-    "./src/": "./src/"
+    "./src": "./src/index.ts",
+    "./src/": "./src/",
+    "./dist/": "./dist/",
+    "./style-vars/css": "./dist/style-vars/variables.css",
+    "./style-vars/less": "./dist/style-vars/variables.less",
+    "./hooks": "./dist/hooks.js"
   },
   "typesVersions": {
     "*": {
+      "index.d.ts": [
+        "dist/index.d.ts"
+      ],
       "colors": [
         "dist/colors/index.d.ts"
       ]
@@ -61,6 +74,7 @@
     "@babel/preset-react": "^7.18.6",
     "@babel/preset-typescript": "^7.18.6",
     "@mdx-js/react": "^1.6.22",
+    "@open-condo/tsconfig": "workspace:^",
     "@storybook/addon-actions": "^6.5.10",
     "@storybook/addon-docs": "^6.5.10",
     "@storybook/addon-essentials": "^6.5.10",
@@ -72,12 +86,13 @@
     "@storybook/react": "^6.5.10",
     "@storybook/testing-library": "^0.0.13",
     "@storybook/theming": "^6.5.10",
-    "@types/node": "^14.18.26",
+    "@types/node": "^16",
     "@types/react": "16.9.17",
     "babel": "^6.23.0",
     "babel-loader": "^8.2.5",
     "chromatic": "^6.9.0",
     "commander": "^9.4.0",
+    "copy-webpack-plugin": "^11.0.0",
     "css-loader": "^6.7.1",
     "css-minimizer-webpack-plugin": "^4.0.0",
     "less": "^4.1.3",
@@ -91,14 +106,26 @@
     "quicktype-core": "^6.0.71",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "source-map-loader": "^4.0.1",
     "style-dictionary": "^3.7.1",
     "style-loader": "^3.3.1",
     "token-transformer": "^0.0.27",
+    "ts-loader": "^9.4.1",
     "typescript": "^4.1.5",
     "webpack": "^5.74.0",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^4.10.0",
+    "webpack-merge": "^5.8.0"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "dependencies": {
+    "@ant-design/icons": "^4.7.0",
+    "@open-condo/icons": "workspace:^",
+    "antd": "^4.24.12",
+    "classnames": "^2.3.2",
+    "react-markdown": "^6",
+    "react-phone-input-2": "^2.15.1",
+    "remark-gfm": "^1"
   }
 }

@@ -1,19 +1,22 @@
-import React, { useEffect, useRef } from 'react'
-import dayjs from 'dayjs'
 import styled from '@emotion/styled'
 import { Row, Col, Typography }  from 'antd'
+import Big from 'big.js'
+import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import React, { useEffect, useRef } from 'react'
+
 dayjs.extend(utc)
-import { colors } from '@condo/domains/common/constants/style'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+
 import {
     MULTIPAYMENT_DONE_STATUS,
     MULTIPAYMENT_ERROR_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
     MULTIPAYMENT_WITHDRAWN_STATUS,
 } from '@condo/domains/acquiring/constants/payment'
+import { colors } from '@condo/domains/common/constants/style'
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
-import Big from 'big.js'
+
 
 type PrintingOption = {
     key: string,

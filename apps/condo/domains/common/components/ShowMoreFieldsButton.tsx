@@ -1,11 +1,11 @@
-import React, { useCallback } from 'react'
-import { Space, Typography } from 'antd'
 import styled from '@emotion/styled'
+import { Space, Typography } from 'antd'
+import React, { useCallback } from 'react'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
-import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 import { Button } from '@condo/domains/common/components/Button'
+import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
 
 import { colors } from '../constants/style'
 

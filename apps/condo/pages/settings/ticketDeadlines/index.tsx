@@ -1,14 +1,15 @@
-import React from 'react'
-import Head from 'next/head'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import Head from 'next/head'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useIntl } from '@condo/next/intl'
-import { TicketDeadlineSettingsForm } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingsForm'
 import {
     TicketDeadlineSettingsAbout,
 } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingsAbout'
+import { TicketDeadlineSettingsForm } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlineSettingsForm'
 
 const ROW_GUTTER: [Gutter, Gutter] = [0, 60]
 

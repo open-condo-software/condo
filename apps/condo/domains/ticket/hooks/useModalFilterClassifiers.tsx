@@ -1,14 +1,15 @@
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import Select from '@condo/domains/common/components/antd/Select'
-import { useApolloClient } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
+import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+
+import { useApolloClient } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+
+import Select from '@condo/domains/common/components/antd/Select'
 import { getFiltersModalPopupContainer } from '@condo/domains/common/utils/filters.utils'
 import { FiltersFromQueryType, parseQuery } from '@condo/domains/common/utils/tables.utils'
-
 import { ClassifiersQueryLocal } from '@condo/domains/ticket/utils/clientSchema/classifierSearch'
 
 const getInitialClassifierValues = (filters: FiltersFromQueryType, keyword: string) => {

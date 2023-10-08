@@ -1,10 +1,10 @@
-import React from 'react'
-import isEmpty from 'lodash/isEmpty'
 import { Typography } from 'antd'
 import { BaseType } from 'antd/lib/typography/Base'
+import { isNull } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
+import React from 'react'
 
 import { getEscaped } from '@condo/domains/common/utils/string.utils'
-import { isNull } from 'lodash'
 
 export type TTextHighlighterRenderPartFN = (
     part: string,
@@ -30,20 +30,22 @@ export const TextHighlighter: React.FC<TTextHighlighterProps> = (props) => {
     if (isEmpty(text)) return null
 
     let result
-    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig')
+    // not a ReDoS issue: running on end user browser
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    const searchRegexp = new RegExp(`(${getEscaped(search)})`, 'ig') // NOSONAR
 
     if (isEmpty(search) || !searchRegexp.test(text)) {
         result = renderPart(text, 0, false, type, style)
     } else {
         let symbolsPassed = 0
         const parts = text.split(searchRegexp)
-        result = parts.map((part) => {
+        result = parts.map((part, index) => {
             const startSymbolIndex = symbolsPassed
             const isMatch = searchRegexp.test(part)
 
             symbolsPassed += part.length
 
-            return renderPart(part, startSymbolIndex, isMatch, type)
+            return <React.Fragment key={index}>{renderPart(part, startSymbolIndex, isMatch, type)}</React.Fragment>
         })
     }
 

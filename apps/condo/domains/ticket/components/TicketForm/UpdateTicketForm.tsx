@@ -1,21 +1,20 @@
-import { useRouter } from 'next/router'
+import { Form, Typography } from 'antd'
 import { get, isEmpty } from 'lodash'
+import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo } from 'react'
-import { Form, Typography, Space } from 'antd'
 
-import { useOrganization } from '@condo/next/organization'
-import { useIntl } from '@condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
-import ActionBar from '@condo/domains/common/components/ActionBar'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
-import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
+import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
+import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
+import { REQUIRED_TICKET_FIELDS, TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
+import { Ticket, TicketFile } from '@condo/domains/ticket/utils/clientSchema'
+import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 
-import { BaseTicketForm } from '../BaseTicketForm'
-import { ErrorsContainer } from '../BaseTicketForm/ErrorsContainer'
 
 export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
     const intl = useIntl()
@@ -33,12 +32,12 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
     return (
         <Form.Item noStyle shouldUpdate>
             {
-                ({ getFieldsValue, resetFields, getFieldError }) => {
-                    const isPaid = form.getFieldValue('isPaid')
+                ({ getFieldsValue, getFieldError }) => {
+                    const isPayable = form.getFieldValue('isPayable')
                     const isEmergency = form.getFieldValue('isEmergency')
                     const isWarranty = form.getFieldValue('isWarranty')
 
-                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty) !== null
+                    const isRequiredDeadline = getTicketDefaultDeadline(ticketSetting, isPayable, isEmergency, isWarranty) !== null
                     const { property, details, placeClassifier, categoryClassifier, deadline } = getFieldsValue(REQUIRED_TICKET_FIELDS)
                     const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
 
@@ -51,28 +50,15 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
                         || ticketSettingLoading
 
                     return (
-                        <ActionBar isFormActionBar>
-                            <Button
-                                key='cancel'
-                                onClick={onCancel}
-                                type='sberDefaultGradient'
-                                secondary
-                            >
-                                {CancelLabel}
-                            </Button>
-                            <Space size={12}>
-                                <Button
+                        <ActionBar
+                            actions={[
+                                <TicketSubmitButton
                                     key='submit'
-                                    onClick={handleSave}
-                                    type='sberDefaultGradient'
-                                    loading={isLoading}
-                                    disabled={disabledCondition}
+                                    ApplyChangesMessage={ApplyChangesMessage}
+                                    handleSave={handleSave}
+                                    isLoading={isLoading}
                                     data-cy='ticket__apply-changes-button'
-                                >
-                                    {ApplyChangesMessage}
-                                </Button>
-                                <ErrorsContainer
-                                    isVisible={disabledCondition}
+                                    disabledCondition={disabledCondition}
                                     property={property}
                                     details={details}
                                     placeClassifier={placeClassifier}
@@ -80,8 +66,16 @@ export const ApplyChangesActionBar = ({ handleSave, isLoading, form }) => {
                                     deadline={deadline}
                                     propertyMismatchError={propertyMismatchError}
                                     isRequiredDeadline={isRequiredDeadline}
-                                />
-                            </Space>
+                                />,
+                                <Button
+                                    key='cancel'
+                                    onClick={onCancel}
+                                    type='secondary'
+                                >
+                                    {CancelLabel}
+                                </Button>,
+                            ]}
+                        >
                         </ActionBar>
                     )
                 }
@@ -102,7 +96,9 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
-    const updateAction = async (value) => action(Ticket.formValuesProcessor(value), obj)
+    const updateAction = async (value) => action({
+        ...Ticket.formValuesProcessor(value),
+    }, obj)
 
     useEffect(() => {
         refetch()

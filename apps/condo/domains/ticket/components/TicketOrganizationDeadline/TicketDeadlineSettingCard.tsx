@@ -1,14 +1,14 @@
-import React, { useCallback, useMemo } from 'react'
-import get from 'lodash/get'
-import { useRouter } from 'next/router'
-import { Typography } from 'antd'
-import isNull from 'lodash/isNull'
-
 import { TicketOrganizationSetting } from '@app/condo/schema'
+import { Typography } from 'antd'
+import get from 'lodash/get'
+import isNull from 'lodash/isNull'
+import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { TICKET_DEFAULT_DEADLINE_DURATION_FIELDS } from '@condo/domains/ticket/constants/common'
+import { useIntl } from '@open-condo/next/intl'
+
 import { SettingCard } from '@condo/domains/common/components/settings/SettingCard'
+import { TICKET_DEFAULT_DEADLINE_DURATION_FIELDS } from '@condo/domains/ticket/constants/common'
 import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
 
 interface TicketDeadlineSettingCardProps {

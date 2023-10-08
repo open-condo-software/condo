@@ -27,13 +27,16 @@
  * yarn node bin/sbbol/crypto.js activate-certificate
  * ```
  */
-const conf = require('@condo/config')
-const { getOrganizationAccessToken } = require('@condo/domains/organization/integrations/sbbol/utils')
-const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
 const path = require('path')
-const { values } = require('lodash')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
-const { getLogger } = require('@condo/keystone/logging')
+const { values } = require('lodash')
+
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+
+const { SbbolCryptoApi } = require('@condo/domains/organization/integrations/sbbol/SbbolCryptoApi')
+const { getAccessTokenForUser } = require('@condo/domains/organization/integrations/sbbol/utils')
 
 const logger = getLogger('sbbol/crypto')
 
@@ -58,12 +61,12 @@ const validateAndGetCommand = () => {
     }
 }
 
-const getAccessTokenFor = async (hashOrgId) => {
+const getAccessTokenFor = async (hashOrgId, userId) => {
     let accessToken
     try {
         // `service_organization_hashOrgId` is a `userInfo.HashOrgId` from SBBOL, that used to obtain accessToken
         // for organization, that will be queried in SBBOL using `SbbolFintechApi`.
-        accessToken = await getOrganizationAccessToken()
+        ({ accessToken } = await getAccessTokenForUser(userId))
     } catch (error) {
         logger.error({
             msg: 'Failed to obtain organization access token from SBBOL',
@@ -84,7 +87,8 @@ async function main () {
     await keystone.prepare({ apps: [apps[graphqlIndex]], distDir, dev: true })
     await keystone.connect()
 
-    const accessToken = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
+    const userId = process.argv.slice(2)
+    const accessToken = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId, userId)
 
     const cryptoApi = new SbbolCryptoApi({
         accessToken,
@@ -100,9 +104,9 @@ async function main () {
         cryptoInfo = await cryptoApi.getCryptoInfo()
     }
 
-    if (cryptoInfo && command === COMMAND.POST_CSR) {
+    if (cryptoInfo && command === COMMAND.POST_CSR && userId) {
         // Use id of different ogranization, to that SBBOL support specifically granted rights to post CSR
-        const accessTokenForCSR = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId)
+        const accessTokenForCSR = await getAccessTokenFor(SBBOL_CSR_REQUEST_DATA.service_organization_hashOrgId, userId)
 
         const cryptoApiForCSR = new SbbolCryptoApi({
             accessToken: accessTokenForCSR,

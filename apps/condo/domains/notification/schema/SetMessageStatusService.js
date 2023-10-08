@@ -3,15 +3,15 @@
  */
 const get = require('lodash/get')
 
-const { GQLCustomSchema, getByCondition } = require('@condo/keystone/schema')
+const { GQLCustomSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/notification/access/SetMessageStatusService')
-const { Message: MessageAPI } = require('@condo/domains/notification/utils/serverSchema')
 const {
     MESSAGE_DELIVERED_STATUS,
     MESSAGE_READ_STATUS,
     MESSAGE_SENT_STATUS,
 } = require('@condo/domains/notification/constants/constants')
+const { Message: MessageAPI } = require('@condo/domains/notification/utils/serverSchema')
 
 const READ_AT_FIELD_NAME = 'readAt'
 const DELIVERED_AT_FIELD_NAME = 'deliveredAt'

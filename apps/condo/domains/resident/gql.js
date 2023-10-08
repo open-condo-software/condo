@@ -4,18 +4,20 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
+const { gql } = require('graphql-tag')
+
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
 const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
-const gql = require('graphql-tag')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const RESIDENT_ORGANIZATION_FIELDS = 'id name country'
+const RESIDENT_ORGANIZATION_FIELDS = 'id name country tin'
 const RESIDENT_PROPERTY_FIELDS = 'id name address'
 const ORGANIZATION_FEATURES_FIELDS = 'hasBillingData hasMeters'
 const PAYMENT_CATEGORIES_FIELDS = 'id categoryName billingName acquiringName'
-const RESIDENT_FIELDS = `{ user { id name } organization { id name tin } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
+const RESIDENT_FIELDS = `{ user { id name locale } organization { id name tin country } residentOrganization { ${RESIDENT_ORGANIZATION_FIELDS} } property { id createdAt deletedAt address addressKey  } residentProperty { ${RESIDENT_PROPERTY_FIELDS} } address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitName unitType ${COMMON_FIELDS} organizationFeatures { ${ORGANIZATION_FEATURES_FIELDS} } paymentCategories { ${PAYMENT_CATEGORIES_FIELDS} } }`
 const Resident = generateGqlQueries('Resident', RESIDENT_FIELDS)
 
 const REGISTER_RESIDENT_MUTATION = gql`
@@ -23,7 +25,7 @@ const REGISTER_RESIDENT_MUTATION = gql`
         result: registerResident(data: $data) ${RESIDENT_FIELDS}
     }
 `
-const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id user { id } organization { id } unitType unitName deletedAt address } billingAccount { id number } accountNumber ${COMMON_FIELDS} organization { id name tin country } }`
+const SERVICE_CONSUMER_FIELDS = `{ residentBillingAccount { id } residentAcquiringIntegrationContext { id integration { id hostUrl } } paymentCategory resident { id user { id locale } organization { id } unitType unitName deletedAt address property { id } } billingAccount { id number } billingIntegrationContext { id lastReport deletedAt }  acquiringIntegrationContext { id status deletedAt } accountNumber ${COMMON_FIELDS} organization { id name tin country } isDiscovered }`
 const ServiceConsumer = generateGqlQueries('ServiceConsumer', SERVICE_CONSUMER_FIELDS)
 
 const REGISTER_SERVICE_CONSUMER_MUTATION = gql`
@@ -32,6 +34,17 @@ const REGISTER_SERVICE_CONSUMER_MUTATION = gql`
     }
 `
 
+const SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION = gql`
+    mutation sendMessageToResidentScopes ($data: SendMessageToResidentScopesServiceInput!) {
+        result: sendMessageToResidentScopes(data: $data) { status }
+    }
+`
+
+const DISCOVER_SERVICE_CONSUMERS_MUTATION = gql`
+    mutation discoverServiceConsumers ($data: DiscoverServiceConsumersInput!) {
+        result: discoverServiceConsumers(data: $data) { status statistics { created residentsFound billingAccountsFound } }
+    }
+`
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -43,5 +56,7 @@ module.exports = {
     RESIDENT_PROPERTY_FIELDS,
     ORGANIZATION_FEATURES_FIELDS,
     PAYMENT_CATEGORIES_FIELDS,
+    SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
+    DISCOVER_SERVICE_CONSUMERS_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

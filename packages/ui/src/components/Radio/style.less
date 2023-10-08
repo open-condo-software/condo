@@ -1,0 +1,210 @@
+@import "antd/lib/radio/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import "./mixins";
+
+@radio-border-width: @condo-global-border-width-default;
+@radio-size: (@condo-global-spacing-24 - 2);
+@radio-top: 0;
+
+@condo-radio-inner-after-size: ((@radio-size / 2));
+
+.condo-radio-wrapper {
+  align-items: center;
+
+  .condo-radio-input {
+    margin: 0;
+  }
+
+  .condo-radio-inner {
+    box-sizing: content-box;
+    border-color: @condo-global-color-gray-5;
+    transition: none;
+
+    &::after {
+      transition: none;
+    }
+  }
+
+  .condo-radio {
+    &-checked {
+      & > .condo-radio-inner {
+        background: @condo-global-color-brand-gradient-1;
+
+        &::after {
+          width: @condo-radio-inner-after-size;
+          height: @condo-radio-inner-after-size;
+          margin-top: initial;
+          margin-left: initial;
+          background: @condo-global-color-brand-gradient-5;
+          border-radius: 100%;
+          transform: translate(-50%, -50%);
+        }
+      }
+    }
+
+    &-disabled {
+      & > .condo-radio-inner {
+        background-color: @condo-global-color-gray-1;
+        border-color: @condo-global-color-gray-3;
+      }
+    }
+  }
+
+  .condo-radio-checked::after {
+    content: none;
+  }
+
+  &:hover {
+    & > .condo-radio {
+      & > .condo-radio-inner {
+        border-color: @condo-global-color-gray-7;
+      }
+    }
+
+    & > .condo-radio-checked {
+      & > .condo-radio-inner {
+        .condo-radio-gradient-border(@condo-global-color-brand-gradient-1, @condo-global-color-brand-gradient-7);
+      }
+    }
+
+    & > .condo-radio-disabled {
+      & > .condo-radio-inner {
+        background: @condo-global-color-gray-1 border-box;
+        border-color: @condo-global-color-gray-5;
+      }
+    }
+  }
+
+  .condo-radio-input:focus + .condo-radio-inner {
+    .condo-radio-gradient-border(linear-gradient(white, white), @condo-global-color-brand-gradient-5);
+  }
+
+  .condo-radio-checked > .condo-radio-input:focus + .condo-radio-inner {
+    .condo-radio-gradient-border(@condo-global-color-brand-gradient-1, @condo-global-color-brand-gradient-7);
+  }
+}
+
+.condo-radio-icon {
+  display: inline-flex;
+  color: @condo-global-color-black;
+
+  & ~ .condo-typography {
+    margin-left: @condo-global-spacing-8 !important;
+  }
+}
+
+.condo-radio-group {
+  display: flex;
+  flex-direction: column;
+
+  & > .condo-radio-group-container {
+    display: flex;
+    flex-direction: column;
+
+    & > .condo-space {
+      display: none;
+      margin-top: @condo-global-spacing-16;
+      padding-left: @condo-global-spacing-24;
+    }
+
+    & > .condo-radio-group-title {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+
+      & .condo-radio-group-icon {
+        margin-right: @condo-global-spacing-8;
+      }
+    }
+  }
+
+  & > .condo-radio-group-container.open {
+    & > .condo-radio-group-title > .condo-radio-group-icon {
+      transform: rotate(180deg);
+    }
+
+    & > .condo-space {
+      display: flex;
+    }
+  }
+
+  & > .condo-radio-group-container:not(:first-child) {
+    margin-top: @condo-global-spacing-24;
+  }
+}
+
+.condo-radio-group.condo-radio-button {
+  display: inline-flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: calc(@condo-global-spacing-40 + @condo-global-spacing-8);
+  padding: @condo-global-spacing-4;
+  white-space: nowrap;
+  background: @condo-global-color-gray-3;
+  border-radius: @condo-global-border-radius-large;
+
+  & > .condo-radio-button-wrapper,
+  & > .condo-radio-button-wrapper .condo-typography {
+    line-height: @condo-global-spacing-40;
+  }
+
+  & > .condo-radio-button-wrapper .condo-typography {
+    .condo-typography-h5();
+  }
+
+  & > .condo-radio-button-wrapper > span:not(.condo-radio-button) {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    height: 100%;
+    min-height: @condo-global-spacing-40;
+  }
+
+  & > .condo-radio-button-wrapper .condo-radio-label-container {
+    display: inline-flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & > .condo-radio-button-wrapper {
+    flex: 1;
+    height: 100%;
+    background: @condo-global-color-gray-3;
+    border: none;
+    box-shadow: none;
+    transition: none;
+  }
+
+  & > .condo-radio-button-wrapper::before {
+    display: none;
+  }
+
+  & > .condo-radio-button-wrapper.condo-radio-button-wrapper-disabled {
+    .condo-typography,
+    .condo-radio-icon {
+      color: @condo-global-color-gray-7;
+    }
+  }
+
+  & > .condo-radio-button-wrapper:not(.condo-radio-button-wrapper-disabled, .condo-radio-button-wrapper-checked):hover {
+    .condo-radio-icon {
+      color: @condo-global-color-green-5;
+    }
+
+    .condo-typography {
+      background-color: @condo-global-color-black;
+      background-image: @condo-global-color-brand-gradient-5;
+      background-size: 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  .condo-radio-button-wrapper-checked:not(&-disabled).condo-radio-button-wrapper {
+    background: @condo-global-color-white;
+    border-radius: @condo-global-border-radius-medium;
+    box-shadow: @condo-global-box-shadow-default;
+  }
+}

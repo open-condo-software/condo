@@ -3,9 +3,14 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { GQLListSchema, getByCondition } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
+
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/miniapp/access/B2CApp')
+const { RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
+const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2cApp')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
@@ -13,9 +18,6 @@ const {
     DEVELOPER_FIELD,
     IS_HIDDEN_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
-const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2cApp')
-const { RESTRICT_BUILD_SELECT_ERROR } = require('@condo/domains/miniapp/constants')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
@@ -40,7 +42,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: Relationship,
             ref: 'B2CAppBuild',
             isRequired: false,
-            kmigratorOptions: { null: true, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
             hooks: {
                 validateInput: async ({ resolvedData, fieldPath, addFieldValidationError, operation, existingItem }) => {
                     const appId = operation === 'create' ? resolvedData.id : existingItem.id
@@ -62,6 +64,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: Relationship,
             ref: 'B2CAppAccessRight.app',
             many: true,
+            access: { create: false, update: false },
         },
     },
     hooks: {

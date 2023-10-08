@@ -19,7 +19,7 @@ Don't validate input in access control modules.
 
 **When an instance of a Keystone list is to be returned, you should use data-access utils, that using Keystone database adapter under the hood.**
 
-Example of using `getById` from `@condo/keystone/schema`:
+Example of using `getById` from `@open-condo/keystone/schema`:
 
 ```js
 const SyncRemoteClientService = new GQLCustomSchema('SyncRemoteClientService', {
@@ -64,7 +64,7 @@ So, to avoid this side effect, use wrappers around Keystone database adapter.
 
 ### `null` is returned for some fields, that have a value in DB
 
-Probably, you're not using wrappers from `@condo/keystone/schema` to query data for returning result.
+Probably, you're not using wrappers from `@open-condo/keystone/schema` to query data for returning result.
 You're having a mismatch between what you're querying and what is actually returned.
 Read "Returning result" section above.
 

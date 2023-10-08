@@ -8,7 +8,9 @@ import {
     BillingIntegrationUpdateInput,
     QueryAllBillingIntegrationsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { BillingIntegration as BillingIntegrationGQL } from '@condo/domains/billing/gql'
 
 const {

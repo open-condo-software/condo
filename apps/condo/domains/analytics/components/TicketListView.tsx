@@ -1,16 +1,19 @@
+import { Skeleton, Table, TableColumnsType } from 'antd'
 import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
-import { Skeleton, Table, TableColumnsType } from 'antd'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { ticketAnalyticsPageFilters } from '@condo/domains/analytics/utils/helpers'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
 import { ITicketAnalyticsPageWidgetProps } from './TicketChartView'
 
 interface ITicketAnalyticsPageListViewProps extends ITicketAnalyticsPageWidgetProps {
     filters: null | ticketAnalyticsPageFilters
 }
 
-const getScrollConfig = (isSmall: boolean) => {
+export const getScrollConfig = (isSmall: boolean) => {
     const config: RcTableProps['scroll'] & { scrollToFirstRowOnChange?: boolean; } = {
         scrollToFirstRowOnChange: true,
     }
@@ -35,7 +38,7 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = (props) => {
     const AllCategoryClassifiersTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllClassifiers' })
     const AllExecutorsTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllExecutors' })
     const AllAssigneesTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.tableColumns.AllAssignees' })
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     if (data === null || filters === null || loading) {
         return <Skeleton loading={loading} active paragraph={{ rows: 10 }} />
@@ -67,7 +70,7 @@ const TicketListView: React.FC<ITicketAnalyticsPageListViewProps> = (props) => {
         <Table
             bordered
             tableLayout='fixed'
-            scroll={getScrollConfig(isSmall)}
+            scroll={getScrollConfig(!breakpoints.TABLET_LARGE)}
             dataSource={dataSource}
             columns={tableColumns as TableColumnsType}
             pagination={false}

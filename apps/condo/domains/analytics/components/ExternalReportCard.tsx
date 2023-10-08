@@ -1,10 +1,12 @@
 /** @jsx jsx */
-import React from 'react'
-import { css, jsx } from '@emotion/react'
-import { useRouter } from 'next/router'
-import { Card, Typography } from 'antd'
-import { fontSizes, transitions, colors, shadows } from '@condo/domains/common/constants/style'
 import { ExternalReport } from '@app/condo/schema'
+import { css, jsx } from '@emotion/react'
+import { Card, Typography } from 'antd'
+import { useRouter } from 'next/router'
+import React from 'react'
+
+import { fontSizes, transitions, colors, shadows } from '@condo/domains/common/constants/style'
+
 
 const cardCss = css`
   border-radius: 16px;

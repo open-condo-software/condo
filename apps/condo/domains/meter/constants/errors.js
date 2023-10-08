@@ -5,6 +5,9 @@ const AUTOMATIC_METER_NO_MASTER_APP = '[isAutomatic:b2bApp:null] Automatic meter
 const B2B_APP_NOT_CONNECTED = '[b2bApp:notConnected] Linked B2B app must be connected to organization'
 const B2C_APP_NOT_AVAILABLE = '[b2cApp:notAvailable] Linked B2C app have is not available on meter\'s property address'
 
+const METER_NUMBER_HAVE_INVALID_VALUE = 'METER_NUMBER_HAVE_INVALID_VALUE'
+const METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE = 'METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE'
+
 module.exports = {
     VALUE_LESS_THAN_PREVIOUS_ERROR,
     EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
@@ -12,4 +15,6 @@ module.exports = {
     AUTOMATIC_METER_NO_MASTER_APP,
     B2B_APP_NOT_CONNECTED,
     B2C_APP_NOT_AVAILABLE,
+    METER_NUMBER_HAVE_INVALID_VALUE,
+    METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE,
 }

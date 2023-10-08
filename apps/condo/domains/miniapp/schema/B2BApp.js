@@ -3,31 +3,36 @@
  */
 
 const { Text, Select, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/miniapp/access/B2BApp')
+const {
+    B2B_APP_CATEGORIES,
+    OTHER_CATEGORY,
+    GLOBAL_APP_NO_APP_URL_ERROR,
+    NON_GLOBAL_APP_WITH_FEATURES_ERROR,
+} = require('@condo/domains/miniapp/constants')
+const { GALLERY_FIELD } = require('@condo/domains/miniapp/schema/fields/galleryField')
+const { GLOBAL_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/globalFeaturesField')
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
     SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
     PARTNER_URL_FIELD,
-    INSTRUCTION_TEXT_FIELD,
-    CONNECTED_MESSAGE_FIELD,
+    APP_DETAILS_FIELD,
     IFRAME_URL_FIELD,
     IS_HIDDEN_FIELD,
     CONTEXT_DEFAULT_STATUS_FIELD,
+    LABEL_FIELD,
+    DISPLAY_PRIORITY_FIELD,
+    PRICE_FIELD,
+    ICON_FIELD,
+    MENU_CATEGORY_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
-const {
-    B2B_APP_CATEGORIES,
-    OTHER_CATEGORY,
-    LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR,
-    GLOBAL_APP_NO_APP_URL_ERROR,
-    NON_GLOBAL_APP_WITH_FEATURES_ERROR,
-} = require('@condo/domains/miniapp/constants')
-const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
-const { GLOBAL_FEATURES_FIELD } = require('@condo/domains/miniapp/schema/fields/globalFeaturesField')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 
 const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
 
@@ -41,14 +46,9 @@ const B2BApp = new GQLListSchema('B2BApp', {
         },
         logo: LOGO_FIELD,
         shortDescription: SHORT_DESCRIPTION_FIELD,
-        about: {
-            ...ABOUT_DOCUMENT_FIELD,
-            schemaDoc: `Information about promo-blocks which we'll be shown on app detailed page. ${ABOUT_DOCUMENT_FIELD.schemaDoc}`,
-        },
         developer: DEVELOPER_FIELD,
         partnerUrl: PARTNER_URL_FIELD,
-        instruction: INSTRUCTION_TEXT_FIELD,
-        connectedMessage: CONNECTED_MESSAGE_FIELD,
+        detailedDescription: APP_DETAILS_FIELD,
         appUrl: IFRAME_URL_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         isGlobal: {
@@ -57,6 +57,16 @@ const B2BApp = new GQLListSchema('B2BApp', {
             defaultValue: false,
             isRequired: true,
         },
+        hasDynamicTitle: {
+            schemaDoc: 'Indicates whether the miniapp has its own dynamic title. ' +
+                'If so, the miniapp page will have no default title, shifting the responsibility for displaying it to the app itself. ' +
+                'Otherwise, there will be a static title above the app iframe that corresponds to the application name.',
+            type: Checkbox,
+            defaultValue: false,
+            isRequired: true,
+        },
+        icon: ICON_FIELD,
+        menuCategory: MENU_CATEGORY_FIELD,
         contextDefaultStatus: CONTEXT_DEFAULT_STATUS_FIELD,
         category: {
             schemaDoc: `Category of app. Can be one of the following: [${B2B_APP_CATEGORIES.map(category => `"${category}"`).join(', ')}] By default set to "${OTHER_CATEGORY}"`,
@@ -66,18 +76,18 @@ const B2BApp = new GQLListSchema('B2BApp', {
             options: B2B_APP_CATEGORIES,
             defaultValue: OTHER_CATEGORY,
         },
-        setupButtonMessage: {
-            schemaDoc: 'Text, which will be displayed instead of default "Set up" text if app has it\'s own frontend (appUrl)',
-            isRequired: false,
-            type: Text,
-        },
         accessRights: {
             schemaDoc: 'Specifies set of service users, who can access app\'s contexts related as well as perform actions on behalf of the application',
             type: Relationship,
             ref: 'B2BAppAccessRight.app',
             many: true,
+            access: { create: false, update: false },
         },
         features: GLOBAL_FEATURES_FIELD,
+        displayPriority: DISPLAY_PRIORITY_FIELD,
+        label: LABEL_FIELD,
+        gallery: GALLERY_FIELD,
+        price: PRICE_FIELD,
     },
     hooks: {
         resolveInput: ({ resolvedData, operation }) => {
@@ -96,9 +106,6 @@ const B2BApp = new GQLListSchema('B2BApp', {
             } else {
                 if (newItem.features) {
                     return addValidationError(NON_GLOBAL_APP_WITH_FEATURES_ERROR)
-                }
-                if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
-                    return addValidationError(LOCAL_APP_NO_INSTRUCTION_OR_MESSAGE_ERROR)
                 }
             }
         },

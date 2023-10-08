@@ -1,0 +1,43 @@
+{
+  "name": "@app/dev-portal",
+  "version": "0.0.0-development",
+  "installConfig": {
+    "hoistingLimits": "workspaces"
+  },
+  "scripts": {
+    "build:deps": "turbo build --filter=dev-portal^...",
+    "dev": "yarn build:deps && next dev",
+    "build": "yarn build:deps && next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "@ant-design/cssinjs": "1.5.6",
+    "@babel/core": "7.20.12",
+    "@babel/preset-env": "7.20.2",
+    "@babel/preset-typescript": "7.18.6",
+    "@dev-portal/domains": "link:./domains",
+    "@open-condo/icons": "workspace:^",
+    "@open-condo/tsconfig": "workspace:^",
+    "@open-condo/ui": "workspace:^",
+    "antd": "5.1.7",
+    "cookies-next": "2.1.1",
+    "glob": "8.1.0",
+    "gray-matter": "4.0.3",
+    "lodash": "^4.17.21",
+    "next": "13.3.0",
+    "next-mdx-remote": "4.3.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-intl": "6.2.7",
+    "rehype-prism-plus": "1.5.1",
+    "remark-custom-heading-id": "1.0.0",
+    "remark-gfm": "3.0.1",
+    "title": "3.5.3",
+    "typescript": "4.9.4"
+  },
+  "devDependencies": {
+    "@types/react": "18.0.27",
+    "@types/react-dom": "18.0.10",
+    "@types/title": "3.4.1"
+  }
+}

@@ -1,21 +1,28 @@
+import { Col, Form, Row, RowProps, Typography } from 'antd'
+import getConfig from 'next/config'
+import Router from 'next/router'
+import React, { useCallback, useContext, useMemo, useState } from 'react'
+
+import { useMutation } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { FormattedMessage } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
+import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
+import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { PhoneInput } from '@condo/domains/common/components/PhoneInput'
+import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
 import { TOO_MANY_REQUESTS } from '@condo/domains/user/constants/errors'
 import { START_CONFIRM_PHONE_MUTATION } from '@condo/domains/user/gql'
-import { useMutation } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
-import { Col, Form, Row, RowProps, Typography } from 'antd'
-import Router from 'next/router'
-import React, { useCallback, useContext, useMemo, useState } from 'react'
-import { FormattedMessage } from '@condo/next/intl'
+
+
+
 import { RegisterContext } from './RegisterContextProvider'
-import { SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
-import { colors } from '@condo/domains/common/constants/style'
-import { TabsAuthAction } from '@condo/domains/common/components/HeaderActions'
-import { ResponsiveCol } from '@condo/domains/user/components/containers/ResponsiveCol'
+
 
 const ROW_STYLES: React.CSSProperties = {
     justifyContent: 'center',
@@ -43,7 +50,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const PhoneMsg = intl.formatMessage({ id: 'pages.auth.register.field.Phone' })
     const ExamplePhoneMsg = intl.formatMessage({ id: 'example.Phone' })
     const FieldIsRequiredMsg = intl.formatMessage({ id: 'FieldIsRequired' })
-    const SMSTooManyRequestsError = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const SMSTooManyRequestsErrorMsg = intl.formatMessage({ id: 'pages.auth.TooManyRequests' })
+    const WrongPhoneFormatErrorMsg = intl.formatMessage({ id: 'api.common.WRONG_PHONE_FORMAT' })
     const RegisterMsg = intl.formatMessage({ id: 'Register' })
     const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
@@ -51,8 +59,9 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
 
     const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
 
+    const { publicRuntimeConfig: { hasSbbolAuth } } = getConfig()
+
     const { setToken, setPhone, handleReCaptchaVerify } = useContext(RegisterContext)
-    const [smsSendError, setSmsSendError] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
     const [startPhoneVerify] = useMutation(START_CONFIRM_PHONE_MUTATION)
 
@@ -61,30 +70,33 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
         return {
             [TOO_MANY_REQUESTS]: {
                 name: 'phone',
-                errors: [SMSTooManyRequestsError],
+                errors: [SMSTooManyRequestsErrorMsg],
             },
         }
     }, [intl])
 
-    const PHONE_VALIDATOR = useCallback(() => ({
-        validator () {
-            if (!smsSendError) {
-                return Promise.resolve()
-            }
-            return Promise.reject(smsSendError)
-        },
-    }), [smsSendError])
+    const REGISTER_PHONE_RULES = useMemo(
+        () => [{ required: true, message: FieldIsRequiredMsg }],
+        [FieldIsRequiredMsg]
+    )
 
-    const REGISTER_PHONE_RULES = useMemo(() => [
-        { required: true, message: FieldIsRequiredMsg }, PHONE_VALIDATOR], [FieldIsRequiredMsg, PHONE_VALIDATOR])
-
-    const startConfirmPhone = useCallback(async () => {
+    const startConfirmPhone = useCallback(async (...args) => {
         const registerExtraData = {
             dv: 1,
             sender: getClientSideSenderInfo(),
         }
         const { phone: inputPhone } = form.getFieldsValue(['phone'])
         const phone = normalizePhone(inputPhone)
+        if (!phone) {
+            form.setFields([
+                {
+                    name: 'phone',
+                    errors: [WrongPhoneFormatErrorMsg],
+                },
+            ])
+            return
+        }
+
         setPhone(phone)
         const captcha = await handleReCaptchaVerify('start_confirm_phone')
         const variables = { data: { ...registerExtraData, phone, captcha } }
@@ -94,6 +106,15 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
         return runMutation({
             mutation: startPhoneVerify,
             variables,
+            onError: (error) => {
+                form.setFields([
+                    {
+                        name: 'phone',
+                        // NOTE(pahaz): `friendlyDescription` is the last GQLError.messageForUser!
+                        errors: [(error.friendlyDescription) ? error.friendlyDescription : SMSTooManyRequestsErrorMsg],
+                    },
+                ])
+            },
             onCompleted: (data) => {
                 const { data: { result: { token } } } = data
                 setToken(token)
@@ -108,10 +129,8 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
             intl,
             form,
             ErrorToFormFieldMsgMapping,
-        }).catch(() => {
-            setIsLoading(false)
         })
-    }, [intl, form, handleReCaptchaVerify])
+    }, [intl, form, handleReCaptchaVerify, WrongPhoneFormatErrorMsg, setPhone, setIsLoading, onFinish])
 
     return (
         <Row justify='center'>
@@ -139,7 +158,6 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         <PhoneInput
                                             style={FORM_PHONE_STYLES}
                                             placeholder={ExamplePhoneMsg}
-                                            onChange={() => setSmsSendError(null)}
                                             block
                                         />
                                     </Form.Item>
@@ -187,23 +205,28 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         </Button>
                                     </Form.Item>
                                 </Col>
-                                <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
-                                    <FormattedMessage id='Or'/>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item>
-                                        <Button
-                                            key='submit'
-                                            type='sberAction'
-                                            secondary
-                                            icon={<SberIconWithoutLabel/>}
-                                            href='/api/sbbol/auth'
-                                            block
-                                        >
-                                            {LoginBySBBOLMsg}
-                                        </Button>
-                                    </Form.Item>
-                                </Col>
+                                {(hasSbbolAuth) ?
+                                    <>
+                                        <Col span={24} style={FORM_TYPOGRAPHY_STYLES}>
+                                            <FormattedMessage id='Or'/>
+                                        </Col>
+                                        <Col span={24}>
+                                            <Form.Item>
+                                                <Button
+                                                    key='submit'
+                                                    type='sberAction'
+                                                    secondary
+                                                    icon={<SberIconWithoutLabel/>}
+                                                    href='/api/sbbol/auth'
+                                                    block
+                                                >
+                                                    {LoginBySBBOLMsg}
+                                                </Button>
+                                            </Form.Item>
+                                        </Col>
+                                    </>
+                                    : null
+                                }
                             </Row>
                         </ResponsiveCol>
                     </Row>

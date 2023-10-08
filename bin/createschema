@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
-const { createschema } = require('@condo/codegen')
+const { createschema } = require('@open-condo/codegen')
 createschema(process.argv)

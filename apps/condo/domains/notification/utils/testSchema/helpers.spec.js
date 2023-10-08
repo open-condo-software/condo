@@ -1,4 +1,4 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const sample = require('lodash/sample')
 
 const { getRandomTokenData } = require('./helpers')

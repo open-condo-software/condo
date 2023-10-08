@@ -1,9 +1,5 @@
 import { green } from '@ant-design/colors'
 import { SortTicketsBy, Ticket as TicketSchema } from '@app/condo/schema'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { colors } from '@condo/domains/common/constants/style'
-import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
-import { useIntl } from '@condo/next/intl'
 import styled from '@emotion/styled'
 import { Col, Row, RowProps, Space, Typography } from 'antd'
 import get from 'lodash/get'
@@ -12,8 +8,17 @@ import pickBy from 'lodash/pickBy'
 import Link from 'next/link'
 import qs, { IStringifyOptions } from 'qs'
 import React, { useMemo } from 'react'
-import { useLayoutContext } from '../LayoutContext'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Loader } from '@condo/domains/common/components/Loader'
+import { colors } from '@condo/domains/common/constants/style'
+import { Ticket } from '@condo/domains/ticket/utils/clientSchema'
+
+
 import { TicketOverview } from './TicketOverview'
+
+import { useLayoutContext } from '../LayoutContext'
 
 interface IContainerProps {
     isSmall: boolean
@@ -65,14 +70,14 @@ const TicketCard: React.FC<ITicketCardProps> = ({ contactId, address, tickets })
     const TicketsByContactMessage = intl.formatMessage({ id: 'TicketsByContact' })
     const NoTicketsOnAddressMessage = intl.formatMessage({ id: 'Contact.NoTicketOnAddress' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const hasMoreTickets = tickets.length >= TICKETS_ON_CARD ? tickets.length - TICKETS_ON_CARD : 0
 
     const filters = { contact: [contactId], address }
     const query = qs.stringify({ filters: JSON.stringify(pickBy(filters)) }, TICKET_QUERY_STRINGIFY_OPTIONS)
 
     return (
-        <Container isSmall={isSmall}>
+        <Container isSmall={!breakpoints.DESKTOP_SMALL}>
             <AddressPartContainer>
                 <Space size={8} direction='vertical'>
                     <Typography.Text type='secondary'>

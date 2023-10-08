@@ -5,31 +5,31 @@
  */
 const { isEmpty, get } = require('lodash')
 
-const conf = require('@condo/config')
-const { extractReqLocale } = require('@condo/locales/extractReqLocale')
-const { find } = require('@condo/keystone/schema')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { find } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
 const { LOCALES } = require('@condo/domains/common/constants/locale')
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
-
+const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
+const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
 const {
-    Message: MessageGQL,
     SEND_MESSAGE,
     RESEND_MESSAGE,
-    RemoteClient: RemoteClientGQL,
     SYNC_DEVICE_MUTATION,
     DISCONNECT_USER_FROM_DEVICE_MUTATION,
     SET_MESSAGE_STATUS_MUTATION,
+    Message: MessageGQL,
+    RemoteClient: RemoteClientGQL,
+    MessageUserBlackList: MessageUserBlackListGQL,
+    MessageOrganizationBlackList: MessageOrganizationBlackListGQL,
+    MessageBatch: MessageBatchGQL,
+    NotificationUserSetting: NotificationUserSettingGQL,
 } = require('@condo/domains/notification/gql')
-const { MESSAGE_TYPES } = require('@condo/domains/notification/constants/constants')
-
-const { MessageUserBlackList: MessageUserBlackListGQL } = require('@condo/domains/notification/gql')
-const { MessageOrganizationBlackList: MessageOrganizationBlackListGQL } = require('@condo/domains/notification/gql')
-const { MessageOrganizationWhiteList: MessageOrganizationWhiteListGQL } = require('@condo/domains/notification/gql')
-const { MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST, MESSAGE_TYPE_IN_USER_BLACK_LIST } = require('@condo/domains/notification/constants/errors')
-const { MessageBatch: MessageBatchGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const logger = getLogger('notification/serverSchema')
 const Message = generateServerUtils(MessageGQL)
 
 async function sendMessage (context, data) {
@@ -37,17 +37,16 @@ async function sendMessage (context, data) {
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
     if (!data.to) throw new Error('no data.to')
-    if (!data.to.email && !data.to.phone && !data.to.user) throw new Error('wrong data.to')
+    if (!data.to.email && !data.to.phone && !data.to.user && !data.to.remoteClient) throw new Error('wrong data.to')
     if (!data.type) throw new Error('no data.type')
     if (!MESSAGE_TYPES.includes(data.type)) throw new Error('unknown data.type')
-    if (!data.lang) {
-        data.lang = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
-    }
-    if (!data.dv) {
-        data.dv = 1
-    }
-
+    if (!data.lang) data.lang = extractReqLocale(context.req) || conf.DEFAULT_LOCALE
     if (!LOCALES[data.lang]) throw new Error('unknown data.lang')
+    if (!data.dv) data.dv = 1
+
+    const reqId = get(context, ['req', 'id'])
+
+    logger.info({ msg: 'sendMessage', type: data.type, reqId })
 
     return await execGqlWithoutAccess(context, {
         query: SEND_MESSAGE,
@@ -137,19 +136,16 @@ async function checkMessageTypeInBlackList (context, message) {
         }
         const messageOrganizationBlackListRules = await MessageOrganizationBlackList.getAll(context, messageOrganizationBlackListWhere)
 
-        if (!isEmpty(messageOrganizationBlackListRules)) {
-            return {
-                error: MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST,
-            }
-        }
+        if (!isEmpty(messageOrganizationBlackListRules)) return { error: MESSAGE_TYPE_IN_ORGANIZATION_BLACK_LIST }
     }
 
+    const userCriteria = [
+        message.user && { user: { id: message.user.id } },
+        message.phone && { phone: message.phone },
+        message.email && { email: message.email },
+    ]
     const messageUserBlackListWhere = {
-        OR: [
-            message.user && { user: { id: message.user.id } },
-            message.phone && { phone: message.phone },
-            message.email && { email: message.email },
-        ].filter(Boolean),
+        OR: userCriteria.filter(Boolean),
         deletedAt: null,
     }
 
@@ -158,11 +154,7 @@ async function checkMessageTypeInBlackList (context, message) {
     if (!isEmpty(messageUserBlackListRules)) {
         const isMessageTypeInUserBlackList = messageUserBlackListRules.find(rule => rule.type === message.type || isEmpty(rule.type))
 
-        if (isMessageTypeInUserBlackList) {
-            return {
-                error: MESSAGE_TYPE_IN_USER_BLACK_LIST,
-            }
-        }
+        if (isMessageTypeInUserBlackList) return { error: MESSAGE_TYPE_IN_USER_BLACK_LIST }
     }
 
     return { error: null }
@@ -170,8 +162,8 @@ async function checkMessageTypeInBlackList (context, message) {
 
 const MessageUserBlackList = generateServerUtils(MessageUserBlackListGQL)
 const MessageOrganizationBlackList = generateServerUtils(MessageOrganizationBlackListGQL)
-const MessageOrganizationWhiteList = generateServerUtils(MessageOrganizationWhiteListGQL)
 const MessageBatch = generateServerUtils(MessageBatchGQL)
+const NotificationUserSetting = generateServerUtils(NotificationUserSettingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -184,8 +176,8 @@ module.exports = {
     setMessageStatus,
     MessageUserBlackList,
     MessageOrganizationBlackList,
-    MessageOrganizationWhiteList,
     checkMessageTypeInBlackList,
     MessageBatch,
+    NotificationUserSetting,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

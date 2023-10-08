@@ -1,11 +1,11 @@
+import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
 import { LabeledValue } from 'antd/lib/select'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback } from 'react'
 
-import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
@@ -17,12 +17,14 @@ export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'on
     placeholder?: string
     allowClear?: boolean
     loading: boolean
+    disabled?: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType
     mode?: UnitInfoMode
     selectedFloorName?: string
     selectedSectionName?: string
     selectedSections?: BuildingSection[]
+    multiple?: boolean
 }
 interface IGetOptionGroupBySectionType {
     units: BuildingUnit[]
@@ -102,7 +104,7 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
     const CommercialGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.commercial' })
     const ApartmentGroupLabel = intl.formatMessage({ id: 'pages.condo.ticket.select.group.apartment' })
     const {
-        placeholder, property, loading, mode, selectedFloorName, selectedSectionName, selectedSections, ...restInputProps
+        placeholder, property, loading, disabled = false, mode, selectedFloorName, selectedSectionName, selectedSections, multiple, ...restInputProps
     } = props
 
     const sections = get(property, 'map.sections', [])
@@ -118,12 +120,13 @@ export const BaseUnitNameInput: React.FC<IUnitNameInputProps> = (props) => {
 
     return (
         <Select
+            mode={multiple ? 'multiple' : undefined}
             allowClear
             showSearch
             placeholder={placeholder}
             optionFilterProp='title'
             loading={loading}
-            disabled={loading}
+            disabled={disabled}
             {...restInputProps}
         >
             {getOptionGroupBySectionType({

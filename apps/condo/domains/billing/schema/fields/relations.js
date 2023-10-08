@@ -37,17 +37,7 @@ const BILLING_ACCOUNT_FIELD = {
     kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
 }
 
-const BILLING_ACCOUNT_METER_FIELD = {
-    schemaDoc: 'Billing account meter',
-    type: Relationship,
-    ref: 'BillingAccountMeter',
-    isRequired: true,
-    knexOptions: { isNotNullable: true }, // Relationship only!
-    kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-}
-
 module.exports = {
-    BILLING_ACCOUNT_METER_FIELD,
     BILLING_ACCOUNT_FIELD,
     BILLING_PROPERTY_FIELD,
     BILLING_ORGANIZATION_FIELD,

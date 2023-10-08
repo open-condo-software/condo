@@ -1,12 +1,15 @@
 /** @jsx jsx */
-import React from 'react'
-import { css, jsx } from '@emotion/react'
 import { green } from '@ant-design/colors'
+import { css, jsx } from '@emotion/react'
 import { Button as DefaultButton, ButtonProps } from 'antd'
 import isArray from 'lodash/isArray'
 import isString from 'lodash/isString'
+import React from 'react'
+
+import { ITrackingComponent, TrackingEventType, useTracking } from '@condo/domains/common/components/TrackingContext'
+
 import { colors, gradients, transitions } from '../constants/style'
-import { ITrackingComponent, useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+
 
 const buttonCss = (color) => {
     // Ant returns an array of hue-separated colors, check them out here
@@ -279,6 +282,7 @@ const BUTTON_TYPE_STYLES = {
     sberBlack: sberBlackCss,
 }
 
+/** @deprecated use Button from @open-condo/ui **/
 export const Button: React.FC<CustomButtonProps> = (props) => {
     const { type, secondary, onClick, eventName: propEventName, eventProperties = {}, ...restProps } = props
     const { getTrackingWrappedCallback, getEventName } = useTracking()

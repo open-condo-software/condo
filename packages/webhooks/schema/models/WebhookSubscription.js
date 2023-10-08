@@ -1,10 +1,16 @@
 const { Relationship, DateTimeUtc, Select, Text, Integer } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = require('@condo/keystone/plugins')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const access = require('@condo/webhooks/schema/access/WebhookSubscription')
-const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@condo/webhooks/model-validator')
-const { DEFAULT_MAX_PACK_SIZE } = require('@condo/webhooks/constants')
+
+const conf = require('@open-condo/config')
+const { Json } = require('@open-condo/keystone/fields')
+const { uuided, versioned, tracked, softDeleted, dvAndSender, historical } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { DEFAULT_MAX_PACK_SIZE, DEFAULT_UNAVAILABILITY_THRESHOLD } = require('@open-condo/webhooks/constants')
+const { WebHookModelValidator, getModelValidator, setModelValidator } = require('@open-condo/webhooks/model-validator')
+const access = require('@open-condo/webhooks/schema/access/WebhookSubscription')
+
+const UNAVAILABILITY_THRESHOLD = (typeof conf['WEBHOOK_BLOCK_THRESHOLD'] === 'number' && conf['WEBHOOK_BLOCK_THRESHOLD'] > 0)
+    ? conf['WEBHOOK_BLOCK_THRESHOLD']
+    : DEFAULT_UNAVAILABILITY_THRESHOLD
 
 function getWebhookSubscriptionModel (schemaPath) {
     if (!getModelValidator()) {
@@ -86,6 +92,29 @@ function getWebhookSubscriptionModel (schemaPath) {
                     },
                 },
             },
+            failuresCount: {
+                schemaDoc: 'The number of consecutive failures to send webhooks to a remote server. ' +
+                    'Field value is automatically incremented when the specified url is unavailable or the server response was not ok, ' +
+                    'but no more than once per hour. ' +
+                    'Field value is automatically reset to 0 when the remote server is successfully reached (syncedAt or syncedAmount changed), ' +
+                    'or can be manually reset by support. ' +
+                    `As soon as the counter reaches the value ${UNAVAILABILITY_THRESHOLD}, which is interpreted ` +
+                    `as the unavailability of the external service for at least ${UNAVAILABILITY_THRESHOLD} hours, ` +
+                    'the webhook will stop being sent to this url. ' +
+                    'In this case, you will need to manually reset the counter via support to resume sending.',
+                type: Integer,
+                isRequired: true,
+                defaultValue: 0,
+                hooks: {
+                    resolveInput: ({ resolvedData, fieldPath }) => {
+                        if ((resolvedData['syncedAt'] || resolvedData['syncedAmount']) && !resolvedData[fieldPath]) {
+                            return 0
+                        } else {
+                            return resolvedData[fieldPath]
+                        }
+                    },
+                },
+            },
             model: {
                 schemaDoc: 'The data model (schema) that the webhook is subscribed to',
                 type: Select,
@@ -134,6 +163,9 @@ function getWebhookSubscriptionModel (schemaPath) {
                 isRequired: false,
                 hooks: {
                     validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
+                        if (typeof resolvedData[fieldPath] !== 'number') {
+                            return
+                        }
                         if (resolvedData[fieldPath] <= 0 || resolvedData[fieldPath] > DEFAULT_MAX_PACK_SIZE) {
                             return addFieldValidationError(`Invalid maxPackSize value. The correct value must be in the range [1; ${DEFAULT_MAX_PACK_SIZE}]`)
                         }

@@ -1,12 +1,16 @@
-import React from 'react'
-import Head from 'next/head'
-import Big from 'big.js'
+import { MessageDescriptor } from '@formatjs/intl/src/types'
 import { Row, Typography, Col, Space } from 'antd'
-import { useIntl } from '@condo/next/intl'
+import Big from 'big.js'
+import Head from 'next/head'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
+
 import { Container } from './Layout'
 import { MoneyBlock } from './MoneyBlock'
-import { MessageDescriptor } from '@formatjs/intl/src/types'
+
 
 export type BlockType = {
     descriptor: MessageDescriptor,

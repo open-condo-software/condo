@@ -1,17 +1,19 @@
-import { isEmpty } from 'lodash'
-import React, { useCallback, useMemo, useState } from 'react'
-import { Gutter } from 'antd/es/grid/row'
-import { useIntl } from '@condo/next/intl'
-import { Col, FormInstance, Row } from 'antd'
-import get from 'lodash/get'
-
 import { BuildingFloor, BuildingSection, Property, BuildingUnitSubType } from '@app/condo/schema'
+import { Col, FormInstance, Row } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { isEmpty } from 'lodash'
+import get from 'lodash/get'
+import React, { useCallback, useMemo, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import { useIntl } from '@open-condo/next/intl'
+
+
+import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
 import { TicketFormItem } from '@condo/domains/ticket/components/BaseTicketForm'
-import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 import { FloorNameInput } from '@condo/domains/user/components/FloorNameInput'
 import { SectionNameInput } from '@condo/domains/user/components/SectionNameInput'
-import { PARKING_SECTION_TYPE, SECTION_SECTION_TYPE } from '@condo/domains/property/constants/common'
+import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 interface IGetSectionAndFloorByUnit {
     (unitName: string, sections: BuildingSection[], unitType: BuildingUnitSubType): {
@@ -118,6 +120,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
             const sections = get(property, ['map', unitDestination], [])
             const { sectionName, floorName } = getSectionAndFloorByUnit(unitName, sections, unitType)
 
+            if (setSelectedUnitType) setSelectedUnitType(unitType)
             if (setSelectedSectionType) setSelectedSectionType(sectionType)
 
             return form.setFieldsValue({ sectionName, sectionType, floorName, unitType, unitName })
@@ -125,6 +128,15 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
 
         form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType: null })
     }, [property, setSelectedSectionType])
+
+    useDeepCompareEffect(() => {
+        const initialUnitName = get(initialValues, 'unitName')
+        const initialUnitType = get(initialValues, 'unitType')
+
+        if (initialUnitName) {
+            updateSectionAndFloor(form, initialUnitName, initialUnitType)
+        }
+    }, [form, initialValues, updateSectionAndFloor])
 
     const handleUnitNameInputChange = useCallback((_, option: UnitNameInputOption) => {
         if (!option) {

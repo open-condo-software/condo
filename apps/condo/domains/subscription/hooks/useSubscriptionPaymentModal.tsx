@@ -1,9 +1,8 @@
+import { Col, Row } from 'antd'
 import React, { useState, Dispatch, SetStateAction } from 'react'
-import { Col, Row, Typography } from 'antd'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
+import { useIntl } from '@open-condo/next/intl'
+import { Modal, Typography, Button } from '@open-condo/ui'
 
 interface IApplySubscriptionModal {
     SubscriptionPaymentModal: React.FC
@@ -13,31 +12,33 @@ interface IApplySubscriptionModal {
 
 export const useSubscriptionPaymentModal = (): IApplySubscriptionModal => {
     const intl = useIntl()
+    const ModalTitle = intl.formatMessage({ id: 'subscription.modal.complete.title' })
+    const ModalCompleteActionMessage = intl.formatMessage({ id: 'subscription.modal.complete.action' })
+    const ModalCompleteDescription = intl.formatMessage({ id: 'subscription.modal.complete.description' })
 
     const [isVisible, setIsVisible] = useState<boolean>(false)
 
     const SubscriptionPaymentModal: React.FC = () => (
         <Modal
-            title={<Typography.Title level={3}>{intl.formatMessage({ id: 'subscription.modal.complete.title' })}</Typography.Title>}
-            visible={isVisible}
+            title={ModalTitle}
+            open={isVisible}
             onCancel={() => setIsVisible(false)}
             footer={[
                 <Button
-                    size='large'
                     key='submit'
-                    type='sberPrimary'
+                    type='primary'
                     onClick={() => {
                         setIsVisible(false)
                     }}
                 >
-                    {intl.formatMessage({ id: 'subscription.modal.complete.action' })}
+                    {ModalCompleteActionMessage}
                 </Button>,
             ]}
         >
             <Row gutter={[0, 40]}>
                 <Col span={24}>
                     <Typography.Text>
-                        {intl.formatMessage({ id: 'subscription.modal.complete.description' })}
+                        {ModalCompleteDescription}
                     </Typography.Text>
                 </Col>
             </Row>

@@ -1,11 +1,13 @@
-import React, { ComponentProps, useMemo } from 'react'
+import { Property as PropertyType } from '@app/condo/schema'
 import { css } from '@emotion/react'
-import { MapGL } from '@condo/domains/common/components/MapGL'
 import has from 'lodash/has'
-import { Property as PropertyType, Division as DivisionType } from '@app/condo/schema'
+import React, { ComponentProps, useMemo } from 'react'
+
+import { MapGL } from '@condo/domains/common/components/MapGL'
+
 
 type PropertiesMapProps = {
-    properties: (PropertyType | DivisionType)[]
+    properties: (PropertyType)[]
 } & Omit<ComponentProps<typeof MapGL>, 'points'>
 
 export default function PropertiesMap ({ properties, ...mapGLProps }: PropertiesMapProps) {
@@ -27,13 +29,7 @@ export default function PropertiesMap ({ properties, ...mapGLProps }: Properties
             .filter((property) => has(property, ['addressMeta', 'data'])) as unknown as PropertyType[])
             .map(propertyMapper)
 
-        const divisions = properties
-            .filter(division => has(division, ['properties']))
-            .flatMap((division: DivisionType) => division.properties)
-            .filter(property => has(property, ['addressMeta', 'data']))
-            .map(propertyMapper)
-
-        return buildings.concat(divisions)
+        return buildings
 
     }, [properties])
 

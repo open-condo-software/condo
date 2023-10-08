@@ -3,47 +3,51 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
+const get = require('lodash/get')
+const capitalize = require('lodash/capitalize')
 const path = require('path')
-const conf = require('@condo/config')
-const { UploadingFile } = require('@condo/keystone/test.utils')
-const { throwIfError, generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
-
-const { ALL_MINI_APPS_QUERY } = require('@condo/domains/miniapp/gql')
-const { B2BApp: B2BAppGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppContext: B2BAppContextGQL } = require('@condo/domains/miniapp/gql')
-const { B2BAppAccessRight: B2BAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
-const { B2CApp: B2CAppGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppAccessRight: B2CAppAccessRightGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppBuild: B2CAppBuildGQL } = require('@condo/domains/miniapp/gql')
-const { B2CAppProperty: B2CAppPropertyGQL } = require('@condo/domains/miniapp/gql')
+const conf = require('@open-condo/config')
+const { UploadingFile } = require('@open-condo/keystone/test.utils')
+const { throwIfError, generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS } = require('@condo/domains/miniapp/constants')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
+const {
+    B2C_APP_MESSAGE_PUSH_TYPE,
+} = require('@condo/domains/notification/constants/constants')
+const {
+    ALL_MINI_APPS_QUERY,
+    SEND_B2C_APP_PUSH_MESSAGE_MUTATION,
+    B2BApp: B2BAppGQL,
+    B2BAppContext: B2BAppContextGQL,
+    B2BAppAccessRight: B2BAppAccessRightGQL,
+    B2BAppPromoBlock: B2BAppPromoBlockGQL,
+    B2CApp: B2CAppGQL,
+    B2CAppProperty: B2CAppPropertyGQL,
+    B2CAppAccessRight: B2CAppAccessRightGQL,
+    B2CAppBuild: B2CAppBuildGQL,
+} = require('@condo/domains/miniapp/gql')
+const { MessageAppBlackList: MessageAppBlackListGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
-const DOCUMENT_BLOCK_SINGLE_EXAMPLE = [
-    {
-        type: 'component-block',
-        component: 'aboutAppBlock',
-        props: {
-            sections: [
-                { title: 'Text', description: 'Longer text', imageSrc: faker.image.imageUrl() }
-            ]
-        }
-    }
-]
+function randomChoice(options) {
+    const index = Math.floor(Math.random() * options.length);
+    return options[index];
+}
 
-const DOCUMENT_BLOCK_MULTIPLE_EXAMPLE = [
-    {
-        type: 'component-block',
-        component: 'aboutAppBlock',
-        props: {
-            sections: [
-                { title: 'First card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
-                { title: 'Second card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
-                { title: 'Third card', description: 'Longer text', imageSrc: faker.image.imageUrl() },
-            ]
-        }
-    }
-]
+function randomHex() {
+    return `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`
+}
+
+function generatePermissionKey() {
+    const action = capitalize(faker.word.verb()).replace(/-/g, '')
+    const subject = capitalize(faker.word.noun()).replace(/-/g, '')
+
+    return `can${action}${subject}`
+}
 
 const B2BApp = generateGQLTestUtils(B2BAppGQL)
 const B2BAppContext = generateGQLTestUtils(B2BAppContextGQL)
@@ -52,18 +56,23 @@ const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppAccessRight = generateGQLTestUtils(B2CAppAccessRightGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 const B2CAppProperty = generateGQLTestUtils(B2CAppPropertyGQL)
+const B2BAppPromoBlock = generateGQLTestUtils(B2BAppPromoBlockGQL)
+const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
+const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
+const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
+const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
-async function allMiniAppsByTestClient(client, organizationId, extraAttrs) {
+async function allMiniAppsByTestClient(client, organization, extraAttrs) {
     if (!client) throw new Error('no client')
-    if (!organizationId) throw new Error('no organization id')
+    if (!organization || !organization.id) throw new Error('no organization id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        organization: { id: organizationId },
+        organization: { id: organization.id },
         ...extraAttrs,
     }
     const { data, errors } = await client.query(ALL_MINI_APPS_QUERY, { data: attrs })
@@ -78,11 +87,10 @@ async function createTestB2BApp (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        name: faker.company.companyName().replace(/ /, '-').toUpperCase() + ' B2B APP',
+        name: faker.company.name().replace(/ /, '-').toUpperCase() + ' B2B APP',
         shortDescription: faker.commerce.productDescription(),
-        developer: faker.company.companyName(),
-        instruction: faker.datatype.string(),
-        connectedMessage: faker.company.catchPhrase(),
+        developer: faker.company.name(),
+        detailedDescription: faker.lorem.paragraphs(5),
         isHidden: true,
         ...extraAttrs,
     }
@@ -136,10 +144,11 @@ async function updateTestB2BAppContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2BAppAccessRight (client, user, app, extraAttrs = {}) {
+async function createTestB2BAppAccessRight (client, user, app, accessRightSet = null, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!user || !user.id) throw new Error('no user.id')
     if (!app || !app.id) throw new Error('no user.id')
+    if (accessRightSet && !accessRightSet.id) throw new Error('no accessRightSet.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
@@ -147,6 +156,7 @@ async function createTestB2BAppAccessRight (client, user, app, extraAttrs = {}) 
         sender,
         user: { connect: { id: user.id } },
         app: { connect: { id: app.id } },
+        ...(accessRightSet ? { accessRightSet: { connect: { id: accessRightSet.id } } } : null),
         ...extraAttrs,
     }
     const obj = await B2BAppAccessRight.create(client, attrs)
@@ -270,12 +280,14 @@ async function createTestB2CAppProperty (client, app, extraAttrs = {}, validAddr
     if (!client) throw new Error('no client')
     if (!app || !app.id) throw new Error('no app.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const [address, addressMeta] = getFakeAddress(validAddress, validHouse)
 
     const attrs = {
         dv: 1,
         sender,
         app: { connect: { id: app.id } },
-        address: getFakeAddress(validAddress, validHouse),
+        address,
+        addressMeta,
         ...extraAttrs,
     }
     const obj = await B2CAppProperty.create(client, attrs)
@@ -296,28 +308,231 @@ async function updateTestB2CAppProperty (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppPromoBlock (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const title = faker.company.catchPhrase()
+    const subtitle = faker.commerce.productName()
+    const textVariant = randomChoice(Object.keys(PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS))
+    const backgroundColor = randomChoice(['hex', 'grad']) === 'hex'
+        ? randomHex()
+        : `linear-gradient(90deg,  ${randomHex()} 0%, ${randomHex()} 100%)`
+    const backgroundImage = new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png'))
+    const targetUrl  = faker.internet.url()
+
+    const attrs = {
+        dv: 1,
+        sender,
+        title,
+        subtitle,
+        textVariant,
+        backgroundColor,
+        backgroundImage,
+        targetUrl,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPromoBlock.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppPromoBlock (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPromoBlock.update(client, id, attrs)
+
+    return [obj, attrs]
+}
+
+
+async function sendB2CAppPushMessageByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+        data: {
+            body: `testBody ${faker.random.alphaNumeric(8)}`,
+            ...get(extraAttrs, 'data', {}),
+        },
+    }
+    const { data, errors } = await client.mutate(SEND_B2C_APP_PUSH_MESSAGE_MUTATION, { data: attrs })
+
+    throwIfError(data, errors, { query: SEND_B2C_APP_PUSH_MESSAGE_MUTATION, variables: { data: attrs }})
+
+    return [data.result, attrs]
+}
+async function createTestMessageAppBlackList (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const description = faker.random.alphaNumeric(8)
+    const type = B2C_APP_MESSAGE_PUSH_TYPE
+    const attrs = {
+        dv: 1,
+        description,
+        sender,
+        type,
+        ...extraAttrs,
+    }
+    const obj = await MessageAppBlackList.create(client, attrs)
+
+    return [obj, attrs]
+}
+
+async function updateTestMessageAppBlackList (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MessageAppBlackList.update(client, id, attrs)
+    return [obj, attrs]
+}
+async function createTestB2BAppPermission (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const key = generatePermissionKey()
+    const name = `${faker.word.noun()} management`
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        key,
+        name,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPermission.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppPermission (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppPermission.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2BAppRole (client, app, role, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    if (!role || !role.id) throw new Error('no role.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        role: { connect: { id: role.id } },
+        permissions: {},
+        ...extraAttrs,
+    }
+    const obj = await B2BAppRole.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppRole (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppRole.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestB2BAppAccessRightSet (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRightSet.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppAccessRightSet (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppAccessRightSet.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
-    const cityPart = `город ${faker.name.firstName()}`
-    const streetPart = `улица ${faker.name.firstName()}`
-    const houseType = validHouse ? 'дом' : 'бунгало'
-    const houseNumber = validAddress ? `${faker.datatype.number({min: 1, max: 100})}` : ''
-    const housePart = `${houseType} ${houseNumber}`
+    const { address, addressMeta } = buildFakeAddressAndMeta(false)
 
-    return [cityPart, streetPart, housePart].join(', ')
+    if (validAddress && validHouse) {
+        return [address, addressMeta]
+    }
+
+    let invalidAddress
+
+    if (!validAddress) {
+        invalidAddress = address.replace(/д\s\d+\s/gm, '')
+    }
+
+    if (!validHouse) {
+        invalidAddress = address.replace('д', 'б')
+        addressMeta.data.house_type_full = 'бунгало'
+    }
+
+    return [invalidAddress, addressMeta]
 }
 
 module.exports = {
     allMiniAppsByTestClient,
-    DOCUMENT_BLOCK_SINGLE_EXAMPLE,
-    DOCUMENT_BLOCK_MULTIPLE_EXAMPLE,
     B2BApp, createTestB2BApp, updateTestB2BApp,
     B2BAppContext, createTestB2BAppContext, updateTestB2BAppContext,
     B2BAppAccessRight, createTestB2BAppAccessRight, updateTestB2BAppAccessRight,
+    B2BAppPermission, createTestB2BAppPermission, updateTestB2BAppPermission, generatePermissionKey,
+    B2BAppPromoBlock, createTestB2BAppPromoBlock, updateTestB2BAppPromoBlock,
     B2CApp, createTestB2CApp, updateTestB2CApp,
     B2CAppAccessRight, createTestB2CAppAccessRight, updateTestB2CAppAccessRight,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild,
     B2CAppProperty, createTestB2CAppProperty, updateTestB2CAppProperty,
+    sendB2CAppPushMessageByTestClient,
+    MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
+    B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
+    B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }

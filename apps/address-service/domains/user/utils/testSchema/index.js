@@ -3,14 +3,14 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
 const {
     generateGQLTestUtils,
-} = require('@condo/codegen/generate.test.utils')
+} = require('@open-condo/codegen/generate.test.utils')
 
 const { User: UserGQL } = require('@address-service/domains/user/gql')
-const { getRandomString, makeLoggedInAdminClient, makeLoggedInClient } = require('@condo/keystone/test.utils')
+const { getRandomString, makeLoggedInAdminClient, makeLoggedInClient } = require('@open-condo/keystone/test.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const User = generateGQLTestUtils(UserGQL)

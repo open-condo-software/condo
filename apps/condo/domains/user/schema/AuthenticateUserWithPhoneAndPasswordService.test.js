@@ -1,7 +1,9 @@
-const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { gql } = require('graphql-tag')
+
+const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
 const { SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser } = require('@condo/domains/user/utils/testSchema')
-const { gql } = require('graphql-tag')
 
 describe('Auth by phone and password', () => {
     // We need to check that token is also returned for mobile phones. It's the same as SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION

@@ -1,8 +1,10 @@
-import { InputProps, Typography } from 'antd'
-import React, { useCallback, useState } from 'react'
+import { InputProps } from 'antd'
 import { TextAreaProps } from 'antd/es/input'
 import get from 'lodash/get'
 import isFunction from 'lodash/isFunction'
+import React, { useCallback, useState } from 'react'
+
+import { Typography } from '@open-condo/ui'
 
 type AntdInputProps = InputProps | TextAreaProps
 

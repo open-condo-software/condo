@@ -1,13 +1,17 @@
 /** @jsx jsx */
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { DeleteFilled } from '@ant-design/icons'
 import { jsx } from '@emotion/react'
 import { Row, Col, Space, Typography } from 'antd'
-import Select from '@condo/domains/common/components/antd/Select'
-import Input from '@condo/domains/common/components/antd/Input'
+import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Input from '@condo/domains/common/components/antd/Input'
+import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
-import { DeleteFilled } from '@ant-design/icons'
+import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
+
 import {
     IPropertyMapModalForm,
     FormModalCss,
@@ -18,11 +22,10 @@ import {
     MODAL_FORM_CHECKBOX_STYLE,
     ERROR_TEXT_STYLE,
 } from './BaseUnitForm'
-import { MapEditMode } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 
 const { Option } = Select
 
-const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) => {
+const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh, setDuplicatedUnitIds }) => {
     const intl = useIntl()
     const mode = builder.editMode
     const SaveLabel = intl.formatMessage({ id: mode === MapEditMode.EditParkingUnit ? 'Save' : 'Add' })
@@ -32,7 +35,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
     const FloorLabel = intl.formatMessage({ id: 'pages.condo.property.floor.Name' })
     const SectionTitlePrefix = intl.formatMessage({ id: 'pages.condo.property.select.option.parking' })
     const RenameNextParkingUnitsLabel = intl.formatMessage({ id: 'pages.condo.property.modal.RenameNextParkingUnits' })
-    const UnitErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const ParkingPlaceErrorLabel = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameParkingPlaceNamesErrorMsg' })
 
     const [label, setLabel] = useState('')
     const [floor, setFloor] = useState('')
@@ -97,38 +100,34 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
 
     const isUnitUnique = useMemo(() => {
         let isUnitLabelUnique = true
+        const selectedUnit = builder.getSelectedParkingUnit()
         if (mode === MapEditMode.AddParkingUnit) {
-            isUnitLabelUnique = builder.validateUniqueUnitLabel()
+            isUnitLabelUnique = builder.validateInputParkingUnitLabel(selectedUnit, label)
+            setDuplicatedUnitIds(builder.duplicatedUnits)
         } else if (mode === MapEditMode.EditParkingUnit) {
-            const selectedUnit = builder.getSelectedParkingUnit()
             if (!selectedUnit) {
                 return false
             }
-
-            const unitPlacementChanged = selectedUnit.floor !== floor || selectedUnit.section !== section
-            const labelChanged = selectedUnit.label !== label
-            const labelValidation = labelChanged
-                ? builder.validateUniqueUnitLabel(label, 'parking')
-                : false
-
-            isUnitLabelUnique = unitPlacementChanged
-                ? (!labelChanged || labelValidation)
-                : labelValidation
+            isUnitLabelUnique = builder.validateInputParkingUnitLabel(selectedUnit, label)
+            setDuplicatedUnitIds(builder.duplicatedUnits)
         }
-
-        return floor && section && label.trim() && isUnitLabelUnique
+        const isUniqueCondition = floor && section && label.trim() && isUnitLabelUnique
+        !isUnitLabelUnique && setIsValidationErrorVisible(true)
+        return isUniqueCondition
     }, [floor, section, label, builder, mode])
 
     const applyChanges = useCallback(() => {
-        const mapUnit = builder.getSelectedParkingUnit()
-        if (mapUnit) {
-            builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
-        } else {
-            builder.removePreviewParkingUnit()
-            builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
-            resetForm()
+        if (isUnitUnique) {
+            const mapUnit = builder.getSelectedParkingUnit()
+            if (mapUnit) {
+                builder.updateParkingUnit({ ...mapUnit, label, floor, section }, renameNextUnits.current)
+            } else {
+                builder.removePreviewParkingUnit()
+                builder.addParkingUnit({ id: '', label, floor, section }, renameNextUnits.current)
+                resetForm()
+            }
+            refresh()
         }
-        refresh()
     }, [builder, refresh, resetForm, label, floor, section])
 
     const deleteUnit = useCallback(() => {
@@ -180,7 +179,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                             status={isValidationErrorVisible ? 'error' : ''}
                         />
                         {isValidationErrorVisible && (
-                            <Typography.Text style={ERROR_TEXT_STYLE}>{UnitErrorLabel}</Typography.Text>
+                            <Typography.Text style={ERROR_TEXT_STYLE}>{ParkingPlaceErrorLabel}</Typography.Text>
                         )}
                         <Checkbox defaultChecked onChange={toggleRenameNextUnits} style={MODAL_FORM_CHECKBOX_STYLE}>
                             {RenameNextParkingUnitsLabel}
@@ -189,10 +188,9 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
                             <Button
-                                secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
-                                disabled={!(floor && section && label.trim())}
+                                disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
                             > {SaveLabel} </Button>
                         </Col>
                         {
@@ -203,6 +201,7 @@ const ParkingUnitForm: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                                         onClick={deleteUnit}
                                         type='sberDangerGhost'
                                         icon={<DeleteFilled />}
+                                        disabled={!(floor && section && label.trim() && !isValidationErrorVisible)}
                                     >{DeleteLabel}</Button>
                                 </Col>
                             )

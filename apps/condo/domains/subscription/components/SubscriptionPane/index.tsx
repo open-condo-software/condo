@@ -1,13 +1,18 @@
 import { Alert, Col, Row, Table, Typography } from 'antd'
 import dayjs from 'dayjs'
-import React from 'react'
 import get from 'lodash/get'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useIntl } from '@condo/next/intl'
+
+
+import { getSubscriptionOptions } from './subscriptionOptions'
+
 import { ServiceSubscription } from '../../../../schema'
 import { useSubscriptionPaymentModal } from '../../hooks/useSubscriptionPaymentModal'
 import { useServiceSubscriptionContext } from '../SubscriptionContext'
-import { getSubscriptionOptions } from './subscriptionOptions'
 
 const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isExpired) => {
     const ActiveMessage = intl.formatMessage({ id: 'subscription.status.active' })
@@ -46,7 +51,7 @@ const getActiveSubscriptionData = (intl, subscription: ServiceSubscription, isEx
 }
 
 export const SubscriptionPane: React.FC = () => {
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const intl = useIntl()
     const TariffsMessage = intl.formatMessage({ id: 'subscription.data.tariffs' })
     const SubscriptionMessage = intl.formatMessage({ id: 'subscription.data.subscription' })
@@ -73,7 +78,7 @@ export const SubscriptionPane: React.FC = () => {
                                 {
                                     subscriptions.map((subscription, index) => {
                                         return (
-                                            <Col sm={24} lg={8} offset={isSmall || (index % 2 === 0) ? 0 : 1 } key={index}>
+                                            <Col sm={24} lg={8} offset={!breakpoints.TABLET_LARGE || (index % 2 === 0) ? 0 : 1 } key={index}>
                                                 {subscription}
                                             </Col>
                                         )

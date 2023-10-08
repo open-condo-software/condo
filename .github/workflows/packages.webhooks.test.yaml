@@ -27,7 +27,9 @@ jobs:
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
       - name: Install packages
-        run: yarn install --immutable
+        run: | 
+          npm i -g turbo
+          yarn install --immutable
 
       - name: Test webhooks utils
-        run: yarn workspace @condo/webhooks jest
+        run: yarn workspace @open-condo/webhooks jest

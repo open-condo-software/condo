@@ -1,3 +1,8 @@
+const path = require('path')
+
+const { faker } = require('@faker-js/faker')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+
 const {
     BillingIntegration,
     BillingCurrency,
@@ -5,9 +10,7 @@ const {
 } = require('@condo/domains/billing/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
-const faker = require('faker')
-const path = require('path')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
+
 
 class IntegrationControl {
 
@@ -44,7 +47,7 @@ class IntegrationControl {
             integrationDetails.currency = { connect: { id: currency.id } }
         }
         const userCredentials = {
-            phone: faker.phone.phoneNumber('+79#########'),
+            phone: faker.phone.number('+79#########'),
             password: faker.internet.password(),
         }
         const user = await User.create(this.context, {

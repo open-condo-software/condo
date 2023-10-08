@@ -1,30 +1,29 @@
-import React, { useCallback, useMemo, useState } from 'react'
-import { Typography } from 'antd'
+import { Meter as MeterType } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
-import { useIntl } from '@condo/next/intl'
+import React, { useCallback, useMemo, useState } from 'react'
 
-import { Meter as MeterType } from '@app/condo/schema'
+import { useIntl } from '@open-condo/next/intl'
+
 import {
     DeleteButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { CustomButtonProps } from '@condo/domains/common/components/Button'
-
-import { BaseMeterModalForm } from '../components/BaseMeterModal/BaseMeterModalForm'
-import { Meter } from '../utils/clientSchema'
 import { AutoSourceAlert } from '@condo/domains/meter/components/BaseMeterModal/AutoSourceAlert'
+import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
+import { Meter, PropertyMeter, METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
-const INITIAL_VALUES_KEYS = [
+
+const INITIAL_METER_VALUES_KEYS = [
     'accountNumber', 'number', 'resource', 'place', 'numberOfTariffs', 'installationDate',
     'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
 ]
+const INITIAL_PROPERTY_METER_VALUES_KEYS = [
+    'number', 'resource', 'numberOfTariffs', 'installationDate',
+    'commissioningDate', 'sealingDate', 'verificationDate', 'nextVerificationDate', 'controlReadingsDate',
+]
 
-const DELETE_BUTTON_CUSTOM_PROPS: CustomButtonProps = {
-    type: 'sberDangerGhost',
-}
-
-export const useUpdateMeterModal = (refetch) => {
+export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_PAGE_TYPES.meter) => {
     const intl = useIntl()
     const MeterNumberMessage = intl.formatMessage({ id: 'pages.condo.meter.NumberOfMeter' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'pages.condo.meter.form.ConfirmDeleteTitle' })
@@ -32,19 +31,22 @@ export const useUpdateMeterModal = (refetch) => {
     const DeleteMessage = intl.formatMessage({ id: 'pages.condo.meter.DeleteMeterAndReadings' })
     const DeletedMessage = intl.formatMessage({ id: 'Deleted' }).toUpperCase()
 
-    const [selectedMeter, setSelectedMeter] = useState<MeterType>()
+    const [selectedMeter, setSelectedMeter] = useState()
     const meterNumber = get(selectedMeter, 'number')
     const isAutomatic = get(selectedMeter, 'isAutomatic', false)
     const masterAppName = get(selectedMeter, ['b2bApp', 'name'], DeletedMessage)
+    const organizationId = get(selectedMeter, ['organization', 'id'])
 
-    const updateMeterAction = Meter.useUpdate({}, () => {
+    const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
+    const MeterIdentity = !isPropertyMeter ? Meter : PropertyMeter
+    const updateMeterAction = MeterIdentity.useUpdate({}, () => {
         setSelectedMeter(null)
         refetch()
     })
 
     const initialValues = useMemo(() => {
         if (selectedMeter) {
-            return pick(selectedMeter, INITIAL_VALUES_KEYS)
+            return pick(selectedMeter, isPropertyMeter ? INITIAL_PROPERTY_METER_VALUES_KEYS : INITIAL_METER_VALUES_KEYS)
         }
     }, [selectedMeter])
 
@@ -70,12 +72,13 @@ export const useUpdateMeterModal = (refetch) => {
                     okButtonLabel={DeleteMessage}
                     action={handleDeleteButtonClick}
                     buttonContent={DeleteMessage}
-                    buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
                     showCancelButton
                 />,
             ]
 
     }, [ConfirmDeleteMessage, ConfirmDeleteTitle, DeleteMessage, handleDeleteButtonClick, isAutomatic])
+
+    const modalTitle = `${MeterNumberMessage} ${meterNumber}`
 
     const UpdateMeterModal = useCallback(() => {
         return (
@@ -83,7 +86,7 @@ export const useUpdateMeterModal = (refetch) => {
                 propertyId={get(selectedMeter, ['property', 'id'])}
                 unitName={get(selectedMeter, 'unitName')}
                 initialValues={initialValues}
-                ModalTitleMsg={<Typography.Title level={3}>{MeterNumberMessage} {meterNumber}</Typography.Title>}
+                ModalTitleMsg={modalTitle}
                 visible={selectedMeter}
                 modalExtraFooter={modalFooter}
                 handleSubmit={handleSubmit}
@@ -96,18 +99,20 @@ export const useUpdateMeterModal = (refetch) => {
                     ? <AutoSourceAlert sourceAppName={masterAppName} />
                     : null
                 }
+                organizationId={organizationId}
+                meterType={meterType}
             />
         )
     }, [
-        MeterNumberMessage,
+        modalTitle,
         handleCancelModal,
         handleSubmit,
         initialValues,
-        meterNumber,
         modalFooter,
         selectedMeter,
         isAutomatic,
         masterAppName,
+        organizationId,
     ])
 
     return useMemo(() => ({ UpdateMeterModal, setSelectedMeter }), [UpdateMeterModal])

@@ -1,6 +1,9 @@
 const path = require('path')
-const uniq = require('lodash/uniq')
+
 const { program } = require('commander')
+const uniq = require('lodash/uniq')
+const StyleDictionaryLib = require('style-dictionary')
+
 const { allTransformers, webVarsTransformersChain } = require('./transformers')
 
 const TOKENS_DIR = path.join(__dirname, '../..', 'src/tokens')
@@ -37,7 +40,7 @@ if (opts.web) {
     }
 }
 
-const StyleDictionary = require('style-dictionary').extend(config)
+const StyleDictionary = StyleDictionaryLib.extend(config)
 
 for (const transformer of allTransformers) {
     StyleDictionary.registerTransform(transformer)

@@ -1,7 +1,9 @@
 const { isEmpty, get } = require('lodash')
+
+const { getTranslations } = require('@open-condo/locales/loader')
+
 const { LOCALES } = require('@condo/domains/common/constants/locale')
 const { EXCEL_TEMPLATES_HEADERS, translationStringKeyForExcelExportHeader } = require('@condo/domains/common/utils/exportToExcel')
-const { getTranslations } = require('@condo/locales/loader')
 
 describe('Export to excel', () => {
     it('All Excel templates headers has all translations', () => {

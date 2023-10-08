@@ -1,18 +1,4 @@
 import { ExclamationCircleOutlined } from '@ant-design/icons'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import {
-    DeleteButtonWithConfirmModal,
-    IDeleteActionButtonWithConfirmModal,
-} from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
-import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
 import { Alert, Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -21,9 +7,19 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
-    type: 'sberDangerGhost',
-}
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
+
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import {
+    DeleteButtonWithConfirmModal,
+} from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
+import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -58,8 +54,6 @@ const TheContactRolePage = (): JSX.Element => {
     const handleDeleteButtonClick = useCallback(async () => {
         await handleDeleteAction(contactRole)
     }, [handleDeleteAction, contactRole])
-
-    const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
     const isCustomRole = !!get(contactRole, 'organization', null)
 
@@ -109,24 +103,25 @@ const TheContactRolePage = (): JSX.Element => {
                         {
                             canManageContactRoles && isCustomRole && (
                                 <Col span={24}>
-                                    <ActionBar>
-                                        <Link href={`/settings/contactRole/${contactRoleId}/update`}>
-                                            <Button
-                                                color='green'
-                                                type='sberDefaultGradient'
-                                            >
-                                                {UpdateMessage}
-                                            </Button>
-                                        </Link>
-                                        <DeleteButtonWithConfirmModal
-                                            title={ConfirmDeleteTitle}
-                                            message={ConfirmDeleteMessage}
-                                            okButtonLabel={DeleteMessage}
-                                            action={handleDeleteButtonClick}
-                                            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                            buttonContent={deleteButtonContent}
-                                        />
-                                    </ActionBar>
+                                    <ActionBar
+                                        actions={[
+                                            <Link key='upload' href={`/settings/contactRole/${contactRoleId}/update`}>
+                                                <Button
+                                                    type='primary'
+                                                >
+                                                    {UpdateMessage}
+                                                </Button>
+                                            </Link>,
+                                            <DeleteButtonWithConfirmModal
+                                                key='delete'
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={DeleteMessage}
+                                                action={handleDeleteButtonClick}
+                                                buttonContent={DeleteMessage}
+                                            />,
+                                        ]}
+                                    />
                                 </Col>
                             )
                         }

@@ -1,28 +1,39 @@
 import { GrowthBook, GrowthBookProvider, useGrowthBook } from '@growthbook/growthbook-react'
+import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import { createContext, useCallback, useContext, useEffect } from 'react'
-import isEqual from 'lodash/isEqual'
-import get from 'lodash/get'
-import { useAuth } from '@condo/next/auth'
+
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
 
 const growthbook = new GrowthBook()
 const FEATURES_RE_FETCH_INTERVAL = 10 * 1000
 
+type UseFlagValueType = <T>(name: string) => T | null
+
 interface IFeatureFlagsContext {
     useFlag: (name: string) => boolean,
+    useFlagValue: UseFlagValueType,
     updateContext: (context) => void
 }
 
-const FeatureFlagsContext = createContext<IFeatureFlagsContext>(null)
+const FeatureFlagsContext = createContext<IFeatureFlagsContext>({
+    useFlag: () => false,
+    useFlagValue: () => null,
+    updateContext: () => ({}),
+})
 
 const useFeatureFlags = (): IFeatureFlagsContext => useContext(FeatureFlagsContext)
 
 const FeatureFlagsProviderWrapper = ({ children }) => {
     const growthbook = useGrowthBook()
     const { user } = useAuth()
+    const { organization } = useOrganization()
 
     const isSupport = get(user, 'isSupport', false)
     const isAdmin = get(user, 'isAdmin', false)
+    const userId = get(user, 'id', null)
 
     const {
         publicRuntimeConfig: {
@@ -36,6 +47,7 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
         growthbook.setAttributes({ ...previousContext, ...context })
     }, [growthbook])
     const useFlag = useCallback((id) => growthbook.feature(id).on, [growthbook])
+    const useFlagValue: UseFlagValueType = useCallback((id) => growthbook.feature(id).value, [growthbook])
 
     useEffect(() => {
         const fetchFeatures = () => {
@@ -61,12 +73,13 @@ const FeatureFlagsProviderWrapper = ({ children }) => {
     }, [growthbook, serverUrl])
 
     useEffect(() => {
-        updateContext({ isSupport: isSupport || isAdmin })
-    }, [updateContext, isAdmin, isSupport])
+        updateContext({ isSupport: isSupport || isAdmin, organization: get(organization, 'id'), userId })
+    }, [updateContext, isAdmin, isSupport, organization, userId])
 
     return (
         <FeatureFlagsContext.Provider value={{
             useFlag,
+            useFlagValue,
             updateContext,
         }}>
             {children}

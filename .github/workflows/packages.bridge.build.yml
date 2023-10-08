@@ -1,0 +1,26 @@
+name: Bridge
+
+on:
+  pull_request:
+    paths:
+      - 'packages/bridge/src/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Install packages
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+
+      - name: Build lib
+        run: yarn workspace @open-condo/bridge build

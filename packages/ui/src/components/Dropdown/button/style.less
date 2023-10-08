@@ -1,0 +1,61 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-dropdown-trigger.condo-btn-extended {
+  padding: 0;
+  cursor: default;
+
+  .condo-btn-ellipsis {
+    z-index: 1;
+    display: inline-flex;
+    padding: @condo-global-spacing-12 @condo-global-spacing-20 @condo-global-spacing-12 0;
+  }
+
+  .condo-btn-label {
+    max-width: calc(100% - @condo-global-spacing-20 - @condo-global-spacing-20);
+    margin-right: auto;
+    margin-left: auto;
+    padding: @condo-global-spacing-12 0 @condo-global-spacing-12 @condo-global-spacing-20;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .condo-btn-text {
+    display: inline-flex;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+  }
+
+  .condo-btn-vertical-divider {
+    width: 1px;
+    height: 100%;
+    margin-right: @condo-global-spacing-16;
+    margin-left: @condo-global-spacing-20;
+    background-color: @condo-global-color-white;
+    opacity: 0.1;
+  }
+
+  &.condo-btn-secondary > .condo-btn-text {
+    .condo-btn-vertical-divider {
+      background-color: @condo-global-color-black;
+    }
+  }
+
+  &.condo-btn-secondary.condo-btn-dangerous > .condo-btn-text {
+    .condo-btn-vertical-divider {
+      background-color: @condo-global-color-red-5;
+    }
+  }
+
+  &.condo-btn-secondary:not(.condo-btn-dangerous):hover > .condo-btn-text {
+    .condo-btn-vertical-divider {
+      background: @condo-global-color-brand-gradient-5 border-box;
+    }
+  }
+
+  &:hover.condo-btn-secondary.condo-btn-dangerous > .condo-btn-text {
+    .condo-btn-vertical-divider {
+      background-color: @condo-global-color-red-7;
+    }
+  }
+}

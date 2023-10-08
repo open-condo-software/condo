@@ -1,18 +1,23 @@
 import crypto from 'crypto'
-import React, { useEffect } from 'react'
-import Router from 'next/router'
-import Head from 'next/head'
-import getConfig from 'next/config'
-import { useIntl } from '@condo/next/intl'
+
 import dayjs from 'dayjs'
+import get from 'lodash/get'
+import getConfig from 'next/config'
+import Head from 'next/head'
+import Router from 'next/router'
+import React, { useEffect } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+
+import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import {
     ALGORITHM,
     SALT,
     CRYPTOENCODING,
 } from '@condo/domains/ticket/constants/crypto'
-import BaseLayout, { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import get from 'lodash/get'
+
 
 function RedirectToTicket ({ ticketId }) {
     const intl = useIntl()

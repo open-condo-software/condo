@@ -1,26 +1,34 @@
-import { EditFilled } from '@ant-design/icons'
-import { Button } from '@condo/domains/common/components/Button'
-import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
-import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
-import { Alert, Col, Row, Space, Switch, Tag, Typography } from 'antd'
-import Router from 'next/router'
+import { Col, Row, Space, Switch } from 'antd'
+import { map } from 'lodash'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
+import Router from 'next/router'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback } from 'react'
+
+import { Edit } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Alert, Button, Tag, Typography } from '@open-condo/ui'
+
+import {
+    PageContent,
+    PageWrapper,
+    useLayoutContext,
+} from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { map } from 'lodash'
-import { useAuth } from '@condo/next/auth'
+import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
+import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
+import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
+import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+
 
 const ReInviteActionAlert = ({ employee }) => {
     const intl = useIntl()
@@ -45,12 +53,25 @@ const ReInviteActionAlert = ({ employee }) => {
     )
 }
 
+const EMPLOYEE_FIELD_PAIR_PROPS: Partial<FieldPairRowProps> = {
+    titleColProps: { lg: 4, xs: 10 },
+    valueColProps: { lg: 18, xs: 13, offset: 1 },
+}
+
+const FieldPairRow: React.FC<FieldPairRowProps> = (props) => (
+    <BaseFieldPairRow
+        {...EMPLOYEE_FIELD_PAIR_PROPS}
+        {...props}
+    />
+)
+
 export const EmployeePageContent = ({
     employee,
     isEmployeeEditable,
     isEmployeeReinvitable,
     updateEmployeeAction,
     softDeleteAction,
+    phonePrefix = '',
 }) => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
@@ -64,9 +85,11 @@ export const EmployeePageContent = ({
     const ConfirmDeleteButtonLabel = intl.formatMessage({ id: 'Delete' })
     const ConfirmDeleteTitle = intl.formatMessage({ id: 'employee.ConfirmDeleteTitle' })
     const ConfirmDeleteMessage = intl.formatMessage({ id: 'employee.ConfirmDeleteMessage' })
+    const AllSpecializationsMessage = intl.formatMessage({ id: 'employee.AllSpecializations' })
+    const DeleteMessage = intl.formatMessage({ id: 'Delete' })
 
     const { user } = useAuth()
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
 
     const userId = get(user, 'id')
     const employeeUserId = get(employee, 'user.id')
@@ -74,15 +97,23 @@ export const EmployeePageContent = ({
     const isEmployeeBlocked = get(employee, 'isBlocked')
 
     const name = get(employee, 'name')
+    const phone = get(employee, 'phone')
     const email = get(employee, 'email')
+    const hasAllSpecializations = get(employee, 'hasAllSpecializations')
 
-    const handleEmployeeBlock = (blocked) => {
+    const renderSpecializations = useCallback((specializations) => (
+        <Typography.Text>
+            {map(specializations, 'name').join(', ')}
+        </Typography.Text>
+    ), [])
+
+    const handleEmployeeBlock = useCallback((blocked) => {
         if (!isEmployeeEditable) {
             return
         }
 
         updateEmployeeAction({ isBlocked: blocked }, employee)
-    }
+    }, [employee, isEmployeeEditable, updateEmployeeAction])
 
     return (
         <>
@@ -95,14 +126,13 @@ export const EmployeePageContent = ({
                         <Col xs={10} lg={3}>
                             <UserAvatar borderRadius={24} isBlocked={isEmployeeBlocked}/>
                         </Col>
-                        <Col xs={24} lg={20} offset={isSmall ? 0 : 1}>
+                        <Col xs={24} lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
                             <Row gutter={[0, 60]}>
                                 <Col span={24}>
                                     <Row gutter={[0, 40]}>
                                         <Col span={24}>
                                             <Typography.Title
                                                 level={1}
-                                                style={{ margin: 0, fontWeight: 'bold' }}
                                             >
                                                 {name}
                                             </Typography.Title>
@@ -112,7 +142,6 @@ export const EmployeePageContent = ({
                                                 render={(value) => (
                                                     <Typography.Title
                                                         level={2}
-                                                        style={{ margin: '8px 0 0', fontWeight: 400 }}
                                                     >
                                                         {value}
                                                     </Typography.Title>
@@ -131,12 +160,12 @@ export const EmployeePageContent = ({
                                                             defaultChecked={isEmployeeBlocked}
                                                             disabled={isMyEmployee}
                                                         />
-                                                        <Typography.Text type='danger' style={{ fontSize: fontSizes.content }}>
+                                                        <Typography.Text type='danger'>
                                                             {BlockUserMessage}
                                                         </Typography.Text>
                                                         {
                                                             (isMyEmployee) ?
-                                                                <Typography.Text style={{ fontSize: fontSizes.content }}>
+                                                                <Typography.Text>
                                                                     {CanNotBlockYourselfMessage}
                                                                 </Typography.Text>
                                                                 :
@@ -149,15 +178,11 @@ export const EmployeePageContent = ({
                                         <Col span={24}>
                                             <FrontLayerContainer showLayer={isEmployeeBlocked}>
                                                 <Row gutter={[0, 24]}>
-                                                    <Col lg={4} xs={10}>
-                                                        <Typography.Text type='secondary'>
-                                                            {PhoneMessage}
-                                                        </Typography.Text>
-                                                    </Col>
-                                                    <Col lg={18} xs={13} offset={1}>
-                                                        <NotDefinedField value={get(employee, 'phone')}/>
-                                                    </Col>
-
+                                                    <FieldPairRow
+                                                        fieldTitle={PhoneMessage}
+                                                        fieldValue={phone}
+                                                        href={`tel:${phonePrefix ? `${phonePrefix}${phone}` : phone}`}
+                                                    />
                                                     <Col lg={4} xs={10}>
                                                         <Typography.Text type='secondary'>
                                                             {RoleMessage}
@@ -167,7 +192,7 @@ export const EmployeePageContent = ({
                                                         <NotDefinedField
                                                             value={get(employee, ['role', 'name'])}
                                                             render={
-                                                                (roleName) => (
+                                                                (roleName: string) => (
                                                                     <Tag color='default'>{roleName}</Tag>
                                                                 )
                                                             }
@@ -183,7 +208,7 @@ export const EmployeePageContent = ({
                                                         <NotDefinedField
                                                             value={get(employee, 'position')}
                                                             render={
-                                                                (value) => (
+                                                                (value: string) => (
                                                                     <Tag color='default'>{value}</Tag>
                                                                 )
                                                             }
@@ -196,54 +221,49 @@ export const EmployeePageContent = ({
                                                         </Typography.Text>
                                                     </Col>
                                                     <Col lg={18} xs={13} offset={1}>
-                                                        <NotDefinedField
-                                                            value={get(employee, 'specializations')}
-                                                            render={
-                                                                (specializations) => (
-                                                                    <Typography.Text>
-                                                                        {map(specializations, 'name').join(', ')}
-                                                                    </Typography.Text>
-                                                                )
-                                                            }
-                                                        />
+                                                        {
+                                                            hasAllSpecializations ? AllSpecializationsMessage : (
+                                                                <NotDefinedField
+                                                                    value={get(employee, 'specializations')}
+                                                                    render={renderSpecializations}
+                                                                />
+                                                            )
+                                                        }
                                                     </Col>
+
                                                     {
-                                                        email && <>
-                                                            <Col lg={4} xs={10}>
-                                                                <Typography.Text type='secondary'>
-                                                                    {EmailMessage}
-                                                                </Typography.Text>
-                                                            </Col>
-                                                            <Col lg={18} xs={13} offset={1}>
-                                                                <NotDefinedField value={email}/>
-                                                            </Col>
-                                                        </>
+                                                        email && <FieldPairRow
+                                                            fieldTitle={EmailMessage}
+                                                            fieldValue={email}
+                                                            href={`mailto:${email}`}
+                                                        />
                                                     }
                                                 </Row>
                                             </FrontLayerContainer>
                                         </Col>
                                         {isEmployeeEditable && (
                                             <Col span={24}>
-                                                <Space direction='horizontal' size={40}>
-                                                    <Link href={`/employee/${get(employee, 'id')}/update`}>
-                                                        <Button
-                                                            color='green'
-                                                            type='sberPrimary'
-                                                            secondary
-                                                            icon={<EditFilled />}
-                                                        >
-                                                            {UpdateMessage}
-                                                        </Button>
-                                                    </Link>
-                                                    {(!isMyEmployee) ?
-                                                        <DeleteButtonWithConfirmModal
-                                                            title={ConfirmDeleteTitle}
-                                                            message={ConfirmDeleteMessage}
-                                                            okButtonLabel={ConfirmDeleteButtonLabel}
-                                                            action={() => softDeleteAction(employee)}
-                                                        />
-                                                        : null}
-                                                </Space>
+                                                <ActionBar
+                                                    actions={[
+                                                        <Link key='update' href={`/employee/${get(employee, 'id')}/update`}>
+                                                            <Button
+                                                                type='primary'
+                                                                icon={<Edit size='medium'/>}
+                                                            >
+                                                                {UpdateMessage}
+                                                            </Button>
+                                                        </Link>,
+                                                        !isMyEmployee &&
+                                                            <DeleteButtonWithConfirmModal
+                                                                key='delete'
+                                                                title={ConfirmDeleteTitle}
+                                                                message={ConfirmDeleteMessage}
+                                                                okButtonLabel={ConfirmDeleteButtonLabel}
+                                                                action={() => softDeleteAction(employee)}
+                                                                buttonContent={DeleteMessage}
+                                                            />,
+                                                    ]}
+                                                />
                                             </Col>
                                         )}
                                     </Row>
@@ -264,20 +284,27 @@ export const EmployeeInfoPage = () => {
     const UpdateEmployeeMessage = intl.formatMessage({ id: 'employee.UpdateTitle' })
     const ErrorMessage = intl.formatMessage({ id: 'errors.LoadingError' })
 
-    const employeeId = get(query, 'id', '')
+    const employeeId = String(get(query, 'id', ''))
     const { obj: employee, loading, error, refetch } = OrganizationEmployee.useObject(
         {
             where: {
-                id: String(employeeId),
+                id: employeeId,
             },
         }
     )
+    const { objs: organizationEmployeeSpecializations } = OrganizationEmployeeSpecialization.useObjects({
+        where: {
+            employee: { id: employeeId },
+        },
+    })
+
+    const employeeWithSpecializations = { ...employee, specializations: organizationEmployeeSpecializations.map(scope => scope.specialization) }
 
     const updateEmployeeAction = OrganizationEmployee.useUpdate({}, () => refetch())
     const softDeleteAction = OrganizationEmployee.useSoftDelete(() => Router.push('/employee/'))
 
-    const isEmployeeEditable = get(link, ['role', 'canInviteNewOrganizationEmployees'], null)
-    const isEmployeeReinvitable = get(link, ['role', 'canManageEmployees'], null) && !get(employee, 'isAccepted')
+    const isEmployeeEditable = get(link, ['role', 'canManageEmployees'], false)
+    const isEmployeeReinvitable = get(link, ['role', 'canInviteNewOrganizationEmployees'], false) && !get(employee, 'isAccepted')
 
     if (error || loading) {
         return <LoadingOrErrorPage title={UpdateEmployeeMessage} loading={loading} error={error ? ErrorMessage : null}/>
@@ -285,7 +312,7 @@ export const EmployeeInfoPage = () => {
 
     return (
         <EmployeePageContent
-            employee={employee}
+            employee={employeeWithSpecializations}
             updateEmployeeAction={updateEmployeeAction}
             softDeleteAction={softDeleteAction}
             isEmployeeEditable={isEmployeeEditable}
@@ -294,6 +321,6 @@ export const EmployeeInfoPage = () => {
     )
 }
 
-EmployeeInfoPage.requiredAccess = OrganizationRequired
+EmployeeInfoPage.requiredAccess = EmployeesReadPermissionRequired
 
 export default EmployeeInfoPage

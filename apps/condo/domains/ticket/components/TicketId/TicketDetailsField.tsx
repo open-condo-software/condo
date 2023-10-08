@@ -1,7 +1,8 @@
-import React from 'react'
-import { useIntl } from '@condo/next/intl'
-
 import { Ticket } from '@app/condo/schema'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 

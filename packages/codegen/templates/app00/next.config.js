@@ -1,13 +1,16 @@
-const conf = require('@condo/config')
-const withLess = require('@zeit/next-less')
 const withCSS = require('@zeit/next-css')
+const withLess = require('@zeit/next-less')
 const AntdDayjsWebpackPlugin = require('antd-dayjs-webpack-plugin')
-// Tell webpack to compile the "@condo/next" package, necessary
+const withTMModule = require('next-transpile-modules')
+
+const conf = require('@open-condo/config')
+
+// Tell webpack to compile the "@open-condo/next" package, necessary
 // https://www.npmjs.com/package/next-transpile-modules
 // NOTE: FormTable require rc-table module
 // TODO(codegen): include all TypeScript modules, that you plan to use in your app, otherwise you will get errors about unregognized TypeScript syntax
-const withTM = require('next-transpile-modules')([
-    '@condo/next',
+const withTM = withTMModule([
+    '@open-condo/next',
     '@app/condo',
     '@app/{{name}}',
     '@{{name}}/domains',

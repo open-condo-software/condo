@@ -1,9 +1,11 @@
-import { useIntl } from '@condo/next/intl'
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Col, Row, Typography, Space } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 const EmptyResidentBlock: React.FC = () => {

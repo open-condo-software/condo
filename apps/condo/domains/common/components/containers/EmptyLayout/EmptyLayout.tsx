@@ -1,12 +1,13 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import React, { CSSProperties } from 'react'
 import { Layout } from 'antd'
-import 'antd/dist/antd.less'
+import React, { CSSProperties } from 'react'
+
 import {
+    EMPTY_SUB_LAYOUT_CSS,
     LAYOUT_CSS,
-    SUB_LAYOUT_CSS,
 } from '@condo/domains/common/components/containers/BaseLayout/components/styles'
+import 'antd/dist/antd.less'
 
 interface IBaseLayoutProps {
     style?: CSSProperties
@@ -22,7 +23,7 @@ const EmptyLayout: React.FC<IBaseLayoutProps> = (props) => {
 
     return (
         <Layout className={className} style={style} css={LAYOUT_CSS}>
-            <Layout css={SUB_LAYOUT_CSS}>
+            <Layout css={EMPTY_SUB_LAYOUT_CSS}>
                 {children}
             </Layout>
         </Layout>

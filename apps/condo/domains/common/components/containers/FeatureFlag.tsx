@@ -14,13 +14,13 @@
  *
  */
 
-import React, { ReactNode, useState } from 'react'
-import getConfig from 'next/config'
-import { useHotkeys } from 'react-hotkeys-hook'
 import { Switch, Alert } from 'antd'
+import getConfig from 'next/config'
+import React, { ReactNode, useMemo, useState } from 'react'
+import { useHotkeys } from 'react-hotkeys-hook'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+import { Button, Modal } from '@open-condo/ui'
 
 
 const getEnabledFeatures = (): Array<string> => {
@@ -109,6 +109,7 @@ export const FeatureFlagsController: React.FC = () => {
 
     const intl = useIntl()
 
+    const SaveMessage = intl.formatMessage({ id: 'Save' })
     const featureFlagsTitle = intl.formatMessage({ id: 'FeatureFlags.Modal.Title' } )
     const featureFlagsDescription = intl.formatMessage({ id: 'FeatureFlags.Modal.Description' } )
 
@@ -121,15 +122,20 @@ export const FeatureFlagsController: React.FC = () => {
         window.location.reload()
     }
 
+    const footer = useMemo(() => [
+        <Button type='primary' key='save' onClick={handleOk}>
+            {SaveMessage}
+        </Button>,
+    ], [])
+
     const enabledFlags = getEnabledFeatures()
 
     return (
         <>
             <Modal title={ featureFlagsTitle }
-                visible={isModalVisible}
+                open={isModalVisible}
                 onCancel={() => setIsModalVisible(false)}
-                onOk={handleOk}
-                cancelButtonProps={{ disabled: true }}
+                footer={footer}
             >
                 <Alert message={ featureFlagsDescription } type='success' />
                 {

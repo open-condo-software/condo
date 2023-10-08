@@ -1,12 +1,14 @@
+import { useRouter } from 'next/router'
+import { useMemo } from 'react'
+import { IntlShape } from 'react-intl/src/types'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { getFilterIcon } from '@condo/domains/common/components/TableFilter'
 import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
-import { useIntl } from '@condo/next/intl'
-import { useRouter } from 'next/router'
-import { useMemo } from 'react'
-import { IntlShape } from 'react-intl/src/types'
 
 const getTypeRenderer = (intl: IntlShape) => (organization) => intl.formatMessage({ id: organization ? 'ContactRoles.types.custom' : 'ContactRoles.types.default' })
 

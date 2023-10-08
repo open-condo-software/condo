@@ -8,7 +8,9 @@ import {
     OidcClientUpdateInput,
     QueryAllOidcClientsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { OidcClient as OidcClientGQL } from '@condo/domains/user/gql'
 
 const {

@@ -1,11 +1,12 @@
-import React  from 'react'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Link from 'next/link'
+import React  from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { TicketDeadlinePreview } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlinePreview'
+import { useIntl } from '@open-condo/next/intl'
+
 import { colors } from '@condo/domains/common/constants/style'
+import { TicketDeadlinePreview } from '@condo/domains/ticket/components/TicketOrganizationDeadline/TicketDeadlinePreview'
 
 const MIDDLE_ROW_GUTTERS: [Gutter, Gutter] = [0, 40]
 const SMALL_ROW_GUTTERS: [Gutter, Gutter] = [0, 20]

@@ -1,21 +1,27 @@
 /** @jsx jsx */
-import React, { useRef, useEffect, useCallback, useMemo } from 'react'
-import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
 import { FullscreenOutlined, FullscreenExitOutlined } from '@ant-design/icons'
-import debounce from 'lodash/debounce'
-import { useIntl } from '@condo/next/intl'
-import { useRouter } from 'next/router'
+import { BuildingUnitSubType, B2BAppGlobalFeature } from '@app/condo/schema'
 import { jsx, css } from '@emotion/react'
 import styled from '@emotion/styled'
+import { Col, Row, Typography, RowProps, Radio, RadioProps } from 'antd'
+import debounce from 'lodash/debounce'
+import { useRouter } from 'next/router'
+import React, { useRef, useEffect, useCallback, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+
+import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { fontSizes, colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
-import { Button } from '@condo/domains/common/components/Button'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
-import { BuildingUnitSubType, B2BAppGlobalFeature } from '@app/condo/schema'
-import { MapEdit, MapView, MapViewMode } from './MapConstructor'
-import { FullscreenFooter } from './Fullscreen'
 import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
+import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
+
+
+import { FullscreenFooter } from './Fullscreen'
+import { MapEdit, MapView, MapViewMode } from './MapConstructor'
+
 
 const MESSAGE_DEBOUNCE_TIMEOUT = 2000
 
@@ -70,13 +76,14 @@ interface IEmptyBuildingBlock extends Pick<IPropertyMapFormProps, 'canManageProp
     mode?: 'view' | 'edit'
 }
 
-const DESCRIPTION_STYLE = {
+const DESCRIPTION_STYLE: React.CSSProperties = {
     display: 'block',
     fontSize: fontSizes.content,
     maxWidth: '350px',
     color: colors.inputBorderHover,
     margin: 'auto',
     marginTop: '8px',
+    whiteSpace: 'pre-line',
 }
 
 const EMPTY_BUILDING_BLOCK_BUTTON_STYLE = {

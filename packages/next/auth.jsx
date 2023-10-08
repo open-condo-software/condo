@@ -1,7 +1,8 @@
+import { gql } from 'graphql-tag'
 import React, { createContext, useContext, useEffect, useState } from 'react'
+
 import { useApolloClient, useMutation, useQuery } from './apollo'
 import { setCookieLinkId } from './organization'
-import { gql } from 'graphql-tag'
 
 const { DEBUG_RERENDERS, DEBUG_RERENDERS_BY_WHY_DID_YOU_RENDER, preventInfinityLoop, getContextIndependentWrappedInitialProps } = require('./_utils')
 

@@ -3,22 +3,24 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { makeClientWithResidentUser } = require(
     '@condo/domains/user/utils/testSchema')
 const { get } = require('lodash')
 const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_SERVICE_CONSUMER_MUTATION } = require('@condo/domains/resident/gql')
+const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
+const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const { makeClientWithResidentAccessAndProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 
 const Resident = generateGQLTestUtils(ResidentGQL)
@@ -133,6 +135,39 @@ async function registerServiceConsumerByTestClient (client, extraAttrs = {}) {
     return [data.obj, attrs]
 }
 
+
+async function sendMessageToResidentScopesByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
+async function discoverServiceConsumersByTestClient(client, args, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!args) throw new Error('no data')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...args,
+    }
+    const { data, errors } = await client.mutate(DISCOVER_SERVICE_CONSUMERS_MUTATION, { data: attrs })
+
+    if (!extraAttrs.raw) {
+        throwIfError(data, errors)
+    }
+
+    return [data.result, errors, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithServiceConsumer () {
@@ -167,6 +202,8 @@ module.exports = {
     registerResidentByTestClient, makeClientWithResident,
     ServiceConsumer, createTestServiceConsumer, updateTestServiceConsumer,
     makeClientWithServiceConsumer,
-    registerServiceConsumerByTestClient
+    registerServiceConsumerByTestClient,
+    sendMessageToResidentScopesByTestClient,
+    discoverServiceConsumersByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

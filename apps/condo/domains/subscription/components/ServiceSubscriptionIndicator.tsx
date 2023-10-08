@@ -1,12 +1,17 @@
-import React from 'react'
-import { Typography } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@condo/next/intl'
-import styled from '@emotion/styled'
-import { colors } from '@condo/domains/common/constants/style'
 import { green, grey } from '@ant-design/colors'
-import { useServiceSubscriptionContext } from './SubscriptionContext'
+import styled from '@emotion/styled'
+import { Typography } from 'antd'
 import get from 'lodash/get'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { colors } from '@condo/domains/common/constants/style'
+
+
+import { useServiceSubscriptionContext } from './SubscriptionContext'
+
 
 
 const DaysLeftContainer = styled.div`

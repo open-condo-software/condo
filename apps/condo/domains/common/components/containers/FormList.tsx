@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { DownOutlined, PlusOutlined } from '@ant-design/icons'
+import styled from '@emotion/styled'
 import {
     Dropdown,
     Form,
@@ -12,22 +14,26 @@ import {
     Typography,
     Space,
 } from 'antd'
+import { FormProps } from 'antd/lib/form/Form'
+import { ArgsProps } from 'antd/lib/notification'
+import { isUndefined, throttle } from 'lodash'
+import omitBy from 'lodash/omitBy'
+import React, { useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
 import { Options } from 'scroll-into-view-if-needed'
 
-import { Modal } from '@condo/domains/common/components/Modal'
+import { useMutation } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { Modal, Button } from '@open-condo/ui'
+
 import Input from '@condo/domains/common/components/antd/Input'
-import { Button } from '@condo/domains/common/components/Button'
-import { DownOutlined, PlusOutlined } from '@ant-design/icons'
-import styled from '@emotion/styled'
-import { ArgsProps } from 'antd/lib/notification'
-import React, { useCallback, useState, useRef, CSSProperties, ComponentProps } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { useMutation } from '@condo/next/apollo'
-import { throttle } from 'lodash'
+import { Button as CommonButton } from '@condo/domains/common/components/Button'
+import { colors } from '@condo/domains/common/constants/style'
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+
 
 const identity = (x) => !!x
 const NON_FIELD_ERROR_NAME = '_NON_FIELD_ERROR_'
+const IGNORE_FIELD_PREFIX = 'IGNORE'
 
 class ValidationError extends Error {
     constructor (message, field = NON_FIELD_ERROR_NAME) {
@@ -75,6 +81,10 @@ const SListActionsUl = styled.ul`
   > li {
     margin: 0;
   }
+`
+
+const StyledDescription = styled(Typography.Text)`
+    color: ${colors.textSecondary};
 `
 
 function FormList ({ dataSource, renderItem, ...extra }) {
@@ -133,13 +143,13 @@ function FormList ({ dataSource, renderItem, ...extra }) {
 }
 
 function CreateFormListItemButton ({ label, ...extra }) {
-    return <Button
+    return <CommonButton
         type='dashed'
         style={{ width: '100%' }}
         {...extra}
     >
         <PlusOutlined />{label}
-    </Button>
+    </CommonButton>
 }
 
 function ExtraDropdownActionsMenu ({ actions }) {
@@ -216,7 +226,7 @@ type OnCompletedMsgFunctionType <T> = (data: T) => ArgsProps
 export type OnCompletedMsgType<T> = string | OnCompletedMsgFunctionType<T>
 
 // TODO(Dimitreee): add children type/interface
-interface IFormWithAction<TRecordFormState, TRecordUIState> {
+interface IFormWithAction<TRecordFormState, TRecordUIState> extends FormProps {
     action?: (formValues) => Promise<TRecordUIState>
     mutation?: Document.Node
     initialValues?: TRecordFormState,
@@ -247,6 +257,8 @@ interface IFormWithAction<TRecordFormState, TRecordUIState> {
 const FormWithAction: React.FC<IFormWithAction> = (props) => {
     const intl = useIntl()
     const ClientSideErrorMsg = intl.formatMessage({ id: 'ClientSideError' })
+    const DoneMsg = intl.formatMessage({ id: 'OperationCompleted' })
+    const ChangesSavedMsg = intl.formatMessage({ id: 'ChangesSaved' })
 
     const {
         action,
@@ -281,8 +293,22 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
     let create = null
 
     if (!action && mutation) {
-        [create] = useMutation(mutation) // eslint-disable-line react-hooks/rules-of-hooks
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        [create] = useMutation(mutation) // NOSONAR
     }
+
+    const getCompletedNotification = useCallback(() => ({
+        message: (
+            <Typography.Text strong>
+                {DoneMsg}
+            </Typography.Text>
+        ),
+        description: (
+            <StyledDescription>
+                {ChangesSavedMsg}
+            </StyledDescription>
+        ),
+    }), [DoneMsg])
 
     const _handleSubmit = useCallback((values) => {
         if (handleSubmit) {
@@ -291,7 +317,10 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
         if (values.hasOwnProperty(NON_FIELD_ERROR_NAME)) delete values[NON_FIELD_ERROR_NAME]
         let data
         try {
-            data = (formValuesToMutationDataPreprocessor) ? formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) : values
+            data = formValuesToMutationDataPreprocessor ?
+                formValuesToMutationDataPreprocessor(values, formValuesToMutationDataPreprocessorContext, form) :
+                values
+            data = omitBy(data, (_, fieldName) => fieldName.startsWith(IGNORE_FIELD_PREFIX))
         } catch (err) {
             if (err instanceof ValidationError) {
                 let errors = []
@@ -337,7 +366,7 @@ const FormWithAction: React.FC<IFormWithAction> = (props) => {
             form,
             ErrorToFormFieldMsgMapping,
             OnErrorMsg,
-            OnCompletedMsg,
+            OnCompletedMsg: isUndefined(OnCompletedMsg) ? getCompletedNotification : OnCompletedMsg,
         })
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [action])
@@ -417,11 +446,11 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
     const handleSaveRef = useRef(null)
     const Buttons = []
     if (showCancelButton) {
-        Buttons.push((<Button key='cancel' type='sberPrimary' secondary onClick={cancelModal}>{CancelMessage}</Button>))
+        Buttons.push((<Button key='cancel' type='secondary' onClick={cancelModal}>{CancelMessage}</Button>))
     }
     return (<Modal
         title={ModalTitleMsg}
-        visible={visible}
+        open={visible}
         onCancel={cancelModal}
         footer={[
             ...modalExtraFooter,
@@ -431,13 +460,12 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
                 onClick={() => {
                     handleSaveRef.current()
                 }}
-                type='sberPrimary'
+                type='primary'
                 {...submitButtonProps}
             >
                 {SaveMessage}
             </Button>,
         ]}
-        centered
         {...modalProps}
     >
         <Space direction='vertical' size={40}>

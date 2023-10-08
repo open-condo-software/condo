@@ -1,0 +1,96 @@
+Для выполнения запросов в API необходимо пройти авторизацию пользователя.
+На текущий момент, мы используем два механизма авторизацию: **cookie based** authentication
+и **bearer token** based authentication.
+
+## authenticateUserWithPhoneAndPassword
+
+Используйте мутацию `authenticateUserWithPhoneAndPassword` для аутентификации пользователя.
+После успешного выполнения мутации, мы установим вам `cookie` сессию.
+Из этой же мутации вы сможете получить авторизационный токен и использовать его в последующих запросах,
+выставляя в заголовке `Authorization` значение `Bearer <token>`.
+
+<Tabs labels={['Пример GQL-запроса', 'Пример CURL-запроса', 'Пример ответа']}>
+```
+mutation {
+  authenticateUserWithPhoneAndPassword(data: {
+    phone: "+79990000000"
+    password: "12345678"
+  }) {
+    token
+    item {
+      id
+      name
+    }
+  }
+}
+```
+```bash
+curl 'https://condo.d.doma.ai/admin/api' -H 'Content-Type: application/json' --data-raw $'{"operationName":"authenticateUserWithPhoneAndPassword","variables":{"phone":"+79990000000","password":"12345678"},"query":"mutation authenticateUserWithPhoneAndPassword($phone: String!, $password: String!) {  obj: authenticateUserWithPhoneAndPassword(data: {phone: $phone, password: $password}) { token item { id name } } }"}'
+```
+
+```JSON
+{
+  "data": {
+    "authenticateUserWithPhoneAndPassword": {
+      "token": "lSULdzVaPWBK8CTH-7A5JpL8YFRk3YNg0.8R+N+OrJXoAA7fNe60EBR+ckkQ73SSZqa/7WXTTG6ZMMQ",
+      "item": {
+        "id": "d586e452-d60f-44fa-9330-b7318a3a4c57",
+        "name": "Ivan Ivanov"
+      }
+    }
+  }
+}
+```
+</Tabs>
+
+## authenticatedUser
+
+Запрос `authenticatedUser` поможет вам проверить свои учетные данные и получить информацию о текущем пользователе.
+<Tabs labels={['Пример GQL-запроса', 'Пример CURL-запроса']}>
+```
+query {
+  authenticatedUser {
+    name
+    id
+    name
+    avatar {
+      publicUrl
+      __typename
+    }
+    phone
+    email
+    isAdmin
+    __typename
+  }
+}
+```
+```bash
+curl 'https://condo.d.doma.ai/admin/api' -H 'Authorization: Bearer XnwCETJ2-0bcG1l-gQgFHs8973izf9Gz.26mZWez8e3j0l43HUB8noqxWtfMLwnkQ6IitR9z2v0o' -H 'Content-Type: application/json' --data-raw '{"variables":{},"query":"query { authenticatedUser { id name avatar { publicUrl __typename } phone email isAdmin __typename }}"}'
+```
+</Tabs>
+
+Тогда в зависимости от того, авторизован пользователь или нет, можно получить один из следующих ответов:
+<Tabs labels={['Пользователь не авторизован', 'Пользователь авторизован']}>
+```JSON
+{
+  "data": {
+    "authenticatedUser": null
+  }
+}
+```
+```JSON
+{
+  "data": {
+    "authenticatedUser": {
+      "name": "Ivan Ivanov",
+      "id": "d586e452-d60f-44fa-9330-b7318a3a4c57",
+      "avatar": null,
+      "phone": "+79126031096",
+      "email": "example@example.com",
+      "isAdmin": false,
+      "__typename": "User"
+    }
+  }
+}
+```
+</Tabs>

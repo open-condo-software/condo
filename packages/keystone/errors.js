@@ -4,10 +4,10 @@
  *
  * @example
  * ```js
- * const { GQLError, GQLErrorCode } = require('@condo/keystone/errors')
+ * const { GQLError, GQLErrorCode } = require('@open-condo/keystone/errors')
  *
  * // Declare all errors, that can be thrown by a custom action, implemented below
- * const errors = {
+ * const ERRORS = {
  *     // A key for an error is in free form for local usage inside a module. It will not be rendered somewhere
  *     // Take Look at `CondoGraphQLSchemaError` JsDoc type declaration for detailed explanation of each field
  *     WRONG_PHONE_FORMAT: { mutation: 'myCustomSchema', variable: ['data', 'phone'], code: GQLErrorCode.BAD_USER_INPUT,  message: 'Wrong format of provided phone number', correctExample: '+79991234567' },
@@ -29,20 +29,20 @@
  *             doc: {
  *                 summary: 'Does this and that, shortly',
  *                 description: 'More detailed explanation goes here',
- *                 // Pass declared errors object here to get formatted documentation in GraphiQL
- *                 errors,
+ *                 // Pass declared ERRORS object here to get formatted documentation in GraphiQL
+ *                 errors: ERRORS,
  *             },
  *             resolver: async (parent, args, context) => {
  *                 // validate passed arguments
  *                 if (!normalizePhone(args.phone)) {
  *                     // Use our customized error class and pass appropriate error into it
- *                     throw new GQLError(errors.WRONG_PHONE_FORMAT)
+ *                     throw new GQLError(ERRORS.WRONG_PHONE_FORMAT)
  *                 }
  *
  *                 // find some record
  *                 const user = await User.getOne(context, { id: args.userId })
  *                 if (!user) {
- *                     throw new GQLError(errors.UNABLE_TO_FIND_USER)
+ *                     throw new GQLError(ERRORS.UNABLE_TO_FIND_USER)
  *                 }
  *
  *                 // execute some another actions, that is not guaranteed to be succeed
@@ -50,7 +50,7 @@
  *                     executeSomeAnotherAction
  *                 } catch(e) {
  *                     throw new GQLError({
- *                         ...errors.UNABLE_EXECUTE_SOME_PROCEDURE,
+ *                         ...ERRORS.UNABLE_EXECUTE_SOME_PROCEDURE,
  *                         internalError: e
  *                     })
  *                 }
@@ -62,12 +62,12 @@
  */
 
 const { ApolloError } = require('apollo-server-errors')
-const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 const cuid = require('cuid')
+const { cloneDeep, get, template, templateSettings, isArray, isEmpty, isObject } = require('lodash')
 
-const conf = require('@condo/config')
-const { extractReqLocale } = require('@condo/locales/extractReqLocale')
-const { getTranslations } = require('@condo/locales/loader')
+const conf = require('@open-condo/config')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
+const { getTranslations } = require('@open-condo/locales/loader')
 
 // Matches placeholder `{name}` in string, we are going to interpolate
 templateSettings.interpolate = /{([\s\S]+?)}/g
@@ -79,6 +79,8 @@ const BAD_USER_INPUT = 'BAD_USER_INPUT'
 const INTERNAL_ERROR = 'INTERNAL_ERROR'
 // Access denied
 const FORBIDDEN = 'FORBIDDEN'
+// Too Many Requests
+const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
 
 
 /**
@@ -93,6 +95,7 @@ const GQLErrorCode = {
     BAD_USER_INPUT,
     INTERNAL_ERROR,
     FORBIDDEN,
+    TOO_MANY_REQUESTS,
 }
 
 
@@ -106,8 +109,8 @@ const GQLErrorCode = {
  * @property {GQLErrorCode} code - standardized error code
  * @property {String} type - domain-specific error type
  * @property {String} message - message for developer
- * @property {String} [messageForUser] - i18n key for localized version of message, that intended to be displayed for user. Value of this property will be replace with translated one
- * @property {Object.<string, string|number>} messageInterpolation - object with values for placeholder variables `{var}`, presented in translated versions of message
+ * @property {String} [messageForUser] - i18n key for localized version of message, that intended to be displayed for user. Value of this property will be replaced with translated one
+ * @property {Object.<string, string|number>} [messageInterpolation] - object with values for placeholder variables `{var}`, presented in translated versions of message
  * @property {String} [correctExample] - correct value of an argument
  * @property {Object} [data] - any kind of data, that will help to figure out a cause of the error
  */

@@ -8,7 +8,9 @@ import {
     B2BAppContextUpdateInput,
     QueryAllB2BAppContextsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { B2BAppContext as B2BAppContextGQL } from '@condo/domains/miniapp/gql'
 
 const {

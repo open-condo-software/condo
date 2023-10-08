@@ -1,10 +1,17 @@
+const path = require('path')
+
+const { getItem, getItems } = require('@keystonejs/server-side-graphql-client')
 const ObsClient = require('esdk-obs-nodejs')
 const express = require('express')
-const path = require('path')
-const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@condo/config')
-const { getItem } = require('@keystonejs/server-side-graphql-client')
-const { isEmpty } = require('lodash')
+const { get, isEmpty, isString, isNil } = require('lodash')
 
+const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+
+const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
+
+
+const logger = getLogger('sberCloudFileAdapter')
 const PUBLIC_URL_TTL = 60 * 60 * 24 * 30 // 1 MONTH IN SECONDS FOR ANY PUBLIC URL
 
 class SberCloudObsAcl {
@@ -60,13 +67,13 @@ class SberCloudObsAcl {
 }
 
 class SberCloudFileAdapter {
-
     constructor (config) {
         this.bucket = config.bucket
         this.s3 = new ObsClient(config.s3Options)
         this.server = config.s3Options.server
         this.folder = config.folder
         this.shouldResolveDirectUrl = config.isPublic
+        this.saveFileName = config.saveFileName
         this.acl = new SberCloudObsAcl(config)
     }
 
@@ -78,21 +85,22 @@ class SberCloudFileAdapter {
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
-        return new Promise((resolve, reject) => {
-            const fileData = {
-                id,
-                originalFilename: filename,
-                filename: this.getFilename({ id, originalFilename: filename }),
-                mimetype,
-                encoding,
-            }
+        const fileData = {
+            id,
+            originalFilename: filename,
+            filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
+            mimetype,
+            encoding,
+        }
+        const key = `${this.folder}/${fileData.filename}`
+        const saveFile = (resolve, reject) => {
             const uploadParams = this.uploadParams({ ...fileData, meta })
             this.s3.putObject(
                 {
                     Body: stream,
                     ContentType: mimetype,
                     Bucket: this.bucket,
-                    Key: `${this.folder}/${fileData.filename}`,
+                    Key: key,
                     ...uploadParams,
                 },
                 (error, data) => {
@@ -105,7 +113,20 @@ class SberCloudFileAdapter {
                     stream.destroy()
                 }
             )
-        })
+        }
+
+        if (this.saveFileName) {
+            return this.acl.getMeta(key)
+                .then((existedMeta) => {
+                    if (!isEmpty(existedMeta)) {
+                        return { ...fileData, _meta: existedMeta }
+                    }
+
+                    return new Promise(saveFile)
+                })
+        }
+
+        return new Promise(saveFile)
     }
 
     delete (file, options = {}) {
@@ -121,7 +142,8 @@ class SberCloudFileAdapter {
     }
 
     getFilename ({ id, originalFilename }) {
-        return `${id}${path.extname(originalFilename)}` // will skip adding originalFilename
+        const forbiddenCharacters = /[^a-z0-9.+-]+/ig
+        return `${id}${path.extname(originalFilename).replace(forbiddenCharacters, '')}` // will skip adding originalFilename
     }
 
     publicUrl ({ filename }) {
@@ -158,56 +180,117 @@ const obsRouterHandler = ({ keystone }) => {
     return async function (req, res, next) {
         if (!req.user) {
             // TODO(zuch): Ask where error pages are located in keystone - 403 is probably missing
-            res.sendStatus(403)
+            res.status(403)
             return res.end()
         }
         const meta = await Acl.getMeta(req.params.file)
+
         if (isEmpty(meta)) {
             res.status(404)
-            return next()
-        }
-        const { id: itemId, listkey: listKey } = meta
-        if (isEmpty(itemId) || isEmpty(listKey)) {
-            res.status(404)
-            return next()
-        }
-        const { id, isAdmin, isSupport, type } = req.user
-        const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
-        const fileAfterAccessCheck = await getItem({
-            keystone,
-            listKey,
-            itemId,
-            context,
-            returnFields: 'id',
-        })
-        if (!fileAfterAccessCheck) {
-            res.sendStatus(403)
             return res.end()
         }
-        const url = Acl.generateUrl(req.params.file)
+        const {
+            id: itemId,
+            ids: stringItemIds,
+            listkey: listKey,
+            propertyquery: encodedPropertyQuery,
+            propertyvalue: encodedPropertyValue,
+        } = meta
+        const propertyQuery = !isNil(encodedPropertyQuery) ? decodeURI(encodedPropertyQuery) : null
+        const propertyValue = !isNil(encodedPropertyValue) ? decodeURI(encodedPropertyValue) : null
 
-        /*
-        * NOTE
-        * Problem:
-        *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
-        *   it is impossible to read the response of the request.
-        *
-        * Solution:
-        *   When adding the "shallow-redirect" header,
-        *   the redirect link to the file comes in json format and a second request is made to get the file.
-        *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
-        * */
-        if (req.get('shallow-redirect')) {
-            res.status(200)
-            return res.json({ redirectUrl: url })
+        if ((isEmpty(itemId) && isEmpty(stringItemIds)) || isEmpty(listKey)) {
+            res.status(404)
+            return res.end()
         }
 
-        return res.redirect(url)
+        try {
+            const { id, isAdmin, isSupport, type } = req.user
+            const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
+
+            let hasAccessToReadFile
+
+            // If user has access to at least one of the objects with this file => user has access to read file
+            if (!isEmpty(stringItemIds) && isString(stringItemIds)) {
+                const itemIds = stringItemIds.split(',').filter(id => UUID_REGEXP.test(id))
+                const items = await getItems({
+                    keystone,
+                    listKey,
+                    itemId,
+                    context,
+                    where: { id_in: itemIds, deletedAt: null },
+                })
+
+                hasAccessToReadFile = items.length > 0
+            }
+
+            if (itemId && !hasAccessToReadFile) {
+                let returnFields = 'id'
+
+                // for checking property we have to include property name in the return fields list
+                if (isString(propertyQuery)) {
+                    returnFields += `, ${propertyQuery}`
+                }
+
+                const item = await getItem({
+                    keystone,
+                    listKey,
+                    itemId,
+                    context,
+                    returnFields,
+                })
+
+                // item accessible
+                hasAccessToReadFile = !isNil(item)
+
+                // check property access case
+                if (hasAccessToReadFile && isString(propertyQuery) && !isNil(propertyValue)) {
+                    const propertyPath = propertyQuery
+                        .replaceAll('}', '') // remove close brackets of sub props querying
+                        .split('{') // work with each path parts separately
+                        .map(path => path.trim()) // since gql allow to have spaces in querying - let's remove them
+                        .join('.') // join by . for lodash get utility
+                    hasAccessToReadFile = get(item, propertyPath) == propertyValue
+                }
+            }
+
+            if (!hasAccessToReadFile) {
+                res.status(403)
+                return res.end()
+            }
+            const url = Acl.generateUrl(req.params.file)
+
+            /*
+            * NOTE
+            * Problem:
+            *   In the case of a redirect according to the scheme: A --request--> B --redirect--> C,
+            *   it is impossible to read the response of the request.
+            *
+            * Solution:
+            *   When adding the "shallow-redirect" header,
+            *   the redirect link to the file comes in json format and a second request is made to get the file.
+            *   Thus, the scheme now looks like this: A --request(1)--> B + A --request(2)--> C
+            * */
+            if (req.get('shallow-redirect')) {
+                res.status(200)
+                return res.json({ redirectUrl: url })
+            }
+
+            return res.redirect(url)
+        } catch (err) {
+            logger.error({ msg: 'obsRouterHandlerError', err })
+            // TODO(pahaz): we need to research a better solution here may be we need a 404 or 403
+            res.status(500)
+            return res.end()
+        }
     }
 }
 
 class OBSFilesMiddleware {
     prepareMiddleware ({ keystone }) {
+        // this route does not have any system change operation and used only for serving files to end user browser
+        // this mean no csrf attacking possible - since no data change operation going to be made by opening a link
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use('/api/files/:file(*)', obsRouterHandler({ keystone }))
         return app
@@ -218,4 +301,5 @@ class OBSFilesMiddleware {
 module.exports = {
     SberCloudFileAdapter,
     OBSFilesMiddleware,
+    obsRouterHandler,
 }

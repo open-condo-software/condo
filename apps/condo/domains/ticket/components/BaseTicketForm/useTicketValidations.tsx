@@ -1,5 +1,7 @@
 import { Rule } from 'rc-field-form/lib/interface'
-import { useIntl } from '@condo/next/intl'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import {
     MAX_PHONE_LENGTH,
     MIN_PHONE_LENGTH,

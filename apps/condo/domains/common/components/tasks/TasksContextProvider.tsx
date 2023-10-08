@@ -1,14 +1,17 @@
-import React, { useEffect, useState, useReducer, useRef } from 'react'
 import { notification } from 'antd'
 import filter from 'lodash/filter'
-import identity from 'lodash/identity'
 import findIndex from 'lodash/findIndex'
-import isEmpty from 'lodash/isEmpty'
 import get from 'lodash/get'
+import identity from 'lodash/identity'
+import isEmpty from 'lodash/isEmpty'
 import uniqBy from 'lodash/uniqBy'
-import { useAuth } from '@condo/next/auth'
-import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
+import React, { useEffect, useState, useReducer, useRef } from 'react'
+
+import { useAuth } from '@open-condo/next/auth'
+
 import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
+
+import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
 
 
 // Map of task schema name to its UI interface implementation

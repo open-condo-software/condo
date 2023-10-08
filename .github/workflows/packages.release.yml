@@ -1,5 +1,10 @@
 name: NPM Packages Release
 
+# NOTE: id-token to publish with provenance, content to publish release notes
+permissions:
+  contents: write
+  id-token: write
+
 on:
   push:
     branches:
@@ -9,6 +14,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v3
@@ -17,23 +26,17 @@ jobs:
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
 
-      - name: Get yarn berry cache dir
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn config get cacheFolder)"
-
-      - name: Get cache if possible
-        uses: actions/cache@v3
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
         with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: Install deps
         run: yarn --immutable
 
       - name: Publish packages
-        run: yarn multi-semantic-release
+        run: node bin/publish-packages.js
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

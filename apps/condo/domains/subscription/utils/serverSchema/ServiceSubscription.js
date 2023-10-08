@@ -1,7 +1,9 @@
-const { execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
-const { ServiceSubscription } = require('../../gql')
 const dayjs = require('dayjs')
+
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+
 const { SUBSCRIPTION_TRIAL_PERIOD_DAYS } = require('../../constants')
+const { ServiceSubscription } = require('../../gql')
 
 async function createTrialSubscription (context, organization, extraData) {
     if (!context) throw new Error('no context')

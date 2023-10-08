@@ -1,8 +1,8 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { print } = require('graphql')
 const { get, isEmpty } = require('lodash')
 
-const { normalizeQuery } = require('@condo/keystone/logging/normalize')
+const { normalizeQuery } = require('@open-condo/keystone/logging/normalize')
 
 class TestClientResponseError extends Error {
     constructor (data, errors, context = {}) {
@@ -29,6 +29,25 @@ function _checkClient (client) {
     if (client.then) throw new Error('The client argument is a Promise! Probably you should to await it')
 }
 
+/**
+ * Replaces cyclic links within object for JSON.stringify to be able to serialize object properly
+ * usage: JSON.stringify(obj, getCycleReplacer(), 2)
+ * @returns {function(*, *=): *}
+ */
+const getCycleReplacer = () => {
+    const visited = new WeakSet()
+
+    return (key, value) => {
+        if (typeof value === 'object' && value !== null) {
+            if (visited.has(value)) return `<Cycled link to ${key}>`
+
+            visited.add(value)
+        }
+
+        return value
+    }
+}
+
 function _renderDeveloperFriendlyErrorMessage (data, errors, context) {
     let msg = ['', '--request--']
 
@@ -39,7 +58,7 @@ function _renderDeveloperFriendlyErrorMessage (data, errors, context) {
     }
 
     if (get(context, 'variables')) {
-        msg.push(`VARIABLES: ${JSON.stringify(context.variables)}`)
+        msg.push(`VARIABLES: ${JSON.stringify(context.variables, getCycleReplacer())}`)
     } else {
         msg.push('VARIABLES: context was not send! check the throwIfError( ... ) third argument!')
     }
@@ -47,13 +66,13 @@ function _renderDeveloperFriendlyErrorMessage (data, errors, context) {
     msg.push('--response--')
 
     if (data) {
-        msg.push(`DATA: ${JSON.stringify(data)}`)
+        msg.push(`DATA: ${JSON.stringify(data, getCycleReplacer())}`)
     } else {
         msg.push('DATA: no or empty')
     }
 
     if (errors) {
-        msg.push(`ERRORS: ${JSON.stringify(errors, null, 2)}`)
+        msg.push(`ERRORS: ${JSON.stringify(errors, getCycleReplacer(), 2)}`)
     } else {
         msg.push('ERRORS: no or empty')
     }

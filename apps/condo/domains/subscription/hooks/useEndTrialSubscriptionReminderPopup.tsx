@@ -1,19 +1,20 @@
-import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
-import { Col, Row, Typography } from 'antd'
-
-import { Modal } from '@condo/domains/common/components/Modal'
-import { useIntl } from '@condo/next/intl'
-import { Button } from '@condo/domains/common/components/Button'
-import styled from '@emotion/styled'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import { FormattedMessage } from '@condo/next/intl'
 import { ServiceSubscriptionTypeType } from '@app/condo/schema'
+import styled from '@emotion/styled'
+import { Col, Row } from 'antd'
 import dayjs from 'dayjs'
 import cookie from 'js-cookie'
-import { useOrganization } from '@condo/next/organization'
-import { ServiceSubscription } from '../utils/clientSchema'
-import { useAuth } from '@condo/next/auth'
 import { get } from 'lodash'
+import React, { useState, Dispatch, SetStateAction, useEffect } from 'react'
+
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { FormattedMessage } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { Modal, Button, Typography } from '@open-condo/ui'
+
+import { fontSizes } from '@condo/domains/common/constants/style'
+
+import { ServiceSubscription } from '../utils/clientSchema'
 
 
 interface IEndTrialSubscriptionReminderPopup {
@@ -90,16 +91,12 @@ export const useEndTrialSubscriptionReminderPopup = (): IEndTrialSubscriptionRem
 
     const EndTrialSubscriptionReminderPopup = () => (
         <Modal
-            visible={isEndTrialSubscriptionReminderPopupVisible}
+            open={isEndTrialSubscriptionReminderPopupVisible}
             onCancel={handleCloseModal}
-            centered
-            width={600}
-            bodyStyle={{ padding: '30px' }}
             footer={[
                 <Button
-                    size='large'
                     key='submit'
-                    type='sberPrimary'
+                    type='primary'
                     onClick={handleCloseModal}
                 >
                     {CompleteActionMessage}

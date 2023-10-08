@@ -1,14 +1,17 @@
 /** @jsx jsx */
-import React from 'react'
-import Head from 'next/head'
-import { useIntl } from '@condo/next/intl'
-import { useRouter } from 'next/router'
-import { Row, Col, RowProps } from 'antd'
 import { jsx } from '@emotion/react'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { Row, Col, RowProps } from 'antd'
+import Head from 'next/head'
+import { useRouter } from 'next/router'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
-import CreatePropertyMapForm from '@condo/domains/property/components/PropertyMapForm/CreatePropertyMapForm'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CustomScrollbarCss } from '@condo/domains/property/components/panels/Builder/BuildingPanelCommon'
+import CreatePropertyMapForm from '@condo/domains/property/components/PropertyMapForm/CreatePropertyMapForm'
 
 const PAGE_ROW_GUTTER: RowProps['gutter'] = [0, 40]
 

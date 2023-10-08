@@ -1,19 +1,6 @@
-import styled from '@emotion/styled'
-import React from 'react'
+import { Image } from 'antd'
+import React, { CSSProperties } from 'react'
 import ProgressiveImage from 'react-progressive-image'
-import { transitions } from '@condo/domains/common/constants/style'
-
-interface IImageProps {
-    src: string
-    placeholderColor: string
-}
-
-export const PosterContainer = styled.div<IImageProps>`
-  background: url(${({ src }) => src}) center no-repeat;
-  width: 100%;
-  height: 100%;
-  transition: ${transitions.elevateTransition };
-`
 
 interface IPoster {
     src: string
@@ -21,20 +8,38 @@ interface IPoster {
     placeholderSrc?: string
     placeholderColor?: string
     backgroundPosition?: string
+    Header?: React.ReactElement
+    Footer?: React.ReactElement
+    imageStyle?: CSSProperties
+    imageWrapperStyle?: CSSProperties
+    posterContentStyle?: CSSProperties
 }
 
 export const Poster: React.FC<IPoster> = (props) => {
     const {
         src,
         placeholderSrc,
-        placeholderColor,
         delay = 500,
+        Header,
+        Footer,
+        imageStyle,
+        imageWrapperStyle,
+        posterContentStyle,
     } = props
 
     return (
         <ProgressiveImage src={src} placeholder={placeholderSrc} delay={delay}>
             {(src) => (
-                <PosterContainer src={src} placeholderColor={placeholderColor}/>
+                <div style={posterContentStyle}>
+                    {Header}
+                    <Image
+                        wrapperStyle={imageWrapperStyle}
+                        style={imageStyle}
+                        src={src}
+                        preview={false}
+                    />
+                    {Footer}
+                </div>
             )}
         </ProgressiveImage>
     )

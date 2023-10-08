@@ -1,12 +1,13 @@
-const chalk = require('chalk')
-const boxen = require('boxen')
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
 const { promisify } = require('util')
+
+const boxen = require('boxen')
+const chalk = require('chalk')
 const { printSchema } = require('graphql')
 
-const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
-const { taskQueue } = require('@condo/keystone/tasks')
+const { taskQueue } = require('@open-condo/keystone/tasks')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const writeFile = promisify(fs.writeFile)
 
@@ -33,8 +34,13 @@ async function getGraphQLSchema (keystoneModule) {
 }
 
 async function generate ({ namePath }) {
+    // this is part of codegen development script and no end users input expected
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     await writeFile(path.join(namePath, 'codegen.yaml'), CODEGEN_CONFIG)
+    // eslint-disable-next-line import/order
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const schema = await getGraphQLSchema(require(path.join(namePath, 'index')))
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     await writeFile(path.join(namePath, 'schema.graphql'), schema)
 }
 

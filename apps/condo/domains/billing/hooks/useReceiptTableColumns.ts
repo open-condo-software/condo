@@ -1,26 +1,36 @@
-import { useMemo } from 'react'
-import { useRouter } from 'next/router'
-import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
-import { getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
-import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import { useMemo } from 'react'
 
-export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) => {
+import { Sheet } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
+
+import { IFilters } from '@condo/domains/billing/utils/helpers'
+import { getFilterIcon, getTextFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import { getIconRender, getMoneyRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
+import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils/filters.utils'
+import { getFilteredValue } from '@condo/domains/common/utils/helpers'
+import { getSorterMap, parseQuery } from '@condo/domains/common/utils/tables.utils'
+
+export const useReceiptTableColumns = <T>(filterMetas: Array<FiltersMeta<T>>, detailed: boolean, currencyCode: string) => {
     const intl = useIntl()
     const AddressTitle = intl.formatMessage({ id: 'field.Address' })
     const UnitNameTitle = intl.formatMessage({ id: 'field.UnitName' })
     const AccountTitle = intl.formatMessage({ id: 'field.AccountNumberShort' })
+    const FullNameTitle = intl.formatMessage({ id: 'field.Holder' })
+    const CategoryTitle = intl.formatMessage({ id: 'field.Category' })
     const DebtTitle = intl.formatMessage({ id: 'DebtOverpayment' })
     const ToPayTitle = intl.formatMessage({ id: 'field.TotalPayment' })
     const PenaltyTitle = intl.formatMessage({ id: 'PaymentPenalty' })
     const ChargeTitle = intl.formatMessage({ id: 'Charged' })
     const ShortFlatNumber = intl.formatMessage({ id: 'field.ShortFlatNumber' })
+    const PaidTitle = intl.formatMessage({ id: 'PaymentPaid' })
+    const TooltipPDF = intl.formatMessage({ id: 'pages.billing.ReceiptsTable.PDFTooltip' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
     const sorterMap = getSorterMap(sorters)
-
+    
     return useMemo(() => {
         let search = get(filters, 'search')
         search = Array.isArray(search) ? null : search
@@ -32,9 +42,9 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 dataIndex: ['property', 'address'],
                 sorter: false,
                 filteredValue: get(filters, 'address'),
-                width: detailed ? '30%' : '50%',
+                width: detailed ? '25%' : '50%',
                 filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(AddressTitle),
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: AddressTitle } }),
                 render: getTextRender(search),
             },
             unitName: {
@@ -44,8 +54,30 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 sorter: false,
                 filteredValue: get(filters, 'unitName'),
                 filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(UnitNameTitle),
-                width: '15%',
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: UnitNameTitle } }),
+                width: '17%',
+                render: getTextRender(search),
+            },
+            fullName: {
+                title: FullNameTitle,
+                key: 'fullName',
+                dataIndex: ['account', 'fullName'],
+                sorter: false,
+                filteredValue: get(filters, 'fullName'),
+                width: '18%',
+                filterIcon: getFilterIcon,
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: FullNameTitle } }),
+                render: getTextRender(search),
+            },
+            category: {
+                title: CategoryTitle,
+                key: 'category',
+                dataIndex: ['category', 'name'],
+                sorter: false,
+                filteredValue: getFilteredValue<IFilters>(filters, 'category'),
+                width: '16%',
+                filterIcon: getFilterIcon,
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'category'),
                 render: getTextRender(search),
             },
             account: {
@@ -54,9 +86,9 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 dataIndex: ['account', 'number'],
                 sorter: false,
                 filteredValue: get(filters, 'account'),
-                width: detailed ? '25%' : '30%',
+                width: detailed ? '20%' : '30%',
                 filterIcon: getFilterIcon,
-                filterDropdown: getTextFilterDropdown(AccountTitle),
+                filterDropdown: getTextFilterDropdown({ inputProps: { placeholder: AccountTitle } }),
                 render: getTextRender(search),
             },
             balance: {
@@ -64,7 +96,7 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 key: 'balance',
                 dataIndex: ['toPayDetails', 'balance'],
                 sorter: false,
-                width: '13%',
+                width: '14%',
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
@@ -82,7 +114,16 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 key: 'charge',
                 dataIndex: ['toPayDetails', 'charge'],
                 sorter: false,
-                width: '13%',
+                width: '14%',
+                align: 'right',
+                render: getMoneyRender(intl, currencyCode),
+            },
+            paid: {
+                title: PaidTitle,
+                key: 'paid',
+                dataIndex: ['toPayDetails', 'paid'],
+                sorter: false,
+                width: '14%',
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
@@ -96,21 +137,34 @@ export const useReceiptTableColumns = (detailed: boolean, currencyCode: string) 
                 align: 'right',
                 render: getMoneyRender(intl, currencyCode),
             },
+            pdf: {
+                title: 'PDF',
+                key: 'pdf',
+                dataIndex: '',
+                width: detailed ? '8%' : '10%',
+                align: 'center',
+                render: getIconRender(Sheet, '', TooltipPDF),
+            },
         }
 
         return detailed
-            ? [columns.address, columns.unitName, columns.account, columns.balance, columns.penalty, columns.charge, columns.toPay]
+            ? [columns.address, columns.unitName, columns.fullName, columns.account, columns.category, columns.balance, columns.penalty, columns.charge, columns.paid, columns.toPay]
             : [columns.address, columns.unitName, columns.account, columns.toPay]
     }, [
         AddressTitle,
+        FullNameTitle,
+        UnitNameTitle,
         AccountTitle,
         ToPayTitle,
         DebtTitle,
+        PaidTitle,
         PenaltyTitle,
         ChargeTitle,
+        CategoryTitle,
         filters,
         sorterMap,
         ShortFlatNumber,
+        TooltipPDF,
         detailed,
         currencyCode,
     ])

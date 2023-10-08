@@ -3,26 +3,33 @@
  */
 
 const dayjs = require('dayjs')
-const { makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
+
 const {
-    makeClientWithSupportUser,
-    makeClientWithNewRegisteredAndLoggedInUser,
-    registerNewServiceUserByTestClient,
-} = require('@condo/domains/user/utils/testSchema')
-const {
-    createTestB2BApp,
-    createTestB2BAppAccessRight,
-    updateTestB2BAppAccessRight,
-    B2BAppAccessRight,
-} = require('@condo/domains/miniapp/utils/testSchema')
-const {
+    makeLoggedInAdminClient,
+    makeClient,
+    expectToThrowUniqueConstraintViolationError,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+    expectToThrowGQLError,
+} = require('@open-condo/keystone/test.utils')
+
 const { NON_SERVICE_USER_ERROR } = require('@condo/domains/miniapp/constants')
+const { ERRORS } = require('@condo/domains/miniapp/schema/B2BAppAccessRight')
+const {
+    createTestB2BApp,
+    createTestB2BAppAccessRight,
+    updateTestB2BAppAccessRight,
+    B2BAppAccessRight, createTestB2BAppAccessRightSet,
+} = require('@condo/domains/miniapp/utils/testSchema')
+const {
+    makeClientWithSupportUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
+    registerNewServiceUserByTestClient,
+} = require('@condo/domains/user/utils/testSchema')
+
 
 describe('B2BAppAccessRight', () => {
     describe('CRUD', () => {
@@ -183,6 +190,68 @@ describe('B2BAppAccessRight', () => {
                     user: { connect: { id: client.user.id } },
                 })
             }, NON_SERVICE_USER_ERROR)
+        })
+
+        test('One service user can be linked for different B2BApps', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+
+            const [app] = await createTestB2BApp(admin)
+            const [app2] = await createTestB2BApp(admin)
+
+            const [accessRight1] = await createTestB2BAppAccessRight(admin, serviceUser, app)
+            const [accessRight2] = await createTestB2BAppAccessRight(admin, serviceUser, app2)
+
+            expect(accessRight1).toBeDefined()
+            expect(accessRight2).toBeDefined()
+        })
+
+        test('Сan not create or update "B2BAppAccessRight" if "app" and "accessRightSet" refer to different "B2BApp"', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+
+            const [app] = await createTestB2BApp(admin)
+            const [app2] = await createTestB2BApp(admin)
+
+            // access right sets for first app
+            const [accessRightSet1] = await createTestB2BAppAccessRightSet(admin, app)
+
+            // access right sets for second app
+            const [accessRightSet2] = await createTestB2BAppAccessRightSet(admin, app2)
+
+            // cannot create B2BAppAccessRight for app if accessRightSet for another app
+            await expectToThrowGQLError(async () => {
+                await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSet2)
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
+
+            // can create B2BAppAccessRight for app if accessRightSet for that app
+            const [b2BAppAccessRight] = await createTestB2BAppAccessRight(admin, serviceUser, app, accessRightSet1)
+
+            // cannot update B2BAppAccessRight for app if accessRightSet for another app
+            await expectToThrowGQLError(async () => {
+                await updateTestB2BAppAccessRight(admin, b2BAppAccessRight.id, {
+                    app: { connect: { id: app2.id } },
+                })
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
+            await expectToThrowGQLError(async () => {
+                await updateTestB2BAppAccessRight(admin, b2BAppAccessRight.id, {
+                    accessRightSet: { connect: { id: accessRightSet2.id } },
+                })
+            }, ERRORS.ACCESS_RIGHT_SET_NOT_FOR_CONNECTED_B2B_APP)
+        })
+    })
+    describe('Constraints', () => {
+        test('Cannot be created 2 active access rights for a single app', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [serviceUser] = await registerNewServiceUserByTestClient(admin)
+            const [serviceUser2] = await registerNewServiceUserByTestClient(admin)
+
+            const [app] = await createTestB2BApp(admin)
+            await createTestB2BAppAccessRight(admin, serviceUser, app)
+
+            await expectToThrowUniqueConstraintViolationError(async () => {
+                await createTestB2BAppAccessRight(admin, serviceUser2, app)
+            }, 'b2b_app_access_right_unique_app')
         })
     })
 })

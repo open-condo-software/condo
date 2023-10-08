@@ -3,13 +3,11 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { addResidentAccess } = require('@condo/domains/user/utils/testSchema')
-const { CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY } = require('../../gql')
-const { throwIfError } = require('@condo/codegen/generate.test.utils')
+const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
-const { generateGQLTestUtils } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 const { buildFakeAddressAndMeta } = require('./factories')
 const { Property: PropertyGQL } = require('@condo/domains/property/gql')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
@@ -74,17 +72,6 @@ async function makeClientWithResidentAccessAndProperty () {
     return client
 }
 
-async function checkPropertyWithAddressExistByTestClient(client, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-
-    const attrs = {
-        ...extraAttrs,
-    }
-    const { data, errors } = await client.query(CHECK_PROPERTY_WITH_ADDRESS_EXIST_QUERY, { data: attrs })
-    throwIfError(data, errors)
-    return [data.result, attrs]
-}
-
 async function exportPropertiesToExcelByTestClient(client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
 
@@ -102,7 +89,6 @@ module.exports = {
     createTestProperty,
     updateTestProperty,
     makeClientWithProperty,
-    checkPropertyWithAddressExistByTestClient,
     makeClientWithResidentAccessAndProperty,
     exportPropertiesToExcelByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */

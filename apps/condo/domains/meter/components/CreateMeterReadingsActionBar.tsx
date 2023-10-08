@@ -1,17 +1,15 @@
-import React, { CSSProperties } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { Col, Form, Row } from 'antd'
+import { Form } from 'antd'
 import { isEmpty } from 'lodash'
-import { PlusCircleFilled } from '@ant-design/icons'
+import React from 'react'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
+import { PlusCircle } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
+import { ActionBar } from '@open-condo/ui'
 
-import { ErrorsContainer } from './ErrorsContainer'
-import { Gutter } from 'antd/es/grid/row'
+import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
+import { METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
-const BUTTON_STYLE: CSSProperties = { marginRight: '12px' }
-const VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+
 const PROPERTY_DEPENDENCY = ['property']
 const handleShouldUpdate = (prev, next) => prev.unitName !== next.unitName
 
@@ -20,11 +18,15 @@ export const CreateMeterReadingsActionBar = ({
     handleAddMeterButtonClick,
     isLoading,
     newMeterReadings,
+    meterType,
 }) => {
     const intl = useIntl()
     const SendMetersReadingMessage = intl.formatMessage({ id: 'pages.condo.meter.SendMetersReading' })
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
-    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
+    const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
 
     return (
         <Form.Item
@@ -33,43 +35,59 @@ export const CreateMeterReadingsActionBar = ({
             shouldUpdate={handleShouldUpdate}
         >
             {
-                ({ getFieldsValue, getFieldError }) => {
-                    const { property, unitName } = getFieldsValue(['property', 'unitName'])
-                    const isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
-                    const isCreateMeterButtonDisabled = !property || !unitName
-                    const propertyMismatchError = getFieldError('property').find((error)=>error.includes(AddressNotSelected))
+                ({ getFieldsValue, getFieldValue, getFieldError }) => {
+                    let isSubmitButtonDisabled, isCreateMeterButtonDisabled, errors, requiredErrorMessage
+                    if (meterType === METER_PAGE_TYPES.meter) {
+                        const { property, unitName } = getFieldsValue(['property', 'unitName'])
+                        isSubmitButtonDisabled = !property || !unitName || isEmpty(newMeterReadings)
+                        isCreateMeterButtonDisabled = !property || !unitName
+                        const propertyMismatchError = getFieldError('property').find((error)=>error.includes(FieldIsRequiredMessage))
+                        const propertyErrorMessage = !property && AddressLabel
+                        const unitErrorMessage = !unitName && UnitMessage
+                        const fieldsErrorMessages = [propertyErrorMessage, unitErrorMessage]
+                            .filter(Boolean)
+                            .map(errorField => errorField.toLowerCase())
+                            .join(', ')
+                        const requiredErrorMessage = fieldsErrorMessages && ErrorsContainerTitle.concat(' ', fieldsErrorMessages)
+
+                        errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')
+                    } else {
+                        const property = getFieldValue('property')
+                        const propertyMismatchError = getFieldError('property').find((error)=>error.includes(FieldIsRequiredMessage))
+                        const propertyErrorMessage = !property && AddressLabel
+                        isSubmitButtonDisabled = !property || isEmpty(newMeterReadings)
+                        isCreateMeterButtonDisabled = !property
+                        requiredErrorMessage = propertyErrorMessage && ErrorsContainerTitle.concat(' ', propertyErrorMessage)
+
+                        errors = [requiredErrorMessage, propertyMismatchError].filter(Boolean).join(',')
+                    }
+
+
                     return (
-                        <ActionBar>
-                            <Col>
-                                <Row gutter={VERTICAL_GUTTER}>
-                                    <Button
-                                        key='submit'
-                                        onClick={handleSave}
-                                        type='sberDefaultGradient'
-                                        loading={isLoading}
-                                        disabled={isSubmitButtonDisabled}
-                                        style={BUTTON_STYLE}
-                                    >
-                                        {SendMetersReadingMessage}
-                                    </Button>
-                                    <Button
-                                        onClick={handleAddMeterButtonClick}
-                                        type='sberDefaultGradient'
-                                        disabled={isCreateMeterButtonDisabled}
-                                        icon={<PlusCircleFilled/>}
-                                        secondary
-                                        style={BUTTON_STYLE}
-                                    >
-                                        {AddMeterMessage}
-                                    </Button>
-                                    <ErrorsContainer
-                                        property={property}
-                                        unitName={unitName}
-                                        propertyMismatchError={propertyMismatchError}
-                                    />
-                                </Row>
-                            </Col>
-                        </ActionBar>
+                        <ActionBar
+                            actions={[
+                                <ButtonWithDisabledTooltip
+                                    key='sendReadings'
+                                    title={errors}
+                                    onClick={handleSave}
+                                    type='primary'
+                                    loading={isLoading}
+                                    disabled={isSubmitButtonDisabled}
+                                >
+                                    {SendMetersReadingMessage}
+                                </ButtonWithDisabledTooltip>,
+                                <ButtonWithDisabledTooltip
+                                    key='addMeter'
+                                    title={requiredErrorMessage}
+                                    onClick={handleAddMeterButtonClick}
+                                    type='secondary'
+                                    disabled={isCreateMeterButtonDisabled}
+                                    icon={<PlusCircle size='medium'/>}
+                                >
+                                    {AddMeterMessage}
+                                </ButtonWithDisabledTooltip>,
+                            ]}
+                        />
                     )
                 }
             }

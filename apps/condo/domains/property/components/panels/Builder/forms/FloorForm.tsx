@@ -1,10 +1,13 @@
-import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
-import { useIntl } from '@condo/next/intl'
 import { BuildingUnitSubType } from '@app/condo/schema'
 import { Row, Col, Space, Typography, InputNumber } from 'antd'
-import Select from '@condo/domains/common/components/antd/Select'
+import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
+import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
+
 import {
     IPropertyMapModalForm,
     MODAL_FORM_ROW_GUTTER,
@@ -151,7 +154,6 @@ const AddSectionFloor: React.FC<IPropertyMapModalForm> = ({ builder, refresh }) 
                     <Row gutter={MODAL_FORM_ROW_BUTTONS_GUTTER}>
                         <Col span={24}>
                             <Button
-                                secondary
                                 onClick={applyChanges}
                                 type='sberDefaultGradient'
                                 disabled={isSubmitDisabled}

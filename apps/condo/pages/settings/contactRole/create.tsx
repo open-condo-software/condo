@@ -1,11 +1,13 @@
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { ContactRoleForm } from '@condo/domains/contact/components/contactRoles/ContactRoleForm'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { useIntl } from '@condo/next/intl'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Head from 'next/head'
 import React, { CSSProperties } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { ContactRoleForm } from '@condo/domains/contact/components/contactRoles/ContactRoleForm'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]

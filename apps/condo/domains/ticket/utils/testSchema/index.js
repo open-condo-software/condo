@@ -4,12 +4,12 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { get } = require('lodash')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-const { makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 const { TICKET_STATUS_TYPES, ORGANIZATION_COMMENT_TYPE } = require('../../constants')
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { Ticket: TicketGQL, EXPORT_TICKETS_TO_EXCEL } = require('@condo/domains/ticket/gql')
 const {
     TicketStatus: TicketStatusGQL,
@@ -34,7 +34,18 @@ const { TicketPropertyHintProperty: TicketPropertyHintPropertyGQL } = require('@
 const { TicketOrganizationSetting: TicketOrganizationSettingGQL } = require('@condo/domains/ticket/gql')
 const { TicketExportTask: TicketExportTaskGQL } = require('@condo/domains/ticket/gql')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { EXCEL, PROCESSING } = require('@condo/domains/common/constants/export')
+const { EXCEL } = require('@condo/domains/common/constants/export')
+const { Incident: IncidentGQL } = require('@condo/domains/ticket/gql')
+const { IncidentProperty: IncidentPropertyGQL } = require('@condo/domains/ticket/gql')
+const { IncidentChange: IncidentChangeGQL } = require('@condo/domains/ticket/gql')
+const { IncidentClassifier: IncidentClassifierGQL } = require('@condo/domains/ticket/gql')
+const { IncidentClassifierIncident: IncidentClassifierIncidentGQL } = require('@condo/domains/ticket/gql')
+const { UserFavoriteTicket: UserFavoriteTicketGQL } = require('@condo/domains/ticket/gql')
+const { IncidentExportTask: IncidentExportTaskGQL } = require('@condo/domains/ticket/gql')
+const { CallRecord: CallRecordGQL } = require('@condo/domains/ticket/gql')
+const { CallRecordFragment: CallRecordFragmentGQL } = require('@condo/domains/ticket/gql')
+const { createTestPhone } = require('@condo/domains/user/utils/testSchema')
+const { TICKET_MULTIPLE_UPDATE_MUTATION } = require('@condo/domains/ticket/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const TICKET_OPEN_STATUS_ID ='6ef3abc4-022f-481b-90fb-8430345ebfc2'
@@ -59,6 +70,15 @@ const TicketPropertyHint = generateGQLTestUtils(TicketPropertyHintGQL)
 const TicketPropertyHintProperty = generateGQLTestUtils(TicketPropertyHintPropertyGQL)
 const TicketOrganizationSetting = generateGQLTestUtils(TicketOrganizationSettingGQL)
 const TicketExportTask = generateGQLTestUtils(TicketExportTaskGQL)
+const Incident = generateGQLTestUtils(IncidentGQL)
+const IncidentProperty = generateGQLTestUtils(IncidentPropertyGQL)
+const IncidentChange = generateGQLTestUtils(IncidentChangeGQL)
+const IncidentClassifier = generateGQLTestUtils(IncidentClassifierGQL)
+const IncidentClassifierIncident = generateGQLTestUtils(IncidentClassifierIncidentGQL)
+const UserFavoriteTicket = generateGQLTestUtils(UserFavoriteTicketGQL)
+const IncidentExportTask = generateGQLTestUtils(IncidentExportTaskGQL)
+const CallRecord = generateGQLTestUtils(CallRecordGQL)
+const CallRecordFragment = generateGQLTestUtils(CallRecordFragmentGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestTicket (client, organization, property, extraAttrs = {}) {
@@ -109,7 +129,7 @@ async function createTestTicketStatus (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const name = faker.random.alphaNumeric(8)
-    const type = faker.random.arrayElement(TICKET_STATUS_TYPES)
+    const type = faker.helpers.arrayElement(TICKET_STATUS_TYPES)
 
     const attrs = {
         dv: 1,
@@ -645,6 +665,308 @@ async function exportTestTicketsToExcel (client, where={}, data={}) {
     return task
 }
 
+async function createTestIncident (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await Incident.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncident (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await Incident.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestIncidentProperty (client, incident, property, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!incident || !incident.id) throw new Error('no incident.id')
+    if (!property || !property.id) throw new Error('no property.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        incident: { connect: { id: incident.id } },
+        property: { connect: { id: property.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentProperty.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentProperty (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentProperty.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestIncidentChange (client, incident, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!incident || !incident.id) throw new Error('no incident.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        incident: { connect: { id: incident.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentChange.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentChange (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentChange.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestIncidentClassifier (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const admin = await makeLoggedInAdminClient()
+    const [category] = await createTestTicketCategoryClassifier(admin)
+    const [problem] = await createTestTicketProblemClassifier(admin)
+    const attrs = {
+        dv: 1,
+        sender,
+        category: { connect: { id: category.id } },
+        problem: { connect: { id: problem.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentClassifier.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentClassifier (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentClassifier.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestIncidentClassifierIncident (client, incident, classifier, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!incident || !incident.id) throw new Error('no incident.id')
+    if (!classifier || !classifier.id) throw new Error('no classifier.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        incident: { connect: { id: incident.id } },
+        classifier: { connect: { id: classifier.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentClassifierIncident.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentClassifierIncident (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentClassifierIncident.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestUserFavoriteTicket (client, user, ticket, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        ticket: { connect: { id: ticket.id } },
+        ...extraAttrs,
+    }
+    const obj = await UserFavoriteTicket.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestUserFavoriteTicket (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await UserFavoriteTicket.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestIncidentExportTask (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        format: EXCEL,
+        where: {},
+        sortBy: ['createdAt_DESC'],
+        locale: faker.random.locale(),
+        timeZone: 'Europe/Moscow',
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await IncidentExportTask.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestIncidentExportTask (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await IncidentExportTask.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestCallRecord (client, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const callerPhone = createTestPhone()
+    const destCallerPhone = createTestPhone()
+    const talkTime = Math.abs(Number(faker.random.numeric(3)))
+    const startedAt = new Date()
+    const isIncomingCall = true
+    const importId = faker.random.alphaNumeric(10)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        callerPhone,
+        destCallerPhone,
+        talkTime,
+        startedAt,
+        isIncomingCall,
+        importId,
+        ...extraAttrs,
+    }
+    const obj = await CallRecord.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestCallRecord (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CallRecord.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+async function createTestCallRecordFragment (client, ticket, callRecord, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!ticket || !ticket.id) throw new Error('no ticket.id')
+    if (!callRecord || !callRecord.id) throw new Error('no callRecord.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ticket: { connect: { id: ticket.id } },
+        callRecord: { connect: { id: callRecord.id } },
+        startedAt: new Date(),
+        ...extraAttrs,
+    }
+    const obj = await CallRecordFragment.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestCallRecordFragment (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await CallRecordFragment.update(client, id, attrs)
+    return [obj, attrs]
+}
+
+
+async function ticketMultipleUpdateByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(TICKET_MULTIPLE_UPDATE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 async function makeClientWithTicket () {
@@ -689,5 +1011,15 @@ module.exports = {
     TicketOrganizationSetting, createTestTicketOrganizationSetting, updateTestTicketOrganizationSetting,
     TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask,
     exportTestTicketsToExcel,
+    Incident, createTestIncident, updateTestIncident,
+    IncidentProperty, createTestIncidentProperty, updateTestIncidentProperty,
+    IncidentChange, createTestIncidentChange, updateTestIncidentChange,
+    IncidentClassifier, createTestIncidentClassifier, updateTestIncidentClassifier,
+    IncidentClassifierIncident, createTestIncidentClassifierIncident, updateTestIncidentClassifierIncident,
+    UserFavoriteTicket, createTestUserFavoriteTicket, updateTestUserFavoriteTicket,
+    IncidentExportTask, createTestIncidentExportTask, updateTestIncidentExportTask,
+    CallRecord, createTestCallRecord, updateTestCallRecord,
+    CallRecordFragment, createTestCallRecordFragment, updateTestCallRecordFragment,
+    ticketMultipleUpdateByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

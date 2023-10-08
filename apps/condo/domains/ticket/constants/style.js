@@ -9,22 +9,22 @@ const STATUS_SELECT_COLORS = {
         additional: '#FFFFFF',
     },
     [PROCESSING]: {
-        primary: '#F08633',
+        primary: '#FF9500',
         secondary: '#FFFFFF',
         additional: '#FFC069',
     },
     [COMPLETED]: {
-        primary: '#33CE66',
+        primary: '#39CE66',
         secondary: '#FFFFFF',
         additional: '#95DE64',
     },
     [CLOSED]: {
-        primary: '#159A41',
+        primary: '#1C7E79',
         secondary: '#FFFFFF',
         additional: '#BFBFBF',
     },
     [DEFERRED]: {
-        primary: '#3786C7',
+        primary: '#2696F3',
         secondary: '#FFFFFF',
         additional: '#FFA39E',
     },
@@ -41,7 +41,7 @@ const STATUS_SELECT_COLORS = {
  */
 const TICKET_TYPE_TAG_COLORS = {
     emergency: 'red',
-    paid: 'orange',
+    payable: 'orange',
     warranty: 'purple',
     returned: 'volcano',
 }

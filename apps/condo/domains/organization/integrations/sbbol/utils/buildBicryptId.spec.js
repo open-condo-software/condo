@@ -2,10 +2,11 @@
 // should be instantiated before any module import
 const mockLoggerError = jest.fn()
 
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
 const { buildBicryptId } = require('./buildBicryptId')
 
-jest.mock('@condo/keystone/logging', () => {
+jest.mock('@open-condo/keystone/logging', () => {
     return {
         getLogger: () => { return { error: mockLoggerError }},
     }

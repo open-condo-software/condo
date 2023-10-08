@@ -1,26 +1,34 @@
+const dayjs = require('dayjs')
+const compact = require('lodash/compact')
 const get = require('lodash/get')
 const isNull = require('lodash/isNull')
 const map = require('lodash/map')
-const compact = require('lodash/compact')
-const { TicketExportTask, TicketStatus, Ticket } = require('../utils/serverSchema')
-const { exportRecordsAsXlsxFile, exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
-const { createTask } = require('@condo/keystone/tasks')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
-const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE, REVIEW_VALUES } = require('@condo/domains/ticket/constants')
-const { buildExportFile: _buildExportFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
-const dayjs = require('dayjs')
-const {
-    getHeadersTranslations,
-    EXPORT_TYPE_TICKETS,
-    ticketStatusesTranslations,
-} = require('@condo/domains/common/utils/exportToExcel')
-const { i18n } = require('@condo/locales/loader')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
-const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
+
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { createTask } = require('@open-condo/keystone/tasks')
+const { i18n } = require('@open-condo/locales/loader')
+
+const { ERROR, PDF } = require('@condo/domains/common/constants/export')
+const { EXCEL } = require('@condo/domains/common/constants/export')
 const { TASK_WORKER_FINGERPRINT } = require('@condo/domains/common/constants/tasks')
-const { ERROR } = require('@condo/domains/common/constants/export')
+const { buildExportFile: _buildExportFile, EXCEL_FILE_META } = require('@condo/domains/common/utils/createExportFile')
+const { findAllByKey } = require('@condo/domains/common/utils/ecmascript.utils')
+const { getHeadersTranslations, EXPORT_TYPE_TICKETS, ticketStatusesTranslations } = require('@condo/domains/common/utils/exportToExcel')
+const { exportRecordsAsXlsxFile, exportRecordsAsCsvFile } = require('@condo/domains/common/utils/serverSchema/export')
 const { setLocaleForKeystoneContext } = require('@condo/domains/common/utils/serverSchema/setLocaleForKeystoneContext')
+const { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } = require('@condo/domains/ticket/constants')
+const { FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY, FEEDBACK_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
+const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_BY_KEY, QUALITY_CONTROL_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/qualityControl')
+const { convertQualityControlOrFeedbackOptionsToText, filterFeedbackOptionsByScore, filterQualityControlOptionsByScore } = require( '@condo/domains/ticket/utils')
+const { buildTicketsLoader, loadTicketCommentsForExcelExport, loadClassifiersForExcelExport } = require('@condo/domains/ticket/utils/serverSchema')
+const { TicketExportTask, TicketStatus, Ticket } = require('@condo/domains/ticket/utils/serverSchema')
+const { exportTicketBlanksToPdf } = require('@condo/domains/ticket/utils/serverSchema/exportTicketBlanksToPdf')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
+
+
+const appLogger = getLogger('condo')
+const taskLogger = appLogger.child({ module: 'exportTickets' })
 
 const TICKET_COMMENTS_SEPARATOR = '\n' + '—'.repeat(20) + '\n'
 
@@ -35,9 +43,28 @@ const EMPTY_VALUE = '—'
 // When records count is more than this constant, CSV file will be generated instead of Excel
 const MAX_XLSX_FILE_ROWS = 10000
 
-const buildReviewValuesTranslationsFrom = (locale) => ({
-    [REVIEW_VALUES.BAD]: i18n('ticket.reviewValue.bad', { locale }),
-    [REVIEW_VALUES.GOOD]: i18n('ticket.reviewValue.good', { locale }),
+const buildFeedbackValuesTranslationsFrom = (locale) => ({
+    [FEEDBACK_VALUES_BY_KEY.BAD]: i18n('ticket.feedback.bad', { locale }),
+    [FEEDBACK_VALUES_BY_KEY.GOOD]: i18n('ticket.feedback.good', { locale }),
+})
+
+const buildFeedbackAdditionalOptionsTranslationsFrom = (locale) => ({
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.LOW_QUALITY]: i18n('ticket.feedback.options.lowQuality', { locale }).toLowerCase(),
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.SLOWLY]: i18n('ticket.feedback.options.slowly', { locale }).toLowerCase(),
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.HIGH_QUALITY]: i18n('ticket.feedback.options.highQuality', { locale }).toLowerCase(),
+    [FEEDBACK_ADDITIONAL_OPTIONS_BY_KEY.QUICKLY]: i18n('ticket.feedback.options.quickly', { locale }).toLowerCase(),
+})
+
+const buildQualityControlValuesTranslationsFrom = (locale) => ({
+    [QUALITY_CONTROL_VALUES_BY_KEY.BAD]: i18n('ticket.qualityControl.bad', { locale }),
+    [QUALITY_CONTROL_VALUES_BY_KEY.GOOD]: i18n('ticket.qualityControl.good', { locale }),
+})
+
+const buildQualityControlAdditionalOptionsTranslationsFrom = (locale) => ({
+    [QUALITY_CONTROL_ADDITIONAL_OPTIONS_BY_KEY.LOW_QUALITY]: i18n('ticket.qualityControl.options.lowQuality', { locale }).toLowerCase(),
+    [QUALITY_CONTROL_ADDITIONAL_OPTIONS_BY_KEY.SLOWLY]: i18n('ticket.qualityControl.options.slowly', { locale }).toLowerCase(),
+    [QUALITY_CONTROL_ADDITIONAL_OPTIONS_BY_KEY.HIGH_QUALITY]: i18n('ticket.qualityControl.options.highQuality', { locale }).toLowerCase(),
+    [QUALITY_CONTROL_ADDITIONAL_OPTIONS_BY_KEY.QUICKLY]: i18n('ticket.qualityControl.options.quickly', { locale }).toLowerCase(),
 })
 
 const renderComment = (comment, locale, timeZone) => {
@@ -51,16 +78,38 @@ const renderComment = (comment, locale, timeZone) => {
     return `${createdAt}, ${createdBy} (${userType}): «${content}» ${filesCountToRender}`
 }
 
+const renderFeedbackAdditionalOptions = (ticket, locale) => {
+    if (!ticket.feedbackAdditionalOptions || !ticket.feedbackValue) return null
+
+    const optionsTranslations = buildFeedbackAdditionalOptionsTranslationsFrom(locale)
+
+    const selectedOption = filterFeedbackOptionsByScore(ticket.feedbackValue, ticket.feedbackAdditionalOptions)
+    return convertQualityControlOrFeedbackOptionsToText(selectedOption, optionsTranslations)
+}
+
+const renderQualityControlAdditionalOptions = (ticket, locale) => {
+    if (!ticket.qualityControlAdditionalOptions || !ticket.qualityControlValue) return null
+
+    const optionsTranslations = buildQualityControlAdditionalOptionsTranslationsFrom(locale)
+
+    const selectedOption = filterQualityControlOptionsByScore(ticket.qualityControlValue, ticket.qualityControlAdditionalOptions)
+    return convertQualityControlOrFeedbackOptionsToText(selectedOption, optionsTranslations)
+}
+
 /**
  * Converts record obtained from database to JSON representation for file row
  *
+ * @param task
  * @param ticket - record of Ticket with related objects converted by `GqlWithKnexLoadList` to its display names (for example `Ticket.source` -> `Ticket.source.name`)
- * @return {Promise<{clientName, description: string, source: string, operator: (*|string), number, isEmergency: (string), createdAt: *, statusReopenedCounter: string, executor: string, property, classifier: string, details, isWarranty: (string), floorName, place: string, organizationComments: string, deadline: (*|string), entranceName, updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: string, unitName, reviewComment: (*|string), clientPhone, isPaid: (string), organization, assignee: string, category: string, reviewValue: (*|string), status}>}
+ * @param indexedStatuses
+ * @param classifier
+ * @return {Promise<{clientName, deferredUntil: (*|string), description: string, source: (string|string), feedbackComment: string, operator: string, unitType: (string|string), number, isEmergency: string, createdAt: *, statusReopenedCounter: (*|number|string), executor: string, contact: string, property: (*|string), details, isWarranty: string, floorName, place: string, organizationComments: (string|string), closedAt: (*|string), deadline: (*|string), entranceName: (string|string), updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: (string|string), feedbackAdditionalOptions: (*|string), unitName, clientPhone, feedbackValue: (*|string), isPayable: string, organization, assignee: string, category: string, status: *}>}
  */
 const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
     const { locale, timeZone } = task
 
-    const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
+    const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
+    const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
     const ticketClassifier = classifier.filter(rule => rule.id === ticket.classifier)
 
@@ -102,7 +151,7 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
         clientPhone: ticket.clientPhone,
         details: ticket.details,
         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
-        isPaid: ticket.isPaid ? YesMessage : NoMessage,
+        isPayable: ticket.isPayable ? YesMessage : NoMessage,
         isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
         place: get(ticketClassifier, [0, 'place']) || EMPTY_VALUE,
         category: get(ticketClassifier, [0, 'category']) || EMPTY_VALUE,
@@ -114,15 +163,22 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
         updatedAt: formatDate(ticket.updatedAt),
         status: indexedStatuses[ticket.status],
         deferredUntil: ticket.deferredUntil ? formatDate(ticket.deferredUntil) : EMPTY_VALUE,
-        operator: ticket.operator || ticket.createdBy || EMPTY_VALUE,
+        operator: ticket.createdBy || EMPTY_VALUE,
         executor: ticket.executor || EMPTY_VALUE,
         assignee: ticket.assignee || EMPTY_VALUE,
         organizationComments: renderedOrganizationComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
         residentComments: renderedResidentComments.join(TICKET_COMMENTS_SEPARATOR) || EMPTY_VALUE,
         deadline: ticket.deadline ? formatDate(ticket.deadline) : EMPTY_VALUE,
-        reviewValue: ticket.reviewValue ? reviewValuesTranslations[ticket.reviewValue] : EMPTY_VALUE,
-        reviewComment: ticket.reviewComment || EMPTY_VALUE,
+        feedbackValue: ticket.feedbackValue ? feedbackValuesTranslations[ticket.feedbackValue] : EMPTY_VALUE,
+        feedbackComment: ticket.feedbackComment || EMPTY_VALUE,
+        feedbackAdditionalOptions: renderFeedbackAdditionalOptions(ticket, locale) || EMPTY_VALUE,
+        feedbackUpdatedAt: ticket.feedbackUpdatedAt ? formatDate(ticket.feedbackUpdatedAt) : EMPTY_VALUE,
         statusReopenedCounter: ticket.statusReopenedCounter || EMPTY_VALUE,
+        qualityControlValue: ticket.qualityControlValue ? qualityControlValuesTranslations[ticket.qualityControlValue] : EMPTY_VALUE,
+        qualityControlComment: ticket.qualityControlComment || EMPTY_VALUE,
+        qualityControlAdditionalOptions: renderQualityControlAdditionalOptions(ticket, locale) || EMPTY_VALUE,
+        qualityControlUpdatedAt: ticket.qualityControlUpdatedAt ? formatDate(ticket.qualityControlUpdatedAt) : EMPTY_VALUE,
+        qualityControlUpdatedBy: ticket.qualityControlUpdatedBy || EMPTY_VALUE,
     }
 }
 
@@ -138,7 +194,8 @@ const buildExportFile = async ({ rows, task }) => {
         headerMessage = `${i18n('excelExport.header.tickets.forPeriod', { locale })} ${formatDate(createdAtGte)} — ${formatDate(createdAtLte)}`
     }
 
-    const reviewValuesTranslations = buildReviewValuesTranslationsFrom(locale)
+    const feedbackValuesTranslations = buildFeedbackValuesTranslationsFrom(locale)
+    const qualityControlValuesTranslations = buildQualityControlValuesTranslationsFrom(locale)
 
     const { stream } = await _buildExportFile({
         templatePath: './domains/ticket/templates/TicketsExportTemplate.xlsx',
@@ -153,7 +210,8 @@ const buildExportFile = async ({ rows, task }) => {
                 statusNames: ticketStatusesTranslations(locale),
 
                 yes: i18n('Yes', { locale }),
-                reviewValues: reviewValuesTranslations,
+                feedbackValues: feedbackValuesTranslations,
+                qualityControlValues: qualityControlValuesTranslations,
             },
         },
     })
@@ -186,6 +244,7 @@ async function exportTickets (taskId) {
     const { keystone: context } = await getSchemaCtx('TicketExportTask')
 
     let task = await TicketExportTask.getOne(context, { id: taskId })
+    const { where, sortBy, format } = task
     const baseAttrs = {
         dv: 1,
         sender: {
@@ -202,53 +261,70 @@ async function exportTickets (taskId) {
         throw new Error(`TicketExportTask with id "${task.id}" does not have value for "locale" field!`)
     }
 
-    // NOTE: A field `TicketStatus.name` of type `LocalizedText` depends on `context.req` to determine current locale,
-    // but here it is not used in scope of HTTP-request — it's a scope of the worker
-    // which determines user requested locale from `TicketExportTask.locale` field value
-    setLocaleForKeystoneContext(context, task.locale)
+    try {
+        // NOTE: A field `TicketStatus.name` of type `LocalizedText` depends on `context.req` to determine current locale,
+        // but here it is not used in scope of HTTP-request — it's a scope of the worker
+        // which determines user requested locale from `TicketExportTask.locale` field value
+        setLocaleForKeystoneContext(context, task.locale)
 
-    const statuses = await TicketStatus.getAll(context, {})
-    const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
+        const statuses = await TicketStatus.getAll(context, {})
+        const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 
-    let classifier
+        let classifier
 
-    const { where, sortBy } = task
-    const ticketsLoader = await buildTicketsLoader({ where, sortBy })
-    const totalRecordsCount = await Ticket.count(context, where)
+        const ticketsLoader = await buildTicketsLoader({ where, sortBy })
+        const totalRecordsCount = await Ticket.count(context, where)
 
-    const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
-    const loadRecordsBatch = async (offset, limit) => {
-        const tickets = await ticketsLoader.loadChunk(offset, limit)
-        const classifierRuleIds = compact(map(tickets, 'classifier'))
-        classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
-        // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
-        this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
-        return tickets
-    }
+        const convertRecordToFileRow = (ticket) => ticketToRow({ task, ticket, indexedStatuses, classifier })
+        const loadRecordsBatch = async (offset, limit) => {
+            const tickets = await ticketsLoader.loadChunk(offset, limit)
+            const classifierRuleIds = compact(map(tickets, 'classifier'))
+            classifier = await loadClassifiersForExcelExport({ classifierRuleIds })
+            // See how `this` gets value of a job in `executeTask` function in `packages/keystone/tasks.js` module via `fn.apply(job, args)`
+            this.progress(Math.floor(offset / totalRecordsCount * 100)) // Breaks execution after `this.progress`. Without this call it works
+            return tickets
+        }
 
-    if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
-        await exportRecordsAsCsvFile({
-            context,
-            loadRecordsBatch,
-            convertRecordToFileRow,
-            baseAttrs,
-            taskServerUtils: TicketExportTask,
-            totalRecordsCount,
-            taskId,
+        switch (format) {
+            case EXCEL: {
+                if (totalRecordsCount > MAX_XLSX_FILE_ROWS) {
+                    await exportRecordsAsCsvFile({
+                        context,
+                        loadRecordsBatch,
+                        convertRecordToFileRow,
+                        baseAttrs,
+                        taskServerUtils: TicketExportTask,
+                        totalRecordsCount,
+                        taskId,
+                    })
+                } else {
+                    await exportRecordsAsXlsxFile({
+                        context,
+                        loadRecordsBatch,
+                        convertRecordToFileRow,
+                        buildExportFile: (rows) => buildExportFile({ rows, task }),
+                        baseAttrs,
+                        taskServerUtils: TicketExportTask,
+                        totalRecordsCount,
+                        taskId,
+                    })
+                }
+                break
+            }
+            case PDF: {
+                await exportTicketBlanksToPdf({ context, task, baseAttrs, where, sortBy })
+                break
+            }
+        }
+
+    } catch (error) {
+        taskLogger.error({
+            msg: 'Failed to export tickets',
+            data: { id: task.id },
+            error,
         })
-    } else {
-        await exportRecordsAsXlsxFile({
-            context,
-            loadRecordsBatch,
-            convertRecordToFileRow,
-            buildExportFile: (rows) => buildExportFile({ rows, task }),
-            baseAttrs,
-            taskServerUtils: TicketExportTask,
-            totalRecordsCount,
-            taskId,
-        })
+        throw error
     }
-
 }
 
 module.exports = {

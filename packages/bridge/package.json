@@ -1,0 +1,49 @@
+{
+  "name": "@open-condo/bridge",
+  "description": "A library that allows the client of your mini-application to communicate with the main user's client on different devices, using a common bridge API ",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "client",
+    "bridge"
+  ],
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/bridge"
+  },
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "msavelyev@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/index.js",
+  "module": "dist/index.es.js",
+  "browser": "dist/index.umd.js",
+  "types": "dist/types/src/index.d.ts",
+  "scripts": {
+    "build": "rm -rf dist && NODE_ENV=production rollup -c",
+    "watch": "rollup -c -w"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@open-condo/tsconfig": "workspace:^",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "rollup": "^2.0.6",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-bundle-size": "^1.0.3",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-uglify": "^6.0.4",
+    "tslib": "^2.4.1",
+    "typescript": "^4.9.4"
+  }
+}

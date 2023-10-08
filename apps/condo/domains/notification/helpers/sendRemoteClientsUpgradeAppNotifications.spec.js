@@ -2,26 +2,24 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const faker = require('faker')
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
 
 const { DATE_FORMAT } = require('@condo/domains/common/utils/date')
-
-const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const {
     RESIDENT_UPGRADE_APP_TYPE, STAFF_UPGRADE_APP_TYPE,
     PUSH_TRANSPORT_FIREBASE, PUSH_TRANSPORT_HUAWEI,
 } = require('@condo/domains/notification/constants/constants')
-
+const { Message, syncRemoteClientByTestClient } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithResidentUser, makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
 const { makeMessageKey, sendRemoteClientsUpgradeAppNotifications } = require('./sendRemoteClientsUpgradeAppNotifications')
 
 const { getRandomTokenData } = require('../utils/testSchema/helpers')
 
-const index = require('@app/condo/index')
 
 describe('sendResidentsNoAccountNotifications', () => {
     setFakeClientMode(index)

@@ -14,16 +14,29 @@ jobs:
     runs-on: self-hosted
     env:
       WERF_SECRET_KEY: ${{ secrets.WERF_SECRET_KEY }}
-      PULL_USER: ${{ secrets.PULL_USER }}
-      PULL_PERSONAL_ACCESS_KEY: ${{ secrets.PULL_PERSONAL_ACCESS_KEY }}
       WERF_PARALLEL: 0
     steps:
+      - name: Login to Sbercloud Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: swr.ru-moscow-1.hc.sbercloud.ru
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+          name: id_rsa
+          known_hosts: ${{ secrets.SSH_DOCK_SERVER_KNOWN_HOSTS }}
+          if_key_exists: replace          
+      - name: Set env for branch name
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_REF##*/} | sed 's/\_/-/g')" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
           submodules: recursive
-          ssh-key: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       - name: Fetch all history for all tags and branches
         run: |
           if $(git rev-parse --is-shallow-repository)
@@ -35,6 +48,7 @@ jobs:
       - name: Cleanup
         uses: werf/actions/cleanup@v1.2
         with:
-          kube-config-base64-data: ${{ secrets.KUBE_CONFIG_BASE64_DATA }}
+          kube-config-base64-data: ${{ secrets.KUBECONFIG_BASE64_PROD_BACKUP_CLUSTER }}
         env:
-          WERF_REPO_GITHUB_TOKEN: ${{ secrets.WERF_CLEANUP_PAM }}
+          WERF_REPO: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo
+          WERF_REPO_CONTAINER_REGISTRY: default

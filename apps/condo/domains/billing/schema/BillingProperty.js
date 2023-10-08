@@ -3,16 +3,20 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
-const access = require('@condo/domains/billing/access/BillingProperty')
-const { find } = require('@condo/keystone/schema')
-const { getById } = require('@condo/keystone/schema')
 const { Virtual } = require('@keystonejs/fields')
-const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
+
+const { Json } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { addressService } = require('@open-condo/keystone/plugins/addressService')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
+
+const access = require('@condo/domains/billing/access/BillingProperty')
+const { IMPORT_ID_FIELD } = require('@condo/domains/common/schema/fields')
+
 const { RAW_DATA_FIELD } = require('./fields/common')
+const { INTEGRATION_CONTEXT_FIELD } = require('./fields/relations')
 
 const BillingProperty = new GQLListSchema('BillingProperty', {
     schemaDoc: 'All `property` objects from `billing data source`',
@@ -32,14 +36,8 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             },
         },
 
-        address: {
-            schemaDoc: 'The non-modified address from the `billing data source`. Used in `receipt template`',
-            type: Text,
-            isRequired: true,
-        },
-
         normalizedAddress: {
-            schemaDoc: 'Normalized address from `billing data source`. Used to map Properties to BillingProperties',
+            schemaDoc: '[DEPRECATED] Normalized address from `billing data source`. Used to map Properties to BillingProperties',
             type: Text,
             isRequired: false,
         },
@@ -56,21 +54,24 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
             schemaDoc: 'Link to the property model',
             type: Virtual,
             graphQLReturnType: 'Property',
-            graphQLReturnFragment: '{ id address }',
+            graphQLReturnFragment: '{ id address addressKey }',
             resolver: async (item) => {
                 const billingContext = await getById('BillingIntegrationOrganizationContext', item.context)
-                const organizationId = billingContext.organization
+                const propertyConditions = item.addressKey
+                    ? { OR: [{ address_i: item.address }, { addressKey: item.addressKey }] }
+                    : { address_i: item.address }
 
-                const [ property ] = await find('Property', {
-                    organization: { id: organizationId },
-                    address_i: item.address,
+                const [property] = await find('Property', {
+                    organization: { id: billingContext.organization },
+                    ...propertyConditions,
+                    deletedAt: null,
                 })
 
                 return property
             },
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), addressService(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadBillingProperties,
         create: access.canManageBillingProperties,

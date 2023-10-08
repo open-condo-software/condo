@@ -1,15 +1,18 @@
 import { Typography } from 'antd'
-import { useAuth } from '@condo/next/auth'
-import { useOrganization } from '@condo/next/organization'
-import { useIntl } from '@condo/next/intl'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { useEffect, useMemo } from 'react'
+
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { OnBoarding as OnBoardingHooks } from '@condo/domains/onboarding/utils/clientSchema'
 
-import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { Loader } from '@condo/domains/common/components/Loader'
-import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
 
 const OrganizationRequiredAfterAuthRequired: React.FC<{ withEmployeeRestrictions?: boolean }> = ({ children, withEmployeeRestrictions }) => {
     const intl = useIntl()
@@ -84,5 +87,43 @@ export const OrganizationRequired: React.FC<{ withEmployeeRestrictions?: boolean
                 {children}
             </OrganizationRequiredAfterAuthRequired>
         </AuthRequired>
+    )
+}
+
+type PermissionRequiredPageProps = {
+    permissionKeys: string[]
+}
+
+const PermissionsRequiredWrapper: React.FC<PermissionRequiredPageProps> = ({ children, permissionKeys }) => {
+    const { link } = useOrganization()
+
+    const role = useMemo(() => get(link, 'role'), [link])
+
+    const isAccessDenied = useMemo(() => {
+        if (!role) return true
+
+        for (const permissionKey of permissionKeys) {
+            if (!role[permissionKey]) {
+                return true
+            }
+        }
+
+        return false
+    }, [permissionKeys, role])
+
+    if (isAccessDenied) {
+        return <AccessDeniedPage />
+    }
+
+    return <>{children}</>
+}
+
+export const PermissionsRequired: React.FC<PermissionRequiredPageProps> = ({ children, permissionKeys }) => {
+    return (
+        <OrganizationRequired>
+            <PermissionsRequiredWrapper permissionKeys={permissionKeys}>
+                {children}
+            </PermissionsRequiredWrapper>
+        </OrganizationRequired>
     )
 }

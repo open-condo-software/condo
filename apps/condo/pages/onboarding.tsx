@@ -1,12 +1,3 @@
-import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
-import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
-import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
-import {
-    useServiceSubscriptionWelcomePopup,
-} from '@condo/domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
-import { useIntl } from '@condo/next/intl'
 import { Col, Row, Skeleton, Space, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
@@ -14,9 +5,20 @@ import some from 'lodash/some'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { useOnBoardingContext } from '@condo/domains/onboarding/components/OnBoardingContext'
+import { OnBoardingStepItem, OnBoardingStepType } from '@condo/domains/onboarding/components/OnBoardingStepItem'
 import { WelcomePopup } from '@condo/domains/onboarding/components/WelcomePopup'
-import { useOrganization } from '@condo/next/organization'
+import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
+import {
+    useServiceSubscriptionWelcomePopup,
+} from '@condo/domains/subscription/hooks/useServiceSubscriptionWelcomePopup'
 
 interface IOnBoardingIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -101,6 +103,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
 
                                                 return type === OnBoardingStepType.DISABLED
                                                     ? wrapElementIntoNoOrganizationToolTip({
+                                                        key: id,
                                                         element: content,
                                                         placement: 'topLeft',
                                                     })

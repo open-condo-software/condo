@@ -18,6 +18,10 @@ const TICKET_STATUS_TYPES = [
     CLOSED_STATUS_TYPE,
 ]
 
+/**
+ * @deprecated replaced to 'feedback*'
+ * @type {{RETURN: string, BAD: string, GOOD: string}}
+ */
 const REVIEW_VALUES = {
     BAD: 'bad',
     GOOD: 'good',
@@ -42,7 +46,9 @@ const COMMENT_TYPES = [ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE]
     at declaration stage of `TicketChange`.
  */
 // TODO(AntonAL) add files to trackable - files are now in hidden relation
-const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'categoryClassifier', 'placeClassifier', 'problemClassifier', 'createdAt', 'completedAt', 'lastCommentAt', 'createdBy', 'updatedAt', 'updatedBy', 'statusUpdatedAt', 'lastResidentCommentAt']
+const OMIT_COMMON_TRACKABLE_FIELDS = ['v', 'dv', 'sender', 'createdAt', 'createdBy', 'updatedAt', 'updatedBy']
+const OMIT_TICKET_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'categoryClassifier', 'isAutoClassified', 'placeClassifier', 'problemClassifier', 'completedAt', 'lastCommentAt', 'statusUpdatedAt', 'lastResidentCommentAt', 'number', 'order', 'qualityControlUpdatedAt', 'qualityControlUpdatedBy', 'feedbackUpdatedAt']
+const OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS = [...OMIT_COMMON_TRACKABLE_FIELDS, 'hasAllProperties', 'number']
 
 const MAX_COMMENT_LENGTH = 300
 
@@ -57,6 +63,7 @@ module.exports = {
     CLOSED_STATUS_TYPE,
     TICKET_STATUS_TYPES,
     OMIT_TICKET_CHANGE_TRACKABLE_FIELDS,
+    OMIT_INCIDENT_CHANGE_TRACKABLE_FIELDS,
     REVIEW_VALUES,
     COMMENT_TYPES,
     ORGANIZATION_COMMENT_TYPE,

@@ -1,8 +1,10 @@
 import { Rule } from 'rc-field-form/lib/interface'
-import { useIntl } from '@condo/next/intl'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { SPECIAL_CHAR_REGEXP, MULTIPLE_EMAILS_REGEX } from '@condo/domains/common/constants/regexps'
 import { normalizePhone } from '@condo/domains/common/utils/phone'
 import { isValidTin } from '@condo/domains/organization/utils/tin.utils'
-import { SPECIAL_CHAR_REGEXP } from '@condo/domains/common/constants/regexps'
 
 type ValidatorTypes = {
     changeMessage: (rule: Rule, message: string) => Rule
@@ -12,11 +14,12 @@ type ValidatorTypes = {
     trimValidator: Rule
     specCharValidator: Rule
     minLengthValidator: (length: number) => Rule
-    maxLengthValidator: (length: number) => Rule
+    maxLengthValidator: (length: number, errorMessage?: string) => Rule
     lessThanValidator: (comparedValue: number, errorMessage: string) => Rule
     greaterThanValidator: (comparedValue: number, errorMessage: string, delta?: number) => Rule
     numberValidator: Rule
     tinValidator: (country: string) => Rule
+    multipleEmailsValidator: (emails: string) => Rule
 }
 
 const changeMessage = (rule: Rule, message: string) => {
@@ -33,12 +36,14 @@ type UseValidations = (settings?: ValidationSettings) => ValidatorTypes
 export const useValidations: UseValidations = (settings = {}) => {
     const intl = useIntl()
     const ThisFieldIsRequiredMessage = intl.formatMessage({ id: 'FieldIsRequired' })
-    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'pages.auth.PhoneIsNotValid' })
+    const MobilePhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongMobilePhone' })
+    const PhoneIsNotValidMessage = intl.formatMessage({ id: 'global.input.error.wrongPhone' })
     const EmailErrorMessage = intl.formatMessage({ id: 'pages.auth.EmailIsNotValid' })
     const FieldIsTooShortMessage = intl.formatMessage({ id: 'ValueIsTooShort' })
     const FieldIsTooLongMessage = intl.formatMessage({ id: 'ValueIsTooLong' })
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const TinValueIsInvalidMessage = intl.formatMessage({ id: 'pages.organizations.tin.InvalidValue' })
+    const EmailsAreInvalidMessage = intl.formatMessage({ id: 'global.input.error.wrongEmails' })
 
     const { allowLandLine } = settings
 
@@ -51,7 +56,7 @@ export const useValidations: UseValidations = (settings = {}) => {
         validator: (_, value) => {
             if (!value) return Promise.resolve()
             const v = normalizePhone(value, allowLandLine)
-            if (!v) return Promise.reject(PhoneIsNotValidMessage)
+            if (!v) return Promise.reject(allowLandLine ? PhoneIsNotValidMessage : MobilePhoneIsNotValidMessage)
             return Promise.resolve()
         },
     }
@@ -86,10 +91,12 @@ export const useValidations: UseValidations = (settings = {}) => {
         }
     }
 
-    const maxLengthValidator: (length: number) => Rule = (length) => {
+    const maxLengthValidator: (length: number, errorMessage?: string) => Rule = (length, errorMessage) => {
+        const message = errorMessage ? errorMessage : FieldIsTooLongMessage
+
         return {
             max: length,
-            message: FieldIsTooLongMessage,
+            message,
         }
     }
 
@@ -147,6 +154,18 @@ export const useValidations: UseValidations = (settings = {}) => {
             }
         }
 
+    const multipleEmailsValidator: (emails: string) => Rule =
+        (emails) => {
+            return {
+                validator: () => {
+                    if (!MULTIPLE_EMAILS_REGEX.test(emails) && emails !== '') return Promise.reject(EmailsAreInvalidMessage)
+
+                    return Promise.resolve()
+                },
+            }
+        }
+
+
     return {
         changeMessage,
         requiredValidator,
@@ -160,5 +179,6 @@ export const useValidations: UseValidations = (settings = {}) => {
         maxLengthValidator,
         numberValidator,
         tinValidator,
+        multipleEmailsValidator,
     }
 }

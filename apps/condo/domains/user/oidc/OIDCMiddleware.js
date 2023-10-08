@@ -1,8 +1,7 @@
 const express = require('express')
-const Provider = require('oidc-provider')
 
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const createConfiguration = require('./configuration')
 const { OIDCBearerTokenKeystonePatch } = require('./OIDCBearerTokenKeystonePatch')
@@ -18,7 +17,12 @@ class OIDCMiddleware {
         //
         // There is no way to fix it at the moment ...
         //
+        const Provider = require('oidc-provider')
         const provider = new Provider(conf.SERVER_URL, createConfiguration(keystone, conf))
+
+        // all bellow routes are handling csrf properly using oidc-client
+        // also, all operations in those routes just adding grands for end users - not a csrf attack source
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         OIDCBearerTokenKeystonePatch(app, keystone)

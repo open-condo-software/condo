@@ -1,16 +1,17 @@
-import { BillingReceipt } from '@app/condo/domains/billing/utils/clientSchema'
-import { BankCardIcon } from '@app/condo/domains/common/components/icons/BankCardIcon'
-import { Ticket } from '@app/condo/schema'
-import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
-import { Loader } from '@condo/domains/common/components/Loader'
-
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
-import { useIntl } from '@condo/next/intl'
+import { SortBillingReceiptsBy, Ticket } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { BillingReceipt } from '@condo/domains/billing/utils/clientSchema'
+import { BankCardIcon } from '@condo/domains/common/components/icons/BankCardIcon'
+import { MobileIcon } from '@condo/domains/common/components/icons/MobileIcon'
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+
 
 interface MobileAppInstalledIndicatorProps {
     isContactHasMobileApp: boolean
@@ -30,57 +31,36 @@ const MobileAppInstalledIndicator: React.FC<MobileAppInstalledIndicatorProps> = 
 
 interface PaymentsAvailableIndicatorProps {
     ticketOrganizationId: string
+    propertyAddress: string
 }
 
-/**
- Availability is determined by:
- 1. at least 1 receipt for the current or previous period has been uploaded to the organization.
- 2. If the number of receipts for the previous period is not equal to 0,
- then the number of receipts for the current period must be greater than or equal to the number for the previous one.
- */
-const getIsPaymentsInMobileAppAvailable = (receiptsInCurrentPeriod, receiptsInPreviousPeriod) => {
-    if (receiptsInCurrentPeriod > 0 || receiptsInPreviousPeriod > 0) {
-        if (receiptsInPreviousPeriod === 0) return true
+const LAST_MONTH_BEGINNING = dayjs().subtract(1, 'months').startOf('month').format('YYYY-MM-DD')
 
-        if (receiptsInCurrentPeriod >= receiptsInPreviousPeriod) {
-            return true
-        }
-    }
-
-    return false
-}
-
-const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({ ticketOrganizationId }) => {
+const PaymentsAvailableIndicator: React.FC<PaymentsAvailableIndicatorProps> = ({ ticketOrganizationId, propertyAddress }) => {
     const intl = useIntl()
     const PaymentsAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsAvailable' })
     const PaymentsNotAvailableMessage = intl.formatMessage({ id: 'pages.condo.ticket.PaymentsNotAvailable' })
 
-    const currentPeriod = dayjs().startOf('month').subtract(1, 'month').format('YYYY-MM-DD')
-    const previousPeriod = dayjs(currentPeriod).subtract(1, 'month').format('YYYY-MM-DD')
-
-    const receiptsSearchQuery = { context: { organization: { id: ticketOrganizationId, deletedAt: null }, deletedAt: null } }
-
-    const { count: receiptsInCurrentPeriod, loading: currentPeriodLoading } = BillingReceipt.useCount({
+    const { count: receiptsByProperty, loading: receiptsByPropertyLoading } = BillingReceipt.useCount({
         where: {
-            ...receiptsSearchQuery,
-            period: currentPeriod,
-            deletedAt: null,
+            context: { organization: { id: ticketOrganizationId } },
+            property: {
+                OR: [
+                    { address: propertyAddress },
+                    { normalizedAddress: propertyAddress },
+                ],
+            },
+            period_gte: LAST_MONTH_BEGINNING,
         },
+        sortBy: [SortBillingReceiptsBy.CreatedAtDesc],
     })
 
-    const { count: receiptsInPreviousPeriod, loading: previousPeriodLoading } = BillingReceipt.useCount({
-        where: {
-            ...receiptsSearchQuery,
-            period: previousPeriod,
-            deletedAt: null,
-        },
-    })
-
-    const isPaymentsAvailable = getIsPaymentsInMobileAppAvailable(receiptsInCurrentPeriod, receiptsInPreviousPeriod)
+    const isPaymentsAvailable = !!receiptsByProperty
+    const title = receiptsByProperty || isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage
 
     return (
-        <Tooltip title={isPaymentsAvailable ? PaymentsAvailableMessage : PaymentsNotAvailableMessage}>
-            <BankCardIcon active={isPaymentsAvailable} loading={currentPeriodLoading || previousPeriodLoading} />
+        <Tooltip title={title}>
+            <BankCardIcon active={isPaymentsAvailable} loading={receiptsByPropertyLoading} />
         </Tooltip>
     )
 }
@@ -94,6 +74,7 @@ const TICKET_RESIDENT_FEATURES_ROW_GUTTER: [Gutter, Gutter] = [8, 0]
 export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ ticket }) => {
     const isContactHasMobileApp = !!get(ticket, 'client')
     const ticketOrganizationId = get(ticket, ['organization', 'id'], null)
+    const propertyAddress = get(ticket, ['property', 'address'], null)
 
     return (
         <Row gutter={TICKET_RESIDENT_FEATURES_ROW_GUTTER}>
@@ -101,7 +82,10 @@ export const TicketResidentFeatures: React.FC<TicketResidentFeaturesProps> = ({ 
                 <MobileAppInstalledIndicator isContactHasMobileApp={isContactHasMobileApp} />
             </Col>
             <Col>
-                <PaymentsAvailableIndicator ticketOrganizationId={ticketOrganizationId} />
+                <PaymentsAvailableIndicator
+                    ticketOrganizationId={ticketOrganizationId}
+                    propertyAddress={propertyAddress}
+                />
             </Col>
         </Row>
     )

@@ -5,36 +5,28 @@
  */
 
 const { gql } = require('graphql-tag')
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
+
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 const BILLING_INTEGRATION_DATA_FORMAT_FIELDS = '{ hasToPayDetails hasServices hasServicesDetails }'
-const BILLING_INTEGRATION_FIELDS = `{ name shortDescription about logo { publicUrl } developer partnerUrl instruction connectedMessage appUrl contextDefaultStatus dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} isHidden ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_FIELDS = `{ name logo { publicUrl } shortDescription targetDescription detailedDescription bannerColor bannerTextColor bannerPromoImage { publicUrl } instruction setupUrl receiptsLoadingTime group appUrl contextDefaultStatus dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} isHidden skipNoAccountNotifications ${COMMON_FIELDS} }`
 const BillingIntegration = generateGqlQueries('BillingIntegration', BILLING_INTEGRATION_FIELDS)
 
 const BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ integration { id name } user { id name } ${COMMON_FIELDS} }`
 const BillingIntegrationAccessRight = generateGqlQueries('BillingIntegrationAccessRight', BILLING_INTEGRATION_ACCESS_RIGHT_FIELDS)
 
-const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} } organization { id tin name country } settings state status lastReport ${COMMON_FIELDS} }`
+const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS = `{ integration { id name appUrl billingPageTitle setupUrl instruction instructionExtraLink connectedMessage uploadUrl uploadMessage extendsBillingPage billingPageTitle currencyCode dataFormat ${BILLING_INTEGRATION_DATA_FORMAT_FIELDS} skipNoAccountNotifications } organization { id tin name country type } settings state status lastReport currentProblem { id title message } ${COMMON_FIELDS} }`
 const BillingIntegrationOrganizationContext = generateGqlQueries('BillingIntegrationOrganizationContext', BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS)
 
-const BILLING_INTEGRATION_LOG_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} type message meta ${COMMON_FIELDS} }`
-const BillingIntegrationLog = generateGqlQueries('BillingIntegrationLog', BILLING_INTEGRATION_LOG_FIELDS)
+const BILLING_INTEGRATION_PROBLEM_FIELDS = `{ context { id } title message meta ${COMMON_FIELDS} }`
+const BillingIntegrationProblem = generateGqlQueries('BillingIntegrationProblem', BILLING_INTEGRATION_PROBLEM_FIELDS)
 
-const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id } importId address raw globalId meta ${COMMON_FIELDS} }`
+const BILLING_PROPERTY_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} property { id address addressKey } importId address addressKey raw globalId meta ${COMMON_FIELDS} }`
 const BillingProperty = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 
-const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } number unitName unitType raw globalId meta fullName ${COMMON_FIELDS} }`
+const BILLING_ACCOUNT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } number unitName unitType raw globalId meta fullName isClosed ownerType ${COMMON_FIELDS} }`
 const BillingAccount = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
-
-const BILLING_METER_RESOURCE_FIELDS = `{ name ${COMMON_FIELDS} }`
-const BillingMeterResource = generateGqlQueries('BillingMeterResource', BILLING_METER_RESOURCE_FIELDS)
-
-const BILLING_ACCOUNT_METER_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } resource { id } raw meta ${COMMON_FIELDS} }`
-const BillingAccountMeter = generateGqlQueries('BillingAccountMeter', BILLING_ACCOUNT_METER_FIELDS)
-
-const BILLING_ACCOUNT_METER_READING_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id } account { id } meter { id number } period value1 value2 value3 value4 date raw ${COMMON_FIELDS} }`
-const BillingAccountMeterReading = generateGqlQueries('BillingAccountMeterReading', BILLING_ACCOUNT_METER_READING_FIELDS)
 
 const BILLING_RECIPIENT_FIELDS = `{ context { id } importId tin iec bic bankAccount purpose isApproved meta name ${COMMON_FIELDS} }`
 const BillingRecipient = generateGqlQueries('BillingRecipient', BILLING_RECIPIENT_FIELDS)
@@ -42,19 +34,40 @@ const BillingRecipient = generateGqlQueries('BillingRecipient', BILLING_RECIPIEN
 const BILLING_CATEGORY_FIELDS = `{ name nameNonLocalized ${COMMON_FIELDS} }`
 const BillingCategory = generateGqlQueries('BillingCategory', BILLING_CATEGORY_FIELDS)
 
-const BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS = 'toPayDetails { charge formula balance recalculation privilege penalty }'
-const BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS = BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS.replace('}', 'volume tariff measure }')
+const BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS = 'charge formula balance recalculation privilege penalty paid'
+const BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS = `toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} volume tariff measure }`
 const BILLING_RECEIPT_SERVICE_FIELDS = `services { id name toPay ${BILLING_RECEIPT_SERVICE_TO_PAY_DETAILS_FIELDS} }`
 const BILLING_RECEIPT_RECIPIENT_FIELDS = 'recipient { tin iec bic bankAccount }'
-const BILLING_RECEIPT_FIELDS = `{ context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id, address } account { id, number, unitType, unitName } period raw toPay printableNumber ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} receiver { id tin iec bic bankAccount isApproved } ${BILLING_RECEIPT_RECIPIENT_FIELDS} ${COMMON_FIELDS} category ${BILLING_CATEGORY_FIELDS} }`
-const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
+const BILLING_RECEIPT_COMMON_FIELDS = `context ${BILLING_INTEGRATION_ORGANIZATION_CONTEXT_FIELDS} importId property { id address addressKey } account { id number unitType unitName fullName } period toPay printableNumber toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} charge formula balance recalculation privilege penalty paid receiver { id tin iec bic bankAccount isApproved } ${BILLING_RECEIPT_RECIPIENT_FIELDS} ${COMMON_FIELDS} category ${BILLING_CATEGORY_FIELDS} invalidServicesError`
+const BILLING_RECEIPT_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id file { id filename originalFilename publicUrl mimetype } controlSum } }`
+const BILLING_RECEIPT_ADMIN_FIELDS = `{ ${BILLING_RECEIPT_COMMON_FIELDS} file { id sensitiveDataFile { id filename originalFilename publicUrl mimetype } publicDataFile { id filename originalFilename publicUrl mimetype } controlSum } }`
 
-const RESIDENT_BILLING_RECEIPTS_FIELDS =  `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable }`
+const BillingReceipt = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_FIELDS)
+const BillingReceiptAdmin = generateGqlQueries('BillingReceipt', BILLING_RECEIPT_ADMIN_FIELDS)
+
+const RESIDENT_BILLING_RECEIPTS_FIELDS = `{ id ${BILLING_RECEIPT_RECIPIENT_FIELDS} period toPay paid toPayDetails { ${BILLING_RECEIPT_TO_PAY_DETAILS_FIELDS} } ${BILLING_RECEIPT_SERVICE_FIELDS} printableNumber serviceConsumer { id paymentCategory } currencyCode category { id name } isPayable file { file { id originalFilename publicUrl mimetype } controlSum } }`
 const ResidentBillingReceipt = generateGqlQueries('ResidentBillingReceipt', RESIDENT_BILLING_RECEIPTS_FIELDS)
+
+const BILLING_RECEIPT_FILE_FIELDS = `{ file { id originalFilename publicUrl mimetype } context { id } receipt { id } controlSum ${COMMON_FIELDS} }`
+const BillingReceiptFile = generateGqlQueries('BillingReceiptFile', BILLING_RECEIPT_FILE_FIELDS)
 
 const REGISTER_BILLING_RECEIPTS_MUTATION = gql`
     mutation registerBillingReceipts ($data: RegisterBillingReceiptsInput!) {
         result: registerBillingReceipts(data: $data) ${BILLING_RECEIPT_FIELDS}
+    }
+`
+
+const SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION = gql`
+    mutation sendNewReceiptMessagesToResidentScopes ($data: SendNewReceiptMessagesToResidentScopesInput!) {
+        result: sendNewReceiptMessagesToResidentScopes(data: $data) { 
+            status 
+        }
+    }
+`
+
+const VALIDATE_QRCODE_MUTATION = gql`
+    mutation validateQRCode ($data: ValidateQRCodeInput!) {
+        result: validateQRCode(data: $data) { qrCodeFields }
     }
 `
 
@@ -64,19 +77,19 @@ module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
-    BillingIntegrationLog,
+    BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
-    BillingMeterResource,
-    BillingAccountMeter,
-    BillingAccountMeterReading,
     BillingReceipt,
+    BillingReceiptAdmin,
     ResidentBillingReceipt,
     RESIDENT_BILLING_RECEIPTS_FIELDS,
     BillingRecipient,
     BillingCategory,
-
     REGISTER_BILLING_RECEIPTS_MUTATION,
 
+    SEND_NEW_RECEIPT_MESSAGES_TO_RESIDENT_SCOPES_MUTATION,
+    BillingReceiptFile,
+    VALIDATE_QRCODE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

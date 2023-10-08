@@ -1,18 +1,25 @@
-import React, { useCallback } from 'react'
+import { jsx } from '@emotion/react/dist/emotion-react.cjs'
 import { Col, Form, Row, Space, Typography } from 'antd'
-import Input from '@condo/domains/common/components/antd/Input'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { User } from '@condo/domains/user/utils/clientSchema'
-import { useIntl } from '@condo/next/intl'
-import { useAuth } from '@condo/next/auth'
-import { Button } from '@condo/domains/common/components/Button'
+import React, { useCallback } from 'react'
+
+
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { ActionBar, Button } from '@open-condo/ui'
+
+import Input from '@condo/domains/common/components/antd/Input'
+import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { FormResetButton } from '@condo/domains/common/components/FormResetButton'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { UserAvatar } from './UserAvatar'
+import Prompt from '@condo/domains/common/components/Prompt'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { EMAIL_ALREADY_REGISTERED_ERROR } from '@condo/domains/user/constants/errors'
+import { User } from '@condo/domains/user/utils/clientSchema'
+
+import { UserAvatar } from './UserAvatar'
+
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -40,11 +47,18 @@ export const UserProfileForm = () => {
     const ProfileUpdateTitle = intl.formatMessage({ id: 'profile.Update' })
     const EmailIsAlreadyRegisteredMsg = intl.formatMessage({ id: 'pages.auth.EmailIsAlreadyRegistered' })
     const ChangePasswordLabel = intl.formatMessage({ id: 'profile.ChangePassword' })
+    const PromptTitle = intl.formatMessage({ id: 'form.prompt.title' })
+    const PromptHelpMessage = intl.formatMessage({ id: 'form.prompt.message' })
+    const CancelLabel = intl.formatMessage({ id: 'Cancel' })
 
     const { user } = useAuth()
     const updateUserAction = User.useUpdate({}, () => router.push('/user/'))
     const formAction = (formValues) => updateUserAction(formValues, user)
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
+
+    const onCancel = useCallback(() => {
+        router.push('/user')
+    }, [router])
 
     const { requiredValidator, emailValidator, changeMessage, minLengthValidator } = useValidations()
     const minClientNameRule = changeMessage(minLengthValidator(2), MinLengthError)
@@ -77,73 +91,89 @@ export const UserProfileForm = () => {
             ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
             validateTrigger={['onBlur', 'onSubmit']}
         >
-            {({ handleSave, isLoading }) => {
+            {({ handleSave, isLoading, form }) => {
                 return (
-                    <Row gutter={[0, 40]} justify='center'>
-                        <Col xs={10} lg={3}>
-                            <UserAvatar borderRadius={24}/>
-                        </Col>
-                        <Col lg={20} offset={isSmall ? 0 : 1}>
-                            <Row gutter={[0, 40]}>
-                                <Col span={24}>
-                                    <Typography.Title
-                                        level={1}
-                                        style={{ margin: 0, fontWeight: 'bold' }}
-                                    >
-                                        {ProfileUpdateTitle}
-                                    </Typography.Title>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        {...INPUT_LAYOUT_PROPS}
-                                        labelAlign='left'
-                                        name='name'
-                                        label={FullNameLabel}
-                                        rules={validations.name}
-                                    >
-                                        <Input/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item
-                                        {...INPUT_LAYOUT_PROPS}
-                                        labelAlign='left'
-                                        name='email'
-                                        label={EmailLabel}
-                                        rules={validations.email}
-                                    >
-                                        <Input placeholder={ExampleEmailMessage}/>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
-                                        <Button
-                                            type='inlineLink'
-                                            onClick={handleResetPasswordAction}
+                    <>
+                        <Prompt
+                            title={PromptTitle}
+                            form={form}
+                            handleSave={handleSave}
+                        >
+                            <Typography.Paragraph>
+                                {PromptHelpMessage}
+                            </Typography.Paragraph>
+                        </Prompt>
+                        <Row gutter={[0, 40]} justify='center'>
+                            <Col xs={10} lg={3}>
+                                <UserAvatar borderRadius={24}/>
+                            </Col>
+                            <Col lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
+                                <Row gutter={[0, 40]}>
+                                    <Col span={24}>
+                                        <Typography.Title
+                                            level={1}
+                                            style={{ margin: 0, fontWeight: 'bold' }}
                                         >
-                                            {ChangePasswordLabel}
-                                        </Button>
-                                    </Form.Item>
-                                </Col>
-                                <Col span={24}>
-                                    <Space size={40} style={{ paddingTop: '36px' }}>
-                                        <FormResetButton
-                                            type='sberPrimary'
-                                            secondary
+                                            {ProfileUpdateTitle}
+                                        </Typography.Title>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign='left'
+                                            name='name'
+                                            label={FullNameLabel}
+                                            rules={validations.name}
+                                        >
+                                            <Input/>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item
+                                            {...INPUT_LAYOUT_PROPS}
+                                            labelAlign='left'
+                                            name='email'
+                                            label={EmailLabel}
+                                            rules={validations.email}
+                                        >
+                                            <Input placeholder={ExampleEmailMessage}/>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <Form.Item {...INPUT_LAYOUT_PROPS} labelAlign='left' label={PasswordLabel}>
+                                            <DeprecatedButton
+                                                type='inlineLink'
+                                                onClick={handleResetPasswordAction}
+                                            >
+                                                {ChangePasswordLabel}
+                                            </DeprecatedButton>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={24}>
+                                        <ActionBar
+                                            actions={[
+                                                <Button
+                                                    key='submit'
+                                                    onClick={handleSave}
+                                                    type='primary'
+                                                    loading={isLoading}
+                                                >
+                                                    {ApplyChangesMessage}
+                                                </Button>,
+                                                <Button
+                                                    key='cancel'
+                                                    type='secondary'
+                                                    onClick={onCancel}
+                                                >
+                                                    {CancelLabel}
+                                                </Button>,
+                                            ]}
                                         />
-                                        <Button
-                                            key='submit'
-                                            onClick={handleSave}
-                                            type='sberPrimary'
-                                            loading={isLoading}
-                                        >
-                                            {ApplyChangesMessage}
-                                        </Button>
-                                    </Space>
-                                </Col>
-                            </Row>
-                        </Col>
-                    </Row>
+                                    </Col>
+                                </Row>
+                            </Col>
+                        </Row>
+                    </>
                 )
             }}
         </FormWithAction>

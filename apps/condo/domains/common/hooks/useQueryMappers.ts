@@ -1,6 +1,7 @@
-import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
-import { useMemo } from 'react'
 import get from 'lodash/get'
+import { useMemo } from 'react'
+
+import { QueryMeta, SorterColumn, convertSortersToSortBy } from '../utils/tables.utils'
 
 const DEFAULT_SORT_BY = ['createdAt_DESC']
 
@@ -26,6 +27,7 @@ export const useQueryMappers = <F>(queryMetas: Array<QueryMeta<F>>, sortableColu
                 const createdFilters = meta.filters
                     .map((filter) => filter(searchValue || meta.defaultValue))
                     .filter(Boolean)
+                
                 if (createdFilters.length) {
                     const combineType = get(meta, 'combineType', 'AND')
                     whereQueries.push({ [combineType]: createdFilters })

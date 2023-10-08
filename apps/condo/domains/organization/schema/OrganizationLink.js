@@ -4,10 +4,22 @@
 
 const { Relationship } = require('@keystonejs/fields')
 
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/organization/access/OrganizationLink')
+const { HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
+const { PARENT_NOT_HOLDING } = require('@condo/domains/organization/constants/errors')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+
+const ERRORS = {
+    PARENT_NOT_HOLDING: {
+        code: BAD_USER_INPUT,
+        message: `Parent organization ("from") must have "${HOLDING_TYPE}" type`,
+        type: PARENT_NOT_HOLDING,
+    },
+}
 
 /**
  * Relationship between Organization that allows an employee of a "parent" (or "holding", you name it) Organization to interact as an employee of another "child" Organizations.
@@ -49,8 +61,19 @@ const OrganizationLink = new GQLListSchema('OrganizationLink', {
         delete: false,
         auth: true,
     },
+    hooks: {
+        validateInput: async ({ resolvedData, context }) => {
+            if (resolvedData['from']) {
+                const org = await getById('Organization', resolvedData['from'])
+                if (!org || org.type !== HOLDING_TYPE) {
+                    throw new GQLError(ERRORS.PARENT_NOT_HOLDING, context)
+                }
+            }
+        },
+    },
 })
 
 module.exports = {
     OrganizationLink,
+    ERRORS,
 }

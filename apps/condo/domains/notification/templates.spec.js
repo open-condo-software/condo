@@ -4,24 +4,26 @@
 
 const fs = require('fs')
 const path = require('path')
-const dayjs = require('dayjs')
-const faker = require('faker')
-const { escape, isEmpty, get } = require('lodash')
 
-const { makeLoggedInAdminClient, setFakeClientMode } = require('@condo/keystone/test.utils')
+const index = require('@app/condo/index')
+const { faker } = require('@faker-js/faker')
+const dayjs = require('dayjs')
+const { escape, isEmpty, get, sample } = require('lodash')
+
+const { makeLoggedInAdminClient, setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { getTranslations, getAvailableLocales } = require('@open-condo/locales/loader')
 
 const { LOCALES, EN_LOCALE, RU_LOCALE } = require('@condo/domains/common/constants/locale')
-const { getTranslations } = require('@condo/locales/loader')
-
 const {
     MESSAGE_TYPES,
     MESSAGE_TRANSPORTS,
-    MESSAGE_TYPES_TRANSPORTS,
+    MESSAGE_DELIVERY_OPTIONS,
     EMAIL_TRANSPORT,
     DEFAULT_TEMPLATE_FILE_EXTENSION,
     DEFAULT_TEMPLATE_FILE_NAME,
     PUSH_TRANSPORT,
-    DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+    DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
+    BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
     RESET_PASSWORD_MESSAGE_TYPE,
     DEVELOPER_IMPORTANT_NOTE_TYPE,
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
@@ -30,14 +32,14 @@ const {
     translationStringKeyForEmailSubject,
     translationStringKeyForPushTitle,
     templateEngine,
+    substituteTranslations,
     TEMPLATE_ENGINE_DEFAULT_DATE_FORMAT,
 } = require('@condo/domains/notification/templates')
-const { createTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const emailTransport = require('@condo/domains/notification/transports/email')
+const pushTransport = require('@condo/domains/notification/transports/push')
 const smsTransport = require('@condo/domains/notification/transports/sms')
-
+const { createTestMessage } = require('@condo/domains/notification/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
-const index = require('@app/condo/index')
 
 const { SHARE_TICKET_MESSAGE_TYPE, CUSTOMER_IMPORTANT_NOTE_TYPE } = require('./constants/constants')
 
@@ -57,7 +59,7 @@ function templateFolder (locale, messageType) {
  * @returns {string[]}
  */
 function getPossibleTransports (messageType) {
-    return get(MESSAGE_TYPES_TRANSPORTS, messageType, MESSAGE_TRANSPORTS)
+    return get(MESSAGE_DELIVERY_OPTIONS, [messageType, 'allowedTransports'], MESSAGE_TRANSPORTS)
 }
 
 /**
@@ -67,7 +69,7 @@ function getPossibleTransports (messageType) {
  */
 function isTemplateNeeded (messageType, transport) {
     const transports = getPossibleTransports(messageType)
-    return !isEmpty(transports[transport])
+    return transports.includes(transport)
 }
 
 const ORGANIZATION_NAME_WITH_QUOTES = 'ООО "УК "РЕЗИДЕНЦИЯ У МОРЯ"'
@@ -232,7 +234,7 @@ describe('Templates', () => {
     it('Employee inviting rendered SMS message does not contain forbidden symbols (value is normalized)', async () => {
         const admin = await makeLoggedInAdminClient()
         const [message] = await createTestMessage(admin, {
-            type: DIRTY_INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
+            type: DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE,
             lang: RU_LOCALE,
             phone: '+79999999999',
             meta: {
@@ -263,4 +265,127 @@ describe('Templates', () => {
         expect(preparedMessage.message).toMatch(`${TOKEN_URL_PART}${token}`)
     })
 
+    describe('Translation tests', () => {
+        it('Checks that template keys value translation is substituted correctly for email', async () => {
+            const locale = sample(getAvailableLocales())
+            const translations = getTranslations(locale)
+            const categoryName = sample(Object.keys(translations).filter(item => item.includes('.declined')))
+            const message = {
+                sender: { dv: 1, fingerprint: 'send-resident-message' },
+                type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
+                email: faker.internet.email(),
+                lang: locale,
+                meta: {
+                    dv: 1,
+                    data: {
+                        userId: faker.datatype.uuid(),
+                        url: faker.random.alphaNumeric(20),
+                        residentId: faker.datatype.uuid(),
+                        propertyId: faker.datatype.uuid(),
+                        period: faker.datatype.uuid(),
+                        categoryId: faker.datatype.uuid(),
+                    },
+                    categoryName,
+                },
+            }
+
+            const preparedMessage = await emailTransport.prepareMessageToSend(message)
+            const categoryValue = translations[categoryName]
+
+            expect(preparedMessage.text).toContain(categoryValue)
+            expect(preparedMessage.text).not.toContain(categoryName)
+        })
+
+        it('Checks that template keys value translation is substituted correctly for sms', async () => {
+            const locale = sample(getAvailableLocales())
+            const translations = getTranslations(locale)
+            const categoryName = sample(Object.keys(translations).filter(item => item.includes('.declined')))
+            const message = {
+                sender: { dv: 1, fingerprint: 'send-resident-message' },
+                type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
+                phone: '+79999999999',
+                lang: locale,
+                meta: {
+                    dv: 1,
+                    data: {
+                        userId: faker.datatype.uuid(),
+                        url: faker.random.alphaNumeric(20),
+                        residentId: faker.datatype.uuid(),
+                        propertyId: faker.datatype.uuid(),
+                        period: faker.datatype.uuid(),
+                        categoryId: faker.datatype.uuid(),
+                    },
+                    categoryName,
+                },
+            }
+
+            const preparedMessage = await smsTransport.prepareMessageToSend(message)
+            const categoryValue = translations[categoryName]
+
+            expect(preparedMessage.message).toContain(categoryValue)
+            expect(preparedMessage.message).not.toContain(categoryName)
+        })
+
+        it('Checks that template keys value translation is substituted correctly for push', async () => {
+            const locale = sample(getAvailableLocales())
+            const translations = getTranslations(locale)
+            const categoryName = sample(Object.keys(translations).filter(item => item.includes('.declined')))
+            const message = {
+                sender: { dv: 1, fingerprint: 'send-resident-message' },
+                type: BILLING_RECEIPT_CATEGORY_AVAILABLE_TYPE,
+                user: { id: faker.datatype.uuid() },
+                lang: locale,
+                meta: {
+                    dv: 1,
+                    data: {
+                        userId: faker.datatype.uuid(),
+                        url: faker.random.alphaNumeric(20),
+                        residentId: faker.datatype.uuid(),
+                        propertyId: faker.datatype.uuid(),
+                        period: faker.datatype.uuid(),
+                        categoryId: faker.datatype.uuid(),
+                    },
+                    categoryName,
+                },
+            }
+
+            const preparedMessage = await pushTransport.prepareMessageToSend(message)
+            const categoryValue = translations[categoryName]
+
+            expect(preparedMessage.notification.body).toContain(categoryValue)
+            expect(preparedMessage.notification.body).not.toContain(categoryName)
+        })
+
+        it('Checks that all nested keys in object are translated correctly', async () => {
+            const locale = sample(getAvailableLocales())
+            const translations = getTranslations(locale)
+            const keys = Object.keys(translations).filter(item => item.includes('.declined'))
+            const [key1, key2, key3] = [sample(keys), sample(keys), sample(keys)]
+
+            const message = {
+                key1,
+                meta: {
+                    key2,
+                    data: {
+                        key3,
+                        array: [
+                            key1,
+                            { key2 },
+                        ],
+                    },
+                },
+            }
+
+            const translated = substituteTranslations(message, locale)
+
+            expect(substituteTranslations(key1, locale)).toEqual(translations[key1])
+            expect(substituteTranslations(key2, locale)).toEqual(translations[key2])
+            expect(substituteTranslations(key3, locale)).toEqual(translations[key3])
+            expect(translated.key1).toEqual(translations[key1])
+            expect(translated.meta.key2).toEqual(translations[key2])
+            expect(translated.meta.data.key3).toEqual(translations[key3])
+            expect(translated.meta.data.array[0]).toEqual(translations[key1])
+            expect(translated.meta.data.array[1].key2).toEqual(translations[key2])
+        })
+    })
 })

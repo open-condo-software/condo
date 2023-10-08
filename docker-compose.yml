@@ -1,46 +1,17 @@
 version: '3'
 services:
   app:
-    image: apps:${DOCKER_COMPOSE_APP_IMAGE_TAG:?Environment DOCKER_COMPOSE_APP_IMAGE_TAG needs to be set!}
+    image: app
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        DOCKER_FILE_BUILD_COMMAND: ${DOCKER_FILE_BUILD_COMMAND:?Build argument DOCKER_FILE_BUILD_COMMAND needs to be set (check READEME.md)!}
-        DOCKER_FILE_INSTALL_COMMAND: ${DOCKER_FILE_INSTALL_COMMAND:?Build argument DOCKER_FILE_INSTALL_COMMAND needs to be set (check READEME.md)!}
-    ports:
-      - "127.0.0.1:3003:3000"
-    command: ${DOCKER_COMPOSE_START_APP_COMMAND:?Environment DOCKER_COMPOSE_START_APP_COMMAND needs to be set (check READEME.md)!}
     user: app
     volumes:
-      - ./apps/:/home/app/apps
-      - ./packages/:/home/app/packages
-      - ./bin/:/home/app/bin
-      - ./package.json:/home/app/package.json
-    environment:
-      PORT: 3000
-      COOKIE_SECRET: ${DOCKER_COMPOSE_COOKIE_SECRET:?Environment DOCKER_COMPOSE_COOKIE_SECRET needs to be set (check READEME.md)!}
-      DATABASE_URL: ${DOCKER_COMPOSE_DATABASE_URL:?Environment DOCKER_COMPOSE_DATABASE_URL needs to be set (check READEME.md)!}
-      REDIS_URL: ${DOCKER_COMPOSE_REDIS_URL:?Environment DOCKER_COMPOSE_REDIS_URL needs to be set (check READEME.md)!}
-      SERVER_URL: ${DOCKER_COMPOSE_SERVER_URL:?Environment DOCKER_COMPOSE_SERVER_URL needs to be set (check READEME.md)!}
-      NODE_ENV: production
-    networks:
-      - app-network
-  worker:
-    image: apps:${DOCKER_COMPOSE_APP_IMAGE_TAG:?Environment DOCKER_COMPOSE_APP_IMAGE_TAG needs to be set!}
-    command: ${DOCKER_COMPOSE_START_WORKER_COMMAND:?Environment DOCKER_COMPOSE_START_WORKER_COMMAND needs to be set (check READEME.md)!}
-    user: app
-    volumes:
-      - ./apps/:/home/app/apps
-      - ./packages/:/home/app/packages
-      - ./bin/:/home/app/bin
-      - ./package.json:/home/app/package.json
-    environment:
-      COOKIE_SECRET: ${DOCKER_COMPOSE_COOKIE_SECRET:?Environment DOCKER_COMPOSE_COOKIE_SECRET needs to be set (check READEME.md)!}
-      DATABASE_URL: ${DOCKER_COMPOSE_DATABASE_URL:?Environment DOCKER_COMPOSE_DATABASE_URL needs to be set (check READEME.md)!}
-      REDIS_URL: ${DOCKER_COMPOSE_REDIS_URL:?Environment DOCKER_COMPOSE_REDIS_URL needs to be set (check READEME.md)!}
-      SERVER_URL: ${DOCKER_COMPOSE_SERVER_URL:?Environment DOCKER_COMPOSE_SERVER_URL needs to be set (check READEME.md)!}
-      NODE_ENV: production
+      - ./apps/:/app/apps
+      - ./packages/:/app/packages
+      - ./bin/:/app/bin
+      - ./package.json:/app/package.json
+      - ./.env:/app/.env
     networks:
       - app-network
   postgresdb:

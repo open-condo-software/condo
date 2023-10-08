@@ -1,8 +1,9 @@
-import React from 'react'
+import { SortTicketFilesBy, Ticket } from '@app/condo/schema'
 import { isEmpty } from 'lodash'
+import React from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { Ticket } from '@app/condo/schema'
+import { useIntl } from '@open-condo/next/intl'
+
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { TicketFile } from '@condo/domains/ticket/utils/clientSchema'
@@ -19,6 +20,7 @@ export const TicketFileListField: React.FC<TicketFileListFieldProps> = ({ ticket
 
     const { objs: files } = TicketFile.useObjects({
         where: { ticket: { id: ticket ? ticket.id : null } },
+        sortBy: [SortTicketFilesBy.CreatedAtAsc],
     }, {
         fetchPolicy: 'network-only',
     })

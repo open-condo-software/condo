@@ -1,15 +1,18 @@
 const Ajv = require('ajv')
-const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
+
+const { Json } = require('@open-condo/keystone/fields')
+
 const { BILLING_RECEIPT_TO_PAY_DETAILS_FIELD_NAME, BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME } = require('@condo/domains/billing/constants/constants')
-const { Json } = require('@condo/keystone/fields')
+const { render, getValidator } = require('@condo/domains/common/schema/json.utils')
 
 const ToPayDetailsFields = {
-    formula: 'String!',
+    formula: 'String',
     charge: 'String',
     balance: 'String',
     recalculation: 'String',
     privilege: 'String',
     penalty: 'String',
+    paid: 'String',
 }
 
 const TO_PAY_DETAILS_GRAPHQL_TYPES = `
@@ -28,7 +31,7 @@ const ToPayDetailsSchema = {
         ...Object.keys(ToPayDetailsFields).map((field) => ({ [field]: { 'type': ['string', 'null'] } })),
         { formula: { type: 'string' } }
     ),
-    required: ['formula'],
+    required: [],
     additionalProperties: false,
 }
 
@@ -39,8 +42,15 @@ const TO_PAY_DETAILS_QUERY_LIST = Object.keys(ToPayDetailsFields).join(' ')
 
 const validatePaymentDetails = getValidator(ToPayDetailsSchemaValidator)
 
+/**
+ * TODO(DOMA-6519): remove field and make all of the explicit fields available to write and update
+ * Optional: provide backward compatibility for API to make available write and update explicit fields with old schema format. Example: { ..., toPayDetails: { formula: 'charge + penalty', paid: '200.08' } }
+ */
 const TO_PAY_DETAILS_FIELD = {
-    schemaDoc: 'Sum to pay details. Detail level 2',
+    schemaDoc: '@deprecated Sum to pay details. Detail level 2. ' +
+        'This field will be removed in the future. ' +
+        'All data is saved in the corresponding fields of the BillingReceipt (charge formula balance recalculation privilege penalty paid). ' +
+        'After toPayDetails field removal you should update it content explicitly',
     type: Json,
     extendGraphQLTypes: [TO_PAY_DETAILS_GRAPHQL_TYPES],
     graphQLInputType: BILLING_RECEIPT_TO_PAY_DETAILS_INPUT_NAME,

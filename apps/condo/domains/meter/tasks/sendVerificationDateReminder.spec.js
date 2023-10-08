@@ -2,18 +2,18 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
 const dayjs = require('dayjs')
 
-const { setFakeClientMode } = require('@condo/keystone/test.utils')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
 
+const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
 const { Message: MessageApi } = require('@condo/domains/notification/utils/serverSchema')
 
-const { sendVerificationDateReminder } = require('@condo/domains/meter/tasks/sendVerificationDateReminder')
 
 const { makeClientWithResidentAndMeter } = require('../utils/testSchema')
 
-const index = require('@app/condo/index')
 
 const { keystone } = index
 

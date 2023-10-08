@@ -1,5 +1,4 @@
-const faker = require('faker')
-const { ApolloError } = require('apollo-server-errors')
+const { faker } = require('@faker-js/faker')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const {
     OrganizationEmployee,
@@ -9,7 +8,7 @@ const {
     INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION,
     REINVITE_ORGANIZATION_EMPLOYEE_MUTATION,
 } = require('@condo/domains/organization/gql')
-const { throwIfError } = require('@condo/codegen/generate.test.utils')
+const { throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 async function createOrganizationEmployee (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -30,12 +29,12 @@ async function registerNewOrganization (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const country = 'ru'
-    const name = faker.company.companyName()
+    const name = faker.company.name()
     const description = faker.company.catchPhrase()
     const tin = '6670428515'
     const meta = {
         dv: 1, kpp: '667001001', city: faker.address.city(), zipCode: faker.address.zipCode(),
-        street: faker.address.streetName(), number: faker.address.secondaryAddress(),
+        street: faker.address.street(), number: faker.address.secondaryAddress(),
         county: faker.address.county(),
     }
 
@@ -53,10 +52,12 @@ async function registerNewOrganization (client, extraAttrs = {}) {
     return [data.obj, attrs]
 }
 
-async function inviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}) {
+async function inviteNewOrganizationEmployee (client, organization, user, role, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')
+    if (!role) throw new Error('no role')
+
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
@@ -66,6 +67,7 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
         phone: user.phone,
         name: user.name,
         organization: { id: organization.id },
+        role: { id: role.id },
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(INVITE_NEW_ORGANIZATION_EMPLOYEE_MUTATION, {
@@ -75,7 +77,7 @@ async function inviteNewOrganizationEmployee (client, organization, user, extraA
     return [data.obj, attrs]
 }
 
-async function reInviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}, { raw = false } = {}) {
+async function reInviteNewOrganizationEmployee (client, organization, user, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization) throw new Error('no organization')
     if (!user) throw new Error('no user')

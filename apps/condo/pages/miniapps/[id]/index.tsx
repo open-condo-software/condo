@@ -1,44 +1,24 @@
-import React, { useMemo } from 'react'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { useRouter } from 'next/router'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
-import get from 'lodash/get'
-import { APP_TYPES, BILLING_APP_TYPE, B2B_APP_TYPE } from '@condo/domains/miniapp/constants'
 import Error from 'next/error'
-import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
-import { IndexBillingAppPage, IndexAcquiringAppPage, IndexB2BAppPage } from '@condo/domains/miniapp/components/AppIndex'
-import { AppPageWrapper } from '@condo/domains/miniapp/components/AppPageWrapper'
+import { useRouter } from 'next/router'
+import React from 'react'
+
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
+import { B2BAppPage } from '@condo/domains/miniapp/components/AppIndex'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
-const MiniAppIndexPage = () => {
-    const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'menu.MiniApps' })
-    const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
 
-    const router = useRouter()
-    const { query: { type, id } } = router
+type PageType = React.FC & {
+    requiredAccess: React.ReactNode
+}
 
-    const userOrganization = useOrganization()
-    const canManageIntegrations = get(userOrganization, ['link', 'role', 'canManageIntegrations'], false)
+const MiniAppIndexPage: PageType = () => {
+    const { query: { id } } = useRouter()
 
-    const pageContent = useMemo(() => {
-        if (Array.isArray(id) || Array.isArray(type) || !APP_TYPES.includes(type)) return <Error statusCode={404}/>
-        if (!id || !isSafeUrl(id)) return <Error statusCode={404}/>
-        if (type === BILLING_APP_TYPE) return <IndexBillingAppPage id={id}/>
-        if (type === B2B_APP_TYPE) return <IndexB2BAppPage id={id}/>
-        return <IndexAcquiringAppPage id={id}/>
-    }, [id, type])
-
-    if (!canManageIntegrations) {
-        return <LoadingOrErrorPage title={PageTitle} error={NoPermissionsMessage}/>
+    if (Array.isArray(id) || !id || !isSafeUrl(id)) {
+        return <Error statusCode={404}/>
     }
 
-    return (
-        <AppPageWrapper>
-            {pageContent}
-        </AppPageWrapper>
-    )
+    return <B2BAppPage id={id}/>
 }
 
 MiniAppIndexPage.requiredAccess = OrganizationRequired

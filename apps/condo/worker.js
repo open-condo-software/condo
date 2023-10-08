@@ -1,6 +1,8 @@
-const { createWorker } = require('@condo/keystone/tasks')
+const { createWorker } = require('@open-condo/keystone/tasks')
 
-createWorker(require('./index'))
+const index = require('./index')
+
+createWorker(index)
     .catch((error) => {
         console.error(error)
         process.exit(2)

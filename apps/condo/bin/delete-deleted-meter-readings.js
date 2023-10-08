@@ -1,7 +1,10 @@
 const path = require('path')
-const { find } = require('@condo/keystone/schema')
+
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const get = require('lodash/get')
+
+const { find } = require('@open-condo/keystone/schema')
+
 const { MeterReading } = require('@condo/domains/meter/utils/serverSchema')
 
 class FixMeterReadingsClients {

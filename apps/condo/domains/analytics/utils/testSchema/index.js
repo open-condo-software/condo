@@ -3,14 +3,14 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 const { EXTERNAL_REPORT_TYPES } = require('@condo/domains/analytics/constants/constants')
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
 
-const { generateGQLTestUtils, throwIfError } = require('@condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { ExternalReport: ExternalReportGQL, GET_TICKET_WIDGET_REPORT_DATA, TICKET_ANALYTICS_REPORT_QUERY, EXPORT_TICKET_ANALYTICS_TO_EXCEL } = require('@condo/domains/analytics/gql')
 const { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } = require('@condo/domains/analytics/gql')
+const { GET_OVERVIEW_DASHBOARD_MUTATION } = require('@condo/domains/analytics/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const ExternalReport = generateGQLTestUtils(ExternalReportGQL)
@@ -98,11 +98,26 @@ async function getExternalReportIframeUrlByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+
+async function getOverviewDashboardByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_OVERVIEW_DASHBOARD_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     ExternalReport, createTestExternalReport, updateTestExternalReport,
     getTicketReport, getTicketAnalyticsReport, getTicketAnalyticsExport,
     getExternalReportIframeUrlByTestClient,
+    getOverviewDashboardByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

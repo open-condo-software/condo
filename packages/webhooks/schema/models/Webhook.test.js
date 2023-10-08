@@ -1,15 +1,16 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
+
 const {
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
 const {
     Webhook,
     createTestWebhook,
     updateTestWebhook,
     softDeleteTestWebhook,
-} = require('@condo/webhooks/schema/utils/testSchema')
+} = require('@open-condo/webhooks/schema/utils/testSchema')
 
 const WebhookTests = (appName, actorsInitializer) => {
     describe(`Webhook tests for ${appName} app`, () => {

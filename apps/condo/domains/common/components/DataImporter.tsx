@@ -1,7 +1,10 @@
+import styled from '@emotion/styled'
 import { Upload, message } from 'antd'
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
 import XLSX from 'xlsx'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { TABLE_UPLOAD_ACCEPT_FILES } from '../constants/fileExtensions'
 import { makeAntdCols, makeAntdData } from '../utils/excel.utils'
 
@@ -78,18 +81,30 @@ interface IDataImporterProps {
     onUpload: OnUpload,
 }
 
-const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) { return '.' + x }).join(',')
+const FILE_EXTENSIONS = TABLE_UPLOAD_ACCEPT_FILES.map(function (x) {
+    return '.' + x
+}).join(',')
+
+const StyledUpload = styled(Upload)`
+  .ant-upload {
+    width: 100%;
+    
+    & > .condo-btn {
+      width: 100%; 
+    }
+  }
+`
 
 export const DataImporter: React.FC<IDataImporterProps> = (props) => {
     const uploadConfig = useUploadConfig(props.onUpload)
 
     return (
-        <Upload
+        <StyledUpload
             data-cy='data-importer--upload'
-            { ...uploadConfig }
+            {...uploadConfig}
             accept={FILE_EXTENSIONS}
         >
             {props.children}
-        </Upload>
+        </StyledUpload>
     )
 }

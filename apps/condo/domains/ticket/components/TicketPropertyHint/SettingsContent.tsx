@@ -1,4 +1,4 @@
-import { PlusCircleOutlined } from '@ant-design/icons'
+import { SortTicketPropertyHintsBy } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -7,25 +7,27 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
-import { SortTicketPropertyHintsBy } from '@app/condo/schema'
+import { PlusCircle, Search } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
-import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
+import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
+import { useSearch } from '@condo/domains/common/hooks/useSearch'
+import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { useTicketPropertyHintTableColumns } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableColumns'
 import {
     useTicketPropertyHintPropertyFilters,
     useTicketPropertyHintTableFilters,
 } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableFilters'
-import { useTicketPropertyHintTableColumns } from '@condo/domains/ticket/hooks/useTicketPropertyHintTableColumns'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 const SORTABLE_PROPERTIES = ['name']
 const TICKET_HINTS_DEFAULT_SORT_BY = ['createdAt_DESC']
@@ -49,6 +51,8 @@ export const SettingsContent = () => {
     const canManageTicketPropertyHints = useMemo(() => get(userOrganization, ['link', 'role', 'canManageTicketPropertyHints']), [userOrganization])
 
     const [search, handleSearchChange] = useSearch<IFilters>()
+
+    const { breakpoints } = useLayoutContext()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -123,20 +127,17 @@ export const SettingsContent = () => {
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={3}>{TicketPropertyHintTitle}</Typography.Title>
+                <Typography.Title>{TicketPropertyHintTitle}</Typography.Title>
             </Col>
             <Col span={24}>
                 <TableFiltersContainer>
-                    <Row>
-                        <Col span={10}>
-                            <Input
-                                placeholder={SearchPlaceholder}
-                                onChange={handleSearch}
-                                value={search}
-                                allowClear
-                            />
-                        </Col>
-                    </Row>
+                    <Input
+                        placeholder={SearchPlaceholder}
+                        onChange={handleSearch}
+                        value={search}
+                        allowClear
+                        suffix={<Search size='medium' color={colors.gray[7]} />}
+                    />
                 </TableFiltersContainer>
             </Col>
             <Col span={24}>
@@ -152,15 +153,18 @@ export const SettingsContent = () => {
             {
                 canManageTicketPropertyHints && (
                     <Col span={24}>
-                        <ActionBar>
-                            <Button
-                                type='sberDefaultGradient'
-                                icon={<PlusCircleOutlined/>}
-                                onClick={handleAddHintButtonClick}
-                            >
-                                {CreateHintMessage}
-                            </Button>
-                        </ActionBar>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='createHint'
+                                    type='primary'
+                                    icon={<PlusCircle size='medium'/>}
+                                    onClick={handleAddHintButtonClick}
+                                >
+                                    {CreateHintMessage}
+                                </Button>,
+                            ]}
+                        />
                     </Col>
                 )
             }

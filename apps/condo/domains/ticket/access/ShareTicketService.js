@@ -1,6 +1,7 @@
-const { throwAuthenticationError } = require('@condo/keystone/apolloErrorFormatter')
+const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getByCondition } = require('@open-condo/keystone/schema')
+
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
-const { getByCondition } = require('@condo/keystone/schema')
 
 async function canShareTicket ({ args: { data }, authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()

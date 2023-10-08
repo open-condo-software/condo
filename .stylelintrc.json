@@ -4,8 +4,22 @@
     "stylelint-config-rational-order"
   ],
   "rules": {
+    "at-rule-no-unknown": [true, {
+      "ignoreAtRules": ["tailwind"]
+    }],
     "no-empty-first-line": null,
-    "no-missing-end-of-source-newline": null
+    "no-missing-end-of-source-newline": null,
+    "property-no-vendor-prefix": [true, {
+      "ignoreProperties": [
+        "mask-composite",
+        "background-clip"
+      ]
+    }],
+    "function-no-unknown": [true, {
+      "ignoreFunctions": [
+        "fade"
+      ]
+    }]
   },
   "overrides": [
     {

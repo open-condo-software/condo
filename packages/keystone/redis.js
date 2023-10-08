@@ -1,6 +1,7 @@
 const IORedis = require('ioredis')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
+
 const { getLogger } = require('./logging')
 
 const REDIS_CLIENTS = {}
@@ -26,6 +27,8 @@ function getRedisClient (name = 'default', purpose = 'regular', opts = {}) {
         const redisEnvName = `${name.toUpperCase()}_REDIS_URL`
         const redisUrl = conf[redisEnvName] || conf.REDIS_URL
         if (!redisUrl) throw new Error(`No REDIS_URL env! You need to set ${redisEnvName} / REDIS_URL env`)
+        // BUILD STEP! OR SOME CASE WITH REDIS_URL=undefined
+        if (redisUrl === 'undefined') return undefined
         const client = new IORedis(redisUrl, { connectionName: clientKey, ...opts })
         client.on('connect', () => logger.info({ msg: 'connect', clientKey }))
         client.on('close', () => logger.info({ msg: 'close', clientKey }))

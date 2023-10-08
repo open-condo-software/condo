@@ -1,20 +1,24 @@
+
+const path = require('path')
+
+const { faker } = require('@faker-js/faker')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const { Client } = require('pg')
+
+const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
 const {
     Ticket,
     TicketStatus,
     TicketClassifier,
     TicketComment,
 } = require('@condo/domains/ticket/utils/serverSchema')
-
-const { Property } = require('@condo/domains/property/utils/serverSchema')
-const { demoProperties } = require('./constants')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
 const { User } = require('@condo/domains/user/utils/serverSchema')
-const faker = require('faker')
-const path = require('path')
-const { Client } = require('pg')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
-const dayjs = require('dayjs')
-const utc = require('dayjs/plugin/utc')
+
+const { demoProperties } = require('./constants')
 dayjs.extend(utc)
 
 const TICKET_OTHER_SOURCE_ID = '7da1e3be-06ba-4c9e-bba6-f97f278ac6e4'
@@ -30,9 +34,8 @@ class TicketGenerator {
     ticketsByDay = {}
     context = null
 
-    constructor ({ ticketsByDay = { min: 20, max: 50 } }, propertyIndex = 0, organizationId ) {
+    constructor ({ ticketsByDay = { min: 20, max: 50 }, organizationId }) {
         this.ticketsByDay = ticketsByDay
-        this.propertyIndex = propertyIndex
         this.organizationId = organizationId
         this.pg = new Client(process.env.DATABASE_URL)
         this.pg.connect()
@@ -57,7 +60,7 @@ class TicketGenerator {
         const dayStart = dayjs().startOf('year')
         const dayEnd = dayjs()
         let current = dayStart.add(6, 'hours')
-        let maxTickets = 10000
+        let maxTickets = 100
         let counter = 0
         do {
             const arr = Array(faker.datatype.number(this.ticketsByDay)).fill('')
@@ -72,29 +75,33 @@ class TicketGenerator {
 
     async generateTicket (timeStamp) {
         const unit = this.unit
-        const problem = this.problem
+        const classifier = this.pickRandomClassifier()
+        const status = this.pickRandomStatus()
         const data = {
             dv: 1,
             sender: { dv: 1, fingerprint: 'import' },
             clientName: `${faker.name.firstName()} ${faker.name.lastName()}`,
             clientEmail: faker.internet.email(),
-            clientPhone: faker.phone.phoneNumber('+7922#######'),
+            clientPhone: faker.phone.number('+7922#######'),
             details: faker.lorem.sentence(),
             sectionName: unit.section,
             floorName: unit.floor,
             unitName: unit.unit,
             source: { connect: { id: TICKET_OTHER_SOURCE_ID } },
-            classifierRule: { connect: { id: problem.id } },
+            classifier: { connect: { id: classifier.id } },
             operator: { connect: { id: this.user.id } },
             assignee: { connect: { id: this.user.id } },
             executor: { connect: { id: this.user.id } },
             isEmergency: faker.datatype.boolean(),
             isWarranty: faker.datatype.boolean(),
-            isPaid: faker.datatype.boolean(),
+            isPayable: faker.datatype.boolean(),
             organization: { connect: { id: this.organization.id } },
             property:  { connect: { id: this.property.id } },
-            status: { connect: { id: this.status.id } },
-            deadline: faker.date.between(dayjs().subtract(2, 'week').toISOString(), dayjs().subtract(2, 'week').toISOString()).toISOString(),
+            status: { connect: { id: status.id } },
+            deadline: faker.date.between(dayjs().subtract(2, 'week').toISOString(), dayjs().add(2, 'week').toISOString()).toISOString(),
+        }
+        if (status.type === DEFERRED_STATUS_TYPE) {
+            data.deferredUntil = dayjs().add(1, 'day').toISOString()
         }
         const result = await Ticket.create(this.context, data)
         await this.setCreatedAt(result.id, timeStamp)
@@ -116,7 +123,7 @@ class TicketGenerator {
     async prepareModels (propertyInfo) {
         this.statuses = await TicketStatus.getAll(this.context, { organization_is_null: true })
         this.classifiers = await TicketClassifier.getAll(this.context, { })
-        const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: this.organizationId })
+        const [property] = await Property.getAll(this.context, { address: propertyInfo.address, organization: { id: this.organizationId } })
         if (property) {
             this.property = property
         }
@@ -158,11 +165,11 @@ class TicketGenerator {
         return result
     }
 
-    get problem () {
+    pickRandomClassifier () {
         return this.classifiers[faker.datatype.number({ min: 0, max: this.classifiers.length - 1 })]
     }
 
-    get status () {
+    pickRandomStatus () {
         return this.statuses[faker.datatype.number({ min: 0, max: this.statuses.length - 1 })]
     }
 

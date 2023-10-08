@@ -3,9 +3,11 @@
  */
 
 const { Text, Relationship, Select, Checkbox, Integer } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const { LocalizedText } = require('@condo/keystone/fields')
+
+const { LocalizedText } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/onboarding/access/OnBoardingStep')
 
 const OnBoardingStep = new GQLListSchema('OnBoardingStep', {

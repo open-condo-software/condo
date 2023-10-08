@@ -1,22 +1,22 @@
-const { generators, Issuer } = require('openid-client') // certified openid client will all checks
-const express = require('express')
-const { isObject, get } = require('lodash')
 
-const { Keystone } = require('@keystonejs/keystone')
-const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { AdminUIApp } = require('@keystonejs/app-admin-ui')
+const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { NextApp } = require('@keystonejs/app-next')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
-
-const conf = require('@condo/config')
-const { EmptyApp } = require('@condo/keystone/test.utils')
-const { prepareDefaultKeystoneConfig } = require('@condo/keystone/setup.utils')
-const { registerSchemas } = require('@condo/keystone/KSv5v6/v5/registerSchema')
-
-const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
+const { Keystone } = require('@keystonejs/keystone')
 const { createItems } = require('@keystonejs/server-side-graphql-client')
-const { formatError } = require('@condo/keystone/apolloErrorFormatter')
+const express = require('express')
+const { isObject, get } = require('lodash')
+const { generators, Issuer } = require('openid-client') // certified openid client will all checks
+
+const conf = require('@open-condo/config')
+const { formatError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { registerSchemas } = require('@open-condo/keystone/KSv5v6/v5/registerSchema')
+const { prepareDefaultKeystoneConfig } = require('@open-condo/keystone/setup.utils')
+const { EmptyApp } = require('@open-condo/keystone/test.utils')
+
 const { CONDO_ACCESS_TOKEN_KEY, CONDO_ORGANIZATION_KEY } = require('./domains/condo/constants/common')
+const { createOrUpdateUser } = require('@miniapp/domains/condo/utils/serverSchema/createOrUpdateUser')
 
 const IS_ENABLE_APOLLO_DEBUG = conf.NODE_ENV === 'development' || conf.NODE_ENV === 'test'
 
@@ -117,6 +117,8 @@ class OIDCHelper {
 
 class CondoOIDCMiddleware {
     prepareMiddleware () {
+        // this route can not be used for csrf attack (use oidc-client library to handle auth flows properly)
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         const oidcSessionKey = 'oidc'
         const helper = new OIDCHelper()
@@ -158,7 +160,7 @@ class CondoOIDCMiddleware {
                 delete req.session[oidcSessionKey]
                 await req.session.save()
 
-                return res.redirect('/')
+                return res.json({ user: { id: user.id } })
             } catch (error) {
                 return next(error)
             }

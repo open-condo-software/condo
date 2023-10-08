@@ -6,8 +6,13 @@
 export * as B2BApp from './B2BApp'
 export * as B2BAppContext from './B2BAppContext'
 export * as B2BAppAccessRight from './B2BAppAccessRight'
+export * as B2BAppPromoBlock from './B2BAppPromoBlock'
+export * as B2BAppPermission from './B2BAppPermission'
+export * as B2BAppRole from './B2BAppRole'
 export * as B2CApp from './B2CApp'
 export * as B2CAppAccessRight from './B2CAppAccessRight'
 export * as B2CAppBuild from './B2CAppBuild'
 export * as B2CAppProperty from './B2CAppProperty'
+export * as MessageAppBlackList from './MessageAppBlackList'
+export * as B2BAppAccessRightSet from './B2BAppAccessRightSet'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

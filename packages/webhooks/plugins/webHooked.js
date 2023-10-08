@@ -1,6 +1,7 @@
-const { GQL_SCHEMA_PLUGIN } = require('@condo/keystone/plugins/utils/typing')
-const { composeNonResolveInputHook } = require('@condo/keystone/plugins/utils')
-const { getModelValidator } = require('@condo/webhooks/model-validator')
+const { composeNonResolveInputHook } = require('@open-condo/keystone/plugins/utils')
+const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
+const { getModelValidator } = require('@open-condo/webhooks/model-validator')
+const { sendModelWebhooks } = require('@open-condo/webhooks/tasks')
 
 const plugin = (fn) => {
     fn._type = GQL_SCHEMA_PLUGIN
@@ -17,8 +18,7 @@ const webHooked = () => plugin((schema, { schemaName }) => {
     const { hooks: { afterChange: originalHook, ...restHooks }, ...rest } = schema
 
     const syncAfterChange = async () => {
-        // NOTE: task.delay() is async method, so need to use async here
-        // TODO(DOMA-4412) Launch sync task here
+        await sendModelWebhooks.delay(schemaName)
     }
 
     const afterChange = composeNonResolveInputHook(originalHook, syncAfterChange)

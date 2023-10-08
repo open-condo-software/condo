@@ -1,117 +1,101 @@
-import React, { CSSProperties } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { EmptyListView, BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
-import { Typography } from 'antd'
-import { Loader } from '@condo/domains/common/components/Loader'
-import {
-    CONTEXT_IN_PROGRESS_STATUS,
-    CONTEXT_ERROR_STATUS,
-} from '@condo/domains/miniapp/constants'
-import { ApolloError } from '@apollo/client'
-import { useTracking } from '@condo/domains/common/components/TrackingContext'
+import get from 'lodash/get'
+import Head from 'next/head'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+
+import bridge from '@open-condo/bridge'
+import type { CondoBridgeSubscriptionListener } from '@open-condo/bridge'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { Typography, Tag, Button } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
+import { PageWrapper, PageHeader, TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
+
+import { useBillingAndAcquiringContexts } from './ContextProvider'
 import { MainContent } from './MainContent'
-import { BillingIntegrationOrganizationContext } from '@app/condo/schema'
 
-const BILLING_SETTINGS_ROUTE = '/miniapps?tab=billing'
 
-interface IBillingPageContentProps {
-    access: boolean,
-    contextLoading: boolean,
-    contextError: string | ApolloError
-    context: BillingIntegrationOrganizationContext
-}
+export const BillingPageContent: React.FC = () => {
+    const { billingContext, refetchBilling } = useBillingAndAcquiringContexts()
+    const billingName = get(billingContext, ['integration', 'name'], '')
 
-export interface IContextProps {
-    context: BillingIntegrationOrganizationContext
-}
-
-const BIG_DINO_STYLE: CSSProperties = { height: 200 }
-
-export const BillingPageContent: React.FC<IBillingPageContentProps> = ({ access, contextLoading, contextError, context }) => {
     const intl = useIntl()
-    const NoPermissionsMessage = intl.formatMessage({ id: 'NoPermissionToPage' })
-    const NoBillingTitle = intl.formatMessage({ id: 'pages.billing.NoBilling.title' })
-    const NoBillingMessage = intl.formatMessage({ id: 'pages.billing.NoBilling.message' })
-    const NoBillingActionLabel = intl.formatMessage({ id: 'pages.billing.NoBilling.button' })
-    const ConnectionInProgressMessage = intl.formatMessage({ id:'ConnectionInProgress' })
-    const WillBeReadySoonMessage = intl.formatMessage({ id: 'WillBeReadySoon' })
-    const ErrorOccurredMessage = intl.formatMessage({ id: 'ErrorOccurred' })
-    const CompanyName = intl.formatMessage({ id: 'CompanyName' })
-    const ConnectSupportMessage = intl.formatMessage({ id: 'ErrorHappenedDuringIntegration' }, {
-        company: CompanyName,
-    })
+    const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
+    const ConnectedStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.connected' }, { name: billingName })
+    const ErrorStatusMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.statusTag.error' }, { name: billingName })
+    const DefaultUploadMessage = intl.formatMessage({ id: 'accrualsAndPayments.billing.uploadReceiptsAction.defaultMessage' })
 
-    const { logEvent } = useTracking()
+    const userOrganization = useOrganization()
+    const canReadBillingReceipts = get(userOrganization, ['link', 'role', 'canReadBillingReceipts'], false)
+    const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
+    const canImportBillingReceipts = get(userOrganization, ['link', 'role', 'canImportBillingReceipts'], false)
 
-    if (!access) {
-        logEvent({ eventName: 'BillingPageAccessError', denyDuplicates: true })
+    const currentProblem = get(billingContext, 'currentProblem')
+    const uploadUrl = get(billingContext, ['integration', 'uploadUrl'])
+    const uploadMessage = get(billingContext, ['integration', 'uploadMessage'])
+
+    const tagBg = currentProblem ? colors.red['5'] : colors.green['5']
+    const tagMessage = currentProblem ? ErrorStatusMessage : ConnectedStatusMessage
+
+    const [uploadModalId, setUploadModalId] = useState<string | null>(null)
+
+    const handleUploadClick = useCallback(() => {
+        if (uploadUrl) {
+            // NOTE: Open bridge modal since it will register handlers and modalId automatically
+            // Then update state to start monitoring that modal from condo side
+            bridge
+                .send('CondoWebAppShowModalWindow', { url: uploadUrl, size: 'big', title: '' })
+                .then(data => setUploadModalId(data.modalId))
+                .catch(console.error)
+        }
+    }, [uploadUrl])
+
+    useEffect(() => {
+        if (uploadModalId) {
+            const handleClose: CondoBridgeSubscriptionListener = (event) => {
+                if (event.type !== 'CondoWebAppCloseModalWindowResult' ||
+                    event.data.requestId ||
+                    !('modalId' in event.data) ||
+                    event.data.modalId !== uploadModalId) {
+                    return
+                }
+                setUploadModalId(null)
+                refetchBilling()
+            }
+            bridge.subscribe(handleClose)
+
+            return () => bridge.unsubscribe(handleClose)
+        }
+    }, [uploadModalId, refetchBilling])
+
+    const UploadAction = useMemo(() => {
+        if (!uploadUrl || !canImportBillingReceipts) {
+            return null
+        }
 
         return (
-            <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {NoPermissionsMessage}
-                </Typography.Title>
-            </BasicEmptyListView>
+            <Button type='primary' onClick={handleUploadClick}>
+                {uploadMessage || DefaultUploadMessage}
+            </Button>
         )
-    }
+    }, [uploadUrl, canImportBillingReceipts, handleUploadClick, uploadMessage, DefaultUploadMessage])
 
-    if (contextLoading) {
-        return (
-            <Loader fill size='large'/>
-        )
-    }
-
-    if (contextError) {
-        return (
-            <BasicEmptyListView>
-                <Typography.Title level={3}>
-                    {contextError}
-                </Typography.Title>
-            </BasicEmptyListView>
-        )
-    }
-
-    if (!context) {
-        logEvent({ eventName: 'BillingPageEmpty', denyDuplicates: true })
-        return (
-            <EmptyListView
-                label={NoBillingTitle}
-                message={NoBillingMessage}
-                createRoute={BILLING_SETTINGS_ROUTE}
-                createLabel={NoBillingActionLabel}
-            />
-        )
-    }
-
-    if (context.status === CONTEXT_IN_PROGRESS_STATUS) {
-        logEvent({ eventName: 'BillingPageInProgressStatus', denyDuplicates: true })
-        return (
-            <BasicEmptyListView image='/dino/waiting.png' imageStyle={BIG_DINO_STYLE} spaceSize={16}>
-                <Typography.Title level={3}>
-                    {ConnectionInProgressMessage}
-                </Typography.Title>
-                <Typography.Text type='secondary'>
-                    {WillBeReadySoonMessage}
-                </Typography.Text>
-            </BasicEmptyListView>
-        )
-    }
-
-    if (context.status === CONTEXT_ERROR_STATUS) {
-        logEvent({ eventName: 'BillingPageErrorStatus', denyDuplicates: true })
-        return (
-            <BasicEmptyListView image='/dino/fail.png' imageStyle={BIG_DINO_STYLE} spaceSize={16}>
-                <Typography.Title level={3}>
-                    {ErrorOccurredMessage}
-                </Typography.Title>
-                <Typography.Text type='secondary'>
-                    {ConnectSupportMessage}
-                </Typography.Text>
-            </BasicEmptyListView>
-        )
+    if (!canReadBillingReceipts && !canReadPayments) {
+        return <AccessDeniedPage />
     }
 
     return (
-        <MainContent context={context}/>
+        <>
+            <Head>
+                <title>{PageTitle}</title>
+            </Head>
+            <PageWrapper>
+                <PageHeader title={<Typography.Title>{PageTitle}</Typography.Title>} extra={<Tag bgColor={tagBg} textColor={colors.white}>{tagMessage}</Tag>}/>
+                <TablePageContent>
+                    <MainContent uploadComponent={UploadAction}/>
+                </TablePageContent>
+            </PageWrapper>
+        </>
     )
 }

@@ -32,7 +32,7 @@ from datetime import datetime
 from pathlib import Path
 from time import time
 
-VERSION = (1, 5, 4)
+VERSION = (1, 5, 6)
 CACHE_DIR = Path('.kmigrator')
 KNEX_MIGRATIONS_DIR = Path('migrations')
 GET_KNEX_SETTINGS_SCRIPT = CACHE_DIR / 'get.knex.settings.js'
@@ -49,8 +49,10 @@ DATA = '__KNEX_SCHEMA_DATA__'
 NAME = '_django_model_generator'
 MODELS_TPL = """
 from django.db import models
-from django.db.models import Q
 from datetime import date, time, datetime, timedelta
+from django.db.models import *
+from django.db.models.indexes import *
+from django.contrib.postgres.indexes import *
 try:
     from django.db.models import JSONField
 except ImportError:
@@ -208,7 +210,7 @@ def to_meta(value):
     code = []
     constraints = ctx.get('constraints')
     if constraints:
-        code.append('constraints = [')
+        code.append('\\n        constraints = [')
         for constraint in constraints:
             type_ = constraint['type']
             if type_ == 'models.CheckConstraint':
@@ -218,7 +220,25 @@ def to_meta(value):
             else:
                 raise Error('unknown constraint type! type=' + type_)
         code.append('        ]')
+    indexes = ctx.get('indexes')
+    if indexes:
+        code.append('\\n        indexes = [')
+        for index in indexes:
+            code.append('            ' + index_to_code(index))
+        code.append('        ]')
     return '\\n'.join(code)
+
+
+def index_to_code(index, options=['fields', 'opclasses', 'name']):
+    if 'type' not in index:
+        raise Error('no type!')
+    code = []
+    if 'expressions' in index:
+        code.append('*' + repr(index['expressions']))
+    for option in options:
+        if option in index:
+            code.append('{}={}'.format(option, repr(index[option])))
+    return '{}({}),'.format(index['type'], ', '.join(code))
 
 
 def main():
@@ -365,6 +385,12 @@ function createFakeTable (tableName) {
                                 throw new Error('kmigratorOptions.constraints is not an Array!')
                             }
                             ft.kmigrator('__meta', { constraints: kmigratorOptions.constraints })
+                        }
+                        if (kmigratorOptions.indexes) {
+                            if (!Array.isArray(kmigratorOptions.indexes)) {
+                                throw new Error('kmigratorOptions.indexes is not an Array!')
+                            }
+                            ft.kmigrator('__meta', { indexes: kmigratorOptions.indexes })
                         }
                     }
                 }
@@ -615,7 +641,7 @@ def _hotfix_django_migration_bug(item):
         item.write_text(code, encoding='utf-8')
 
 
-def _4_1_makemigrations(ctx, merge=False, check=False):
+def _4_1_makemigrations(ctx, merge=False, check=False, empty=False):
     log_file = DJANGO_DIR / '..' / 'makemigrations.{}.log'.format(time())
     exists = ctx['__KNEX_DJANGO_MIGRATION__']
     n = datetime.now()
@@ -624,6 +650,10 @@ def _4_1_makemigrations(ctx, merge=False, check=False):
         command += ['--merge']
     elif check:
         command += ['--check', '--dry-run', '--noinput']
+    elif empty:
+        command += ['--empty']
+    # call script generated command without end user input (development only)
+    # nosemgrep: python.lang.security.audit.dangerous-system-call.dangerous-system-call
     r = os.system(' '.join(command))
     if r != 0:
         raise KProblem('ERROR: can\'t create migration')
@@ -665,7 +695,7 @@ def _5_1_run_knex_command(ctx, cmd='latest'):
         print(log.decode('utf-8'))
 
 
-def main(command, keystoneEntryFile='./index.js', merge=False, check=False):
+def main(command, keystoneEntryFile='./index.js', merge=False, check=False, empty=False):
     ctx = {
         '__KEYSTONE_ENTRY_PATH__': keystoneEntryFile,
         '__KNEX_SCHEMA_PATH__': CACHE_DIR / 'knex.schema.json',
@@ -680,7 +710,7 @@ def main(command, keystoneEntryFile='./index.js', merge=False, check=False):
         _3_2_generate_django_models(ctx)
         _3_3_restore_django_migrations(ctx)
         if command == 'makemigrations':
-            _4_1_makemigrations(ctx, merge=merge, check=check)
+            _4_1_makemigrations(ctx, merge=merge, check=check, empty=empty)
         elif command == 'migrate':
             _5_1_run_knex_command(ctx)
         elif command == 'up':
@@ -700,7 +730,7 @@ def main(command, keystoneEntryFile='./index.js', merge=False, check=False):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print('use: kmigrator.py (makemigrations ([--merge] | [--check]) | migrate) [keystoneEntryFile]')
+        print('use: kmigrator.py (makemigrations ([--merge] | [--check] | [--empty]) | migrate) [keystoneEntryFile]')
         sys.exit(1)
     args = [x for x in sys.argv[1:] if not x.startswith('--')]
     flags = {k[2:]: True for k in sys.argv[1:] if k.startswith('--')}

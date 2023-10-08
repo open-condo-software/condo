@@ -47,6 +47,9 @@ const warningText = '#FF3B30'
 const infoIconColor = '#39CE66'
 const warningAlert = 'rgba(240, 134, 51, 0.1)'
 const tableRowHoverGray = '#FAFAFA'
+const infoAlertBg = '#E7F4FF'
+const infoAlertMessage = '#2696F3'
+const infoAlertDescription = black
 
 
 const CHART_COLOR_SET = [blue[5], green[5], red[4], gold[5], volcano[5], purple[5],
@@ -119,6 +122,10 @@ const colors = {
     successText,
     infoIconColor,
     warningAlert,
+    infoAlertBg,
+    infoAlertMessage,
+    infoAlertDescription,
+    sberDarkGreen,
 }
 
 const fontSizes = {
@@ -130,7 +137,7 @@ const fontSizes = {
 
 const shadows = {
     elevated: '0px 9px 28px rgba(0, 0, 0, 0.05), 0px 6px 16px rgba(0, 0, 0, 0.08), 0px 3px 6px rgba(0, 0, 0, 0.12)',
-    main: '0px 28px 65px rgba(208, 216, 225, 0.24), 0px 6px 15px rgba(208, 216, 225, 0.28), 0px 2px 6px rgba(208, 216, 225, 0.16)',
+    main: '0px 4px 14px rgba(178, 185, 217, 0.4)',
     big: '0px 14px 34px rgba(208, 216, 225, 0.4), 0px 15px 38px rgba(208, 216, 225, 0.4), 0px 7px 17px rgba(208, 216, 225, 0.6)',
     small: '0px 19px 45px rgba(208, 216, 225, 0.12), 0px 6px 10px rgba(208, 216, 225, 0.2), 0px 2px 2px rgba(208, 216, 225, 0.28)',
 }
@@ -187,8 +194,11 @@ const antGlobalVariables = {
     '@checkbox-check-bg': ultraLightGrey,
     '@checkbox-border-width': DEFAULT_BORDER_WIDTH,
     '@form-item-margin-bottom': '0',
-    '@table-border-color': colors.lightGrey[5],
-    '@table-header-bg': ultraLightGrey,
+    '@table-border-color': '#D0D3E5',
+    '@table-header-bg': colors.white,
+    '@table-header-color': '#707695',
+    '@table-footer-bg': colors.white,
+    '@table-border-radius-base': DEFAULT_BORDER_RADIUS,
     '@tabs-highlight-color': '@black',
     '@tabs-hover-color': '@black',
     '@tabs-active-color': '@black',
@@ -216,6 +226,7 @@ const antGlobalVariables = {
 }
 
 const ELLIPSIS_ROWS = 3
+const MAX_CONTENT_WIDTH = 1600
 
 module.exports = {
     zIndex,
@@ -232,4 +243,5 @@ module.exports = {
     DEFAULT_BORDER_RADIUS,
     fontSizes,
     ELLIPSIS_ROWS,
+    MAX_CONTENT_WIDTH,
 }

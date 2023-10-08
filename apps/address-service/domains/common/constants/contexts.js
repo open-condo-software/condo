@@ -15,7 +15,9 @@ const suggestionContexts = {
             restrict_value: true,
             count: 20,
         },
-        [GOOGLE_PROVIDER]: {},
+        [GOOGLE_PROVIDER]: {
+            types: 'geocode',
+        },
         [YANDEX_PROVIDER]: {},
     },
 
@@ -24,16 +26,21 @@ const suggestionContexts = {
      * The values from the default context will be overridden by values from other ones.
      */
     mobileApp: {
-        [DADATA_PROVIDER]: {},
+        [DADATA_PROVIDER]: {
+            from_bound: { value: 'city' },
+        },
+        [GOOGLE_PROVIDER]: {},
+        [YANDEX_PROVIDER]: {},
+    },
+    suggestHouse: {
+        [DADATA_PROVIDER]: {
+            from_bound: { value: 'city' },
+        },
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
     },
     userRuntime: {
-        [DADATA_PROVIDER]: {
-            from_bound: {
-                value: 'country',
-            },
-        },
+        [DADATA_PROVIDER]: {},
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},
     },
@@ -42,9 +49,9 @@ const suggestionContexts = {
      */
     serverSide: {
         [DADATA_PROVIDER]: {
-            from_bound: {
-                value: 'house',
-            },
+            // NOTE: Used search from house to house for preventing results for country only etc.
+            // Since we don't need such suggestions on server side
+            from_bound: { value: 'house' },
         },
         [GOOGLE_PROVIDER]: {},
         [YANDEX_PROVIDER]: {},

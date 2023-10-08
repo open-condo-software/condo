@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from 'react'
 import { Col, Row } from 'antd'
-import { Breakpoint } from 'antd/es/_util/responsiveObserve'
 import { Gutter } from 'antd/es/grid/row'
+import React, { useEffect, useState } from 'react'
+
+import { ScreenMap } from '@open-condo/ui/dist/hooks'
 
 import { useLayoutContext } from '../LayoutContext'
 
@@ -12,9 +13,8 @@ interface CardsContainerProps {
     autosize?: boolean
 }
 
-const getColSpan = (breakpoints: Partial<Record<Breakpoint, boolean>>) => {
-    if (breakpoints.xxl) return 8
-    if (breakpoints.xl) return 12
+const getColSpan = (breakpoints: ScreenMap) => {
+    if (breakpoints.DESKTOP_LARGE) return 12
     return 24
 }
 

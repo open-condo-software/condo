@@ -1,5 +1,5 @@
-const path = require('path')
 const { readdirSync } = require('fs')
+const path = require('path')
 
 const appsDir = path.join(__dirname, 'apps')
 const packagesDir = path.join(__dirname, 'packages')

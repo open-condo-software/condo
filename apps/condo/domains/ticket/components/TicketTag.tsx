@@ -1,5 +1,6 @@
 import styled from '@emotion/styled'
 import { Tag } from 'antd'
+
 import { fontSizes } from '@condo/domains/common/constants/style'
 
 export const TicketTag = styled(Tag)`

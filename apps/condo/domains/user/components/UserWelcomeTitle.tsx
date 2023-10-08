@@ -1,10 +1,12 @@
 /** @jsx jsx */
 
-import React from 'react'
-import { Image, Row, RowProps, Typography } from 'antd'
 import { jsx, css, keyframes } from '@emotion/react'
-import { useIntl } from '@condo/next/intl'
+import { Image, Row, RowProps, Typography } from 'antd'
 import Router from 'next/router'
+import React from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 
 const WelcomeKeyFrames = keyframes`
   0% {

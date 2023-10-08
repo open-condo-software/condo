@@ -1,17 +1,19 @@
-import React, { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import { Row, Col, Typography } from 'antd'
-import { useIntl } from '@condo/next/intl'
-import get from 'lodash/get'
-import { GetExternalReportIframeUrlOutput } from '@app/condo/schema'
 import { useLazyQuery } from '@apollo/client'
-import { useOrganization } from '@condo/next/organization'
+import { GetExternalReportIframeUrlOutput } from '@app/condo/schema'
+import { Row, Col, Typography } from 'antd'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { useEffect, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } from '@condo/domains/analytics/gql'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { GET_EXTERNAL_REPORT_IFRAME_URL_QUERY } from '@condo/domains/analytics/gql'
 
 const LAYOUT_STYLE: React.CSSProperties = { height: '100%' }
 const IFRAME_STYLE: React.CSSProperties = { border: 'none', width: '100%', height: '100%' }

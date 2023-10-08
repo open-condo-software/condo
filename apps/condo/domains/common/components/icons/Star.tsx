@@ -1,5 +1,5 @@
-import React from 'react'
 import Icon from '@ant-design/icons'
+import React from 'react'
 
 const StarIconSVG = () => (
     <svg width='22' height='22' viewBox='0 0 22 22' fill='none' xmlns='http://www.w3.org/2000/svg'>

@@ -1,22 +1,15 @@
-import { DatabaseFilled } from '@ant-design/icons'
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useLazyQuery } from '@condo/next/apollo'
-import { useIntl } from '@condo/next/intl'
-import { Form, notification } from 'antd'
-import { DocumentNode } from 'graphql'
-import { get } from 'lodash'
-import React, { useCallback } from 'react'
+import { Form } from 'antd'
+import React, { ReactElement } from 'react'
 
-interface IExportToExcelActionBarProps {
+import { ActionBar } from '@open-condo/ui'
+
+import { useExportToExcel, UseExportToExcelInputType } from '@condo/domains/common/hooks/useExportToExcel'
+
+
+interface IExportToExcelActionBarProps extends UseExportToExcelInputType {
     hidden?: boolean
-    sortBy: string | string[]
-    searchObjectsQuery: string | Record<string, unknown>
-    exportToExcelQuery: DocumentNode
-    useTimeZone?: boolean
     disabled?: boolean
-    forceTimeZone?: string,
+    actions?: [ReactElement, ...ReactElement[]]
 }
 
 export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (props) => {
@@ -27,63 +20,24 @@ export const ExportToExcelActionBar: React.FC<IExportToExcelActionBarProps> = (p
         hidden = false,
         useTimeZone = true,
         disabled = false,
-        forceTimeZone = null,
+        actions = [],
     } = props
 
-    const intl = useIntl()
-    const ExportAsExcelLabel = intl.formatMessage({ id: 'ExportAsExcel' })
-    const timeZone = forceTimeZone || intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
-
-    const [
-        exportToExcel,
-        { loading: isXlsLoading },
-    ] = useLazyQuery(
+    const { ExportButton } = useExportToExcel({
+        searchObjectsQuery,
+        sortBy,
         exportToExcelQuery,
-        {
-            onError: error => {
-                const message = get(error, ['graphQLErrors', 0, 'extensions', 'messageForUser']) || error.message
-                notification.error({ message })
-            },
-            onCompleted: data => {
-                if (window) {
-                    window.location.href = data.result.linkToFile
-                }
-            },
-        },
-    )
+        useTimeZone,
+    })
 
-    const variablesData = {
-        dv: 1,
-        sender: getClientSideSenderInfo(),
-        where: searchObjectsQuery,
-        sortBy: sortBy,
-        timeZone: undefined,
-    }
-    const deps = [exportToExcel, searchObjectsQuery, sortBy, variablesData]
-
-    if (useTimeZone) {
-        variablesData.timeZone = timeZone
-        deps.push(timeZone)
-    }
-
-    const handleExportToExcel = useCallback(() => {
-        exportToExcel({ variables: { data: variablesData } })
-    }, deps)
-
-    return (
+    return !hidden &&  (
         <Form.Item noStyle>
-            <ActionBar hidden={hidden}>
-                <Button
-                    type='sberBlack'
-                    secondary
-                    icon={<DatabaseFilled/>}
-                    loading={isXlsLoading}
-                    onClick={handleExportToExcel}
-                    disabled={disabled}
-                >
-                    {ExportAsExcelLabel}
-                </Button>
-            </ActionBar>
+            <ActionBar
+                actions={[
+                    ...actions,
+                    <ExportButton key='export' disabled={disabled} />,
+                ]}
+            />
         </Form.Item>
     )
 }

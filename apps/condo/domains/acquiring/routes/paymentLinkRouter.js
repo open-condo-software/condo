@@ -1,13 +1,12 @@
 const querystring = require('querystring')
+
 const { isNil } = require('lodash')
-const { getLogger } = require('@condo/keystone/logging')
-const logger = getLogger('payment/linkHandler')
-const { getSchemaCtx, getById } = require('@condo/keystone/schema')
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
-const {
-    registerMultiPaymentForOneReceipt,
-    registerMultiPaymentForVirtualReceipt,
-} = require('@condo/domains/acquiring/utils/serverSchema')
+
+const conf = require('@open-condo/config')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
+
 const {
     PAYMENT_LINK_QP: {
         acquiringIntegrationContextQp,
@@ -20,8 +19,18 @@ const {
         accountNumberQp,
     },
 } = require('@condo/domains/acquiring/constants/links')
+const {
+    PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
+const {
+    registerMultiPaymentForOneReceipt,
+    registerMultiPaymentForVirtualReceipt,
+    Payment,
+} = require('@condo/domains/acquiring/utils/serverSchema')
 const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
+
+const logger = getLogger('payment/linkHandler')
 
 const PAYMENT_LINK_WINDOW_SIZE = 60 // seconds
 const MAX_PAYMENT_LINK_REQUEST_BY_WINDOW = 5
@@ -33,6 +42,16 @@ class PaymentLinkRouter {
     async init () {
         const { keystone: context } = await getSchemaCtx('MultiPayment')
         this.context = context
+    }
+
+    async checkReceiptAlreadyPaid ({ billingReceiptId }) {
+        const payments = await Payment.getAll(this.context, {
+            receipt: { id: billingReceiptId },
+            status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
+            deletedAt: null,
+        })
+
+        return payments.length > 0
     }
 
     async createMultiPaymentByReceipt (params) {
@@ -122,6 +141,22 @@ class PaymentLinkRouter {
                 )
             } else {
                 const params = this.extractRegularReceiptParams(req)
+
+                // for regular receipts we can check if billing receipt
+                // is already paid
+                const isAlreadyPaid = await this.checkReceiptAlreadyPaid(params)
+                if (isAlreadyPaid) {
+                    const { failureUrl } = params
+                    const errorPageUrl = `${conf.SERVER_URL}/500-error.html`
+                    const redirectUrl = new URL(failureUrl || errorPageUrl)
+
+                    // set common QP
+                    redirectUrl.searchParams.set('alreadyPaid', 'true')
+
+                    // redirect
+                    return res.redirect(redirectUrl.toString())
+                }
+
                 return await this.handlePaymentLink(
                     res,
                     params,

@@ -1,9 +1,11 @@
 /** @jsx jsx */
-import React from 'react'
-import { Spin, SpinProps } from 'antd'
 import { css, jsx } from '@emotion/react'
-import { colors } from '../constants/style'
 import styled from '@emotion/styled'
+import { Spin, SpinProps } from 'antd'
+import React from 'react'
+
+import { colors } from '../constants/style'
+
 
 const DEFAULT_DELAY = 200 // milliseconds
 

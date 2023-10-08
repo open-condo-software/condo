@@ -1,10 +1,12 @@
-const faker = require('faker')
-const { makeClient, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const { faker } = require('@faker-js/faker')
+
+const { makeClient, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { catchErrorFrom } = require('@open-condo/keystone/test.utils')
+
+const { CONFIRM_PHONE_SMS_MAX_RETRIES } = require('@condo/domains/user/constants/common')
 const {
-    createTestPhone,
-    createTestConfirmPhoneAction,
-    ConfirmPhoneAction,
-} = require('@condo/domains/user/utils/testSchema')
+    TOO_MANY_REQUESTS,
+} = require('@condo/domains/user/constants/errors')
 const {
     START_CONFIRM_PHONE_MUTATION,
     COMPLETE_CONFIRM_PHONE_MUTATION,
@@ -12,10 +14,12 @@ const {
     RESEND_CONFIRM_PHONE_SMS_MUTATION,
 } = require('@condo/domains/user/gql')
 const {
-    TOO_MANY_REQUESTS,
-} = require('@condo/domains/user/constants/errors')
-const { CONFIRM_PHONE_SMS_MAX_RETRIES } = require('@condo/domains/user/constants/common')
-const { catchErrorFrom } = require('@condo/keystone/test.utils')
+    createTestPhone,
+    createTestConfirmPhoneAction,
+    ConfirmPhoneAction,
+} = require('@condo/domains/user/utils/testSchema')
+
+
 const { completeConfirmPhoneActionByTestClient } = require('../utils/testSchema')
 
 const captcha = () => {

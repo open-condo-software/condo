@@ -1,33 +1,34 @@
+import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
+import styled from '@emotion/styled'
+import { Empty, Typography } from 'antd'
 import get from 'lodash/get'
 import React, { CSSProperties, UIEventHandler, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Empty, Tabs, Typography } from 'antd'
-import styled from '@emotion/styled'
 
-import { useIntl } from '@condo/next/intl'
-import { TicketComment, TicketUpdateInput, TicketCommentFile, Ticket } from '@app/condo/schema'
+import { useIntl } from '@open-condo/next/intl'
+import { Radio, RadioGroup } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
-import { colors, shadows, fontSizes } from '@condo/domains/common/constants/style'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { Module } from '@condo/domains/common/components/MultipleFileUpload'
+import { fontSizes } from '@condo/domains/common/constants/style'
 import { ORGANIZATION_COMMENT_TYPE, RESIDENT_COMMENT_TYPE } from '@condo/domains/ticket/constants'
 import { hasUnreadResidentComments } from '@condo/domains/ticket/utils/helpers'
-import { Loader } from '../Loader'
 
-import { Module } from '../MultipleFileUpload'
-import { useLayoutContext } from '../LayoutContext'
 import { Comment } from './Comment'
 import { CommentForm } from './CommentForm'
+
 
 interface IContainerProps {
     isSmall: boolean
 }
 
 const Container = styled.aside<IContainerProps>`
-  background: ${colors.backgroundLightGrey};
+  background: ${colors.gray[1]};
   border-radius: 8px;
-  
+
   ${({ isSmall }) => {
-        if (isSmall) {
-            return 'margin: 0 -20px -60px;'
-        } else {
+        if (!isSmall) {
             return 'height: calc(100vh - 100px);'
         }
     }}
@@ -35,6 +36,9 @@ const Container = styled.aside<IContainerProps>`
   display: flex;
   flex-flow: column nowrap;
   align-content: space-between;
+  overflow: hidden;
+  
+  max-height: 756px;
 `
 const Head = styled.div<{ isTitleHidden: boolean }>`
   padding: 24px 24px 0 24px;
@@ -51,10 +55,10 @@ const Body = styled.div`
 `
 const Footer = styled.div<{ isSmall: boolean }>`
   .ant-form {
-    padding-right: ${({ isSmall }) => isSmall ? '60px' : '0'};
+    padding-right: ${({ isSmall }) => isSmall ? '100px' : '0'};
   }
-  
-  border-top: 1px solid ${colors.inputBorderGrey};
+
+  border-top: 1px solid ${colors.gray[5]};
   padding: 8px;
 `
 const EmptyContainer = styled.div`
@@ -74,61 +78,22 @@ type ActionsForComment = {
     deleteAction?: (obj: TicketComment) => Promise<TicketComment>,
 }
 
-const { TabPane } = Tabs
-
 const CommentsTabsContainer = styled.div<{ isTitleHidden: boolean }>`
-    padding: 0;
-    display: flex;
-    flex: 1 1 auto;
+  padding: 0;
+  display: flex;
+  flex: 1 1 auto;
 
-    height: calc(100vh - 508px);
-    overflow-y: scroll;
-  
-    .ant-tabs-card.ant-tabs {
-      flex: 1 1 auto;
-      width: 100%;
-
-      & > .ant-tabs-nav {
-        background-color: ${colors.backgroundLightGrey};
-        padding: 28px 0;
-        border-bottom: 1px solid ${colors.inputBorderGrey};
-        margin: 0;
-        border-radius: ${({ isTitleHidden }) => isTitleHidden ? '8px' : '0'};
-        
-        .ant-tabs-tab {
-          border: none;
-          background-color: transparent;
-          padding: 9px 20px;
-          border-radius: 4px;
-          
-          .ant-tabs-tab-btn {
-            display: flex;
-          }
-
-          &.ant-tabs-tab-active {
-            background-color: white;
-            box-shadow: ${shadows.main};
-          }
-        }
-      }
-      
-      & > .ant-tabs-content-holder {
-        display: flex;
-        
-        .ant-tabs-content.ant-tabs-content-top {
-          display: flex;
-          flex: 1 1;
-          
-          .ant-tabs-tabpane {
-            display: flex;
-          }
-        }
-      }
-    }
+  height: calc(100vh - 508px);
+  overflow-y: scroll;
 `
 
 const EMPTY_CONTAINER_TEXT_STYLES: CSSProperties = { fontSize: fontSizes.content }
-const LOADER_STYLES: CSSProperties = { display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '8px 0 18px 0' }
+const LOADER_STYLES: CSSProperties = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '8px 0 18px 0',
+}
 
 const EmptyCommentsContainer = ({ PromptTitleMessage, PromptDescriptionMessage }) => (
     <EmptyContainer>
@@ -161,7 +126,17 @@ type CommentsTabContentProps = {
 }
 
 const CommentsTabContent: React.FC<CommentsTabContentProps> =
-    ({ sending, handleBodyScroll, bodyRef, comments, PromptTitleMessage, PromptDescriptionMessage, actionsFor, editableComment, setEditableComment }) => {
+    ({
+        sending,
+        handleBodyScroll,
+        bodyRef,
+        comments,
+        PromptTitleMessage,
+        PromptDescriptionMessage,
+        actionsFor,
+        editableComment,
+        setEditableComment,
+    }) => {
         const commentsToRender = useMemo(() =>
             comments
                 .filter(comment => editableComment ? comment.id !== editableComment.id : true)
@@ -187,7 +162,7 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
                     />
                 ) : (
                     <Body ref={bodyRef} onScroll={handleBodyScroll}>
-                        {sending && <Loader style={LOADER_STYLES} />}
+                        {sending && <Loader style={LOADER_STYLES}/>}
                         {commentsToRender}
                     </Body>
                 )}
@@ -195,15 +170,16 @@ const CommentsTabContent: React.FC<CommentsTabContentProps> =
         )
     }
 
-const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 30
-const COMMENTS_COUNT_STYLES: CSSProperties = { padding: '2px', fontSize: '8px' }
-const NewCommentIndicator = styled.div`
-    position: relative;
-    top: 5px;
-    width: 4px; 
-    height: 4px; 
-    border-radius: 100px; 
-    background-color: ${colors.red[5]};
+const SCROLL_TOP_OFFSET_TO_HIDE_TITLE = 50
+const NewCommentIndicator = styled.span`
+  display: inline-block;
+  width: 4px;
+  height: 4px;
+  border-radius: 100px;
+  background-color: ${colors.red[5]};
+  position: relative;
+  top: -3px;
+  left: 2px;
 `
 
 const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) => (
@@ -211,16 +187,20 @@ const CommentsTabPaneLabel = ({ label, commentsCount, newCommentsIndicator }) =>
         <Typography.Text>
             {label}
         </Typography.Text>
-        <Typography.Text style={COMMENTS_COUNT_STYLES}>
+        <sup>
             {commentsCount}
-        </Typography.Text>
-        {
-            newCommentsIndicator && (
-                <NewCommentIndicator title='' />
-            )
-        }
+            {newCommentsIndicator && <NewCommentIndicator title=''/>}
+        </sup>
     </>
 )
+
+const SwitchCommentsTypeWrapper = styled.div`
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 1px solid ${colors.gray[5]};
+`
 
 export type CommentWithFiles = TicketComment & {
     files: Array<TicketCommentFile> | null
@@ -270,7 +250,7 @@ const Comments: React.FC<ICommentsListProps> = ({
     const PromptResidentCommentsTitleMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.title' })
     const PromptResidentCommentsDescriptionMessage = intl.formatMessage({ id: 'Comments.tab.resident.prompt.description' })
 
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
     const [commentType, setCommentType] = useState(ORGANIZATION_COMMENT_TYPE)
     const [editableComment, setEditableComment] = useState<CommentWithFiles>()
     const [sending, setSending] = useState(false)
@@ -305,7 +285,6 @@ const Comments: React.FC<ICommentsListProps> = ({
         if (editableComment) {
             await updateAction(values, editableComment)
             await syncModifiedFiles(editableComment.id)
-            setEditableComment(null)
         } else {
             const comment = await createAction({ ...values, type: commentType })
             await syncModifiedFiles(comment.id)
@@ -313,6 +292,7 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
 
         await refetchComments()
+        setEditableComment(null)
     },
     [commentType, createAction, editableComment, refetchComments, updateAction])
 
@@ -341,16 +321,18 @@ const Comments: React.FC<ICommentsListProps> = ({
         }
     }, [createOrUpdateUserTicketCommentReadTime, isInitialUserTicketCommentReadTimeSet, loadingUserTicketCommentReadTime])
 
-    const handleTabChange = useCallback((tab) => {
-        setCommentType(tab)
+    const handleTabChange = useCallback((event) => {
+        const value = event.target.value
+
+        setCommentType(value)
         const now = new Date()
 
-        if (tab === RESIDENT_COMMENT_TYPE) {
+        if (value === RESIDENT_COMMENT_TYPE) {
             createOrUpdateUserTicketCommentReadTime({
                 readResidentCommentAt: now,
                 readCommentAt: now,
             })
-        } else if (tab === ORGANIZATION_COMMENT_TYPE) {
+        } else if (value === ORGANIZATION_COMMENT_TYPE) {
             createOrUpdateUserTicketCommentReadTime({
                 readCommentAt: now,
             })
@@ -365,64 +347,64 @@ const Comments: React.FC<ICommentsListProps> = ({
     const showIndicator = useMemo(() => hasUnreadResidentComments(lastResidentCommentAt, readResidentCommentByUserAt, lastCommentAt),
         [lastCommentAt, lastResidentCommentAt, readResidentCommentByUserAt])
 
+    const organizationCommentsTabContentProps = {
+        comments: commentsWithOrganization,
+        PromptTitleMessage: PromptInternalCommentsTitleMessage,
+        PromptDescriptionMessage: PromptInternalCommentsDescriptionMessage,
+    }
+    const residentCommentsTabContentProps = {
+        comments: commentsWithResident,
+        PromptTitleMessage: PromptResidentCommentsTitleMessage,
+        PromptDescriptionMessage: PromptResidentCommentsDescriptionMessage,
+    }
+
+    const commentTabContentProps = commentType === RESIDENT_COMMENT_TYPE ?
+        residentCommentsTabContentProps : organizationCommentsTabContentProps
+
     return (
-        <Container isSmall={isSmall}>
+        <Container isSmall={!breakpoints.TABLET_LARGE}>
             <Head isTitleHidden={isTitleHidden}>{TitleMessage}</Head>
-            <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
-                <Tabs
-                    defaultActiveKey={ORGANIZATION_COMMENT_TYPE}
-                    centered
-                    type='card'
-                    tabBarGutter={4}
-                    onChange={handleTabChange}
-                >
-                    <TabPane
-                        tab={
-                            <CommentsTabPaneLabel
-                                newCommentsIndicator={false}
-                                label={InternalCommentsMessage}
-                                commentsCount={commentsWithOrganization.length}
-                            />
-                        }
+            <SwitchCommentsTypeWrapper>
+                <RadioGroup optionType='button' value={commentType} onChange={handleTabChange}>
+                    <Radio
                         key={ORGANIZATION_COMMENT_TYPE}
-                    >
-                        <CommentsTabContent
-                            comments={commentsWithOrganization}
-                            PromptTitleMessage={PromptInternalCommentsTitleMessage}
-                            PromptDescriptionMessage={PromptInternalCommentsDescriptionMessage}
-                            actionsFor={actionsFor}
-                            editableComment={editableComment}
-                            setEditableComment={setEditableComment}
-                            handleBodyScroll={handleBodyScroll}
-                            bodyRef={bodyRef}
-                            sending={sending}
-                        />
-                    </TabPane>
-                    <TabPane
-                        tab={
-                            <CommentsTabPaneLabel
-                                label={ResidentCommentsMessage}
-                                commentsCount={commentsWithResident.length}
-                                newCommentsIndicator={showIndicator}
-                            />
+                        value={ORGANIZATION_COMMENT_TYPE}
+                        label={
+                            <>
+                                {InternalCommentsMessage}
+                                <sup>
+                                    {commentsWithOrganization.length}
+                                </sup>
+                            </>
                         }
+                    />
+                    <Radio
                         key={RESIDENT_COMMENT_TYPE}
-                    >
-                        <CommentsTabContent
-                            comments={commentsWithResident}
-                            PromptTitleMessage={PromptResidentCommentsTitleMessage}
-                            PromptDescriptionMessage={PromptResidentCommentsDescriptionMessage}
-                            actionsFor={actionsFor}
-                            editableComment={editableComment}
-                            setEditableComment={setEditableComment}
-                            handleBodyScroll={handleBodyScroll}
-                            bodyRef={bodyRef}
-                            sending={sending}
-                        />
-                    </TabPane>
-                </Tabs>
+                        value={RESIDENT_COMMENT_TYPE}
+                        label={
+                            <>
+                                {ResidentCommentsMessage}
+                                <sup>
+                                    {commentsWithResident.length}
+                                    {showIndicator && <NewCommentIndicator title=''/>}
+                                </sup>
+                            </>
+                        }
+                    />
+                </RadioGroup>
+            </SwitchCommentsTypeWrapper>
+            <CommentsTabsContainer isTitleHidden={isTitleHidden} className='card-container'>
+                <CommentsTabContent
+                    {...commentTabContentProps}
+                    actionsFor={actionsFor}
+                    editableComment={editableComment}
+                    setEditableComment={setEditableComment}
+                    handleBodyScroll={handleBodyScroll}
+                    bodyRef={bodyRef}
+                    sending={sending}
+                />
             </CommentsTabsContainer>
-            <Footer isSmall={isSmall}>
+            <Footer isSmall={!breakpoints.TABLET_LARGE}>
                 {canCreateComments ? (
                     <CommentForm
                         ticket={ticket}

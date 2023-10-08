@@ -8,7 +8,9 @@ import {
     TicketCategoryClassifierUpdateInput,
     QueryAllTicketCategoryClassifiersArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { TicketCategoryClassifier as TicketCategoryClassifierGQL } from '@condo/domains/ticket/gql'
 
 const {

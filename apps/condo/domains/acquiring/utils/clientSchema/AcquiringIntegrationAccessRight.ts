@@ -8,7 +8,9 @@ import {
     AcquiringIntegrationAccessRightUpdateInput,
     QueryAllAcquiringIntegrationAccessRightsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { AcquiringIntegrationAccessRight as AcquiringIntegrationAccessRightGQL } from '@condo/domains/acquiring/gql'
 
 const {

@@ -1,20 +1,16 @@
 const dayjs = require('dayjs')
 const { get, flatten, uniq } = require('lodash')
 
-const conf = require('@condo/config')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLocalized } = require('@condo/locales/loader')
+const conf = require('@open-condo/config')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLocalized } = require('@open-condo/locales/loader')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
-
-const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { METER_VERIFICATION_DATE_REMINDER_TYPE } = require('@condo/domains/notification/constants/constants')
-
+const { sendMessage, Message } = require('@condo/domains/notification/utils/serverSchema')
 const { Organization } = require('@condo/domains/organization/utils/serverSchema')
-
 const { Resident, ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 const rightJoin = (heads, edges, joinFn, selectFn) => {
@@ -61,6 +57,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         list: ServiceConsumer,
         where: {
             accountNumber_in: accountNumbers,
+            deletedAt: null,
         },
     })
 
@@ -73,6 +70,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         list: Resident,
         where: {
             id_in: residentsIds,
+            deletedAt: null,
         },
     })
 
@@ -88,7 +86,10 @@ const joinResidentsToMeters = async ({ context, meters }) => {
     const metersWithServiceConsumers = rightJoin(
         meters,
         servicesConsumerWithConnectedResidents,
-        (meter, item) => item.servicesConsumer.accountNumber === meter.accountNumber,
+        (meter, item) => (
+            item.servicesConsumer.accountNumber === meter.accountNumber &&
+            item.servicesConsumer.organization.id === meter.organization.id
+        ),
         (meter, servicesConsumers) => ({ meter, servicesConsumers })
     )
         .filter(item => item.servicesConsumers != null && item.servicesConsumers.length > 0)
@@ -126,6 +127,7 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
                 id_in: users,
             },
             createdAt_gte: dayjs(date).add(-2, 'month').format('YYYY-MM-DD'),
+            deletedAt: null,
         },
     })
 

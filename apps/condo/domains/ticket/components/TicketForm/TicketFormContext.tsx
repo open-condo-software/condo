@@ -1,7 +1,9 @@
+import { TicketOrganizationSetting, TicketClassifier } from '@app/condo/schema'
 import React, { useEffect, useState } from 'react'
 
-import { TicketOrganizationSetting } from '@app/condo/schema'
+
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
+
 
 type TicketFormContextType = {
     ticketSetting: TicketOrganizationSetting,
@@ -9,6 +11,8 @@ type TicketFormContextType = {
     setIsAutoDetectedDeadlineValue: React.Dispatch<React.SetStateAction<boolean>>,
     ticketSettingLoading: boolean,
     isExistedTicket: boolean
+    setClassifier: React.Dispatch<React.SetStateAction<TicketClassifier>>
+    classifier: TicketClassifier | null
 }
 
 export const TicketFormContext = React.createContext<TicketFormContextType>(null)
@@ -16,8 +20,9 @@ export const TicketFormContext = React.createContext<TicketFormContextType>(null
 export const useTicketFormContext = (): TicketFormContextType => React.useContext(TicketFormContext)
 
 export const TicketFormContextProvider = ({ children, organizationId, isExistedTicket }) => {
-    const [isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue] = useState<boolean>(true)
+    const [isAutoDetectedDeadlineValue, setIsAutoDetectedDeadlineValue] = useState<boolean>(false)
     const [ticketSetting, setTicketSetting] = useState<TicketOrganizationSetting | null>(null)
+    const [classifier, setClassifier] = useState<TicketClassifier | null>(null)
 
     const { obj: newTicketSetting, loading: ticketSettingLoading } = TicketSetting.useObject({
         where: { organization: { id: organizationId } },
@@ -36,6 +41,8 @@ export const TicketFormContextProvider = ({ children, organizationId, isExistedT
                 isAutoDetectedDeadlineValue,
                 setIsAutoDetectedDeadlineValue,
                 isExistedTicket,
+                classifier,
+                setClassifier,
             }}
         >
             {children}

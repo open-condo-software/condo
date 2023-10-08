@@ -1,11 +1,9 @@
 import { get } from 'lodash'
 import React, { useMemo } from 'react'
 
-import { useOrganization } from '@condo/next/organization'
-import { useIntl } from '@condo/next/intl'
-
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
 
@@ -28,15 +26,18 @@ export const CreateContactRoleForm = () => {
             mode='create'
         >
             {({ handleSave, isLoading }) => (
-                <ActionBar>
-                    <Button
-                        key='submit'
-                        onClick={handleSave}
-                        type='sberDefaultGradient'
-                        loading={isLoading}
-                    >
-                        {SaveLabel}
-                    </Button>
+                <ActionBar
+                    actions={[
+                        <Button
+                            key='submit'
+                            onClick={handleSave}
+                            type='primary'
+                            loading={isLoading}
+                        >
+                            {SaveLabel}
+                        </Button>,
+                    ]}
+                >
                 </ActionBar>
             )}
         </BaseContactRoleForm>

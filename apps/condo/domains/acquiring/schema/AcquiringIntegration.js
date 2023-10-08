@@ -3,27 +3,21 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
-const { INTEGRATION_NO_BILLINGS_ERROR } = require('@condo/domains/acquiring/constants/errors')
-const { NO_INSTRUCTION_OR_MESSAGE_ERROR } = require('@condo/domains/miniapp/constants')
-const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
-const {
-    LOGO_FIELD,
-    APPS_FILE_ADAPTER,
-    DEVELOPER_FIELD,
-    PARTNER_URL_FIELD,
-    SHORT_DESCRIPTION_FIELD,
-    INSTRUCTION_TEXT_FIELD,
-    IFRAME_URL_FIELD,
-    CONNECTED_MESSAGE_FIELD,
-    IS_HIDDEN_FIELD,
-} = require('@condo/domains/miniapp/schema/fields/integration')
-const { ABOUT_DOCUMENT_FIELD } = require('@condo/domains/miniapp/schema/fields/aboutDocumentField')
-const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const { get } = require('lodash')
 
-const logoMetaAfterChange = getFileMetaAfterChange(APPS_FILE_ADAPTER, 'logo')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+
+const access = require('@condo/domains/acquiring/access/AcquiringIntegration')
+const { CONTEXT_STATUSES, CONTEXT_IN_PROGRESS_STATUS } = require('@condo/domains/acquiring/constants/context')
+const { SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR } = require('@condo/domains/acquiring/constants/errors')
+const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
+const { DEFAULT_BILLING_INTEGRATION_GROUP } = require('@condo/domains/billing/constants/constants')
+const {
+    IFRAME_URL_FIELD,
+    IS_HIDDEN_FIELD,
+    CONTEXT_DEFAULT_STATUS_FIELD,
+} = require('@condo/domains/miniapp/schema/fields/integration')
 
 
 const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
@@ -35,21 +29,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
 
-        logo: LOGO_FIELD,
-
-        shortDescription: SHORT_DESCRIPTION_FIELD,
-
-        about: ABOUT_DOCUMENT_FIELD,
-
-        developer: DEVELOPER_FIELD,
-
-        partnerUrl: PARTNER_URL_FIELD,
-
-        instruction: INSTRUCTION_TEXT_FIELD,
-
-        connectedMessage: CONNECTED_MESSAGE_FIELD,
-
-        appUrl: IFRAME_URL_FIELD,
+        setupUrl: {
+            ...IFRAME_URL_FIELD,
+            schemaDoc: 'Url to setup page of acquiring integration',
+            adminDoc: 'Url to setup page of acquiring integration',
+        },
 
         isHidden: IS_HIDDEN_FIELD,
 
@@ -57,6 +41,7 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             type: Relationship,
             ref: 'AcquiringIntegrationAccessRight.integration',
             many: true,
+            access: { create: false, update: false },
         },
 
         canGroupReceipts: {
@@ -73,16 +58,20 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             isRequired: true,
         },
 
-        supportedBillingIntegrations: {
-            schemaDoc: 'List of supported billing integrations. If one of them is here, it means that this acquiring can accept receipts from it',
-            type: Relationship,
-            ref: 'BillingIntegration',
+        supportedBillingIntegrationsGroup: {
+            adminDoc: 'To successfully complete the payment billing integration of the billing receipt should be supported by acquiring (supportedBillingIntegration should be the same as BillingReceipt.context.integration.group). Validations: Should equal any existing BillingIntegration.group.',
+            schemaDoc: 'Supported billing integrations group. Useful when you need to restrict this acquiring to accept payment only from certain billing.',
+            type: Text,
             isRequired: true,
-            many: true,
+            defaultValue: DEFAULT_BILLING_INTEGRATION_GROUP,
             hooks: {
-                validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
-                    if (resolvedData[fieldPath] && !resolvedData[fieldPath].length) {
-                        addFieldValidationError(INTEGRATION_NO_BILLINGS_ERROR)
+                validateInput: async ({ resolvedData, addFieldValidationError }) => {
+                    const resolvedGroup = get(resolvedData, ['supportedBillingIntegrationsGroup'])
+
+                    const existingBillingIntegrations = await find('BillingIntegration', { group: resolvedGroup, deletedAt: null })
+
+                    if (existingBillingIntegrations.length === 0) {
+                        addFieldValidationError(SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR)
                     }
                 },
             },
@@ -92,6 +81,11 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
             ...FEE_DISTRIBUTION_SCHEMA_FIELD,
             schemaDoc: 'Contains information about the default distribution of explicit fee. Each part is paid by the user on top of original amount if there is no part with the same name in the integration context. Otherwise, the part is ignored as it is paid by recipient',
         },
+        contextDefaultStatus: {
+            ...CONTEXT_DEFAULT_STATUS_FIELD,
+            options: CONTEXT_STATUSES,
+            defaultValue: CONTEXT_IN_PROGRESS_STATUS,
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
@@ -100,15 +94,6 @@ const AcquiringIntegration = new GQLListSchema('AcquiringIntegration', {
         update: access.canManageAcquiringIntegrations,
         delete: false,
         auth: true,
-    },
-    hooks: {
-        validateInput: ({ resolvedData, addValidationError, existingItem }) => {
-            const newItem = { ...existingItem, ...resolvedData }
-            if (!newItem.appUrl && (!newItem.instruction || !newItem.connectedMessage)) {
-                return addValidationError(NO_INSTRUCTION_OR_MESSAGE_ERROR)
-            }
-        },
-        afterChange: logoMetaAfterChange,
     },
 })
 

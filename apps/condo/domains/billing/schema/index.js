@@ -3,36 +3,36 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
+const { AllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
+const { BillingAccount } = require('./BillingAccount')
+const { BillingCategory } = require('./BillingCategory')
 const { BillingIntegration } = require('./BillingIntegration')
 const { BillingIntegrationAccessRight } = require('./BillingIntegrationAccessRight')
 const { BillingIntegrationOrganizationContext } = require('./BillingIntegrationOrganizationContext')
-const { BillingIntegrationLog } = require('./BillingIntegrationLog')
+const { BillingIntegrationProblem } = require('./BillingIntegrationProblem')
 const { BillingProperty } = require('./BillingProperty')
-const { BillingAccount } = require('./BillingAccount')
-const { BillingMeterResource } = require('./BillingMeterResource')
-const { BillingAccountMeter } = require('./BillingAccountMeter')
-const { BillingAccountMeterReading } = require('./BillingAccountMeterReading')
 const { BillingReceipt } = require('./BillingReceipt')
-const { AllResidentBillingReceiptsService } = require('./AllResidentBillingReceiptsService')
+const { BillingReceiptFile } = require('./BillingReceiptFile')
 const { BillingRecipient } = require('./BillingRecipient')
-const { BillingCategory } = require('./BillingCategory')
 const { RegisterBillingReceiptsService } = require('./RegisterBillingReceiptsService')
+const { SendNewReceiptMessagesToResidentScopesService } = require('./SendNewReceiptMessagesToResidentScopesService')
+const { ValidateQRCodeService } = require('./ValidateQRCodeService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     BillingIntegration,
     BillingIntegrationAccessRight,
     BillingIntegrationOrganizationContext,
-    BillingIntegrationLog,
+    BillingIntegrationProblem,
     BillingProperty,
     BillingAccount,
-    BillingMeterResource,
-    BillingAccountMeter,
-    BillingAccountMeterReading,
     BillingReceipt,
     AllResidentBillingReceiptsService,
     BillingRecipient,
     BillingCategory,
     RegisterBillingReceiptsService,
+    SendNewReceiptMessagesToResidentScopesService,
+    BillingReceiptFile,
+    ValidateQRCodeService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

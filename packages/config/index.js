@@ -1,39 +1,52 @@
-const path = require('path')
 const fs = require('fs')
+const path = require('path')
+
 const dotenv = require('dotenv')
 const DEBUG = false
 
-let namespace = undefined
 const root = path.resolve(path.join(__dirname, '../..'))
 const cwd = process.cwd()
 const env0 = JSON.parse(JSON.stringify(process.env))
+let namespace, env1, env2
 
 // load root .env
 if (fs.existsSync(path.join(root, '.env'))) {
-    const env1 = dotenv.parse(fs.readFileSync(path.join(root, '.env')))
+    if (DEBUG) console.log(`@open-condo/config: load ${path.join(root, '.env')}`)
+    env1 = dotenv.parse(fs.readFileSync(path.join(root, '.env')))
     for (const k in env1) {
         if (!env0.hasOwnProperty(k)) {
-            if (DEBUG) console.log(`@condo/config: [root.env] process.env[${k}] = ${env1[k]}`)
+            if (DEBUG) console.log(`@open-condo/config: [root.env] process.env[${k}] = ${env1[k]}`)
             process.env[k] = env1[k]
         }
     }
 }
 
-// load app .env
+// load app/cwd .env
 if (root !== cwd) {
-    namespace = path.basename(cwd)
+    const appsRoot = path.join(root, 'apps')
+    const isInsideApps = cwd.startsWith(appsRoot)
+    const appName = (isInsideApps) ? cwd.substring(appsRoot.length).split(path.sep)[1] : undefined
+
     if (fs.existsSync(path.join(cwd, '.env'))) {
-        const env2 = dotenv.parse(fs.readFileSync(path.join(cwd, '.env')))
+        if (DEBUG) console.log(`@open-condo/config: load ${path.join(cwd, '.env')}`)
+        env2 = dotenv.parse(fs.readFileSync(path.join(cwd, '.env')))
+        namespace = path.basename(cwd)
+    } else if (isInsideApps && appName && fs.existsSync(path.join(root, 'apps', appName, '.env'))) {
+        if (DEBUG) console.log(`@open-condo/config: load ${path.join(root, 'apps', appName, '.env')}`)
+        env2 = dotenv.parse(fs.readFileSync(path.join(root, 'apps', appName, '.env')))
+        namespace = appName
+    }
+    if (env2) {
         for (const k in env2) {
             if (!env0.hasOwnProperty(k)) {
-                if (DEBUG) console.log(`@condo/config: [app.env] process.env[${k}] = ${env2[k]}`)
+                if (DEBUG) console.log(`@open-condo/config: [app.env] process.env[${k}] = ${env2[k]}`)
                 process.env[k] = env2[k]
             }
         }
     }
 }
 
-if (DEBUG) console.log(`@condo/config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
+if (DEBUG) console.log(`@open-condo/config: inited! namespace=${namespace}, cwd=${cwd}, root=${root}`)
 if (DEBUG) console.dir(process.env)
 
 function getEnv (namespace, name, defaultValue) {

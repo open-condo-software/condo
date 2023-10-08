@@ -1,0 +1,119 @@
+# This workflow will do a clean installation of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: RUN ADDRESS SERVICE TESTS
+
+on:
+  workflow_dispatch:
+    branches:
+      - '*'
+  push:
+    branches: [ master ]
+    paths:
+      - 'apps/address-service/**'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'apps/address-service/**'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+          cache-dependency-path: yarn.lock
+
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
+
+      - name: install packages
+        working-directory: ./apps/address-service
+        run: |
+          npm i -g turbo
+          yarn install --immutable
+          pip3 install django
+          pip3 install psycopg2-binary
+
+      - name: run tests for ${{ matrix.database }}
+        run: |
+          set -x
+          cp .env.example .env
+          echo 'DADATA_SUGGESTIONS={"url": "https://suggestions.dadata.ru/it-does-not-matter-here", "token": "blah-blah-test"}' >> .env
+          echo 'GOOGLE_API_KEY=suuuper-secret-google-key' >> .env
+          export NODE_ENV=test
+          export DISABLE_LOGGING=false
+          export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
+          export NOTIFICATION__DISABLE_LOGGING=true
+          export TESTS_LOG_REQUEST_RESPONSE=true
+
+          node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
+
+          # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
+          mkdir -p ./apps/address-service/dist/admin
+
+          [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/address-service migrate
+
+          yarn workspace @app/address-service dev 2>&1 > address-service.dev.log &
+          bash ./.github/workflows/waitForLocalhostApiReady.sh
+
+          # check migrations
+          yarn workspace @app/address-service makemigrations --check &> /dev/null
+          
+          # TODO(AleX83Xpert): write the same check but for address-service or pass path to schema.ts
+          # source bin/validate-db-schema-ts-to-match-graphql-api.sh
+
+          # And check background processes!
+          [[ $(jobs | wc -l | tr -d ' ') != '1' ]] && exit 2
+          sleep 3
+
+          # TESTS
+          yarn workspace @app/address-service test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail 2>&1 > address-service.test.log
+          
+          # Note: we need to stop background worker! because packages tests use the same redis queue
+          kill $(jobs -p) || echo 'background worker and dev server is already killed!'
+          killall node || echo 'no node processes'
+
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
+
+      - name: Collect docker logs on failure
+        if: failure()
+        uses: jwalton/gh-docker-logs@v1
+        with:
+          dest: './docker-logs'
+
+      - name: Upload log artifact
+        uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: logs
+          path: |
+            *.log
+            ./docker-logs
+          retention-days: 2

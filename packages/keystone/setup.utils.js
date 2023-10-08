@@ -1,10 +1,15 @@
-const { v5: uuidv5 } = require('uuid')
-
 const { KnexAdapter } = require('@keystonejs/adapter-knex')
 const { MongooseAdapter } = require('@keystonejs/adapter-mongoose')
-const IORedis = require('ioredis')
+const connectRedis = require('connect-redis')
 const session = require('express-session')
-const RedisStore = require('connect-redis')(session)
+const IORedis = require('ioredis')
+const { v5: uuidv5 } = require('uuid')
+
+const conf = require('@open-condo/config')
+
+const IS_BUILD = conf['DATABASE_URL'] === 'undefined'
+
+const RedisStore = connectRedis(session)
 
 const HTTPS_REGEXP = /^https:/
 
@@ -18,12 +23,11 @@ function _makeid (length) {
     return result
 }
 
+/** @deprecated use prepareKeystone */
 function getCookieSecret (cookieSecret) {
     if (!cookieSecret) {
-        if (process.env.NODE_ENV === 'production') {
-            throw new TypeError('getCookieSecret() call without cookieSecret (check the COOKIE_SECRET environment)')
-        }
-        return undefined
+        if (IS_BUILD) return undefined
+        throw new TypeError('getCookieSecret() call without cookieSecret (check the COOKIE_SECRET environment)')
     }
     if (typeof cookieSecret !== 'string') throw new TypeError('getCookieSecret() cookieSecret is not a string')
     if (cookieSecret.startsWith('undefined')) {
@@ -38,6 +42,7 @@ function getCookieSecret (cookieSecret) {
     }
 }
 
+/** @deprecated use prepareKeystone */
 function getAdapter (databaseUrl) {
     if (!databaseUrl) throw new TypeError('getAdapter() call without databaseUrl')
     if (typeof databaseUrl !== 'string') throw new TypeError('getAdapter() databaseUrl is not a string')
@@ -57,29 +62,36 @@ function getAdapter (databaseUrl) {
     }
 }
 
+/** @deprecated use prepareKeystone */
 function prepareDefaultKeystoneConfig (conf) {
-    const redisClient = new IORedis(conf.REDIS_URL)
-    const sessionStore = new RedisStore({ client: redisClient })
-
-    return {
+    const config = {
         cookieSecret: getCookieSecret(conf.COOKIE_SECRET),
         cookie: {
-            sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
-            secure: HTTPS_REGEXP.test(conf.SERVER_URL),
+            sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production' ? 'None' : 'Lax',
+            // NOTE(pahaz): Apollo server client doesn't work with secure=true! Need to research why
+            secure: HTTPS_REGEXP.test(conf.SERVER_URL) && conf.NODE_ENV === 'production',
             // 1000 * (Math.pow(2, 31) - 1) IS APPROXIMATELY 68 YEARS IN MILLISECONDS :)
             maxAge: conf.COOKIE_MAX_AGE || 1000 * (Math.pow(2, 31) - 1),
         },
         name: conf.PROJECT_NAME,
-        adapter: getAdapter(conf.DATABASE_URL),
         defaultAccess: { list: false, field: true, custom: false },
         queryLimits: { maxTotalResults: 1000 },
-        sessionStore,
         appVersion: {
             version: '1.0.0',
             addVersionToHttpHeaders: false,
             access: true,
         },
     }
+
+    if (!IS_BUILD && conf.REDIS_URL) {
+        const redisClient = new IORedis(conf.REDIS_URL)
+        const sessionStore = new RedisStore({ client: redisClient })
+        config.sessionStore = sessionStore
+    }
+
+    config.adapter = getAdapter(conf.DATABASE_URL || 'undefined')
+
+    return config
 }
 
 module.exports = {

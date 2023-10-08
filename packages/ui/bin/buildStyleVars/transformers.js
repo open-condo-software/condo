@@ -2,13 +2,14 @@ const get = require('lodash/get')
 const pluralize = require('pluralize')
 
 const RAW_INT_TYPES = ['fontWeight', 'opacity']
+const RELATIVE_EM_TYPES = ['letterSpacing', 'paragraphSpacing']
 
 const SHRINKABLE_HEX_PATTERN = /^#(([0-9a-f])\2){3}$/i
 
 const WEIGHT_TO_INT = {
     light: 300,
     regular: 400,
-    semiBold: 700,
+    semiBold: 600,
     bold: 700,
     extraBold: 800,
 }
@@ -49,21 +50,20 @@ const intToPxTransformer = {
 
 /**
  * Wraps specified single font in ""
- * and uses sans-serif as a fallback
+ * and uses CSS var for font-callback
+ * CSS var can be patched in app directly to remove flicker effects
  */
-const getDefaultFontTransformer = (defaultFont = 'sans-serif') => {
-    return {
-        name: `transformer/fonts/${defaultFont}`,
-        type: 'value',
-        matcher: (token) => {
-            const isFont = isMatchingType(token, 'fontFamily')
-            const isSingleFont = Boolean(typeof token.original.value === 'string' && !token.original.value.includes(','))
-            return isFont && isSingleFont
-        },
-        transformer: (token) => {
-            return `"${token.original.value}", ${defaultFont}`
-        },
-    }
+const fontFallbackTransformer = {
+    name: 'transformer/fonts/fallback',
+    type: 'value',
+    matcher: (token) => {
+        const isFont = isMatchingType(token, 'fontFamily')
+        const isSingleFont = Boolean(typeof token.original.value === 'string' && !token.original.value.includes(','))
+        return isFont && isSingleFont
+    },
+    transformer: (token) => {
+        return `"${token.original.value}", var(--condo-font-fallback)`
+    },
 }
 
 
@@ -161,23 +161,43 @@ const lowerHexTransformer = {
     },
 }
 
+
+/**
+ * Transform relative values in percents to em
+ */
+const percentToEmTransformer = {
+    name: 'transformer/percent-to-em',
+    type: 'value',
+    matcher: (token) => {
+        const isTypeMatch = isMatchingType(token, RELATIVE_EM_TYPES)
+        const isPercent = Boolean(typeof token.value === 'string' && token.value.endsWith('%'))
+
+        return isTypeMatch && isPercent
+    },
+    transformer: (token) => {
+        return `${(parseFloat(token.value) / 100).toFixed(2)}em`
+    },
+}
+
 const allTransformers = [
-    getDefaultFontTransformer(),
+    fontFallbackTransformer,
     intToPxTransformer,
     weightToIntTransformer,
     boxShadowTransformer,
     shortHexTransformer,
     lowerHexTransformer,
+    percentToEmTransformer,
 ]
 
 const webVarsTransformersChain = [
     'name/cti/kebab',
     'transformer/int-px',
-    'transformer/fonts/sans-serif',
+    'transformer/fonts/fallback',
     'transformer/fonts/int-weight',
     'transformer/shadow-css',
     'transformer/short-hex',
     'transformer/lower-hex',
+    'transformer/percent-to-em',
 ]
 
 module.exports = {

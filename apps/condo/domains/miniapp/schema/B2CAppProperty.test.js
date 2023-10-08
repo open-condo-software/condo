@@ -1,20 +1,21 @@
 const dayjs = require('dayjs')
+
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const {
     makeLoggedInAdminClient,
     makeClient,
-} = require('@condo/keystone/test.utils')
-const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
-    expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowGQLError,
+} = require('@open-condo/keystone/test.utils')
+
+const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const {
-    makeClientWithNewRegisteredAndLoggedInUser,
-    makeClientWithSupportUser,
-    makeClientWithServiceUser,
-    makeClientWithResidentUser,
-} = require('@condo/domains/user/utils/testSchema')
+    INCORRECT_HOUSE_TYPE_ERROR,
+    INCORRECT_ADDRESS_ERROR,
+} = require('@condo/domains/miniapp/constants')
 const {
     createTestB2CApp,
     createTestB2CAppAccessRight,
@@ -23,10 +24,13 @@ const {
     updateTestB2CAppProperty,
     getFakeAddress,
 } = require('@condo/domains/miniapp/utils/testSchema')
+const { VALID_HOUSE_TYPES } = require('@condo/domains/property/constants/common')
 const {
-    INCORRECT_HOUSE_TYPE_ERROR,
-    INCORRECT_ADDRESS_ERROR,
-} = require('@condo/domains/miniapp/constants')
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+    makeClientWithServiceUser,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
 
 describe('B2CAppProperty', () => {
     let admin
@@ -94,8 +98,8 @@ describe('B2CAppProperty', () => {
                 [property] = await createTestB2CAppProperty(admin, app)
             })
             test('Admin can update and soft-delete', async () => {
-                const address = getFakeAddress()
-                const [updatedProperty] = await updateTestB2CAppProperty(admin, property.id, { address })
+                const [address, addressMeta] = getFakeAddress()
+                const [updatedProperty] = await updateTestB2CAppProperty(admin, property.id, { address, addressMeta })
                 expect(updatedProperty).toHaveProperty('address', address.toLowerCase())
                 const [deletedProperty] = await updateTestB2CAppProperty(admin, property.id, {
                     deletedAt: dayjs().toISOString(),
@@ -104,8 +108,8 @@ describe('B2CAppProperty', () => {
                 expect(deletedProperty.deletedAt).not.toBeNull()
             })
             test('Support can update and soft-delete', async () => {
-                const address = getFakeAddress()
-                const [updatedProperty] = await updateTestB2CAppProperty(support, property.id, { address })
+                const [address, addressMeta] = getFakeAddress()
+                const [updatedProperty] = await updateTestB2CAppProperty(support, property.id, { address, addressMeta })
                 expect(updatedProperty).toHaveProperty('address', address.toLowerCase())
                 const [deletedProperty] = await updateTestB2CAppProperty(support, property.id, {
                     deletedAt: dayjs().toISOString(),
@@ -116,9 +120,9 @@ describe('B2CAppProperty', () => {
             describe('User', () => {
                 describe('With access right', () => {
                     test('Can update and soft-delete property linked to permitted app', async () => {
-                        const address = getFakeAddress()
+                        const [address, addressMeta] = getFakeAddress()
                         const loweredAddress = address.toLowerCase()
-                        const [updatedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, { address })
+                        const [updatedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, { address, addressMeta })
                         expect(updatedProperty).toHaveProperty('address', loweredAddress)
                         const [deletedProperty] = await updateTestB2CAppProperty(permittedUser, property.id, {
                             deletedAt: dayjs().toISOString(),
@@ -179,9 +183,9 @@ describe('B2CAppProperty', () => {
                     expect(properties[0]).toHaveProperty('id', property.id)
                 })
                 test('Otherwise cannot', async () => {
-                    const properties = await B2CAppProperty.getAll(user, { id: property.id })
-                    expect(properties).toBeDefined()
-                    expect(properties).toHaveLength(0)
+                    await expectToThrowAccessDeniedErrorToObjects(async () => {
+                        await B2CAppProperty.getAll(user, { id: property.id })
+                    })
                 })
             })
             test('Anonymous cannot', async () => {
@@ -231,14 +235,24 @@ describe('B2CAppProperty', () => {
         })
         describe('Should validate address and throw error',  () => {
             test('If house type is not supported', async () => {
-                await expectToThrowValidationFailureError(async () => {
+                await expectToThrowGQLError(async () => {
                     await createTestB2CAppProperty(admin, app, {}, true, false)
-                }, INCORRECT_HOUSE_TYPE_ERROR)
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: WRONG_VALUE,
+                    variable: ['data', 'address'],
+                    message: `${INCORRECT_HOUSE_TYPE_ERROR}. Valid values are: [${VALID_HOUSE_TYPES.join(', ')}]`,
+                })
             })
             test('If address suggestion don\'t match input address', async () => {
-                await expectToThrowValidationFailureError(async () => {
+                await expectToThrowGQLError(async () => {
                     await createTestB2CAppProperty(admin, app, {}, false, true)
-                }, INCORRECT_ADDRESS_ERROR)
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: WRONG_VALUE,
+                    variable: ['data', 'address'],
+                    message: INCORRECT_ADDRESS_ERROR,
+                })
             })
         })
     })

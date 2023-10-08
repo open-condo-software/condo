@@ -1,4 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import {
     Importer,
     RowNormalizer,
@@ -8,7 +11,6 @@ import {
     ProcessedRow,
     ImporterErrorMessages, MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
-import { useIntl } from '@condo/next/intl'
 
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 

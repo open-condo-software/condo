@@ -1,6 +1,6 @@
-const { sendResidentsNoAccountNotifications, sendResidentsNoAccountNotificationsForPeriod } = require('./sendResidentsNoAccountNotifications')
-const { sendBillingReceiptsAddedNotifications, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
 const { sendBillingReceiptNotifications } = require('./sendBillingReceiptNotifications')
+const { sendBillingReceiptsAddedNotifications, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
+const { sendResidentsNoAccountNotifications, sendResidentsNoAccountNotificationsForPeriod } = require('./sendResidentsNoAccountNotifications')
 
 
 module.exports = {

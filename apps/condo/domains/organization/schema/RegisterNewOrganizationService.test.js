@@ -1,16 +1,18 @@
-const faker = require('faker')
+const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@condo/keystone/test.utils')
-const { createTestUser } = require('@condo/domains/user/utils/testSchema')
+const { makeLoggedInClient, makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { expectToThrowAuthenticationErrorToObj } = require('@open-condo/keystone/test.utils')
 
+const { MANAGING_COMPANY_TYPE, ORGANIZATION_TYPES } = require('@condo/domains/organization/constants/common')
+const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
 const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
+const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
+const { createTestUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { OrganizationEmployee, OrganizationEmployeeRole } = require('../utils/testSchema')
-const { ServiceSubscription } = require('@condo/domains/subscription/utils/testSchema')
 
-const { DEFAULT_ROLES } = require('@condo/domains/organization/constants/common.js')
-const { expectToThrowAuthenticationErrorToObj } = require('@condo/keystone/test.utils')
-const { TicketOrganizationSetting } = require('@condo/domains/ticket/utils/testSchema')
+
 
 const EXCLUDE_CHECK_FIELDS = ['name', 'description']
 
@@ -29,7 +31,7 @@ describe('RegisterNewOrganizationService', () => {
             const [, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
 
-            const name = faker.company.companyName()
+            const name = faker.company.name()
             const [org] = await registerNewOrganization(client, { name })
 
             expect(org.id).toMatch(/^[0-9a-zA-Z-_]+$/)
@@ -43,7 +45,7 @@ describe('RegisterNewOrganizationService', () => {
             const [user, userAttrs] = await createTestUser(admin)
             const client = await makeLoggedInClient(userAttrs)
 
-            const name = faker.company.companyName()
+            const name = faker.company.name()
             const [org] = await registerNewOrganization(client, { name })
 
             const employees = await OrganizationEmployee.getAll(admin, { organization: { id: org.id } })
@@ -107,6 +109,12 @@ describe('RegisterNewOrganizationService', () => {
                 name_contains_i: 'technician',
             })
             expect(technicianRole).toMatchObject(getPermissions('Technician'))
+
+            const [contractorRole] = await OrganizationEmployeeRole.getAll(admin, {
+                organization: { id: org.id },
+                name_contains_i: 'contractor',
+            })
+            expect(contractorRole).toMatchObject(getPermissions('Contractor'))
         })
 
         it('creates trial subscription', async () => {
@@ -143,10 +151,26 @@ describe('RegisterNewOrganizationService', () => {
     describe('called by Anonymous', () => {
         it('throws Authentication error', async () => {
             const anonymousClient = await makeClient()
-            const name = faker.company.companyName()
+            const name = faker.company.name()
 
             await expectToThrowAuthenticationErrorToObj(async () => {
                 await registerNewOrganization(anonymousClient, { name })
+            })
+        })
+    })
+    describe('Organization types', () => {
+        let user
+        beforeAll(async () => {
+            user = await makeClientWithNewRegisteredAndLoggedInUser()
+        })
+        test(`Register organization with "${MANAGING_COMPANY_TYPE}" by default`, async () => {
+            const [org] = await registerNewOrganization(user)
+            expect(org).toHaveProperty('type', MANAGING_COMPANY_TYPE)
+        })
+        describe('Can specify organization type explicitly', () => {
+            test.each(ORGANIZATION_TYPES)('%p', async (type) => {
+                const [org] = await registerNewOrganization(user, { type })
+                expect(org).toHaveProperty('type', type)
             })
         })
     })

@@ -1,6 +1,6 @@
 const path = require('path')
 
-const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
 
 const { createOidcClient } = require('@condo/domains/user/oidc')
 
@@ -8,7 +8,7 @@ const { createOidcClient } = require('@condo/domains/user/oidc')
 async function main (args) {
     const [clientId, clientSecret, redirectUri] = args
     if (!clientId || !clientSecret || !redirectUri.startsWith('http')) throw new Error('use: create-oidc-client <clientId> <clientSecret> <redirectUri>')
-    const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp'] })
+    const { keystone } = await prepareKeystoneExpressApp(path.resolve('./index.js'), { excludeApps: ['NextApp', 'AdminUIApp'] })
 
     await createOidcClient({
         // application_type, client_id, client_name, client_secret, client_uri, contacts, default_acr_values, default_max_age, grant_types, id_token_signed_response_alg, initiate_login_uri, jwks, jwks_uri, logo_uri, policy_uri, post_logout_redirect_uris, redirect_uris, require_auth_time, response_types, scope, sector_identifier_uri, subject_type, token_endpoint_auth_method, tos_uri, userinfo_signed_response_alg
@@ -16,7 +16,7 @@ async function main (args) {
         client_secret: clientSecret,
         redirect_uris: [redirectUri], // using uri as redirect_uri to show the ID Token contents
         response_types: ['code id_token', 'code', 'id_token'],
-        grant_types: ['implicit', 'authorization_code'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
+        grant_types: ['implicit', 'authorization_code', 'refresh_token'], // 'implicit', 'authorization_code', 'refresh_token', or 'urn:ietf:params:oauth:grant-type:device_code'
         token_endpoint_auth_method: 'client_secret_basic',
     }, keystone)
 

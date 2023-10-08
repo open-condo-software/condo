@@ -1,17 +1,20 @@
-import Head from 'next/head'
-import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
-import React from 'react'
-import { Typography } from 'antd'
-import { Loader } from '../Loader'
 import { ApolloError } from '@apollo/client'
+import { Typography } from 'antd'
+import Head from 'next/head'
+import React from 'react'
+
+import { PageContent, PageHeader, PageWrapper } from './BaseLayout'
+
+import { Loader } from '../Loader'
+
 
 interface ILoadingOrErrorPageProps {
-    title: string
+    title?: string
     error: string | ApolloError
     loading?: boolean
 }
 
-const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title, loading, error }) => {
+const LoadingOrErrorPage: React.FC<ILoadingOrErrorPageProps> = ({ title = '', loading, error }) => {
     return <>
         <Head>
             <title>{title}</title>

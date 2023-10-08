@@ -1,4 +1,5 @@
 const get = require('lodash/get')
+
 const { ONBOARDING_STEP_TYPE } = require('@condo/domains/onboarding/constants')
 
 const getStepKey = (step) => `${step.action}.${step.entity}`

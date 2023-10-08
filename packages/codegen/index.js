@@ -1,16 +1,18 @@
-const chalk = require('chalk')
-const boxen = require('boxen')
-const yargs = require('yargs/yargs')
 const fs = require('fs')
 const os = require('os')
 const path = require('path')
-const ncp = require('ncp')
-const { promisify } = require('util')
-const nunjucks = require('nunjucks')
 const { Readable } = require('stream')
+const { promisify } = require('util')
+
+const boxen = require('boxen')
+const chalk = require('chalk')
 const { replace } = require('lodash')
+const ncp = require('ncp')
+const nunjucks = require('nunjucks')
 const pluralize = require('pluralize')
-const conf = require('@condo/config')
+const yargs = require('yargs/yargs')
+
+const conf = require('@open-condo/config')
 
 const DEFAULT_APPLICATION_TEMPLATE = 'app00'
 const DEFAULT_SCHEMA_TEMPLATE = 'schema00'
@@ -30,6 +32,13 @@ const readFile = promisify(fs.readFile)
 const writeFile = promisify(fs.writeFile)
 
 nunjucks.configure({ autoescape: false })
+
+function pathJoin (directory, filename) {
+    // used only for code generation at development stage
+    // no end user input expected
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    return path.join(directory, filename)
+}
 
 async function streamToString (stream) {
     const chunks = []
@@ -135,13 +144,13 @@ async function renaming (templateDirectory, targetDirectory, ctx) {
     for (const file of files) {
         const filename = file.name
         let renderedName = renderToString(filename, filename, ctx)
-        const templatePath = path.join(templateDirectory, filename)
+        const templatePath = pathJoin(templateDirectory, filename)
         const isTemplateBasedPath = await exists(templatePath)
         if (isTemplateBasedPath) {
             if (filename !== renderedName && renderedName) {
-                await rename(path.join(targetDirectory, filename), path.join(targetDirectory, renderedName))
+                await rename(pathJoin(targetDirectory, filename), pathJoin(targetDirectory, renderedName))
             }
-            if (file.isDirectory()) await renaming(path.join(templateDirectory, filename), path.join(targetDirectory, renderedName), ctx)
+            if (file.isDirectory()) await renaming(pathJoin(templateDirectory, filename), pathJoin(targetDirectory, renderedName), ctx)
         }
     }
 }
@@ -152,9 +161,9 @@ async function patching (templateDirectory, targetDirectory, ctx) {
         const filename = file.name
         const patchSuffix = '.patch'
         if (filename.endsWith(patchSuffix)) {
-            const patchPath = path.join(templateDirectory, filename)
+            const patchPath = pathJoin(templateDirectory, filename)
             const patchingTargetFilename = filename.slice(0, -patchSuffix.length)
-            const patchingTargetPath = path.join(targetDirectory, patchingTargetFilename)
+            const patchingTargetPath = pathJoin(targetDirectory, patchingTargetFilename)
             console.log('%s Applying patches to: %s', chalk.green.bold('INFO'), patchingTargetPath)
             const isPatchingTargetExists = await exists(patchingTargetPath)
             if (isPatchingTargetExists) {
@@ -166,22 +175,22 @@ async function patching (templateDirectory, targetDirectory, ctx) {
         }
         const defaultSuffix = '.default'
         if (filename.endsWith(defaultSuffix)) {
-            const defaultPath = path.join(templateDirectory, filename)
+            const defaultPath = pathJoin(templateDirectory, filename)
             const defaultTargetFilename = filename.slice(0, -defaultSuffix.length)
-            const defaultTargetPath = path.join(targetDirectory, defaultTargetFilename)
+            const defaultTargetPath = pathJoin(targetDirectory, defaultTargetFilename)
             const isTargetExists = await exists(defaultTargetPath)
             if (!isTargetExists) {
                 await renderTemplate(defaultPath, defaultTargetPath, ctx)
             }
             await rmfile(defaultPath)
         }
-        if (file.isDirectory()) await patching(path.join(templateDirectory, filename), path.join(targetDirectory, filename), ctx)
+        if (file.isDirectory()) await patching(pathJoin(templateDirectory, filename), pathJoin(targetDirectory, filename), ctx)
     }
 }
 
 async function generate (templateDirectory, targetDirectory, ctx) {
-    const readmeFile = path.join(targetDirectory, 'README.md')
-    const tmpDirectory = await mkdtemp(path.join(os.tmpdir(), 'tmp-'))
+    const readmeFile = pathJoin(targetDirectory, 'README.md')
+    const tmpDirectory = await mkdtemp(pathJoin(os.tmpdir(), 'tmp-'))
 
     try {
         await access(templateDirectory, fs.constants.R_OK)
@@ -200,6 +209,9 @@ async function generate (templateDirectory, targetDirectory, ctx) {
 
     console.log('%s Project ready', chalk.green.bold('DONE'))
     if (fs.existsSync(readmeFile)) {
+        // this log entry for development purposes only
+        // no logs formatters can be injected
+        // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
         console.log('%s cat ' + readmeFile, chalk.blue.bold('The next step is:'))
     }
 
@@ -211,7 +223,7 @@ function createapp (argv) {
         .coerce('name', opt => {
             let name = opt.toLowerCase()
             if (name.length < 3) throw new Error('<name> is too short!')
-            if (!/^[a-z_][a-z0-9_]+$/.test(name)) throw new Error('<name> should be [a-z0-9_]+ string')
+            if (!/^[a-z0-9-]+$/.test(name)) throw new Error('<name> should be [a-z0-9-]+ string')
             return name
         })
         .options({
@@ -243,6 +255,8 @@ function createapp (argv) {
                 }
                 const msgBox = boxen(greeting, boxenOptions)
                 const template = conf.CODEGEN_APPLICATION_TEMPLATE || DEFAULT_APPLICATION_TEMPLATE
+                // no end user input expected
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const targetDirectory = path.resolve(process.cwd(), `./apps/${name}`)
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
 
@@ -351,6 +365,8 @@ function createschema (argv) {
                 const app = path.basename(targetDirectory)
                 console.log(app)
 
+                // no end user input expected
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const isTargetDirExists = await exists(path.join(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
                 if (isTargetDirExists && !force) throw new Error(`Schema ${domain}.'${name}'.js is already exists!`)
 
@@ -411,6 +427,8 @@ function createservice (argv) {
                 const templateDirectory = path.resolve(path.dirname(__filename), 'templates', template)
                 const app = path.basename(targetDirectory)
 
+                // no end user input expected
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const isTargetDirExists = await exists(path.join(targetDirectory, 'domains', domain, 'schema', `${name}.js`))
                 if (isTargetDirExists && !force) throw new Error(`Service ${domain}.'${name}'.js is already exists!`)
 

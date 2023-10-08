@@ -1,10 +1,11 @@
 /** @jsx jsx */
 import { BuildingUnitSubType } from '@app/condo/schema'
-import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 import { css, jsx } from '@emotion/react'
 import { Button, ButtonProps } from 'antd'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import React from 'react'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { colors, gradients, UNIT_TYPE_COLOR_SET } from '@condo/domains/common/constants/style'
 
 const buttonCss = css`
     display: inline-block;
@@ -124,6 +125,9 @@ const noninteractiveCss = css`
         border-color:  #F5F5F5;
     }
 `
+const duplicatedUnitStyle = css`
+  background-color: ${colors.brightRed};
+`
 
 const unitTypeCss = (unitType: BuildingUnitSubType) => css`
   background-color: ${UNIT_TYPE_COLOR_SET[unitType]};
@@ -143,6 +147,7 @@ interface CustomButtonProps extends ButtonProps {
     preview?: boolean
     ellipsis?: boolean
     unitType?: BuildingUnitSubType
+    isDuplicated?: boolean
 }
 const TOOLTIP_OVERLAY_STYLE: React.CSSProperties = {
     background: colors.white,
@@ -151,7 +156,7 @@ const TOOLTIP_OVERLAY_STYLE: React.CSSProperties = {
 }
 
 export const UnitButton: React.FC<CustomButtonProps> = (props) => {
-    const { secondary, selected, preview, noninteractive, ellipsis = true, unitType, children, ...restProps } = props
+    const { secondary, selected, preview, noninteractive, ellipsis = true, unitType, isDuplicated, children, ...restProps } = props
     const OriginalLabel = children ? children.toString() : ''
     if (!secondary && OriginalLabel.length > 4 && ellipsis) {
         let ButtonLabel = OriginalLabel
@@ -171,6 +176,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                     ${noninteractive ? noninteractiveCss : ''};                    
                     ${preview ? previewCss(unitType) : ''};
                     ${unitType ? unitTypeCss(unitType) : ''};
+                    ${isDuplicated ? duplicatedUnitStyle : ''};
                 `} {...restProps}>{ButtonLabel}</Button>
             </Tooltip>
         )
@@ -182,6 +188,7 @@ export const UnitButton: React.FC<CustomButtonProps> = (props) => {
                 ${noninteractive ? noninteractiveCss : ''};
                 ${preview ? previewCss(unitType) : ''};
                 ${unitType ? unitTypeCss(unitType) : ''};
+                ${isDuplicated ? duplicatedUnitStyle : ''};
             `} {...restProps}>{children || ' ' }</Button>
         )
     }

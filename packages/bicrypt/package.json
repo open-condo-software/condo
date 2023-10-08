@@ -1,12 +1,12 @@
 {
-  "name": "@condo/bicrypt",
+  "name": "@open-condo/bicrypt",
   "version": "1.1.6",
   "main": "lib/binding.js",
   "dependencies": {
+    "@xmldom/xmldom": "^0.8.6",
     "node-addon-api": "^1.1.0",
     "node-gyp": "^9.1.0",
-    "xml-c14n": "^0.0.6",
-    "xmldom": "^0.6.0"
+    "xml-c14n": "^0.0.6"
   },
   "scripts": {
     "test": "node ./test/test_binding.js",

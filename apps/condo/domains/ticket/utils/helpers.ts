@@ -1,9 +1,4 @@
-import { get, isNull } from 'lodash'
-import dayjs  from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import duration from 'dayjs/plugin/duration'
 import { ParsedUrlQuery } from 'querystring'
-import { SortOrder } from 'antd/es/table/interface'
 
 import {
     Ticket,
@@ -12,9 +7,14 @@ import {
     TicketStatusWhereInput,
     TicketWhereInput,
 } from '@app/condo/schema'
+import { SortOrder } from 'antd/es/table/interface'
+import dayjs  from 'dayjs'
+import duration from 'dayjs/plugin/duration'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { get, isNull } from 'lodash'
 
 import { LOCALES } from '@condo/domains/common/constants/locale'
-import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE, DEFERRED_STATUS_TYPE, COMPLETED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { DEFAULT_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 
 dayjs.extend(duration)
@@ -29,6 +29,7 @@ export const getTicketCreateMessage = (intl, ticket) => {
     const formattedDate = intl.formatDate(dt.valueOf(), {
         month: 'long',
         day: 'numeric',
+        year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
     })
@@ -355,15 +356,11 @@ export const formatDate = (intl, dateStr?: string): string => {
     return localizedDate.format(pattern)
 }
 
-export type specificationTypes = 'day' | 'week' | 'month'
-export type addressPickerType = { id: string; value: string; }
-
 function getDeadlineStopPoint (ticket: Ticket) {
-    const ticketStatusType = get(ticket, ['status', 'type'])
     const ticketStatusUpdatedAt = get(ticket, ['statusUpdatedAt'])
     let deadlineStopPoint = dayjs().startOf('day')
 
-    if (ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE) {
+    if (isCompletedTicket(ticket)) {
         deadlineStopPoint = dayjs(ticketStatusUpdatedAt).startOf('day')
     }
 
@@ -447,12 +444,12 @@ export function convertDaysToDuration (days: number): string {
 
 const DEFAULT_TICKET_DEADLINE_DURATION_AS_DAYS = dayjs.duration(DEFAULT_TICKET_DEADLINE_DURATION).asDays()
 
-export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetting, isPaid: boolean, isEmergency: boolean, isWarranty: boolean): number | null {
+export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetting, isPayable: boolean, isEmergency: boolean, isWarranty: boolean): number | null {
     if (!ticketSetting) return DEFAULT_TICKET_DEADLINE_DURATION_AS_DAYS
 
     let addDays: string | null = get(ticketSetting, 'defaultDeadlineDuration', null)
     if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadlineDuration', null)
-    if (isPaid) addDays = get(ticketSetting, 'paidDeadlineDuration', null)
+    if (isPayable) addDays = get(ticketSetting, 'paidDeadlineDuration', null)
     if (isEmergency) addDays = get(ticketSetting, 'emergencyDeadlineDuration', null)
 
     if (!isNull(addDays)) return convertDurationToDays(addDays)
@@ -461,5 +458,5 @@ export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetti
 
 export function isCompletedTicket (ticket: Ticket): boolean {
     const ticketStatusType = get(ticket, ['status', 'type'])
-    return ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE
+    return ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE || ticketStatusType === COMPLETED_STATUS_TYPE
 }

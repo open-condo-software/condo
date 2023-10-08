@@ -1,27 +1,16 @@
+import { Col, Row, RowProps } from 'antd'
 import React from 'react'
-import styled from '@emotion/styled'
+
+import { useIntl } from '@open-condo/next/intl'
+import { Typography } from '@open-condo/ui'
 
 import { HtmlContent, HtmlContentProps } from '@condo/domains/common/components/HtmlContent'
-import { useIntl } from '@condo/next/intl'
-import { colors, fontSizes } from '@condo/domains/common/constants/style'
 
 type TicketPropertyHintContentProps = HtmlContentProps & {
     linkToHint?: string
 }
 
-const StyledLink = styled.a`
-  color: ${colors.black};
-  &:hover {
-    color: ${colors.black};
-  }
-
-  display: block;
-  width: min-content;
-  margin-top: 14px;
-  font-size: ${fontSizes.content};
-  text-decoration: none;
-  border-bottom: 1px solid ${colors.lightGrey[6]};
-`
+const CONTENT_GUTTER: RowProps['gutter'] = [0, 14]
 
 export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps) => {
     const intl = useIntl()
@@ -38,14 +27,20 @@ export const TicketPropertyHintContent = (props: TicketPropertyHintContentProps)
 
     return (
         <>
-            <HtmlContent {...props} ref={ref}/>
-            {
-                isContentOverflow && props.linkToHint && (
-                    <StyledLink href={props.linkToHint} target='_blank' rel='noreferrer'>
-                        {ExtraTitleMessage}
-                    </StyledLink>
-                )
-            }
+            <Row gutter={CONTENT_GUTTER}>
+                <Col span={24}>
+                    <HtmlContent {...props} ref={ref}/>
+                </Col>
+                {
+                    isContentOverflow && props.linkToHint && (
+                        <Col span={24}>
+                            <Typography.Link href={props.linkToHint} size='large' target='_blank' rel='noreferrer'>
+                                {ExtraTitleMessage}
+                            </Typography.Link>
+                        </Col>
+                    )
+                }
+            </Row>
         </>
     )
 }

@@ -1,0 +1,247 @@
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import (reference) "@open-condo/ui/src/components/style/mixins/table";
+
+.condo-markdown {
+  color: @condo-global-color-gray-7;
+
+  & > * {
+    margin-bottom: @condo-global-spacing-20;
+  }
+
+  & > *:last-child {
+    margin-bottom: 0;
+  }
+
+  // Headers margins
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 1.8em 0 0.8em;
+
+    &:first-child {
+      margin: 0 0 0.6em;
+    }
+  }
+
+  // Images fit
+  img {
+    max-width: 100%;
+  }
+
+  // Lists
+  ul,
+  ol {
+    margin-bottom: 1.8em;
+    padding-left: 0.75em;
+    color: @condo-global-color-gray-7;
+    list-style-position: inside;
+
+    &.contains-task-list {
+      padding-left: 0;
+
+      & > li {
+        list-style-type: none;
+      }
+    }
+
+    & ul,
+    & ol {
+      padding-left: @condo-global-spacing-20;
+    }
+
+    & > li:not(:last-child),
+    & > li ul:not(:last-child),
+    & > li ol:not(:last-child) {
+      margin-bottom: 0.5em;
+    }
+
+    & > li ul:first-child,
+    & > li ol:first-child {
+      margin-top: 0.5em;
+    }
+
+    & li::marker {
+      .condo-typography-text-large();
+    }
+  }
+
+  // Blockquotes
+  blockquote {
+    margin: 1em 0;
+    padding-left: 1em;
+    border-left: 0.25em solid @condo-global-color-gray-5;
+
+    & > .condo-typography {
+      padding: 0.5em 0;
+    }
+
+    & > blockquote:not(:first-child) {
+      margin-top: 0.5em;
+    }
+  }
+
+  table {
+    width: 100%;
+    .condo-table();
+
+    td {
+      color: @condo-global-color-black;
+    }
+  }
+
+  table:not(:last-child) {
+    margin-bottom: @condo-global-spacing-24;
+  }
+
+  .condo-alert:not(:last-child) {
+    margin-bottom: @condo-global-spacing-20;
+  }
+
+  .condo-alert-description > .condo-typography {
+    font-size: @condo-global-font-size-text-m;
+  }
+
+  pre,
+  code {
+    color: @condo-global-color-black;
+    font-size: 14px;
+    font-family: "Noto Sans Mono", var(--condo-font-fallback-mono);
+    line-height: 1.5;
+    direction: ltr;
+    text-align: left;
+    text-shadow: none;
+    word-break: normal;
+    word-spacing: normal;
+    tab-size: 4;
+    hyphens: none;
+  }
+
+  pre::selection,
+  code::selection {
+    text-shadow: none;
+  }
+
+  pre {
+    position: relative;
+    display: grid;
+    grid-column-gap: @condo-global-spacing-12;
+    grid-template-columns: 1fr @condo-global-spacing-20;
+    margin: @condo-global-spacing-24 0 @condo-global-spacing-20;
+    padding: @condo-global-spacing-16;
+    overflow: visible;
+    white-space: pre;
+    background: @condo-global-color-gray-1;
+    border-radius: @condo-global-border-radius-large;
+  }
+
+  pre[class*="language-"] {
+    padding: @condo-global-spacing-20 @condo-global-spacing-16;
+  }
+
+  pre > .condo-tag {
+    position: absolute;
+    top: 0;
+    left: @condo-global-spacing-16;
+    transform: translateY(-50%);
+  }
+
+  .code-container {
+    width: 100%;
+    overflow: auto;
+  }
+
+  .copy-text-icon {
+    cursor: pointer;
+  }
+
+  .namespace {
+    opacity: 0.7;
+  }
+
+  .token.comment,
+  .token.prolog,
+  .token.doctype,
+  .token.cdata,
+  .token.punctuation {
+    color: @condo-global-color-gray-7;
+  }
+
+  .token.property,
+  .token.tag,
+  .token.boolean,
+  .token.number,
+  .token.constant,
+  .token.symbol,
+  .token.deleted {
+    color: @condo-global-color-pink-5;
+  }
+
+  .token.selector,
+  .token.attr-name,
+  .token.string,
+  .token.char,
+  .token.builtin,
+  .token.inserted {
+    color: @condo-global-color-cyan-7;
+  }
+
+  .token.operator,
+  .token.entity,
+  .token.url,
+  .language-css .token.string,
+  .style .token.string {
+    color: @condo-global-color-brown-5;
+  }
+
+  .token.atrule,
+  .token.attr-value,
+  .token.keyword {
+    color: @condo-global-color-blue-5;
+  }
+
+  .token.function {
+    color: @condo-global-color-red-5;
+  }
+
+  .token.regex,
+  .token.important,
+  .token.variable {
+    color: @condo-global-color-orange-5;
+  }
+
+  .token.important,
+  .token.bold {
+    font-weight: bold;
+  }
+
+  .token.italic {
+    font-style: italic;
+  }
+
+  .token.entity {
+    cursor: help;
+  }
+
+  .line-highlight {
+    position: absolute;
+    right: 0;
+    left: 0;
+    z-index: 0;
+    margin-top: 1em;
+    /* stylelint-disable */
+    padding-top: inherit;
+    padding-right: 0;
+    padding-bottom: inherit;
+    padding-left: 0;
+    /* stylelint-enable */
+    line-height: inherit;
+    white-space: pre;
+    background: @condo-global-color-gray-3;
+    box-shadow: inset 5px 0 0 @condo-global-color-gray-5;
+    pointer-events: none;
+  }
+}

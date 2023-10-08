@@ -1,22 +1,30 @@
 import styled from '@emotion/styled'
-import { Space, Typography } from 'antd'
 import classnames from 'classnames'
-import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useEffect, useState } from 'react'
-import { useIntl } from '@condo/next/intl'
-import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
-import { colors } from '../constants/style'
-import { transitions } from '@condo/domains/common/constants/style'
-import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
-import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import React, { useMemo, useState } from 'react'
 
-const IconWrapper = styled.div``
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
+import type { IconProps } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
+import { Space, Typography } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
+
+import { Tooltip } from '@condo/domains/common/components/Tooltip'
+import { transitions } from '@condo/domains/common/constants/style'
+import { renderLink } from '@condo/domains/common/utils/Renders'
+import { getEscaped } from '@condo/domains/common/utils/string.utils'
+import { INoOrganizationToolTipWrapper } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
+
+import { ClientRenderedIcon } from './icons/ClientRenderedIcon'
+import { useLayoutContext } from './LayoutContext'
+import { useTracking } from './TrackingContext'
+
 
 interface IMenuItemWrapperProps {
     padding?: string
     isCollapsed?: boolean
     labelFontSize?: string
+    className?: string
 }
 
 const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
@@ -28,32 +36,26 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
   align-items: center;
   justify-content: ${({ isCollapsed }) => isCollapsed ? 'center' : 'flex-start'};
   vertical-align: center;
-
-  .label {
-    font-size: ${props => props.labelFontSize ? props.labelFontSize : '16px'};
-    transition: ${transitions.allDefault};
-    white-space: nowrap;
-  }
-
-  .icon {
-    color: ${colors.textSecondary};
-    font-size: 20px;
-    transition: ${transitions.allDefault};
-  }
-
-  &:hover {
-    .icon {
-      color: ${colors.black};
-    }
-  }
-
+  color: ${colors.gray['7']};
+  
+  &:hover,
   &.active {
-    .label {
-      font-weight: 700;
-    }
+    color: ${colors.black};
+  }
 
-    .icon {
-      color: ${colors.black};
+  .condo-typography, 
+  .icon {
+    transition: ${transitions.allDefault};
+  }
+  
+  .condo-typography {
+    width: max-content;
+  }
+
+  // NOTE: Fix width to reduce flick effect on collapse / expand
+  &.side:not(.width-full) {
+    .condo-typography {
+      width: 155px;
     }
   }
 
@@ -63,90 +65,109 @@ const MenuItemWrapper = styled.div<IMenuItemWrapperProps>`
 `
 
 interface IMenuItemProps {
-    path: string
+    id?: string
+    path?: string
     icon: React.ElementType
     label: string
+    labelRaw?: true
     disabled?: boolean
     hideInMenu?: boolean
     menuItemWrapperProps?: IMenuItemWrapperProps
     isCollapsed?: boolean
+    onClick?: () => void
+    eventName?: string
+    excludePaths?: Array<RegExp>
 
     toolTipDecorator? (params: INoOrganizationToolTipWrapper): JSX.Element
 }
 
-const makeLink = (content: JSX.Element, path: string) => {
-    return (
-        <Link href={path}>
-            <a>
-                {content}
-            </a>
-        </Link>
-    )
-}
-
 const addToolTipForCollapsedMenu = (content: JSX.Element, Message: string) => (
-    <Tooltip title={Message} placement='right'>
-        {content}
+    <Tooltip title={Message} placement='right' overlayStyle={{ position: 'fixed' }}>
+        {/* NOTE: Antd tooltip doesn't work with spans, so icons must have a div wrapper */}
+        <div>
+            {content}
+        </div>
     </Tooltip>
 )
 
+const MenuItemIconProps: IconProps = {
+    size: 'medium',
+    className: 'icon',
+}
+
 export const MenuItem: React.FC<IMenuItemProps> = (props) => {
     const {
+        id,
         path,
         icon,
         label,
         hideInMenu,
         disabled,
-        menuItemWrapperProps,
+        menuItemWrapperProps = {},
         isCollapsed,
         toolTipDecorator = null,
+        onClick,
+        eventName,
+        excludePaths = [],
+        labelRaw,
     } = props
-    const { route } = useRouter()
+    const { breakpoints } = useLayoutContext()
+    const router = useRouter()
+    const asPath = router.asPath
     const intl = useIntl()
+    const { getTrackingWrappedCallback } = useTracking()
+    const { className: wrapperClassName, ...restWrapperProps } = menuItemWrapperProps
 
     const [isActive, setIsActive] = useState(false)
 
-    useEffect(() => {
-        const regex = new RegExp(`^${path}`)
-        setIsActive(path === '/' ? route === path : regex.test(route))
-    }, [route, path])
+    useDeepCompareEffect(() => {
+        const escapedPath = path ? getEscaped(path) : undefined
+        // not a ReDoS issue: running on end user browser
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+        const regex = new RegExp(`^${escapedPath}`)
+        setIsActive(path === '/'
+            ? asPath === path
+            : regex.test(asPath) && excludePaths.every(exPath => !exPath.test(asPath)))
+    }, [path, asPath, excludePaths])
+
+    const handleClick = useMemo(
+        () => getTrackingWrappedCallback(eventName, null, onClick),
+        [eventName, getTrackingWrappedCallback, onClick]
+    )
 
     if (hideInMenu) {
         return null
     }
 
-    const Message = intl.formatMessage({ id: label })
+    const Message = labelRaw ? label : intl.formatMessage({ id: label })
 
-    const menuItemClassNames = classnames({
+    const menuItemClassNames = classnames(wrapperClassName, {
+        'side': breakpoints.TABLET_LARGE,
         'active': isActive,
         'disabled': disabled,
     })
 
     const linkContent = isCollapsed
         ? (
-            <IconWrapper className='icon'>
-                <ClientRenderedIcon icon={icon}/>
-            </IconWrapper>
-        )
-        : (
-            <Space size={14}>
-                <IconWrapper className='icon'>
-                    <ClientRenderedIcon icon={icon}/>
-                </IconWrapper>
-                <Typography.Text className='label'>
+            <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
+        ) : (
+            <Space size={12} align='center' direction='horizontal' className='menu-item'>
+                <ClientRenderedIcon icon={icon} iconProps={MenuItemIconProps}/>
+                <Typography.Title ellipsis={{ rows: 2 }} level={5}>
                     {Message}
-                </Typography.Text>
+                </Typography.Title>
             </Space>
         )
 
+    const menuItemIdProp = id ? { id: id } : {}
+
     const menuItem = (
-        <MenuItemWrapper className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemWrapperProps}>
+        <MenuItemWrapper onClick={handleClick} className={menuItemClassNames} isCollapsed={isCollapsed} {...menuItemIdProp} {...restWrapperProps}>
             {(isCollapsed && !disabled) ? addToolTipForCollapsedMenu(linkContent, Message) : linkContent}
         </MenuItemWrapper>
-
     )
 
-    const nextjsLink = disabled ? menuItem : makeLink(menuItem, path)
+    const nextjsLink = !path || disabled ? menuItem : renderLink(menuItem, path, false)
 
     return toolTipDecorator ? toolTipDecorator({ element: nextjsLink, placement: 'right' }) : nextjsLink
 }

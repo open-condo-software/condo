@@ -1,10 +1,11 @@
-const Json = require('./Json')
-const Options = require('./Options')
-const Stars = require('./Stars')
+const AddressPartWithType = require('./AddressPartWithType')
 const AutoIncrementInteger = require('./AutoIncrementInteger')
-const LocalizedText = require('./LocalizedText')
-const SignedDecimal = require('./SignedDecimal')
 const DateInterval = require('./DateInterval')
+const Json = require('./Json')
+const LocalizedText = require('./LocalizedText')
+const Options = require('./Options')
+const SignedDecimal = require('./SignedDecimal')
+const Stars = require('./Stars')
 
 module.exports = {
     Json,
@@ -14,4 +15,5 @@ module.exports = {
     LocalizedText,
     SignedDecimal,
     DateInterval,
+    AddressPartWithType,
 }

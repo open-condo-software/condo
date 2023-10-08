@@ -6,13 +6,14 @@ const dayjs = require('dayjs')
 const duration = require('dayjs/plugin/duration')
 const { get, isNull } = require('lodash')
 
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { DateInterval } = require('@condo/keystone/fields')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const access = require('@condo/domains/ticket/access/TicketOrganizationSetting')
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const { MAX_TICKET_DEADLINE_DURATION, MIN_TICKET_DEADLINE_DURATION, DEFAULT_TICKET_DEADLINE_DURATION } = require('@condo/domains/ticket/constants/common')
+const { DateInterval } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const access = require('@condo/domains/ticket/access/TicketOrganizationSetting')
+const { MAX_TICKET_DEADLINE_DURATION, MIN_TICKET_DEADLINE_DURATION, DEFAULT_TICKET_DEADLINE_DURATION } = require('@condo/domains/ticket/constants/common')
 
 dayjs.extend(duration)
 
@@ -44,7 +45,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
             },
         },
         paidDeadlineDuration: {
-            schemaDoc: 'Default deadline duration for paid tickets (ISO 8601 format)',
+            schemaDoc: 'Default deadline duration for payable tickets (ISO 8601 format)',
             type: DateInterval,
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },

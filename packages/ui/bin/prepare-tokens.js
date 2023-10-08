@@ -1,7 +1,8 @@
-const path = require('path')
-const get = require('lodash/get')
 const { spawn } = require('child_process')
 const fs = require('fs')
+const path = require('path')
+
+const get = require('lodash/get')
 
 
 /**
@@ -11,6 +12,7 @@ const fs = require('fs')
  */
 function prepareTokens (tokenFile) {
     const filename = tokenFile ? tokenFile : 'tokens.json'
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const tokenPath = path.join(__dirname, '../src/tokens', filename)
     const tokens = require(tokenPath)
 
@@ -30,7 +32,7 @@ function prepareTokens (tokenFile) {
         // Generate child process to transform tokens
         const chile_process = spawn('yarn', [
             'workspace',
-            '@condo/ui',
+            '@open-condo/ui',
             'token-transformer',
             `src/tokens/${filename}`,
             `src/tokens/sets/${setName}.json`,
@@ -45,6 +47,7 @@ function prepareTokens (tokenFile) {
         // instead of <prefix>-...
         chile_process.on('exit', code => {
             if (code === 0) {
+                // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
                 const fileName = path.join(__dirname, `../src/tokens/sets/${setName}.json`)
                 const file = require(fileName)
                 fs.writeFileSync(fileName, JSON.stringify({

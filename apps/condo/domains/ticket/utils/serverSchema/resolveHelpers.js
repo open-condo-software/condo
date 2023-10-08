@@ -1,17 +1,21 @@
-const { isUndefined, isEmpty, get } = require('lodash')
 const dayjs = require('dayjs')
-const { find } = require('@condo/keystone/schema')
-const { getById, getByCondition } = require('@condo/keystone/schema')
+const { isUndefined, isEmpty, get } = require('lodash')
 
-const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
-const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
-const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { find } = require('@open-condo/keystone/schema')
+const { getById, getByCondition } = require('@open-condo/keystone/schema')
+
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
-const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { FLAT_UNIT_TYPE, SECTION_SECTION_TYPE, PARKING_UNIT_TYPE, PARKING_SECTION_TYPE } = require('@condo/domains/property/constants/common')
-const { DEFERRED_STATUS_TYPE, DEFAULT_DEFERRED_DAYS } = require('@condo/domains/ticket/constants')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
+const { COMPLETED_STATUS_TYPE, NEW_OR_REOPENED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { DEFERRED_STATUS_TYPE } = require('@condo/domains/ticket/constants')
+const { FEEDBACK_VALUES_BY_KEY } = require('@condo/domains/ticket/constants/feedback')
+const { TICKET_ORDER_BY_STATUS, STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { PREDICT_TICKET_CLASSIFICATION_QUERY } = require('@condo/domains/ticket/gql')
+const { TicketPropertyHintProperty } = require('@condo/domains/ticket/utils/serverSchema')
+const { getSectionAndFloorByUnitName } = require('@condo/domains/ticket/utils/unit')
 
 const hasEmployee = (id, employees) => id && employees.some(employee => get(employee, ['user', 'id'], null) === id)
 
@@ -20,12 +24,6 @@ function calculateTicketOrder (resolvedData, statusId) {
         resolvedData.order = TICKET_ORDER_BY_STATUS[STATUS_IDS.OPEN]
     } else {
         resolvedData.order = null
-    }
-}
-
-function calculateDefaultDeferredUntil (newItem, resolvedData, resolvedStatusId) {
-    if (!newItem.deferredUntil && resolvedStatusId === STATUS_IDS.DEFERRED) {
-        resolvedData.deferredUntil = dayjs().add(DEFAULT_DEFERRED_DAYS, 'days').toISOString()
     }
 }
 
@@ -68,7 +66,7 @@ async function calculateReopenedCounter (context, existingItem, resolvedData, ex
 }
 
 function calculateStatusUpdatedAt (resolvedData, existedStatusId, resolvedStatusId) {
-    if (resolvedStatusId !== existedStatusId) {
+    if (!resolvedData.statusUpdatedAt && resolvedStatusId !== existedStatusId) {
         resolvedData['statusUpdatedAt'] = new Date().toISOString()
     }
 }
@@ -82,7 +80,7 @@ function calculateCompletedAt (resolvedData, existedStatus, resolvedStatus) {
     }
 }
 
-function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus, originalInput) {
+function calculateDeferredUntil (resolvedData, existedStatus, resolvedStatus) {
     if (existedStatus.type === DEFERRED_STATUS_TYPE && resolvedStatus.type !== existedStatus.type) {
         resolvedData.deferredUntil = null
     }
@@ -149,7 +147,9 @@ function overrideTicketFieldsForResidentUserType (context, resolvedData) {
     resolvedData.canReadByResident = true
     resolvedData.isResidentTicket = true
     // set default unitType and sectionType values to tickets, created from older versions of the resident's mobile app where no unitType and sectionType is passed
-    resolvedData.unitType = resolvedData.unitType || FLAT_UNIT_TYPE
+    if (resolvedData.unitName) {
+        resolvedData.unitType = resolvedData.unitType || FLAT_UNIT_TYPE
+    }
     const sectionTypeByUnitType = resolvedData.unitType === PARKING_UNIT_TYPE ? PARKING_SECTION_TYPE : SECTION_SECTION_TYPE
     resolvedData.sectionType = resolvedData.sectionType || sectionTypeByUnitType
 }
@@ -223,8 +223,16 @@ async function connectContactToTicket (context, resolvedData, existingItem) {
         const isResidentTicket = isUndefined(resolvedIsResidentTicket) ? existedIsResidentTicket : resolvedIsResidentTicket
 
         if (isResidentTicket) {
-            const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
-            resolvedData.contact = contact.id
+            const updatedObj = { ...existingItem, ...resolvedData }
+
+            if (updatedObj.clientName && updatedObj.clientPhone) {
+                const contact = await getOrCreateContactByClientData(context, resolvedData, existingItem)
+                resolvedData.contact = contact.id
+                resolvedData.clientName = contact.name
+                resolvedData.clientPhone = contact.phone
+            } else {
+                resolvedData.isResidentTicket = false
+            }
         } else if (existedIsResidentTicket && resolvedIsResidentTicket === false) {
             resolvedData.contact = null
         }
@@ -232,6 +240,42 @@ async function connectContactToTicket (context, resolvedData, existingItem) {
         resolvedData.isResidentTicket = true
     }
 }
+
+async function setDeadline (resolvedData) {
+    const organizationId = get(resolvedData, 'organization')
+    const deadline = get(resolvedData, 'deadline')
+    if (organizationId && !deadline) {
+        const ticketOrganizationSetting = await getByCondition('TicketOrganizationSetting', {
+            organization: { id: organizationId },
+        })
+        if (ticketOrganizationSetting) {
+            const defaultDeadlineDuration = get(ticketOrganizationSetting, 'defaultDeadlineDuration', null)
+            if (defaultDeadlineDuration) {
+                const durationAsMs = dayjs.duration(defaultDeadlineDuration).asMilliseconds()
+                resolvedData.deadline = dayjs().add(durationAsMs, 'ms').toISOString()
+            } else {
+                resolvedData.deadline = null
+            }
+        }
+    }
+}
+
+function updateStatusAfterResidentFeedback (resolvedData) {
+    if (resolvedData.feedbackValue === FEEDBACK_VALUES_BY_KEY.RETURNED) {
+        resolvedData.status = STATUS_IDS.OPEN
+    } else {
+        resolvedData.status = STATUS_IDS.CLOSED
+    }
+}
+
+async function classifyTicket (context, details) {
+    return await execGqlWithoutAccess(context, {
+        query: PREDICT_TICKET_CLASSIFICATION_QUERY,
+        variables: { data: { details } },
+        dataPath: 'obj',
+    })
+}
+
 
 module.exports = {
     calculateReopenedCounter,
@@ -246,5 +290,7 @@ module.exports = {
     softDeleteTicketHintPropertiesByProperty,
     connectContactToTicket,
     calculateDeferredUntil,
-    calculateDefaultDeferredUntil,
+    setDeadline,
+    updateStatusAfterResidentFeedback,
+    classifyTicket,
 }

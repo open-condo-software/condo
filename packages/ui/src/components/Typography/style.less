@@ -1,0 +1,205 @@
+@import "antd/lib/tooltip/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography.less";
+@import "@open-condo/ui/src/components/style/mixins/link.less";
+
+.condo-typography {
+  @condo-typography-decoration-thickness: 1px;
+
+  word-break: break-word;
+
+  &-break-spaces {
+    white-space: break-spaces;
+  }
+
+  &,
+  &-large {
+    .condo-typography-text-large();
+  }
+
+  &-medium {
+    .condo-typography-text-medium();
+  }
+
+  &-small {
+    .condo-typography-text-small();
+  }
+
+  &-primary {
+    color: @condo-global-color-black;
+  }
+
+  &-secondary {
+    color: @condo-global-color-gray-7;
+  }
+
+  &-inverted {
+    color: @condo-global-color-white;
+  }
+
+  &-info {
+    color: @condo-global-color-blue-5;
+  }
+
+  &-success {
+    color: @condo-global-color-green-5;
+  }
+
+  &-warning {
+    color: @condo-global-color-orange-5;
+  }
+
+  &-danger {
+    color: @condo-global-color-red-5;
+  }
+
+  &-inherit {
+    color: inherit;
+  }
+
+  &-disabled {
+    cursor: not-allowed;
+    opacity: @condo-global-opacity-disabled;
+    user-select: none;
+  }
+
+  &-clickable {
+    cursor: pointer;
+  }
+
+  u,
+  ins {
+    text-decoration: underline;
+    text-decoration-skip-ink: auto;
+    text-decoration-thickness: @condo-typography-decoration-thickness;
+  }
+
+  s,
+  del {
+    text-decoration: line-through;
+    text-decoration-thickness: @condo-typography-decoration-thickness;
+  }
+
+  strong {
+    font-weight: @condo-global-font-weight-semibold;
+  }
+
+  code {
+    box-sizing: border-box;
+    margin: 0 0.2em;
+    padding: 0.25em 0.4em;
+    font-size: 95%;
+    font-family: "Noto Sans Mono", monospace;
+    background: @condo-global-color-gray-1;
+    border: @condo-global-border-width-default solid @condo-global-color-gray-3;
+    border-radius: @condo-global-border-radius-small;
+  }
+
+  div&:not(:last-of-type),
+  p:not(:last-of-type) {
+    margin-bottom: @condo-global-typography-text-l-paragraph-spacing;
+
+    &.condo-typography-medium {
+      margin-bottom: @condo-global-typography-text-m-paragraph-spacing;
+    }
+
+    &.condo-typography-small {
+      margin-bottom: @condo-global-typography-text-s-paragraph-spacing;
+    }
+  }
+
+  h1&,
+  div&-h1,
+  div&-h1 > textarea,
+  h1 {
+    .condo-typography-h1();
+  }
+
+  h2&,
+  div&-h2,
+  div&-h2 > textarea,
+  h2 {
+    .condo-typography-h2();
+  }
+
+  h3&,
+  div&-h3,
+  div&-h3 > textarea,
+  h3 {
+    .condo-typography-h3();
+  }
+
+  h4&,
+  div&-h4,
+  div&-h4 > textarea,
+  h4 {
+    .condo-typography-h4();
+  }
+
+  h5&,
+  div&-h5,
+  div&-h5 > textarea,
+  h5 {
+    .condo-typography-h5();
+  }
+
+  h6&,
+  div&-h6,
+  div&-h6 > textarea,
+  h6 {
+    .condo-typography-h6();
+  }
+
+  a&-ellipsis,
+  span&-ellipsis {
+    display: inline-block;
+    max-width: 100%;
+  }
+
+  a&,
+  a {
+    .condo-link();
+
+    &:not(.condo-typography-large, .condo-typography-medium, .condo-typography-small) {
+      font-size: inherit;
+    }
+
+    &[disabled],
+    &.condo-typography-disabled {
+      &,
+      &:focus-visible,
+      &:hover,
+      &:active {
+        color: @condo-global-color-black;
+        cursor: not-allowed;
+        opacity: @condo-global-opacity-disabled;
+        pointer-events: none;
+      }
+    }
+  }
+
+  &-single-line {
+    white-space: nowrap;
+  }
+
+  &-ellipsis-single-line {
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    // https://blog.csdn.net/iefreer/article/details/50421025
+    a&,
+    span& {
+      vertical-align: bottom;
+    }
+  }
+
+  &-ellipsis-multiple-line {
+    /* stylelint-disable-next-line value-no-vendor-prefix */
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-line-clamp: 3;
+
+    /*! autoprefixer: ignore next */
+    -webkit-box-orient: vertical;
+  }
+}

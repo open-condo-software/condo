@@ -2,20 +2,20 @@
  * @jest-environment node
  */
 
-const { setFakeClientMode, makeLoggedInAdminClient } = require('@condo/keystone/test.utils')
+const index = require('@app/condo/index')
 
-const { Message } = require('@condo/domains/notification/utils/testSchema')
+const { setFakeClientMode, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
 const {
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_TYPE,
 } = require('@condo/domains/notification/constants/constants')
-
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 const { Resident } = require('@condo/domains/resident/utils/testSchema')
 
-const { makeBillingReceiptWithResident } = require('./spec.helpers')
 const { makeMessageKey, makeAccountKey, getMessageTypeAndDebt, sendBillingReceiptsAddedNotificationsForPeriod } = require('./sendBillingReceiptsAddedNotifications')
+const { makeBillingReceiptWithResident } = require('./spec.helpers')
 
-const index = require('@app/condo/index')
 
 describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
     setFakeClientMode(index)
@@ -61,7 +61,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             }
             const messages = await Message.getAll(admin, messageWhere)
 
-            expect(messages.length).toEqual(1)
+            expect(messages).toHaveLength(1)
             expect(lastDt).toEqual(receipt.createdAt)
             expect(messages[0].organization.id).toEqual(resident.organization.id)
         })
@@ -87,7 +87,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             expect(message.organization.id).toEqual(resident.organization.id)
         })
 
-        it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay = 0.0', async () => {
+        it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay = 0.0', async () => {
             const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '0.0' })
 
@@ -100,10 +100,10 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeUndefined()
+            expect(message).toBeUndefined()
         })
 
-        it('sends notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE for toPay < 0', async () => {
+        it('does not send notification of BILLING_RECEIPT_ADDED_WITH_NO_DEBT for toPay < 0', async () => {
             const admin = await makeLoggedInAdminClient()
             const { receipt, resident } = await makeBillingReceiptWithResident({ toPay: '-1.0' })
 
@@ -116,8 +116,7 @@ describe('sendBillingReceiptsAddedNotificationsForPeriod', () => {
             }
             const message = await Message.getOne(admin, messageWhere)
 
-            expect(message).not.toBeUndefined()
-            expect(message.organization.id).toEqual(resident.organization.id)
+            expect(message).toBeUndefined()
         })
 
         it('sends only one notification for same receipt', async () => {

@@ -3,12 +3,13 @@
  */
 
 const Big = require('big.js')
-const { makeClient } = require('@condo/keystone/test.utils')
+
+const { makeClient } = require('@open-condo/keystone/test.utils')
+const { catchErrorFrom, expectToThrowAuthenticationError } = require('@open-condo/keystone/test.utils')
 
 const { makePayer, createTestPayment, sumPaymentsByTestClient, createPaymentsAndGetSum } = require('@condo/domains/acquiring/utils/testSchema')
-const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
-const { catchErrorFrom, expectToThrowAuthenticationError } = require('@condo/keystone/test.utils')
+const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('SumPaymentsService', () => {
     describe('logic and correct summing', () => {

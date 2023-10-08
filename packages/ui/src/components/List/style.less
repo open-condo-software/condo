@@ -1,0 +1,33 @@
+@import "antd/lib/list/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+
+.condo-list {
+  .condo-list-header {
+    padding-top: 0;
+    padding-bottom: @condo-global-spacing-24;
+    border-bottom: none;
+  }
+
+  .condo-list-item {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    width: 100%;
+    padding: 6px 0;
+    border-bottom: none;
+  }
+
+  .condo-list-item .condo-typography {
+    max-width: 40%;
+  }
+
+  .condo-list-item .condo-typography:last-of-type {
+    text-align: right;
+  }
+
+  .condo-list-item-divider {
+    flex: 1;
+    margin: 0 @condo-global-spacing-8;
+    border-bottom: @condo-global-border-width-default solid @condo-global-color-gray-3;
+  }
+}

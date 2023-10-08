@@ -2,7 +2,8 @@ import { Typography, Row, Col } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import Head from 'next/head'
 import React, { CSSProperties } from 'react'
-import { useIntl } from '@condo/next/intl'
+
+import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'

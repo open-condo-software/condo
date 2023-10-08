@@ -1,12 +1,19 @@
 import {
     BuildingUnitSubType,
+    Ticket,
     TicketCategoryClassifier as TicketCategoryClassifierType,
     TicketSource as TicketSourceType,
     TicketStatus as TicketStatusType,
     TicketWhereInput,
 } from '@app/condo/schema'
-import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
+import get from 'lodash/get'
+import React, { useMemo } from 'react'
 
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+import { getSelectFilterDropdown } from '@condo/domains/common/components/Table/Filters'
 import {
     ComponentType,
     convertToOptions,
@@ -19,47 +26,52 @@ import {
     getNumberFilter,
     getStringContainsFilter,
 } from '@condo/domains/common/utils/tables.utils'
-import { REVIEW_VALUES } from '@condo/domains/ticket/constants'
+import {
+    searchOrganizationPropertyScope,
+} from '@condo/domains/scope/utils/clientSchema/search'
 import { VISIBLE_TICKET_SOURCE_TYPES } from '@condo/domains/ticket/constants/common'
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
-import { get } from 'lodash'
-import React, { useMemo } from 'react'
+import { FEEDBACK_VALUES_BY_KEY } from '@condo/domains/ticket/constants/feedback'
+import { QUALITY_CONTROL_VALUES_BY_KEY } from '@condo/domains/ticket/constants/qualityControl'
+import { TicketCategoryClassifier, TicketSource, TicketStatus } from '@condo/domains/ticket/utils/clientSchema'
 
-import { TicketCategoryClassifier, TicketSource, TicketStatus } from '../utils/clientSchema'
-import {
-    searchEmployeeUser,
-    searchOrganizationDivision,
-    searchOrganizationProperty,
-} from '../utils/clientSchema/search'
-import {
-    divisionFilterQueryToWhereProcessor,
-    getIsResidentContactFilter,
-    getTicketAttributesFilter,
-} from '../utils/tables.utils'
 import {
     FilterModalCategoryClassifierSelect,
     FilterModalPlaceClassifierSelect,
     FilterModalProblemClassifierSelect,
 } from './useModalFilterClassifiers'
 
+import {
+    searchEmployeeUser,
+    searchOrganizationProperty,
+} from '../utils/clientSchema/search'
+import {
+    getClientNameFilter,
+    getFilterAddressForSearch,
+    getIsResidentContactFilter,
+    getPropertyScopeFilter,
+    getTicketAttributesFilter, getTicketTypeFilter,
+} from '../utils/tables.utils'
+
+
 const filterNumber = getNumberFilter('number')
 const filterCreatedAtRange = getDayRangeFilter('createdAt')
 const filterDeadlineRange = getDayRangeFilter('deadline')
 const filterCompletedAtRange = getDayRangeFilter('completedAt')
 const filterLastResidentCommentAtRange = getDayRangeFilter('lastResidentCommentAt')
-const filterStatus = getFilter(['status', 'id'], 'array', 'string', 'in')
+const filterStatus = getFilter(['status', 'type'], 'array', 'string', 'in')
 const filterDetails = getStringContainsFilter('details')
 const filterProperty = getFilter(['property', 'id'], 'array', 'string', 'in')
 const filterAddress = getStringContainsFilter(['property', 'address'])
-const filterClientName = getStringContainsFilter('clientName')
+const filterAddressForSearch = getFilterAddressForSearch()
+const filterClientName = getClientNameFilter()
 const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
+const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPayable', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
-const filterReviewValue = getFilter('reviewValue', 'array', 'string', 'in')
+const filterFeedbackValue = getFilter('feedbackValue', 'array', 'string', 'in')
+const filterQualityControlValue = getFilter('qualityControlValue', 'array', 'string', 'in')
 const filterSource = getFilter(['source', 'id'], 'array', 'string', 'in')
 const filterSection = getFilter('sectionName', 'array', 'string', 'in')
 const filterFloor = getFilter('floorName', 'array', 'string', 'in')
@@ -72,14 +84,16 @@ const filterCategoryClassifierSearch = getStringContainsFilter(['classifier', 'c
 const filterClientPhone = getFilter('clientPhone', 'array', 'string', 'in')
 const filterTicketAuthor = getFilter(['createdBy', 'id'], 'array', 'string', 'in')
 const filterTicketContact = getFilter(['contact', 'id'], 'array', 'string', 'in')
+const filterPropertyScope = getPropertyScopeFilter()
 
-export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  {
+
+export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ticket>> {
     const intl = useIntl()
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' }).toLowerCase()
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
     const RegularMessage = intl.formatMessage({ id: 'Regular' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
+    const PayableMessage = intl.formatMessage({ id: 'Payable' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
     const CompletedAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.CompletedAt' })
     const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
@@ -103,22 +117,30 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const PlaceClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.PlaceLabel' })
     const CategoryClassifierLabel = intl.formatMessage({ id: 'component.ticketclassifier.CategoryLabel' })
     const ProblemClassifierLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.ProblemClassifier' })
-    const DivisionLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Division' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
     const AttributeLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.Attribute' })
     const AuthorMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.Author' })
     const EnterFullNameMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterFullName' })
-    const GoodReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.good' })
-    const BadReviewMessage = intl.formatMessage({ id: 'ticket.reviewValue.bad' })
-    const ReviewValueMessage = intl.formatMessage({ id: 'ticket.reviewValue' })
+    const GoodFeedbackMessage = intl.formatMessage({ id: 'ticket.feedback.good' })
+    const BadFeedbackMessage = intl.formatMessage({ id: 'ticket.feedback.bad' })
+    const FeedbackValueMessage = intl.formatMessage({ id: 'ticket.feedback' })
+    const QualityControlValueMessage = intl.formatMessage({ id: 'ticket.qualityControl.filter.label' })
+    const GoodQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.good' })
+    const BadQualityControlMessage = intl.formatMessage({ id: 'ticket.qualityControl.bad' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const IsResidentContactLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact' })
     const IsResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.true' })
     const IsNotResidentContactMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.isResidentContact.false' })
     const LastCommentAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.lastCommentAt' })
+    const PropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope' })
+    const TicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType' })
+    const OwnTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.own' })
+    const FavoriteTicketTypeMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.TicketType.favorite' })
+
+    const { user } = useAuth()
 
     const { objs: statuses } = TicketStatus.useObjects({})
-    const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'id'), [statuses])
+    const statusOptions = useMemo(() => convertToOptions<TicketStatusType>(statuses, 'name', 'type'), [statuses])
 
     const { objs: sources } = TicketSource.useObjects({
         where: { type_in: VISIBLE_TICKET_SOURCE_TYPES },
@@ -127,15 +149,19 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
 
     const attributeOptions = useMemo(() => [
         { label: RegularMessage, value: 'isRegular' },
-        { label: PaidMessage, value: 'isPaid' },
+        { label: PayableMessage, value: 'isPayable' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
         { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
-    ], [EmergencyMessage, PaidMessage, RegularMessage, ReturnedMessage, WarrantyMessage])
-    const reviewValueOptions = useMemo(() => [
-        { label: GoodReviewMessage, value: REVIEW_VALUES.GOOD },
-        { label: BadReviewMessage, value: REVIEW_VALUES.BAD },
-    ], [BadReviewMessage, GoodReviewMessage])
+    ], [EmergencyMessage, PayableMessage, RegularMessage, ReturnedMessage, WarrantyMessage])
+    const feedbackValueOptions = useMemo(() => [
+        { label: GoodFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.GOOD },
+        { label: BadFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.BAD },
+    ], [BadFeedbackMessage, GoodFeedbackMessage])
+    const qualityControlValueOptions = useMemo(() => [
+        { label: GoodQualityControlMessage, value: QUALITY_CONTROL_VALUES_BY_KEY.GOOD },
+        { label: BadQualityControlMessage, value: QUALITY_CONTROL_VALUES_BY_KEY.BAD },
+    ], [BadQualityControlMessage, GoodQualityControlMessage])
     const unitTypeOptions = useMemo(() => [
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Flat}` }), value: BuildingUnitSubType.Flat },
         { label: intl.formatMessage({ id: `field.UnitType.${BuildingUnitSubType.Parking}` }), value: BuildingUnitSubType.Parking },
@@ -153,6 +179,18 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
+    const ticketTypeOptions = useMemo(
+        () => [
+            { label: FavoriteTicketTypeMessage, value: 'favorite' },
+            { label: OwnTicketTypeMessage, value: 'own' },
+        ],
+        [FavoriteTicketTypeMessage, OwnTicketTypeMessage]
+    )
+    const filterTicketType = useMemo(
+        () => getTicketTypeFilter(user.id),
+        [user.id]
+    )
+
     return useMemo(() => {
         return [
             {
@@ -160,7 +198,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [
                     filterNumber,
                     filterClientName,
-                    filterAddress,
+                    filterAddressForSearch,
                     filterDetails,
                     filterExecutorName,
                     filterAssigneeName,
@@ -231,20 +269,19 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 },
             },
             {
-                keyword: 'division',
-                filters: [filterProperty],
-                queryToWhereProcessor: divisionFilterQueryToWhereProcessor,
+                keyword: 'propertyScope',
+                filters: [filterPropertyScope],
                 component: {
                     type: ComponentType.GQLSelect,
                     props: {
-                        search: searchOrganizationDivision(userOrganizationId),
+                        search: searchOrganizationPropertyScope(userOrganizationId),
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: SelectMessage,
                         keyField: 'key',
                     },
                     modalFilterComponentWrapper: {
-                        label: DivisionLabel,
+                        label: PropertyScopeMessage,
                         size: FilterComponentSize.Small,
                     },
                 },
@@ -277,7 +314,23 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                     modalFilterComponentWrapper: {
                         label: UnitMessage,
                         size: FilterComponentSize.Small,
-                        spaceSizeAfter: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'type',
+                filters: [filterTicketType],
+                component: {
+                    type: ComponentType.Select,
+                    options: ticketTypeOptions,
+                    props: {
+                        loading: false,
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: TicketTypeMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -333,9 +386,12 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                         size: FilterComponentSize.Small,
                     },
                     getComponentFilterDropdown: getSelectFilterDropdown({
-                        options: categoryClassifiersOptions,
-                        placeholder: CategoryClassifierLabel,
-                        mode: 'multiple',
+                        selectProps: {
+                            options: categoryClassifiersOptions,
+                            placeholder: CategoryClassifierLabel,
+                            mode: 'multiple',
+                            id: 'categoryClassifierFilterDropdown',
+                        },
                     }),
                 },
             },
@@ -449,20 +505,36 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 },
             },
             {
-                keyword: 'reviewValue',
-                filters: [filterReviewValue],
+                keyword: 'feedbackValue',
+                filters: [filterFeedbackValue],
                 component: {
                     type: ComponentType.Select,
-                    options: reviewValueOptions,
+                    options: feedbackValueOptions,
                     props: {
                         mode: 'multiple',
                         showArrow: true,
                         placeholder: SelectMessage,
                     },
                     modalFilterComponentWrapper: {
-                        label: ReviewValueMessage,
+                        label: FeedbackValueMessage,
                         size: FilterComponentSize.Small,
-                        spaceSizeAfter: FilterComponentSize.Small,
+                    },
+                },
+            },
+            {
+                keyword: 'qualityControlValue',
+                filters: [filterQualityControlValue],
+                component: {
+                    type: ComponentType.Select,
+                    options: qualityControlValueOptions,
+                    props: {
+                        mode: 'multiple',
+                        showArrow: true,
+                        placeholder: SelectMessage,
+                    },
+                    modalFilterComponentWrapper: {
+                        label: QualityControlValueMessage,
+                        size: FilterComponentSize.Small,
                     },
                 },
             },
@@ -569,5 +641,5 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput>>  
                 filters: [filterTicketContact],
             },
         ]
-    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, DivisionLabel, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, reviewValueOptions, ReviewValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
+    }, [AddressMessage, DescriptionMessage, UserNameMessage, NumberMessage, userOrganizationId, EnterAddressMessage, SelectMessage, PropertyScopeMessage, unitTypeOptions, UnitTypeMessage, EnterUnitNameLabel, UnitMessage, filterTicketType, ticketTypeOptions, TicketTypeMessage, SectionMessage, FloorMessage, PlaceClassifierLabel, CategoryClassifierLabel, categoryClassifiersOptions, ProblemClassifierLabel, statusOptions, StatusMessage, attributeOptions, AttributeLabel, sourceOptions, SourceMessage, isResidentContactOptions, IsResidentContactLabel, EnterPhoneMessage, ClientPhoneMessage, StartDateMessage, EndDateMessage, LastCommentAtMessage, feedbackValueOptions, FeedbackValueMessage, qualityControlValueOptions, QualityControlValueMessage, EnterFullNameMessage, ExecutorMessage, AssigneeMessage, AuthorMessage, DateMessage, CompletedAtMessage, CompleteBeforeMessage])
 }

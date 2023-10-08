@@ -3,16 +3,19 @@ const path = require('path')
 const { File } = require('@keystonejs/fields')
 const { LocalFileAdapter } = require('@keystonejs/file-adapters')
 
-const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+
 const { SberCloudFileAdapter } = require('@condo/domains/common/utils/sberCloudFileAdapter')
 
 const APPS = ['condo']
+const excludedManyRelationshipCheckLists = ['MultiPayment']
 
 function verifySchema (keystone) {
     let errorCounter = 0
     const report = (msg) => { throw new Error(`WRONG-SCHEMA-DEFINITION[${errorCounter}]: ${msg}`) }
     Object.entries(keystone.lists).forEach(([, list]) => {
         list.fields.forEach((field) => {
+
             if (field.isRelationship && !field.many) {
                 const { kmigratorOptions, knexOptions } = field.config
                 if (!kmigratorOptions || typeof kmigratorOptions !== 'object') {
@@ -31,6 +34,19 @@ function verifySchema (keystone) {
                     }
                 }
             }
+
+            if (field.isRelationship && field.many && !excludedManyRelationshipCheckLists.includes(list.key)) {
+                const access = field.access.public
+
+                if (typeof access.create !== 'boolean' || typeof access.update !== 'boolean') {
+                    report(`${list.key}->${field.path} For many=true fields access.update and access.create should be simple boolean!`)
+                }
+
+                if (access.create || access.update) {
+                    report(`${list.key}->${field.path} updatable many relation. Any many=true relationship should be readonly`)
+                }
+            }
+
             if (field instanceof File.implementation) {
                 const isLocalFileAdapter = field.config.adapter instanceof LocalFileAdapter
                 const isSberCloudFileAdapter = field.config.adapter instanceof SberCloudFileAdapter
@@ -53,6 +69,7 @@ async function main () {
 
     for (const app of APPS) {
         console.log('LINT', app)
+        // eslint-disable-next-line import/order
         const module = require(path.join(root, 'index'))
         const { keystone } = await prepareKeystoneExpressApp(module)
         await processKeystoneSchema(keystone)

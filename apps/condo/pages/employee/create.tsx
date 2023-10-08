@@ -1,12 +1,17 @@
 /** @jsx jsx */
+import { jsx } from '@emotion/react'
 import { Typography, Row, Col } from 'antd'
 import Head from 'next/head'
 import React from 'react'
-import { useIntl } from '@condo/next/intl'
+
+import { useIntl } from '@open-condo/next/intl'
+
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
-import { jsx } from '@emotion/react'
+import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import {
+    EmployeesReadAndInvitePermissionRequired,
+} from '@condo/domains/organization/components/PageAccess'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -29,7 +34,7 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
                             <Col span={24}>
                                 <Typography.Title level={1} style={{ margin: 0 }}>{PageTitleMsg}</Typography.Title>
                             </Col>
-                            <Col lg={17} xs={24}>
+                            <Col span={24}>
                                 <CreateEmployeeForm />
                             </Col>
                         </Row>
@@ -40,6 +45,6 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
     )
 }
 
-CreateEmployeePage.requiredAccess = OrganizationRequired
+CreateEmployeePage.requiredAccess = EmployeesReadAndInvitePermissionRequired
 
 export default CreateEmployeePage

@@ -3,20 +3,24 @@
  */
 const { Text, Integer, Select, File } = require('@keystonejs/fields')
 
-const conf = require('@condo/config')
+const conf = require('@open-condo/config')
+const { canOnlyServerSideWithoutUserRequest } = require('@open-condo/keystone/access')
+const { Json } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { extractReqLocale } = require('@open-condo/locales/extractReqLocale')
 
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const access = require('@condo/domains/ticket/access/TicketExportTask')
-const { canOnlyServerSideWithoutUserRequest } = require('@condo/keystone/access')
 const { EXPORT_STATUS_VALUES, EXPORT_FORMAT_VALUES, PROCESSING, COMPLETED, ERROR } = require('@condo/domains/common/constants/export')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { normalizeTimeZone } = require('@condo/domains/common/utils/timezone')
 const { DEFAULT_ORGANIZATION_TIMEZONE } = require('@condo/domains/organization/constants/common')
-const { extractReqLocale } = require('@condo/locales/extractReqLocale')
-const { exportTickets } = require('../tasks')
+const access = require('@condo/domains/ticket/access/TicketExportTask')
+
+
+const { TICKET_EXPORT_OPTIONS_FIELD } = require('./fields/TicketExportParameters')
+
 const { getFileMetaAfterChange } = require('../../common/utils/fileAdapter')
+const { exportTickets } = require('../tasks')
 
 const TICKET_EXPORT_TASK_FOLDER_NAME = 'TicketExportTask'
 const TicketExportTaskFileAdapter = new FileAdapter(TICKET_EXPORT_TASK_FOLDER_NAME)
@@ -167,6 +171,8 @@ const TicketExportTask = new GQLListSchema('TicketExportTask', {
                 update: false,
             },
         },
+
+        options: TICKET_EXPORT_OPTIONS_FIELD,
 
     },
     hooks: {

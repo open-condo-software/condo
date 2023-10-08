@@ -1,5 +1,5 @@
-const validate = require('validate.js')
 const { isNull, isUndefined, isObject } = require('lodash')
+const validate = require('validate.js')
 
 const {
     JSON_WRONG_VERSION_FORMAT_ERROR,

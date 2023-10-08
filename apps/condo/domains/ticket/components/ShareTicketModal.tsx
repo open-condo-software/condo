@@ -1,30 +1,32 @@
 /** @jsx jsx */
-import { css, jsx } from '@emotion/react'
-import { EN_LOCALE } from '@condo/domains/common/constants/locale'
-import { Col, Collapse, notification, Row, Typography } from 'antd'
+import crypto from 'crypto'
 
-import { Modal } from '@condo/domains/common/components/Modal'
-import React, { useState } from 'react'
-import { CloseCircleFilled, RightOutlined, ShareAltOutlined } from '@ant-design/icons'
-import { Button } from '@condo/domains/common/components/Button'
 import { green } from '@ant-design/colors'
-import Link from 'next/link'
-import { useIntl } from '@condo/next/intl'
-import { useMutation } from '@condo/next/apollo'
-import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
-import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
-import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { CloseCircleFilled, RightOutlined } from '@ant-design/icons'
+import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
+import { Col, Collapse, notification, Row } from 'antd'
+import { get, isEmpty } from 'lodash'
+import getConfig from 'next/config'
+import Link from 'next/link'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
+
+import { Send } from '@open-condo/icons'
+import { Organization } from '@open-condo/keystone/schema'
+import { useMutation } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+import { Button, Modal, Typography } from '@open-condo/ui'
+
+import { GraphQlSearchInput } from '@condo/domains/common/components/GraphQlSearchInput'
+import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { EN_LOCALE } from '@condo/domains/common/constants/locale'
 import { colors } from '@condo/domains/common/constants/style'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { useRouter } from 'next/router'
-import crypto from 'crypto'
-import getConfig from 'next/config'
 import { ALGORITHM, CRYPTOENCODING, SALT } from '@condo/domains/ticket/constants/crypto'
-import { Organization } from '@condo/keystone/schema'
-import { get, isEmpty } from 'lodash'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useTracking, TrackingEventType } from '@condo/domains/common/components/TrackingContext'
+import { SHARE_TICKET_MUTATION } from '@condo/domains/ticket/gql'
+import { getEmployeeWithEmail } from '@condo/domains/ticket/utils/clientSchema/search'
+
 
 const collapse = css`
   border-radius: 8px;
@@ -59,24 +61,6 @@ const collapse = css`
   & .ant-collapse-content > .ant-collapse-content-box {
     padding: 0 19px 22px;
   }
-
-  & .ant-select-multiple .ant-select-selection-item {
-    background: ${colors.white};
-    font-size: 12px;
-  }
-
-  & .ant-select-multiple.ant-select-lg .ant-select-selection-item {
-    line-height: 20px;
-    height: 20px;
-    border: none;
-  }
-
-  & .ant-select-item-option-content,
-  & .ant-select-item,
-  & .ant-select-show-search.ant-select:not(.ant-select-customize-input) .ant-select-selector input {
-    font-size: 12px;
-  }
-
 `
 
 const search = css`
@@ -118,7 +102,7 @@ const ShareButton = styled.span`
 
 const Warning = (props) => {
     const intl = useIntl()
-    const EmployeesMessage = intl.formatMessage({ id: 'menu.Employees' })
+    const EmployeesMessage = intl.formatMessage({ id: 'global.section.employees' })
     const ShareWarningEmailMessage = intl.formatMessage({ id: 'ticket.shareWarningEmail' }, {
         link: <Link href='/employee'>{EmployeesMessage}</Link>,
         employees: `${props.children[0]} ${props.children[1] ? (`\n${props.children[1]}`) : ''}`,
@@ -189,7 +173,6 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     const OKMessage = intl.formatMessage({ id: 'OK' })
     const ShareSentMessage = intl.formatMessage({ id: 'ticket.shareSent' })
     const ShareSentToEmailMessage = intl.formatMessage({ id: 'ticket.shareSentToEmail' })
-    const { isSmall } = useLayoutContext()
 
     const { logEvent, getEventName } = useTracking()
 
@@ -260,6 +243,7 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
 
     function handleCancel () {
         setShareVisible(false)
+        setOkVisible(false)
     }
 
     function handleShow () {
@@ -281,20 +265,17 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
     return (
         <>
             <Button
-                type='sberDefaultGradient'
-                icon={<ShareAltOutlined />}
-                secondary
+                type='secondary'
+                icon={<Send size='medium' />}
                 onClick={handleShow}
                 css={sendButton}
             >
                 {ShareButtonMessage}
             </Button>
             <Modal
-                style={{ top: 30 }}
-                visible={okVisible}
+                open={okVisible}
                 footer={<Button
-                    type='sberPrimary'
-                    size='large'
+                    type='primary'
                     onClick={handleClickSecond}
                 >
                     {OKMessage}
@@ -302,14 +283,13 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                 onCancel={handleCancel}
                 title={ShareSentMessage}
             >
-                {ShareSentToEmailMessage}
+                <Typography.Paragraph type='secondary'>{ShareSentToEmailMessage}</Typography.Paragraph>
             </Modal>
             <Modal
-                style={{ top: 30 }}
-                visible={shareVisible}
+                open={shareVisible}
                 footer={null}
                 onCancel={handleCancel}
-                title={<Typography.Title level={isSmall ? 5 : 3}>{ShareHeaderMessage}</Typography.Title>}
+                title={ShareHeaderMessage}
             >
                 <Row gutter={[0, 16]}>
                     <Col span={24}>
@@ -360,15 +340,15 @@ export const ShareTicketModal: React.FC<IShareTicketModalProps> = (props) => {
                                 }
                                 {
                                     !isEmpty(chosenEmployees) &&
-                                    <Button
-                                        type='sberPrimary'
-                                        size='large'
-                                        onClick={handleClick}
-                                        style={{ marginTop: '20px' }}
-                                        disabled={loading}
-                                    >
-                                        {SendTicketToEmailMessage}
-                                    </Button>
+                                    <div style={{ marginTop: '20px' }}>
+                                        <Button
+                                            type='primary'
+                                            onClick={handleClick}
+                                            disabled={loading}
+                                        >
+                                            {SendTicketToEmailMessage}
+                                        </Button>
+                                    </div>
                                 }
                             </Collapse.Panel>
                         </Collapse>

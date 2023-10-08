@@ -1,11 +1,11 @@
+import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { TextProps } from 'antd/es/typography/Text'
 import get from 'lodash/get'
+import React from 'react'
 
 import { getTableCellRenderer, RenderReturnType } from '@condo/domains/common/components/Table/Renders'
 import { METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE } from '@condo/domains/meter/constants/constants'
-import { Typography } from 'antd'
-import React from 'react'
 
 const POSTFIX_PROPS: TextProps = { type: 'secondary', style: { whiteSpace: 'pre-line' } }
 
@@ -22,7 +22,7 @@ export const getUnitRender = (intl, search: FilterValue) => {
             }
         }
         const unitName = text && unitNamePrefix ? `${unitNamePrefix} ${text}` : text
-        return getTableCellRenderer(search, true, null, null, POSTFIX_PROPS, extraTitle)(unitName)
+        return getTableCellRenderer({ search, ellipsis: true, extraPostfixProps: POSTFIX_PROPS, extraTitle })(unitName)
     }
 }
 
@@ -39,6 +39,6 @@ export const getResourceRender = (intl, search?: FilterValue | string) => {
             </Typography.Text>
         ) : null
 
-        return getTableCellRenderer(search, true, postfix,  null, POSTFIX_PROPS )(value)
+        return getTableCellRenderer({ search, ellipsis: true, postfix, extraPostfixProps: POSTFIX_PROPS })(value)
     }
 }

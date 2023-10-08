@@ -1,10 +1,10 @@
-import { useCallback, useMemo, useState } from 'react'
-import { useRouter } from 'next/router'
-import get from 'lodash/get'
 import debounce from 'lodash/debounce'
+import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import { useCallback, useMemo, useState } from 'react'
 
-import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
-import { updateQuery } from '@condo/domains/common/utils/filters.utils'
+import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
+import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 
 type UseBooleanAttributesSearchOutputType = [{ [key: string]: boolean }, (isChecked: boolean, attributeName: string) => void, () => void, (filters) => void]
 
@@ -19,7 +19,8 @@ export const useBooleanAttributesSearch = <F> (attributeNames: string[]): UseBoo
 
     const changeQuery = useMemo(() => debounce(async (newAttributes: { [key: string]: boolean }) => {
         const includedAttributes = Object.entries(newAttributes).filter(([_, isChecked]) => isChecked).map(([attributeName]) => attributeName)
-        await updateQuery(router, { ...filtersFromQuery, attributes: includedAttributes })
+        const newParameters = getFiltersQueryData({ ...filtersFromQuery, attributes: includedAttributes })
+        await updateQuery(router, { newParameters }, { routerAction: 'replace' })
     }, 400), [filtersFromQuery, router])
 
     const handleChangeAttribute = useCallback(async (isChecked: boolean, attributeName: string) => {

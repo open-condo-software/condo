@@ -2,14 +2,16 @@ import { CheckOutlined } from '@ant-design/icons'
 import styled from '@emotion/styled'
 import { Col, Row, Typography } from 'antd'
 import classNames from 'classnames'
+import get from 'lodash/get'
 import React, { Dispatch, SetStateAction } from 'react'
+
 import { Button } from '@condo/domains/common/components/Button'
 import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { SberIcon, SberIconWithoutLabel } from '@condo/domains/common/components/icons/SberIcon'
 import { colors } from '@condo/domains/common/constants/style'
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+
 import { ServiceSubscription } from '../../../../schema'
-import get from 'lodash/get'
 
 const StyledTitle = styled(Typography.Title)`
   color: ${colors.sberPrimary[6]};

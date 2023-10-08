@@ -1,9 +1,17 @@
-import React, { useState, useCallback, useMemo } from 'react'
-import { useIntl } from '@condo/next/intl'
+import { BuildingMap, BuildingUnitSubType } from '@app/condo/schema'
 import { Col, Row, RowProps } from 'antd'
-import { useRouter } from 'next/router'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
+import React, { useState, useCallback, useMemo } from 'react'
+import ScrollContainer from 'react-indiana-drag-scroll'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
+import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
+import { Property } from '@condo/domains/property/utils/clientSchema'
+
 import {
     EmptyBuildingBlock,
     EmptyFloor,
@@ -11,14 +19,14 @@ import {
     BuildingChooseSections,
     MapSectionContainer, BuildingViewModeSelect, UnitTypeLegendItem,
 } from './BuildingPanelCommon'
-import { UnitButton } from '@condo/domains/property/components/panels/Builder/UnitButton'
-import { MapView, MapViewMode } from './MapConstructor'
-import { BuildingMap, BuildingUnitSubType } from '@app/condo/schema'
-import { Property } from '@condo/domains/property/utils/clientSchema'
-import ScrollContainer from 'react-indiana-drag-scroll'
-import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
 import { AddressTopTextContainer } from './BuildingPanelEdit'
-import { IPropertyMapFormProps } from '@condo/domains/property/components/BasePropertyMapForm'
+import { FullscreenWrapper, FullscreenHeader } from './Fullscreen'
+import { MapView, MapViewMode } from './MapConstructor'
+
+
+
+
+
 
 interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManageProperties'> {
     map: BuildingMap
@@ -26,11 +34,11 @@ interface IBuildingPanelViewProps extends Pick<IPropertyMapFormProps, 'canManage
 
 export const BuildingPanelView: React.FC<IBuildingPanelViewProps> = ({ map, canManageProperties = false }) => {
     const mapView = new MapView(map)
-    const [Map, setMap] = useState(mapView)
+    const [builderMap, setBuilderMap] = useState(mapView)
     // TODO(zuch): Ask for a better solution
-    const refresh = () => setMap(cloneDeep(Map))
+    const refresh = () => setBuilderMap(cloneDeep(builderMap))
     return (
-        <PropertyMapView builder={Map} refresh={refresh} canManageProperties={canManageProperties} />
+        <PropertyMapView builder={builderMap} refresh={refresh} canManageProperties={canManageProperties} />
     )
 }
 
@@ -104,7 +112,7 @@ export const PropertyMapView: React.FC<IPropertyMapViewProps> = ({ builder, refr
     const showViewModeSelect = !builder.isEmptySections && !builder.isEmptyParking
 
     return (
-        <FullscreenWrapper mode='view' className={isFullscreen ? 'fullscreen' : '' }>
+        <FullscreenWrapper className={isFullscreen ? 'fullscreen' : '' }>
             <FullscreenHeader edit={false}>
                 <Row justify='end' style={FULLSCREEN_HEADER_STYLE} hidden={!showViewModeSelect}>
                     {

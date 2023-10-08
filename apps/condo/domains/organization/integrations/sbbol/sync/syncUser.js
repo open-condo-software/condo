@@ -1,9 +1,12 @@
-const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
-const { getItems, createItem, updateItem } = require('@keystonejs/server-side-graphql-client')
-const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
-const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { COUNTRIES, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { REGISTER_NEW_USER_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
+const { CREATE_ONBOARDING_MUTATION } = require('@condo/domains/onboarding/gql.js')
+const { SBBOL_IDP_TYPE, STAFF } = require('@condo/domains/user/constants/common')
+const { MULTIPLE_ACCOUNTS_MATCHES } = require('@condo/domains/user/constants/errors')
+const { User, UserExternalIdentity } = require('@condo/domains/user/utils/serverSchema')
+const { UserAdmin } = require('@condo/domains/user/utils/serverSchema')
+
 const { dvSenderFields } = require('../constants')
 
 const createOnboarding = async ({ keystone, user }) => {
@@ -13,6 +16,7 @@ const createOnboarding = async ({ keystone, user }) => {
             listKey: 'User',
         },
     })
+
     await userContext.executeGraphQL({
         context: userContext,
         query: CREATE_ONBOARDING_MUTATION,
@@ -37,26 +41,25 @@ const createOnboarding = async ({ keystone, user }) => {
  */
 const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToExclude, context }) => {
     if (!email) throw new Error('email argument is not specified')
-    const [ existingUser ] = await getItems({
-        ...context,
-        listKey: 'User',
-        where: { email, id_not: userIdToExclude },
-        returnFields: 'id type name email phone importId importRemoteSystem',
-    })
+
+    const [ existingUser ] = await User.getAll(context, { email, id_not: userIdToExclude })
+
     if (existingUser && existingUser.id !== userIdToExclude) {
-        await updateItem({
-            listKey: 'User',
-            item: {
-                id: existingUser.id,
-                data: {
-                    email: null,
-                    ...dvSenderFields,
-                },
-            },
-            returnFields: 'id',
-            ...context,
+        await User.update(context, existingUser.id, {
+            email: null,
+            ...dvSenderFields,
         })
     }
+}
+
+const registerIdentity = async ({ context, user, identityId }) => {
+    await UserExternalIdentity.create(context, {
+        ...dvSenderFields,
+        user: { connect: { id: user.id } },
+        identityId,
+        identityType: SBBOL_IDP_TYPE,
+        meta: {},
+    })
 }
 
 /**
@@ -64,49 +67,56 @@ const cleanEmailForAlreadyExistingUserWithGivenEmail = async ({ email, userIdToE
  *
  * @param {KeystoneContext} context
  * @param {UserInfo} userInfo
+ * @param {identityId} identityId
  * @param dvSenderFields
- * @return {Promise<{importId}|*>}
+ * @return {Promise<{user}|*>}
  */
-const syncUser = async ({ context, userInfo }) => {
-    const returnFields = 'id phone email name importId importRemoteSystem'
-    const importFields = {
-        type: 'staff',
-        importId: userInfo.importId,
-        importRemoteSystem: userInfo.importRemoteSystem,
+const syncUser = async ({ context: { context, keystone }, userInfo, identityId }) => {
+    // TODO(VKislov): DOMA-5239 Should not receive deleted instances with admin context
+    const identityWhereStatement = {
+        identityId,
+        identityType: SBBOL_IDP_TYPE,
+        deletedAt: null,
     }
-    const userFields = {
-        type: 'staff',
+    const userWhereStatement = {
+        type: STAFF,
         phone: userInfo.phone,
     }
-    const existingUsers = await getItems({
-        ...context,
-        listKey: 'User',
-        where: {
-            OR: [
-                { AND: userFields },
-                { AND: importFields },
-            ],
-        },
-        returnFields,
+
+    // let's search users by UserExternalIdentity and phone
+    const importedUsers = (await UserExternalIdentity.getAll(context, identityWhereStatement))
+        .map(identity => identity.user)
+    const notImportedUsers = await User.getAll(context, {
+        ...userWhereStatement,
+        id_not_in: importedUsers.map(identity => identity.id),
     })
-    if (existingUsers.length > 1) {
-        throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] importId and phone conflict on user import`)
+
+    const existingUsers = [...notImportedUsers, ...importedUsers]
+    const existingUsersCount = existingUsers.length
+
+    if (existingUsersCount > 1) {
+        throw new Error(`${MULTIPLE_ACCOUNTS_MATCHES}] identityId and phone conflict on user import`)
     }
-    if (existingUsers.length === 0) {
+
+    // no users found by external identity and phone number
+    if (existingUsersCount === 0) {
+        // user not exists case
         if (userInfo.email) {
             await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, context })
         }
 
-        const user = await createItem({
-            listKey: 'User',
-            item: { ...userInfo, ...dvSenderFields },
-            returnFields,
-            ...context,
+        // create a user
+        const createdUser = await User.create(context, { ...userInfo, ...dvSenderFields })
+        const user = await UserAdmin.getOne(context, { id: createdUser.id })
+        
+        // register a UserExternalIdentity
+        await registerIdentity({
+            context, user, identityId,
         })
 
         // SBBOL works only in Russia, another languages does not need t
         const lang = COUNTRIES[RUSSIA_COUNTRY].locale
-        await sendMessage(context.context, {
+        await sendMessage(context, {
             lang,
             to: {
                 user: {
@@ -123,41 +133,48 @@ const syncUser = async ({ context, userInfo }) => {
             ...dvSenderFields,
         })
 
-        await createOnboarding({ keystone: context.keystone, user, dvSenderFields })
+        await createOnboarding({ keystone, user, dvSenderFields })
+
         return user
     }
+
     const [user] = existingUsers
-    if (!user.importId) {
+
+    // user already registered by phone number, but not imported
+    if (notImportedUsers.length > 0) {
         const { email, phone } = userInfo
-        const update = {}
+        const updateInput = {}
+
         if (email) {
             await cleanEmailForAlreadyExistingUserWithGivenEmail({ email: userInfo.email, userIdToExclude: user.id, context })
+
             if (!user.isEmailVerified && user.email === email) {
-                update.isEmailVerified = true
+                updateInput.isEmailVerified = true
             }
+
             if (!user.email || user.email !== email) {
-                update.email = email
+                updateInput.email = email
             }
         }
+
         if (!user.isPhoneVerified && user.phone === phone) {
-            update.isPhoneVerified = true
+            updateInput.isPhoneVerified = true
         }
-        const updatedUser = await updateItem({
-            listKey: 'User',
-            item: {
-                id: user.id,
-                data: {
-                    ...update,
-                    ...importFields,
-                    ...dvSenderFields,
-                },
-            },
-            returnFields,
-            ...context,
+
+        const updatedUser = await User.update(context, user.id, {
+            ...updateInput,
+            ...dvSenderFields,
         })
+
+        // create a UserExternalIdentity - since user wasn't imported - no identity was saved in db
+        await registerIdentity({
+            context, user, identityId,
+        })
+
         return updatedUser
     }
-    return user
+
+    return await UserAdmin.getOne(context, { id: user.id })
 }
 
 module.exports = {

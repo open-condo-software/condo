@@ -3,19 +3,35 @@
  */
 
 const { Text, Checkbox, Password, File, Select, Virtual } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const access = require('@condo/domains/user/access/User')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
+const userAccess = require('@open-condo/keystone/access')
+const { Json } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
+
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { STAFF, USER_TYPES, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { EMAIL_ALREADY_REGISTERED_ERROR, PHONE_ALREADY_REGISTERED_ERROR, EMAIL_WRONG_FORMAT_ERROR, PHONE_WRONG_FORMAT_ERROR, PHONE_IS_REQUIRED_ERROR } = require('@condo/domains/user/constants/errors')
-const { webHooked } = require('@condo/webhooks/plugins')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const access = require('@condo/domains/user/access/User')
+const {
+    STAFF,
+    USER_TYPES,
+    MIN_PASSWORD_LENGTH,
+    LOCALES,
+} = require('@condo/domains/user/constants/common')
+const {
+    EMAIL_ALREADY_REGISTERED_ERROR,
+    PHONE_ALREADY_REGISTERED_ERROR,
+    EMAIL_WRONG_FORMAT_ERROR,
+    PHONE_WRONG_FORMAT_ERROR,
+    PHONE_IS_REQUIRED_ERROR,
+} = require('@condo/domains/user/constants/errors')
+const { USER_CUSTOM_ACCESS_GRAPHQL_TYPES, USER_CUSTOM_ACCESS_FIELDS } = require('@condo/domains/user/gql')
+const { updateEmployeesRelatedToUser, User: UserAPI } = require('@condo/domains/user/utils/serverSchema')
+const { passwordValidations } = require('@condo/domains/user/utils/serverSchema/validateHelpers')
+
 
 const AVATAR_FILE_ADAPTER = new FileAdapter('avatars')
 
@@ -38,6 +54,23 @@ const User = new GQLListSchema('User', {
             rejectCommon: true,
             minLength: MIN_PASSWORD_LENGTH,
             access: access.canAccessToPasswordField,
+            hooks: {
+                resolveInput: async ({ resolvedData, fieldPath }) => {
+                    const pass = resolvedData[fieldPath]
+
+                    if (pass === '') return null
+                    return pass
+                },
+                validateInput: async ({ context, resolvedData, existingItem, fieldPath }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const pass = newItem[fieldPath]
+
+                    // NOTE: it should be possible to reset the password
+                    if (!isNull(pass)) {
+                        await passwordValidations(context, pass, newItem.email, newItem.phone)
+                    }
+                },
+            },
         },
         type: {
             schemaDoc: 'Field that allows you to distinguish CRM users from mobile app users',
@@ -85,9 +118,17 @@ const User = new GQLListSchema('User', {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
                         if (operation === 'create') {
-                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                email: resolvedData['email'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         } else if (operation === 'update' && resolvedData.email !== existingItem.email) {
-                            existedUsers = await UserAPI.getAll(context, { email: resolvedData['email'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                email: resolvedData['email'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         }
                         if (existedUsers && existedUsers.length > 0) {
                             addFieldValidationError(`${EMAIL_ALREADY_REGISTERED_ERROR}] user already exists`)
@@ -130,9 +171,17 @@ const User = new GQLListSchema('User', {
                         let existedUsers = []
                         const userType = resolvedData.type || STAFF
                         if (operation === 'create') {
-                            existedUsers = await UserAPI.getAll(context, { phone: resolvedData['phone'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                phone: resolvedData['phone'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         } else if (operation === 'update' && resolvedData.phone !== existingItem.phone) {
-                            existedUsers = await UserAPI.getAll(context, { phone: resolvedData['phone'], type: userType, deletedAt: null })
+                            existedUsers = await UserAPI.getAll(context, {
+                                phone: resolvedData['phone'],
+                                type: userType,
+                                deletedAt: null,
+                            })
                         }
                         if (existedUsers && existedUsers.length > 0) {
                             addFieldValidationError(`${PHONE_ALREADY_REGISTERED_ERROR}] user already exists`)
@@ -161,19 +210,45 @@ const User = new GQLListSchema('User', {
             // TODO(pahaz): we should check the structure!
         },
 
-        importRemoteSystem: {
-            schemaDoc: 'External provider for users',
-            type: Text,
-            access: access.canAccessToImportField,
-            kmigratorOptions: { null: true, unique: false },
+        locale: {
+            schemaDoc: 'The user\'s locale',
+            type: Select,
+            options: LOCALES,
         },
-        importId: {
-            schemaDoc: 'External system user id. Used for integrations',
-            type: Text,
-            access: access.canAccessToImportField,
-            kmigratorOptions: { null: true, unique: false },
+        customAccess: {
+            schemaDoc: 'Override for business access rights for list or field of provided schema',
+            type: Json,
+            access: access.canAccessCustomAccessField,
+            extendGraphQLTypes: [
+                USER_CUSTOM_ACCESS_GRAPHQL_TYPES,
+            ],
+            graphQLAdminFragment: `{ ${USER_CUSTOM_ACCESS_FIELDS} }`,
+            graphQLReturnType: 'CustomAccess',
+            graphQLInputType: 'CustomAccessInput',
         },
 
+        showGlobalHints: {
+            schemaDoc: 'Show global hints in CRM or not',
+            type: 'Checkbox',
+            defaultValue: true,
+            isRequired: true,
+        },
+
+        rightsSet: {
+            schemaDoc:
+                'A set of permissions that allow the user to directly read or manage certain schemas ' +
+                'as well as run certain mutations.',
+            type: 'Relationship',
+            isRequired: false,
+            ref: 'UserRightsSet',
+            knexOptions: { isNotNullable: false }, // Required relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                create: userAccess.userIsAdminOrIsSupport,
+                update: userAccess.userIsAdminOrIsSupport,
+            },
+        },
     },
     kmigratorOptions: {
         constraints: [
@@ -186,11 +261,6 @@ const User = new GQLListSchema('User', {
                 type: 'models.UniqueConstraint',
                 fields: ['type', 'email'],
                 name: 'unique_type_and_email',
-            },
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['importId', 'importRemoteSystem'],
-                name: 'unique_user_importid_and_importremotesystem',
             },
         ],
     },

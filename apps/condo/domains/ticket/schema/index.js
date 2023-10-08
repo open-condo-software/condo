@@ -3,30 +3,37 @@
  * In most cases you should not change it by hands. And please don't remove `AUTOGENERATE MARKER`s
  */
 
-const { Ticket } = require('./Ticket')
-const { TicketSource } = require('./TicketSource')
-const { TicketStatus } = require('./TicketStatus')
-const { TicketFile } = require('./TicketFile')
-const { TicketChange } = require('./TicketChange')
-const { TicketComment } = require('./TicketComment')
-const { ShareTicketService } = require('./ShareTicketService')
-const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
-const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
-const { TicketProblemClassifier } = require('./TicketProblemClassifier')
-const { TicketClassifier } = require('./TicketClassifier')
 
-const { CreateResidentTicketService } = require('./CreateResidentTicketService')
-const { GetAllResidentTicketsService } = require('./GetAllResidentTicketsService')
-const { UpdateResidentTicketService } = require('./UpdateResidentTicketService')
-const { TicketFilterTemplate } = require('./TicketFilterTemplate')
+const { CallRecord } = require('./CallRecord')
+const { CallRecordFragment } = require('./CallRecordFragment')
+const { Incident } = require('./Incident')
+const { IncidentChange } = require('./IncidentChange')
+const { IncidentClassifier } = require('./IncidentClassifier')
+const { IncidentClassifierIncident } = require('./IncidentClassifierIncident')
+const { IncidentExportTask } = require('./IncidentExportTask')
+const { IncidentProperty } = require('./IncidentProperty')
 const { PredictTicketClassificationService } = require('./PredictTicketClassificationService')
+const { ShareTicketService } = require('./ShareTicketService')
+const { Ticket } = require('./Ticket')
+const { TicketCategoryClassifier } = require('./TicketCategoryClassifier')
+const { TicketChange } = require('./TicketChange')
+const { TicketClassifier } = require('./TicketClassifier')
+const { TicketComment } = require('./TicketComment')
 const { TicketCommentFile } = require('./TicketCommentFile')
 const { TicketCommentsTime } = require('./TicketCommentsTime')
-const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
+const { TicketExportTask } = require('./TicketExportTask')
+const { TicketFile } = require('./TicketFile')
+const { TicketFilterTemplate } = require('./TicketFilterTemplate')
+const { TicketMultipleUpdateService } = require('./TicketMultipleUpdateService')
+const { TicketOrganizationSetting } = require('./TicketOrganizationSetting')
+const { TicketPlaceClassifier } = require('./TicketPlaceClassifier')
+const { TicketProblemClassifier } = require('./TicketProblemClassifier')
 const { TicketPropertyHint } = require('./TicketPropertyHint')
 const { TicketPropertyHintProperty } = require('./TicketPropertyHintProperty')
-const { TicketExportTask } = require('./TicketExportTask')
-const { TicketOrganizationSetting } = require('./TicketOrganizationSetting')
+const { TicketSource } = require('./TicketSource')
+const { TicketStatus } = require('./TicketStatus')
+const { UserFavoriteTicket } = require('./UserFavoriteTicket')
+const { UserTicketCommentReadTime } = require('./UserTicketCommentReadTime')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -37,9 +44,6 @@ module.exports = {
     TicketChange,
     TicketComment,
     ShareTicketService,
-    CreateResidentTicketService,
-    GetAllResidentTicketsService,
-    UpdateResidentTicketService,
     TicketPlaceClassifier,
     TicketCategoryClassifier,
     TicketProblemClassifier,
@@ -53,5 +57,15 @@ module.exports = {
     TicketPropertyHintProperty,
     TicketExportTask,
     TicketOrganizationSetting,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    Incident,
+    IncidentChange,
+    IncidentProperty,
+    IncidentClassifier,
+    IncidentClassifierIncident,
+    UserFavoriteTicket,
+    IncidentExportTask,
+    CallRecord,
+    CallRecordFragment,
+    TicketMultipleUpdateService,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

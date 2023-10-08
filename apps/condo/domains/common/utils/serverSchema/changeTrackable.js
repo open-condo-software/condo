@@ -1,7 +1,7 @@
+const { Text, Uuid, Relationship } = require('@keystonejs/fields')
 const { keys, transform, pick, pickBy, omit, difference, isEqual } = require('lodash')
-const { Text, Uuid } = require('@keystonejs/fields')
-const { Relationship } = require('@keystonejs/fields')
-const { Json, LocalizedText } = require('@condo/keystone/fields')
+
+const { Json, LocalizedText } = require('@open-condo/keystone/fields')
 
 /**
  * Utilities to make a GQLListSchema item trackable for changes.

@@ -1,9 +1,10 @@
-const { GQLCustomSchema } = require('@condo/keystone/schema')
+const { GQLCustomSchema } = require('@open-condo/keystone/schema')
+
 const { SHARE_TICKET_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const access = require('@condo/domains/ticket/access/ShareTicketService')
+const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 
 // TODO(zuch): rename users to employees
 const ShareTicketService = new GQLCustomSchema('ShareTicketService', {

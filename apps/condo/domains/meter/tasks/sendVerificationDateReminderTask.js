@@ -1,9 +1,9 @@
 const dayjs = require('dayjs')
 
-const { createCronTask } = require('@condo/keystone/tasks')
-const { getLogger } = require('@condo/keystone/logging')
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { createCronTask } = require('@open-condo/keystone/tasks')
 
-const { featureToggleManager } = require('@condo/featureflags/featureToggleManager')
 
 const { SEND_METER_VERIFICATION_DATE_REMINDER_TASK } = require('@condo/domains/common/constants/featureflags')
 

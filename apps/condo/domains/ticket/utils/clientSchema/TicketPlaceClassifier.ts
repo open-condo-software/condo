@@ -8,7 +8,9 @@ import {
     TicketPlaceClassifierUpdateInput,
     QueryAllTicketPlaceClassifiersArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { TicketPlaceClassifier as TicketPlaceClassifierGQL } from '@condo/domains/ticket/gql'
 
 const {

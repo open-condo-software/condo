@@ -1,9 +1,10 @@
-import React from 'react'
 import { CardProps, Col, Row, Typography, Skeleton } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { EllipsisConfig } from 'antd/es/typography/Base'
+import React from 'react'
 
 import { Card } from '@condo/domains/common/components/Card/Card'
-import { EllipsisConfig } from 'antd/es/typography/Base'
-import { Gutter } from 'antd/es/grid/row'
+
 
 type SettingCardProps = Pick<CardProps, 'onClick'> & {
     title: string

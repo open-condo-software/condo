@@ -4,14 +4,20 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { get } = require('lodash')
 
-const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
+const { getLogger } = require('@open-condo/keystone/logging')
+
 const { REGISTER_RESIDENT_MUTATION } = require('@condo/domains/property/gql')
+const { Resident: ResidentGQL } = require('@condo/domains/resident/gql')
 const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident/gql')
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
+const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
+const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
+const logger = getLogger('resident/serverSchema')
 const Resident = generateServerUtils(ResidentGQL)
 
 async function registerResident (context, data) {
@@ -27,7 +33,6 @@ async function registerResident (context, data) {
     })
 }
 
-
 const ServiceConsumer = generateServerUtils(ServiceConsumerGQL)
 async function registerConsumerService (context, data) {
     if (!context) throw new Error('no context')
@@ -42,6 +47,43 @@ async function registerConsumerService (context, data) {
     })
 }
 
+async function sendMessageToResidentScopes (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    const reqId = get(context, ['req', 'id'])
+
+    logger.info({ msg: 'sendMessageToResidentScopes', type: data.type, reqId })
+
+    const result = await execGqlWithoutAccess(context, {
+        query: SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to sendMessageToResidentScopes',
+        dataPath: 'result',
+    })
+
+    return result
+}
+
+/**
+ *
+ * @param context
+ * @param data
+ * @returns {Promise<*>}
+ */
+async function discoverServiceConsumers (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: DISCOVER_SERVICE_CONSUMERS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to discoverServiceConsumer',
+        dataPath: 'result',
+    })
+}
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -49,5 +91,7 @@ module.exports = {
     registerResident,
     ServiceConsumer,
     registerConsumerService,
+    sendMessageToResidentScopes,
+    discoverServiceConsumers,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

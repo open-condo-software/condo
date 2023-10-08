@@ -1,37 +1,29 @@
-import styled from '@emotion/styled'
-import { Layout, Space } from 'antd'
+import { Layout } from 'antd'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
-import { colors } from '@condo/domains/common/constants/style'
+
+import { Menu } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
+import { useOrganization } from '@open-condo/next/organization'
+import { Space } from '@open-condo/ui'
+
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { useAuth } from '@condo/next/auth'
-import { UserMenu } from '@condo/domains/user/components/UserMenu'
-import { Logo } from '../../Logo'
-import { ResidentActions } from '../../ResidentActions/ResidentActions'
-import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
-import { MenuOutlined } from '@ant-design/icons'
+import { Logo } from '@condo/domains/common/components/Logo'
+import { ResidentActions } from '@condo/domains/common/components/ResidentActions/ResidentActions'
+import { InlineOrganizationSelect } from '@condo/domains/organization/components/OrganizationSelect'
+import { SBBOLIndicator } from '@condo/domains/organization/components/SBBOLIndicator'
+import { HOLDING_TYPE, MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { useOrganizationInvites } from '@condo/domains/organization/hooks/useOrganizationInvites'
+import { UserMenu } from '@condo/domains/user/components/UserMenu'
 
-const DesktopHeader = styled(Layout.Header)`
-  z-index: 9;
-  background: ${colors.white};
-  width: 100%;
-  padding: 20px 48px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
-  line-height: 100%;
-`
+import { ITopMenuItemsProps, TopMenuItems } from './components/TopMenuItems'
 
-const MobileHeader = styled(Layout.Header)`
-  display: flex;
-  flex-direction: row;
-  padding: 12px 22px;
-  background: ${colors.white};
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid ${colors.lightGrey[5]};
-`
+import type{ OrganizationWhereInput } from '@app/condo/schema'
+
+const ORGANIZATION_FILTER: OrganizationWhereInput = {
+    type_not: HOLDING_TYPE,
+}
 
 interface IHeaderProps {
     headerAction?: React.ElementType
@@ -39,11 +31,15 @@ interface IHeaderProps {
 }
 
 export const Header: React.FC<IHeaderProps> = (props) => {
-    const { isSmall, toggleCollapsed } = useLayoutContext()
+    const { breakpoints, toggleCollapsed } = useLayoutContext()
     const router = useRouter()
     const { isAuthenticated } = useAuth()
 
-    useOrganizationInvites()
+    const { organization } = useOrganization()
+
+    const hasAccessToAppeals = get(organization, 'type', MANAGING_COMPANY_TYPE) !== SERVICE_PROVIDER_TYPE
+
+    useOrganizationInvites(ORGANIZATION_FILTER)
 
     const handleLogoClick = useCallback(() => {
         if (isAuthenticated) {
@@ -54,21 +50,31 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     }, [isAuthenticated, router])
 
     return (
-        isSmall
+        !breakpoints.TABLET_LARGE
             ? (
-                <MobileHeader>
-                    <Space size={22}>
-                        <MenuOutlined onClick={toggleCollapsed}/>
-                        <ResidentActions minified/>
-                    </Space>
-                    <Logo fillColor={colors.logoPurple} onClick={handleLogoClick} minified/>
-                    <UserMenu/>
-                </MobileHeader>
+                <Layout.Header className='header mobile-header'>
+                    <div className='context-bar'>
+                        <Space direction='horizontal' size={4}>
+                            <SBBOLIndicator organization={organization} />
+                            <InlineOrganizationSelect/>
+                        </Space>
+                        <UserMenu/>
+                    </div>
+                    <div className='appeals-bar'>
+                        <Menu size='large' onClick={toggleCollapsed}/>
+                        <Logo onClick={handleLogoClick} minified/>
+                        <div>
+                            {hasAccessToAppeals && (
+                                <ResidentActions minified/>
+                            )}
+                        </div>
+                    </div>
+                </Layout.Header>
             )
             : (
-                <DesktopHeader>
+                <Layout.Header className='header desktop-header'>
                     <TopMenuItems headerAction={props.headerAction}/>
-                </DesktopHeader>
+                </Layout.Header>
             )
     )
 }

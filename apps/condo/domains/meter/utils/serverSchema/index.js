@@ -4,15 +4,20 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const get = require('lodash/get')
+const uniq = require('lodash/uniq')
 
-const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+const { find } = require('@open-condo/keystone/schema')
+
+const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { MeterResource: MeterResourceGQL } = require('@condo/domains/meter/gql')
 const { MeterReadingSource: MeterReadingSourceGQL } = require('@condo/domains/meter/gql')
 const { Meter: MeterGQL } = require('@condo/domains/meter/gql')
 const { MeterReading: MeterReadingGQL } = require('@condo/domains/meter/gql')
-const { find } = require('@condo/keystone/schema')
-const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@condo/domains/meter/gql')
+const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
+const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
+const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -20,6 +25,9 @@ const MeterReadingSource = generateServerUtils(MeterReadingSourceGQL)
 const Meter = generateServerUtils(MeterGQL)
 const MeterReading = generateServerUtils(MeterReadingGQL)
 const MeterReadingFilterTemplate = generateServerUtils(MeterReadingFilterTemplateGQL)
+const PropertyMeter = generateServerUtils(PropertyMeterGQL)
+const PropertyMeterReading = generateServerUtils(PropertyMeterReadingGQL)
+const MeterReportingPeriod = generateServerUtils(MeterReportingPeriodGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -62,6 +70,61 @@ const getAvailableResidentMeters = async (userId) => {
     })
 }
 
+/**
+ * Get all meter report periods, which resident has access to,
+ * Mostly used in access, that's why used native keystone utils
+ * @param userId - id of user
+ * @returns {Promise<Array<unknown>>} list of meters ids which are available for resident
+ */
+const getAvailableResidentMeterReportPeriods = async (userId) => {
+    const userResidents = await find('Resident', {
+        user: { id: userId, deletedAt: null },
+        property: { deletedAt: null },
+        organization: { deletedAt: null },
+        deletedAt: null,
+    })
+    const residentIds = userResidents.map(resident => resident.id)
+    const residentsByIds = Object.assign({}, ...userResidents.map(obj => ({ [obj.id]: obj })))
+
+    const userConsumers = await find('ServiceConsumer', {
+        resident: { id_in: residentIds, deletedAt: null },
+        organization: { deletedAt: null },
+        deletedAt: null,
+    })
+
+    const selectionsByOrganization = uniq(userConsumers.map(serviceConsumer => ({
+        organization: { id: get(residentsByIds, [serviceConsumer.resident, 'organization']) },
+        property_is_null: true,
+    })))
+
+    const selectionsByProperty = uniq(userConsumers.map(serviceConsumer => ({
+        organization: { id: get(residentsByIds, [serviceConsumer.resident, 'organization']) },
+        property: { id: get(residentsByIds, [serviceConsumer.resident, 'property']) },
+    })))
+
+    const orStatement = selectionsByOrganization.map(selection => ({
+        AND: [
+            selection,
+        ],
+    }))
+
+    selectionsByProperty.map(selection => orStatement.push({
+        AND: [
+            selection,
+        ],
+    }))
+
+    return await find('MeterReportingPeriod', {
+        OR: [
+            ...orStatement,
+            {
+                organization_is_null: true,
+            },
+        ],
+        deletedAt: null,
+    })
+}
+
 const loadMetersForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
     const metersLoader = new GqlWithKnexLoadList({
         listKey: 'Meter',
@@ -99,8 +162,12 @@ module.exports = {
     Meter,
     MeterReading,
     getAvailableResidentMeters,
+    getAvailableResidentMeterReportPeriods,
     loadMetersForExcelExport,
     loadMeterReadingsForExcelExport,
     MeterReadingFilterTemplate,
+    PropertyMeter,
+    PropertyMeterReading,
+    MeterReportingPeriod,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

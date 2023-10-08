@@ -1,7 +1,8 @@
-const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { SHARE_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
-const { makeClient } = require('@condo/keystone/test.utils')
+const { makeClient } = require('@open-condo/keystone/test.utils')
+
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
+const { SHARE_TICKET_MUTATION } = require('@condo/domains/ticket/gql')
+const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 
 describe('ShareTicketService', () => {
     describe('User', () => {

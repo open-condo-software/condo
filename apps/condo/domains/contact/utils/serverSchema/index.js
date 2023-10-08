@@ -4,20 +4,23 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
+
 const { GqlWithKnexLoadList } = require('@condo/domains/common/utils/serverSchema')
 const { Contact: ContactGQL } = require('@condo/domains/contact/gql')
 const { ContactRole: ContactRoleGQL } = require('@condo/domains/contact/gql')
+const { ContactExportTask: ContactExportTaskGQL } = require('@condo/domains/contact/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Contact = generateServerUtils(ContactGQL)
 const ContactRole = generateServerUtils(ContactRoleGQL)
+const ContactExportTask = generateServerUtils(ContactExportTaskGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
-const loadContactsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
-    const contactsLoader = new GqlWithKnexLoadList({
+const buildContactsLoader = ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    return new GqlWithKnexLoadList({
         listKey: 'Contact',
-        fields: 'id name phone email unitName unitType createdAt updatedAt role',
+        fields: 'id name phone email unitName unitType createdAt updatedAt role isVerified',
         singleRelations: [
             ['Organization', 'organization', 'name'],
             ['Property', 'property', 'address'],
@@ -26,12 +29,18 @@ const loadContactsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DES
         sortBy,
         where,
     })
+}
+
+const loadContactsForExcelExport = async ({ where = {}, sortBy = ['createdAt_DESC'] }) => {
+    const contactsLoader = buildContactsLoader({ where, sortBy })
     return await contactsLoader.load()
 }
 
 module.exports = {
     Contact,
     loadContactsForExcelExport,
+    buildContactsLoader,
     ContactRole,
+    ContactExportTask,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

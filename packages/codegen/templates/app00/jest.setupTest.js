@@ -1,7 +1,7 @@
 const falsey = require('falsey')
 
-const { setFakeClientMode } = require('@condo/keystone/test.utils')
-const conf = require('@condo/config')
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const conf = require('@open-condo/config')
 const index = require('@app/condo/index')
 
 const EXTRA_LOGGING = falsey(process.env.DISABLE_LOGGING)

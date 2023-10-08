@@ -1,7 +1,8 @@
 import { Tooltip as DefaultTooltip, TooltipProps as DefaultTooltipProps } from 'antd'
-import React from 'react'
-import { colors } from '../constants/style'
 import get from 'lodash/get'
+import React from 'react'
+
+import { colors } from '../constants/style'
 
 type TooltipProps = DefaultTooltipProps & { textColor?: string }
 const MOUSE_ENTER_DELAY_IN_SECONDS = 0.15

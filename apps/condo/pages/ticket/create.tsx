@@ -1,13 +1,13 @@
 import { Typography, Row, Col } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import Head from 'next/head'
 import React from 'react'
-import { Gutter } from 'antd/es/grid/row'
 
-import { useIntl } from '@condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
 
-import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketReadAndManagePermissionRequired } from '@condo/domains/ticket/components/PageAccess'
+import { TicketForm } from '@condo/domains/ticket/components/TicketForm'
 
 const WRAPPER_GUTTER: Gutter | [Gutter, Gutter] = [0, 60]
 
@@ -34,6 +34,6 @@ const CreateTicketPage = () => {
     )
 }
 
-CreateTicketPage.requiredAccess = OrganizationRequired
+CreateTicketPage.requiredAccess = TicketReadAndManagePermissionRequired
 
 export default CreateTicketPage

@@ -1,0 +1,94 @@
+@import "antd/lib/carousel/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/_utils/controls/style.less";
+
+@carousel-dot-width: 8px;
+@carousel-dot-height: 8px;
+@carousel-dot-active-width: 8px;
+@condo-carousel-slide-gap: @condo-global-spacing-40;
+
+.condo-carousel {
+  & .slick-dots {
+    li {
+      box-sizing: border-box;
+      margin: 0 @condo-global-spacing-4;
+
+      & button {
+        background: transparent;
+        border: @condo-global-border-width-default solid @condo-global-color-black;
+        border-radius: @condo-global-border-radius-small;
+        opacity: @condo-global-opacity-disabled;
+      }
+
+      &.slick-active button {
+        background-color: @condo-global-color-black;
+      }
+    }
+
+    &-bottom {
+      bottom: @condo-global-spacing-12;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+  }
+
+  & .slick-arrow {
+    &.condo-control-large {
+      margin-top: (-@condo-control-lg-size / 2);
+    }
+
+    &.condo-control-small {
+      margin-top: (-@condo-control-sm-size / 2);
+    }
+
+    &,
+    &:hover {
+      position: absolute;
+      top: 50%;
+      z-index: 1;
+    }
+
+    &.slick-next.condo-control-large {
+      right: (-@condo-control-lg-size / 2);
+    }
+
+    &.slick-next.condo-control-small {
+      right: (-@condo-control-sm-size / 2);
+    }
+
+    &.slick-prev.condo-control-large {
+      left: (-@condo-control-lg-size / 2);
+    }
+
+    &.slick-prev.condo-control-small {
+      left: (-@condo-control-sm-size / 2);
+    }
+
+    &.slick-disabled {
+      display: none !important;
+    }
+  }
+
+  & .slick-slide > div {
+    margin: 0 (@condo-carousel-slide-gap / 2);
+  }
+
+  & .slick-list {
+    margin: 0 (-@condo-carousel-slide-gap / 2);
+    padding: 0;
+
+    // NOTE: Force all slides to have same width
+    & > .slick-track {
+      display: flex;
+
+      & > .slick-slide {
+        height: inherit;
+
+        & > div,
+        & > div > section {
+          height: 100%;
+        }
+      }
+    }
+  }
+}

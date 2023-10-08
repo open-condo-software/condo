@@ -1,26 +1,25 @@
-import '@condo/domains/common/components/wdyr'
-
 import React from 'react'
 import Head from 'next/head'
 import { CacheProvider } from '@emotion/core'
 import { cache } from 'emotion'
 import { DashboardOutlined } from '@ant-design/icons'
 
-import { withApollo } from '@condo/next/apollo'
-import { withAuth } from '@condo/next/auth'
-import { withIntl } from '@condo/next/intl'
-import { withOrganization } from '@condo/next/organization'
+import { withApollo } from '@open-condo/next/apollo'
+import { withAuth } from '@open-condo/next/auth'
+import { withIntl } from '@open-condo/next/intl'
+import { withOrganization } from '@open-condo/next/organization'
 
 import GlobalStyle from '@condo/domains/common/components/containers/GlobalStyle'
 import BaseLayout from '@app/condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import { MenuItem } from '@condo/domains/common/components/MenuItem'
+import '@condo/domains/common/components/wdyr'
 
 const MenuData = () => {
     return (
         <MenuItem
             path={'/'}
             icon={DashboardOutlined}
-            label={'menu.Analytics'}
+            label={'global.section.analytics'}
         />
     )
 }

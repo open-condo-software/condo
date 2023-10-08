@@ -24,6 +24,7 @@ function applyKeystoneV5AdminFixes (schema) {
     return schema
 }
 
+/** @deprecated it's part of internal API use prepareKeystone instead */
 function convertStringToTypes (schema) {
     const { Text, Relationship, Integer, Float, Select, Slug, Virtual, Url, Uuid, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File } = require('@keystonejs/fields')
     const { AuthedRelationship } = require('@keystonejs/fields-authed-relationship')
@@ -93,6 +94,7 @@ function registerKeystone5Schema (gqlSchemaObject, keystone, globalPreprocessors
     }
 }
 
+/** @deprecated it's part of internal API use prepareKeystone instead */
 function registerSchemas (keystone, modulesList, globalPreprocessors = []) {
     modulesList.forEach(
         (module) => {

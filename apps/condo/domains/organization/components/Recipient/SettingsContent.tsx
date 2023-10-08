@@ -1,17 +1,16 @@
-import get from 'lodash/get'
-import React from 'react'
 import styled from '@emotion/styled'
 import { Row, Col, Typography, Alert } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
+import React from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
+import { BankAccountInfo } from '@condo/domains/banking/components/BankAccountInfo'
+import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { colors } from '@condo/domains/common/constants/style'
 
-import { BillingRecipient, BillingIntegrationOrganizationContext } from '@condo/domains/billing/utils/clientSchema'
-
-import { Recipient } from '@condo/domains/organization/components/Recipient'
 
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 
@@ -36,24 +35,12 @@ export const RecipientSettingsContent = () => {
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
 
-    //TODO(MAXIMDANILOV): DOMA-3252 go from BillingRecipient to Index
     const {
-        obj: context,
-    } = BillingIntegrationOrganizationContext.useObject({
-        where: { organization: { id: userOrganizationId } },
-    })
-
-    const contextId = get(context, ['id'], null)
-
-    const {
-        loading: isRecipientsLoading,
-        objs: recipients,
-    } = BillingRecipient.useObjects({
-        where: {
-            context: { id : contextId },
-            isApproved: true,
-        },
-    })
+        objs: bankAccounts,
+        loading: bankAccountsIsLoading,
+    } = BankAccount.useObjects(
+        { where: { organization: { id: userOrganizationId }, deletedAt: null } }
+    )
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -70,9 +57,9 @@ export const RecipientSettingsContent = () => {
             </Col>
 
             {
-                recipients.map((recipient, index) => {
+                bankAccounts.map((bankAccount, index) => {
                     return (
-                        <Recipient recipient={recipient} key={index}/>
+                        <BankAccountInfo bankAccount={bankAccount} key={index}/>
                     )
                 })
             }

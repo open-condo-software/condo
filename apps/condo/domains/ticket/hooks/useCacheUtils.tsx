@@ -1,8 +1,9 @@
 import { ApolloCache } from '@apollo/client/cache'
+import { Ticket } from '@app/condo/schema'
 import get from 'lodash/get'
+
 import { generateQueryVariables } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
-import { Ticket } from '@app/condo/schema'
 
 interface ICachedData {
     objs: Ticket[],

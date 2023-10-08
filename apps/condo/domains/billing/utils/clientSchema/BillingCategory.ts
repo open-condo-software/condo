@@ -7,7 +7,9 @@ import {
     BillingCategoryUpdateInput,
     QueryAllBillingCategoriesArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { BillingCategory as BillingCategoryGQL } from '@condo/domains/billing/gql'
 
 const {

@@ -4,13 +4,15 @@
 const dayjs = require('dayjs')
 const difference = require('lodash/difference')
 const get = require('lodash/get')
-const conf = require('@condo/config')
-const { i18n } = require('@condo/locales/loader')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@condo/keystone/test.utils')
+
+const conf = require('@open-condo/config')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAccessDeniedErrorToObj,
     expectToThrowAuthenticationErrorToObjects, catchErrorFrom, expectToThrowValidationFailureError,
-} = require('@condo/keystone/test.utils')
+} = require('@open-condo/keystone/test.utils')
+const { i18n } = require('@open-condo/locales/loader')
+
 const { EXPORT_STATUS_VALUES, CANCELLED, EXPORT_PROCESSING_BATCH_SIZE, EXCEL } = require('@condo/domains/common/constants/export')
 const { downloadFile, readXlsx, expectDataFormat, getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
 const {
@@ -18,10 +20,10 @@ const {
     createTestOrganizationEmployeeRole,
     createTestOrganizationEmployee,
 } = require('@condo/domains/organization/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { TicketExportTask, createTestTicketExportTask, updateTestTicketExportTask, TicketStatus, createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
-const { createTestOrganizationWithAccessToAnotherOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('TicketExportTask', () => {
     describe('validations', () => {
@@ -84,8 +86,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
 
@@ -113,8 +114,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             const [forbiddenOrganization] = await createTestOrganization(adminClient)
@@ -132,8 +132,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             const [obj, attrs] = await createTestTicketExportTask(userClient, userClient.user, {
@@ -177,6 +176,24 @@ describe('TicketExportTask', () => {
             expect(obj.updatedAt).toMatch(DATETIME_RE)
         })
 
+        it('cannot be created if user belongs as employee with canReadTickets: false to requested organization in `where` field', async () => {
+            const adminClient = await makeLoggedInAdminClient()
+            const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [organization] = await createTestOrganization(adminClient)
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canReadTickets: false,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await createTestTicketExportTask(userClient, userClient.user, {
+                    where: {
+                        organization: { id: organization.id },
+                    },
+                })
+            })
+        })
+
         it('cannot be created if user belongs as employee to some of many requested organizations in `where` field', async () => {
             const adminClient = await makeLoggedInAdminClient()
             const {
@@ -199,8 +216,7 @@ describe('TicketExportTask', () => {
             const userClient = await makeClientWithNewRegisteredAndLoggedInUser()
             const [organization] = await createTestOrganization(adminClient)
             const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
-                canManageTickets: true,
-                canManageTicketComments: true,
+                canReadTickets: true,
             })
             await createTestOrganizationEmployee(adminClient, organization, userClient.user, role)
             await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -467,8 +483,8 @@ describe('exportTickets', () => {
         const indexedStatuses = Object.fromEntries(statuses.map(status => ([status.type, status.name])))
 
         expectDataFormat(data, [
-            ['Заявки за всё время', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
-            ['Номер заявки', 'Источник', 'Наименование УК', 'Адрес', 'Помещение', 'Тип помещения', 'Подъезд', 'Этаж', 'ФИО заявителя', 'Заявитель', 'Телефон', 'Описание проблемы', 'Аварийная', 'Платная', 'Гарантийная', 'Место инцидента', 'Тип работ', 'В чём проблема', 'Зарегистрирована', 'Поступила в работу', 'Выполнена', 'Закрыта', 'Дата изменения', 'Статус', 'Отложена до', 'Автор заявки', 'Исполнитель', 'Ответственный', 'Коммент. внутренний', 'Коммент. с жителем', 'Выполнить до', 'Оценка заявки', 'Комментарий к оценке', 'Возвратов заявки'],
+            ['Заявки за всё время', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''],
+            ['Номер заявки', 'Источник', 'Наименование УК', 'Адрес', 'Помещение', 'Тип помещения', 'Подъезд', 'Этаж', 'ФИО заявителя', 'Заявитель', 'Телефон', 'Описание проблемы', 'Аварийная', 'Платная', 'Гарантийная', 'Место инцидента', 'Тип работ', 'В чём проблема', 'Зарегистрирована', 'Поступила в работу', 'Выполнена', 'Закрыта', 'Дата изменения', 'Статус', 'Отложена до', 'Автор заявки', 'Исполнитель', 'Ответственный', 'ЖИТЕЛЬ: оценка общая', 'Дата и время оценки жителя', 'Уточнения по оценке жителя', 'Комментарий к оценке от жителя', 'СОТРУДНИК: контроль качества', 'Дата и время контроля качества', 'Уточнения по оценке контроля качества', 'Комментарий к контролю качества', 'Сотрудник, внесший последние изменения в оценку', 'Коммент. внутренний', 'Коммент. с жителем', 'Выполнить до', 'Возвратов заявки'],
             ...(tickets.map(ticket => [
                 String(ticket.number),
                 ticket.source.name,
@@ -483,7 +499,7 @@ describe('exportTickets', () => {
                 ticket.clientPhone || '',
                 ticket.details,
                 ticket.isEmergency ? YesMessage : NoMessage,
-                ticket.isPaid ? YesMessage : NoMessage,
+                ticket.isPayable ? YesMessage : NoMessage,
                 ticket.isWarranty ? YesMessage : NoMessage,
                 get(ticket, 'classifier.place.name', empty),
                 get(ticket, 'classifier.category.name', empty),
@@ -495,14 +511,21 @@ describe('exportTickets', () => {
                 formatDate(ticket.updatedAt),
                 indexedStatuses[ticket.status.type],
                 ticket.deferredUntil ? formatDate(ticket.deferredUntil) : empty,
-                ticket.operator && ticket.operator.name || ticket.createdBy.name || empty,
+                ticket.createdBy.name || empty,
                 ticket.executor && ticket.executor.name || empty,
                 ticket.assignee && ticket.assignee.name || empty,
+                empty, // feedbackValue
+                empty, // feedbackUpdatedAt
+                empty, // feedbackAdditionalOptions
+                empty, // feedbackComment
+                empty, // qualityControlValue
+                empty, // qualityControlUpdatedAt
+                empty, // qualityControlAdditionalOptions
+                empty, // qualityControlComment
+                empty, // qualityControlUpdatedBy
                 empty, // organizationComments
                 empty, // residentComments
                 ticket.deadline ? formatDate(ticket.deadline) : empty,
-                ticket.reviewValue || empty,
-                ticket.reviewComment || empty,
                 ticket.statusReopenedCounter || empty,
             ])),
         ])

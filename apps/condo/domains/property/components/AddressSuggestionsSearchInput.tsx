@@ -1,19 +1,19 @@
-import get from 'lodash/get'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
-import identity from 'lodash/identity'
-import pickBy from 'lodash/pickBy'
-import { notification, Select, SelectProps, Typography } from 'antd'
-
-import { useIntl } from '@condo/next/intl'
-import { grey } from '@ant-design/colors'
 import styled from '@emotion/styled'
+import { notification, Select, SelectProps } from 'antd'
+import get from 'lodash/get'
+import React, { CSSProperties, Dispatch, SetStateAction, useCallback, useEffect, useState } from 'react'
 
-import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
-import { Highlighter } from '@condo/domains/common/components/Highlighter'
+import { useIntl } from '@open-condo/next/intl'
+
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
+import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
+import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
+import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
+import { TSelectedAddressSuggestion } from '@condo/domains/property/components/BasePropertyForm/types'
+import { validHouseTypes } from '@condo/domains/property/constants/property'
 
-import { colors } from '@condo/domains/common/constants/style'
 
+const SELECT_OPTION_STYLES: CSSProperties = { direction: 'rtl', textAlign: 'left' }
 /*
     Fixes visual overlapping of close-button with text
     It cannot be extracted into global styles, because selects
@@ -40,15 +40,14 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     const intl = useIntl()
     const ServerErrorMsg = intl.formatMessage({ id: 'ServerError' })
     const AddressMetaError = intl.formatMessage({ id: 'errors.AddressMetaParse' })
-    const AddressNotSelected = intl.formatMessage( { id: 'field.Property.nonSelectedError' })
-    
+    const AddressNotSelected = intl.formatMessage({ id: 'field.Property.nonSelectedError' })
+
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     useEffect(() => {
         const isAddressNotSelected = get(props, 'setAddressValidatorError') && !isMatchSelectedProperty
         if (isAddressNotSelected) {
             setAddressValidatorError(addressValidatorError)
-        }
-        else if (addressValidatorError === AddressNotSelected){
+        } else if (addressValidatorError === AddressNotSelected) {
             setAddressValidatorError(null)
         }
     }, [isMatchSelectedProperty, setAddressValidatorError])
@@ -56,14 +55,16 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     const { addressApi } = useAddressApi()
 
     const searchAddress = useCallback(
-        async (query: string) => {
+        async (query: string): Promise<TSelectedAddressSuggestion[]> => {
             try {
                 const { suggestions } = await addressApi.getSuggestions(query)
                 return suggestions.map(suggestion => {
-                    const cleanedSuggestion = pickBy(suggestion, identity)
+                    // TODO(pahaz): we should remove isHouse and use only suggestion.type
+                    // TODO(pahaz): we should drop backward compatibility check by house_type_full. Because we add `suggestion.type` check!
                     return {
                         text: suggestion.value,
-                        value: JSON.stringify({ ...cleanedSuggestion, address: suggestion.value }),
+                        value: suggestion.rawValue,
+                        isHouse: suggestion.type === 'building' || validHouseTypes.includes(suggestion.data.house_type_full),
                     }
                 })
             } catch (e) {
@@ -74,39 +75,20 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
         [],
     )
 
-    /**
-     * TODO(DOMA-1513) replace HighLighter with apps/condo/domains/common/components/TextHighlighter.tsx and renderHighlightedPart
-     */
     const renderOption = useCallback(
-        (dataItem, searchValue) => {
+        (dataItem: TSelectedAddressSuggestion, searchValue) => {
             return (
                 <Select.Option
-                    style={{ direction: 'rtl', textAlign: 'left', color: grey[6] }}
-                    key={dataItem.value}
+                    style={SELECT_OPTION_STYLES}
+                    key={JSON.stringify(dataItem)}
                     value={dataItem.text}
                     title={dataItem.text}
                 >
-                    {
-                        searchValue === dataItem.text
-                            ? dataItem.text
-                            : (
-                                <Highlighter
-                                    text={dataItem.text}
-                                    search={searchValue}
-                                    renderPart={(part, index) => {
-                                        return (
-                                            <Typography.Text
-                                                strong
-                                                key={part + index}
-                                                style={{ color: colors.black }}
-                                            >
-                                                {part}
-                                            </Typography.Text>
-                                        )
-                                    }}
-                                />
-                            )
-                    }
+                    <TextHighlighter
+                        text={dataItem.text}
+                        search={searchValue}
+                        renderPart={renderHighlightedPart}
+                    />
                 </Select.Option>
             )
         },
@@ -116,7 +98,7 @@ export const AddressSuggestionsSearchInput: React.FC<AddressSearchInputProps> = 
     const handleOptionSelect = useCallback(
         (value: string, option) => {
             try {
-                addressApi.cacheAddressMeta(value, JSON.parse(option.key))
+                addressApi.cacheRawAddress(value, option.key)
             } catch (e) {
                 notification.error({
                     message: ServerErrorMsg,

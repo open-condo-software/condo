@@ -1,11 +1,9 @@
-const syncSbbolSubscriptions = require('./syncSbbolSubscriptions')
-const syncSbbolPaymentRequestsForSubscriptions = require('./syncSbbolPaymentRequestsForSubscriptions')
-const syncSbbolSubscriptionPaymentRequestsState = require('./syncSbbolSubscriptionPaymentRequestsState')
 const refreshSbbolClientSecret = require('./refreshSbbolClientSecret')
+const { syncSbbolBankAccountsCron: syncSbbolBankAccounts } = require('./syncSbbolBankAccounts')
+const { syncSbbolTransactionsCron: syncSbbolTransactions } = require('./syncSbbolTransactions')
 
 module.exports = {
-    syncSbbolSubscriptions,
-    syncSbbolPaymentRequestsForSubscriptions,
-    syncSbbolSubscriptionPaymentRequestsState,
+    syncSbbolTransactions,
     refreshSbbolClientSecret,
+    syncSbbolBankAccounts,
 }

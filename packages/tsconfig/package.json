@@ -1,0 +1,31 @@
+{
+  "name": "@open-condo/tsconfig",
+  "description": "A set of frequently used tsconfig.json for various typescript applications",
+  "keywords": [
+    "condo",
+    "open-condo-software",
+    "tsconfig",
+    "react",
+    "next"
+  ],
+  "version": "0.0.0-development",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/open-condo-software/condo.git",
+    "directory": "packages/tsconfig"
+  },
+  "author": {
+    "name": "Matthew Savelev",
+    "email": "msavelyev@doma.ai",
+    "url": "https://github.com/SavelevMatthew"
+  },
+  "license": "MIT",
+  "files": [
+    "base.json",
+    "react-lib.json",
+    "next-app.json"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

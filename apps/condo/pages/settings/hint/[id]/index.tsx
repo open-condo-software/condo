@@ -1,33 +1,25 @@
-import { Gutter } from 'antd/es/grid/row'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
 import { Col, Row, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
+import React, { CSSProperties, useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
-import ActionBar from '@condo/domains/common/components/ActionBar'
-import { Button } from '@condo/domains/common/components/Button'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import {
     DeleteButtonWithConfirmModal,
-    IDeleteActionButtonWithConfirmModal,
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
-
-import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
-import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
-
-const DELETE_BUTTON_CUSTOM_PROPS: IDeleteActionButtonWithConfirmModal['buttonCustomProps'] = {
-    type: 'sberDangerGhost',
-}
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -52,7 +44,7 @@ const TicketPropertyHintIdPage = () => {
         where: { id: hintId },
     })
 
-    const handleDeleteAction = TicketPropertyHint.useSoftDelete(() => router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_HINT}`))
+    const handleDeleteAction = TicketPropertyHint.useSoftDelete(() => router.push('/settings/hint'))
 
     const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
         where: {
@@ -80,8 +72,6 @@ const TicketPropertyHintIdPage = () => {
     }, [handleDeleteAction, ticketPropertyHint])
 
     const ticketPropertyHintContent = useMemo(() => get(ticketPropertyHint, 'content'), [ticketPropertyHint])
-
-    const deleteButtonContent = useMemo(() => <span>{DeleteMessage}</span>, [DeleteMessage])
 
     if (loading) {
         return <Loader />
@@ -122,24 +112,25 @@ const TicketPropertyHintIdPage = () => {
                         {
                             canManageTicketPropertyHints && (
                                 <Col span={24}>
-                                    <ActionBar>
-                                        <Link href={`/settings/hint/${hintId}/update`}>
-                                            <Button
-                                                color='green'
-                                                type='sberDefaultGradient'
-                                            >
-                                                {UpdateMessage}
-                                            </Button>
-                                        </Link>
-                                        <DeleteButtonWithConfirmModal
-                                            title={ConfirmDeleteTitle}
-                                            message={ConfirmDeleteMessage}
-                                            okButtonLabel={DeleteMessage}
-                                            action={handleDeleteButtonClick}
-                                            buttonCustomProps={DELETE_BUTTON_CUSTOM_PROPS}
-                                            buttonContent={deleteButtonContent}
-                                        />
-                                    </ActionBar>
+                                    <ActionBar
+                                        actions={[
+                                            <Link key='update' href={`/settings/hint/${hintId}/update`}>
+                                                <Button
+                                                    type='primary'
+                                                >
+                                                    {UpdateMessage}
+                                                </Button>
+                                            </Link>,
+                                            <DeleteButtonWithConfirmModal
+                                                key='delete'
+                                                title={ConfirmDeleteTitle}
+                                                message={ConfirmDeleteMessage}
+                                                okButtonLabel={DeleteMessage}
+                                                action={handleDeleteButtonClick}
+                                                buttonContent={DeleteMessage}
+                                            />,
+                                        ]}
+                                    />
                                 </Col>
                             )
                         }

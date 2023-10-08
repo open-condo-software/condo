@@ -1,4 +1,5 @@
 import FieldController from '@keystonejs/fields/Controller'
+
 const { omitRecursively } = require('../utils/cleaner')
 
 class JsonController extends FieldController {

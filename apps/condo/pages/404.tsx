@@ -1,12 +1,16 @@
-import React from 'react'
-import { Col, Row, RowProps, Typography } from 'antd'
 import styled from '@emotion/styled'
-import { useIntl } from '@condo/next/intl'
+import { Col, Row, RowProps, Typography } from 'antd'
+import Router from 'next/router'
+import React from 'react'
 
+import { useIntl } from '@open-condo/next/intl'
+
+import { Button } from '@condo/domains/common/components/Button'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { PosterLayout } from '@condo/domains/user/components/containers/PosterLayout'
-import { Button } from '@condo/domains/common/components/Button'
-import Router from 'next/router'
+
+import { ErrorLayoutFooter, ErrorLayoutHeader } from './500'
+
 
 export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
   height: 55vh;
@@ -14,7 +18,7 @@ export const ErrorPosterWrapper = styled.div<{ isSmall: boolean }>`
 
 const DESCRIPTION_TEXT_STYLE = { fontSize: fontSizes.content }
 const ROW_MESSAGE_GUTTER: RowProps['gutter'] = [0, 14]
-const Src404 = { poster: '/404Poster.png', placeholder: '/404PosterPlaceholder.png' }
+const Src404 = { poster: '/404Poster.webp', placeholder: '/404PosterPlaceholder.jpg' }
 
 export default function Custom404 (): React.ReactElement {
     const intl = useIntl()
@@ -24,12 +28,12 @@ export default function Custom404 (): React.ReactElement {
 
     return (
         <Row justify='center'>
-            <Col span={12}>
+            <Col span={24}>
                 <Row gutter={ROW_MESSAGE_GUTTER}>
-                    <Col span={18}>
+                    <Col span={24}>
                         <Typography.Title>{PageTitle}</Typography.Title>
                     </Col>
-                    <Col span={18}>
+                    <Col span={24}>
                         <Typography.Paragraph style={DESCRIPTION_TEXT_STYLE}>
                             {DescriptionMessage}
                         </Typography.Paragraph>
@@ -52,6 +56,12 @@ export default function Custom404 (): React.ReactElement {
     )
 }
 
-export const ErrorLayout = (props): React.ReactElement => <PosterLayout {...props} layoutBgImage={Src404}/>
+const Error404Layout = (props): React.ReactElement => <PosterLayout
+    {...props}
+    Header={<ErrorLayoutHeader />}
+    Footer={<ErrorLayoutFooter />}
+    layoutBgImage={Src404}
+/>
 
-Custom404.container = ErrorLayout
+Custom404.container = Error404Layout
+Custom404.isError = true

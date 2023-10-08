@@ -1,22 +1,25 @@
+import { Typography } from 'antd'
+import Head from 'next/head'
+import Router, { useRouter } from 'next/router'
+import qs from 'qs'
+import React, { useContext, useEffect, useState } from 'react'
+
+import { useMutation } from '@open-condo/next/apollo'
+import { useIntl } from '@open-condo/next/intl'
+
 import { Button } from '@condo/domains/common/components/Button'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
+import { fontSizes } from '@condo/domains/common/constants/style'
+import { runMutation } from '@condo/domains/common/utils/mutations.utils'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
+import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
 import { InputPhoneForm } from '@condo/domains/user/components/auth/InputPhoneForm'
 import { RegisterContext, RegisterContextProvider } from '@condo/domains/user/components/auth/RegisterContextProvider'
 import { RegisterForm } from '@condo/domains/user/components/auth/RegisterForm'
 import { ValidatePhoneForm } from '@condo/domains/user/components/auth/ValidatePhoneForm'
 import AuthLayout, { AuthPage } from '@condo/domains/user/components/containers/AuthLayout'
-import { useIntl } from '@condo/next/intl'
-import { Typography } from 'antd'
-import Router, { useRouter } from 'next/router'
-import React, { useContext, useEffect, useState } from 'react'
-import { useMutation } from '@condo/next/apollo'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
-import { CREATE_ONBOARDING_MUTATION } from '@condo/domains/onboarding/gql'
-import { fontSizes } from '@condo/domains/common/constants/style'
-import qs from 'qs'
 import { WelcomeHeaderTitle } from '@condo/domains/user/components/UserWelcomeTitle'
-import Head from 'next/head'
+
 
 const HeaderAction = () => {
     const router = useRouter()

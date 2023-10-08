@@ -1,14 +1,11 @@
-import { Grid } from 'antd'
-import { ScreenMap } from 'antd/es/_util/responsiveObserve'
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { detectMobileNavigator } from '../utils/navigator'
-import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
-const { useBreakpoint } = Grid
+import { ScreenMap, useBreakpoints } from '@open-condo/ui/dist/hooks'
+
+import { ITopNotification, useTopNotificationsHook } from './TopNotifications'
 
 interface ILayoutContext {
     isMobile?: boolean
-    isSmall?: boolean
     shouldTableScroll?: boolean
     breakpoints?: ScreenMap
     isCollapsed?: boolean
@@ -16,12 +13,19 @@ interface ILayoutContext {
     addNotification?: (notification: ITopNotification) => void
 }
 
+const isMobileUserAgent = (): boolean => {
+    return (
+        typeof window !== 'undefined'
+        && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(window.navigator.userAgent)
+    )
+}
+
 const LayoutContext = createContext<ILayoutContext>({})
 
 export const useLayoutContext = (): ILayoutContext => useContext<ILayoutContext>(LayoutContext)
 
 export const LayoutContextProvider: React.FC = (props) => {
-    const breakpoints = useBreakpoint()
+    const breakpoints = useBreakpoints()
     const [isCollapsed, setIsCollapsed] = useState(false)
 
     const {
@@ -34,8 +38,7 @@ export const LayoutContextProvider: React.FC = (props) => {
         setIsCollapsed(!isCollapsed)
     }
 
-    const isSmall = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.lg
-    const shouldTableScroll = (breakpoints.md || breakpoints.xs || breakpoints.sm) && !breakpoints.xl
+    const shouldTableScroll = !breakpoints.DESKTOP_LARGE
 
     useEffect(() => {
         const isCollapsed = localStorage.getItem('isCollapsed') === 'true'
@@ -45,8 +48,7 @@ export const LayoutContextProvider: React.FC = (props) => {
 
     return (
         <LayoutContext.Provider value={{
-            isMobile: detectMobileNavigator(),
-            isSmall,
+            isMobile: isMobileUserAgent(),
             shouldTableScroll,
             breakpoints,
             isCollapsed,

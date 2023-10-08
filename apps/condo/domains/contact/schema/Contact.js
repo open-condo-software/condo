@@ -3,38 +3,43 @@
  */
 
 const { Text, Relationship, Checkbox } = require('@keystonejs/fields')
-const { GQLListSchema, find } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
-const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const access = require('@condo/domains/contact/access/Contact')
+
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema, find } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
+
 const { PHONE_WRONG_FORMAT_ERROR, EMAIL_WRONG_FORMAT_ERROR, PROPERTY_REQUIRED_ERROR } = require('@condo/domains/common/constants/errors')
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@condo/keystone/errors')
-const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
+const { normalizePhone } = require('@condo/domains/common/utils/phone')
+const access = require('@condo/domains/contact/access/Contact')
+const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
+const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { UNABLE_TO_CREATE_CONTACT_DUPLICATE, UNABLE_TO_UPDATE_CONTACT_DUPLICATE } = require('@condo/domains/user/constants/errors')
+
 
 /**
  * Composite unique constraint with name `Contact_uniq` is declared in a database-level on following set of columns:
  * ("property", "unitName", "name", "phone")
  */
-const errors = {
+const ERRORS = {
     UNABLE_TO_CREATE_CONTACT_DUPLICATE: {
         mutation: 'signinResidentUser',
         code: BAD_USER_INPUT,
         type: UNABLE_TO_CREATE_CONTACT_DUPLICATE,
-        message: 'Cannot create contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+        message: 'Cannot create contact, because another contact with the same provided set of "property", "unitName", "phone"',
         messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
     },
     UNABLE_TO_UPDATE_CONTACT_DUPLICATE: {
         mutation: 'signinResidentUser',
         code: BAD_USER_INPUT,
         type: UNABLE_TO_UPDATE_CONTACT_DUPLICATE,
-        message: 'Cannot update contact, because another contact with the same provided set of "property", "unitName", "name", "phone"',
+        message: 'Cannot update contact, because another contact with the same provided set of "property", "unitName", "phone"',
         messageForUser: 'api.contact.CONTACT_DUPLICATE_ERROR',
     },
-
 }
+
 const Contact = new GQLListSchema('Contact', {
     schemaDoc: 'Contact information of a person. Currently it will be related to a ticket, but in the future, it will be associated with more things',
     fields: {
@@ -108,8 +113,6 @@ const Contact = new GQLListSchema('Contact', {
                     const value = resolvedData[fieldPath]
                     if (value === '') {
                         return addFieldValidationError('Name should not be a blank string')
-                    } else if (value.length === 1) {
-                        return addFieldValidationError('Name should not be a one-character string')
                     }
                 },
             },
@@ -134,7 +137,7 @@ const Contact = new GQLListSchema('Contact', {
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, addValidationError, context }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            const { property, unitName, unitType, name, phone } = newItem
+            const { property, unitName, unitType, phone } = newItem
 
             if (operation === 'create' && !property) {
                 return addValidationError(`${ PROPERTY_REQUIRED_ERROR }] no property for contact`)
@@ -143,23 +146,35 @@ const Contact = new GQLListSchema('Contact', {
                 property: { id: property },
                 unitName: unitName || null,
                 unitType,
-                name,
                 phone,
                 deletedAt: null,
             }
             const [contact] = await find('Contact', condition)
             if (operation === 'create') {
                 if (contact) {
-                    throw new GQLError(errors.UNABLE_TO_CREATE_CONTACT_DUPLICATE, context)
+                    throw new GQLError(ERRORS.UNABLE_TO_CREATE_CONTACT_DUPLICATE, context)
                 }
             } else if (operation === 'update') {
                 if (contact && contact.id !== existingItem.id) {
-                    throw new GQLError(errors.UNABLE_TO_UPDATE_CONTACT_DUPLICATE, context)
+                    throw new GQLError(ERRORS.UNABLE_TO_UPDATE_CONTACT_DUPLICATE, context)
                 }
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['property', 'unitName', 'unitType', 'phone'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'contact_unique_property_unitName_unitType_phone',
+            },
+        ],
+    },
+    plugins: [
+        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
+        serviceUserAccessForB2BApp(),
+    ],
     access: {
         read: access.canReadContacts,
         create: access.canManageContacts,

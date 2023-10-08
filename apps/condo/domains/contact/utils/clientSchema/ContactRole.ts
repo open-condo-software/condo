@@ -7,7 +7,9 @@ import {
     ContactRoleUpdateInput,
     QueryAllContactRolesArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@condo/codegen/generate.hooks'
+
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
 import { ContactRole as ContactRoleGQL } from '@condo/domains/contact/gql'
 
 const convertGQLItemToFormSelectState = (item: ContactRole) => {

@@ -1,0 +1,16 @@
+.condo-select-type(@type, @background-color) {
+  @class_postfix: ~"@{type}";
+
+  .condo-select-@{class_postfix}:not(&-customize-input) &-selector {
+    background: @background-color;
+    border-color: transparent;
+  }
+}
+
+.condo-select-type-disabled(@type, @disabled-color) {
+  @class_postfix: ~"@{type}";
+
+  .condo-select-@{class_postfix}.condo-select-disabled:not(.condo-select-customize-input) .condo-select-selector {
+    background-color: @disabled-color;
+  }
+}

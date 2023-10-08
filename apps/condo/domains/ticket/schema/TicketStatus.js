@@ -3,17 +3,20 @@
  */
 
 const { Select, Virtual } = require('@keystonejs/fields')
-const LocalizedText  = require('@condo/keystone/fields/LocalizedText')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
-const access = require('@condo/domains/ticket/access/TicketStatus')
-const { TICKET_STATUS_TYPES } = require('../constants')
-const { STATUS_SELECT_COLORS } = require('@condo/domains/ticket/constants/style')
-const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
+const Ajv = require('ajv')
 const get = require('lodash/get')
 
-const Ajv = require('ajv')
+const { LocalizedText } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const { JSON_SCHEMA_VALIDATION_ERROR } = require('@condo/domains/common/constants/errors')
+const { COMMON_AND_ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const access = require('@condo/domains/ticket/access/TicketStatus')
+const { STATUS_SELECT_COLORS } = require('@condo/domains/ticket/constants/style')
+
+const { TICKET_STATUS_TYPES } = require('../constants')
+
 
 const validationSchema = {
     type: 'object',

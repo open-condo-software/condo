@@ -1,7 +1,5 @@
+const { faker } = require('@faker-js/faker')
 const { isEmpty } = require('lodash')
-const faker = require('faker')
-
-const { getStartDates } = require('@condo/domains/common/utils/date')
 
 const {
     createTestBillingIntegration,
@@ -11,14 +9,11 @@ const {
     createTestBillingProperty,
     createTestBillingAccount,
 } = require('@condo/domains/billing/utils/testSchema')
-
+const { getStartDates } = require('@condo/domains/common/utils/date')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
-
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
-
 const { registerResidentByTestClient, registerServiceConsumerByTestClient } = require('@condo/domains/resident/utils/testSchema')
-
 const { makeClientWithSupportUser, makeClientWithServiceUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 /**
@@ -31,10 +26,10 @@ const { makeClientWithSupportUser, makeClientWithServiceUser, makeClientWithResi
  * @param residentUserData
  * @returns {Promise<{receipt: *, resident: *}>}
  */
-const makeBillingReceiptWithResident = async (billingReceiptAttrs = {}, skipConsumer = false, residentUserData = {}) => {
+const makeBillingReceiptWithResident = async (billingReceiptAttrs = {}, skipConsumer = false, residentUserData = {}, integrationAttrs = {}) => {
     const organizationUserWithProperty = await makeClientWithProperty(true)
     const support = await makeClientWithSupportUser()
-    const [integration] = await createTestBillingIntegration(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
+    const [integration] = await createTestBillingIntegration(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS, ...integrationAttrs })
     const [billingContext] = await createTestBillingIntegrationOrganizationContext(organizationUserWithProperty, organizationUserWithProperty.organization, integration)
     const integrationClient = await makeClientWithServiceUser()
     await createTestBillingIntegrationAccessRight(support, integration, integrationClient.user)

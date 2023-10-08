@@ -1,0 +1,27 @@
+{
+  "schema": "https://json.schemastore.org/tsconfig",
+  "extends": "@open-condo/tsconfig/next-app.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "preserveSymlinks": true,
+    "paths": {
+      "@/*": [
+        "./*"
+      ]
+    },
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "next-env.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

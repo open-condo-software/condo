@@ -3,16 +3,20 @@
  */
 
 const { Text } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema, getById } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+
+const { Json } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+
 const access = require('@condo/domains/billing/access/BillingAccount')
+const { BILLING_ACCOUNT_OWNER_TYPES, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
 const {
     JSON_EXPECT_OBJECT_ERROR,
     UNEQUAL_CONTEXT_ERROR,
 } = require('@condo/domains/common/constants/errors')
+const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
 
@@ -60,6 +64,21 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             schemaDoc: 'Full name of the account holder',
             type: Text,
             isRequired: false,
+        },
+
+        isClosed: {
+            schemaDoc: 'Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+        },
+
+        ownerType: {
+            schemaDoc: 'The account owner\'s type',
+            type: 'Select',
+            options: BILLING_ACCOUNT_OWNER_TYPES,
+            defaultValue: BILLING_ACCOUNT_OWNER_TYPE_PERSON,
+            kmigratorOptions: { default: `'${BILLING_ACCOUNT_OWNER_TYPE_PERSON}'` },
         },
 
         meta: {

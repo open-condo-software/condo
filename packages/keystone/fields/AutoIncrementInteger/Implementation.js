@@ -1,14 +1,23 @@
+const { Integer } = require('@keystonejs/fields')
+const get = require('lodash/get')
 const { default: Redlock } = require('redlock')
 
-const { Integer } = require('@keystonejs/fields')
-
-const { getRedisClient } = require('@condo/keystone/redis')
+const { getRedisClient } = require('@open-condo/keystone/redis')
 
 class AutoIncrementInteger extends Integer.implementation {
-    
+
     async resolveInput ({ resolvedData, existingItem }) {
         if (!existingItem && !resolvedData[this.path]) {
-            const next = await this.adapter.nextValue()
+            const scopeFields = get(this, ['config', 'autoIncrementScopeFields'], [])
+            const scopeWhere = scopeFields.reduce((result, field) => {
+                const fieldValue = get(resolvedData, field)
+                if (fieldValue) {
+                    return { ...result, [field]: fieldValue }
+                }
+
+                return result
+            }, {})
+            const next = await this.adapter.nextValue(scopeWhere)
             if (!next || next <= 0) throw new Error('unexpected AutoIncrementInteger:adapter.nextValue()')
             resolvedData[this.path] = next
         }
@@ -22,7 +31,22 @@ class AutoIncrementInteger extends Integer.implementation {
         if (value) {
             const list = this.getListByKey(this.listKey)
             const listAdapter = list.adapter
-            const { count } = await listAdapter.itemsQuery({ where: { [this.path]: value } }, { meta: true })
+
+            const scopeFields = get(this, ['config', 'autoIncrementScopeFields'], [])
+            const scopeWhere = scopeFields.reduce((result, fieldName) => {
+                const fieldValue = get(resolvedData, fieldName)
+                if (fieldValue) {
+                    return {
+                        ...result,
+                        // For now support only raw value or relationship
+                        [fieldName]: list.fieldsByPath[fieldName].isRelationship ? { id: fieldValue } : fieldValue,
+                    }
+                }
+
+                return result
+            }, {})
+
+            const { count } = await listAdapter.itemsQuery({ where: { [this.path]: value, ...scopeWhere } }, { meta: true })
             if (count) {
                 addFieldValidationError(`[unique:alreadyExists:${this.path}] Field ${this.path} should be unique`)
             }
@@ -35,8 +59,8 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         if (!this._redis) this._redis = getRedisClient()
         return this._redis
     }
-    
-    async nextValue () {
+
+    async nextValue (scopeWhere = {}) {
         const tableName = this.listAdapter.tableName
         const fieldName = this.dbPath
         const knex = this.listAdapter.parentAdapter.knex
@@ -44,17 +68,29 @@ class AutoIncrementIntegerKnexFieldAdapter extends Integer.adapters.knex {
         //  I didn't found a way to use knex subquery for that. Probably, we need to create some DB procedure or use another table with
         //  sequence column. At the moment this code just help us to avoid `duplicate key value violates unique constraint`
         const rlock = new Redlock([this.redis])
-        const redisLockKey = `AutoIncrementInteger:${tableName}:${fieldName}`
-        const redisMaxValueKey = `AutoIncrementInteger:${tableName}:${fieldName}:value`
-        let lock = await rlock.acquire([redisLockKey], 500) // 0.5 sec
+
+        const scopeParts = Object.keys(scopeWhere).reduce((result, fieldName) => [...result, fieldName, get(scopeWhere, fieldName)], [])
+
+        const redisLockKeyParts = ['AutoIncrementInteger', tableName, fieldName, ...scopeParts]
+        const redisMaxValueKeyParts = ['AutoIncrementInteger', tableName, fieldName, 'value', ...scopeParts]
+
+        const redisLockKey = redisLockKeyParts.filter(Boolean).join(':')
+        const redisMaxValueKey = redisMaxValueKeyParts.filter(Boolean).join(':')
+
+        let lock = await rlock.acquire([redisLockKey], 500, {
+            retryDelay: 1000,
+            retryCount: 30,
+            automaticExtensionThreshold: 100,
+            retryJitter: 1000,
+        }) // 0.5 sec
         try {
             let currentMaxNumber = await this.redis.get(redisMaxValueKey)
             if (!currentMaxNumber) {
-                let [{ max }] = await knex(tableName).max(fieldName)
+                let [{ max }] = await knex(tableName).where(scopeWhere).max(fieldName)
                 currentMaxNumber = max
             } else {
                 // NOTE(pahaz): if someone set new number value by hands we need to generate next number MAX + 1
-                let [{ max }] = await knex(tableName).max(fieldName)
+                let [{ max }] = await knex(tableName).where(scopeWhere).max(fieldName)
                 if (max > currentMaxNumber) {
                     currentMaxNumber = max
                 }

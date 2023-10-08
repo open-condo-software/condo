@@ -1,0 +1,158 @@
+@import "antd/lib/modal/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/core/breakpoints.less";
+
+@condo-modal-margin-vertical: @condo-global-spacing-40;
+@condo-modal-margin-horizontal: @condo-global-spacing-40;
+@condo-modal-border-width: @condo-global-border-width-default;
+@condo-modal-padding: @condo-global-spacing-40;
+@condo-modal-half-padding: (@condo-modal-padding / 2);
+@condo-modal-half-padding-without-border: @condo-modal-half-padding - @condo-modal-border-width;
+@condo-modal-close-icon-width: 24px;
+@condo-modal-close-icon-height: 24px;
+@condo-modal-close-icon-top: @condo-modal-padding +
+  ((@condo-global-line-height-h3 - @condo-modal-close-icon-height) / 2);
+@condo-modal-header-padding-right: (@condo-modal-padding * 2) + @condo-modal-close-icon-width;
+@condo-modal-header-scrolling-border-bottom-color: @condo-global-color-gray-3;
+@condo-modal-footer-buttons-gap: @condo-global-spacing-20;
+@condo-modal-mobile-spacing: @condo-global-spacing-24;
+@condo-modal-mobile-header-padding-right: @condo-modal-mobile-spacing + @condo-modal-close-icon-width;
+
+.condo-modal-root {
+  .condo-modal-mask {
+    // NOTE: To correctly animate the mask, need to use the color in RGBa format
+    background-color: fade(@condo-global-color-gray-7, 50%);
+  }
+
+  .condo-modal {
+    max-width: calc(100vw - @condo-modal-margin-horizontal * 2);
+    margin: @condo-modal-margin-vertical 0;
+    animation-duration: 0s;
+
+    .condo-modal-header {
+      flex-shrink: 0;
+      padding:
+        @condo-modal-padding
+        @condo-modal-header-padding-right
+        @condo-modal-half-padding-without-border
+        @condo-modal-padding;
+      border-bottom: @condo-global-border-width-default solid transparent;
+      transition: border-bottom-color @condo-global-transition-duration-default;
+    }
+
+    &.condo-modal-scrolling {
+      .condo-modal-header {
+        border-bottom-color: @condo-modal-header-scrolling-border-bottom-color;
+      }
+    }
+
+    .condo-modal-close {
+      top: @condo-modal-close-icon-top;
+      right: @condo-modal-padding;
+
+      .condo-modal-close-x {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: @condo-modal-close-icon-width;
+        height: @condo-modal-close-icon-height;
+        line-height: @condo-modal-close-icon-height;
+
+        div {
+          width: @condo-modal-close-icon-width;
+          height: @condo-modal-close-icon-height;
+        }
+      }
+    }
+
+    .condo-modal-content {
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - (@condo-modal-margin-vertical * 2));
+      padding: 0;
+      overflow: hidden;
+      border-radius: @condo-global-border-radius-large;
+    }
+
+    .condo-modal-body {
+      margin: 0 @condo-modal-padding;
+      padding: @condo-modal-half-padding 0 @condo-modal-padding;
+      overflow: auto;
+
+      .condo-modal-wrapper {
+        width: fit-content;
+        min-width: 100%;
+        padding: 1px;
+        overflow: hidden;
+      }
+    }
+
+    &.condo-modal-fixed-width {
+      .condo-modal-body {
+        overflow-x: hidden;
+
+        .condo-modal-wrapper {
+          width: 100%;
+        }
+      }
+    }
+
+    .condo-modal-footer {
+      padding: @condo-modal-half-padding-without-border @condo-modal-padding @condo-modal-half-padding;
+      border-top: @condo-global-border-width-default solid @condo-modal-header-scrolling-border-bottom-color;
+
+      > .condo-btn + .condo-btn:not(.condo-dropdown-trigger) {
+        margin-left: 0;
+      }
+    }
+
+    @media @from-mobile-small and @to-tablet-small {
+      position: absolute;
+      top: initial;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: auto !important;
+      max-width: 100%;
+      margin: @condo-global-spacing-16;
+
+      .condo-modal-header {
+        padding:
+          @condo-modal-mobile-spacing
+          @condo-modal-mobile-header-padding-right
+          @condo-modal-mobile-spacing
+          @condo-modal-mobile-spacing;
+      }
+
+      .condo-modal-close {
+        top: @condo-modal-mobile-spacing;
+        right: @condo-modal-mobile-spacing;
+      }
+
+      .condo-modal-body {
+        margin: 0 @condo-modal-mobile-spacing;
+        padding: 0 0 @condo-modal-mobile-spacing;
+      }
+
+      .condo-modal-footer {
+        padding: @condo-modal-mobile-spacing;
+
+        > .condo-btn {
+          width: 100%;
+
+          &:not(:first-child) {
+            margin-top: @condo-global-spacing-16;
+          }
+        }
+      }
+    }
+
+    @media @from-tablet-large {
+      .condo-modal-footer {
+        > .condo-btn + .condo-btn:not(.condo-dropdown-trigger, :first-child) {
+          margin-left: @condo-global-spacing-16;
+        }
+      }
+    }
+  }
+}

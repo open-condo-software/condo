@@ -1,60 +1,112 @@
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
-import { createCondoBridge } from '@miniapp/domains/common/clients/CondoBridge'
-import { useOrganization } from '@miniapp/domains/common/utils/organization'
+import get from 'lodash/get'
+import isObject from 'lodash/isObject'
 import getConfig from 'next/config'
 import Router from 'next/router'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
+import bridge from '@open-condo/bridge'
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+
+import { useLaunchParams } from '@condo/domains/miniapp/hooks/useLaunchParams'
+
+const {
+    publicRuntimeConfig: { serverUrl },
+} = getConfig()
+
 interface IUseOidcAuthHookValue {
-    user?: any,
+    user?: {
+        id: string
+        name: string
+        isAdmin: boolean
+        organizationId: string
+    },
     isLoading?: boolean,
 }
 
-const OIDC_AUTH_URL = '/oidc/auth'
-
-const { publicRuntimeConfig: { condoUrl } } = getConfig()
-const condoBridge = createCondoBridge({ receiverOrigin: condoUrl })
+const OIDC_AUTH_URL = `${serverUrl || ''}/oidc/auth`
 
 const OidcAuthContext = React.createContext<IUseOidcAuthHookValue>({})
 
 const useOidcAuth = () => useContext(OidcAuthContext)
+
+function getQueryValue (name) {
+    if (typeof window === 'undefined' || !window.location) return undefined
+    const urlSearchParams = new URLSearchParams(window.location.search)
+    const params = Object.fromEntries(urlSearchParams.entries())
+    return params[name]
+}
 
 const OidcAuthProvider = ({ children }) => {
     const intl = useIntl()
     const NoAccessToStorageMessage = intl.formatMessage({ id: 'NoAccessToStorage' })
     const AskForAccessButtonMessage = intl.formatMessage({ id: 'AskForAccessButton' })
 
-    const { organization: condoOrganization, isLoading: isOrganizationLoading } = useOrganization()
-    const { result: condoUser, isLoading: isCondoUserLoading } = condoBridge.useUser()
-    const { user, isLoading: isUserLoading, isAuthenticated } = useAuth()
+    const { context, loading, error } = useLaunchParams()
+    const errorReason = get(error, 'errorReason')
+    const errorData = isObject(error) ? JSON.stringify(error) : '<NonObject>'
+    const { user, isLoading: isUserLoading, isAuthenticated, refetch } = useAuth()
+    const [authInProgress, setAuthInProgress] = useState(false)
+    const [, setAuthError] = useState(false)
 
     /**
      * In the case of Safari we have to ask browser to grant access to condo's session cookie using Storage Access API
      * @link https://webkit.org/blog/8124/introducing-storage-access-api/
      */
-    const [hasStorageAccess, setHasStorageAccess] = useState<boolean>(!(!!document.hasStorageAccess && !!document.requestStorageAccess))
+    const [hasStorageAccess, setHasStorageAccess] = useState<boolean>(typeof document === 'undefined' || !document.hasStorageAccess || !document.requestStorageAccess)
 
-    const isAllLoaded = !isOrganizationLoading && !isCondoUserLoading && !isUserLoading
+    const isAllLoaded = !loading && !isUserLoading
 
     useEffect(() => {
         if (isAllLoaded && hasStorageAccess) {
-            if (!isAuthenticated || user.id !== condoUser.id || user.organizationId !== condoOrganization.id) {
+            const hasNoRedirect = getQueryValue('noRedirect') === 'true'
+            if (errorReason === 'TIMEOUT_REACHED' && isAuthenticated) {
+                // we are not inside the iframe!
+                console.debug('OidcAuthProvider: not inside iframe!', user, error)
+                if (!hasNoRedirect) Router.push({
+                    pathname: '/not-inside-iframe',
+                    query: { userId: user.id, noRedirect: true },
+                })
+            } else if (!isAuthenticated || user.id !== context.condoUserId || user.organizationId !== context.condoContextEntityId) {
                 console.debug('OidcAuthProvider: redirect to oidc auth', {
                     OIDC_AUTH_URL,
-                    organizationId: condoOrganization.id,
+                    organizationId: context.condoContextEntityId,
                 })
-                Router.push({
-                    pathname: OIDC_AUTH_URL,
-                    query: { organizationId: condoOrganization.id, condoUserId: condoUser.id },
-                })
+                if (!hasNoRedirect) {
+                    setAuthInProgress(true)
+                    setAuthError(false)
+                    bridge.send('CondoWebAppRequestAuth', { url: OIDC_AUTH_URL }).then((data) => {
+                        if (data.response.status === 200) {
+                            // Process it in any way you like
+                            console.debug(data.response)
+                            refetch()
+                            setAuthError(false)
+                        } else {
+                            setAuthError(true)
+                        }
+                    })
+                        .catch((err) => {
+                            console.debug(err)
+                            setAuthError(true)
+                        })
+                        .finally(() => setAuthInProgress(false))
+                }
             }
         }
 
-    }, [isAllLoaded, user, isAuthenticated, condoUser, condoOrganization, hasStorageAccess])
+    }, [
+        isAllLoaded,
+        user,
+        isAuthenticated,
+        hasStorageAccess,
+        context.condoUserId, 
+        context.condoContextEntityId,
+        error,
+        errorReason,
+    ])
 
     useEffect(() => {
-        if (!hasStorageAccess && document && document.hasStorageAccess) {
+        if (!hasStorageAccess && typeof document !== 'undefined' && document.hasStorageAccess) {
             document.hasStorageAccess().then(
                 (hasAccess) => {
                     // Boolean hasAccess says whether the document has access or not.
@@ -71,7 +123,7 @@ const OidcAuthProvider = ({ children }) => {
     }, [hasStorageAccess])
 
     const requestAccessToStorage = useCallback(() => {
-        if (!hasStorageAccess && document && document.requestStorageAccess) {
+        if (!hasStorageAccess && typeof document !== 'undefined' && document.requestStorageAccess) {
             document.requestStorageAccess().then(
                 () => {
                     // Storage access was granted.
@@ -101,11 +153,13 @@ const OidcAuthProvider = ({ children }) => {
     }
 
     return (
-        <OidcAuthContext.Provider value={{ user, isLoading: (isUserLoading || isOrganizationLoading) }}>
+        <OidcAuthContext.Provider value={{ user, isLoading: (isUserLoading || loading || authInProgress) }}>
             {
-                (isAllLoaded && isAuthenticated && user.id === condoUser.id && user.organizationId === condoOrganization.id)
+                (isAllLoaded && isAuthenticated && user.id === context.condoUserId)
                     ? children
-                    : <div>OIDC Authorization...</div>
+                    : (errorReason === 'TIMEOUT_REACHED' && isAuthenticated)
+                        ? <div><b>user={user.id}</b> <br/>Condo Bridge ERROR. Are you inside an iFrame? <br/><br/><small>{errorData}</small></div>
+                        : <div>OIDC Authorization...</div>
             }
         </OidcAuthContext.Provider>
     )

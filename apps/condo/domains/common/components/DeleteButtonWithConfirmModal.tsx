@@ -1,20 +1,22 @@
 import React, { useState } from 'react'
-import { DeleteFilled } from '@ant-design/icons'
-import { Typography } from 'antd'
 
-import { Button, CustomButtonProps } from '@condo/domains/common/components/Button'
-import { Modal } from '@condo/domains/common/components/Modal'
+import { Trash } from '@open-condo/icons'
+import { useIntl } from '@open-condo/next/intl'
+import { Button, ButtonProps, Modal, Typography, TypographyTextProps } from '@open-condo/ui'
+
 import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { useIntl } from '@condo/next/intl'
 
 export interface IDeleteActionButtonWithConfirmModal {
     title: string
     message: string
     okButtonLabel: string
-    buttonCustomProps?: CustomButtonProps
-    buttonContent?: React.ReactNode
+    buttonCustomProps?: ButtonProps
+    buttonContent?: string
     action: () => Promise<any>
     showCancelButton?: boolean
+    showButtonIcon?: boolean
+    cancelMessage?: string
+    messageType?: TypographyTextProps['type']
 }
 
 /**
@@ -29,9 +31,12 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
     buttonContent,
     action,
     showCancelButton,
+    showButtonIcon = false,
+    cancelMessage,
+    messageType = 'primary',
 }) => {
     const intl = useIntl()
-    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
+    const CancelMessage = cancelMessage || intl.formatMessage({ id: 'Cancel' })
 
     const [isConfirmVisible, setIsConfirmVisible] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
@@ -62,33 +67,35 @@ export const DeleteButtonWithConfirmModal: React.FC<IDeleteActionButtonWithConfi
             <Button
                 key='submit'
                 onClick={showConfirm}
-                type='sberDanger'
+                type='secondary'
                 loading={isDeleting}
-                secondary
+                danger
                 {...buttonCustomProps}
+                icon={showButtonIcon || !buttonContent ? <Trash size='medium' /> : null}
             >
-                {buttonContent || <DeleteFilled/>}
+                {buttonContent}
             </Button>
             <Modal
                 title={title}
-                visible={isConfirmVisible}
+                open={isConfirmVisible}
                 onCancel={handleCancel}
                 footer={[
-                    showCancelButton && (
-                        <Button key='cancel' type='sberPrimary' secondary onClick={handleCancel}>
-                            {CancelMessage}
-                        </Button>
-                    ),
                     <Button
                         key='submit'
-                        type='sberDanger'
+                        type='secondary'
+                        danger
                         onClick={handleDeleteButtonClick}
                     >
                         {okButtonLabel}
                     </Button>,
+                    showCancelButton && (
+                        <Button key='cancel' type='secondary' onClick={handleCancel}>
+                            {CancelMessage}
+                        </Button>
+                    ),
                 ]}
             >
-                <Typography.Text>
+                <Typography.Text type={messageType}>
                     {message}
                 </Typography.Text>
             </Modal>

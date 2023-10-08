@@ -1,23 +1,28 @@
-import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { notification } from 'antd'
-import { useOrganization } from '@condo/next/organization'
-import React from 'react'
 import { get } from 'lodash'
-import { FormattedMessage } from '@condo/next/intl'
-import { useAuth } from '@condo/next/auth'
-import { useIntl } from '@condo/next/intl'
+import React from 'react'
+
+import { useMutation } from '@open-condo/next/apollo'
+import { useAuth } from '@open-condo/next/auth'
+import { FormattedMessage } from '@open-condo/next/intl'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+
+
 import { useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { useMutation } from '@condo/next/apollo'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import {
     ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION,
 } from '@condo/domains/organization/gql'
+import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+
+import type { OrganizationWhereInput } from '@app/condo/schema'
 
 interface IOrganizationInvitesHookResult {
     loading: boolean
 }
 
-export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
+export const useOrganizationInvites = (organizationFilter?: OrganizationWhereInput): IOrganizationInvitesHookResult => {
     const intl = useIntl()
     const AcceptMessage = intl.formatMessage({ id: 'Accept' })
     const RejectMessage = intl.formatMessage({ id: 'Reject' })
@@ -27,7 +32,7 @@ export const useOrganizationInvites = (): IOrganizationInvitesHookResult => {
     const userId = get(user, 'id', null)
     const { selectLink } = useOrganization()
     const { objs: userInvites, refetch, loading } = OrganizationEmployee.useObjects(
-        { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false } },
+        { where: { user: { id: userId }, isAccepted: false, isRejected: false, isBlocked: false, organization: organizationFilter } },
     )
     const { addNotification } = useLayoutContext()
     const [acceptOrReject] = useMutation(ACCEPT_OR_REJECT_ORGANIZATION_INVITE_BY_ID_MUTATION)

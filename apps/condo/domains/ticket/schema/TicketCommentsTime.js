@@ -3,10 +3,12 @@
  */
 
 const { Relationship, DateTimeUtc } = require('@keystonejs/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
-const access = require('@condo/domains/ticket/access/TicketCommentsTime')
+
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
+const access = require('@condo/domains/ticket/access/TicketCommentsTime')
 
 const TicketCommentsTime = new GQLListSchema('TicketCommentsTime', {
     schemaDoc: 'The time of the last comment and the last comment of the resident in a specific ticket',

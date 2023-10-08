@@ -1,13 +1,13 @@
 const { buildBicryptId } = require('./buildBicryptId')
 const { changeClientSecret } = require('./changeClientSecret')
-const { getOrganizationAccessToken, initializeSbbolAuthApi } = require('./getOrganizationAccessToken')
-const { getSbbolUserInfoErrors } = require('./getSbbolUserInfoErrors')
+const { getAccessTokenForUser, initializeSbbolAuthApi } = require('./getAccessTokenForUser')
 const { getSbbolSecretStorage } = require('./getSbbolSecretStorage')
+const { getSbbolUserInfoErrors } = require('./getSbbolUserInfoErrors')
 
 module.exports = {
     buildBicryptId,
     changeClientSecret,
-    getOrganizationAccessToken,
+    getAccessTokenForUser,
     initializeSbbolAuthApi,
     getSbbolUserInfoErrors,
     getSbbolSecretStorage,

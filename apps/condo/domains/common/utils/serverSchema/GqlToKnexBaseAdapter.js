@@ -1,4 +1,4 @@
-const has = require('lodash/has')
+const { get, has } = require('lodash')
 
 class GqlToKnexBaseAdapter {
     domainName = null
@@ -6,8 +6,10 @@ class GqlToKnexBaseAdapter {
     dayGroups = ['day', 'month', 'week', 'quarter', 'year']
     dayGroup = 'day'
     dateRange = { from: null, to: null }
+    whereIn = []
     groups = []
     result = null
+    knexWhere = {}
 
     /**
      * Formatting GQL expressions to Knex data structure
@@ -29,10 +31,12 @@ class GqlToKnexBaseAdapter {
         }
         whereConditions.forEach(condition => {
             Object.entries(condition).forEach(([field, query]) => {
-                if (field === 'createdAt_gte') {
+                if (field.match(/_gte?$/)) {
                     this.dateRange.from = query
-                } else if (field === 'createdAt_lte') {
+                } else if (field.match(/_lte?$/)) {
                     this.dateRange.to = query
+                } else if (field.match(/_in$/)) {
+                    this.whereIn.push([field.replace('_in', ''), query])
                 } else {
                     this.where.push({ [field]: query })
                 }
@@ -45,6 +49,14 @@ class GqlToKnexBaseAdapter {
             }
         })
         this.groups = groupBy.filter(type => !this.dayGroups.includes(type))
+
+        this.knexWhere = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
+            return Object.fromEntries(
+                Object.entries(condition).map(([field, query]) => (
+                    get(query, 'id') ? [field, query.id] : [field, query]
+                ))
+            )
+        }).reduce((acc, curr) => ({ ...acc, ...curr }), {})
     }
 
     /**
@@ -70,6 +82,20 @@ class GqlToKnexBaseAdapter {
     isWhereInCondition (condition) {
         const [, query] = Object.entries(condition)[0]
         return has(query, 'id_in')
+    }
+
+    extendAggregationWithFilter (aggregateBy = []) {
+        this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
+            const [groupName] = Object.entries(currentFilter)[0]
+            const [filterEntities] = filter
+
+            if (!aggregateBy.includes(groupName)) {
+                aggregateBy.push(groupName)
+            }
+            filterEntities.push(groupName)
+        }, [[], []])
+
+        return aggregateBy
     }
 }
 

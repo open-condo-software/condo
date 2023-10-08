@@ -6,21 +6,66 @@
 
 const { gql } = require('graphql-tag')
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
+const { generateFieldNames } = require('@condo/domains/user/utils/directAccess/common.utils')
+const { DIRECT_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/user/utils/directAccess/config')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const USER_FIELDS = `{ type name avatar { publicUrl } meta isPhoneVerified isEmailVerified importId importRemoteSystem isAdmin isSupport ${COMMON_FIELDS} }`
-const User = generateGqlQueries('User', USER_FIELDS)
-const UserAdmin = generateGqlQueries('User', '{ id type name isAdmin isSupport email isEmailVerified phone isPhoneVerified importId importRemoteSystem updatedBy { id } createdBy { id } }')
+const USER_FIELDS = `type name avatar { publicUrl } rightsSet { id } meta isPhoneVerified isEmailVerified isAdmin isSupport locale showGlobalHints ${COMMON_FIELDS}`
+const User = generateGqlQueries('User', `{ ${USER_FIELDS} }`)
+const UserAdmin = generateGqlQueries('User', `{ ${USER_FIELDS} email phone }`)
+
+const USER_EXTERNAL_IDENTITY_FIELDS = '{ id user { id } identityId identityType meta deletedAt }'
+const UserExternalIdentity = generateGqlQueries('UserExternalIdentity', USER_EXTERNAL_IDENTITY_FIELDS)
+const USER_ACCESS_RULE_FIELDS = 'list create read update fields { field create read update }'
+const USER_CUSTOM_ACCESS_FIELDS = `accessRules { ${USER_ACCESS_RULE_FIELDS} }`
+const USER_CUSTOM_ACCESS_GRAPHQL_TYPES = `
+    type CustomAccessFieldRule {
+        field: String!
+        create: Boolean
+        read: Boolean
+        update: Boolean
+    }
+    
+    type CustomAccessListRule {
+        list: String!
+        create: Boolean
+        read: Boolean
+        update: Boolean
+        fields: [CustomAccessFieldRule]
+    }
+    
+    type CustomAccess {
+        accessRules: [CustomAccessListRule]
+    }
+    
+    input CustomAccessFieldRuleInput {
+        field: String!
+        create: Boolean
+        read: Boolean
+        update: Boolean
+    }
+    
+    input CustomAccessListRuleInput {
+        list: String!
+        create: Boolean
+        read: Boolean
+        update: Boolean
+        fields: [CustomAccessFieldRuleInput]
+    }
+    
+    input CustomAccessInput { accessRules: [CustomAccessListRuleInput] }
+`
 
 const REGISTER_NEW_USER_MUTATION = gql`
     mutation registerNewUser($data: RegisterNewUserInput!) {
-        user: registerNewUser(data: $data) ${USER_FIELDS}
+        user: registerNewUser(data: $data) { ${USER_FIELDS} }
     }
 `
 
-const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport }'
+const OWN_USER_FIELDS = '{ id name avatar { publicUrl } phone email isAdmin isSupport locale showGlobalHints }'
 
 const USER_QUERY = gql`
     query {
@@ -30,7 +75,7 @@ const USER_QUERY = gql`
 
 const GET_MY_USERINFO = gql`
     query getUser {
-        user: authenticatedUser ${USER_FIELDS}
+        user: authenticatedUser { ${USER_FIELDS} }
     }
 `
 
@@ -141,11 +186,25 @@ const SEND_MESSAGE_TO_SUPPORT_MUTATION = gql`
 const OIDC_CLIENT_FIELDS = `{ clientId payload name meta expiresAt ${COMMON_FIELDS} }`
 const OidcClient = generateGqlQueries('OidcClient', OIDC_CLIENT_FIELDS)
 
+const EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS = `{ type user { id } deletedAt ${COMMON_FIELDS} }`
+const ExternalTokenAccessRight = generateGqlQueries('ExternalTokenAccessRight', EXTERNAL_TOKEN_ACCESS_RIGHT_FIELDS)
+
+const GET_ACCESS_TOKEN_BY_USER_ID_QUERY = gql`
+    query getAccessTokenByUserId ($data: GetAccessTokenByUserIdInput!) {
+        result: getAccessTokenByUserId(data: $data) { accessToken, ttl }
+    }
+`
+
+const USER_RIGHTS_SET_PERMISSIONS_FIELDS = generateFieldNames(DIRECT_ACCESS_AVAILABLE_SCHEMAS).join(' ')
+const USER_RIGHTS_SET_FIELDS = `{ name ${USER_RIGHTS_SET_PERMISSIONS_FIELDS} ${COMMON_FIELDS} }`
+const UserRightsSet = generateGqlQueries('UserRightsSet', USER_RIGHTS_SET_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     User,
     UserAdmin,
+    UserExternalIdentity,
     REGISTER_NEW_USER_MUTATION,
     GET_MY_USERINFO,
     USER_QUERY,
@@ -167,5 +226,10 @@ module.exports = {
     RESET_USER_MUTATION,
     SEND_MESSAGE_TO_SUPPORT_MUTATION,
     OidcClient,
+    USER_CUSTOM_ACCESS_GRAPHQL_TYPES,
+    USER_CUSTOM_ACCESS_FIELDS,
+    ExternalTokenAccessRight,
+    GET_ACCESS_TOKEN_BY_USER_ID_QUERY,
+    UserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

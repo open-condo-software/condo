@@ -1,21 +1,22 @@
-import React, { useMemo } from 'react'
+import { Ticket } from '@app/condo/schema'
 import { Typography } from 'antd'
 import { get } from 'lodash'
-import Link from 'next/link'
+import React, { useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { Ticket } from '@app/condo/schema'
+import { useIntl } from '@open-condo/next/intl'
+
 
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
-import { TICKET_CARD_LINK_STYLE } from '@condo/domains/ticket/constants/style'
+
 import { TicketUserInfoField } from './TicketUserInfoField'
 
 type TicketExecutorFieldProps = {
     ticket: Ticket
+    phonePrefix?: string
 }
 
-export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket }) => {
+export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket, phonePrefix }) => {
     const intl = useIntl()
     const ExecutorMessage = intl.formatMessage({ id: 'field.Executor' })
     const EmployeeIsNullOrWasDeletedMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.EmployeeIsNullOrWasDeleted' })
@@ -44,13 +45,13 @@ export const TicketExecutorField: React.FC<TicketExecutorFieldProps> = ({ ticket
         <PageFieldRow title={ExecutorMessage} ellipsis>
             {
                 executor
-                    ? <Link href={`/employee/${get(executor, 'id')}`}>
-                        <Typography.Link style={TICKET_CARD_LINK_STYLE}>
-                            <Typography.Text strong>
-                                <TicketUserInfoField user={executorUser} />
-                            </Typography.Text>
-                        </Typography.Link>
-                    </Link>
+                    ? <Typography.Text strong>
+                        <TicketUserInfoField
+                            user={executorUser}
+                            nameLink={`/employee/${get(executor, 'id')}`}
+                            phonePrefix={phonePrefix}
+                        />
+                    </Typography.Text>
                     : <Typography.Text type='secondary'>
                         {EmployeeIsNullOrWasDeletedMessage}
                     </Typography.Text>

@@ -1,16 +1,22 @@
 // @ts-nocheck
-import React, { useContext, useEffect } from 'react'
+import { DeleteOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons'
 import { Button, Form, Space } from 'antd'
+import get from 'lodash/get'
+import Router from 'next/router'
+import React, { useContext, useEffect } from 'react'
+import { useImmerReducer } from 'use-immer'
+
+import { useAuth } from '@open-condo/next/auth'
+import { useIntl } from '@open-condo/next/intl'
+
 import Input from '@condo/domains/common/components/antd/Input'
-import { useIntl } from '@condo/next/intl'
-import ExcelExporterButton from './FormTableExcelImport'
+
+
 import { CreateFormListItemButton, ExtraDropdownActionsMenu } from './FormList'
 import FormTable from './FormTable'
-import { useAuth } from '@condo/next/auth'
-import { useImmerReducer } from 'use-immer'
-import { DeleteOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons'
-import Router from 'next/router'
-import get from 'lodash/get'
+import ExcelExporterButton from './FormTableExcelImport'
+
+
 
 const _USE_TABLE_INITIAL_STATE = {
     actions: {}, // { Create: ({values, item, form, ...}) => { ... }
@@ -202,6 +208,9 @@ function toGQLWhere (filters) {
     Object.keys(filters).forEach((key) => {
         const v = filters[key]
         if (v && v.length === 1) {
+            // where statement going to be sanitized by backend
+            // and going to use for read requests only
+            // nosemgrep: javascript.lang.security.insecure-object-assign.insecure-object-assign
             Object.assign(where, JSON.parse(v[0]))
         } else if (v && v.length >= 1) {
             if (where.OR) {

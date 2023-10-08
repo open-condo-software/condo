@@ -1,0 +1,40 @@
+@import "antd/lib/alert/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+@import "./mixins";
+
+@alert-success-bg-color: @condo-global-color-green-1;
+@alert-success-icon-color: @condo-global-color-green-5;
+@alert-info-bg-color: @condo-global-color-blue-1;
+@alert-info-icon-color: @condo-global-color-blue-5;
+@alert-warning-bg-color: @condo-global-color-orange-1;
+@alert-warning-icon-color: @condo-global-color-orange-5;
+@alert-error-bg-color: @condo-global-color-red-1;
+@alert-error-icon-color: @condo-global-color-red-5;
+
+.condo-alert {
+  &-description {
+    .condo-typography-text-medium();
+  }
+
+  &-success,
+  &-info,
+  &-warning,
+  &-error {
+    .condo-alert-border();
+  }
+
+  &-with-description {
+    padding: @condo-global-spacing-16;
+  }
+
+  &-message {
+    .condo-typography-h4();
+  }
+
+  &-with-description &-message {
+    .condo-typography-h4();
+
+    margin-bottom: @condo-global-spacing-4;
+  }
+}

@@ -4,12 +4,15 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateGqlQueries } = require('@condo/codegen/generate.gql')
 const { gql } = require('graphql-tag')
+
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
+
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const ACQUIRING_INTEGRATION_FIELDS = `{ name shortDescription about logo { publicUrl } developer partnerUrl instruction connectedMessage appUrl canGroupReceipts hostUrl supportedBillingIntegrations { id } ${COMMON_FIELDS} }`
+const ACQUIRING_INTEGRATION_FIELDS = `{ name setupUrl canGroupReceipts hostUrl supportedBillingIntegrationsGroup ${COMMON_FIELDS} }`
 const AcquiringIntegration = generateGqlQueries('AcquiringIntegration', ACQUIRING_INTEGRATION_FIELDS)
 
 const ACQUIRING_INTEGRATION_ACCESS_RIGHT_FIELDS = `{ user { id } integration { id } ${COMMON_FIELDS} }`
@@ -17,10 +20,10 @@ const AcquiringIntegrationAccessRight = generateGqlQueries('AcquiringIntegration
 
 const FEE_DISTRIBUTION_FIELDS = 'recipient percent minAmount maxAmount category'
 
-const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ integration { id name explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email reason recipient { bic bankAccount iec tin } }`
+const ACQUIRING_INTEGRATION_CONTEXT_FIELDS = `{ status integration { id name setupUrl explicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } } organization { id } state settings ${COMMON_FIELDS} implicitFeeDistributionSchema { ${FEE_DISTRIBUTION_FIELDS} } email reason recipient { bic bankAccount iec tin } }`
 const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationContext', ACQUIRING_INTEGRATION_CONTEXT_FIELDS)
 
-const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } ${COMMON_FIELDS} }`
+const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
 const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address } account { unitName } } multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
@@ -61,6 +64,18 @@ const SUM_PAYMENTS_QUERY = gql`
     }
 `
 
+const RECURRENT_PAYMENT_CONTEXT_FIELDS = `{ enabled limit autoPayReceipts paymentDay settings { cardId } serviceConsumer { id resident { id user { id } } } billingCategory { id } ${COMMON_FIELDS} }`
+const RecurrentPaymentContext = generateGqlQueries('RecurrentPaymentContext', RECURRENT_PAYMENT_CONTEXT_FIELDS)
+
+const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state payAfter billingReceipts { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
+const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMENT_FIELDS)
+
+const PAYMENT_BY_LINK_MUTATION = gql`
+    mutation createPaymentByLink ($data: CreatePaymentByLinkInput!) {
+        result: createPaymentByLink(data: $data) { multiPaymentId amount explicitFee totalAmount address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName accountNumber period }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -82,5 +97,8 @@ module.exports = {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
     GENERATE_PAYMENT_LINK_QUERY,
     SUM_PAYMENTS_QUERY,
+    RecurrentPaymentContext,
+    RecurrentPayment,
+    PAYMENT_BY_LINK_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

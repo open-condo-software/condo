@@ -1,13 +1,14 @@
 const { Relationship, Select, Integer, Text } = require('@keystonejs/fields')
 const { Decimal } = require('@keystonejs/fields')
-const { Json, SignedDecimal } = require('@condo/keystone/fields')
+
+const { GQLError } = require('@open-condo/keystone/errors')
+const { Json, SignedDecimal } = require('@open-condo/keystone/fields')
 
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { PHONE_WRONG_FORMAT_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR } = require('@condo/domains/common/constants/errors')
+const { PHONE_WRONG_FORMAT_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
-
-const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 /** @deprecated use dvSenderPlugin! */
 const DV_FIELD = {
@@ -35,6 +36,10 @@ const SENDER_FIELD = {
     kmigratorOptions: { null: false },
 }
 
+/**
+ * @deprecated use address service plugin
+ * @see packages/keystone/plugins/addressService.js
+ */
 const ADDRESS_META_FIELD = {
     schemaDoc: 'Property address components',
     type: Json,
@@ -159,6 +164,27 @@ const UNIT_TYPE_FIELD = {
     defaultValue: FLAT_UNIT_TYPE,
 }
 
+const PHONE_FIELD = {
+    schemaDoc: 'Normalized phone in E.164 format without spaces',
+    type: Text,
+    hooks: {
+        resolveInput: async ({ resolvedData, fieldPath }) => {
+            const newValue = normalizePhone(resolvedData[fieldPath], true)
+            return newValue || resolvedData[fieldPath]
+        },
+        validateInput: ({ resolvedData, context, fieldPath }) => {
+            const newCallerPhone = normalizePhone(resolvedData[fieldPath], true)
+
+            if (resolvedData[fieldPath] && newCallerPhone !== resolvedData[fieldPath]) {
+                throw new GQLError(
+                    { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', fieldPath] },
+                    context
+                )
+            }
+        },
+    },
+}
+
 module.exports = {
     DV_FIELD,
     SENDER_FIELD,
@@ -175,4 +201,5 @@ module.exports = {
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
     UNIT_TYPE_FIELD,
+    PHONE_FIELD,
 }

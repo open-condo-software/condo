@@ -1,37 +1,98 @@
-import { EditFilled } from '@ant-design/icons'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row, Switch, Typography } from 'antd'
+import { Gutter } from 'antd/es/grid/row'
+import { SwitchChangeEventHandler } from 'antd/lib/switch'
+import debounce from 'lodash/debounce'
+import get from 'lodash/get'
+import isBoolean from 'lodash/isBoolean'
 import Head from 'next/head'
 import Link from 'next/link'
-import React, { useEffect, useMemo } from 'react'
-import get from 'lodash/get'
-import { useIntl } from '@condo/next/intl'
-import { useAuth } from '@condo/next/auth'
-import { Button } from '@condo/domains/common/components/Button'
-import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
-import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
-import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
-import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
-import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
-import { useOrganization } from '@condo/next/organization'
-import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
-export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
+import { Edit } from '@open-condo/icons'
+import { useAuth } from '@open-condo/next/auth'
+import { LocaleContext, useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button, Select } from '@open-condo/ui'
+
+import { AuthRequired } from '@condo/domains/common/components/containers/AuthRequired'
+import { PageContent, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
+import { FeatureFlagsController } from '@condo/domains/common/components/containers/FeatureFlag'
+import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
+import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
+import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+import { UserOrganizationsList } from '@condo/domains/user/components/UserOrganizationsList'
+import { User } from '@condo/domains/user/utils/clientSchema'
+
+import type { OrganizationEmployeeWhereInput } from '@app/condo/schema'
+
+const ROW_GUTTER_BIG: [Gutter, Gutter] = [0, 60]
+const ROW_GUTTER_MID: [Gutter, Gutter] = [0, 40]
+const ROW_GUTTER_SMALL: [Gutter, Gutter] = [0, 24]
+
+interface IUserInfoPageContentProps {
+    organizationEmployeesQuery: { where: OrganizationEmployeeWhereInput },
+}
+
+export const UserInfoPageContent: React.FC<IUserInfoPageContentProps> = ({ organizationEmployeesQuery }) => {
     const intl = useIntl()
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const PasswordMessage = intl.formatMessage({ id: 'pages.auth.signin.field.Password' })
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const InterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.interfaceLanguage' })
+    const ChooseInterfaceLanguageTitle = intl.formatMessage({ id: 'pages.condo.profile.chooseInterfaceLanguage' })
+    const GlobalHintsTitle = intl.formatMessage({ id: 'pages.condo.profile.globalHints' })
+    const RuTitle = intl.formatMessage({ id: 'language.russian.withFlag' })
+    const EnTitle = intl.formatMessage({ id: 'language.english-us.withFlag' })
+
+    const locale = intl.locale
+
+    const [showGlobalHints, setShowGlobalHints] = useState<boolean>(false)
 
     const { user, refetch } = useAuth()
     const userOrganization = useOrganization()
-    const { isSmall } = useLayoutContext()
+    const { breakpoints } = useLayoutContext()
+
+    const updateUser = User.useUpdate({})
+
+    const name = get(user, 'name')
+    const email = get(user, 'email', '')
+    const phone = get(user, 'phone')
+    const initialShowGlobalHints = get(user, 'showGlobalHints')
+
+    const possibleLocalesOptions = useMemo(() => ([
+        { label: RuTitle, value: 'ru' },
+        { label: EnTitle, value: 'en' },
+    ]), [EnTitle, RuTitle])
+
+    const handleLocaleChange = useCallback((setLocale) => async (newLocale) => {
+        await updateUser({ locale: newLocale }, { id: user.id })
+        setLocale(newLocale)
+    }, [user.id])
+
+    const updateGlobalHints = useMemo(() => debounce(async (checked) => {
+        try {
+            await updateUser({ showGlobalHints: checked }, { id: user.id })
+            refetch()
+        } catch (e) {
+            console.error('Failed to update field "showGlobalHints"')
+        }
+    }, 400), [user.id])
+
+    const handleGlobalHintsChange: SwitchChangeEventHandler = useCallback(async (checked) => {
+        setShowGlobalHints(checked)
+        await updateGlobalHints(checked)
+    }, [updateGlobalHints])
 
     useEffect(() => {
         refetch()
     }, [])
 
-    const name = get(user, 'name')
-    const email = get(user, 'email', '')
+    useEffect(() => {
+        if (isBoolean(initialShowGlobalHints)) {
+            setShowGlobalHints(initialShowGlobalHints)
+        }
+    }, [initialShowGlobalHints])
 
     return (
         <>
@@ -41,79 +102,128 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
             <FeatureFlagsController/>
             <PageWrapper>
                 <PageContent>
-                    <Row gutter={[0, 40]} justify='center'>
-                        <Col xs={10} lg={3}>
-                            <UserAvatar borderRadius={24}/>
-                        </Col>
-                        <Col xs={24} lg={20} offset={ isSmall ? 0 : 1}>
-                            <Row gutter={[0, 60]}>
-                                <Col span={24}>
-                                    <Row gutter={[0, 40]}>
+                    <Row gutter={ROW_GUTTER_BIG}>
+                        <Col span={24}>
+                            <Row gutter={ROW_GUTTER_MID} justify='center'>
+                                <Col xs={10} lg={3}>
+                                    <UserAvatar borderRadius={24}/>
+                                </Col>
+                                <Col xs={24} lg={20} offset={!breakpoints.TABLET_LARGE ? 0 : 1}>
+                                    <Row gutter={ROW_GUTTER_BIG}>
                                         <Col span={24}>
-                                            <Typography.Title
-                                                level={1}
-                                                style={{ margin: 0, fontWeight: 'bold' }}
-                                            >
-                                                {name}
-                                            </Typography.Title>
-                                        </Col>
-                                        <Col span={24}>
-                                            <Row gutter={[0, 24]}>
-                                                <Col lg={3} xs={10}>
-                                                    <Typography.Text type='secondary'>
-                                                        {PhoneMessage}
-                                                    </Typography.Text>
+                                            <Row gutter={ROW_GUTTER_MID}>
+                                                <Col span={24}>
+                                                    <Typography.Title
+                                                        level={1}
+                                                        style={{ margin: 0, fontWeight: 'bold' }}
+                                                    >
+                                                        {name}
+                                                    </Typography.Title>
                                                 </Col>
-                                                <Col lg={19} xs={10} offset={2}>
-                                                    <NotDefinedField value={get(user, 'phone')}/>
-                                                </Col>
-                                                {
-                                                    email && <>
+                                                <Col span={24}>
+                                                    <Row gutter={ROW_GUTTER_SMALL}>
                                                         <Col lg={3} xs={10}>
                                                             <Typography.Text type='secondary'>
-                                                                {EmailMessage}
+                                                                {PhoneMessage}
                                                             </Typography.Text>
                                                         </Col>
                                                         <Col lg={19} xs={10} offset={2}>
-                                                            <NotDefinedField value={get(user, 'email')}/>
+                                                            <NotDefinedField value={phone}/>
                                                         </Col>
-                                                    </>
-                                                }
-                                                <Col lg={3} xs={10}>
-                                                    <Typography.Text type='secondary'>
-                                                        {PasswordMessage}
-                                                    </Typography.Text>
-                                                </Col>
-                                                <Col lg={19} xs={10} offset={2}>
-                                                    <NotDefinedField value='******'/>
+                                                        {
+                                                            email && <>
+                                                                <Col lg={3} xs={10}>
+                                                                    <Typography.Text type='secondary'>
+                                                                        {EmailMessage}
+                                                                    </Typography.Text>
+                                                                </Col>
+                                                                <Col lg={19} xs={10} offset={2}>
+                                                                    <NotDefinedField value={email}/>
+                                                                </Col>
+                                                            </>
+                                                        }
+                                                        <Col lg={3} xs={10}>
+                                                            <Typography.Text type='secondary'>
+                                                                {PasswordMessage}
+                                                            </Typography.Text>
+                                                        </Col>
+                                                        <Col lg={19} xs={10} offset={2}>
+                                                            <NotDefinedField value='******'/>
+                                                        </Col>
+                                                    </Row>
                                                 </Col>
                                             </Row>
                                         </Col>
                                         <Col span={24}>
-                                            <Link href='/user/update'>
-                                                <Button
-                                                    color='green'
-                                                    type='sberPrimary'
-                                                    secondary
-                                                    icon={<EditFilled />}
-                                                >
-                                                    {UpdateMessage}
-                                                </Button>
-                                            </Link>
+                                            {
+                                                userOrganization
+                                                    ? (<UserOrganizationsList
+                                                        userOrganization={userOrganization}
+                                                        organizationEmployeesQuery={organizationEmployeesQuery}
+                                                    />)
+                                                    : null
+                                            }
                                         </Col>
+                                        <Col span={24}>
+                                            <Row gutter={ROW_GUTTER_MID}>
+                                                <Col lg={3} xs={10}>
+                                                    <Typography.Text type='secondary'>
+                                                        {InterfaceLanguageTitle}
+                                                    </Typography.Text>
+                                                </Col>
+                                                <Col lg={5} offset={2}>
+                                                    <LocaleContext.Consumer>
+                                                        {({ locale, setLocale }) => {
+                                                            return (
+                                                                <Select
+                                                                    options={possibleLocalesOptions}
+                                                                    value={locale}
+                                                                    placeholder={ChooseInterfaceLanguageTitle}
+                                                                    onChange={handleLocaleChange(setLocale)}
+                                                                />
+                                                            )
+                                                        }}
+                                                    </LocaleContext.Consumer>
+                                                </Col>
+                                            </Row>
+                                        </Col>
+                                        {/* NOTE: At the moment, our support portal only works in 'ru' locale,*/}
+                                        {/* so hints for other locales are hidden*/}
+                                        {locale === 'ru' && (
+                                            <Col span={24}>
+                                                <Row gutter={ROW_GUTTER_MID}>
+                                                    <Col lg={3} xs={10}>
+                                                        <Typography.Text type='secondary'>
+                                                            {GlobalHintsTitle}
+                                                        </Typography.Text>
+                                                    </Col>
+                                                    <Col lg={5} offset={2}>
+                                                        <Switch
+                                                            checked={showGlobalHints}
+                                                            onChange={handleGlobalHintsChange}
+                                                            disabled={!user}
+                                                        />
+                                                    </Col>
+                                                </Row>
+                                            </Col>
+                                        )}
                                     </Row>
                                 </Col>
-                                <Col span={24}>
-                                    {
-                                        userOrganization
-                                            ? (<UserOrganizationsList
-                                                userOrganization={userOrganization}
-                                                organizationEmployeesQuery={organizationEmployeesQuery}
-                                            />)
-                                            : null
-                                    }
-                                </Col>
                             </Row>
+                        </Col>
+                        <Col span={24}>
+                            <ActionBar
+                                actions={[
+                                    <Link key='update' href='/user/update'>
+                                        <Button
+                                            type='primary'
+                                            icon={<Edit size='medium'/>}
+                                        >
+                                            {UpdateMessage}
+                                        </Button>
+                                    </Link>,
+                                ]}
+                            />
                         </Col>
                     </Row>
                 </PageContent>
@@ -122,13 +232,19 @@ export const UserInfoPageContent = ({ organizationEmployeesQuery }) => {
     )
 }
 
-const UserInfoPage = () => {
+const UserInfoPage: React.FC & { requiredAccess?: React.FC } = () => {
     const { user } = useAuth()
     const userId = useMemo(() => get(user, 'id', null), [user])
-    const organizationEmployeesQuery = useMemo(() => ({ where: { user: { id: userId }, isAccepted: true } }), [userId])
+    const organizationEmployeesQuery = useMemo(() => ({
+        where: {
+            user: { id: userId },
+            isAccepted: true,
+            organization: { type_not: HOLDING_TYPE },
+        },
+    }), [userId])
 
     return (
-        <UserInfoPageContent organizationEmployeesQuery={organizationEmployeesQuery} />
+        <UserInfoPageContent organizationEmployeesQuery={organizationEmployeesQuery}/>
     )
 }
 

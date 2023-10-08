@@ -1,16 +1,19 @@
 import { isEmpty } from 'lodash'
-import isFunction from 'lodash/isFunction'
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
-import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
 import debounce from 'lodash/debounce'
+import isFunction from 'lodash/isFunction'
 import throttle from 'lodash/throttle'
-import { useIntl } from '@condo/next/intl'
+import uniqBy from 'lodash/uniqBy'
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react'
+
+import { useIntl } from '@open-condo/next/intl'
+
+import Select, { CustomSelectProps } from '@condo/domains/common/components/antd/Select'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { TrackingEventPropertiesType } from '@condo/domains/common/components/TrackingContext'
+import { isNeedToLoadNewElements } from '@condo/domains/common/utils/select.utils'
+
 import { InitialValuesGetter, useInitialValueGetter } from './useInitialValueGetter'
 import { useSelectCareeteControls } from './useSelectCareeteControls'
-import { Loader } from '../Loader'
-import { isNeedToLoadNewElements } from '../../utils/select.utils'
-import uniqBy from 'lodash/uniqBy'
-import { TrackingEventPropertiesType } from '../TrackingContext'
 
 const { Option } = Select
 
@@ -31,7 +34,7 @@ interface ISearchInput<S> extends Omit<CustomSelectProps<S>, 'onSelect'> {
 
 const SELECT_LOADER_STYLE = { display: 'flex', justifyContent: 'center', padding: '10px 0' }
 
-export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
+export const BaseSearchInput = <S extends string> (props: ISearchInput<S>) => {
     const intl = useIntl()
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
     const NotFoundMessage = intl.formatMessage({ id: 'NotFound' })
@@ -119,7 +122,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
                 setInitialOptionsLoaded(true)
             }
         },
-        [loadOptionsOnFocus, searchValue, props,  debouncedSearch, initialOptionsLoaded],
+        [loadOptionsOnFocus, searchValue, props, debouncedSearch, initialOptionsLoaded],
     )
 
     const handleSelect = useCallback(
@@ -151,7 +154,7 @@ export const BaseSearchInput = <S extends string>(props: ISearchInput<S>) => {
     }, [onChange])
 
     // Checking for compliance of the selected property and the value in the search bar
-    useEffect(()=> {
+    useEffect(() => {
         if (!isEmpty(selected) && isFunction(setIsMatchSelectedProperty)) {
             if (selected !== searchValue) setIsMatchSelectedProperty(false)
             else setIsMatchSelectedProperty(true)

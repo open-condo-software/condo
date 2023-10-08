@@ -1,23 +1,25 @@
-import { useMemo } from 'react'
 import { Dayjs } from 'dayjs'
-import { Rule } from 'rc-field-form/lib/interface'
-import { useIntl } from '@condo/next/intl'
 import isEmpty from 'lodash/isEmpty'
+import { Rule } from 'rc-field-form/lib/interface'
+import { useMemo } from 'react'
 
-import { Meter } from '../utils/clientSchema'
+import { useIntl } from '@open-condo/next/intl'
 
-export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string ) => {
+
+import { Meter } from '@condo/domains/meter/utils/clientSchema'
+
+export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null ) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
     const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.СanNotBeEarlierThanInstallation' })
     const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
 
-    const { objs: metersWithSameNumber, refetch } = Meter.useObjects({
+    const { refetch } = Meter.useObjects({
         where: {
             organization: { id: organizationId },
         },
-    })
+    }, { skip: true })
 
     const earlierThanInstallationValidator: Rule = useMemo(() => ({
         validator: async (_, value) => {
@@ -49,10 +51,15 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         validator: async (_, value) => {
             if (!value) return Promise.resolve()
 
+            const trimmedValue = value.trim()
+
+            if (!trimmedValue) return Promise.resolve()
+            if (initialNumber && initialNumber === trimmedValue) return Promise.resolve()
+
             const { data: { objs } } = await refetch({
                 where: {
                     organization: { id: organizationId },
-                    number: value,
+                    number: trimmedValue,
                 },
             })
 
@@ -61,7 +68,7 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
 
             return Promise.resolve()
         },
-    }), [MeterWithSameNumberIsExistMessage, metersWithSameNumber, organizationId, refetch])
+    }), [MeterWithSameNumberIsExistMessage, initialNumber, organizationId])
 
     const meterWithSameAccountNumberInOtherUnitValidation: Rule = useMemo(() => ({
         validator: async (_, value) => {
@@ -86,7 +93,15 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         },
     }), [MeterWithSameNumberIsExistMessage, organizationId, propertyId, refetch, unitName])
 
-    return useMemo(() => (
-        { meterWithSameAccountNumberInOtherUnitValidation, meterWithSameNumberValidator, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator }
-    ), [earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterWithSameAccountNumberInOtherUnitValidation, meterWithSameNumberValidator])
+    return useMemo(() => ({
+        meterWithSameAccountNumberInOtherUnitValidation,
+        meterWithSameNumberValidator,
+        earlierThanFirstVerificationDateValidator,
+        earlierThanInstallationValidator,
+    }), [
+        earlierThanFirstVerificationDateValidator,
+        earlierThanInstallationValidator,
+        meterWithSameAccountNumberInOtherUnitValidation,
+        meterWithSameNumberValidator,
+    ])
 }

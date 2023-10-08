@@ -1,18 +1,19 @@
 const fs = require('fs')
-const dayjs = require('dayjs')
-const { get } = require('lodash')
-const Upload = require('graphql-upload/public/Upload')
 
-const conf = require('@condo/config')
-const { getLogger } = require('@condo/keystone/logging')
+const { stringify } = require('csv-stringify')
+const dayjs = require('dayjs')
+const Upload = require('graphql-upload/Upload.js')
+const { get } = require('lodash')
+
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { EXPORT_PROCESSING_BATCH_SIZE, COMPLETED } = require('@condo/domains/common/constants/export')
 const { TASK_PROCESSING_STATUS } = require('@condo/domains/common/constants/tasks')
+const { createWriteStreamForExport } = require('@condo/domains/common/utils/exportToExcel')
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { getTmpFile } = require('@condo/domains/common/utils/testSchema/file')
-const { createWriteStreamForExport } = require('@condo/domains/common/utils/exportToExcel')
 
-const { stringify } = require('csv-stringify')
 const { getHeadersTranslations, EXPORT_TYPE_TICKETS } = require('../exportToExcel')
 
 const TASK_PROGRESS_UPDATE_INTERVAL = 10 * 1000 // 10sec
@@ -182,4 +183,5 @@ const exportRecordsAsCsvFile = async ({ context, loadRecordsBatch, convertRecord
 module.exports = {
     exportRecordsAsXlsxFile,
     exportRecordsAsCsvFile,
+    buildUploadInputFrom,
 }

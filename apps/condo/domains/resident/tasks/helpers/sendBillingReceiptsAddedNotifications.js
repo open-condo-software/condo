@@ -1,26 +1,24 @@
 const { get, isEmpty, isFunction, uniq, groupBy, isNull } = require('lodash')
 
-const conf = require('@condo/config')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getRedisClient } = require('@condo/keystone/redis')
+const conf = require('@open-condo/config')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getRedisClient } = require('@open-condo/keystone/redis')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { getLocalized } = require('@open-condo/locales/loader')
 
+const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { CURRENCY_SYMBOLS, DEFAULT_CURRENCY_CODE } = require('@condo/domains/common/constants/currencies')
 const { getStartDates } = require('@condo/domains/common/utils/date')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
-
-const { BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-
 const {
     BILLING_RECEIPT_ADDED_TYPE,
     // BILLING_RECEIPT_ADDED_WITH_DEBT_TYPE,
     BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
-const { getLocalized } = require('@condo/locales/loader')
-const { getLogger } = require('@condo/keystone/logging')
+
 
 const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 const CHUNK_SIZE = 20
@@ -58,7 +56,8 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
 
     // Temporarily disabled checking toPayCharge value (it's temporarily not used by now)
     // if (isNull(toPay) || isNull(toPayCharge)) return 0
-    if (isNull(toPay)) return 0
+    // Disabled notifications of BILLING_RECEIPT_ADDED_WITH_NO_DEBT_TYPE type due to DOMA-6589
+    if (isNull(toPay) || toPay <= 0) return 0
 
     const { messageType, debt } = getMessageTypeAndDebt(toPay, toPayCharge)
     const data = {
@@ -83,13 +82,9 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
         organization: resident.organization && { id: resident.organization.id },
     }
 
-    try {
-        const { isDuplicateMessage } = await sendMessage(context, messageData)
-        return (isDuplicateMessage) ? 0 : 1
-    } catch (error) {
-        logger.info({ msg: 'sendMessage error', error, data: messageData })
-        return 0
-    }
+    const { isDuplicateMessage } = await sendMessage(context, messageData)
+
+    return (isDuplicateMessage) ? 0 : 1
 }
 
 /**
@@ -98,7 +93,7 @@ const prepareAndSendNotification = async (context, receipt, resident) => {
  * @param onLastDtChange
  * @returns {Promise<void>}
  */
-const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange ) => {
+const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onLastDtChange) => {
     const { keystone: context } = await getSchemaCtx('Resident')
     const receiptsCount = await BillingReceipt.count(context, receiptsWhere)
     let skip = 0, successCount = 0
@@ -138,7 +133,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
                 { OR: accountsData },
             ],
         }
-        const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumerWhere })
+        const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumerWhere })
 
         const consumersByAccountKey = groupBy(serviceConsumers, (item) => {
             const params = [
@@ -177,7 +172,8 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
                 const success = await prepareAndSendNotification(context, receipt, resident)
 
-                notifiedUsers.add(resident.user.id)
+                if (success) notifiedUsers.add(resident.user.id)
+
                 successConsumerCount += success
             }
 
@@ -189,7 +185,7 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
         // Store receipt.createdAt as lastDt in order to continue from this point on next execution
         if (isFunction(onLastDtChange) && !isEmpty(lastReceipt)) await onLastDtChange(lastReceipt.createdAt)
 
-        logger.info({ message: `Processed ${skip} receipts of ${receiptsCount}.` })
+        logger.info({ msg: `Processed ${skip} receipts of ${receiptsCount}.` })
     }
     logger.info({ msg: 'sent billing receipts', successCount, receiptsCount })
 }

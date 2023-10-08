@@ -9,9 +9,10 @@
  *      yarn workspace @app/condo node bin/fix-database-migration-state.js
  */
 
-const { prepareKeystoneExpressApp } = require('@condo/keystone/test.utils')
-
 const index = require('@app/condo')
+
+const { prepareKeystoneExpressApp } = require('@open-condo/keystone/test.utils')
+
 
 function exit (code, error) {
     console.error(error)
@@ -65,13 +66,105 @@ ALTER TABLE "OrganizationEmployee" DROP COLUMN if exists "_old_newId";
 ALTER TABLE "OrganizationEmployeeHistoryRecord" DROP COLUMN if exists "_old_history_id";
 
 --
+-- 20221013121613-0177_assigneescope_assigneescopehistoryrecord_and_more.js: Drop Division_properties_many,
+-- Division_executors_many, Division, DivisionHistoryRecord, OrganizationEmployee_specializations_many tables
+--
+
+DROP TABLE IF EXISTS "Division_properties_many" CASCADE;
+DROP TABLE IF EXISTS "Division_executors_many" CASCADE;
+DROP TABLE IF EXISTS "Division" CASCADE;
+DROP TABLE IF EXISTS "DivisionHistoryRecord" CASCADE;
+DROP TABLE IF EXISTS "OrganizationEmployee_specializations_many" CASCADE;
+
+
+--
 -- 20221102170215-0184_auto_20221102_1402.js: remove old TokenSet table: we use redis at the moment
 --
 
 DROP TABLE "TokenSet" CASCADE;
 DROP TABLE "TokenSetHistoryRecord" CASCADE;
 
+--
+-- 20221208114036-0198_remove_ticket_operator_and_more.js: remove unused Ticket.operator column
+--
+
+SET CONSTRAINTS "Ticket_operator_22582fe1_fk_User_id" IMMEDIATE; 
+ALTER TABLE "Ticket" DROP CONSTRAINT "Ticket_operator_22582fe1_fk_User_id";
+ALTER TABLE "Ticket" DROP COLUMN if exists "operator" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorDisplayNameFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorDisplayNameTo" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorIdFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN if exists "operatorIdTo" CASCADE;
+ALTER TABLE "TicketHistoryRecord" DROP COLUMN if exists "operator" CASCADE;
+
+ALTER TABLE "ServiceSubscription" DROP COLUMN "sbbolOfferAccept" CASCADE;
+ALTER TABLE "ServiceSubscriptionHistoryRecord" DROP COLUMN "sbbolOfferAccept" CASCADE;
+
+DROP TABLE IF EXISTS "ServiceSubscriptionPayment";
+DROP TABLE IF EXISTS "ServiceSubscriptionPaymentHistoryRecord";
+
 COMMIT;
+
+--
+-- 20230111120855-0209_remove_user_importid_remove_user_importremotesystem_and_more.js: remove unused User.importId and importRemoteSystem columns
+--
+
+ALTER TABLE "User" DROP CONSTRAINT "unique_user_importid_and_importremotesystem";
+ALTER TABLE "User" DROP COLUMN "importId" CASCADE;
+ALTER TABLE "User" DROP COLUMN "importRemoteSystem" CASCADE;
+ALTER TABLE "UserHistoryRecord" DROP COLUMN "importId" CASCADE;
+ALTER TABLE "UserHistoryRecord" DROP COLUMN "importRemoteSystem" CASCADE;
+
+--
+-- 20230220213813-0223_remove_ticketchange_numberfrom_and_more.js: Remove fields numberFrom, numberTo, orderFrom, orderTo from TicketChange
+--
+
+ALTER TABLE "TicketChange" DROP COLUMN "numberFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "numberTo" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "orderFrom" CASCADE;
+ALTER TABLE "TicketChange" DROP COLUMN "orderTo" CASCADE;
+
+COMMIT;
+
+--
+-- 20230518132922-0272_remove_acquiringintegration_appurl_and_more.js Remove old billing and acquiring UI fields
+--
+
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "appUrl" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "detailedDescription" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "label" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "logo" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "price" CASCADE;
+ALTER TABLE "AcquiringIntegration" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "appUrl" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "detailedDescription" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "logo" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
+ALTER TABLE "AcquiringIntegrationHistoryRecord" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "label" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "BillingIntegration" DROP COLUMN "price" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "developer" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "displayPriority" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "gallery" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "label" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
+ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
+
+COMMIT;
+
     `))
 }
 

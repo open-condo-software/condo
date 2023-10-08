@@ -1,12 +1,13 @@
 const dayjs = require('dayjs')
 const { isEmpty, get } = require('lodash')
 
-const { createCronTask } = require('@condo/keystone/tasks')
-const { getSchemaCtx } = require('@condo/keystone/schema')
-const { getLogger } = require('@condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
+const { getSchemaCtx } = require('@open-condo/keystone/schema')
+const { createCronTask } = require('@open-condo/keystone/tasks')
+
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
-const { OrganizationEmployee } = require('@condo/domains/organization/utils/serverSchema')
 
 const CHUNK_SIZE = 50
 

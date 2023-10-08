@@ -4,7 +4,7 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@condo/codegen/generate.server.utils')
+const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
 const { AcquiringIntegration: AcquiringIntegrationGQL } = require('@condo/domains/acquiring/gql')
 const { AcquiringIntegrationAccessRight: AcquiringIntegrationAccessRightGQL } = require('@condo/domains/acquiring/gql')
@@ -18,6 +18,9 @@ const {
     REGISTER_MULTI_PAYMENT_FOR_VIRTUAL_RECEIPT_MUTATION,
 } = require('@condo/domains/acquiring/gql')
 const { SUM_PAYMENTS_QUERY } = require('@condo/domains/acquiring/gql')
+const { RecurrentPaymentContext: RecurrentPaymentContextGQL } = require('@condo/domains/acquiring/gql')
+const { RecurrentPayment: RecurrentPaymentGQL } = require('@condo/domains/acquiring/gql')
+const { PAYMENT_BY_LINK_MUTATION } = require('@condo/domains/acquiring/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const AcquiringIntegration = generateServerUtils(AcquiringIntegrationGQL)
@@ -34,7 +37,7 @@ async function registerMultiPayment (context, data) {
         query: REGISTER_MULTI_PAYMENT_MUTATION,
         variables: { data: { dv: 1, ...data } },
         errorMessage: '[error] Unable to registerMultiPayment',
-        dataPath: 'obj',
+        dataPath: 'result',
     })
 }
 
@@ -79,6 +82,22 @@ async function allPaymentsSum (context, data) {
     })
 }
 
+const RecurrentPaymentContext = generateServerUtils(RecurrentPaymentContextGQL)
+const RecurrentPayment = generateServerUtils(RecurrentPaymentGQL)
+
+async function createPaymentByLink (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: PAYMENT_BY_LINK_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to createPaymentByLink',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -92,5 +111,8 @@ module.exports = {
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
     allPaymentsSum,
+    RecurrentPaymentContext,
+    RecurrentPayment,
+    createPaymentByLink,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

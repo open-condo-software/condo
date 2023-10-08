@@ -1,18 +1,19 @@
-import React, { useCallback, useMemo } from 'react'
-import get from 'lodash/get'
 import { Col, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
 import { useRouter } from 'next/router'
+import React, { useCallback, useMemo } from 'react'
 
-import { useIntl } from '@condo/next/intl'
-import { useOrganization } from '@condo/next/organization'
-import { MIN_TICKET_DEADLINE_DURATION, MAX_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
+import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
+
 import Select from '@condo/domains/common/components/antd/Select'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
-import { Button } from '@condo/domains/common/components/Button'
+import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
+import { MIN_TICKET_DEADLINE_DURATION, MAX_TICKET_DEADLINE_DURATION } from '@condo/domains/ticket/constants/common'
 import { TicketOrganizationSetting as TicketSetting } from '@condo/domains/ticket/utils/clientSchema'
 import { convertDurationToDays } from '@condo/domains/ticket/utils/helpers'
-import { useNotificationMessages } from '@condo/domains/common/hooks/useNotificationMessages'
 
 const INPUT_LAYOUT_PROPS = {
     labelCol: {
@@ -43,6 +44,7 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
     const EmergencyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.emergencyDeadline.label' })
     const WarrantyDeadlineLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.warrantyDeadline.label' })
     const SelectLabel = intl.formatMessage({ id: 'pages.condo.settings.ticketDeadlines.select.label' })
+    const SaveMessage = intl.formatMessage({ id: 'Save' })
 
     const { getSuccessfulChangeNotification } = useNotificationMessages()
 
@@ -177,14 +179,18 @@ export const TicketDeadlineSettingsForm: React.FC = () => {
                         </Row>
                     </Col>
                     <Col span={24}>
-                        <Button
-                            key='submit'
-                            onClick={handleSave}
-                            type='sberDefaultGradient'
-                            loading={isLoading}
-                        >
-                            Сохранить
-                        </Button>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='primary'
+                                    loading={isLoading}
+                                >
+                                    {SaveMessage}
+                                </Button>,
+                            ]}
+                        />
                     </Col>
                 </Row>
             )}

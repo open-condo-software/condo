@@ -3,18 +3,23 @@
  */
 
 const { Text, Relationship } = require('@keystonejs/fields')
-const { Json } = require('@condo/keystone/fields')
-const { GQLListSchema } = require('@condo/keystone/schema')
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@condo/keystone/plugins')
+const { isEmpty, isUndefined, isNull } = require('lodash')
+
+const { Json } = require('@open-condo/keystone/fields')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
+
+const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
+const { CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS, CONTEXT_STATUSES } = require('@condo/domains/acquiring/constants/context')
+const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
+const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
 const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
-const access = require('@condo/domains/acquiring/access/AcquiringIntegrationContext')
-const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { FEE_DISTRIBUTION_SCHEMA_FIELD } = require('@condo/domains/acquiring/schema/fields/json/FeeDistribution')
 const { AcquiringIntegrationContext: ContextServerSchema } = require('@condo/domains/acquiring/utils/serverSchema')
-const { CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT } = require('@condo/domains/acquiring/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
-const { isEmpty, isUndefined, isNull } = require('lodash')
+const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
+const { STATUS_FIELD, getStatusDescription, getStatusResolver } = require('@condo/domains/miniapp/schema/fields/context')
 
 
 const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationContext', {
@@ -95,8 +100,21 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
             isRequired: false,
             schemaDoc: 'Contains information about the default distribution of implicit fee. Each part is paid by the recipient organization on deducted from payment amount. If part exists then explicit part with the same name from AcquiringIntegration.explicitFeeDistributionSchema is ignored',
         },
+        status: {
+            ...STATUS_FIELD,
+            options: CONTEXT_STATUSES,
+            schemaDoc: getStatusDescription('AcquiringIntegration'),
+            hooks: {
+                resolveInput: getStatusResolver('AcquiringIntegration', 'integration'),
+            },
+            access: {
+                read: true,
+                create: access.canManageStatusField,
+                update: access.canManageStatusField,
+            },
+        },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     access: {
         read: access.canReadAcquiringIntegrationContexts,
         create: access.canManageAcquiringIntegrationContexts,
@@ -105,11 +123,15 @@ const AcquiringIntegrationContext = new GQLListSchema('AcquiringIntegrationConte
         auth: true,
     },
     hooks: {
-        validateInput: async ({ resolvedData, context, addValidationError, operation }) => {
-            if (operation === 'create') {
+        validateInput: async ({ resolvedData, context, addValidationError, existingItem }) => {
+            if ((resolvedData['status'] === CONTEXT_FINISHED_STATUS || resolvedData['status'] === CONTEXT_VERIFICATION_STATUS) &&
+                !resolvedData['deletedAt']) {
+                const newItem = { ...existingItem, ...resolvedData }
                 const activeContexts = await ContextServerSchema.getAll(context, {
-                    organization: { id: resolvedData['organization'] },
+                    organization: { id: newItem['organization'] },
+                    status_in: [CONTEXT_FINISHED_STATUS, CONTEXT_VERIFICATION_STATUS],
                     deletedAt: null,
+                    id_not: newItem['id'],
                 })
                 if (activeContexts.length) {
                     addValidationError(CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT)
