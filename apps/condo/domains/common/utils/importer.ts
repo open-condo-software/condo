@@ -1,6 +1,8 @@
 import dayjs from 'dayjs'
 import cloneDeep from 'lodash/cloneDeep'
 import get from 'lodash/get'
+import isArray from 'lodash/isArray'
+import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
 
 export type TableRow = Array<Record<'value', string | number | Date>>
@@ -206,21 +208,36 @@ export class Importer implements IImporter {
                                     return Promise.resolve()
                                 })
                                 .catch((e) => {
-                                    const mutationErrors = get(e, 'graphQLErrors')
-                                    normalizedRow.errors = normalizedRow.errors || []
+                                    try {
+                                        const mutationErrors = get(e, 'graphQLErrors', []) || []
+                                        if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
+                                            console.warn('No "graphQLErrors" for formatting errors')
+                                            console.error(e)
+                                        }
+                                        normalizedRow.errors = normalizedRow.errors || []
 
-                                    mutationErrors.forEach(mutationError => {
-                                        const mutationErrorMessages = get(mutationError, ['data', 'messages'])
-                                        mutationErrorMessages.forEach(message => {
-                                            const errorCodes = Object.keys(this.mutationErrorsToMessages)
+                                        mutationErrors.forEach(mutationError => {
+                                            const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
+                                            mutationErrorMessages.forEach(message => {
+                                                const errorCodes = Object.keys(this.mutationErrorsToMessages)
 
-                                            errorCodes.forEach(code => {
-                                                if (message.includes(code)) {
-                                                    normalizedRow.errors.push(this.mutationErrorsToMessages[code])
-                                                }
+                                                errorCodes.forEach(code => {
+                                                    if (message.includes(code)) {
+                                                        normalizedRow.errors.push(this.mutationErrorsToMessages[code])
+                                                    }
+                                                })
                                             })
                                         })
-                                    })
+                                    } catch (error) {
+                                        console.debug('Error when formatting errors from "graphQLErrors"', {
+                                            row,
+                                            normalizedRow,
+                                            isValid,
+                                        })
+                                        console.error(error)
+                                        console.error(e)
+                                    }
+
                                     if (this.failProcessingHandler) {
                                         this.failProcessingHandler(normalizedRow)
                                         return Promise.resolve()

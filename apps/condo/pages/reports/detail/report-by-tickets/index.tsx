@@ -108,7 +108,7 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
 
     const TicketTypeAll = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.AllTypes' })
     const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
-    const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
+    const TicketTypePayable = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Payable' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
 
     return (
@@ -119,7 +119,7 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
         >
             <Select.Option value='all'>{TicketTypeAll}</Select.Option>
             <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
-            <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
+            <Select.Option value='payable'>{TicketTypePayable}</Select.Option>
             <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
         </Select>
     )
@@ -436,7 +436,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
-                        Object.entries(data).map(([groupBy, dataObj]) => {
+                        Object.entries(data).forEach(([groupBy, dataObj]) => {
                             series.push({
                                 name: groupBy,
                                 type: viewMode,
@@ -499,7 +499,7 @@ const TicketAnalyticsPage: ITicketAnalyticsPage = () => {
                         const axisLabels = Object.keys(data.summary)
                             .sort((firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel])
                         const legend = Object.keys(data)
-                        Object.entries(data).map(([name, dataObj]) => {
+                        Object.entries(data).forEach(([name, dataObj]) => {
                             const seriesData = []
                             axisLabels.forEach(axisLabel => {
                                 seriesData.push(dataObj[axisLabel])

@@ -22,7 +22,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -39,13 +39,14 @@ export const EmployeesPageContent = ({
     employees,
     employeesLoading,
     total,
+    addEmployeeLabel = undefined,
 }) => {
     const intl = useIntl()
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.employee.PageTitle' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const EmptyListLabel = intl.formatMessage({ id: 'employee.EmptyList.header' })
     const EmptyListMessage = intl.formatMessage({ id: 'employee.EmptyList.title' })
-    const CreateEmployee = intl.formatMessage({ id: 'AddEmployee' })
+    const AddEmployeeLabel = addEmployeeLabel || intl.formatMessage({ id: 'AddEmployee' })
 
     const router = useRouter()
     const filtersFromQuery = getFiltersFromQuery<IFilters>(router.query)
@@ -79,7 +80,9 @@ export const EmployeesPageContent = ({
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
                                 createRoute={ADD_EMPLOYEE_ROUTE}
-                                createLabel={CreateEmployee}/>
+                                createLabel={AddEmployeeLabel}
+                                accessCheck={canManageEmployee}
+                            />
                             : <Row gutter={[0, 40]} align='middle'>
                                 <Col span={24}>
                                     <TableFiltersContainer>
@@ -114,7 +117,7 @@ export const EmployeesPageContent = ({
                                                         icon={<PlusCircle size='medium'/>}
                                                         onClick={handleAddEmployee}
                                                     >
-                                                        {CreateEmployee}
+                                                        {AddEmployeeLabel}
                                                     </Button>,
                                                 ]}
                                             />
@@ -172,6 +175,6 @@ const EmployeesPage = () => {
     )
 }
 
-EmployeesPage.requiredAccess = OrganizationRequired
+EmployeesPage.requiredAccess = EmployeesReadPermissionRequired
 
 export default EmployeesPage

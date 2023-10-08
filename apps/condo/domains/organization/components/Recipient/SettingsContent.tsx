@@ -34,7 +34,6 @@ export const RecipientSettingsContent = () => {
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-    const userOrganizationName = get(userOrganization, ['organization', 'name'])
 
     const {
         objs: bankAccounts,
@@ -60,7 +59,7 @@ export const RecipientSettingsContent = () => {
             {
                 bankAccounts.map((bankAccount, index) => {
                     return (
-                        <BankAccountInfo bankAccount={bankAccount} organizationName={userOrganizationName} key={index}/>
+                        <BankAccountInfo bankAccount={bankAccount} key={index}/>
                     )
                 })
             }

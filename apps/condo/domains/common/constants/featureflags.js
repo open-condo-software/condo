@@ -10,8 +10,14 @@ const HUAWEI_SILENT_DATA_PUSH_ENABLED = 'huawei-silent-data-push-enabled'
 const PROPERTY_BANK_ACCOUNT = 'property-bank-account'
 const PROPERTY_REPORT_DELETE_ENTITIES = 'property-report-delete-entities'
 const SERVICE_PROVIDER_PROFILE = 'service-provider-profile'
-const SHOW_ORGANIZATION_TYPES = 'show-organization-types'
-const ENABLE_DISCOVER_SERVICE_CONSUMERS = 'enable-discover-service-consumers'
+const DISABLE_DISCOVER_SERVICE_CONSUMERS = 'disable-discover-service-consumers'
+const MOBILE_FEATURE_CONFIGURATION = 'mobile-feature-configuration'
+const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resident-mobile-app'
+const SUBMIT_ONLY_PROGRESSION_METER_READINGS = 'submit-only-progression-meter-readings'
+const SETTINGS_NEW_EMPLOYEE_ROLE_TABLE = 'settings-new-employee-role-table'
+const ANALYTICS_V3 = 'analytics-v3'
+const BIGGER_LIMIT_FOR_IMPORT = 'bigger-limit-for-import'
+const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK = 'send-billing-receipts-on-payday-remainder-task'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -26,6 +32,12 @@ module.exports = {
     PROPERTY_BANK_ACCOUNT,
     PROPERTY_REPORT_DELETE_ENTITIES,
     SERVICE_PROVIDER_PROFILE,
-    SHOW_ORGANIZATION_TYPES,
-    ENABLE_DISCOVER_SERVICE_CONSUMERS,
+    DISABLE_DISCOVER_SERVICE_CONSUMERS,
+    MOBILE_FEATURE_CONFIGURATION,
+    TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP,
+    SUBMIT_ONLY_PROGRESSION_METER_READINGS,
+    ANALYTICS_V3,
+    SETTINGS_NEW_EMPLOYEE_ROLE_TABLE,
+    BIGGER_LIMIT_FOR_IMPORT,
+    SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK,
 }

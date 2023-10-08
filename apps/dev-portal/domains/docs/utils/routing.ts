@@ -14,6 +14,8 @@ import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
  * @param locale - current locale
  */
 function getFileNameRegexp (locale: string): RegExp {
+    // is part of source code reading - no end user input
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     return new RegExp(`\\.(?:${locale}|${DEFAULT_LOCALE}).mdx?$`, 'i')
 }
 
@@ -40,6 +42,28 @@ export type ArticleInfo = {
     label: string
     route: string
     hidden?: boolean
+}
+
+/**
+ * Join dir name and filename into the concatenated path
+ * @param dir
+ * @param filename
+ */
+function pathJoin (dir: string, filename: string) {
+    // is part of source code reading - no end user input
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    return path.join(dir, filename)
+}
+
+/**
+ * Get a relative path
+ * @param dir
+ * @param filename
+ */
+function pathRelative (dir: string, filename: string) {
+    // is part of source code reading - no end user input
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    return path.relative(dir, filename)
 }
 
 /**
@@ -88,9 +112,10 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
     const directories = filePaths
         .filter(file => file.isDirectory())
         .map(file => file.name)
+
     // Obtain meta for current locale and default locale
-    const localizedMetaPath = path.join(dir, `_meta.${locale}.json`)
-    const defaultMetaPath = path.join(dir, `_meta.${DEFAULT_LOCALE}.json`)
+    const localizedMetaPath = pathJoin(dir, `_meta.${locale}.json`)
+    const defaultMetaPath = pathJoin(dir, `_meta.${DEFAULT_LOCALE}.json`)
     const localizedMeta: Record<string, ItemDescription> = fs.existsSync(localizedMetaPath)
         ? JSON.parse(fs.readFileSync(localizedMetaPath, 'utf-8'))
         : {}
@@ -110,28 +135,28 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
             if (typeof item === 'string') {
                 result.push({
                     label: item,
-                    route: path.relative(rootDir, path.join(dir, key)),
+                    route: pathRelative(rootDir, pathJoin(dir, key)),
                 })
             } else {
                 result.push({
                     label: item.title,
-                    route: path.relative(rootDir, path.join(dir, key)),
+                    route: pathRelative(rootDir, pathJoin(dir, key)),
                     hidden: 'hidden' in item ? item.hidden : undefined,
                 })
             }
         } else if (directories.includes(key)) {
             directories.splice(directories.indexOf(key), 1)
-            const children = getNavTree(path.join(dir, key), locale, rootDir)
+            const children = getNavTree(pathJoin(dir, key), locale, rootDir)
             if (typeof item === 'string') {
                 result.push({
                     label: item,
-                    route: path.relative(rootDir, path.join(dir, key)),
+                    route: pathRelative(rootDir, pathJoin(dir, key)),
                     children,
                 })
             } else {
                 result.push({
                     label: item.title,
-                    route: path.relative(rootDir, path.join(dir, key)),
+                    route: pathRelative(rootDir, pathJoin(dir, key)),
                     hidden: 'hidden' in item ? item.hidden : undefined,
                     children,
                 })
@@ -155,9 +180,9 @@ export function getNavTree (dir: string, locale: string, rootDir: string): Array
     // Process rest of the files using title package for generation titles
     for (const fileInfo of restFiles) {
         const label = getTitle(fileInfo.name)
-        const route = path.relative(rootDir, path.join(dir, fileInfo.name))
+        const route = pathRelative(rootDir, pathJoin(dir, fileInfo.name))
         if (fileInfo.isDir) {
-            const children = getNavTree(path.join(dir, fileInfo.name), locale, rootDir)
+            const children = getNavTree(pathJoin(dir, fileInfo.name), locale, rootDir)
             if (children.length) {
                 result.push({ label, route, children })
             }
@@ -229,12 +254,12 @@ export function *getAllRoutes (dir: string, locale: string, rootDir: string): It
     const includedFiles: Array<string> = []
     for (const file of files) {
         if (file.isDirectory()) {
-            yield *getAllRoutes(path.join(dir, file.name), locale, rootDir)
+            yield *getAllRoutes(pathJoin(dir, file.name), locale, rootDir)
         } else if (file.isFile() && fileRegexp.test(file.name)) {
             const filePrefix = file.name.split('.')[0]
             if (!includedFiles.includes(filePrefix)) {
                 includedFiles.push(filePrefix)
-                yield path.relative(rootDir, path.join(dir, filePrefix))
+                yield pathRelative(rootDir, pathJoin(dir, filePrefix))
             }
         }
     }

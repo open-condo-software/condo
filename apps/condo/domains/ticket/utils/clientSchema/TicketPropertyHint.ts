@@ -14,6 +14,7 @@ import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 import { TicketPropertyHint as TicketPropertyHintGQL } from '@condo/domains/ticket/gql'
 
 const {
+    useCount,
     useObject,
     useObjects,
     useCreate,
@@ -24,6 +25,7 @@ const {
 
 
 export {
+    useCount,
     useObject,
     useObjects,
     useCreate,

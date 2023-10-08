@@ -68,7 +68,7 @@ describe('AllMiniAppsService', () => {
         employee = await makeClientWithNewRegisteredAndLoggedInUser();
         [organization] = await registerNewOrganization(manager)
         const [employeeRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-            canManageIntegrations: false,
+            canManageB2BApps: false,
         })
         await createTestOrganizationEmployee(admin, organization, employee.user, employeeRole, {
             isAccepted: true,

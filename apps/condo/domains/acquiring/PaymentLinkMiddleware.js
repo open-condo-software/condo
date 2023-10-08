@@ -5,6 +5,8 @@ const { PaymentLinkRouter } = require('@condo/domains/acquiring/routes/paymentLi
 
 class PaymentLinkMiddleware {
     async prepareMiddleware () {
+        // this route can not be used for csrf attack (because no cookies and tokens are used in a public route)
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         const router = new PaymentLinkRouter()

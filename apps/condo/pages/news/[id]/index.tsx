@@ -5,6 +5,7 @@ import dayjs from 'dayjs'
 import every from 'lodash/every'
 import get from 'lodash/get'
 import has from 'lodash/has'
+import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
@@ -25,12 +26,12 @@ import {
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
+import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { RecipientCounter } from '@condo/domains/news/components/RecipientCounter'
 import { TNewsItemScopeNoInstance } from '@condo/domains/news/components/types'
 import { NEWS_TYPE_COMMON, NEWS_TYPE_EMERGENCY } from '@condo/domains/news/constants/newsTypes'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -202,84 +203,89 @@ const NewsItemCard: React.FC = () => {
     }
 
     return (
-        <PageWrapper>
-            <PageContent>
-                <Row
-                    gutter={PAGE_ROW_GUTTER}
-                >
-                    <Col span={24}>
-                        <PageHeader title={<Typography.Title>{PageTitleMsg}</Typography.Title>} style={HEADER_STYLES}/>
-                        <Typography.Text type='secondary'>
-                            {CreatedByLabel}
-                        </Typography.Text>
-                    </Col>
-                    <Col span={16}>
-                        <FrontLayerContainer>
-                            <Row gutter={HORIZONTAL_ROW_GUTTER}>
-                                {sendDateStr && (
-                                    <FieldPairRow
-                                        fieldTitle={SentAtLabel}
-                                        fieldValue={sendDateStr}
-                                    />
-                                )}
-                                <FieldPairRow
-                                    fieldTitle={TypeLabel}
-                                    fieldValue={newsItemType}
-                                />
-                                {
-                                    newsItem.validBefore && (
+        <>
+            <Head>
+                <title>{PageTitleMsg}</title>
+            </Head>
+            <PageWrapper>
+                <PageContent>
+                    <Row
+                        gutter={PAGE_ROW_GUTTER}
+                    >
+                        <Col span={24}>
+                            <PageHeader title={<Typography.Title>{PageTitleMsg}</Typography.Title>} style={HEADER_STYLES}/>
+                            <Typography.Text type='secondary'>
+                                {CreatedByLabel}
+                            </Typography.Text>
+                        </Col>
+                        <Col span={16}>
+                            <FrontLayerContainer>
+                                <Row gutter={HORIZONTAL_ROW_GUTTER}>
+                                    {sendDateStr && (
                                         <FieldPairRow
-                                            fieldTitle={ValidBeforeLabel}
-                                            fieldValue={dayjs(newsItem.validBefore).format('YYYY.MM.DD HH:mm')}
+                                            fieldTitle={SentAtLabel}
+                                            fieldValue={sendDateStr}
                                         />
-                                    )
-                                }
-                                <FieldPairRow
-                                    fieldTitle={TitleLabel}
-                                    fieldValue={newsItem.title}
-                                />
-                                <FieldPairRow
-                                    fieldTitle={BodyLabel}
-                                    fieldValue={newsItem.body}
-                                />
-                            </Row>
-                        </FrontLayerContainer>
-                    </Col>
-                    {canManage && (
-                        <>
-                            <Col span={8}>
-                                <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
-                            </Col>
-                            <Row>
-                                {get(newsItem, 'sentAt') ? (
-                                    <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
-                                        <Button type='primary'>{ResendTitle}</Button>
-                                    </Link>
-                                ) : ( <ActionBar actions={[
-                                    newsItem.sendAt && (
-                                        <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
-                                            <Button type='primary'>{EditTitle}</Button>
+                                    )}
+                                    <FieldPairRow
+                                        fieldTitle={TypeLabel}
+                                        fieldValue={newsItemType}
+                                    />
+                                    {
+                                        newsItem.validBefore && (
+                                            <FieldPairRow
+                                                fieldTitle={ValidBeforeLabel}
+                                                fieldValue={dayjs(newsItem.validBefore).format('YYYY.MM.DD HH:mm')}
+                                            />
+                                        )
+                                    }
+                                    <FieldPairRow
+                                        fieldTitle={TitleLabel}
+                                        fieldValue={newsItem.title}
+                                    />
+                                    <FieldPairRow
+                                        fieldTitle={BodyLabel}
+                                        fieldValue={newsItem.body}
+                                    />
+                                </Row>
+                            </FrontLayerContainer>
+                        </Col>
+                        {canManage && (
+                            <>
+                                <Col span={8}>
+                                    <RecipientCounter newsItemScopes={newsItemScopesNoInstance}/>
+                                </Col>
+                                <Row>
+                                    {get(newsItem, 'sentAt') ? (
+                                        <Link key='resend' href={`/news/${get(newsItem, 'id')}/resend`}>
+                                            <Button type='primary'>{ResendTitle}</Button>
                                         </Link>
-                                    ),
-                                    <DeleteButtonWithConfirmModal
-                                        key='delete'
-                                        title={ConfirmDeleteTitle}
-                                        message={ConfirmDeleteMessage}
-                                        okButtonLabel={DeleteTitle}
-                                        action={handleDeleteButtonClick}
-                                        buttonContent={DeleteTitle}
-                                        showCancelButton={true}
-                                        cancelMessage={CancelMessage}
-                                        messageType='secondary'
-                                    />,
-                                ]}/>)
-                                }
-                            </Row>
-                        </>
-                    )}
-                </Row>
-            </PageContent>
-        </PageWrapper>
+                                    ) : ( <ActionBar actions={[
+                                        newsItem.sendAt && (
+                                            <Link key='update' href={`/news/${get(newsItem, 'id')}/update`}>
+                                                <Button type='primary'>{EditTitle}</Button>
+                                            </Link>
+                                        ),
+                                        <DeleteButtonWithConfirmModal
+                                            key='delete'
+                                            title={ConfirmDeleteTitle}
+                                            message={ConfirmDeleteMessage}
+                                            okButtonLabel={DeleteTitle}
+                                            action={handleDeleteButtonClick}
+                                            buttonContent={DeleteTitle}
+                                            showCancelButton={true}
+                                            cancelMessage={CancelMessage}
+                                            messageType='secondary'
+                                        />,
+                                    ]}/>)
+                                    }
+                                </Row>
+                            </>
+                        )}
+                    </Row>
+                </PageContent>
+            </PageWrapper>
+        </>
     )
 }
 
@@ -296,6 +302,6 @@ const NewsItemCardPage = () => {
 
     return <NewsItemCard/>
 }
-NewsItemCardPage.requiredAccess = OrganizationRequired
+NewsItemCardPage.requiredAccess = NewsReadPermissionRequired
 
 export default NewsItemCardPage

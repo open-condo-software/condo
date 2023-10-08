@@ -55,7 +55,7 @@ Sends a message to main client and returns the `Promise` object with response da
 **Parameters**
 
 - `method` _required_ The method of Condo Bridge
-- `params` _optional_ Object containing method args
+- `params` _optional_ Object containing method args. Make sure you are not sending sensitive data!
 
 **Example**
 

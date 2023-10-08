@@ -20,7 +20,6 @@ export interface IBankAccountRowContent {
 
 export interface IBankAccountInfo {
     bankAccount: BankAccountType
-    organizationName: string
 }
 
 const BankAccountRowContent: React.FC<IBankAccountRowContent> = ({ bankAccountFieldName, bankAccountValue, isTitle = false }) => {
@@ -45,16 +44,10 @@ const BankAccountRowContent: React.FC<IBankAccountRowContent> = ({ bankAccountFi
     )
 }
 
-export const BankAccountInfo: React.FC<IBankAccountInfo> = ({ bankAccount, organizationName }) => {
+export const BankAccountInfo: React.FC<IBankAccountInfo> = ({ bankAccount }) => {
     return (
         <Col span={24}>
             <Row gutter={VERTICAL_GUTTER}>
-                <BankAccountRowContent
-                    bankAccountFieldName='name'
-                    bankAccountValue={organizationName}
-                    isTitle
-                />
-
                 {
                     DISPLAYED_BANK_ACCOUNT.map( (recipientName, index) => {
                         return (

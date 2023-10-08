@@ -92,7 +92,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
     types: [
         {
             access: true,
-            type: 'enum TicketAnalyticsGroupBy { day week month status property categoryClassifier executor assignee }',
+            type: 'enum TicketAnalyticsGroupBy { day week month status property categoryClassifier executor assignee qualityControlValue }',
         },
         {
             access: true,
@@ -108,7 +108,7 @@ const TicketAnalyticsReportService = new GQLCustomSchema('TicketAnalyticsReportS
         },
         {
             access: true,
-            type: 'type TicketGroupedCounter { count: Int!, status: String, property: String, dayGroup: String!, categoryClassifier: String, executor: String, assignee: String  }',
+            type: 'type TicketGroupedCounter { count: Int!, status: String, property: String, dayGroup: String!, categoryClassifier: String, executor: String, assignee: String, qualityControlValue: String }',
         },
         {
             access: true,

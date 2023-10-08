@@ -45,7 +45,7 @@ const TicketOrganizationSetting = new GQLListSchema('TicketOrganizationSetting',
             },
         },
         paidDeadlineDuration: {
-            schemaDoc: 'Default deadline duration for paid tickets (ISO 8601 format)',
+            schemaDoc: 'Default deadline duration for payable tickets (ISO 8601 format)',
             type: DateInterval,
             defaultValue: DEFAULT_TICKET_DEADLINE_DURATION,
             kmigratorOptions: { null: true },

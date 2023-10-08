@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const { get, map, cloneDeep, uniq, difference } = require('lodash')
 
 const { getById } = require('@open-condo/keystone/schema')
@@ -12,12 +13,19 @@ const { TicketChange } = require('./index')
 // )
 
 const createTicketChange = async (fieldsChanges, { existingItem, updatedItem, context }) => {
+    const newItem = { ...existingItem, ...updatedItem }
     const payload = {
         dv: 1,
         sender: updatedItem.sender,
         ticket: { connect: { id: existingItem.id } },
         ...fieldsChanges,
     }
+
+    // If status was changed
+    if (newItem.statusUpdatedAt && (fieldsChanges.statusIdFrom && fieldsChanges.statusIdTo)) {
+        payload.actualCreationDate = dayjs(newItem.statusUpdatedAt).toISOString()
+    }
+
     await TicketChange.create(
         context.createContext({ skipAccessControl: true }),
         payload,
@@ -136,6 +144,10 @@ const resolveManyToManyField = async (fieldName, ref, displayNameAttr = 'name', 
         variables: { id: existingItem.id },
     })
     if (updatedResult.errors) {
+        // this log entry for development & support purposes only
+        // no important logs can be hided by injected external console.log formatters
+        // no logs formatters can be injected
+        // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
         console.error(`Error while fetching related ${fieldName} in manyToManyResolver of changeTrackable for a Ticket`, updatedResult.errors)
         return {}
     }

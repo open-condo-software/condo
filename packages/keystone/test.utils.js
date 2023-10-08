@@ -5,6 +5,7 @@ const https = require('https')
 const urlLib = require('url')
 
 const { ApolloClient, ApolloLink, InMemoryCache } = require('@apollo/client')
+const { faker } = require('@faker-js/faker')
 const { createUploadLink } = require('apollo-upload-client')
 const axiosLib = require('axios')
 const axiosCookieJarSupportLib = require('axios-cookiejar-support')
@@ -84,21 +85,52 @@ let __expressApp = null
 let __expressServer = null
 let __keystone = null
 let __isAwaiting = false
-let __isFeatureFlagsEnabled = true
 
 /**
- * This function needs to be called BEFORE the test client creation
- * @param {boolean} isFeatureFlagsEnabled
+ * Something looks like an ip address. Need to test calls limit from one ip address.
+ * @type {string}
  */
-function setIsFeatureFlagsEnabled (isFeatureFlagsEnabled) {
-    __isFeatureFlagsEnabled = isFeatureFlagsEnabled
+let __x_forwarder_for_header
+
+/**
+ * @type {Map<string, any>}
+ */
+const featureFlagsStore = new Map()
+const FEATURE_FLAGS_STORE_ALL_KEY = '*'
+
+/**
+ * Sets the feature flag value and returns the previous one
+ * @param {string} id
+ * @param value
+ * @returns {*}
+ */
+function setFeatureFlag (id, value) {
+    const prev = featureFlagsStore.get(id)
+    featureFlagsStore.set(id, value)
+
+    return prev
 }
 
 /**
- * @returns {boolean}
+ * @param context The keystone context
+ * @param {string} id
+ * @returns {*}
  */
-function getIsFeatureFlagsEnabled () {
-    return __isFeatureFlagsEnabled
+function getFeatureFlag (context, id) {
+    // We pass featureFlagsStore via headers in the case when worker & condo are in different Node.js processes
+    const featureFlagsStoreFromReqHeaders = new Map(JSON.parse(get(context, ['req', 'headers', 'feature-flags'], '[]')))
+    return featureFlagsStore.get(id)
+        || featureFlagsStore.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || featureFlagsStoreFromReqHeaders.get(id)
+        || featureFlagsStoreFromReqHeaders.get(FEATURE_FLAGS_STORE_ALL_KEY)
+        || false
+}
+
+/**
+ * @param value
+ */
+function setAllFeatureFlags (value) {
+    featureFlagsStore.set(FEATURE_FLAGS_STORE_ALL_KEY, value)
 }
 
 function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
@@ -113,6 +145,8 @@ function setFakeClientMode (entryPoint, prepareKeystoneOptions = {}) {
             const res = await prepareKeystoneExpressApp(entryPoint, prepareKeystoneOptions)
             __expressApp = res.app
             __keystone = res.keystone
+            // tests express for a fake gql client
+            // nosemgrep: problem-based-packs.insecure-transport.js-node.using-http-server.using-http-server
             __expressServer = http.createServer(__expressApp).listen(0)
         })
         afterAll(async () => {
@@ -140,6 +174,9 @@ const prepareKeystoneExpressApp = async (entryPoint, { excludeApps } = {}) => {
     const newApps = (excludeApps) ? apps.filter(x => !excludeApps.includes(x.constructor.name)) : apps
     const { middlewares } = await keystone.prepare({ apps: newApps, dev, cors, pinoOptions })
     await keystone.connect()
+
+    // not a csrf case: used for test & development scripts purposes
+    // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
     const app = express()
     if (configureExpress) configureExpress(app)
     app.use(middlewares)
@@ -207,12 +244,13 @@ async function doGqlRequest (callable, { mutation, query, variables }, logReques
 
 /**
  * @param {string} serverUrl
- * @param {boolean} logRequestResponse
+ * @param {{customHeaders?: Record<string, string>, logRequestResponse?: boolean}} opts
  * @returns {{client: ApolloClient, getCookie: () => string, setHeaders: ({object}) => void}}
  */
-const makeApolloClient = (serverUrl, logRequestResponse = false) => {
+const makeApolloClient = (serverUrl, opts = {}) => {
     let cookiesObj = {}
-    let customHeaders = {}
+    let customHeaders =  opts.hasOwnProperty('customHeaders') ? opts.customHeaders : {}
+    let logRequestResponse =  Boolean(opts.logRequestResponse)
 
     /**
      * @returns {string}
@@ -235,6 +273,8 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         }
     }
 
+    // test apollo client with disabled tls
+    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
 
     const apolloLinks = []
@@ -248,7 +288,6 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
             cache: 'no-cache',
             mode: 'cors',
             credentials: 'include',
-            'feature-flags': __isFeatureFlagsEnabled,
         },
         includeExtensions: true,
         isExtractableFile: (value) => {
@@ -260,7 +299,7 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
         },
         useGETForQueries: true,
         fetch: (uri, options) => {
-            options.headers = { ...options.headers, ...customHeaders }
+            options.headers = { ...options.headers, 'feature-flags': JSON.stringify(Array.from(featureFlagsStore)), ...customHeaders }
             if (cookiesObj && Object.keys(cookiesObj).length > 0) {
                 options.headers = { ...options.headers, cookie: restoreCookies() }
             }
@@ -303,10 +342,14 @@ const makeApolloClient = (serverUrl, logRequestResponse = false) => {
     }
 }
 
-const makeClient = async () => {
+const makeClient = async (opts = { generateIP: true }) => {
     // Data for real client
     let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
     let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
+    const customHeaders = {}
+    if (opts.generateIP) {
+        customHeaders['x-forwarded-for'] = faker.internet.ip()
+    }
 
     if (__expressApp) {
         const port = __expressServer.address().port
@@ -317,7 +360,7 @@ const makeClient = async () => {
         logErrors = TESTS_LOG_FAKE_CLIENT_RESPONSE_ERRORS
     }
 
-    return makeApolloClient(serverUrl, TESTS_LOG_REQUEST_RESPONSE || logErrors)
+    return makeApolloClient(serverUrl, { logRequestResponse: TESTS_LOG_REQUEST_RESPONSE || logErrors, customHeaders })
 }
 
 const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '') => {
@@ -325,6 +368,8 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     const cookieJar = new CookieJar()
     const domain = (urlParse(cookieDomain).protocol || 'http:') + '//' + urlParse(cookieDomain).host
     cookies.forEach((cookie) => cookieJar.setCookieSync(cookie, domain))
+    // test axios client with disabled tls
+    // nosemgrep: problem-based-packs.insecure-transport.js-node.bypass-tls-verification.bypass-tls-verification
     const httpsAgentWithUnauthorizedTls = new https.Agent({ rejectUnauthorized: false })
     if (TESTS_TLS_IGNORE_UNAUTHORIZED) options.httpsAgent = httpsAgentWithUnauthorizedTls
     const client = axios.create({
@@ -777,8 +822,6 @@ module.exports = {
     UUID_RE,
     NUMBER_RE,
     UploadingFile,
-    setIsFeatureFlagsEnabled,
-    getIsFeatureFlagsEnabled,
     catchErrorFrom,
     expectToThrowAccessDeniedError,
     expectToThrowAccessDeniedErrorToObj,
@@ -795,4 +838,7 @@ module.exports = {
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
     expectToThrowAccessDeniedToFieldError,
+    setFeatureFlag,
+    getFeatureFlag,
+    setAllFeatureFlags,
 }

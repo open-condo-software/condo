@@ -9,6 +9,9 @@ import { useIntl } from '@open-condo/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { CreateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/CreateEmployeeForm'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import {
+    EmployeesReadAndInvitePermissionRequired,
+} from '@condo/domains/organization/components/PageAccess'
 
 interface IPageWithHeaderAction extends React.FC {
     headerAction?: JSX.Element
@@ -42,6 +45,6 @@ const CreateEmployeePage: IPageWithHeaderAction = () => {
     )
 }
 
-CreateEmployeePage.requiredAccess = OrganizationRequired
+CreateEmployeePage.requiredAccess = EmployeesReadAndInvitePermissionRequired
 
 export default CreateEmployeePage

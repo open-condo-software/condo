@@ -13,14 +13,16 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tag, Typography } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
+import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { getTimeLeftMessage, getTimeLeftMessageType } from '@condo/domains/common/utils/date.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import {
     INCIDENT_STATUS_COLORS,
     INCIDENT_WORK_TYPE_EMERGENCY,
@@ -341,8 +343,6 @@ const IncidentContent: React.FC<IncidentContentProps> = (props) => {
     )
 }
 
-const ChangeHistoryDiff: React.FC = (props) => <p {...props} />
-
 const HEADER_CONTENT_GUTTER: RowProps['gutter'] = [0, 24]
 const PAGE_CONTENT_GUTTER: RowProps['gutter'] = [0, 60]
 const PAGE_HEADER_STYLE: React.CSSProperties = { paddingBottom: 20 }
@@ -362,8 +362,10 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
     const { incident, refetchIncident, incidentLoading, withOrganization } = props
 
     const router = useRouter()
+    const { link } = useOrganization()
 
     const isActual = incident.status === IncidentStatusType.Actual
+    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
 
     const {
         objs: incidentChanges,
@@ -437,7 +439,7 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                                         total={incidentChangesCount}
                                         title={ChangeHistoryTitle}
                                         useChangedFieldMessagesOf={useIncidentChangedFieldMessagesOf}
-                                        Diff={ChangeHistoryDiff}
+                                        HistoricalChange={HistoricalChange}
                                     />
                                 </Col>
                             )
@@ -445,22 +447,26 @@ export const IncidentIdPageContent: React.FC<IncidentIdPageContentProps> = (prop
                         <Col span={24}>
                             <ActionBar
                                 actions={[
-                                    <Button
-                                        key='changeStatus'
-                                        disabled={incidentLoading}
-                                        type='primary'
-                                        children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
-                                        onClick={handleOpen}
-                                        id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
-                                    />,
-                                    <Button
-                                        key='editIncident'
-                                        disabled={incidentLoading}
-                                        type='secondary'
-                                        children={EditLabel}
-                                        onClick={handleEditIncident}
-                                        id='editIncident'
-                                    />,
+                                    canManageIncidents && (
+                                        <Button
+                                            key='changeStatus'
+                                            disabled={incidentLoading}
+                                            type='primary'
+                                            children={isActual ? ChangeToNotActualLabel : ChangeToActualLabel}
+                                            onClick={handleOpen}
+                                            id={isActual ? 'changeStatusToNotActual' : 'changeStatusToActual'}
+                                        />
+                                    ),
+                                    canManageIncidents && (
+                                        <Button
+                                            key='editIncident'
+                                            disabled={incidentLoading}
+                                            type='secondary'
+                                            children={EditLabel}
+                                            onClick={handleEditIncident}
+                                            id='editIncident'
+                                        />
+                                    ),
                                 ]}
                             />
                         </Col>
@@ -506,6 +512,6 @@ const IncidentIdPage: IIncidentIdPage = () => {
     )
 }
 
-IncidentIdPage.requiredAccess = OrganizationRequired
+IncidentIdPage.requiredAccess = IncidentReadPermissionRequired
 
 export default IncidentIdPage

@@ -22,7 +22,12 @@ const TICKET_QUALITY_CONTROL_FIELDS = 'qualityControlValue qualityControlComment
  * @type {string}
  */
 const REVIEW_CONTROL_FIELDS = 'reviewValue reviewComment'
-const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt lastResidentCommentAt isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency isPaid isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
+/**
+ * @deprecated should be remove later
+ * @type {string}
+ */
+const IS_PAID_FIELD = 'isPaid'
+const TICKET_FIELDS = `{ canReadByResident completedAt lastCommentAt lastResidentCommentAt isResidentTicket ${REVIEW_CONTROL_FIELDS} ${FEEDBACK_CONTROL_FIELDS} ${TICKET_QUALITY_CONTROL_FIELDS} deadline deferredUntil organization { id name country phone phoneNumberPrefix } property { ${TICKET_PROPERTY_FIELDS} } propertyAddress propertyAddressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName sectionName sectionType floorName status { id name type organization { id } colors { primary secondary additional } } statusReopenedCounter statusUpdatedAt statusReason number client { id name } clientName clientEmail clientPhone contact { id name phone email unitName unitType } assignee { id name } executor { id name } details related { id details } isAutoClassified isEmergency ${IS_PAID_FIELD} isPayable isWarranty meta source { id name type } sourceMeta categoryClassifier { id } placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} ${COMMON_FIELDS} }`
 const Ticket = generateGqlQueries('Ticket', TICKET_FIELDS)
 
 const TICKET_STATUS_FIELDS = `{ organization { id } type name nameNonLocalized colors { primary secondary additional } ${COMMON_FIELDS} }`
@@ -59,8 +64,15 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'clientPhoneTo',
     'detailsFrom',
     'detailsTo',
+
+    // TODO(DOMA-7224): delete this block when the mobile app will use 'isPayable' field
+    // *** Deprecated ***
     'isPaidFrom',
     'isPaidTo',
+    // ******************
+
+    'isPayableFrom',
+    'isPayableTo',
     'isEmergencyFrom',
     'isEmergencyTo',
     'isWarrantyFrom',
@@ -132,14 +144,14 @@ const TICKET_CHANGE_DATA_FIELDS = [
     'qualityControlAdditionalOptionsFrom',
     'qualityControlAdditionalOptionsTo',
 ]
-const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } organization { id country } } ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
+const TICKET_CHANGE_FIELDS = `{ ticket { id property { address } organization { id country } } actualCreationDate ${COMMON_CHANGE_HISTORY_FIELDS} ${TICKET_CHANGE_DATA_FIELDS.join(' ')} }`
 const TicketChange = generateGqlQueries('TicketChange', TICKET_CHANGE_FIELDS)
 const TICKET_FILE_FIELDS = `{ id file { id originalFilename publicUrl mimetype } organization { id } ticket { id } ${COMMON_FIELDS} }`
 const TicketFile = generateGqlQueries('TicketFile', TICKET_FILE_FIELDS)
 const TICKET_COMMENT_FIELDS = `{ ticket { id } user { id name type } type content ${COMMON_FIELDS} }`
 const TicketComment = generateGqlQueries('TicketComment', TICKET_COMMENT_FIELDS)
 
-const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } details related { id details } isEmergency isPaid isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} }`
+const RESIDENT_TICKET_FIELDS = `{ organization { id name } property { id name address } unitName sectionName floorName number client { id name } clientName clientEmail clientPhone status { id name type organization { id } colors { primary secondary additional } } details related { id details } isEmergency ${IS_PAID_FIELD} isPayable isWarranty source { id name type } id dv sender { dv fingerprint } v deletedAt newId createdAt updatedAt placeClassifier { id } problemClassifier { id } ${TICKET_CLASSIFIER_ATTRIBUTES_FIELDS} }`
 
 // Actually there is no `ResidentTicket` Keystone schema presented.
 // Here we will get a set of declarations of GraphQL mutation query strings for CRUD operations.
@@ -162,7 +174,6 @@ const TicketClassifier = generateGqlQueries('TicketClassifier', TICKET_CLASSIFIE
 const TICKET_FILTER_FIELDS = '{ type completedAt lastCommentAt organization number createdAt status details property propertyScope address clientName executor assignee executorName deadline assigneeName attributes source sectionName floorName unitType unitName placeClassifier categoryClassifier problemClassifier clientPhone createdBy contactIsNull reviewValue feedbackValue qualityControlValue }'
 const TICKET_FILTER_TEMPLATE_FIELDS = `{ name employee { id } fields ${TICKET_FILTER_FIELDS} ${COMMON_FIELDS} }`
 const TicketFilterTemplate = generateGqlQueries('TicketFilterTemplate', TICKET_FILTER_TEMPLATE_FIELDS)
-
 
 const PREDICT_TICKET_CLASSIFICATION_QUERY = gql`
     query predictTicketClassification ($data: PredictTicketClassificationInput!) {
@@ -243,6 +254,12 @@ const CallRecord = generateGqlQueries('CallRecord', CALL_RECORD_FIELDS)
 const CALL_RECORD_FRAGMENT_FIELDS = `{ ticket { id number clientName property { ${TICKET_PROPERTY_FIELDS} } } callRecord ${CALL_RECORD_FIELDS} organization { id name } startedAt ${COMMON_FIELDS} }`
 const CallRecordFragment = generateGqlQueries('CallRecordFragment', CALL_RECORD_FRAGMENT_FIELDS)
 
+const TICKET_MULTIPLE_UPDATE_MUTATION = gql`
+    mutation ticketMultipleUpdate ($data: TicketMultipleUpdateInput!) {
+        result: ticketMultipleUpdate(data: $data) ${TICKET_FIELDS}
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 module.exports = {
     Ticket,
@@ -279,5 +296,6 @@ module.exports = {
     IncidentExportTask,
     CallRecord,
     CallRecordFragment,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    TICKET_MULTIPLE_UPDATE_MUTATION,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }

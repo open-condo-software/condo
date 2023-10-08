@@ -225,20 +225,21 @@ async function createTestOrganizationWithAccessToAnotherOrganization ({ roleExtr
     const clientFrom = await makeClientWithNewRegisteredAndLoggedInUser()
     const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
     const [propertyFrom] = await createTestProperty(admin, organizationFrom)
-    const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, roleExtraAttrs)
-    const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, role)
+    const [roleFrom] = await createTestOrganizationEmployeeRole(admin, organizationFrom, roleExtraAttrs)
+    const [employeeFrom] = await createTestOrganizationEmployee(admin, organizationFrom, clientFrom.user, roleFrom)
 
     const clientTo = await makeClientWithProperty()
     const [organizationTo] = await createTestOrganization(admin)
     const [propertyTo] = await createTestProperty(admin, organizationTo)
-    const [employeeTo] = await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, role)
+    const [roleTo] = await createTestOrganizationEmployeeRole(admin, organizationTo, roleExtraAttrs)
+    const [employeeTo] = await createTestOrganizationEmployee(admin, organizationTo, clientTo.user, roleTo)
 
     const [link] = await createTestOrganizationLink(admin, organizationFrom, organizationTo)
 
     return {
         clientFrom, propertyFrom, employeeFrom, organizationFrom,
         clientTo, propertyTo, employeeTo, organizationTo,
-        link, role
+        link, roleFrom, roleTo,
     }
 }
 

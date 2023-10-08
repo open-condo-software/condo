@@ -6,9 +6,8 @@ import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
 import { PageHeader, PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { IncidentForm } from '@condo/domains/ticket/components/IncidentForm'
-
+import { IncidentReadAndManagePermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 
 export interface IUpdateIncidentPage extends React.FC {
     headerAction?: JSX.Element
@@ -42,6 +41,6 @@ const UpdateIncidentPage: IUpdateIncidentPage = () => {
     return <UpdateIncidentPageContent />
 }
 
-UpdateIncidentPage.requiredAccess = OrganizationRequired
+UpdateIncidentPage.requiredAccess = IncidentReadAndManagePermissionRequired
 
 export default UpdateIncidentPage

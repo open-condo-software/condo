@@ -8,7 +8,7 @@ import type { TitleProps as DefaultTitleProps } from 'antd/lib/typography/Title'
 
 declare const TITLE_LEVELS: [1, 2, 3, 4, 5, 6]
 declare const TITLE_TYPES: ['primary', 'inverted', 'secondary', 'danger', 'warning', 'info', 'success']
-export type TypographyTitleProps = Pick<DefaultTitleProps, 'ellipsis' | 'onClick' | 'title' | 'children'> & {
+export type TypographyTitleProps = Pick<DefaultTitleProps, 'ellipsis' | 'onClick' | 'title' | 'children' | 'id'> & {
     type?: typeof TITLE_TYPES[number]
     level?: typeof TITLE_LEVELS[number]
 }

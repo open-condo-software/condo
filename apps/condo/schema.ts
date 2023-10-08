@@ -2288,6 +2288,17 @@ export type B2BAppAccessRightSet = {
   _label_?: Maybe<Scalars['String']>;
   /**  Link to B2BApp  */
   app?: Maybe<B2BApp>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2302,17 +2313,20 @@ export type B2BAppAccessRightSet = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  /**  Currently, this field is read-only. You cannot get manage access for the specified schema.  */
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
 };
 
 export type B2BAppAccessRightSetCreateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2322,12 +2336,6 @@ export type B2BAppAccessRightSetCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
 };
 
 /**  A keystone list  */
@@ -2342,6 +2350,16 @@ export type B2BAppAccessRightSetHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2359,6 +2377,16 @@ export type B2BAppAccessRightSetHistoryRecord = {
 
 export type B2BAppAccessRightSetHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2381,6 +2409,16 @@ export enum B2BAppAccessRightSetHistoryRecordHistoryActionType {
 
 export type B2BAppAccessRightSetHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2402,6 +2440,26 @@ export type B2BAppAccessRightSetHistoryRecordWhereInput = {
   app_not?: Maybe<Scalars['String']>;
   app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canReadContacts_not?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeters_not?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters_not?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings_not?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2502,6 +2560,16 @@ export type B2BAppAccessRightSetRelateToOneInput = {
 
 export type B2BAppAccessRightSetUpdateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -2511,12 +2579,6 @@ export type B2BAppAccessRightSetUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
 };
 
 export type B2BAppAccessRightSetWhereInput = {
@@ -2524,6 +2586,26 @@ export type B2BAppAccessRightSetWhereInput = {
   OR?: Maybe<Array<Maybe<B2BAppAccessRightSetWhereInput>>>;
   app?: Maybe<B2BAppWhereInput>;
   app_is_null?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canReadContacts_not?: Maybe<Scalars['Boolean']>;
+  canManageContacts?: Maybe<Scalars['Boolean']>;
+  canManageContacts_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageProperties?: Maybe<Scalars['Boolean']>;
+  canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeters_not?: Maybe<Scalars['Boolean']>;
+  canManageMeters?: Maybe<Scalars['Boolean']>;
+  canManageMeters_not?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadMeterReadings_not?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -2580,18 +2662,6 @@ export type B2BAppAccessRightSetWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
-  canReadOrganizations?: Maybe<Scalars['Boolean']>;
-  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations?: Maybe<Scalars['Boolean']>;
-  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
-  canReadProperties?: Maybe<Scalars['Boolean']>;
-  canReadProperties_not?: Maybe<Scalars['Boolean']>;
-  canManageProperties?: Maybe<Scalars['Boolean']>;
-  canManageProperties_not?: Maybe<Scalars['Boolean']>;
-  canReadContacts?: Maybe<Scalars['Boolean']>;
-  canReadContacts_not?: Maybe<Scalars['Boolean']>;
-  canManageContacts?: Maybe<Scalars['Boolean']>;
-  canManageContacts_not?: Maybe<Scalars['Boolean']>;
 };
 
 export type B2BAppAccessRightSetWhereUniqueInput = {
@@ -3546,7 +3616,7 @@ export type B2BAppHistoryRecordsUpdateInput = {
   data?: Maybe<B2BAppHistoryRecordUpdateInput>;
 };
 
-/**  B2BApp permissions that describe additional capabilities within the mini-application and allow the organization administration to manage accesses within the miniapp depending on the employee's role by toggling the B2BAppPermissions of a particular application for each role. By default, for all employees with "canManageIntegrations" in their role, all permissions will be set to True. For all other roles with access to the application the default value is False.  */
+/**  B2BApp permissions that describe additional capabilities within the mini-application and allow the organization administration to manage accesses within the miniapp depending on the employee's role by toggling the B2BAppPermissions of a particular application for each role. By default, for all employees with "canManageB2BApps" in their role, all permissions will be set to True. For all other roles with access to the application the default value is False.  */
 export type B2BAppPermission = {
   __typename?: 'B2BAppPermission';
   /**
@@ -3561,6 +3631,8 @@ export type B2BAppPermission = {
   app?: Maybe<B2BApp>;
   /**  The permission key. Must be written in lowerCamelCase, start with the prefix "can", and answer the question, "What can a user with this permission do?". Examples: "canManagePasses", "canReadPrivateData", etc.  */
   key?: Maybe<Scalars['String']>;
+  /**  Name of permission. Must be very brief (from 1 to 50 characters) and describe the capabilities that the employee will get with this permission. Must use nouns that indicate actions with objects or sections of the mini-application. Examples: "Passes management", "Access to settings", "Contacts viewing".  */
+  name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3580,6 +3652,7 @@ export type B2BAppPermission = {
 export type B2BAppPermissionCreateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3604,6 +3677,7 @@ export type B2BAppPermissionHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3622,6 +3696,7 @@ export type B2BAppPermissionHistoryRecord = {
 export type B2BAppPermissionHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3645,6 +3720,7 @@ export enum B2BAppPermissionHistoryRecordHistoryActionType {
 export type B2BAppPermissionHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3684,6 +3760,24 @@ export type B2BAppPermissionHistoryRecordWhereInput = {
   key_not_ends_with_i?: Maybe<Scalars['String']>;
   key_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   key_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -3778,6 +3872,7 @@ export type B2BAppPermissionHistoryRecordsUpdateInput = {
 export type B2BAppPermissionUpdateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
   key?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3812,6 +3907,24 @@ export type B2BAppPermissionWhereInput = {
   key_not_ends_with_i?: Maybe<Scalars['String']>;
   key_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   key_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -4426,7 +4539,7 @@ export type B2BAppRelateToOneInput = {
   disconnectAll?: Maybe<Scalars['Boolean']>;
 };
 
-/**  This model links the role of the organization and mini-apps, allowing mini-apps to extend the main role template. Having this mapping between role A and mini-app B means that all employees in the organization with role A can access mini-app B. In addition, a mini-app may want to differentiate access within itself. To do this, it can create B2BAppPermissions via service user, the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  By default, all existing and new permissions will be set to "true" for all roles in the organization that have "canManageIntegrations" checked, false for other employees. When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageIntegrations" checkbox. B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, and when adding it - it is added to all roles, and the value is set according to the rules described above.  */
+/**  This model links the role of the organization and mini-apps, allowing mini-apps to extend the main role template. Having this mapping between role A and mini-app B means that all employees in the organization with role A can access mini-app B. In addition, a mini-app may want to differentiate access within itself. To do this, it can create B2BAppPermissions via service user, the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  By default, all existing and new permissions will be set to "true" for all roles in the organization that have "canManageB2BApps" checked, false for other employees. When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageB2BApps" checkbox. B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, and when adding it - it is added to all roles, and the value is set according to the rules described above.  */
 export type B2BAppRole = {
   __typename?: 'B2BAppRole';
   /**
@@ -6058,9 +6171,15 @@ export type B2CAppProperty = {
   _label_?: Maybe<Scalars['String']>;
   /**  Link to B2C App  */
   app?: Maybe<B2CApp>;
-  /**  Property address. Must match the address lookup service with case accuracy  */
-  address?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  /**  Normalized address  */
+  address?: Maybe<Scalars['String']>;
+  /**  The unique key of the address  */
+  addressKey?: Maybe<Scalars['String']>;
+  /**  Property address components  */
+  addressMeta?: Maybe<AddressMetaField>;
+  /**  The origins of the address (some strings which may looks like real address or some id)  */
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6079,6 +6198,9 @@ export type B2CAppProperty = {
 export type B2CAppPropertyCreateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6102,8 +6224,11 @@ export type B2CAppPropertyHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
-  address?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
+  address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6121,6 +6246,9 @@ export type B2CAppPropertyHistoryRecord = {
 export type B2CAppPropertyHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6144,6 +6272,9 @@ export enum B2CAppPropertyHistoryRecordHistoryActionType {
 export type B2CAppPropertyHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6165,6 +6296,10 @@ export type B2CAppPropertyHistoryRecordWhereInput = {
   app_not?: Maybe<Scalars['String']>;
   app_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   app_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   address?: Maybe<Scalars['String']>;
   address_not?: Maybe<Scalars['String']>;
   address_contains?: Maybe<Scalars['String']>;
@@ -6183,10 +6318,32 @@ export type B2CAppPropertyHistoryRecordWhereInput = {
   address_not_ends_with_i?: Maybe<Scalars['String']>;
   address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -6277,6 +6434,9 @@ export type B2CAppPropertyHistoryRecordsUpdateInput = {
 export type B2CAppPropertyUpdateInput = {
   app?: Maybe<B2CAppRelateToOneInput>;
   address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -6293,6 +6453,10 @@ export type B2CAppPropertyWhereInput = {
   OR?: Maybe<Array<Maybe<B2CAppPropertyWhereInput>>>;
   app?: Maybe<B2CAppWhereInput>;
   app_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
   address?: Maybe<Scalars['String']>;
   address_not?: Maybe<Scalars['String']>;
   address_contains?: Maybe<Scalars['String']>;
@@ -6311,10 +6475,32 @@ export type B2CAppPropertyWhereInput = {
   address_not_ends_with_i?: Maybe<Scalars['String']>;
   address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  id?: Maybe<Scalars['ID']>;
-  id_not?: Maybe<Scalars['ID']>;
-  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
-  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   v?: Maybe<Scalars['Int']>;
   v_not?: Maybe<Scalars['Int']>;
   v_lt?: Maybe<Scalars['Int']>;
@@ -12071,6 +12257,10 @@ export type BillingAccount = {
   unitType?: Maybe<Scalars['String']>;
   /**  Full name of the account holder  */
   fullName?: Maybe<Scalars['String']>;
+  /**  Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.  */
+  isClosed?: Maybe<Scalars['Boolean']>;
+  /**  The account owner's type  */
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
   /**  Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`  */
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
@@ -12099,6 +12289,8 @@ export type BillingAccountCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12131,6 +12323,8 @@ export type BillingAccountHistoryRecord = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -12157,6 +12351,8 @@ export type BillingAccountHistoryRecordCreateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12188,6 +12384,8 @@ export type BillingAccountHistoryRecordUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12326,6 +12524,26 @@ export type BillingAccountHistoryRecordWhereInput = {
   fullName_not_ends_with_i?: Maybe<Scalars['String']>;
   fullName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   fullName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  isClosed_not?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<Scalars['String']>;
+  ownerType_not?: Maybe<Scalars['String']>;
+  ownerType_contains?: Maybe<Scalars['String']>;
+  ownerType_not_contains?: Maybe<Scalars['String']>;
+  ownerType_starts_with?: Maybe<Scalars['String']>;
+  ownerType_not_starts_with?: Maybe<Scalars['String']>;
+  ownerType_ends_with?: Maybe<Scalars['String']>;
+  ownerType_not_ends_with?: Maybe<Scalars['String']>;
+  ownerType_i?: Maybe<Scalars['String']>;
+  ownerType_not_i?: Maybe<Scalars['String']>;
+  ownerType_contains_i?: Maybe<Scalars['String']>;
+  ownerType_not_contains_i?: Maybe<Scalars['String']>;
+  ownerType_starts_with_i?: Maybe<Scalars['String']>;
+  ownerType_not_starts_with_i?: Maybe<Scalars['String']>;
+  ownerType_ends_with_i?: Maybe<Scalars['String']>;
+  ownerType_not_ends_with_i?: Maybe<Scalars['String']>;
+  ownerType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ownerType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -12421,6 +12639,11 @@ export type BillingAccountHistoryRecordsUpdateInput = {
   data?: Maybe<BillingAccountHistoryRecordUpdateInput>;
 };
 
+export enum BillingAccountOwnerTypeType {
+  Person = 'person',
+  Company = 'company'
+}
+
 export type BillingAccountRelateToOneInput = {
   create?: Maybe<BillingAccountCreateInput>;
   connect?: Maybe<BillingAccountWhereUniqueInput>;
@@ -12438,6 +12661,8 @@ export type BillingAccountUpdateInput = {
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
   meta?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -12555,6 +12780,12 @@ export type BillingAccountWhereInput = {
   fullName_not_ends_with_i?: Maybe<Scalars['String']>;
   fullName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   fullName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  isClosed_not?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
+  ownerType_not?: Maybe<BillingAccountOwnerTypeType>;
+  ownerType_in?: Maybe<Array<Maybe<BillingAccountOwnerTypeType>>>;
+  ownerType_not_in?: Maybe<Array<Maybe<BillingAccountOwnerTypeType>>>;
   meta?: Maybe<Scalars['JSON']>;
   meta_not?: Maybe<Scalars['JSON']>;
   meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
@@ -20481,6 +20712,26 @@ export type CreateOnBoardingInput = {
   userId: Scalars['ID'];
 };
 
+export type CreatePaymentByLinkInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  qrCode: Scalars['String'];
+};
+
+export type CreatePaymentByLinkOutput = {
+  __typename?: 'CreatePaymentByLinkOutput';
+  multiPaymentId: Scalars['ID'];
+  amount: Scalars['String'];
+  explicitFee: Scalars['String'];
+  totalAmount: Scalars['String'];
+  address: Scalars['String'];
+  addressMeta: AddressMetaField;
+  unitType: Scalars['String'];
+  unitName: Scalars['String'];
+  accountNumber: Scalars['String'];
+  period: Scalars['String'];
+};
+
 export type CustomAccess = {
   __typename?: 'CustomAccess';
   accessRules?: Maybe<Array<Maybe<CustomAccessListRule>>>;
@@ -21922,6 +22173,7 @@ export type GetOverviewDashboardInput = {
   sender: Scalars['JSON'];
   where: GetOverviewDashboardWhereInput;
   groupBy: GetOverviewDashboardGroupByInput;
+  entities?: Maybe<Array<Maybe<OverviewDashboardEntities>>>;
 };
 
 export type GetOverviewDashboardOutput = {
@@ -21933,6 +22185,8 @@ export type GetOverviewDashboardWhereInput = {
   organization: Scalars['String'];
   dateFrom: Scalars['String'];
   dateTo: Scalars['String'];
+  propertyIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  executorIds?: Maybe<Array<Maybe<Scalars['ID']>>>;
 };
 
 export type GetPhoneByConfirmPhoneActionTokenInput = {
@@ -23856,6 +24110,11 @@ export type IncidentHistoryRecordsCreateInput = {
 export type IncidentHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<IncidentHistoryRecordUpdateInput>;
+};
+
+export type IncidentOverviewResult = {
+  __typename?: 'IncidentOverviewResult';
+  count: Scalars['String'];
 };
 
 export type IncidentPropertiesCreateInput = {
@@ -29656,6 +29915,380 @@ export type MiniAppOutput = {
   menuCategory?: Maybe<Scalars['String']>;
 };
 
+/**  Manages availability of some features in mobile application, stores data required in disabled state of a feature.  */
+export type MobileFeatureConfig = {
+  __typename?: 'MobileFeatureConfig';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MobileFeatureConfig List config, or
+   *  2. As an alias to the field set on 'labelField' in the MobileFeatureConfig List config, or
+   *  3. As an alias to a 'name' field on the MobileFeatureConfig List (if one exists), or
+   *  4. As an alias to the 'id' field on the MobileFeatureConfig List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Phone number where the organization wants to receive common calls  */
+  commonPhone?: Maybe<Scalars['String']>;
+  /**  Disabling the ability to send tickets by the user of the resident's mobile application. Instead, he will be shown a screen with phones where he can contact to send a request  */
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  /**  Restricts residents to submit only meter readings, that are greater than previous. Restrictions apply to mobile phones only.  */
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  /**  Can be used to store some meta information for mobile applications.  */
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type MobileFeatureConfigCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type MobileFeatureConfigHistoryRecord = {
+  __typename?: 'MobileFeatureConfigHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MobileFeatureConfigHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MobileFeatureConfigHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MobileFeatureConfigHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MobileFeatureConfigHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MobileFeatureConfigHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MobileFeatureConfigHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MobileFeatureConfigHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MobileFeatureConfigHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commonPhone?: Maybe<Scalars['String']>;
+  commonPhone_not?: Maybe<Scalars['String']>;
+  commonPhone_contains?: Maybe<Scalars['String']>;
+  commonPhone_not_contains?: Maybe<Scalars['String']>;
+  commonPhone_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_i?: Maybe<Scalars['String']>;
+  commonPhone_not_i?: Maybe<Scalars['String']>;
+  commonPhone_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_not_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commonPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingIsDisabled_not?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MobileFeatureConfigHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MobileFeatureConfigHistoryRecordsCreateInput = {
+  data?: Maybe<MobileFeatureConfigHistoryRecordCreateInput>;
+};
+
+export type MobileFeatureConfigHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigHistoryRecordUpdateInput>;
+};
+
+export type MobileFeatureConfigUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  commonPhone?: Maybe<Scalars['String']>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type MobileFeatureConfigWhereInput = {
+  AND?: Maybe<Array<Maybe<MobileFeatureConfigWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MobileFeatureConfigWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  commonPhone?: Maybe<Scalars['String']>;
+  commonPhone_not?: Maybe<Scalars['String']>;
+  commonPhone_contains?: Maybe<Scalars['String']>;
+  commonPhone_not_contains?: Maybe<Scalars['String']>;
+  commonPhone_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with?: Maybe<Scalars['String']>;
+  commonPhone_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with?: Maybe<Scalars['String']>;
+  commonPhone_i?: Maybe<Scalars['String']>;
+  commonPhone_not_i?: Maybe<Scalars['String']>;
+  commonPhone_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_not_contains_i?: Maybe<Scalars['String']>;
+  commonPhone_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  commonPhone_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  commonPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  commonPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  ticketSubmittingIsDisabled?: Maybe<Scalars['Boolean']>;
+  ticketSubmittingIsDisabled_not?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled?: Maybe<Scalars['Boolean']>;
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not?: Maybe<Scalars['Boolean']>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type MobileFeatureConfigWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MobileFeatureConfigsCreateInput = {
+  data?: Maybe<MobileFeatureConfigCreateInput>;
+};
+
+export type MobileFeatureConfigsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigUpdateInput>;
+};
+
 /**  Information about resident's payment for single or multiple services/receipts  */
 export type MultiPayment = {
   __typename?: 'MultiPayment';
@@ -30626,6 +31259,30 @@ export type Mutation = {
   deleteExternalTokenAccessRight?: Maybe<ExternalTokenAccessRight>;
   /**  Delete multiple ExternalTokenAccessRight items by ID.  */
   deleteExternalTokenAccessRights?: Maybe<Array<Maybe<ExternalTokenAccessRight>>>;
+  /**  Create a single UserRightsSetHistoryRecord item.  */
+  createUserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Create multiple UserRightsSetHistoryRecord items.  */
+  createUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Update a single UserRightsSetHistoryRecord item by ID.  */
+  updateUserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Update multiple UserRightsSetHistoryRecord items by ID.  */
+  updateUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Delete a single UserRightsSetHistoryRecord item by ID.  */
+  deleteUserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Delete multiple UserRightsSetHistoryRecord items by ID.  */
+  deleteUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Create a single UserRightsSet item.  */
+  createUserRightsSet?: Maybe<UserRightsSet>;
+  /**  Create multiple UserRightsSet items.  */
+  createUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
+  /**  Update a single UserRightsSet item by ID.  */
+  updateUserRightsSet?: Maybe<UserRightsSet>;
+  /**  Update multiple UserRightsSet items by ID.  */
+  updateUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
+  /**  Delete a single UserRightsSet item by ID.  */
+  deleteUserRightsSet?: Maybe<UserRightsSet>;
+  /**  Delete multiple UserRightsSet items by ID.  */
+  deleteUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
   /**  Create a single OrganizationHistoryRecord item.  */
   createOrganizationHistoryRecord?: Maybe<OrganizationHistoryRecord>;
   /**  Create multiple OrganizationHistoryRecord items.  */
@@ -33158,6 +33815,30 @@ export type Mutation = {
   deleteB2BAppAccessRightSet?: Maybe<B2BAppAccessRightSet>;
   /**  Delete multiple B2BAppAccessRightSet items by ID.  */
   deleteB2BAppAccessRightSets?: Maybe<Array<Maybe<B2BAppAccessRightSet>>>;
+  /**  Create a single MobileFeatureConfigHistoryRecord item.  */
+  createMobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Create multiple MobileFeatureConfigHistoryRecord items.  */
+  createMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Update a single MobileFeatureConfigHistoryRecord item by ID.  */
+  updateMobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Update multiple MobileFeatureConfigHistoryRecord items by ID.  */
+  updateMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Delete a single MobileFeatureConfigHistoryRecord item by ID.  */
+  deleteMobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Delete multiple MobileFeatureConfigHistoryRecord items by ID.  */
+  deleteMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Create a single MobileFeatureConfig item.  */
+  createMobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Create multiple MobileFeatureConfig items.  */
+  createMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
+  /**  Update a single MobileFeatureConfig item by ID.  */
+  updateMobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Update multiple MobileFeatureConfig items by ID.  */
+  updateMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
+  /**  Delete a single MobileFeatureConfig item by ID.  */
+  deleteMobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Delete multiple MobileFeatureConfig items by ID.  */
+  deleteMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
   /**  Create a single WebhookHistoryRecord item.  */
   createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
   /**  Create multiple WebhookHistoryRecord items.  */
@@ -34003,8 +34684,10 @@ export type Mutation = {
    * }`
    */
   sendNewReceiptMessagesToResidentScopes?: Maybe<SendNewReceiptMessagesToResidentScopesOutput>;
+  validateQRCode?: Maybe<ValidateQrCodeOutput>;
   createBankAccountRequest?: Maybe<CreateBankAccountRequestOutput>;
   shareTicket?: Maybe<ShareTicketOutput>;
+  ticketMultipleUpdate: Ticket;
   /**
    * Sends message of specified type to specified contact
    *
@@ -34087,6 +34770,10 @@ export type Mutation = {
    * 		"organizationName": {
    * 			"defaultValue": "ORGANIZATION",
    * 			"required": false
+   * 		},
+   * 		"serverUrl": {
+   * 			"defaultValue": "",
+   * 			"required": false
    * 		}
    * 	},
    * 	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
@@ -34096,6 +34783,10 @@ export type Mutation = {
    * 		},
    * 		"organizationName": {
    * 			"defaultValue": "ORGANIZATION",
+   * 			"required": false
+   * 		},
+   * 		"serverUrl": {
+   * 			"defaultValue": "",
    * 			"required": false
    * 		}
    * 	},
@@ -34216,6 +34907,10 @@ export type Mutation = {
    * 			"url": {
    * 				"defaultValue": "",
    * 				"required": true
+   * 			},
+   * 			"organizationId": {
+   * 				"defaultValue": "",
+   * 				"required": true
    * 			}
    * 		}
    * 	},
@@ -34238,6 +34933,10 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"organizationId": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
@@ -34422,6 +35121,10 @@ export type Mutation = {
    * 				"required": true
    * 			},
    * 			"residentId": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"organizationId": {
    * 				"defaultValue": "",
    * 				"required": true
    * 			}
@@ -34665,6 +35368,54 @@ export type Mutation = {
    * 			"required": true
    * 		},
    * 		"data": {
+   * 			"meterId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"METER_SUBMIT_READINGS_REMINDER_START_PERIOD": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"monthName": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
+   * 			"meterId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"url": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			}
+   * 		}
+   * 	},
+   * 	"METER_SUBMIT_READINGS_REMINDER_END_PERIOD": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"monthName": {
+   * 				"defaultValue": "",
+   * 				"required": true
+   * 			},
    * 			"meterId": {
    * 				"required": true
    * 			},
@@ -35255,6 +36006,33 @@ export type Mutation = {
    * 				"required": true
    * 			}
    * 		}
+   * 	},
+   * 	"DEV_PORTAL_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"body": {
+   * 			"required": true
+   * 		}
+   * 	},
+   * 	"SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE": {
+   * 		"dv": {
+   * 			"required": true
+   * 		},
+   * 		"data": {
+   * 			"monthName": {
+   * 				"required": true
+   * 			},
+   * 			"serviceConsumerId": {
+   * 				"required": true
+   * 			},
+   * 			"residentId": {
+   * 				"required": true
+   * 			},
+   * 			"userId": {
+   * 				"required": true
+   * 			}
+   * 		}
    * 	}
    * }`
    *
@@ -35449,6 +36227,7 @@ export type Mutation = {
   registerMultiPayment?: Maybe<RegisterMultiPaymentOutput>;
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
+  createPaymentByLink?: Maybe<CreatePaymentByLinkOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
@@ -35825,6 +36604,68 @@ export type MutationDeleteExternalTokenAccessRightArgs = {
 
 
 export type MutationDeleteExternalTokenAccessRightsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserRightsSetHistoryRecordArgs = {
+  data?: Maybe<UserRightsSetHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateUserRightsSetHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserRightsSetHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateUserRightsSetHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserRightsSetHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserRightsSetHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateUserRightsSetArgs = {
+  data?: Maybe<UserRightsSetCreateInput>;
+};
+
+
+export type MutationCreateUserRightsSetsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetsCreateInput>>>;
+};
+
+
+export type MutationUpdateUserRightsSetArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetUpdateInput>;
+};
+
+
+export type MutationUpdateUserRightsSetsArgs = {
+  data?: Maybe<Array<Maybe<UserRightsSetsUpdateInput>>>;
+};
+
+
+export type MutationDeleteUserRightsSetArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteUserRightsSetsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -42370,6 +43211,68 @@ export type MutationDeleteB2BAppAccessRightSetsArgs = {
 };
 
 
+export type MutationCreateMobileFeatureConfigHistoryRecordArgs = {
+  data?: Maybe<MobileFeatureConfigHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMobileFeatureConfigHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMobileFeatureConfigHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMobileFeatureConfigHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMobileFeatureConfigArgs = {
+  data?: Maybe<MobileFeatureConfigCreateInput>;
+};
+
+
+export type MutationCreateMobileFeatureConfigsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigsCreateInput>>>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MobileFeatureConfigUpdateInput>;
+};
+
+
+export type MutationUpdateMobileFeatureConfigsArgs = {
+  data?: Maybe<Array<Maybe<MobileFeatureConfigsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMobileFeatureConfigArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMobileFeatureConfigsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateWebhookHistoryRecordArgs = {
   data?: Maybe<WebhookHistoryRecordCreateInput>;
 };
@@ -42606,6 +43509,11 @@ export type MutationSendNewReceiptMessagesToResidentScopesArgs = {
 };
 
 
+export type MutationValidateQrCodeArgs = {
+  data: ValidateQrCodeInput;
+};
+
+
 export type MutationCreateBankAccountRequestArgs = {
   data: CreateBankAccountRequestInput;
 };
@@ -42613,6 +43521,11 @@ export type MutationCreateBankAccountRequestArgs = {
 
 export type MutationShareTicketArgs = {
   data: ShareTicketInput;
+};
+
+
+export type MutationTicketMultipleUpdateArgs = {
+  data: TicketMultipleUpdateInput;
 };
 
 
@@ -42688,6 +43601,11 @@ export type MutationRegisterMultiPaymentForOneReceiptArgs = {
 
 export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
   data: RegisterMultiPaymentForVirtualReceiptInput;
+};
+
+
+export type MutationCreatePaymentByLinkArgs = {
+  data: CreatePaymentByLinkInput;
 };
 
 
@@ -44819,7 +45737,7 @@ export type NotificationUserSetting = {
   _label_?: Maybe<Scalars['String']>;
   /**  The user the settings will apply for  */
   user?: Maybe<User>;
-  /**  Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE  */
+  /**  Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_SUBMIT_READINGS_REMINDER_START_PERIOD,METER_SUBMIT_READINGS_REMINDER_END_PERIOD,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,DEV_PORTAL_MESSAGE,SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE  */
   messageType?: Maybe<NotificationUserSettingMessageTypeType>;
   /**  Affected message transport. Possible values are: sms,email,telegram,push  */
   messageTransport?: Maybe<NotificationUserSettingMessageTransportType>;
@@ -45104,6 +46022,8 @@ export enum NotificationUserSettingMessageTypeType {
   BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
   MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
+  MeterSubmitReadingsReminderStartPeriod = 'METER_SUBMIT_READINGS_REMINDER_START_PERIOD',
+  MeterSubmitReadingsReminderEndPeriod = 'METER_SUBMIT_READINGS_REMINDER_END_PERIOD',
   MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
   StaffUpgradeApp = 'STAFF_UPGRADE_APP',
@@ -45126,7 +46046,9 @@ export enum NotificationUserSettingMessageTypeType {
   RecurrentPaymentTomorrowPaymentNoReceiptsMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE',
   RecurrentPaymentTomorrowPaymentLimitExceedMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE',
   NewsItemCommonMessageType = 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
-  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
+  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE',
+  DevPortalMessage = 'DEV_PORTAL_MESSAGE',
+  SendBillingReceiptsOnPaydayReminderMessage = 'SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE'
 }
 
 export type NotificationUserSettingUpdateInput = {
@@ -46616,6 +47538,12 @@ export type Organization = {
   importId?: Maybe<Scalars['String']>;
   /**  List of the organization's features connected by a particular integration  */
   features: Array<OrganizationFeature>;
+  /**
+   *  @deprecated
+   * Indicates that organization is real.
+   * This is a service field, you should not implement logic using it.
+   */
+  isApproved?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -46696,6 +47624,7 @@ export type OrganizationCreateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Array<OrganizationFeature>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47098,18 +48027,23 @@ export type OrganizationEmployeeRole = {
   /**  Employee status transitions map  */
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   /**  Allows employees with this role to be assigned to tickets as responsible  */
@@ -47133,11 +48067,16 @@ export type OrganizationEmployeeRole = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47157,18 +48096,23 @@ export type OrganizationEmployeeRoleCreateInput = {
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -47183,11 +48127,16 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47213,18 +48162,23 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -47239,11 +48193,16 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -47263,18 +48222,23 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -47289,11 +48253,16 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47318,18 +48287,23 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   description?: Maybe<Scalars['String']>;
   statusTransitions?: Maybe<Scalars['JSON']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -47344,11 +48318,16 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47410,20 +48389,28 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   statusTransitions_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageOrganization_not?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
+  canReadEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageRoles_not?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageIntegrations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeters_not?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canReadContacts_not?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
@@ -47434,6 +48421,8 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
@@ -47478,8 +48467,12 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports_not?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
+  canReadIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -47488,6 +48481,12 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canManageCallRecords_not?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords_not?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -47579,18 +48578,23 @@ export type OrganizationEmployeeRoleUpdateInput = {
   name?: Maybe<Scalars['String']>;
   description?: Maybe<Scalars['String']>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
   canManageTicketComments?: Maybe<Scalars['Boolean']>;
   canShareTickets?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
   canBeAssignedAsResponsible?: Maybe<Scalars['Boolean']>;
@@ -47605,11 +48609,16 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageBankContractorAccounts?: Maybe<Scalars['Boolean']>;
   canManageBankTransactions?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
   canManageCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -47662,20 +48671,28 @@ export type OrganizationEmployeeRoleWhereInput = {
   description_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   canManageOrganization?: Maybe<Scalars['Boolean']>;
   canManageOrganization_not?: Maybe<Scalars['Boolean']>;
+  canReadEmployees?: Maybe<Scalars['Boolean']>;
+  canReadEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageEmployees?: Maybe<Scalars['Boolean']>;
   canManageEmployees_not?: Maybe<Scalars['Boolean']>;
   canManageRoles?: Maybe<Scalars['Boolean']>;
   canManageRoles_not?: Maybe<Scalars['Boolean']>;
   canManageIntegrations?: Maybe<Scalars['Boolean']>;
   canManageIntegrations_not?: Maybe<Scalars['Boolean']>;
+  canReadProperties?: Maybe<Scalars['Boolean']>;
+  canReadProperties_not?: Maybe<Scalars['Boolean']>;
   canManageProperties?: Maybe<Scalars['Boolean']>;
   canManageProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canReadTickets_not?: Maybe<Scalars['Boolean']>;
   canManageTickets?: Maybe<Scalars['Boolean']>;
   canManageTickets_not?: Maybe<Scalars['Boolean']>;
   canManageMeters?: Maybe<Scalars['Boolean']>;
   canManageMeters_not?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings?: Maybe<Scalars['Boolean']>;
   canManageMeterReadings_not?: Maybe<Scalars['Boolean']>;
+  canReadContacts?: Maybe<Scalars['Boolean']>;
+  canReadContacts_not?: Maybe<Scalars['Boolean']>;
   canManageContacts?: Maybe<Scalars['Boolean']>;
   canManageContacts_not?: Maybe<Scalars['Boolean']>;
   canManageContactRoles?: Maybe<Scalars['Boolean']>;
@@ -47686,6 +48703,8 @@ export type OrganizationEmployeeRoleWhereInput = {
   canShareTickets_not?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts?: Maybe<Scalars['Boolean']>;
   canReadBillingReceipts_not?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts?: Maybe<Scalars['Boolean']>;
+  canImportBillingReceipts_not?: Maybe<Scalars['Boolean']>;
   canReadPayments?: Maybe<Scalars['Boolean']>;
   canReadPayments_not?: Maybe<Scalars['Boolean']>;
   canInviteNewOrganizationEmployees?: Maybe<Scalars['Boolean']>;
@@ -47716,8 +48735,12 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageBankTransactions_not?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports?: Maybe<Scalars['Boolean']>;
   canManageBankAccountReports_not?: Maybe<Scalars['Boolean']>;
+  canReadIncidents?: Maybe<Scalars['Boolean']>;
+  canReadIncidents_not?: Maybe<Scalars['Boolean']>;
   canManageIncidents?: Maybe<Scalars['Boolean']>;
   canManageIncidents_not?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems?: Maybe<Scalars['Boolean']>;
+  canReadNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItems?: Maybe<Scalars['Boolean']>;
   canManageNewsItems_not?: Maybe<Scalars['Boolean']>;
   canManageNewsItemTemplates?: Maybe<Scalars['Boolean']>;
@@ -47726,6 +48749,12 @@ export type OrganizationEmployeeRoleWhereInput = {
   canManageCallRecords_not?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords?: Maybe<Scalars['Boolean']>;
   canDownloadCallRecords_not?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs?: Maybe<Scalars['Boolean']>;
+  canManageMobileFeatureConfigs_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics?: Maybe<Scalars['Boolean']>;
+  canReadAnalytics_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -48280,8 +49309,7 @@ export type OrganizationEmployeesUpdateInput = {
 };
 
 export enum OrganizationFeature {
-  Spp = 'SPP',
-  AnalyticsV3 = 'ANALYTICS_V3'
+  Spp = 'SPP'
 }
 
 export type OrganizationFeatures = {
@@ -48315,6 +49343,7 @@ export type OrganizationHistoryRecord = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -48345,6 +49374,7 @@ export type OrganizationHistoryRecordCreateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48380,6 +49410,7 @@ export type OrganizationHistoryRecordUpdateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Scalars['JSON']>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -48565,6 +49596,8 @@ export type OrganizationHistoryRecordWhereInput = {
   features_not?: Maybe<Scalars['JSON']>;
   features_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   features_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -48998,6 +50031,7 @@ export type OrganizationUpdateInput = {
   importRemoteSystem?: Maybe<Scalars['String']>;
   importId?: Maybe<Scalars['String']>;
   features?: Maybe<Array<OrganizationFeature>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49170,6 +50204,8 @@ export type OrganizationWhereInput = {
   features_not?: Maybe<Array<OrganizationFeature>>;
   features_in?: Maybe<Array<Maybe<Array<OrganizationFeature>>>>;
   features_not_in?: Maybe<Array<Maybe<Array<OrganizationFeature>>>>;
+  isApproved?: Maybe<Scalars['Boolean']>;
+  isApproved_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -49241,15 +50277,31 @@ export type OrganizationsUpdateInput = {
   data?: Maybe<OrganizationUpdateInput>;
 };
 
+export enum OverviewDashboardEntities {
+  TicketByDay = 'ticketByDay',
+  TicketByProperty = 'ticketByProperty',
+  TicketByCategory = 'ticketByCategory',
+  TicketByExecutor = 'ticketByExecutor',
+  TicketQualityControlValue = 'ticketQualityControlValue',
+  Payment = 'payment',
+  Receipt = 'receipt',
+  Resident = 'resident',
+  Property = 'property',
+  Incident = 'incident'
+}
+
 export type OverviewData = {
   __typename?: 'OverviewData';
   ticketByProperty?: Maybe<TicketOverviewResult>;
   ticketByDay?: Maybe<TicketOverviewResult>;
   ticketByCategory?: Maybe<TicketOverviewResult>;
   ticketByExecutor?: Maybe<TicketOverviewResult>;
+  ticketQualityControlValue?: Maybe<TicketOverviewResult>;
   payment?: Maybe<PaymentOverviewResult>;
   receipt?: Maybe<ReceiptOverviewResult>;
   resident?: Maybe<ResidentOverviewResult>;
+  property?: Maybe<PropertyOverviewResult>;
+  incident?: Maybe<IncidentOverviewResult>;
 };
 
 /**  Information about completed transaction from user to a specific organization  */
@@ -51936,6 +52988,11 @@ export type PropertyMetersUpdateInput = {
   data?: Maybe<PropertyMeterUpdateInput>;
 };
 
+export type PropertyOverviewResult = {
+  __typename?: 'PropertyOverviewResult';
+  sum: Scalars['String'];
+};
+
 export type PropertyRelateToOneInput = {
   create?: Maybe<PropertyCreateInput>;
   connect?: Maybe<PropertyWhereUniqueInput>;
@@ -53254,6 +54311,22 @@ export type Query = {
   _allExternalTokenAccessRightsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the ExternalTokenAccessRight list.  */
   _ExternalTokenAccessRightsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserRightsSetHistoryRecord items which match the where clause.  */
+  allUserRightsSetHistoryRecords?: Maybe<Array<Maybe<UserRightsSetHistoryRecord>>>;
+  /**  Search for the UserRightsSetHistoryRecord item with the matching ID.  */
+  UserRightsSetHistoryRecord?: Maybe<UserRightsSetHistoryRecord>;
+  /**  Perform a meta-query on all UserRightsSetHistoryRecord items which match the where clause.  */
+  _allUserRightsSetHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserRightsSetHistoryRecord list.  */
+  _UserRightsSetHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all UserRightsSet items which match the where clause.  */
+  allUserRightsSets?: Maybe<Array<Maybe<UserRightsSet>>>;
+  /**  Search for the UserRightsSet item with the matching ID.  */
+  UserRightsSet?: Maybe<UserRightsSet>;
+  /**  Perform a meta-query on all UserRightsSet items which match the where clause.  */
+  _allUserRightsSetsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the UserRightsSet list.  */
+  _UserRightsSetsMeta?: Maybe<_ListMeta>;
   /**  Search for all OrganizationHistoryRecord items which match the where clause.  */
   allOrganizationHistoryRecords?: Maybe<Array<Maybe<OrganizationHistoryRecord>>>;
   /**  Search for the OrganizationHistoryRecord item with the matching ID.  */
@@ -54942,6 +56015,22 @@ export type Query = {
   _allB2BAppAccessRightSetsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the B2BAppAccessRightSet list.  */
   _B2BAppAccessRightSetsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MobileFeatureConfigHistoryRecord items which match the where clause.  */
+  allMobileFeatureConfigHistoryRecords?: Maybe<Array<Maybe<MobileFeatureConfigHistoryRecord>>>;
+  /**  Search for the MobileFeatureConfigHistoryRecord item with the matching ID.  */
+  MobileFeatureConfigHistoryRecord?: Maybe<MobileFeatureConfigHistoryRecord>;
+  /**  Perform a meta-query on all MobileFeatureConfigHistoryRecord items which match the where clause.  */
+  _allMobileFeatureConfigHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MobileFeatureConfigHistoryRecord list.  */
+  _MobileFeatureConfigHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MobileFeatureConfig items which match the where clause.  */
+  allMobileFeatureConfigs?: Maybe<Array<Maybe<MobileFeatureConfig>>>;
+  /**  Search for the MobileFeatureConfig item with the matching ID.  */
+  MobileFeatureConfig?: Maybe<MobileFeatureConfig>;
+  /**  Perform a meta-query on all MobileFeatureConfig items which match the where clause.  */
+  _allMobileFeatureConfigsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MobileFeatureConfig list.  */
+  _MobileFeatureConfigsMeta?: Maybe<_ListMeta>;
   /**  Search for all WebhookHistoryRecord items which match the where clause.  */
   allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
   /**  Search for the WebhookHistoryRecord item with the matching ID.  */
@@ -55388,6 +56477,56 @@ export type Query_AllExternalTokenAccessRightsMetaArgs = {
   where?: Maybe<ExternalTokenAccessRightWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortExternalTokenAccessRightsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserRightsSetHistoryRecordsArgs = {
+  where?: Maybe<UserRightsSetHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserRightsSetHistoryRecordArgs = {
+  where: UserRightsSetHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllUserRightsSetHistoryRecordsMetaArgs = {
+  where?: Maybe<UserRightsSetHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllUserRightsSetsArgs = {
+  where?: Maybe<UserRightsSetWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryUserRightsSetArgs = {
+  where: UserRightsSetWhereUniqueInput;
+};
+
+
+export type Query_AllUserRightsSetsMetaArgs = {
+  where?: Maybe<UserRightsSetWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortUserRightsSetsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -60669,6 +61808,56 @@ export type Query_AllB2BAppAccessRightSetsMetaArgs = {
 };
 
 
+export type QueryAllMobileFeatureConfigHistoryRecordsArgs = {
+  where?: Maybe<MobileFeatureConfigHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMobileFeatureConfigHistoryRecordArgs = {
+  where: MobileFeatureConfigHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMobileFeatureConfigHistoryRecordsMetaArgs = {
+  where?: Maybe<MobileFeatureConfigHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMobileFeatureConfigsArgs = {
+  where?: Maybe<MobileFeatureConfigWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMobileFeatureConfigArgs = {
+  where: MobileFeatureConfigWhereUniqueInput;
+};
+
+
+export type Query_AllMobileFeatureConfigsMetaArgs = {
+  where?: Maybe<MobileFeatureConfigWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMobileFeatureConfigsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryAllWebhookHistoryRecordsArgs = {
   where?: Maybe<WebhookHistoryRecordWhereInput>;
   search?: Maybe<Scalars['String']>;
@@ -61733,7 +62922,7 @@ export type RegisterBillingReceiptInput = {
   services?: Maybe<Array<Maybe<BillingReceiptServiceFieldInput>>>;
   month: Scalars['Int'];
   year: Scalars['Int'];
-  category: BillingCategoryWhereUniqueInput;
+  category?: Maybe<BillingCategoryWhereUniqueInput>;
   tin: Scalars['String'];
   routingNumber: Scalars['String'];
   bankAccount: Scalars['String'];
@@ -63385,6 +64574,8 @@ export enum SendMessageType {
   BillingReceiptAddedWithDebt = 'BILLING_RECEIPT_ADDED_WITH_DEBT',
   BillingReceiptAddedWithNoDebt = 'BILLING_RECEIPT_ADDED_WITH_NO_DEBT',
   MeterSubmitReadingsReminder = 'METER_SUBMIT_READINGS_REMINDER',
+  MeterSubmitReadingsReminderStartPeriod = 'METER_SUBMIT_READINGS_REMINDER_START_PERIOD',
+  MeterSubmitReadingsReminderEndPeriod = 'METER_SUBMIT_READINGS_REMINDER_END_PERIOD',
   MeterVerificationDateExpired = 'METER_VERIFICATION_DATE_EXPIRED',
   ResidentUpgradeApp = 'RESIDENT_UPGRADE_APP',
   StaffUpgradeApp = 'STAFF_UPGRADE_APP',
@@ -63407,7 +64598,9 @@ export enum SendMessageType {
   RecurrentPaymentTomorrowPaymentNoReceiptsMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE',
   RecurrentPaymentTomorrowPaymentLimitExceedMessage = 'RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE',
   NewsItemCommonMessageType = 'NEWS_ITEM_COMMON_MESSAGE_TYPE',
-  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
+  NewsItemEmergencyMessageType = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE',
+  DevPortalMessage = 'DEV_PORTAL_MESSAGE',
+  SendBillingReceiptsOnPaydayReminderMessage = 'SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE'
 }
 
 export type SendNewReceiptMessagesToResidentScopesInput = {
@@ -64700,6 +65893,26 @@ export enum SortB2BAppAccessRightHistoryRecordsBy {
 }
 
 export enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
+  CanManageContactsAsc = 'canManageContacts_ASC',
+  CanManageContactsDesc = 'canManageContacts_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
+  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanManagePropertiesAsc = 'canManageProperties_ASC',
+  CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
+  CanReadMeterReadingsAsc = 'canReadMeterReadings_ASC',
+  CanReadMeterReadingsDesc = 'canReadMeterReadings_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -64721,6 +65934,26 @@ export enum SortB2BAppAccessRightSetHistoryRecordsBy {
 export enum SortB2BAppAccessRightSetsBy {
   AppAsc = 'app_ASC',
   AppDesc = 'app_DESC',
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
+  CanManageContactsAsc = 'canManageContacts_ASC',
+  CanManageContactsDesc = 'canManageContacts_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
+  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
+  CanManagePropertiesAsc = 'canManageProperties_ASC',
+  CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanManageMetersAsc = 'canManageMeters_ASC',
+  CanManageMetersDesc = 'canManageMeters_DESC',
+  CanReadMeterReadingsAsc = 'canReadMeterReadings_ASC',
+  CanReadMeterReadingsDesc = 'canReadMeterReadings_DESC',
+  CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
+  CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -64736,19 +65969,7 @@ export enum SortB2BAppAccessRightSetsBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC',
-  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
-  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
-  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
-  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
-  CanReadPropertiesAsc = 'canReadProperties_ASC',
-  CanReadPropertiesDesc = 'canReadProperties_DESC',
-  CanManagePropertiesAsc = 'canManageProperties_ASC',
-  CanManagePropertiesDesc = 'canManageProperties_DESC',
-  CanReadContactsAsc = 'canReadContacts_ASC',
-  CanReadContactsDesc = 'canReadContacts_DESC',
-  CanManageContactsAsc = 'canManageContacts_ASC',
-  CanManageContactsDesc = 'canManageContacts_DESC'
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortB2BAppAccessRightsBy {
@@ -64874,6 +66095,8 @@ export enum SortB2BAppHistoryRecordsBy {
 export enum SortB2BAppPermissionHistoryRecordsBy {
   KeyAsc = 'key_ASC',
   KeyDesc = 'key_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -64897,6 +66120,8 @@ export enum SortB2BAppPermissionsBy {
   AppDesc = 'app_DESC',
   KeyAsc = 'key_ASC',
   KeyDesc = 'key_DESC',
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -65192,10 +66417,12 @@ export enum SortB2CAppHistoryRecordsBy {
 export enum SortB2CAppPropertiesBy {
   AppAsc = 'app_ASC',
   AppDesc = 'app_DESC',
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -65213,10 +66440,12 @@ export enum SortB2CAppPropertiesBy {
 }
 
 export enum SortB2CAppPropertyHistoryRecordsBy {
-  AddressAsc = 'address_ASC',
-  AddressDesc = 'address_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
   VAsc = 'v_ASC',
   VDesc = 'v_DESC',
   CreatedAtAsc = 'createdAt_ASC',
@@ -65975,6 +67204,10 @@ export enum SortBillingAccountHistoryRecordsBy {
   UnitTypeDesc = 'unitType_DESC',
   FullNameAsc = 'fullName_ASC',
   FullNameDesc = 'fullName_DESC',
+  IsClosedAsc = 'isClosed_ASC',
+  IsClosedDesc = 'isClosed_DESC',
+  OwnerTypeAsc = 'ownerType_ASC',
+  OwnerTypeDesc = 'ownerType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -66010,6 +67243,10 @@ export enum SortBillingAccountsBy {
   UnitTypeDesc = 'unitType_DESC',
   FullNameAsc = 'fullName_ASC',
   FullNameDesc = 'fullName_DESC',
+  IsClosedAsc = 'isClosed_ASC',
+  IsClosedDesc = 'isClosed_DESC',
+  OwnerTypeAsc = 'ownerType_ASC',
+  OwnerTypeDesc = 'ownerType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -68080,6 +69317,58 @@ export enum SortMetersBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortMobileFeatureConfigHistoryRecordsBy {
+  CommonPhoneAsc = 'commonPhone_ASC',
+  CommonPhoneDesc = 'commonPhone_DESC',
+  TicketSubmittingIsDisabledAsc = 'ticketSubmittingIsDisabled_ASC',
+  TicketSubmittingIsDisabledDesc = 'ticketSubmittingIsDisabled_DESC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledAsc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_ASC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledDesc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMobileFeatureConfigsBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  CommonPhoneAsc = 'commonPhone_ASC',
+  CommonPhoneDesc = 'commonPhone_DESC',
+  TicketSubmittingIsDisabledAsc = 'ticketSubmittingIsDisabled_ASC',
+  TicketSubmittingIsDisabledDesc = 'ticketSubmittingIsDisabled_DESC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledAsc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_ASC',
+  OnlyGreaterThanPreviousMeterReadingIsEnabledDesc = 'onlyGreaterThanPreviousMeterReadingIsEnabled_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortMultiPaymentHistoryRecordsBy {
   ExplicitFeeAsc = 'explicitFee_ASC',
   ExplicitFeeDesc = 'explicitFee_DESC',
@@ -68718,20 +70007,28 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   DescriptionDesc = 'description_DESC',
   CanManageOrganizationAsc = 'canManageOrganization_ASC',
   CanManageOrganizationDesc = 'canManageOrganization_DESC',
+  CanReadEmployeesAsc = 'canReadEmployees_ASC',
+  CanReadEmployeesDesc = 'canReadEmployees_DESC',
   CanManageEmployeesAsc = 'canManageEmployees_ASC',
   CanManageEmployeesDesc = 'canManageEmployees_DESC',
   CanManageRolesAsc = 'canManageRoles_ASC',
   CanManageRolesDesc = 'canManageRoles_DESC',
   CanManageIntegrationsAsc = 'canManageIntegrations_ASC',
   CanManageIntegrationsDesc = 'canManageIntegrations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
   CanManageMetersAsc = 'canManageMeters_ASC',
   CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
   CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageContactRolesAsc = 'canManageContactRoles_ASC',
@@ -68742,6 +70039,8 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanImportBillingReceiptsAsc = 'canImportBillingReceipts_ASC',
+  CanImportBillingReceiptsDesc = 'canImportBillingReceipts_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanInviteNewOrganizationEmployeesAsc = 'canInviteNewOrganizationEmployees_ASC',
@@ -68770,8 +70069,12 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
   CanManageBankAccountReportsAsc = 'canManageBankAccountReports_ASC',
   CanManageBankAccountReportsDesc = 'canManageBankAccountReports_DESC',
+  CanReadIncidentsAsc = 'canReadIncidents_ASC',
+  CanReadIncidentsDesc = 'canReadIncidents_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManageNewsItemTemplatesAsc = 'canManageNewsItemTemplates_ASC',
@@ -68780,6 +70083,12 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanDownloadCallRecordsAsc = 'canDownloadCallRecords_ASC',
   CanDownloadCallRecordsDesc = 'canDownloadCallRecords_DESC',
+  CanManageMobileFeatureConfigsAsc = 'canManageMobileFeatureConfigs_ASC',
+  CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
+  CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -68805,20 +70114,28 @@ export enum SortOrganizationEmployeeRolesBy {
   DescriptionDesc = 'description_DESC',
   CanManageOrganizationAsc = 'canManageOrganization_ASC',
   CanManageOrganizationDesc = 'canManageOrganization_DESC',
+  CanReadEmployeesAsc = 'canReadEmployees_ASC',
+  CanReadEmployeesDesc = 'canReadEmployees_DESC',
   CanManageEmployeesAsc = 'canManageEmployees_ASC',
   CanManageEmployeesDesc = 'canManageEmployees_DESC',
   CanManageRolesAsc = 'canManageRoles_ASC',
   CanManageRolesDesc = 'canManageRoles_DESC',
   CanManageIntegrationsAsc = 'canManageIntegrations_ASC',
   CanManageIntegrationsDesc = 'canManageIntegrations_DESC',
+  CanReadPropertiesAsc = 'canReadProperties_ASC',
+  CanReadPropertiesDesc = 'canReadProperties_DESC',
   CanManagePropertiesAsc = 'canManageProperties_ASC',
   CanManagePropertiesDesc = 'canManageProperties_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
   CanManageTicketsAsc = 'canManageTickets_ASC',
   CanManageTicketsDesc = 'canManageTickets_DESC',
   CanManageMetersAsc = 'canManageMeters_ASC',
   CanManageMetersDesc = 'canManageMeters_DESC',
   CanManageMeterReadingsAsc = 'canManageMeterReadings_ASC',
   CanManageMeterReadingsDesc = 'canManageMeterReadings_DESC',
+  CanReadContactsAsc = 'canReadContacts_ASC',
+  CanReadContactsDesc = 'canReadContacts_DESC',
   CanManageContactsAsc = 'canManageContacts_ASC',
   CanManageContactsDesc = 'canManageContacts_DESC',
   CanManageContactRolesAsc = 'canManageContactRoles_ASC',
@@ -68829,6 +70146,8 @@ export enum SortOrganizationEmployeeRolesBy {
   CanShareTicketsDesc = 'canShareTickets_DESC',
   CanReadBillingReceiptsAsc = 'canReadBillingReceipts_ASC',
   CanReadBillingReceiptsDesc = 'canReadBillingReceipts_DESC',
+  CanImportBillingReceiptsAsc = 'canImportBillingReceipts_ASC',
+  CanImportBillingReceiptsDesc = 'canImportBillingReceipts_DESC',
   CanReadPaymentsAsc = 'canReadPayments_ASC',
   CanReadPaymentsDesc = 'canReadPayments_DESC',
   CanInviteNewOrganizationEmployeesAsc = 'canInviteNewOrganizationEmployees_ASC',
@@ -68857,8 +70176,12 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageBankTransactionsDesc = 'canManageBankTransactions_DESC',
   CanManageBankAccountReportsAsc = 'canManageBankAccountReports_ASC',
   CanManageBankAccountReportsDesc = 'canManageBankAccountReports_DESC',
+  CanReadIncidentsAsc = 'canReadIncidents_ASC',
+  CanReadIncidentsDesc = 'canReadIncidents_DESC',
   CanManageIncidentsAsc = 'canManageIncidents_ASC',
   CanManageIncidentsDesc = 'canManageIncidents_DESC',
+  CanReadNewsItemsAsc = 'canReadNewsItems_ASC',
+  CanReadNewsItemsDesc = 'canReadNewsItems_DESC',
   CanManageNewsItemsAsc = 'canManageNewsItems_ASC',
   CanManageNewsItemsDesc = 'canManageNewsItems_DESC',
   CanManageNewsItemTemplatesAsc = 'canManageNewsItemTemplates_ASC',
@@ -68867,6 +70190,12 @@ export enum SortOrganizationEmployeeRolesBy {
   CanManageCallRecordsDesc = 'canManageCallRecords_DESC',
   CanDownloadCallRecordsAsc = 'canDownloadCallRecords_ASC',
   CanDownloadCallRecordsDesc = 'canDownloadCallRecords_DESC',
+  CanManageMobileFeatureConfigsAsc = 'canManageMobileFeatureConfigs_ASC',
+  CanManageMobileFeatureConfigsDesc = 'canManageMobileFeatureConfigs_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadAnalyticsAsc = 'canReadAnalytics_ASC',
+  CanReadAnalyticsDesc = 'canReadAnalytics_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -68985,6 +70314,8 @@ export enum SortOrganizationHistoryRecordsBy {
   ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  IsApprovedAsc = 'isApproved_ASC',
+  IsApprovedDesc = 'isApproved_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -69068,6 +70399,8 @@ export enum SortOrganizationsBy {
   ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   ImportIdAsc = 'importId_ASC',
   ImportIdDesc = 'importId_DESC',
+  IsApprovedAsc = 'isApproved_ASC',
+  IsApprovedDesc = 'isApproved_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -70088,6 +71421,10 @@ export enum SortTicketChangesBy {
   IsPaidFromDesc = 'isPaidFrom_DESC',
   IsPaidToAsc = 'isPaidTo_ASC',
   IsPaidToDesc = 'isPaidTo_DESC',
+  IsPayableFromAsc = 'isPayableFrom_ASC',
+  IsPayableFromDesc = 'isPayableFrom_DESC',
+  IsPayableToAsc = 'isPayableTo_ASC',
+  IsPayableToDesc = 'isPayableTo_DESC',
   IsEmergencyFromAsc = 'isEmergencyFrom_ASC',
   IsEmergencyFromDesc = 'isEmergencyFrom_DESC',
   IsEmergencyToAsc = 'isEmergencyTo_ASC',
@@ -70212,6 +71549,8 @@ export enum SortTicketChangesBy {
   SourceDisplayNameFromDesc = 'sourceDisplayNameFrom_DESC',
   SourceDisplayNameToAsc = 'sourceDisplayNameTo_ASC',
   SourceDisplayNameToDesc = 'sourceDisplayNameTo_DESC',
+  ActualCreationDateAsc = 'actualCreationDate_ASC',
+  ActualCreationDateDesc = 'actualCreationDate_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -70613,6 +71952,8 @@ export enum SortTicketHistoryRecordsBy {
   DetailsDesc = 'details_DESC',
   IsPaidAsc = 'isPaid_ASC',
   IsPaidDesc = 'isPaid_DESC',
+  IsPayableAsc = 'isPayable_ASC',
+  IsPayableDesc = 'isPayable_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
   IsWarrantyAsc = 'isWarranty_ASC',
@@ -71048,6 +72389,8 @@ export enum SortTicketsBy {
   RelatedDesc = 'related_DESC',
   IsPaidAsc = 'isPaid_ASC',
   IsPaidDesc = 'isPaid_DESC',
+  IsPayableAsc = 'isPayable_ASC',
+  IsPayableDesc = 'isPayable_DESC',
   IsEmergencyAsc = 'isEmergency_ASC',
   IsEmergencyDesc = 'isEmergency_DESC',
   IsWarrantyAsc = 'isWarranty_ASC',
@@ -71225,6 +72568,156 @@ export enum SortUserHistoryRecordsBy {
   HistoryActionDesc = 'history_action_DESC'
 }
 
+export enum SortUserRightsSetHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  CanReadB2BAppsAsc = 'canReadB2BApps_ASC',
+  CanReadB2BAppsDesc = 'canReadB2BApps_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
+  CanReadB2BAppAccessRightsDesc = 'canReadB2BAppAccessRights_DESC',
+  CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
+  CanManageB2BAppAccessRightsDesc = 'canManageB2BAppAccessRights_DESC',
+  CanReadB2BAppAccessRightSetsAsc = 'canReadB2BAppAccessRightSets_ASC',
+  CanReadB2BAppAccessRightSetsDesc = 'canReadB2BAppAccessRightSets_DESC',
+  CanManageB2BAppAccessRightSetsAsc = 'canManageB2BAppAccessRightSets_ASC',
+  CanManageB2BAppAccessRightSetsDesc = 'canManageB2BAppAccessRightSets_DESC',
+  CanReadB2BAppContextsAsc = 'canReadB2BAppContexts_ASC',
+  CanReadB2BAppContextsDesc = 'canReadB2BAppContexts_DESC',
+  CanManageB2BAppContextsAsc = 'canManageB2BAppContexts_ASC',
+  CanManageB2BAppContextsDesc = 'canManageB2BAppContexts_DESC',
+  CanReadB2BAppPermissionsAsc = 'canReadB2BAppPermissions_ASC',
+  CanReadB2BAppPermissionsDesc = 'canReadB2BAppPermissions_DESC',
+  CanManageB2BAppPermissionsAsc = 'canManageB2BAppPermissions_ASC',
+  CanManageB2BAppPermissionsDesc = 'canManageB2BAppPermissions_DESC',
+  CanReadB2BAppPromoBlocksAsc = 'canReadB2BAppPromoBlocks_ASC',
+  CanReadB2BAppPromoBlocksDesc = 'canReadB2BAppPromoBlocks_DESC',
+  CanManageB2BAppPromoBlocksAsc = 'canManageB2BAppPromoBlocks_ASC',
+  CanManageB2BAppPromoBlocksDesc = 'canManageB2BAppPromoBlocks_DESC',
+  CanReadB2CAppsAsc = 'canReadB2CApps_ASC',
+  CanReadB2CAppsDesc = 'canReadB2CApps_DESC',
+  CanManageB2CAppsAsc = 'canManageB2CApps_ASC',
+  CanManageB2CAppsDesc = 'canManageB2CApps_DESC',
+  CanReadB2CAppAccessRightsAsc = 'canReadB2CAppAccessRights_ASC',
+  CanReadB2CAppAccessRightsDesc = 'canReadB2CAppAccessRights_DESC',
+  CanManageB2CAppAccessRightsAsc = 'canManageB2CAppAccessRights_ASC',
+  CanManageB2CAppAccessRightsDesc = 'canManageB2CAppAccessRights_DESC',
+  CanReadB2CAppBuildsAsc = 'canReadB2CAppBuilds_ASC',
+  CanReadB2CAppBuildsDesc = 'canReadB2CAppBuilds_DESC',
+  CanManageB2CAppBuildsAsc = 'canManageB2CAppBuilds_ASC',
+  CanManageB2CAppBuildsDesc = 'canManageB2CAppBuilds_DESC',
+  CanReadB2CAppPropertiesAsc = 'canReadB2CAppProperties_ASC',
+  CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
+  CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
+  CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
+  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
+  CanManageTicketsAsc = 'canManageTickets_ASC',
+  CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
+  CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
+  CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
+  CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
+  CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
+  CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortUserRightsSetsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
+  CanReadB2BAppsAsc = 'canReadB2BApps_ASC',
+  CanReadB2BAppsDesc = 'canReadB2BApps_DESC',
+  CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
+  CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
+  CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
+  CanReadB2BAppAccessRightsDesc = 'canReadB2BAppAccessRights_DESC',
+  CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
+  CanManageB2BAppAccessRightsDesc = 'canManageB2BAppAccessRights_DESC',
+  CanReadB2BAppAccessRightSetsAsc = 'canReadB2BAppAccessRightSets_ASC',
+  CanReadB2BAppAccessRightSetsDesc = 'canReadB2BAppAccessRightSets_DESC',
+  CanManageB2BAppAccessRightSetsAsc = 'canManageB2BAppAccessRightSets_ASC',
+  CanManageB2BAppAccessRightSetsDesc = 'canManageB2BAppAccessRightSets_DESC',
+  CanReadB2BAppContextsAsc = 'canReadB2BAppContexts_ASC',
+  CanReadB2BAppContextsDesc = 'canReadB2BAppContexts_DESC',
+  CanManageB2BAppContextsAsc = 'canManageB2BAppContexts_ASC',
+  CanManageB2BAppContextsDesc = 'canManageB2BAppContexts_DESC',
+  CanReadB2BAppPermissionsAsc = 'canReadB2BAppPermissions_ASC',
+  CanReadB2BAppPermissionsDesc = 'canReadB2BAppPermissions_DESC',
+  CanManageB2BAppPermissionsAsc = 'canManageB2BAppPermissions_ASC',
+  CanManageB2BAppPermissionsDesc = 'canManageB2BAppPermissions_DESC',
+  CanReadB2BAppPromoBlocksAsc = 'canReadB2BAppPromoBlocks_ASC',
+  CanReadB2BAppPromoBlocksDesc = 'canReadB2BAppPromoBlocks_DESC',
+  CanManageB2BAppPromoBlocksAsc = 'canManageB2BAppPromoBlocks_ASC',
+  CanManageB2BAppPromoBlocksDesc = 'canManageB2BAppPromoBlocks_DESC',
+  CanReadB2CAppsAsc = 'canReadB2CApps_ASC',
+  CanReadB2CAppsDesc = 'canReadB2CApps_DESC',
+  CanManageB2CAppsAsc = 'canManageB2CApps_ASC',
+  CanManageB2CAppsDesc = 'canManageB2CApps_DESC',
+  CanReadB2CAppAccessRightsAsc = 'canReadB2CAppAccessRights_ASC',
+  CanReadB2CAppAccessRightsDesc = 'canReadB2CAppAccessRights_DESC',
+  CanManageB2CAppAccessRightsAsc = 'canManageB2CAppAccessRights_ASC',
+  CanManageB2CAppAccessRightsDesc = 'canManageB2CAppAccessRights_DESC',
+  CanReadB2CAppBuildsAsc = 'canReadB2CAppBuilds_ASC',
+  CanReadB2CAppBuildsDesc = 'canReadB2CAppBuilds_DESC',
+  CanManageB2CAppBuildsAsc = 'canManageB2CAppBuilds_ASC',
+  CanManageB2CAppBuildsDesc = 'canManageB2CAppBuilds_DESC',
+  CanReadB2CAppPropertiesAsc = 'canReadB2CAppProperties_ASC',
+  CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
+  CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
+  CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
+  CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
+  CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
+  CanManageOrganizationsDesc = 'canManageOrganizations_DESC',
+  CanReadTicketsAsc = 'canReadTickets_ASC',
+  CanReadTicketsDesc = 'canReadTickets_DESC',
+  CanManageTicketsAsc = 'canManageTickets_ASC',
+  CanManageTicketsDesc = 'canManageTickets_DESC',
+  CanExecuteRegisterNewServiceUserAsc = 'canExecuteRegisterNewServiceUser_ASC',
+  CanExecuteRegisterNewServiceUserDesc = 'canExecuteRegisterNewServiceUser_DESC',
+  CanExecuteSendMessageAsc = 'canExecuteSendMessage_ASC',
+  CanExecuteSendMessageDesc = 'canExecuteSendMessage_DESC',
+  CanManageOrganizationIsApprovedFieldAsc = 'canManageOrganizationIsApprovedField_ASC',
+  CanManageOrganizationIsApprovedFieldDesc = 'canManageOrganizationIsApprovedField_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortUserTicketCommentReadTimeHistoryRecordsBy {
   ReadCommentAtAsc = 'readCommentAt_ASC',
   ReadCommentAtDesc = 'readCommentAt_DESC',
@@ -71296,6 +72789,8 @@ export enum SortUsersBy {
   LocaleDesc = 'locale_DESC',
   ShowGlobalHintsAsc = 'showGlobalHints_ASC',
   ShowGlobalHintsDesc = 'showGlobalHints_DESC',
+  RightsSetAsc = 'rightsSet_ASC',
+  RightsSetDesc = 'rightsSet_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -71560,8 +73055,13 @@ export type Ticket = {
   details?: Maybe<Scalars['String']>;
   /**  Sometimes, it is important for us to show related issues. For example, to show related issues  */
   related?: Maybe<Ticket>;
-  /**  Indicates the ticket is paid  */
+  /**
+   *  @deprecated Please use "isPayable"
+   * Indicates the ticket is payable
+   */
   isPaid?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is payable  */
+  isPayable?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergency?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is warranty  */
@@ -71618,7 +73118,8 @@ export enum TicketAnalyticsGroupBy {
   Property = 'property',
   CategoryClassifier = 'categoryClassifier',
   Executor = 'executor',
-  Assignee = 'assignee'
+  Assignee = 'assignee',
+  QualityControlValue = 'qualityControlValue'
 }
 
 export type TicketAnalyticsNullReplaces = {
@@ -72056,10 +73557,20 @@ export type TicketChange = {
   detailsFrom?: Maybe<Scalars['String']>;
   /**  Text description of the issue. Maybe written by a user or an operator  */
   detailsTo?: Maybe<Scalars['String']>;
-  /**  Indicates the ticket is paid  */
+  /**
+   *  @deprecated Please use "isPayable"
+   * Indicates the ticket is payable
+   */
   isPaidFrom?: Maybe<Scalars['Boolean']>;
-  /**  Indicates the ticket is paid  */
+  /**
+   *  @deprecated Please use "isPayable"
+   * Indicates the ticket is payable
+   */
   isPaidTo?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is payable  */
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  /**  Indicates the ticket is payable  */
+  isPayableTo?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   /**  Indicates the ticket is emergency  */
@@ -72200,6 +73711,8 @@ export type TicketChange = {
   /**  New display name of related entity. Ticket source channel/system. Examples: call, email, visit, ...  */
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
   sourceDisplayNameToNonLocalized?: Maybe<Scalars['String']>;
+  /**  Actual creation ticket change date, for case when ticket updated from offline  */
+  actualCreationDate?: Maybe<Scalars['String']>;
   /**  Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee  */
   changedByRole?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -72250,6 +73763,8 @@ export type TicketChangeCreateInput = {
   detailsTo?: Maybe<Scalars['String']>;
   isPaidFrom?: Maybe<Scalars['Boolean']>;
   isPaidTo?: Maybe<Scalars['Boolean']>;
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  isPayableTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   isWarrantyFrom?: Maybe<Scalars['Boolean']>;
@@ -72318,6 +73833,7 @@ export type TicketChangeCreateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
+  actualCreationDate?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -72395,6 +73911,8 @@ export type TicketChangeUpdateInput = {
   detailsTo?: Maybe<Scalars['String']>;
   isPaidFrom?: Maybe<Scalars['Boolean']>;
   isPaidTo?: Maybe<Scalars['Boolean']>;
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  isPayableTo?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
   isWarrantyFrom?: Maybe<Scalars['Boolean']>;
@@ -72463,6 +73981,7 @@ export type TicketChangeUpdateInput = {
   sourceIdTo?: Maybe<Scalars['ID']>;
   sourceDisplayNameFrom?: Maybe<Scalars['String']>;
   sourceDisplayNameTo?: Maybe<Scalars['String']>;
+  actualCreationDate?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -72841,6 +74360,10 @@ export type TicketChangeWhereInput = {
   isPaidFrom_not?: Maybe<Scalars['Boolean']>;
   isPaidTo?: Maybe<Scalars['Boolean']>;
   isPaidTo_not?: Maybe<Scalars['Boolean']>;
+  isPayableFrom?: Maybe<Scalars['Boolean']>;
+  isPayableFrom_not?: Maybe<Scalars['Boolean']>;
+  isPayableTo?: Maybe<Scalars['Boolean']>;
+  isPayableTo_not?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom?: Maybe<Scalars['Boolean']>;
   isEmergencyFrom_not?: Maybe<Scalars['Boolean']>;
   isEmergencyTo?: Maybe<Scalars['Boolean']>;
@@ -73497,6 +75020,14 @@ export type TicketChangeWhereInput = {
   sourceDisplayNameTo_not_ends_with_i?: Maybe<Scalars['String']>;
   sourceDisplayNameTo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   sourceDisplayNameTo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  actualCreationDate?: Maybe<Scalars['String']>;
+  actualCreationDate_not?: Maybe<Scalars['String']>;
+  actualCreationDate_lt?: Maybe<Scalars['String']>;
+  actualCreationDate_lte?: Maybe<Scalars['String']>;
+  actualCreationDate_gt?: Maybe<Scalars['String']>;
+  actualCreationDate_gte?: Maybe<Scalars['String']>;
+  actualCreationDate_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  actualCreationDate_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -75008,6 +76539,7 @@ export type TicketCreateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -76348,6 +77880,7 @@ export type TicketGroupedCounter = {
   categoryClassifier?: Maybe<Scalars['String']>;
   executor?: Maybe<Scalars['String']>;
   assignee?: Maybe<Scalars['String']>;
+  qualityControlValue?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -76398,6 +77931,7 @@ export type TicketHistoryRecord = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -76467,6 +78001,7 @@ export type TicketHistoryRecordCreateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -76541,6 +78076,7 @@ export type TicketHistoryRecordUpdateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<Scalars['String']>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -76908,6 +78444,8 @@ export type TicketHistoryRecordWhereInput = {
   related_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isPaid_not?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
+  isPayable_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
@@ -77150,6 +78688,13 @@ export type TicketLabel = {
   value: Scalars['String'];
 };
 
+export type TicketMultipleUpdateInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  id: Scalars['ID'];
+  data: Array<Maybe<TicketUpdateInput>>;
+};
+
 /**  Ticket settings rules for each organization. (Setting the "deadline" fields for each ticket type)  */
 export type TicketOrganizationSetting = {
   __typename?: 'TicketOrganizationSetting';
@@ -77165,7 +78710,7 @@ export type TicketOrganizationSetting = {
   organization?: Maybe<Organization>;
   /**  Default deadline duration for default tickets (ISO 8601 format)  */
   defaultDeadlineDuration?: Maybe<Scalars['String']>;
-  /**  Default deadline duration for paid tickets (ISO 8601 format)  */
+  /**  Default deadline duration for payable tickets (ISO 8601 format)  */
   paidDeadlineDuration?: Maybe<Scalars['String']>;
   /**  Default deadline duration for emergency tickets (ISO 8601 format)  */
   emergencyDeadlineDuration?: Maybe<Scalars['String']>;
@@ -77563,6 +79108,13 @@ export type TicketOrganizationSettingsUpdateInput = {
 export type TicketOverviewResult = {
   __typename?: 'TicketOverviewResult';
   tickets?: Maybe<Array<TicketGroupedCounter>>;
+  translations?: Maybe<Array<Maybe<TicketOverviewTranslations>>>;
+};
+
+export type TicketOverviewTranslations = {
+  __typename?: 'TicketOverviewTranslations';
+  key: Scalars['String'];
+  value: Scalars['String'];
 };
 
 /**  Describes where the incident occurred  */
@@ -79830,6 +81382,7 @@ export type TicketUpdateInput = {
   details?: Maybe<Scalars['String']>;
   related?: Maybe<TicketRelateToOneInput>;
   isPaid?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
   isResidentTicket?: Maybe<Scalars['Boolean']>;
@@ -80132,6 +81685,8 @@ export type TicketWhereInput = {
   related_is_null?: Maybe<Scalars['Boolean']>;
   isPaid?: Maybe<Scalars['Boolean']>;
   isPaid_not?: Maybe<Scalars['Boolean']>;
+  isPayable?: Maybe<Scalars['Boolean']>;
+  isPayable_not?: Maybe<Scalars['Boolean']>;
   isEmergency?: Maybe<Scalars['Boolean']>;
   isEmergency_not?: Maybe<Scalars['Boolean']>;
   isWarranty?: Maybe<Scalars['Boolean']>;
@@ -80356,6 +81911,8 @@ export type User = {
   customAccess?: Maybe<CustomAccess>;
   /**  Show global hints in CRM or not  */
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  /**  A set of permissions that allow the user to directly read or manage certain schemas as well as run certain mutations.  */
+  rightsSet?: Maybe<UserRightsSet>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -80393,6 +81950,7 @@ export type UserCreateInput = {
   locale?: Maybe<UserLocaleType>;
   customAccess?: Maybe<CustomAccessInput>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<UserRightsSetRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -81135,6 +82693,7 @@ export type UserHistoryRecord = {
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -81166,6 +82725,7 @@ export type UserHistoryRecordCreateInput = {
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -81202,6 +82762,7 @@ export type UserHistoryRecordUpdateInput = {
   locale?: Maybe<Scalars['String']>;
   customAccess?: Maybe<Scalars['JSON']>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -81353,6 +82914,10 @@ export type UserHistoryRecordWhereInput = {
   customAccess_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
   showGlobalHints_not?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<Scalars['String']>;
+  rightsSet_not?: Maybe<Scalars['String']>;
+  rightsSet_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  rightsSet_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -81454,6 +83019,634 @@ export type UserRelateToOneInput = {
   connect?: Maybe<UserWhereUniqueInput>;
   disconnect?: Maybe<UserWhereUniqueInput>;
   disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+/**  A set of rights that allows one user or a group of users to gain direct access to objects of a particular schema and to perform certain mutations  */
+export type UserRightsSet = {
+  __typename?: 'UserRightsSet';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserRightsSet List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserRightsSet List config, or
+   *  3. As an alias to a 'name' field on the UserRightsSet List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserRightsSet List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  A name that distinguishes this group of rights from others and describes the set of rights that users of this group receive. For example: "Full access to mini-applications", "Level 1 Support", "Read all organizations", etc  */
+  name?: Maybe<Scalars['String']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BApp" as support / admin users do  */
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BApp" similar to support users  */
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do  */
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRight" similar to support users  */
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRightSet" as support / admin users do  */
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRightSet" similar to support users  */
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppContext" as support / admin users do  */
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppContext" similar to support users  */
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppPermission" as support / admin users do  */
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPermission" similar to support users  */
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppPromoBlock" as support / admin users do  */
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPromoBlock" similar to support users  */
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CApp" as support / admin users do  */
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CApp" similar to support users  */
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CAppAccessRight" as support / admin users do  */
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppAccessRight" similar to support users  */
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CAppBuild" as support / admin users do  */
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppBuild" similar to support users  */
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2CAppProperty" as support / admin users do  */
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users  */
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do  */
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Organization" similar to support users  */
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do  */
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users  */
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation  */
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation  */
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization"  */
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type UserRightsSetCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type UserRightsSetHistoryRecord = {
+  __typename?: 'UserRightsSetHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the UserRightsSetHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the UserRightsSetHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the UserRightsSetHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the UserRightsSetHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserRightsSetHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum UserRightsSetHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type UserRightsSetHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type UserRightsSetHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<UserRightsSetHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserRightsSetHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canReadTickets_not?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<UserRightsSetHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<UserRightsSetHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<UserRightsSetHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type UserRightsSetHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserRightsSetHistoryRecordsCreateInput = {
+  data?: Maybe<UserRightsSetHistoryRecordCreateInput>;
+};
+
+export type UserRightsSetHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetHistoryRecordUpdateInput>;
+};
+
+export type UserRightsSetRelateToOneInput = {
+  create?: Maybe<UserRightsSetCreateInput>;
+  connect?: Maybe<UserRightsSetWhereUniqueInput>;
+  disconnect?: Maybe<UserRightsSetWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
+export type UserRightsSetUpdateInput = {
+  name?: Maybe<Scalars['String']>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type UserRightsSetWhereInput = {
+  AND?: Maybe<Array<Maybe<UserRightsSetWhereInput>>>;
+  OR?: Maybe<Array<Maybe<UserRightsSetWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canReadB2BApps?: Maybe<Scalars['Boolean']>;
+  canReadB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps?: Maybe<Scalars['Boolean']>;
+  canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppAccessRightSets_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppPromoBlocks_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps?: Maybe<Scalars['Boolean']>;
+  canReadB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps?: Maybe<Scalars['Boolean']>;
+  canManageB2CApps_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppAccessRights_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppBuilds_not?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations?: Maybe<Scalars['Boolean']>;
+  canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations?: Maybe<Scalars['Boolean']>;
+  canManageOrganizations_not?: Maybe<Scalars['Boolean']>;
+  canReadTickets?: Maybe<Scalars['Boolean']>;
+  canReadTickets_not?: Maybe<Scalars['Boolean']>;
+  canManageTickets?: Maybe<Scalars['Boolean']>;
+  canManageTickets_not?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser?: Maybe<Scalars['Boolean']>;
+  canExecuteRegisterNewServiceUser_not?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage?: Maybe<Scalars['Boolean']>;
+  canExecuteSendMessage_not?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField?: Maybe<Scalars['Boolean']>;
+  canManageOrganizationIsApprovedField_not?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type UserRightsSetWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type UserRightsSetsCreateInput = {
+  data?: Maybe<UserRightsSetCreateInput>;
+};
+
+export type UserRightsSetsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<UserRightsSetUpdateInput>;
 };
 
 /**  Time when a comment from a resident was last read by a specific user in a specific ticket  */
@@ -81830,6 +84023,7 @@ export type UserUpdateInput = {
   locale?: Maybe<UserLocaleType>;
   customAccess?: Maybe<CustomAccessInput>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<UserRightsSetRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -81929,6 +84123,8 @@ export type UserWhereInput = {
   customAccess_not_in?: Maybe<Array<Maybe<CustomAccessInput>>>;
   showGlobalHints?: Maybe<Scalars['Boolean']>;
   showGlobalHints_not?: Maybe<Scalars['Boolean']>;
+  rightsSet?: Maybe<UserRightsSetWhereInput>;
+  rightsSet_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -81998,6 +84194,17 @@ export type UsersCreateInput = {
 export type UsersUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<UserUpdateInput>;
+};
+
+export type ValidateQrCodeInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  qrCode: Scalars['String'];
+};
+
+export type ValidateQrCodeOutput = {
+  __typename?: 'ValidateQRCodeOutput';
+  qrCodeFields: Scalars['JSON'];
 };
 
 /** Technical map of the 'village' type Property object. We assume that there will be different maps for different property types.  */

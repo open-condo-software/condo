@@ -39,6 +39,8 @@ const TICKET_STATUS_DECLINED_TYPE = 'TICKET_STATUS_DECLINED'
 const TICKET_COMMENT_ADDED_TYPE = 'TICKET_COMMENT_ADDED'
 const METER_VERIFICATION_DATE_REMINDER_TYPE = 'METER_VERIFICATION_DATE_REMINDER'
 const METER_SUBMIT_READINGS_REMINDER_TYPE = 'METER_SUBMIT_READINGS_REMINDER'
+const METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE = 'METER_SUBMIT_READINGS_REMINDER_START_PERIOD'
+const METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE = 'METER_SUBMIT_READINGS_REMINDER_END_PERIOD'
 const METER_VERIFICATION_DATE_EXPIRED_TYPE = 'METER_VERIFICATION_DATE_EXPIRED'
 const RESIDENT_ADD_BILLING_ACCOUNT_TYPE = 'RESIDENT_ADD_BILLING_ACCOUNT'
 const BILLING_RECEIPT_AVAILABLE_TYPE = 'BILLING_RECEIPT_AVAILABLE'
@@ -71,6 +73,8 @@ const RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE = 'RECURRENT_
 const B2C_APP_MESSAGE_PUSH_TYPE = 'B2C_APP_MESSAGE_PUSH'
 const NEWS_ITEM_COMMON_MESSAGE_TYPE = 'NEWS_ITEM_COMMON_MESSAGE_TYPE'
 const NEWS_ITEM_EMERGENCY_MESSAGE_TYPE = 'NEWS_ITEM_EMERGENCY_MESSAGE_TYPE'
+const DEV_PORTAL_MESSAGE_TYPE = 'DEV_PORTAL_MESSAGE'
+const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE = 'SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE'
 
 const SMS_FORBIDDEN_SYMBOLS_REGEXP = /[&#|«»]+/gim
 
@@ -126,10 +130,12 @@ const MESSAGE_META = {
     [DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
+        serverUrl: { defaultValue: '', required: false },
     },
     [DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         organizationName: { defaultValue: 'ORGANIZATION', required: false },
+        serverUrl: { defaultValue: '', required: false },
     },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
@@ -171,6 +177,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [TICKET_EXECUTOR_CONNECTED_TYPE]: {
@@ -180,6 +187,7 @@ const MESSAGE_META = {
             ticketNumber: { defaultValue: '', required: true },
             userId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [TRACK_TICKET_IN_DOMA_APP_TYPE]: {
@@ -247,6 +255,7 @@ const MESSAGE_META = {
             commentId: { defaultValue: '', required: true },
             url: { defaultValue: '', required: true },
             residentId: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
         },
     },
     [METER_VERIFICATION_DATE_REMINDER_TYPE]: {
@@ -344,6 +353,26 @@ const MESSAGE_META = {
     [METER_SUBMIT_READINGS_REMINDER_TYPE]: {
         dv: { required: true },
         data: {
+            meterId: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
+    [METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE]: {
+        dv: { required: true },
+        data: {
+            monthName: { defaultValue: '', required: true },
+            meterId: { required: true },
+            userId: { required: true },
+            residentId: { required: true },
+            url: { defaultValue: '', required: true },
+        },
+    },
+    [METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE]: {
+        dv: { required: true },
+        data: {
+            monthName: { defaultValue: '', required: true },
             meterId: { required: true },
             userId: { required: true },
             residentId: { required: true },
@@ -490,6 +519,19 @@ const MESSAGE_META = {
     },
     [NEWS_ITEM_COMMON_MESSAGE_TYPE]: { ...newsItemMessageMeta },
     [NEWS_ITEM_EMERGENCY_MESSAGE_TYPE]: { ...newsItemMessageMeta },
+    [DEV_PORTAL_MESSAGE_TYPE]: {
+        dv: { required: true },
+        body: { required: true },
+    },
+    [SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE]: {
+        dv: { required: true },
+        data: {
+            monthName:  { required: true },
+            serviceConsumerId: { required: true },
+            residentId: { required: true },
+            userId: { required: true },
+        },
+    },
 }
 
 /** Used to validate type field for sendMessage mutation payload */
@@ -661,6 +703,15 @@ const MESSAGE_DELIVERY_OPTIONS = {
         allowedTransports: [PUSH_TRANSPORT],
         defaultTransports: [PUSH_TRANSPORT],
     },
+    [DEV_PORTAL_MESSAGE_TYPE]: {
+        allowedTransports: [SMS_TRANSPORT],
+        defaultTransports: [SMS_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
+    [SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE]: {
+        allowedTransports: [PUSH_TRANSPORT],
+        defaultTransports: [PUSH_TRANSPORT],
+    },
 
 }
 
@@ -814,6 +865,8 @@ module.exports = {
     SMS_FORBIDDEN_SYMBOLS_REGEXP,
     METER_VERIFICATION_DATE_REMINDER_TYPE,
     METER_SUBMIT_READINGS_REMINDER_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_START_PERIOD_TYPE,
+    METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE,
     METER_VERIFICATION_DATE_EXPIRED_TYPE,
     BILLING_RECEIPT_AVAILABLE_TYPE,
     BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT_TYPE,
@@ -870,5 +923,7 @@ module.exports = {
     RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE_TYPE,
     NEWS_ITEM_COMMON_MESSAGE_TYPE,
     NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,
+    DEV_PORTAL_MESSAGE_TYPE,
+    SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
 }
 

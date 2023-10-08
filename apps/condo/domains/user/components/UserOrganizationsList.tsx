@@ -1,6 +1,7 @@
 import { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import { Col, Row, Skeleton, Tag, Typography } from 'antd'
 import get from 'lodash/get'
+import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -112,7 +113,7 @@ export const UserOrganizationsList = ({ userOrganization, organizationEmployeesQ
     )
 
     const list = useMemo(() => {
-        return userOrganizations.slice()
+        return uniqBy(userOrganizations, employee => get(employee, 'organization.id')).slice()
             .sort((optionA, optionB) =>
                 get(optionA, 'organization.name', '').toLowerCase().localeCompare(get(optionB, 'organization.name', '').toLowerCase())
             )

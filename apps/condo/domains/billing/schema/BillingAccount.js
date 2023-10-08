@@ -9,14 +9,13 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingAccount')
-const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
+const { BILLING_ACCOUNT_OWNER_TYPES, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
 const {
     JSON_EXPECT_OBJECT_ERROR,
     UNEQUAL_CONTEXT_ERROR,
 } = require('@condo/domains/common/constants/errors')
 const { IMPORT_ID_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const { hasValidJsonStructure } = require('@condo/domains/common/utils/validation.utils')
-const { discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 
 const { RAW_DATA_FIELD } = require('./fields/common')
 const { INTEGRATION_CONTEXT_FIELD, BILLING_PROPERTY_FIELD } = require('./fields/relations')
@@ -67,6 +66,21 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             isRequired: false,
         },
 
+        isClosed: {
+            schemaDoc: 'Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account.',
+            type: 'Checkbox',
+            defaultValue: false,
+            kmigratorOptions: { default: false },
+        },
+
+        ownerType: {
+            schemaDoc: 'The account owner\'s type',
+            type: 'Select',
+            options: BILLING_ACCOUNT_OWNER_TYPES,
+            defaultValue: BILLING_ACCOUNT_OWNER_TYPE_PERSON,
+            kmigratorOptions: { default: `'${BILLING_ACCOUNT_OWNER_TYPE_PERSON}'` },
+        },
+
         meta: {
             schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`',
@@ -101,16 +115,6 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             const { context: propertyContextId } = property
             if (accountContextId !== propertyContextId) {
                 return addValidationError(`${UNEQUAL_CONTEXT_ERROR}:property:context] Context is not equal to property.context`)
-            }
-        },
-        afterChange: async ({ context, updatedItem, operation }) => {
-            if (operation === 'create') {
-                const { id } = updatedItem
-
-                // TODO(DOMA-6813): maybe prevent redis queue overloading
-                await discoverServiceConsumersTask.delay({
-                    billingAccountsIds: [id],
-                })
             }
         },
     },

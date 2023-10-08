@@ -24,13 +24,18 @@ async function canReadNewsItemTemplates ({ authentication: { item: user } }) {
         OR: [
             { organization_is_null: true },
             {
-                organization: {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                    ],
-                    deletedAt: null,
-                },
+                AND: [
+                    {
+                        organization: {
+                            OR: [
+                                queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
+                                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
+                            ],
+                            deletedAt: null,
+                        },
+
+                    },
+                ],
             },
         ],
     }

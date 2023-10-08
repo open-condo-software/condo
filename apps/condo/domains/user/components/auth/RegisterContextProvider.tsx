@@ -62,7 +62,7 @@ export const RegisterContextProvider = ({ children }): React.ReactElement => {
                 }
             })
         } else {
-            setPhone(phone)
+            setPhone(phone) // NOSONAR
             setIsConfirmed(false)
         }
     }, [queryToken, handleReCaptchaVerify, loadTokenInfo, phone])

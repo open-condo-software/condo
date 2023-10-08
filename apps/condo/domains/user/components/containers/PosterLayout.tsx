@@ -11,7 +11,7 @@ import {
     Layout,
     MobileHeader,
     PageContent,
-    PosterWrapper,
+    PosterWrapperFullHeight,
     ReCaptchaContainer,
 } from './styles'
 
@@ -45,8 +45,8 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
     const { breakpoints } = useLayoutContext()
 
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
-    const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.png'
-    const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.png'
+    const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.webp'
+    const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.jpg'
     const pageWrapperStyle = !breakpoints.TABLET_LARGE && PAGE_WRAPPER_STYLE
 
     return (
@@ -63,7 +63,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
                 }
                 <Col md={12} sm={24} hidden={!breakpoints.TABLET_LARGE} style={POSTER_WRAPPER_STUMB_STYLE} />
                 <Col md={12} sm={24} hidden={!breakpoints.TABLET_LARGE} style={POSTER_WRAPPER_COL_STYLE}>
-                    <PosterWrapper>
+                    <PosterWrapperFullHeight>
                         <Poster
                             Header={breakpoints.TABLET_LARGE && Header}
                             Footer={breakpoints.TABLET_LARGE && Footer}
@@ -73,7 +73,7 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
                             imageWrapperStyle={IMAGE_WRAPPER_STYLE}
                             posterContentStyle={POSTER_CONTENT_STYLE}
                         />
-                    </PosterWrapper>
+                    </PosterWrapperFullHeight>
                 </Col>
                 <Col md={11} sm={24}>
                     <PageContent>

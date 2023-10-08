@@ -57,3 +57,7 @@ apps/condo/public/ui
 
 # Turborepo local cache
 .turbo
+
+# semgrep
+semgrep.sarif
+semgrep_results/*

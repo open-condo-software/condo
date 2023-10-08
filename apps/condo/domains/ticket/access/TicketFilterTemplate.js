@@ -13,7 +13,7 @@ async function canReadTicketFilterTemplates ({ authentication: { item: user } })
     if (user.isAdmin) return {}
 
     return {
-        employee: { organization: { ...queryOrganizationEmployeeFor(user.id) } },
+        employee: { organization: { ...queryOrganizationEmployeeFor(user.id, 'canReadTickets') } },
         createdBy: { id: user.id },
     }
 }
@@ -27,6 +27,7 @@ async function canManageTicketFilterTemplates ({ authentication: { item: user },
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             id: originalInput.employee.connect.id,
             user: { id: user.id },
+            role: { canReadTickets: true },
             deletedAt: null,
             isBlocked: false,
         })
@@ -43,6 +44,7 @@ async function canManageTicketFilterTemplates ({ authentication: { item: user },
         const employeeForUser = await getByCondition('OrganizationEmployee', {
             id: templateToEdit.employee,
             user: { id: user.id },
+            role: { canReadTickets: true },
             deletedAt: null,
             isBlocked: false,
         })

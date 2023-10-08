@@ -10,7 +10,12 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { ROLE_PERMISSION_REGEX } = require('@condo/domains/common/constants/regexps')
 const access = require('@condo/domains/miniapp/access/B2BAppPermission')
-const { PERMISSION_KEY_WRONG_FORMAT_ERROR } = require('@condo/domains/miniapp/constants')
+const {
+    PERMISSION_KEY_WRONG_FORMAT_ERROR,
+    PERMISSION_NAME_INVALID_LENGTH_ERROR,
+    MAX_PERMISSION_NAME_LENGTH,
+    MIN_PERMISSION_NAME_LENGTH,
+} = require('@condo/domains/miniapp/constants')
 const { updateB2BAppRolesPermissions } = require('@condo/domains/miniapp/tasks')
 
 const ERRORS = {
@@ -19,6 +24,11 @@ const ERRORS = {
         type: PERMISSION_KEY_WRONG_FORMAT_ERROR,
         message: 'Incorrect key format. The key must start with the prefix "can", have lowerCamelCase and answer the question: "what is allowed to the user with this key?". Example: canManagePasses, canReadConfig, etc.',
     },
+    PERMISSION_NAME_INVALID_LENGTH: {
+        code: BAD_USER_INPUT,
+        type: PERMISSION_NAME_INVALID_LENGTH_ERROR,
+        message: 'Permission name was too long. Make sure its following the guidelines provided in the field docs',
+    },
 }
 
 const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
@@ -26,7 +36,7 @@ const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
         'and allow the organization administration to manage accesses within the miniapp ' +
         'depending on the employee\'s role ' +
         'by toggling the B2BAppPermissions of a particular application for each role. ' +
-        'By default, for all employees with "canManageIntegrations" in their role, all permissions will be set to True. ' +
+        'By default, for all employees with "canManageB2BApps" in their role, all permissions will be set to True. ' +
         'For all other roles with access to the application the default value is False.',
     fields: {
         app: {
@@ -58,7 +68,30 @@ const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
                 },
             },
         },
+        name: {
+            schemaDoc: 'Name of permission. ' +
+                `Must be very brief (from ${MIN_PERMISSION_NAME_LENGTH} to ${MAX_PERMISSION_NAME_LENGTH} characters) ` +
+                'and describe the capabilities that the employee will get with this permission. ' +
+                'Must use nouns that indicate actions with objects or sections of the mini-application. ' +
+                'Examples: "Passes management", "Access to settings", "Contacts viewing".',
+            type: 'Text',
+            isRequired: true,
+            hooks: {
+                resolveInput: ({ resolvedData, fieldPath }) => {
+                    if (fieldPath in resolvedData) {
+                        return resolvedData[fieldPath].trim()
+                    }
 
+                    return undefined
+                },
+                validateInput: ({ resolvedData, fieldPath, context }) => {
+                    const inputLength = resolvedData[fieldPath].length
+                    if (inputLength > MAX_PERMISSION_NAME_LENGTH || inputLength < MIN_PERMISSION_NAME_LENGTH) {
+                        throw new GQLError(ERRORS.PERMISSION_NAME_INVALID_LENGTH, context)
+                    }
+                },
+            },
+        },
     },
     hooks: {
         afterChange: async ({ existingItem, updatedItem }) => {

@@ -489,12 +489,8 @@ describe('Meter', () => {
 
             test('employee from "to" related organization with "canManageMeters" role: cannot update Meter from "from" organization', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const { clientFrom, clientTo, employeeTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
-                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
+                const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization({
                     canManageMeters: true,
-                })
-                await updateTestOrganizationEmployee(admin, employeeTo.id, {
-                    role: { connect: { id: role.id } },
                 })
                 const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
@@ -971,9 +967,13 @@ describe('Meter', () => {
             const [anotherProperty] = await createTestProperty(admin, organization)
             const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
             const [b2cApp] = await createTestB2CApp(admin)
-            await createTestB2CAppProperty(admin, b2cApp, { address: property.address })
+            await createTestB2CAppProperty(admin, b2cApp, {
+                address: property.address, addressMeta: property.addressMeta,
+            })
             const [anotherApp] = await createTestB2CApp(admin)
-            await createTestB2CAppProperty(admin, anotherApp, { address: anotherProperty.address })
+            await createTestB2CAppProperty(admin, anotherApp, {
+                address: anotherProperty.address, addressMeta: anotherProperty.addressMeta,
+            })
             await expectToThrowValidationFailureError(async () => {
                 await createTestMeter(admin, organization, property, resource, {
                     isAutomatic: false,

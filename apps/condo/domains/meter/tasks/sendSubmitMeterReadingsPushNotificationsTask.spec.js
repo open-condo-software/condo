@@ -4,7 +4,7 @@
 
 const index = require('@app/condo/index')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
 
 const sendSubmitMeterReadingsPushNotificationsTask = require('@condo/domains/meter/tasks/sendSubmitMeterReadingsPushNotificationsTask')
 
@@ -14,11 +14,13 @@ describe('Meter verification notification', () => {
 
     describe('feature flag', () => {
         it('checks for proper result on enabled', async () => {
-            expect(await sendSubmitMeterReadingsPushNotificationsTask.delay.fn({ req: { headers: { 'feature-flags': 'true' } } })).toBeUndefined()
+            setAllFeatureFlags(true)
+            expect(await sendSubmitMeterReadingsPushNotificationsTask.delay.fn()).toBeUndefined()
         })
 
         it('checks for proper result on disabled', async () => {
-            expect(await sendSubmitMeterReadingsPushNotificationsTask.delay.fn({ req: { headers: { 'feature-flags': 'false' } } })).toEqual('disabled')
+            setAllFeatureFlags(false)
+            expect(await sendSubmitMeterReadingsPushNotificationsTask.delay.fn()).toEqual('disabled')
         })
     })
 

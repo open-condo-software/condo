@@ -16,19 +16,19 @@ export default {
 
 const Template: ComponentStory<typeof Alert> = (props) => <Alert {...props}/>
 
-export const Success = Template.bind({})
-Success.args = {
+export const SuccessAlert = Template.bind({})
+SuccessAlert.args = {
     type: 'success',
 }
-export const Info = Template.bind({})
-Info.args = {
+export const InfoAlert = Template.bind({})
+InfoAlert.args = {
     type: 'info',
 }
-export const Warning = Template.bind({})
-Warning.args = {
+export const WarningAlert = Template.bind({})
+WarningAlert.args = {
     type: 'warning',
 }
-export const Error = Template.bind({})
-Error.args = {
+export const ErrorAlert = Template.bind({})
+ErrorAlert.args = {
     type: 'error',
 }

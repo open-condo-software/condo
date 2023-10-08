@@ -87,14 +87,22 @@ export type BaseNewsFormProps = {
     actionName: ActionNameProps,
 }
 
+//TODO(DOMA-6846) wrap form label with 0 margin and use default spacing (details in 6613 pr)
 const NO_RESIZE_STYLE: React.CSSProperties = { resize: 'none' }
-const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0 } }
+const FLEX_START_STYLE: React.CSSProperties = { alignItems: 'flex-start' }
+const BIG_MARGIN_BOTTOM_STYLE: React.CSSProperties = { marginBottom: '60px' }
+const MARGIN_BOTTOM_32_STYLE: React.CSSProperties = { marginBottom: '32px' }
+const MARGIN_BOTTOM_38_STYLE: React.CSSProperties = { marginBottom: '38px' }
+const MARGIN_BOTTOM_10_STYLE: React.CSSProperties = { marginBottom: '10px' }
+const MARGIN_BOTTOM_24_STYLE: React.CSSProperties = { marginBottom: '24px' }
+const MARGIN_TOP_8_STYLE: React.CSSProperties = { marginTop: '8px' }
+const MARGIN_TOP_44_STYLE: React.CSSProperties = { marginTop: '44px' }
+const FORM_FILED_COL_PROPS = { style: { width: '100%', padding: 0, height: '44px' } }
 export const SCROLL_TO_FIRST_ERROR_CONFIG: ScrollOptions = { behavior: 'smooth', block: 'center' }
 export const SHOW_TIME_CONFIG = { defaultValue: dayjs('00:00:00:000', 'HH:mm:ss:SSS') }
 export const FULL_WIDTH_STYLE: React.CSSProperties = { width: '100%' }
-const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
-const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 40]
 const SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
+const EXTRA_SMALL_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 10]
 const BIG_HORIZONTAL_GUTTER: [Gutter, Gutter] = [50, 0]
 const ALL_SQUARE_BRACKETS_OCCURRENCES_REGEX = /\[[^\]]*?\]/g
 const ADDITIONAL_DISABLED_MINUTES_COUNT = 5
@@ -178,7 +186,7 @@ const isTimeDisabled = date => {
             disabledMinutes: () => [],
         }
     }
-    const hour = dayjs().hour()
+    let hour = dayjs().hour()
     if (date && dayjs(date).hour() > dayjs().hour()) {
         return {
             disabledHours: () => Array.from({ length: hour }, (_, i) => i),
@@ -186,7 +194,7 @@ const isTimeDisabled = date => {
         }
     }
     const minute = dayjs().minute() + ADDITIONAL_DISABLED_MINUTES_COUNT
-    if (minute > 59) hour + 1
+    if (minute > 59) hour += 1 
     return {
         disabledHours: () => Array.from({ length: hour }, (_, i) => i),
         disabledMinutes: () => Array.from({ length: minute }, (_, i) => i),
@@ -537,6 +545,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
     }
     const propertySelectFormItemProps: InputWithCheckAllProps['selectFormItemProps'] = useMemo(() => ({
         label: PropertiesLabel,
+        labelCol: FORM_FILED_COL_PROPS,
         required: true,
         name: 'properties',
         validateFirst: true,
@@ -813,13 +822,13 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                     }}
                     children={({ handleSave, isLoading, form }) => (
                         <>
-                            <Row gutter={BIG_VERTICAL_GUTTER}>
-                                <Col span={24}>
+                            <Row>
+                                <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
-                                            <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                                                <Col span={24}>
-                                                    <Row>
+                                            <Row>
+                                                <Col span={24} style={MARGIN_BOTTOM_32_STYLE}>
+                                                    <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
                                                         <Col span={24}>
                                                             <Typography.Title level={2}>
                                                                 {MakeTextLabel}
@@ -830,6 +839,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                                 label={TypeLabel}
                                                                 name='type'
                                                                 required
+                                                                style = {FLEX_START_STYLE}
                                                             >
                                                                 <RadioGroup onChange={handleTypeChange(form)}>
                                                                     <Space size={8} wrap>
@@ -874,7 +884,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </Row>
                                                 </Col>
                                                 {templates && (
-                                                    <Row gutter={SMALL_VERTICAL_GUTTER}>
+                                                    <Row gutter={SMALL_VERTICAL_GUTTER} style={MARGIN_BOTTOM_38_STYLE}>
                                                         <Col span={24}>
                                                             <Typography.Title level={4}>
                                                                 {TemlatesLabel}
@@ -911,7 +921,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </Row>
                                                 )}
                                                 <Col span={24}>
-                                                    <Col span={24}>
+                                                    <Col span={24} style={MARGIN_BOTTOM_10_STYLE}>
                                                         <Typography.Title level={4}>{SelectTextLabel}</Typography.Title>
                                                     </Col>
                                                     <Col span={24}>
@@ -967,10 +977,10 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                         </Col>
                                     </Row>
                                 </Col>
-                                <Col span={24}>
+                                <Col span={24} style={BIG_MARGIN_BOTTOM_STYLE}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
-                                            <Row gutter={SMALL_VERTICAL_GUTTER}>
+                                            <Row gutter={EXTRA_SMALL_VERTICAL_GUTTER}>
                                                 <Col span={24}>
                                                     <Typography.Title level={2}>{SelectAddressLabel}</Typography.Title>
                                                 </Col>
@@ -1043,8 +1053,8 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                 <Col span={24}>
                                     <Row gutter={BIG_HORIZONTAL_GUTTER}>
                                         <Col span={formFieldsColSpan}>
-                                            <Row gutter={SMALL_VERTICAL_GUTTER}>
-                                                <Col span={24}>
+                                            <Row>
+                                                <Col span={24} style={MARGIN_BOTTOM_24_STYLE}>
                                                     <Typography.Title level={2}>
                                                         {SelectSendPeriodLabel} ({tzInfo})
                                                     </Typography.Title>
@@ -1063,7 +1073,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                                     </Form.Item>
                                                 </Col>
                                                 {sendPeriod === 'later' && (
-                                                    <Col span={24}>
+                                                    <Col span={24} style={MARGIN_TOP_8_STYLE}>
                                                         <Form.Item
                                                             label={SendAtLabel}
                                                             labelCol={FORM_FILED_COL_PROPS}
@@ -1109,7 +1119,7 @@ export const BaseNewsForm: React.FC<BaseNewsFormProps> = ({
                                     </Row>
                                 </Col>
                                 {isFunction(ActionBar) && (
-                                    <Col span={24}>
+                                    <Col span={24} style={MARGIN_TOP_44_STYLE}>
                                         <ActionBar
                                             handleSave={handleSave}
                                             isLoading={isLoading}

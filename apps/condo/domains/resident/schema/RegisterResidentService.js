@@ -3,10 +3,10 @@
  */
 const { get, omit } = require('lodash')
 
-const { getLogger } = require('@open-condo/keystone/logging')
 const {
     createInstance: createAddressServiceClientInstance,
-} = require('@open-condo/keystone/plugins/utils/address-service-client')
+} = require('@open-condo/clients/address-service-client')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -127,19 +127,21 @@ const RegisterResidentService = new GQLCustomSchema('RegisterResidentService', {
                     )
 
                     try {
-                        // Call the mutation directly (without task) to make the resident see receipts immediately
-                        const discoveringResult = await discoverServiceConsumers(context, {
-                            dv,
-                            sender,
-                            billingAccountsIds: billingAccounts.map(({ id }) => id),
-                            filters: { residentsIds: [id] },
-                        })
-                        logger.info({
-                            message: 'discoverServiceConsumers done',
-                            result: discoveringResult,
-                            reqId,
-                            resident: { id },
-                        })
+                        if (billingAccounts.length > 0) {
+                            // Call the mutation directly (without task) to make the resident see receipts immediately
+                            const discoveringResult = await discoverServiceConsumers(context, {
+                                dv,
+                                sender,
+                                billingAccountsIds: billingAccounts.map(({ id }) => id),
+                                filters: { residentsIds: [id] },
+                            })
+                            logger.info({
+                                message: 'discoverServiceConsumers done',
+                                result: discoveringResult,
+                                reqId,
+                                resident: { id },
+                            })
+                        }
                     } catch (err) {
                         logger.error({ message: 'discoverServiceConsumers fail', err, reqId })
                     }

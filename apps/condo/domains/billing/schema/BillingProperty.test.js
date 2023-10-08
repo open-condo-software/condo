@@ -51,7 +51,7 @@ describe('BillingProperty', () => {
         anotherContext = secondContext
         anonymous = await makeClient()
         user = await makeClientWithNewRegisteredAndLoggedInUser()
-        const { managerUserClient } = await makeOrganizationIntegrationManager(context)
+        const { managerUserClient } = await makeOrganizationIntegrationManager({ context })
         integrationManager = managerUserClient
     })
     describe('CRUD', () => {

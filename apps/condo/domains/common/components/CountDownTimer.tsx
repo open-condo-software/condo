@@ -24,6 +24,8 @@ const getCountDownDateFromCookies = (countDownId) => {
     }
 
     if (cookie.match(countDownId)){
+        // not a ReDoS issue: running on end user browser
+        // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
         const coundownRegexp = new RegExp(`(?:(?:^|.*;\\s*)COUNTDOWN_${countDownId}\\s*=\\s*([^;]*).*$)|^.*$`)
 
         const countDownFromCookie = document

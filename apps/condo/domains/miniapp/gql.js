@@ -9,7 +9,7 @@ const pluralize = require('pluralize')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const { SCHEMAS_AVAILABLE_TO_B2B_APP } = require('./constants')
+const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('./constants')
 
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
@@ -34,7 +34,7 @@ const B2BApp = generateGqlQueries('B2BApp', B2B_APP_FIELDS)
 const B2B_APP_CONTEXT_FIELDS = `{ app { id name appUrl icon menuCategory hasDynamicTitle } organization { id } status ${COMMON_FIELDS} }`
 const B2BAppContext = generateGqlQueries('B2BAppContext', B2B_APP_CONTEXT_FIELDS)
 
-const B2B_ACCESSES_FIELDS = SCHEMAS_AVAILABLE_TO_B2B_APP
+const B2B_ACCESSES_FIELDS = Object.keys(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG)
     .map(schemaName => `canManage${pluralize.plural(schemaName)} canRead${pluralize.plural(schemaName)}`)
     .join(' ')
 
@@ -53,7 +53,7 @@ const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 const B2C_APP_PROPERTY_FIELDS = `{ app { id } address ${COMMON_FIELDS} }`
 const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
 
-const B2B_APP_PERMISSION_FIELDS = `{ app { id } key ${COMMON_FIELDS} }`
+const B2B_APP_PERMISSION_FIELDS = `{ app { id } key name ${COMMON_FIELDS} }`
 const B2BAppPermission = generateGqlQueries('B2BAppPermission', B2B_APP_PERMISSION_FIELDS)
 
 const B2B_APP_PROMO_BLOCK_FIELDS = `{ title subtitle textVariant backgroundColor backgroundImage { publicUrl } targetUrl external priority ${COMMON_FIELDS} }`

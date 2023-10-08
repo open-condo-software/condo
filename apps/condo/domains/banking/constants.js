@@ -4,6 +4,8 @@
 
 const BANK_INTEGRATION_IDS = {
     SBBOL: 'd94743b0-e5d5-4d06-a244-ea4b2edb8633',
+    // not a credential
+    // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
     '1CClientBankExchange': '61e3d767-bd62-40e3-a503-f885b242d262',
 }
 
@@ -35,6 +37,10 @@ const INVALID_DATE = {
     message: 'Invalid options.dateTo or options.DateFrom',
     messageForUser: 'api.banking.BankSyncTask.INVALID_DATE',
 }
+const TRANSACTIONS_NOT_ADDED = {
+    message: 'Transactions not added to BankAccount',
+    messageForUser: 'api.banking.BankSyncTask.TRANSACTIONS_NOT_ADDED',
+}
 
 module.exports = {
     BANK_INTEGRATION_IDS,
@@ -49,4 +55,5 @@ module.exports = {
     BANK_ACCOUNT_REPORT_TEMPLATE_VALUES,
     INVALID_DATE,
     WRONG_INTEGRATION,
+    TRANSACTIONS_NOT_ADDED,
 }

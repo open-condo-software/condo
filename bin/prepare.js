@@ -1,5 +1,7 @@
 const path = require('path')
 
+const { program } = require('commander')
+
 const {
     checkDockerComposePostgresIsRunning,
     checkMkCertCommandAndLocalCerts,
@@ -12,8 +14,19 @@ const {
 const KEY_FILE = path.join(__filename, '..', '.ssl', 'localhost.key')
 const CERT_FILE = path.join(__filename, '..', '.ssl', 'localhost.pem')
 
-async function main ([project, useHttps]) {
-    if (project === '--apphttps') {
+program.option('-f, --filter <names...>', 'Filters apps by name')
+program.option('--https', 'Uses https for local running')
+program.description(`Prepares applications from the /apps directory for local running 
+by creating separate databases for them 
+and running their local bin/prepare.js scripts.
+`)
+
+async function main () {
+    let project, useHttps
+    program.parse()
+    const cliOpts = program.opts()
+
+    if (cliOpts.https) {
         project = undefined
         useHttps = 'app.localhost'
     }
@@ -22,19 +35,22 @@ async function main ([project, useHttps]) {
 
     const secure = Boolean(useHttps)
     const localhostDomain = (useHttps) ? useHttps : 'localhost'
-    let index = 1
     let domains = `127.0.0.1 ${localhostDomain}`
 
     await checkDockerComposePostgresIsRunning()
     if (secure) await checkMkCertCommandAndLocalCerts(KEY_FILE, CERT_FILE, useHttps)
 
-    const apps = await getAllActualApps()
+    let apps = await getAllActualApps()
+    const appsIndexes = Object.assign({}, ...apps.map((appName, idx) => ({ [appName]: idx + 1 })))
+    if (cliOpts.filter) {
+        apps = apps.filter(app => cliOpts.filter.includes(app))
+    }
 
     for (const app of apps) {
         const dbName = `${project}-${app}`
-        const redisName = 5 + index
-        const port = 4000 + index
-        const sport = 8000 + index
+        const redisName = 5 + appsIndexes[app]
+        const port = 4000 + appsIndexes[app]
+        const sport = 8000 + appsIndexes[app]
         domains += ` ${app}.${localhostDomain}`
         const serverUrl = (secure) ? `https://${app}.${localhostDomain}:${sport}` : `http://${localhostDomain}:${port}`
 
@@ -43,7 +59,6 @@ async function main ([project, useHttps]) {
         await prepareMinimalAppEnv(app, dbName, redisName, port, sport, serverUrl)
         const migrateResult = await runAppPackageJsonScript(app, 'migrate')
         if (migrateResult) console.log(`----> '${app}' > migrate ${JSON.stringify(migrateResult)}`)
-        index += 1
     }
 
     for (const app of apps) {
@@ -66,7 +81,7 @@ sudo -- sh -c -e "echo '${domains}' >> /etc/hosts"
 `)
 }
 
-main(process.argv.slice(2)).then(
+main().then(
     () => process.exit(),
     (error) => {
         console.error(error)

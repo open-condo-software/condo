@@ -4,7 +4,7 @@
 
 const index = require('@app/condo/index')
 
-const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+const { setFakeClientMode, setAllFeatureFlags } = require('@open-condo/keystone/test.utils')
 
 const sendVerificationDateReminderTask = require('@condo/domains/meter/tasks/sendVerificationDateReminderTask')
 
@@ -14,11 +14,13 @@ describe('Meter verification notification task', () => {
 
     describe('feature flag', () => {
         it('checks for proper result on enabled', async () => {
-            expect(await sendVerificationDateReminderTask.delay.fn({ req: { headers: { 'feature-flags': 'true' } } })).toBeUndefined()
+            setAllFeatureFlags(true)
+            expect(await sendVerificationDateReminderTask.delay.fn()).toBeUndefined()
         })
 
         it('checks for proper result on disabled', async () => {
-            expect(await sendVerificationDateReminderTask.delay.fn({ req: { headers: { 'feature-flags': 'false' } } })).toEqual('disabled')
+            setAllFeatureFlags(false)
+            expect(await sendVerificationDateReminderTask.delay.fn()).toEqual('disabled')
         })
     })
 })

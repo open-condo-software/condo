@@ -1,12 +1,12 @@
 /** @jsx jsx */
 import {
+    B2BAppGlobalFeature,
     SortTicketChangesBy,
     SortTicketCommentFilesBy,
     SortTicketCommentsBy,
 } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import styled from '@emotion/styled'
-import { Affix, Col, ColProps, Row, RowProps, Space, Typography } from 'antd'
+import { Affix, Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
 import dayjs from 'dayjs'
 import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
 
-import { Edit } from '@open-condo/icons'
+import { Edit, Link as LinkIcon } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
 import { useIntl } from '@open-condo/next/intl'
@@ -22,15 +22,17 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button } from '@open-condo/ui'
 
 import { ChangeHistory } from '@condo/domains/common/components/ChangeHistory'
+import { HistoricalChange } from '@condo/domains/common/components/ChangeHistory/HistoricalChange'
 import { Comments } from '@condo/domains/common/components/Comments'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
+import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
 import { TicketAssigneeField } from '@condo/domains/ticket/components/TicketId/TicketAssigneeField'
 import { TicketCallRecordHistory } from '@condo/domains/ticket/components/TicketId/TicketCallRecordHistory'
@@ -50,8 +52,12 @@ import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
 import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
+import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import { FavoriteTicketsContextProvider } from '@condo/domains/ticket/contexts/FavoriteTicketsContext'
-import { TicketQualityControlProvider, useTicketQualityControl } from '@condo/domains/ticket/contexts/TicketQualityControlContext'
+import {
+    TicketQualityControlProvider,
+    useTicketQualityControl,
+} from '@condo/domains/ticket/contexts/TicketQualityControlContext'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 import { useTicketChangedFieldMessagesOf } from '@condo/domains/ticket/hooks/useTicketChangedFieldMessagesOf'
 import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
@@ -84,7 +90,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
     const EmergencyMessage = intl.formatMessage({ id: 'Emergency' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' })
+    const PayableMessage = intl.formatMessage({ id: 'Payable' })
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' })
     const ReturnedMessage = intl.formatMessage({ id: 'Returned' })
     const ChangedMessage = intl.formatMessage({ id: 'Changed' })
@@ -99,7 +105,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
 
     const isEmergency = get(ticket, 'isEmergency')
-    const isPaid = get(ticket, 'isPaid')
+    const isPayable = get(ticket, 'isPayable')
     const isWarranty = get(ticket, 'isWarranty')
     const statusReopenedCounter = get(ticket, 'statusReopenedCounter')
     const statusUpdatedAt = useMemo(() => get(ticket, 'statusUpdatedAt'), [ticket])
@@ -111,7 +117,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     }
 
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
-    const canReadByResident = useMemo(() => get(ticket,  'canReadByResident'), [ticket])
+    const canReadByResident = useMemo(() => get(ticket, 'canReadByResident'), [ticket])
 
     const createdBy = useMemo(() => get(ticket, ['createdBy']), [ticket])
     const formattedStatusUpdatedAt = useMemo(() => dayjs(statusUpdatedAt).format('DD.MM.YY, HH:mm'), [statusUpdatedAt])
@@ -152,7 +158,8 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                         <Col xl={13} md={11} xs={24}>
                             <Row gutter={SMALL_VERTICAL_GUTTER} align='middle'>
                                 <Col span={breakpoints.TABLET_LARGE ? 24 : 22}>
-                                    <Typography.Title style={TITLE_STYLE} level={1}>{TicketTitleMessage}</Typography.Title>
+                                    <Typography.Title style={TITLE_STYLE}
+                                        level={1}>{TicketTitleMessage}</Typography.Title>
                                 </Col>
                                 {
                                     !breakpoints.TABLET_LARGE && (
@@ -167,12 +174,14 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                                     <Row>
                                         <Col span={24}>
                                             <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
-                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
+                                                <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}
+                                                    type='secondary'>{TicketCreationDate}, {TicketAuthorMessage} </Typography.Text>
                                                 <UserNameField user={createdBy}>
                                                     {({ name, postfix }) => (
                                                         <Typography.Text style={TICKET_CREATE_INFO_TEXT_STYLE}>
                                                             {name}
-                                                            {postfix && <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>}
+                                                            {postfix && <Typography.Text type='secondary'
+                                                                ellipsis>&nbsp;{postfix}</Typography.Text>}
                                                         </Typography.Text>
                                                     )}
                                                 </UserNameField>
@@ -227,7 +236,8 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                                                     <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
                                                         {ChangedMessage}: {formattedStatusUpdatedAt}
                                                     </Typography.Paragraph>
-                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE} type='secondary'>
+                                                    <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}
+                                                        type='secondary'>
                                                         {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
                                                     </Typography.Paragraph>
                                                 </Col>
@@ -251,7 +261,8 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                                                     <Typography.Paragraph style={TICKET_UPDATE_INFO_TEXT_STYLE}>
                                                         {ChangedMessage}: {formattedStatusUpdatedAt}
                                                     </Typography.Paragraph>
-                                                    <Typography.Paragraph style={TICKET_CREATE_INFO_TEXT_STYLE} type='secondary'>
+                                                    <Typography.Paragraph style={TICKET_CREATE_INFO_TEXT_STYLE}
+                                                        type='secondary'>
                                                         {TimeHasPassedMessage.replace('{time}', getTimeSinceCreation())}
                                                     </Typography.Paragraph>
                                                 </Col>
@@ -265,11 +276,15 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                 </Col>
                 <Col span={24}>
                     <Row justify='space-between' align='middle' gutter={[0, 24]}>
-                        <Col span={!breakpoints.TABLET_LARGE && 24} hidden={!isEmergency && !isPaid && !isWarranty && statusReopenedCounter === 0}>
+                        <Col span={!breakpoints.TABLET_LARGE && 24}
+                            hidden={!isEmergency && !isPayable && !isWarranty && statusReopenedCounter === 0}>
                             <Space direction='horizontal'>
-                                {isEmergency && <TicketTag color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
-                                {isPaid && <TicketTag color={TICKET_TYPE_TAG_COLORS.paid}>{PaidMessage.toLowerCase()}</TicketTag>}
-                                {isWarranty && <TicketTag color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
+                                {isEmergency && <TicketTag
+                                    color={TICKET_TYPE_TAG_COLORS.emergency}>{EmergencyMessage.toLowerCase()}</TicketTag>}
+                                {isPayable && <TicketTag
+                                    color={TICKET_TYPE_TAG_COLORS.payable}>{PayableMessage.toLowerCase()}</TicketTag>}
+                                {isWarranty && <TicketTag
+                                    color={TICKET_TYPE_TAG_COLORS.warranty}>{WarrantyMessage.toLowerCase()}</TicketTag>}
                                 {
                                     statusReopenedCounter > 0 && (
                                         <TicketTag color={TICKET_TYPE_TAG_COLORS.returned}>
@@ -280,7 +295,7 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
                             </Space>
                         </Col>
                         <Col span={!breakpoints.TABLET_LARGE && 24}>
-                            <TicketResidentFeatures ticket={ticket} />
+                            <TicketResidentFeatures ticket={ticket}/>
                         </Col>
                     </Row>
                 </Col>
@@ -293,48 +308,28 @@ const TicketContent = ({ ticket }) => {
     return (
         <Col span={24}>
             <Row gutter={BIG_VERTICAL_GUTTER}>
-                <TicketQualityControlFields ticket={ticket} />
-                <TicketFeedbackFields ticket={ticket} />
+                <TicketQualityControlFields ticket={ticket}/>
+                <TicketFeedbackFields ticket={ticket}/>
                 <Col span={24}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <TicketDeadlineField ticket={ticket} />
-                        <TicketPropertyField ticket={ticket} />
-                        <TicketClientField ticket={ticket} />
-                        <TicketDetailsField ticket={ticket} />
-                        <TicketFileListField ticket={ticket} />
+                        <TicketDeadlineField ticket={ticket}/>
+                        <TicketPropertyField ticket={ticket}/>
+                        <TicketClientField ticket={ticket}/>
+                        <TicketDetailsField ticket={ticket}/>
+                        <TicketFileListField ticket={ticket}/>
                     </Row>
                 </Col>
                 <Col span={24}>
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <TicketClassifierField ticket={ticket} />
-                        <TicketExecutorField ticket={ticket} />
-                        <TicketAssigneeField ticket={ticket} />
+                        <TicketClassifierField ticket={ticket}/>
+                        <TicketExecutorField ticket={ticket}/>
+                        <TicketAssigneeField ticket={ticket}/>
                     </Row>
                 </Col>
             </Row>
         </Col>
     )
 }
-
-const TicketChangeDiff = styled.p`
-    &.statusDisplayName {
-        del, ins {
-            font-weight: bold;
-            color: black;
-        }
-    }
-    &.details, &.isEmergency, &.isPaid, &.isWarranty, &.classifierDisplayName {
-        del, ins {
-            color: black;
-            span {
-                color: black;
-            }
-        }
-    }
-    del, ins {
-        text-decoration: none;
-    }
-`
 
 const TicketActionBar = ({
     ticket,
@@ -343,6 +338,9 @@ const TicketActionBar = ({
 }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+    const AttachCallToTicketMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket' })
+    const NotificationMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.message' })
+    const NotificationDescription = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.description' })
 
     const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
 
@@ -350,14 +348,19 @@ const TicketActionBar = ({
     const user = get(auth, 'user')
 
     const { breakpoints } = useLayoutContext()
+    const { requestFeature } = useGlobalAppsFeaturesContext()
+    const { isCallActive, connectedTickets } = useActiveCall()
 
     const id = get(ticket, 'id')
-    const canShareTickets = get(employee, 'role.canShareTickets')
+    const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
+    const canShareTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
+    const canManageTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
 
     const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
     const disabledEditTicketButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
     const disabledEditQualityControlButton = ticket.status.id !== STATUS_IDS.COMPLETED && ticket.status.id !== STATUS_IDS.CLOSED
+    const showAttachCallToTicketButton = isCallActive && !connectedTickets.find(ticketId => ticketId === id)
 
     const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
         ticketId: id,
@@ -375,21 +378,44 @@ const TicketActionBar = ({
 
     const { EditButton: EditQualityControlButton } = useTicketQualityControl()
 
+    const handleAttachCallRecordClick = useCallback(() => {
+        requestFeature({
+            feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
+            ticketId: id,
+            ticketOrganizationId,
+        })
+
+        notification.info({ message: NotificationMessage, description: NotificationDescription })
+    }, [NotificationDescription, NotificationMessage, id, requestFeature, ticketOrganizationId])
+
     return (
         <ActionBar
             actions={[
-                <Link key='update' href={`/ticket/${ticket.id}/update`}>
+                showAttachCallToTicketButton && (
                     <Button
-                        disabled={disabledEditTicketButton}
-                        type='secondary'
-                        icon={<Edit size='medium' />}
-                        data-cy='ticket__update-link'
+                        key='attachCallRecord'
+                        id='TicketIndexAttachCallRecord'
+                        icon={<LinkIcon size='medium'/>}
+                        type='primary'
+                        onClick={handleAttachCallRecordClick}
                     >
-                        {UpdateMessage}
+                        {AttachCallToTicketMessage}
                     </Button>
-                </Link>,
+                ),
+                canManageTickets && (
+                    <Link key='update' href={`/ticket/${ticket.id}/update`}>
+                        <Button
+                            disabled={disabledEditTicketButton}
+                            type='secondary'
+                            icon={<Edit size='medium'/>}
+                            data-cy='ticket__update-link'
+                        >
+                            {UpdateMessage}
+                        </Button>
+                    </Link>
+                ),
                 breakpoints.TABLET_LARGE && <>
-                    <TicketBlanksExportToPdfButton />
+                    <TicketBlanksExportToPdfButton/>
                     {TicketBlanksExportToPdfModal}
                 </>,
                 canShareTickets && (
@@ -435,7 +461,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     // TODO(antonal): get rid of separate GraphQL query for TicketChanges
     const ticketChangesResult = TicketChange.useObjects({
         where: { ticket: { id } },
-        sortBy: [SortTicketChangesBy.CreatedAtDesc],
+        sortBy: [SortTicketChangesBy.ActualCreationDateDesc],
     }, {
         fetchPolicy: 'network-only',
     })
@@ -475,7 +501,9 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         },
     })
     const {
-        obj: userTicketCommentReadTime, refetch: refetchUserTicketCommentReadTime, loading: loadingUserTicketCommentReadTime,
+        obj: userTicketCommentReadTime,
+        refetch: refetchUserTicketCommentReadTime,
+        loading: loadingUserTicketCommentReadTime,
     } = UserTicketCommentReadTime.useObject({
         where: {
             user: { id: user.id },
@@ -483,11 +511,11 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         },
     })
     const createUserTicketCommentReadTime = UserTicketCommentReadTime.useCreate({
-        user: { connect: {  id: user.id } },
+        user: { connect: { id: user.id } },
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
     const updateUserTicketCommentReadTime = UserTicketCommentReadTime.useUpdate({
-        user: { connect: {  id: user.id } },
+        user: { connect: { id: user.id } },
         ticket: { connect: { id } },
     }, () => refetchUserTicketCommentReadTime())
 
@@ -526,7 +554,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
         [auth, employee])
 
-    const render =  (
+    const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
             <Col lg={16} xs={24}>
                 <Row gutter={TICKET_CONTENT_VERTICAL_GUTTER}>
@@ -577,7 +605,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         loading={get(ticketChangesResult, 'loading')}
                         title={TicketChangesMessage}
                         useChangedFieldMessagesOf={useTicketChangedFieldMessagesOf}
-                        Diff={TicketChangeDiff}
+                        HistoricalChange={HistoricalChange}
                     />
                     <Col span={24}>
                         <TicketActionBar
@@ -673,7 +701,7 @@ const TicketIdPage = () => {
 
     if (!canEmployeeReadTicket(ticket)) {
         return (
-            <AccessDeniedPage />
+            <AccessDeniedPage/>
         )
     }
 
@@ -702,6 +730,6 @@ const TicketIdPage = () => {
     )
 }
 
-TicketIdPage.requiredAccess = OrganizationRequired
+TicketIdPage.requiredAccess = TicketReadPermissionRequired
 
 export default TicketIdPage

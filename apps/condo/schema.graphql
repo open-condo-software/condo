@@ -31,6 +31,7 @@ type UserHistoryRecord {
   locale: String
   customAccess: JSON
   showGlobalHints: Boolean
+  rightsSet: String
   id: ID!
   v: Int
   createdAt: String
@@ -183,6 +184,10 @@ input UserHistoryRecordWhereInput {
   customAccess_not_in: [JSON]
   showGlobalHints: Boolean
   showGlobalHints_not: Boolean
+  rightsSet: String
+  rightsSet_not: String
+  rightsSet_in: [String]
+  rightsSet_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -322,6 +327,7 @@ input UserHistoryRecordUpdateInput {
   locale: String
   customAccess: JSON
   showGlobalHints: Boolean
+  rightsSet: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -357,6 +363,7 @@ input UserHistoryRecordCreateInput {
   locale: String
   customAccess: JSON
   showGlobalHints: Boolean
+  rightsSet: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -434,6 +441,13 @@ input CustomAccessInput {
   accessRules: [CustomAccessListRuleInput]
 }
 
+input UserRightsSetRelateToOneInput {
+  create: UserRightsSetCreateInput
+  connect: UserRightsSetWhereUniqueInput
+  disconnect: UserRightsSetWhereUniqueInput
+  disconnectAll: Boolean
+}
+
 input UserRelateToOneInput {
   create: UserCreateInput
   connect: UserWhereUniqueInput
@@ -507,6 +521,10 @@ type User {
 
   """ Show global hints in CRM or not """
   showGlobalHints: Boolean
+
+  """ A set of permissions that allow the user to directly read or manage certain schemas as well as run certain mutations. 
+  """
+  rightsSet: UserRightsSet
   id: ID!
   v: Int
   createdAt: String
@@ -618,6 +636,8 @@ input UserWhereInput {
   customAccess_not_in: [CustomAccessInput]
   showGlobalHints: Boolean
   showGlobalHints_not: Boolean
+  rightsSet: UserRightsSetWhereInput
+  rightsSet_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -701,6 +721,8 @@ enum SortUsersBy {
   locale_DESC
   showGlobalHints_ASC
   showGlobalHints_DESC
+  rightsSet_ASC
+  rightsSet_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -734,6 +756,7 @@ input UserUpdateInput {
   locale: UserLocaleType
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
+  rightsSet: UserRightsSetRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -765,6 +788,7 @@ input UserCreateInput {
   locale: UserLocaleType
   customAccess: CustomAccessInput
   showGlobalHints: Boolean
+  rightsSet: UserRightsSetRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -3080,6 +3104,839 @@ input ExternalTokenAccessRightsCreateInput {
   data: ExternalTokenAccessRightCreateInput
 }
 
+enum UserRightsSetHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type UserRightsSetHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserRightsSetHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the UserRightsSetHistoryRecord List config, or
+   3. As an alias to a 'name' field on the UserRightsSetHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the UserRightsSetHistoryRecord List.
+  """
+  _label_: String
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserRightsSetHistoryRecordWhereInput {
+  AND: [UserRightsSetHistoryRecordWhereInput]
+  OR: [UserRightsSetHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  canReadB2BApps: Boolean
+  canReadB2BApps_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRights_not: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights_not: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canReadB2BAppAccessRightSets_not: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets_not: Boolean
+  canReadB2BAppContexts: Boolean
+  canReadB2BAppContexts_not: Boolean
+  canManageB2BAppContexts: Boolean
+  canManageB2BAppContexts_not: Boolean
+  canReadB2BAppPermissions: Boolean
+  canReadB2BAppPermissions_not: Boolean
+  canManageB2BAppPermissions: Boolean
+  canManageB2BAppPermissions_not: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canReadB2BAppPromoBlocks_not: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks_not: Boolean
+  canReadB2CApps: Boolean
+  canReadB2CApps_not: Boolean
+  canManageB2CApps: Boolean
+  canManageB2CApps_not: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canReadB2CAppAccessRights_not: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights_not: Boolean
+  canReadB2CAppBuilds: Boolean
+  canReadB2CAppBuilds_not: Boolean
+  canManageB2CAppBuilds: Boolean
+  canManageB2CAppBuilds_not: Boolean
+  canReadB2CAppProperties: Boolean
+  canReadB2CAppProperties_not: Boolean
+  canManageB2CAppProperties: Boolean
+  canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteRegisterNewServiceUser_not: Boolean
+  canExecuteSendMessage: Boolean
+  canExecuteSendMessage_not: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  canManageOrganizationIsApprovedField_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_action_not: UserRightsSetHistoryRecordHistoryActionType
+  history_action_in: [UserRightsSetHistoryRecordHistoryActionType]
+  history_action_not_in: [UserRightsSetHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input UserRightsSetHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserRightsSetHistoryRecordsBy {
+  name_ASC
+  name_DESC
+  canReadB2BApps_ASC
+  canReadB2BApps_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadB2BAppAccessRights_ASC
+  canReadB2BAppAccessRights_DESC
+  canManageB2BAppAccessRights_ASC
+  canManageB2BAppAccessRights_DESC
+  canReadB2BAppAccessRightSets_ASC
+  canReadB2BAppAccessRightSets_DESC
+  canManageB2BAppAccessRightSets_ASC
+  canManageB2BAppAccessRightSets_DESC
+  canReadB2BAppContexts_ASC
+  canReadB2BAppContexts_DESC
+  canManageB2BAppContexts_ASC
+  canManageB2BAppContexts_DESC
+  canReadB2BAppPermissions_ASC
+  canReadB2BAppPermissions_DESC
+  canManageB2BAppPermissions_ASC
+  canManageB2BAppPermissions_DESC
+  canReadB2BAppPromoBlocks_ASC
+  canReadB2BAppPromoBlocks_DESC
+  canManageB2BAppPromoBlocks_ASC
+  canManageB2BAppPromoBlocks_DESC
+  canReadB2CApps_ASC
+  canReadB2CApps_DESC
+  canManageB2CApps_ASC
+  canManageB2CApps_DESC
+  canReadB2CAppAccessRights_ASC
+  canReadB2CAppAccessRights_DESC
+  canManageB2CAppAccessRights_ASC
+  canManageB2CAppAccessRights_DESC
+  canReadB2CAppBuilds_ASC
+  canReadB2CAppBuilds_DESC
+  canManageB2CAppBuilds_ASC
+  canManageB2CAppBuilds_DESC
+  canReadB2CAppProperties_ASC
+  canReadB2CAppProperties_DESC
+  canManageB2CAppProperties_ASC
+  canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
+  canExecuteRegisterNewServiceUser_ASC
+  canExecuteRegisterNewServiceUser_DESC
+  canExecuteSendMessage_ASC
+  canExecuteSendMessage_DESC
+  canManageOrganizationIsApprovedField_ASC
+  canManageOrganizationIsApprovedField_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input UserRightsSetHistoryRecordUpdateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserRightsSetHistoryRecordsUpdateInput {
+  id: ID!
+  data: UserRightsSetHistoryRecordUpdateInput
+}
+
+input UserRightsSetHistoryRecordCreateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: UserRightsSetHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input UserRightsSetHistoryRecordsCreateInput {
+  data: UserRightsSetHistoryRecordCreateInput
+}
+
+""" A set of rights that allows one user or a group of users to gain direct access to objects of a particular schema and to perform certain mutations 
+"""
+type UserRightsSet {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the UserRightsSet List config, or
+   2. As an alias to the field set on 'labelField' in the UserRightsSet List config, or
+   3. As an alias to a 'name' field on the UserRightsSet List (if one exists), or
+   4. As an alias to the 'id' field on the UserRightsSet List.
+  """
+  _label_: String
+
+  """ A name that distinguishes this group of rights from others and describes the set of rights that users of this group receive. For example: "Full access to mini-applications", "Level 1 Support", "Read all organizations", etc 
+  """
+  name: String
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BApp" as support / admin users do 
+  """
+  canReadB2BApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BApp" similar to support users 
+  """
+  canManageB2BApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do 
+  """
+  canReadB2BAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRight" similar to support users 
+  """
+  canManageB2BAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRightSet" as support / admin users do 
+  """
+  canReadB2BAppAccessRightSets: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRightSet" similar to support users 
+  """
+  canManageB2BAppAccessRightSets: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppContext" as support / admin users do 
+  """
+  canReadB2BAppContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppContext" similar to support users 
+  """
+  canManageB2BAppContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppPermission" as support / admin users do 
+  """
+  canReadB2BAppPermissions: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPermission" similar to support users 
+  """
+  canManageB2BAppPermissions: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppPromoBlock" as support / admin users do 
+  """
+  canReadB2BAppPromoBlocks: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPromoBlock" similar to support users 
+  """
+  canManageB2BAppPromoBlocks: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CApp" as support / admin users do 
+  """
+  canReadB2CApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CApp" similar to support users 
+  """
+  canManageB2CApps: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppAccessRight" as support / admin users do 
+  """
+  canReadB2CAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppAccessRight" similar to support users 
+  """
+  canManageB2CAppAccessRights: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppBuild" as support / admin users do 
+  """
+  canReadB2CAppBuilds: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppBuild" similar to support users 
+  """
+  canManageB2CAppBuilds: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2CAppProperty" as support / admin users do 
+  """
+  canReadB2CAppProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users 
+  """
+  canManageB2CAppProperties: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
+  """
+  canReadOrganizations: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Organization" similar to support users 
+  """
+  canManageOrganizations: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "Ticket" as support / admin users do 
+  """
+  canReadTickets: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Ticket" similar to support users 
+  """
+  canManageTickets: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "registerNewServiceUser" query/mutation 
+  """
+  canExecuteRegisterNewServiceUser: Boolean
+
+  """ Enables a user with the given UserRightsSet to execute "sendMessage" query/mutation 
+  """
+  canExecuteSendMessage: Boolean
+
+  """ Enables a user with the given UserRightsSet to update "isApproved" field of model "Organization" 
+  """
+  canManageOrganizationIsApprovedField: Boolean
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input UserRightsSetWhereInput {
+  AND: [UserRightsSetWhereInput]
+  OR: [UserRightsSetWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
+  canReadB2BApps: Boolean
+  canReadB2BApps_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRights_not: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights_not: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canReadB2BAppAccessRightSets_not: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets_not: Boolean
+  canReadB2BAppContexts: Boolean
+  canReadB2BAppContexts_not: Boolean
+  canManageB2BAppContexts: Boolean
+  canManageB2BAppContexts_not: Boolean
+  canReadB2BAppPermissions: Boolean
+  canReadB2BAppPermissions_not: Boolean
+  canManageB2BAppPermissions: Boolean
+  canManageB2BAppPermissions_not: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canReadB2BAppPromoBlocks_not: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks_not: Boolean
+  canReadB2CApps: Boolean
+  canReadB2CApps_not: Boolean
+  canManageB2CApps: Boolean
+  canManageB2CApps_not: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canReadB2CAppAccessRights_not: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights_not: Boolean
+  canReadB2CAppBuilds: Boolean
+  canReadB2CAppBuilds_not: Boolean
+  canManageB2CAppBuilds: Boolean
+  canManageB2CAppBuilds_not: Boolean
+  canReadB2CAppProperties: Boolean
+  canReadB2CAppProperties_not: Boolean
+  canManageB2CAppProperties: Boolean
+  canManageB2CAppProperties_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
+  canManageTickets: Boolean
+  canManageTickets_not: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteRegisterNewServiceUser_not: Boolean
+  canExecuteSendMessage: Boolean
+  canExecuteSendMessage_not: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  canManageOrganizationIsApprovedField_not: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input UserRightsSetWhereUniqueInput {
+  id: ID!
+}
+
+enum SortUserRightsSetsBy {
+  name_ASC
+  name_DESC
+  canReadB2BApps_ASC
+  canReadB2BApps_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadB2BAppAccessRights_ASC
+  canReadB2BAppAccessRights_DESC
+  canManageB2BAppAccessRights_ASC
+  canManageB2BAppAccessRights_DESC
+  canReadB2BAppAccessRightSets_ASC
+  canReadB2BAppAccessRightSets_DESC
+  canManageB2BAppAccessRightSets_ASC
+  canManageB2BAppAccessRightSets_DESC
+  canReadB2BAppContexts_ASC
+  canReadB2BAppContexts_DESC
+  canManageB2BAppContexts_ASC
+  canManageB2BAppContexts_DESC
+  canReadB2BAppPermissions_ASC
+  canReadB2BAppPermissions_DESC
+  canManageB2BAppPermissions_ASC
+  canManageB2BAppPermissions_DESC
+  canReadB2BAppPromoBlocks_ASC
+  canReadB2BAppPromoBlocks_DESC
+  canManageB2BAppPromoBlocks_ASC
+  canManageB2BAppPromoBlocks_DESC
+  canReadB2CApps_ASC
+  canReadB2CApps_DESC
+  canManageB2CApps_ASC
+  canManageB2CApps_DESC
+  canReadB2CAppAccessRights_ASC
+  canReadB2CAppAccessRights_DESC
+  canManageB2CAppAccessRights_ASC
+  canManageB2CAppAccessRights_DESC
+  canReadB2CAppBuilds_ASC
+  canReadB2CAppBuilds_DESC
+  canManageB2CAppBuilds_ASC
+  canManageB2CAppBuilds_DESC
+  canReadB2CAppProperties_ASC
+  canReadB2CAppProperties_DESC
+  canManageB2CAppProperties_ASC
+  canManageB2CAppProperties_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
+  canManageTickets_ASC
+  canManageTickets_DESC
+  canExecuteRegisterNewServiceUser_ASC
+  canExecuteRegisterNewServiceUser_DESC
+  canExecuteSendMessage_ASC
+  canExecuteSendMessage_DESC
+  canManageOrganizationIsApprovedField_ASC
+  canManageOrganizationIsApprovedField_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input UserRightsSetUpdateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserRightsSetsUpdateInput {
+  id: ID!
+  data: UserRightsSetUpdateInput
+}
+
+input UserRightsSetCreateInput {
+  name: String
+  canReadB2BApps: Boolean
+  canManageB2BApps: Boolean
+  canReadB2BAppAccessRights: Boolean
+  canManageB2BAppAccessRights: Boolean
+  canReadB2BAppAccessRightSets: Boolean
+  canManageB2BAppAccessRightSets: Boolean
+  canReadB2BAppContexts: Boolean
+  canManageB2BAppContexts: Boolean
+  canReadB2BAppPermissions: Boolean
+  canManageB2BAppPermissions: Boolean
+  canReadB2BAppPromoBlocks: Boolean
+  canManageB2BAppPromoBlocks: Boolean
+  canReadB2CApps: Boolean
+  canManageB2CApps: Boolean
+  canReadB2CAppAccessRights: Boolean
+  canManageB2CAppAccessRights: Boolean
+  canReadB2CAppBuilds: Boolean
+  canManageB2CAppBuilds: Boolean
+  canReadB2CAppProperties: Boolean
+  canManageB2CAppProperties: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadTickets: Boolean
+  canManageTickets: Boolean
+  canExecuteRegisterNewServiceUser: Boolean
+  canExecuteSendMessage: Boolean
+  canManageOrganizationIsApprovedField: Boolean
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input UserRightsSetsCreateInput {
+  data: UserRightsSetCreateInput
+}
+
 enum OrganizationHistoryRecordHistoryActionType {
   c
   u
@@ -3110,6 +3967,7 @@ type OrganizationHistoryRecord {
   importRemoteSystem: String
   importId: String
   features: JSON
+  isApproved: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3296,6 +4154,8 @@ input OrganizationHistoryRecordWhereInput {
   features_not: JSON
   features_in: [JSON]
   features_not_in: [JSON]
+  isApproved: Boolean
+  isApproved_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3395,6 +4255,8 @@ enum SortOrganizationHistoryRecordsBy {
   importRemoteSystem_DESC
   importId_ASC
   importId_DESC
+  isApproved_ASC
+  isApproved_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3428,6 +4290,7 @@ input OrganizationHistoryRecordUpdateInput {
   importRemoteSystem: String
   importId: String
   features: JSON
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3462,6 +4325,7 @@ input OrganizationHistoryRecordCreateInput {
   importRemoteSystem: String
   importId: String
   features: JSON
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3501,7 +4365,6 @@ input OrganizationLinkRelateToManyInput {
 
 enum OrganizationFeature {
   SPP
-  ANALYTICS_V3
 }
 
 """ B2B customer of the service, a legal entity or an association of legal entities (holding/group) 
@@ -3572,6 +4435,13 @@ type Organization {
   """ List of the organization's features connected by a particular integration 
   """
   features: [OrganizationFeature!]!
+
+  """
+   @deprecated
+  Indicates that organization is real.
+  This is a service field, you should not implement logic using it. 
+  """
+  isApproved: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -3762,6 +4632,8 @@ input OrganizationWhereInput {
   features_not: [OrganizationFeature!]
   features_in: [[OrganizationFeature!]]
   features_not_in: [[OrganizationFeature!]]
+  isApproved: Boolean
+  isApproved_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -3847,6 +4719,8 @@ enum SortOrganizationsBy {
   importRemoteSystem_DESC
   importId_ASC
   importId_DESC
+  isApproved_ASC
+  isApproved_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -3880,6 +4754,7 @@ input OrganizationUpdateInput {
   importRemoteSystem: String
   importId: String
   features: [OrganizationFeature!]
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -3911,6 +4786,7 @@ input OrganizationCreateInput {
   importRemoteSystem: String
   importId: String
   features: [OrganizationFeature!]
+  isApproved: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4601,18 +5477,23 @@ type OrganizationEmployeeRoleHistoryRecord {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -4627,11 +5508,16 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -4694,20 +5580,28 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   statusTransitions_not_in: [JSON]
   canManageOrganization: Boolean
   canManageOrganization_not: Boolean
+  canReadEmployees: Boolean
+  canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
   canManageRoles: Boolean
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
   canManageIntegrations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
   canManageMeters: Boolean
   canManageMeters_not: Boolean
   canManageMeterReadings: Boolean
   canManageMeterReadings_not: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
   canManageContactRoles: Boolean
@@ -4718,6 +5612,8 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canShareTickets_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
+  canImportBillingReceipts: Boolean
+  canImportBillingReceipts_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canInviteNewOrganizationEmployees: Boolean
@@ -4762,8 +5658,12 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageBankTransactions_not: Boolean
   canManageBankAccountReports: Boolean
   canManageBankAccountReports_not: Boolean
+  canReadIncidents: Boolean
+  canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
   canManageNewsItemTemplates: Boolean
@@ -4772,6 +5672,12 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canManageCallRecords_not: Boolean
   canDownloadCallRecords: Boolean
   canDownloadCallRecords_not: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageMobileFeatureConfigs_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadAnalytics: Boolean
+  canReadAnalytics_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -4849,20 +5755,28 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   description_DESC
   canManageOrganization_ASC
   canManageOrganization_DESC
+  canReadEmployees_ASC
+  canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
   canManageRoles_ASC
   canManageRoles_DESC
   canManageIntegrations_ASC
   canManageIntegrations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
   canManageMeters_ASC
   canManageMeters_DESC
   canManageMeterReadings_ASC
   canManageMeterReadings_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
   canManageContactRoles_ASC
@@ -4873,6 +5787,8 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canShareTickets_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
+  canImportBillingReceipts_ASC
+  canImportBillingReceipts_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canInviteNewOrganizationEmployees_ASC
@@ -4901,8 +5817,12 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageBankTransactions_DESC
   canManageBankAccountReports_ASC
   canManageBankAccountReports_DESC
+  canReadIncidents_ASC
+  canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
   canManageNewsItemTemplates_ASC
@@ -4911,6 +5831,12 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canManageCallRecords_DESC
   canDownloadCallRecords_ASC
   canDownloadCallRecords_DESC
+  canManageMobileFeatureConfigs_ASC
+  canManageMobileFeatureConfigs_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadAnalytics_ASC
+  canReadAnalytics_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -4933,18 +5859,23 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -4959,11 +5890,16 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -4987,18 +5923,23 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   description: String
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -5013,11 +5954,16 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5056,18 +6002,23 @@ type OrganizationEmployeeRole {
   """ Employee status transitions map """
   statusTransitions: JSON
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
 
@@ -5096,11 +6047,16 @@ type OrganizationEmployeeRole {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5165,20 +6121,28 @@ input OrganizationEmployeeRoleWhereInput {
   description_not_in: [String]
   canManageOrganization: Boolean
   canManageOrganization_not: Boolean
+  canReadEmployees: Boolean
+  canReadEmployees_not: Boolean
   canManageEmployees: Boolean
   canManageEmployees_not: Boolean
   canManageRoles: Boolean
   canManageRoles_not: Boolean
   canManageIntegrations: Boolean
   canManageIntegrations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
   canManageProperties: Boolean
   canManageProperties_not: Boolean
+  canReadTickets: Boolean
+  canReadTickets_not: Boolean
   canManageTickets: Boolean
   canManageTickets_not: Boolean
   canManageMeters: Boolean
   canManageMeters_not: Boolean
   canManageMeterReadings: Boolean
   canManageMeterReadings_not: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
   canManageContacts: Boolean
   canManageContacts_not: Boolean
   canManageContactRoles: Boolean
@@ -5189,6 +6153,8 @@ input OrganizationEmployeeRoleWhereInput {
   canShareTickets_not: Boolean
   canReadBillingReceipts: Boolean
   canReadBillingReceipts_not: Boolean
+  canImportBillingReceipts: Boolean
+  canImportBillingReceipts_not: Boolean
   canReadPayments: Boolean
   canReadPayments_not: Boolean
   canInviteNewOrganizationEmployees: Boolean
@@ -5219,8 +6185,12 @@ input OrganizationEmployeeRoleWhereInput {
   canManageBankTransactions_not: Boolean
   canManageBankAccountReports: Boolean
   canManageBankAccountReports_not: Boolean
+  canReadIncidents: Boolean
+  canReadIncidents_not: Boolean
   canManageIncidents: Boolean
   canManageIncidents_not: Boolean
+  canReadNewsItems: Boolean
+  canReadNewsItems_not: Boolean
   canManageNewsItems: Boolean
   canManageNewsItems_not: Boolean
   canManageNewsItemTemplates: Boolean
@@ -5229,6 +6199,12 @@ input OrganizationEmployeeRoleWhereInput {
   canManageCallRecords_not: Boolean
   canDownloadCallRecords: Boolean
   canDownloadCallRecords_not: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageMobileFeatureConfigs_not: Boolean
+  canManageB2BApps: Boolean
+  canManageB2BApps_not: Boolean
+  canReadAnalytics: Boolean
+  canReadAnalytics_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5288,20 +6264,28 @@ enum SortOrganizationEmployeeRolesBy {
   description_DESC
   canManageOrganization_ASC
   canManageOrganization_DESC
+  canReadEmployees_ASC
+  canReadEmployees_DESC
   canManageEmployees_ASC
   canManageEmployees_DESC
   canManageRoles_ASC
   canManageRoles_DESC
   canManageIntegrations_ASC
   canManageIntegrations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
   canManageProperties_ASC
   canManageProperties_DESC
+  canReadTickets_ASC
+  canReadTickets_DESC
   canManageTickets_ASC
   canManageTickets_DESC
   canManageMeters_ASC
   canManageMeters_DESC
   canManageMeterReadings_ASC
   canManageMeterReadings_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
   canManageContacts_ASC
   canManageContacts_DESC
   canManageContactRoles_ASC
@@ -5312,6 +6296,8 @@ enum SortOrganizationEmployeeRolesBy {
   canShareTickets_DESC
   canReadBillingReceipts_ASC
   canReadBillingReceipts_DESC
+  canImportBillingReceipts_ASC
+  canImportBillingReceipts_DESC
   canReadPayments_ASC
   canReadPayments_DESC
   canInviteNewOrganizationEmployees_ASC
@@ -5340,8 +6326,12 @@ enum SortOrganizationEmployeeRolesBy {
   canManageBankTransactions_DESC
   canManageBankAccountReports_ASC
   canManageBankAccountReports_DESC
+  canReadIncidents_ASC
+  canReadIncidents_DESC
   canManageIncidents_ASC
   canManageIncidents_DESC
+  canReadNewsItems_ASC
+  canReadNewsItems_DESC
   canManageNewsItems_ASC
   canManageNewsItems_DESC
   canManageNewsItemTemplates_ASC
@@ -5350,6 +6340,12 @@ enum SortOrganizationEmployeeRolesBy {
   canManageCallRecords_DESC
   canDownloadCallRecords_ASC
   canDownloadCallRecords_DESC
+  canManageMobileFeatureConfigs_ASC
+  canManageMobileFeatureConfigs_DESC
+  canManageB2BApps_ASC
+  canManageB2BApps_DESC
+  canReadAnalytics_ASC
+  canReadAnalytics_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5371,18 +6367,23 @@ input OrganizationEmployeeRoleUpdateInput {
   name: String
   description: String
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -5397,11 +6398,16 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -5421,18 +6427,23 @@ input OrganizationEmployeeRoleCreateInput {
   name: String
   description: String
   canManageOrganization: Boolean
+  canReadEmployees: Boolean
   canManageEmployees: Boolean
   canManageRoles: Boolean
   canManageIntegrations: Boolean
+  canReadProperties: Boolean
   canManageProperties: Boolean
+  canReadTickets: Boolean
   canManageTickets: Boolean
   canManageMeters: Boolean
   canManageMeterReadings: Boolean
+  canReadContacts: Boolean
   canManageContacts: Boolean
   canManageContactRoles: Boolean
   canManageTicketComments: Boolean
   canShareTickets: Boolean
   canReadBillingReceipts: Boolean
+  canImportBillingReceipts: Boolean
   canReadPayments: Boolean
   canInviteNewOrganizationEmployees: Boolean
   canBeAssignedAsResponsible: Boolean
@@ -5447,11 +6458,16 @@ input OrganizationEmployeeRoleCreateInput {
   canManageBankContractorAccounts: Boolean
   canManageBankTransactions: Boolean
   canManageBankAccountReports: Boolean
+  canReadIncidents: Boolean
   canManageIncidents: Boolean
+  canReadNewsItems: Boolean
   canManageNewsItems: Boolean
   canManageNewsItemTemplates: Boolean
   canManageCallRecords: Boolean
   canDownloadCallRecords: Boolean
+  canManageMobileFeatureConfigs: Boolean
+  canManageB2BApps: Boolean
+  canReadAnalytics: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -10208,6 +11224,8 @@ type BillingAccountHistoryRecord {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: String
   meta: JSON
   id: ID!
   v: Int
@@ -10347,6 +11365,26 @@ input BillingAccountHistoryRecordWhereInput {
   fullName_not_ends_with_i: String
   fullName_in: [String]
   fullName_not_in: [String]
+  isClosed: Boolean
+  isClosed_not: Boolean
+  ownerType: String
+  ownerType_not: String
+  ownerType_contains: String
+  ownerType_not_contains: String
+  ownerType_starts_with: String
+  ownerType_not_starts_with: String
+  ownerType_ends_with: String
+  ownerType_not_ends_with: String
+  ownerType_i: String
+  ownerType_not_i: String
+  ownerType_contains_i: String
+  ownerType_not_contains_i: String
+  ownerType_starts_with_i: String
+  ownerType_not_starts_with_i: String
+  ownerType_ends_with_i: String
+  ownerType_not_ends_with_i: String
+  ownerType_in: [String]
+  ownerType_not_in: [String]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -10446,6 +11484,10 @@ enum SortBillingAccountHistoryRecordsBy {
   unitType_DESC
   fullName_ASC
   fullName_DESC
+  isClosed_ASC
+  isClosed_DESC
+  ownerType_ASC
+  ownerType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -10474,6 +11516,8 @@ input BillingAccountHistoryRecordUpdateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: String
   meta: JSON
   v: Int
   createdAt: String
@@ -10504,6 +11548,8 @@ input BillingAccountHistoryRecordCreateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: String
   meta: JSON
   v: Int
   createdAt: String
@@ -10528,6 +11574,11 @@ input BillingPropertyRelateToOneInput {
   connect: BillingPropertyWhereUniqueInput
   disconnect: BillingPropertyWhereUniqueInput
   disconnectAll: Boolean
+}
+
+enum BillingAccountOwnerTypeType {
+  person
+  company
 }
 
 """ All `account` objects from `billing data source`. In close account cases, these objects should be soft deleted 
@@ -10571,6 +11622,13 @@ type BillingAccount {
 
   """ Full name of the account holder """
   fullName: String
+
+  """ Shows whether the billing account closed or not. When one resident leaves unit and another one went in we need to close hte old billing account. 
+  """
+  isClosed: Boolean
+
+  """ The account owner's type """
+  ownerType: BillingAccountOwnerTypeType
 
   """ Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking` 
   """
@@ -10703,6 +11761,12 @@ input BillingAccountWhereInput {
   fullName_not_ends_with_i: String
   fullName_in: [String]
   fullName_not_in: [String]
+  isClosed: Boolean
+  isClosed_not: Boolean
+  ownerType: BillingAccountOwnerTypeType
+  ownerType_not: BillingAccountOwnerTypeType
+  ownerType_in: [BillingAccountOwnerTypeType]
+  ownerType_not_in: [BillingAccountOwnerTypeType]
   meta: JSON
   meta_not: JSON
   meta_in: [JSON]
@@ -10786,6 +11850,10 @@ enum SortBillingAccountsBy {
   unitType_DESC
   fullName_ASC
   fullName_DESC
+  isClosed_ASC
+  isClosed_DESC
+  ownerType_ASC
+  ownerType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -10814,6 +11882,8 @@ input BillingAccountUpdateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: BillingAccountOwnerTypeType
   meta: JSON
   v: Int
   createdAt: String
@@ -10841,6 +11911,8 @@ input BillingAccountCreateInput {
   unitName: String
   unitType: String
   fullName: String
+  isClosed: Boolean
+  ownerType: BillingAccountOwnerTypeType
   meta: JSON
   v: Int
   createdAt: String
@@ -20016,6 +21088,7 @@ type TicketHistoryRecord {
   details: String
   related: String
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -20384,6 +21457,8 @@ input TicketHistoryRecordWhereInput {
   related_not_in: [String]
   isPaid: Boolean
   isPaid_not: Boolean
+  isPayable: Boolean
+  isPayable_not: Boolean
   isEmergency: Boolean
   isEmergency_not: Boolean
   isWarranty: Boolean
@@ -20655,6 +21730,8 @@ enum SortTicketHistoryRecordsBy {
   details_DESC
   isPaid_ASC
   isPaid_DESC
+  isPayable_ASC
+  isPayable_DESC
   isEmergency_ASC
   isEmergency_DESC
   isWarranty_ASC
@@ -20733,6 +21810,7 @@ input TicketHistoryRecordUpdateInput {
   details: String
   related: String
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -20806,6 +21884,7 @@ input TicketHistoryRecordCreateInput {
   details: String
   related: String
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -21057,8 +22136,14 @@ type Ticket {
   """
   related: Ticket
 
-  """ Indicates the ticket is paid """
+  """
+   @deprecated Please use "isPayable"
+  Indicates the ticket is payable 
+  """
   isPaid: Boolean
+
+  """ Indicates the ticket is payable """
+  isPayable: Boolean
 
   """ Indicates the ticket is emergency """
   isEmergency: Boolean
@@ -21413,6 +22498,8 @@ input TicketWhereInput {
   related_is_null: Boolean
   isPaid: Boolean
   isPaid_not: Boolean
+  isPayable: Boolean
+  isPayable_not: Boolean
   isEmergency: Boolean
   isEmergency_not: Boolean
   isWarranty: Boolean
@@ -21658,6 +22745,8 @@ enum SortTicketsBy {
   related_DESC
   isPaid_ASC
   isPaid_DESC
+  isPayable_ASC
+  isPayable_DESC
   isEmergency_ASC
   isEmergency_DESC
   isWarranty_ASC
@@ -21740,6 +22829,7 @@ input TicketUpdateInput {
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -21810,6 +22900,7 @@ input TicketCreateInput {
   details: String
   related: TicketRelateToOneInput
   isPaid: Boolean
+  isPayable: Boolean
   isEmergency: Boolean
   isWarranty: Boolean
   isResidentTicket: Boolean
@@ -23261,11 +24352,23 @@ type TicketChange {
   """
   detailsTo: String
 
-  """ Indicates the ticket is paid """
+  """
+   @deprecated Please use "isPayable"
+  Indicates the ticket is payable 
+  """
   isPaidFrom: Boolean
 
-  """ Indicates the ticket is paid """
+  """
+   @deprecated Please use "isPayable"
+  Indicates the ticket is payable 
+  """
   isPaidTo: Boolean
+
+  """ Indicates the ticket is payable """
+  isPayableFrom: Boolean
+
+  """ Indicates the ticket is payable """
+  isPayableTo: Boolean
 
   """ Indicates the ticket is emergency """
   isEmergencyFrom: Boolean
@@ -23524,6 +24627,10 @@ type TicketChange {
   """
   sourceDisplayNameTo: String
   sourceDisplayNameToNonLocalized: String
+
+  """ Actual creation ticket change date, for case when ticket updated from offline 
+  """
+  actualCreationDate: String
 
   """ Type of user who changed the ticket, can be employee role from same organization or related, resident or deleted employee 
   """
@@ -23918,6 +25025,10 @@ input TicketChangeWhereInput {
   isPaidFrom_not: Boolean
   isPaidTo: Boolean
   isPaidTo_not: Boolean
+  isPayableFrom: Boolean
+  isPayableFrom_not: Boolean
+  isPayableTo: Boolean
+  isPayableTo_not: Boolean
   isEmergencyFrom: Boolean
   isEmergencyFrom_not: Boolean
   isEmergencyTo: Boolean
@@ -24574,6 +25685,14 @@ input TicketChangeWhereInput {
   sourceDisplayNameTo_not_ends_with_i: String
   sourceDisplayNameTo_in: [String]
   sourceDisplayNameTo_not_in: [String]
+  actualCreationDate: String
+  actualCreationDate_not: String
+  actualCreationDate_lt: String
+  actualCreationDate_lte: String
+  actualCreationDate_gt: String
+  actualCreationDate_gte: String
+  actualCreationDate_in: [String]
+  actualCreationDate_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -24683,6 +25802,10 @@ enum SortTicketChangesBy {
   isPaidFrom_DESC
   isPaidTo_ASC
   isPaidTo_DESC
+  isPayableFrom_ASC
+  isPayableFrom_DESC
+  isPayableTo_ASC
+  isPayableTo_DESC
   isEmergencyFrom_ASC
   isEmergencyFrom_DESC
   isEmergencyTo_ASC
@@ -24807,6 +25930,8 @@ enum SortTicketChangesBy {
   sourceDisplayNameFrom_DESC
   sourceDisplayNameTo_ASC
   sourceDisplayNameTo_DESC
+  actualCreationDate_ASC
+  actualCreationDate_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -24857,6 +25982,8 @@ input TicketChangeUpdateInput {
   detailsTo: String
   isPaidFrom: Boolean
   isPaidTo: Boolean
+  isPayableFrom: Boolean
+  isPayableTo: Boolean
   isEmergencyFrom: Boolean
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
@@ -24925,6 +26052,7 @@ input TicketChangeUpdateInput {
   sourceIdTo: ID
   sourceDisplayNameFrom: String
   sourceDisplayNameTo: String
+  actualCreationDate: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -24973,6 +26101,8 @@ input TicketChangeCreateInput {
   detailsTo: String
   isPaidFrom: Boolean
   isPaidTo: Boolean
+  isPayableFrom: Boolean
+  isPayableTo: Boolean
   isEmergencyFrom: Boolean
   isEmergencyTo: Boolean
   isWarrantyFrom: Boolean
@@ -25041,6 +26171,7 @@ input TicketChangeCreateInput {
   sourceIdTo: ID
   sourceDisplayNameFrom: String
   sourceDisplayNameTo: String
+  actualCreationDate: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -30430,7 +31561,7 @@ type TicketOrganizationSetting {
   """ Default deadline duration for default tickets (ISO 8601 format) """
   defaultDeadlineDuration: String
 
-  """ Default deadline duration for paid tickets (ISO 8601 format) """
+  """ Default deadline duration for payable tickets (ISO 8601 format) """
   paidDeadlineDuration: String
 
   """ Default deadline duration for emergency tickets (ISO 8601 format) """
@@ -38297,6 +39428,8 @@ enum NotificationUserSettingMessageTypeType {
   BILLING_RECEIPT_ADDED_WITH_DEBT
   BILLING_RECEIPT_ADDED_WITH_NO_DEBT
   METER_SUBMIT_READINGS_REMINDER
+  METER_SUBMIT_READINGS_REMINDER_START_PERIOD
+  METER_SUBMIT_READINGS_REMINDER_END_PERIOD
   METER_VERIFICATION_DATE_EXPIRED
   RESIDENT_UPGRADE_APP
   STAFF_UPGRADE_APP
@@ -38320,6 +39453,8 @@ enum NotificationUserSettingMessageTypeType {
   RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE
   NEWS_ITEM_COMMON_MESSAGE_TYPE
   NEWS_ITEM_EMERGENCY_MESSAGE_TYPE
+  DEV_PORTAL_MESSAGE
+  SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE
 }
 
 enum NotificationUserSettingMessageTransportType {
@@ -38343,7 +39478,7 @@ type NotificationUserSetting {
   """ The user the settings will apply for """
   user: User
 
-  """ Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE 
+  """ Affected message type. Possible values are: INVITE_NEW_EMPLOYEE,SHARE_TICKET,BANK_ACCOUNT_CREATION_REQUEST,DIRTY_INVITE_NEW_EMPLOYEE_SMS,DIRTY_INVITE_NEW_EMPLOYEE_EMAIL,REGISTER_NEW_USER,RESET_PASSWORD,SMS_VERIFY,DEVELOPER_IMPORTANT_NOTE_TYPE,CUSTOMER_IMPORTANT_NOTE_TYPE,MESSAGE_FORWARDED_TO_SUPPORT,TICKET_ASSIGNEE_CONNECTED,TICKET_EXECUTOR_CONNECTED,TRACK_TICKET_IN_DOMA_APP,TICKET_STATUS_OPENED,TICKET_STATUS_IN_PROGRESS,TICKET_STATUS_COMPLETED,TICKET_STATUS_RETURNED,TICKET_STATUS_DECLINED,TICKET_COMMENT_ADDED,METER_VERIFICATION_DATE_REMINDER,RESIDENT_ADD_BILLING_ACCOUNT,BILLING_RECEIPT_AVAILABLE,BILLING_RECEIPT_AVAILABLE_NO_ACCOUNT,BILLING_RECEIPT_CATEGORY_AVAILABLE,BILLING_RECEIPT_ADDED,BILLING_RECEIPT_ADDED_WITH_DEBT,BILLING_RECEIPT_ADDED_WITH_NO_DEBT,METER_SUBMIT_READINGS_REMINDER,METER_SUBMIT_READINGS_REMINDER_START_PERIOD,METER_SUBMIT_READINGS_REMINDER_END_PERIOD,METER_VERIFICATION_DATE_EXPIRED,RESIDENT_UPGRADE_APP,STAFF_UPGRADE_APP,CUSTOM_CONTENT_MESSAGE_PUSH,CUSTOM_CONTENT_MESSAGE_EMAIL,CUSTOM_CONTENT_MESSAGE_SMS,VOIP_INCOMING_CALL_MESSAGE,B2C_APP_MESSAGE_PUSH,RECURRENT_PAYMENT_PROCEEDING_SUCCESS_RESULT_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_UNKNOWN_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_ACQUIRING_PAYMENT_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_SERVICE_CONSUMER_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_LIMIT_EXCEEDED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_NOT_FOUND_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CONTEXT_DISABLED_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CARD_TOKEN_NOT_VALID_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_CAN_NOT_REGISTER_MULTI_PAYMENT_ERROR_MESSAGE,RECURRENT_PAYMENT_PROCEEDING_NO_RECEIPTS_TO_PROCEED_ERROR_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_NO_RECEIPTS_MESSAGE,RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE,NEWS_ITEM_COMMON_MESSAGE_TYPE,NEWS_ITEM_EMERGENCY_MESSAGE_TYPE,DEV_PORTAL_MESSAGE,SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE 
   """
   messageType: NotificationUserSettingMessageTypeType
 
@@ -59993,8 +61128,11 @@ type B2CAppPropertyHistoryRecord {
   """
   _label_: String
   app: String
-  address: String
   id: ID!
+  address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60016,6 +61154,10 @@ input B2CAppPropertyHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
   address: String
   address_not: String
   address_contains: String
@@ -60034,10 +61176,32 @@ input B2CAppPropertyHistoryRecordWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -60117,10 +61281,12 @@ input B2CAppPropertyHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2CAppPropertyHistoryRecordsBy {
-  address_ASC
-  address_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -60140,6 +61306,9 @@ enum SortB2CAppPropertyHistoryRecordsBy {
 input B2CAppPropertyHistoryRecordUpdateInput {
   app: String
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60162,6 +61331,9 @@ input B2CAppPropertyHistoryRecordsUpdateInput {
 input B2CAppPropertyHistoryRecordCreateInput {
   app: String
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60194,11 +61366,20 @@ type B2CAppProperty {
 
   """ Link to B2C App """
   app: B2CApp
-
-  """ Property address. Must match the address lookup service with case accuracy 
-  """
-  address: String
   id: ID!
+
+  """ Normalized address """
+  address: String
+
+  """ The unique key of the address """
+  addressKey: String
+
+  """ Property address components """
+  addressMeta: AddressMetaField
+
+  """ The origins of the address (some strings which may looks like real address or some id) 
+  """
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60226,6 +61407,10 @@ input B2CAppPropertyWhereInput {
   OR: [B2CAppPropertyWhereInput]
   app: B2CAppWhereInput
   app_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
   address: String
   address_not: String
   address_contains: String
@@ -60244,10 +61429,32 @@ input B2CAppPropertyWhereInput {
   address_not_ends_with_i: String
   address_in: [String]
   address_not_in: [String]
-  id: ID
-  id_not: ID
-  id_in: [ID]
-  id_not_in: [ID]
+  addressKey: String
+  addressKey_not: String
+  addressKey_contains: String
+  addressKey_not_contains: String
+  addressKey_starts_with: String
+  addressKey_not_starts_with: String
+  addressKey_ends_with: String
+  addressKey_not_ends_with: String
+  addressKey_i: String
+  addressKey_not_i: String
+  addressKey_contains_i: String
+  addressKey_not_contains_i: String
+  addressKey_starts_with_i: String
+  addressKey_not_starts_with_i: String
+  addressKey_ends_with_i: String
+  addressKey_not_ends_with_i: String
+  addressKey_in: [String]
+  addressKey_not_in: [String]
+  addressMeta: JSON
+  addressMeta_not: JSON
+  addressMeta_in: [JSON]
+  addressMeta_not_in: [JSON]
+  addressSources: JSON
+  addressSources_not: JSON
+  addressSources_in: [JSON]
+  addressSources_not_in: [JSON]
   v: Int
   v_not: Int
   v_lt: Int
@@ -60309,10 +61516,12 @@ input B2CAppPropertyWhereUniqueInput {
 enum SortB2CAppPropertiesBy {
   app_ASC
   app_DESC
-  address_ASC
-  address_DESC
   id_ASC
   id_DESC
+  address_ASC
+  address_DESC
+  addressKey_ASC
+  addressKey_DESC
   v_ASC
   v_DESC
   createdAt_ASC
@@ -60332,6 +61541,9 @@ enum SortB2CAppPropertiesBy {
 input B2CAppPropertyUpdateInput {
   app: B2CAppRelateToOneInput
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -60351,6 +61563,9 @@ input B2CAppPropertiesUpdateInput {
 input B2CAppPropertyCreateInput {
   app: B2CAppRelateToOneInput
   address: String
+  addressKey: String
+  addressMeta: JSON
+  addressSources: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -61427,6 +62642,7 @@ type B2BAppPermissionHistoryRecord {
   _label_: String
   app: String
   key: String
+  name: String
   id: ID!
   v: Int
   createdAt: String
@@ -61467,6 +62683,24 @@ input B2BAppPermissionHistoryRecordWhereInput {
   key_not_ends_with_i: String
   key_in: [String]
   key_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -61552,6 +62786,8 @@ input B2BAppPermissionHistoryRecordWhereUniqueInput {
 enum SortB2BAppPermissionHistoryRecordsBy {
   key_ASC
   key_DESC
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -61573,6 +62809,7 @@ enum SortB2BAppPermissionHistoryRecordsBy {
 input B2BAppPermissionHistoryRecordUpdateInput {
   app: String
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61595,6 +62832,7 @@ input B2BAppPermissionHistoryRecordsUpdateInput {
 input B2BAppPermissionHistoryRecordCreateInput {
   app: String
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61613,7 +62851,7 @@ input B2BAppPermissionHistoryRecordsCreateInput {
   data: B2BAppPermissionHistoryRecordCreateInput
 }
 
-""" B2BApp permissions that describe additional capabilities within the mini-application and allow the organization administration to manage accesses within the miniapp depending on the employee's role by toggling the B2BAppPermissions of a particular application for each role. By default, for all employees with "canManageIntegrations" in their role, all permissions will be set to True. For all other roles with access to the application the default value is False. 
+""" B2BApp permissions that describe additional capabilities within the mini-application and allow the organization administration to manage accesses within the miniapp depending on the employee's role by toggling the B2BAppPermissions of a particular application for each role. By default, for all employees with "canManageB2BApps" in their role, all permissions will be set to True. For all other roles with access to the application the default value is False. 
 """
 type B2BAppPermission {
   """
@@ -61631,6 +62869,10 @@ type B2BAppPermission {
   """ The permission key. Must be written in lowerCamelCase, start with the prefix "can", and answer the question, "What can a user with this permission do?". Examples: "canManagePasses", "canReadPrivateData", etc. 
   """
   key: String
+
+  """ Name of permission. Must be very brief (from 1 to 50 characters) and describe the capabilities that the employee will get with this permission. Must use nouns that indicate actions with objects or sections of the mini-application. Examples: "Passes management", "Access to settings", "Contacts viewing". 
+  """
+  name: String
   id: ID!
   v: Int
   createdAt: String
@@ -61677,6 +62919,24 @@ input B2BAppPermissionWhereInput {
   key_not_ends_with_i: String
   key_in: [String]
   key_not_in: [String]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -61744,6 +63004,8 @@ enum SortB2BAppPermissionsBy {
   app_DESC
   key_ASC
   key_DESC
+  name_ASC
+  name_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -61765,6 +63027,7 @@ enum SortB2BAppPermissionsBy {
 input B2BAppPermissionUpdateInput {
   app: B2BAppRelateToOneInput
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61784,6 +63047,7 @@ input B2BAppPermissionsUpdateInput {
 input B2BAppPermissionCreateInput {
   app: B2BAppRelateToOneInput
   key: String
+  name: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -61994,7 +63258,7 @@ input B2BAppRoleHistoryRecordsCreateInput {
   data: B2BAppRoleHistoryRecordCreateInput
 }
 
-""" This model links the role of the organization and mini-apps, allowing mini-apps to extend the main role template. Having this mapping between role A and mini-app B means that all employees in the organization with role A can access mini-app B. In addition, a mini-app may want to differentiate access within itself. To do this, it can create B2BAppPermissions via service user, the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  By default, all existing and new permissions will be set to "true" for all roles in the organization that have "canManageIntegrations" checked, false for other employees. When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageIntegrations" checkbox. B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, and when adding it - it is added to all roles, and the value is set according to the rules described above. 
+""" This model links the role of the organization and mini-apps, allowing mini-apps to extend the main role template. Having this mapping between role A and mini-app B means that all employees in the organization with role A can access mini-app B. In addition, a mini-app may want to differentiate access within itself. To do this, it can create B2BAppPermissions via service user, the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  By default, all existing and new permissions will be set to "true" for all roles in the organization that have "canManageB2BApps" checked, false for other employees. When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageB2BApps" checkbox. B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, and when adding it - it is added to all roles, and the value is set according to the rules described above. 
 """
 type B2BAppRole {
   """
@@ -62190,6 +63454,16 @@ type B2BAppAccessRightSetHistoryRecord {
   """
   _label_: String
   app: String
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -62212,6 +63486,26 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   app_not: String
   app_in: [String]
   app_not_in: [String]
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
+  canManageContacts: Boolean
+  canManageContacts_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
+  canReadMeters: Boolean
+  canReadMeters_not: Boolean
+  canManageMeters: Boolean
+  canManageMeters_not: Boolean
+  canReadMeterReadings: Boolean
+  canReadMeterReadings_not: Boolean
+  canManageMeterReadings: Boolean
+  canManageMeterReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62295,6 +63589,26 @@ input B2BAppAccessRightSetHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2BAppAccessRightSetHistoryRecordsBy {
+  canReadContacts_ASC
+  canReadContacts_DESC
+  canManageContacts_ASC
+  canManageContacts_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
+  canReadMeters_ASC
+  canReadMeters_DESC
+  canManageMeters_ASC
+  canManageMeters_DESC
+  canReadMeterReadings_ASC
+  canReadMeterReadings_DESC
+  canManageMeterReadings_ASC
+  canManageMeterReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -62315,6 +63629,16 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
 
 input B2BAppAccessRightSetHistoryRecordUpdateInput {
   app: String
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62336,6 +63660,16 @@ input B2BAppAccessRightSetHistoryRecordsUpdateInput {
 
 input B2BAppAccessRightSetHistoryRecordCreateInput {
   app: String
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62374,6 +63708,19 @@ type B2BAppAccessRightSet {
 
   """ Link to B2BApp """
   app: B2BApp
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+
+  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
+  """
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -62395,15 +63742,6 @@ type B2BAppAccessRightSet {
   """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
   """
   sender: SenderField
-  canReadOrganizations: Boolean
-
-  """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
-  """
-  canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
-  canReadContacts: Boolean
-  canManageContacts: Boolean
 }
 
 input B2BAppAccessRightSetWhereInput {
@@ -62411,6 +63749,26 @@ input B2BAppAccessRightSetWhereInput {
   OR: [B2BAppAccessRightSetWhereInput]
   app: B2BAppWhereInput
   app_is_null: Boolean
+  canReadContacts: Boolean
+  canReadContacts_not: Boolean
+  canManageContacts: Boolean
+  canManageContacts_not: Boolean
+  canReadOrganizations: Boolean
+  canReadOrganizations_not: Boolean
+  canManageOrganizations: Boolean
+  canManageOrganizations_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
+  canReadMeters: Boolean
+  canReadMeters_not: Boolean
+  canManageMeters: Boolean
+  canManageMeters_not: Boolean
+  canReadMeterReadings: Boolean
+  canReadMeterReadings_not: Boolean
+  canManageMeterReadings: Boolean
+  canManageMeterReadings_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -62467,18 +63825,6 @@ input B2BAppAccessRightSetWhereInput {
   sender_not: SenderFieldInput
   sender_in: [SenderFieldInput]
   sender_not_in: [SenderFieldInput]
-  canReadOrganizations: Boolean
-  canReadOrganizations_not: Boolean
-  canManageOrganizations: Boolean
-  canManageOrganizations_not: Boolean
-  canReadProperties: Boolean
-  canReadProperties_not: Boolean
-  canManageProperties: Boolean
-  canManageProperties_not: Boolean
-  canReadContacts: Boolean
-  canReadContacts_not: Boolean
-  canManageContacts: Boolean
-  canManageContacts_not: Boolean
 }
 
 input B2BAppAccessRightSetWhereUniqueInput {
@@ -62488,6 +63834,26 @@ input B2BAppAccessRightSetWhereUniqueInput {
 enum SortB2BAppAccessRightSetsBy {
   app_ASC
   app_DESC
+  canReadContacts_ASC
+  canReadContacts_DESC
+  canManageContacts_ASC
+  canManageContacts_DESC
+  canReadOrganizations_ASC
+  canReadOrganizations_DESC
+  canManageOrganizations_ASC
+  canManageOrganizations_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
+  canReadMeters_ASC
+  canReadMeters_DESC
+  canManageMeters_ASC
+  canManageMeters_DESC
+  canReadMeterReadings_ASC
+  canReadMeterReadings_DESC
+  canManageMeterReadings_ASC
+  canManageMeterReadings_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -62504,22 +63870,20 @@ enum SortB2BAppAccessRightSetsBy {
   deletedAt_DESC
   dv_ASC
   dv_DESC
-  canReadOrganizations_ASC
-  canReadOrganizations_DESC
-  canManageOrganizations_ASC
-  canManageOrganizations_DESC
-  canReadProperties_ASC
-  canReadProperties_DESC
-  canManageProperties_ASC
-  canManageProperties_DESC
-  canReadContacts_ASC
-  canReadContacts_DESC
-  canManageContacts_ASC
-  canManageContacts_DESC
 }
 
 input B2BAppAccessRightSetUpdateInput {
   app: B2BAppRelateToOneInput
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62529,12 +63893,6 @@ input B2BAppAccessRightSetUpdateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
-  canReadOrganizations: Boolean
-  canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
-  canReadContacts: Boolean
-  canManageContacts: Boolean
 }
 
 input B2BAppAccessRightSetsUpdateInput {
@@ -62544,6 +63902,16 @@ input B2BAppAccessRightSetsUpdateInput {
 
 input B2BAppAccessRightSetCreateInput {
   app: B2BAppRelateToOneInput
+  canReadContacts: Boolean
+  canManageContacts: Boolean
+  canReadOrganizations: Boolean
+  canManageOrganizations: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
+  canReadMeters: Boolean
+  canManageMeters: Boolean
+  canReadMeterReadings: Boolean
+  canManageMeterReadings: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -62553,16 +63921,450 @@ input B2BAppAccessRightSetCreateInput {
   newId: String
   dv: Int
   sender: SenderFieldInput
-  canReadOrganizations: Boolean
-  canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
-  canReadContacts: Boolean
-  canManageContacts: Boolean
 }
 
 input B2BAppAccessRightSetsCreateInput {
   data: B2BAppAccessRightSetCreateInput
+}
+
+enum MobileFeatureConfigHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type MobileFeatureConfigHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MobileFeatureConfigHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MobileFeatureConfigHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MobileFeatureConfigHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MobileFeatureConfigHistoryRecord List.
+  """
+  _label_: String
+  organization: String
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MobileFeatureConfigHistoryRecordWhereInput {
+  AND: [MobileFeatureConfigHistoryRecordWhereInput]
+  OR: [MobileFeatureConfigHistoryRecordWhereInput]
+  organization: String
+  organization_not: String
+  organization_in: [String]
+  organization_not_in: [String]
+  commonPhone: String
+  commonPhone_not: String
+  commonPhone_contains: String
+  commonPhone_not_contains: String
+  commonPhone_starts_with: String
+  commonPhone_not_starts_with: String
+  commonPhone_ends_with: String
+  commonPhone_not_ends_with: String
+  commonPhone_i: String
+  commonPhone_not_i: String
+  commonPhone_contains_i: String
+  commonPhone_not_contains_i: String
+  commonPhone_starts_with_i: String
+  commonPhone_not_starts_with_i: String
+  commonPhone_ends_with_i: String
+  commonPhone_not_ends_with_i: String
+  commonPhone_in: [String]
+  commonPhone_not_in: [String]
+  ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingIsDisabled_not: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_action_not: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_action_in: [MobileFeatureConfigHistoryRecordHistoryActionType]
+  history_action_not_in: [MobileFeatureConfigHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input MobileFeatureConfigHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMobileFeatureConfigHistoryRecordsBy {
+  commonPhone_ASC
+  commonPhone_DESC
+  ticketSubmittingIsDisabled_ASC
+  ticketSubmittingIsDisabled_DESC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_ASC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input MobileFeatureConfigHistoryRecordUpdateInput {
+  organization: String
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MobileFeatureConfigHistoryRecordsUpdateInput {
+  id: ID!
+  data: MobileFeatureConfigHistoryRecordUpdateInput
+}
+
+input MobileFeatureConfigHistoryRecordCreateInput {
+  organization: String
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MobileFeatureConfigHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MobileFeatureConfigHistoryRecordsCreateInput {
+  data: MobileFeatureConfigHistoryRecordCreateInput
+}
+
+""" Manages availability of some features in mobile application, stores data required in disabled state of a feature. 
+"""
+type MobileFeatureConfig {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MobileFeatureConfig List config, or
+   2. As an alias to the field set on 'labelField' in the MobileFeatureConfig List config, or
+   3. As an alias to a 'name' field on the MobileFeatureConfig List (if one exists), or
+   4. As an alias to the 'id' field on the MobileFeatureConfig List.
+  """
+  _label_: String
+
+  """ Ref to the organization. The object will be deleted if the organization ceases to exist 
+  """
+  organization: Organization
+
+  """ Phone number where the organization wants to receive common calls """
+  commonPhone: String
+
+  """ Disabling the ability to send tickets by the user of the resident's mobile application. Instead, he will be shown a screen with phones where he can contact to send a request 
+  """
+  ticketSubmittingIsDisabled: Boolean
+
+  """ Restricts residents to submit only meter readings, that are greater than previous. Restrictions apply to mobile phones only. 
+  """
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+
+  """ Can be used to store some meta information for mobile applications. """
+  meta: JSON
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input MobileFeatureConfigWhereInput {
+  AND: [MobileFeatureConfigWhereInput]
+  OR: [MobileFeatureConfigWhereInput]
+  organization: OrganizationWhereInput
+  organization_is_null: Boolean
+  commonPhone: String
+  commonPhone_not: String
+  commonPhone_contains: String
+  commonPhone_not_contains: String
+  commonPhone_starts_with: String
+  commonPhone_not_starts_with: String
+  commonPhone_ends_with: String
+  commonPhone_not_ends_with: String
+  commonPhone_i: String
+  commonPhone_not_i: String
+  commonPhone_contains_i: String
+  commonPhone_not_contains_i: String
+  commonPhone_starts_with_i: String
+  commonPhone_not_starts_with_i: String
+  commonPhone_ends_with_i: String
+  commonPhone_not_ends_with_i: String
+  commonPhone_in: [String]
+  commonPhone_not_in: [String]
+  ticketSubmittingIsDisabled: Boolean
+  ticketSubmittingIsDisabled_not: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled_not: Boolean
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input MobileFeatureConfigWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMobileFeatureConfigsBy {
+  organization_ASC
+  organization_DESC
+  commonPhone_ASC
+  commonPhone_DESC
+  ticketSubmittingIsDisabled_ASC
+  ticketSubmittingIsDisabled_DESC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_ASC
+  onlyGreaterThanPreviousMeterReadingIsEnabled_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input MobileFeatureConfigUpdateInput {
+  organization: OrganizationRelateToOneInput
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MobileFeatureConfigsUpdateInput {
+  id: ID!
+  data: MobileFeatureConfigUpdateInput
+}
+
+input MobileFeatureConfigCreateInput {
+  organization: OrganizationRelateToOneInput
+  commonPhone: String
+  ticketSubmittingIsDisabled: Boolean
+  onlyGreaterThanPreviousMeterReadingIsEnabled: Boolean
+  meta: JSON
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MobileFeatureConfigsCreateInput {
+  data: MobileFeatureConfigCreateInput
 }
 
 enum WebhookHistoryRecordHistoryActionType {
@@ -64215,7 +66017,7 @@ input RegisterBillingReceiptInput {
   services: [BillingReceiptServiceFieldInput]
   month: Int!
   year: Int!
-  category: BillingCategoryWhereUniqueInput!
+  category: BillingCategoryWhereUniqueInput
   tin: String!
   routingNumber: String!
   bankAccount: String!
@@ -64259,6 +66061,16 @@ type SendNewReceiptMessagesToResidentScopesOutput {
   status: String!
 }
 
+input ValidateQRCodeInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  qrCode: String!
+}
+
+type ValidateQRCodeOutput {
+  qrCodeFields: JSON!
+}
+
 input CreateBankAccountRequestInput {
   dv: Int!
   sender: JSON!
@@ -64295,6 +66107,13 @@ type ShareTicketOutput {
 
 input PredictTicketClassificationInput {
   details: String!
+}
+
+input TicketMultipleUpdateInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  id: ID!
+  data: [TicketUpdateInput]!
 }
 
 enum SendMessageLang {
@@ -64339,6 +66158,8 @@ enum SendMessageType {
   BILLING_RECEIPT_ADDED_WITH_DEBT
   BILLING_RECEIPT_ADDED_WITH_NO_DEBT
   METER_SUBMIT_READINGS_REMINDER
+  METER_SUBMIT_READINGS_REMINDER_START_PERIOD
+  METER_SUBMIT_READINGS_REMINDER_END_PERIOD
   METER_VERIFICATION_DATE_EXPIRED
   RESIDENT_UPGRADE_APP
   STAFF_UPGRADE_APP
@@ -64362,6 +66183,8 @@ enum SendMessageType {
   RECURRENT_PAYMENT_TOMORROW_PAYMENT_LIMIT_EXCEED_MESSAGE
   NEWS_ITEM_COMMON_MESSAGE_TYPE
   NEWS_ITEM_EMERGENCY_MESSAGE_TYPE
+  DEV_PORTAL_MESSAGE
+  SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE
 }
 
 input SendMessageInput {
@@ -64670,6 +66493,25 @@ type PaymentsSumOutput {
   sum: String!
 }
 
+input CreatePaymentByLinkInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  qrCode: String!
+}
+
+type CreatePaymentByLinkOutput {
+  multiPaymentId: ID!
+  amount: String!
+  explicitFee: String!
+  totalAmount: String!
+  address: String!
+  addressMeta: AddressMetaField!
+  unitType: String!
+  unitName: String!
+  accountNumber: String!
+  period: String!
+}
+
 enum TicketReportPeriodType {
   calendarWeek
   month
@@ -64703,6 +66545,7 @@ enum TicketAnalyticsGroupBy {
   categoryClassifier
   executor
   assignee
+  qualityControlValue
 }
 
 input TicketAnalyticsReportInput {
@@ -64730,6 +66573,7 @@ type TicketGroupedCounter {
   categoryClassifier: String
   executor: String
   assignee: String
+  qualityControlValue: String
 }
 
 input TicketAnalyticsNullReplaces {
@@ -64781,6 +66625,21 @@ input GetOverviewDashboardWhereInput {
   organization: String!
   dateFrom: String!
   dateTo: String!
+  propertyIds: [ID]
+  executorIds: [ID]
+}
+
+enum OverviewDashboardEntities {
+  ticketByDay
+  ticketByProperty
+  ticketByCategory
+  ticketByExecutor
+  ticketQualityControlValue
+  payment
+  receipt
+  resident
+  property
+  incident
 }
 
 input GetOverviewDashboardInput {
@@ -64788,10 +66647,17 @@ input GetOverviewDashboardInput {
   sender: JSON!
   where: GetOverviewDashboardWhereInput!
   groupBy: GetOverviewDashboardGroupByInput!
+  entities: [OverviewDashboardEntities]
+}
+
+type TicketOverviewTranslations {
+  key: String!
+  value: String!
 }
 
 type TicketOverviewResult {
   tickets: [TicketGroupedCounter!]
+  translations: [TicketOverviewTranslations]
 }
 
 type PaymentGroupedCounter {
@@ -64826,14 +66692,25 @@ type ResidentOverviewResult {
   residents: [ResidentGroupedCounter!]
 }
 
+type PropertyOverviewResult {
+  sum: String!
+}
+
+type IncidentOverviewResult {
+  count: String!
+}
+
 type OverviewData {
   ticketByProperty: TicketOverviewResult
   ticketByDay: TicketOverviewResult
   ticketByCategory: TicketOverviewResult
   ticketByExecutor: TicketOverviewResult
+  ticketQualityControlValue: TicketOverviewResult
   payment: PaymentOverviewResult
   receipt: ReceiptOverviewResult
   resident: ResidentOverviewResult
+  property: PropertyOverviewResult
+  incident: IncidentOverviewResult
 }
 
 type GetOverviewDashboardOutput {
@@ -65119,6 +66996,33 @@ type Query {
 
   """ Retrieve the meta-data for the ExternalTokenAccessRight list. """
   _ExternalTokenAccessRightsMeta: _ListMeta
+
+  """ Search for all UserRightsSetHistoryRecord items which match the where clause. 
+  """
+  allUserRightsSetHistoryRecords(where: UserRightsSetHistoryRecordWhereInput, search: String, sortBy: [SortUserRightsSetHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [UserRightsSetHistoryRecord]
+
+  """ Search for the UserRightsSetHistoryRecord item with the matching ID. """
+  UserRightsSetHistoryRecord(where: UserRightsSetHistoryRecordWhereUniqueInput!): UserRightsSetHistoryRecord
+
+  """ Perform a meta-query on all UserRightsSetHistoryRecord items which match the where clause. 
+  """
+  _allUserRightsSetHistoryRecordsMeta(where: UserRightsSetHistoryRecordWhereInput, search: String, sortBy: [SortUserRightsSetHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserRightsSetHistoryRecord list. """
+  _UserRightsSetHistoryRecordsMeta: _ListMeta
+
+  """ Search for all UserRightsSet items which match the where clause. """
+  allUserRightsSets(where: UserRightsSetWhereInput, search: String, sortBy: [SortUserRightsSetsBy!], orderBy: String, first: Int, skip: Int): [UserRightsSet]
+
+  """ Search for the UserRightsSet item with the matching ID. """
+  UserRightsSet(where: UserRightsSetWhereUniqueInput!): UserRightsSet
+
+  """ Perform a meta-query on all UserRightsSet items which match the where clause. 
+  """
+  _allUserRightsSetsMeta(where: UserRightsSetWhereInput, search: String, sortBy: [SortUserRightsSetsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the UserRightsSet list. """
+  _UserRightsSetsMeta: _ListMeta
 
   """ Search for all OrganizationHistoryRecord items which match the where clause. 
   """
@@ -68130,6 +70034,36 @@ type Query {
   """ Retrieve the meta-data for the B2BAppAccessRightSet list. """
   _B2BAppAccessRightSetsMeta: _ListMeta
 
+  """ Search for all MobileFeatureConfigHistoryRecord items which match the where clause. 
+  """
+  allMobileFeatureConfigHistoryRecords(where: MobileFeatureConfigHistoryRecordWhereInput, search: String, sortBy: [SortMobileFeatureConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MobileFeatureConfigHistoryRecord]
+
+  """ Search for the MobileFeatureConfigHistoryRecord item with the matching ID. 
+  """
+  MobileFeatureConfigHistoryRecord(where: MobileFeatureConfigHistoryRecordWhereUniqueInput!): MobileFeatureConfigHistoryRecord
+
+  """ Perform a meta-query on all MobileFeatureConfigHistoryRecord items which match the where clause. 
+  """
+  _allMobileFeatureConfigHistoryRecordsMeta(where: MobileFeatureConfigHistoryRecordWhereInput, search: String, sortBy: [SortMobileFeatureConfigHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MobileFeatureConfigHistoryRecord list. 
+  """
+  _MobileFeatureConfigHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MobileFeatureConfig items which match the where clause. 
+  """
+  allMobileFeatureConfigs(where: MobileFeatureConfigWhereInput, search: String, sortBy: [SortMobileFeatureConfigsBy!], orderBy: String, first: Int, skip: Int): [MobileFeatureConfig]
+
+  """ Search for the MobileFeatureConfig item with the matching ID. """
+  MobileFeatureConfig(where: MobileFeatureConfigWhereUniqueInput!): MobileFeatureConfig
+
+  """ Perform a meta-query on all MobileFeatureConfig items which match the where clause. 
+  """
+  _allMobileFeatureConfigsMeta(where: MobileFeatureConfigWhereInput, search: String, sortBy: [SortMobileFeatureConfigsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MobileFeatureConfig list. """
+  _MobileFeatureConfigsMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -68526,6 +70460,42 @@ type Mutation {
 
   """ Delete multiple ExternalTokenAccessRight items by ID. """
   deleteExternalTokenAccessRights(ids: [ID!]): [ExternalTokenAccessRight]
+
+  """ Create a single UserRightsSetHistoryRecord item. """
+  createUserRightsSetHistoryRecord(data: UserRightsSetHistoryRecordCreateInput): UserRightsSetHistoryRecord
+
+  """ Create multiple UserRightsSetHistoryRecord items. """
+  createUserRightsSetHistoryRecords(data: [UserRightsSetHistoryRecordsCreateInput]): [UserRightsSetHistoryRecord]
+
+  """ Update a single UserRightsSetHistoryRecord item by ID. """
+  updateUserRightsSetHistoryRecord(id: ID!, data: UserRightsSetHistoryRecordUpdateInput): UserRightsSetHistoryRecord
+
+  """ Update multiple UserRightsSetHistoryRecord items by ID. """
+  updateUserRightsSetHistoryRecords(data: [UserRightsSetHistoryRecordsUpdateInput]): [UserRightsSetHistoryRecord]
+
+  """ Delete a single UserRightsSetHistoryRecord item by ID. """
+  deleteUserRightsSetHistoryRecord(id: ID!): UserRightsSetHistoryRecord
+
+  """ Delete multiple UserRightsSetHistoryRecord items by ID. """
+  deleteUserRightsSetHistoryRecords(ids: [ID!]): [UserRightsSetHistoryRecord]
+
+  """ Create a single UserRightsSet item. """
+  createUserRightsSet(data: UserRightsSetCreateInput): UserRightsSet
+
+  """ Create multiple UserRightsSet items. """
+  createUserRightsSets(data: [UserRightsSetsCreateInput]): [UserRightsSet]
+
+  """ Update a single UserRightsSet item by ID. """
+  updateUserRightsSet(id: ID!, data: UserRightsSetUpdateInput): UserRightsSet
+
+  """ Update multiple UserRightsSet items by ID. """
+  updateUserRightsSets(data: [UserRightsSetsUpdateInput]): [UserRightsSet]
+
+  """ Delete a single UserRightsSet item by ID. """
+  deleteUserRightsSet(id: ID!): UserRightsSet
+
+  """ Delete multiple UserRightsSet items by ID. """
+  deleteUserRightsSets(ids: [ID!]): [UserRightsSet]
 
   """ Create a single OrganizationHistoryRecord item. """
   createOrganizationHistoryRecord(data: OrganizationHistoryRecordCreateInput): OrganizationHistoryRecord
@@ -72370,6 +74340,42 @@ type Mutation {
   """ Delete multiple B2BAppAccessRightSet items by ID. """
   deleteB2BAppAccessRightSets(ids: [ID!]): [B2BAppAccessRightSet]
 
+  """ Create a single MobileFeatureConfigHistoryRecord item. """
+  createMobileFeatureConfigHistoryRecord(data: MobileFeatureConfigHistoryRecordCreateInput): MobileFeatureConfigHistoryRecord
+
+  """ Create multiple MobileFeatureConfigHistoryRecord items. """
+  createMobileFeatureConfigHistoryRecords(data: [MobileFeatureConfigHistoryRecordsCreateInput]): [MobileFeatureConfigHistoryRecord]
+
+  """ Update a single MobileFeatureConfigHistoryRecord item by ID. """
+  updateMobileFeatureConfigHistoryRecord(id: ID!, data: MobileFeatureConfigHistoryRecordUpdateInput): MobileFeatureConfigHistoryRecord
+
+  """ Update multiple MobileFeatureConfigHistoryRecord items by ID. """
+  updateMobileFeatureConfigHistoryRecords(data: [MobileFeatureConfigHistoryRecordsUpdateInput]): [MobileFeatureConfigHistoryRecord]
+
+  """ Delete a single MobileFeatureConfigHistoryRecord item by ID. """
+  deleteMobileFeatureConfigHistoryRecord(id: ID!): MobileFeatureConfigHistoryRecord
+
+  """ Delete multiple MobileFeatureConfigHistoryRecord items by ID. """
+  deleteMobileFeatureConfigHistoryRecords(ids: [ID!]): [MobileFeatureConfigHistoryRecord]
+
+  """ Create a single MobileFeatureConfig item. """
+  createMobileFeatureConfig(data: MobileFeatureConfigCreateInput): MobileFeatureConfig
+
+  """ Create multiple MobileFeatureConfig items. """
+  createMobileFeatureConfigs(data: [MobileFeatureConfigsCreateInput]): [MobileFeatureConfig]
+
+  """ Update a single MobileFeatureConfig item by ID. """
+  updateMobileFeatureConfig(id: ID!, data: MobileFeatureConfigUpdateInput): MobileFeatureConfig
+
+  """ Update multiple MobileFeatureConfig items by ID. """
+  updateMobileFeatureConfigs(data: [MobileFeatureConfigsUpdateInput]): [MobileFeatureConfig]
+
+  """ Delete a single MobileFeatureConfig item by ID. """
+  deleteMobileFeatureConfig(id: ID!): MobileFeatureConfig
+
+  """ Delete multiple MobileFeatureConfig items by ID. """
+  deleteMobileFeatureConfigs(ids: [ID!]): [MobileFeatureConfig]
+
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord
 
@@ -73252,8 +75258,10 @@ type Mutation {
   }`
   """
   sendNewReceiptMessagesToResidentScopes(data: SendNewReceiptMessagesToResidentScopesInput!): SendNewReceiptMessagesToResidentScopesOutput
+  validateQRCode(data: ValidateQRCodeInput!): ValidateQRCodeOutput
   createBankAccountRequest(data: CreateBankAccountRequestInput!): CreateBankAccountRequestOutput
   shareTicket(data: ShareTicketInput!): ShareTicketOutput
+  ticketMultipleUpdate(data: TicketMultipleUpdateInput!): Ticket!
 
   """
   Sends message of specified type to specified contact
@@ -73337,6 +75345,10 @@ type Mutation {
   		"organizationName": {
   			"defaultValue": "ORGANIZATION",
   			"required": false
+  		},
+  		"serverUrl": {
+  			"defaultValue": "",
+  			"required": false
   		}
   	},
   	"DIRTY_INVITE_NEW_EMPLOYEE_EMAIL": {
@@ -73346,6 +75358,10 @@ type Mutation {
   		},
   		"organizationName": {
   			"defaultValue": "ORGANIZATION",
+  			"required": false
+  		},
+  		"serverUrl": {
+  			"defaultValue": "",
   			"required": false
   		}
   	},
@@ -73466,6 +75482,10 @@ type Mutation {
   			"url": {
   				"defaultValue": "",
   				"required": true
+  			},
+  			"organizationId": {
+  				"defaultValue": "",
+  				"required": true
   			}
   		}
   	},
@@ -73488,6 +75508,10 @@ type Mutation {
   				"required": true
   			},
   			"url": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"organizationId": {
   				"defaultValue": "",
   				"required": true
   			}
@@ -73672,6 +75696,10 @@ type Mutation {
   				"required": true
   			},
   			"residentId": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"organizationId": {
   				"defaultValue": "",
   				"required": true
   			}
@@ -73915,6 +75943,54 @@ type Mutation {
   			"required": true
   		},
   		"data": {
+  			"meterId": {
+  				"required": true
+  			},
+  			"userId": {
+  				"required": true
+  			},
+  			"residentId": {
+  				"required": true
+  			},
+  			"url": {
+  				"defaultValue": "",
+  				"required": true
+  			}
+  		}
+  	},
+  	"METER_SUBMIT_READINGS_REMINDER_START_PERIOD": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"monthName": {
+  				"defaultValue": "",
+  				"required": true
+  			},
+  			"meterId": {
+  				"required": true
+  			},
+  			"userId": {
+  				"required": true
+  			},
+  			"residentId": {
+  				"required": true
+  			},
+  			"url": {
+  				"defaultValue": "",
+  				"required": true
+  			}
+  		}
+  	},
+  	"METER_SUBMIT_READINGS_REMINDER_END_PERIOD": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"monthName": {
+  				"defaultValue": "",
+  				"required": true
+  			},
   			"meterId": {
   				"required": true
   			},
@@ -74505,6 +76581,33 @@ type Mutation {
   				"required": true
   			}
   		}
+  	},
+  	"DEV_PORTAL_MESSAGE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"body": {
+  			"required": true
+  		}
+  	},
+  	"SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE": {
+  		"dv": {
+  			"required": true
+  		},
+  		"data": {
+  			"monthName": {
+  				"required": true
+  			},
+  			"serviceConsumerId": {
+  				"required": true
+  			},
+  			"residentId": {
+  				"required": true
+  			},
+  			"userId": {
+  				"required": true
+  			}
+  		}
   	}
   }`
   
@@ -74702,6 +76805,7 @@ type Mutation {
   registerMultiPayment(data: RegisterMultiPaymentInput!): RegisterMultiPaymentOutput
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
+  createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 

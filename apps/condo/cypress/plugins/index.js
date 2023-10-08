@@ -114,7 +114,7 @@ module.exports = async (on, config) => {
 
             const [ticket] = await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isWarranty: true, ...ticketExtraFields })
             await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isEmergency: true, ...ticketExtraFields })
-            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPaid: true, ...ticketExtraFields })
+            await createTestTicket(client, ticketAttrs.organization, ticketAttrs.property, { isPayable: true, ...ticketExtraFields })
             return ticket
         },
     })

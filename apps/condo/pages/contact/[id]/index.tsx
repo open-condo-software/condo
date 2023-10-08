@@ -19,9 +19,10 @@ import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/doma
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import  { TicketCardList } from '@condo/domains/common/components/TicketCard/TicketCardList'
 import { fontSizes } from '@condo/domains/common/constants/style'
+import { ContactsReadPermissionRequired } from '@condo/domains/contact/components/PageAccess'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { UserAvatar } from '@condo/domains/user/components/UserAvatar'
+
 
 const VALUE_FIELD_WRAPPER_STYLE = { width: '100%' }
 const CONTACT_FIELD_PAIR_PROPS: Partial<FieldPairRowProps> = {
@@ -248,6 +249,6 @@ const ContactInfoPage = () => {
     )
 }
 
-ContactInfoPage.requiredAccess = OrganizationRequired
+ContactInfoPage.requiredAccess = ContactsReadPermissionRequired
 
 export default ContactInfoPage

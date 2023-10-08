@@ -19,7 +19,6 @@ import { useMenuItems } from '@/domains/docs/hooks/useMenuItems'
 import { extractMdx } from '@/domains/docs/utils/mdx'
 import {
     getNavTree,
-    getAllRoutes,
     getFlatArticles,
     getNextArticle,
     getPrevArticle,
@@ -31,7 +30,7 @@ import styles from './path.module.css'
 import type { Heading } from '@/domains/docs/utils/mdx'
 import type { NavItem, ArticleInfo } from '@/domains/docs/utils/routing'
 import type { RowProps } from 'antd'
-import type { GetStaticPaths, GetStaticProps } from 'next'
+import type { GetServerSideProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
@@ -108,14 +107,14 @@ const DocPage: React.FC<DocPageProps> = ({
                         <div className={styles.articleColumn}>
                             <Row gutter={FOOTER_GUTTER}>
                                 <Col span={24}>
-                                    <Row gutter={TITLE_GUTTER}>
+                                    <Row gutter={TITLE_GUTTER} id='article'>
                                         <Col span={24}>
-                                            <Typography.Title>{articleTitle}</Typography.Title>
+                                            <Typography.Title id='article-title'>{articleTitle}</Typography.Title>
                                         </Col>
                                         <Col span={24}>
-                                            <div className='condo-markdown'>
+                                            <article className='condo-markdown' id='article-content'>
                                                 <MDXRemote {...serializedContent} components={MDXMapping} lazy/>
-                                            </div>
+                                            </article>
                                         </Col>
                                         {editUrl && (
                                             <Col span={24}>
@@ -184,28 +183,19 @@ const DocPage: React.FC<DocPageProps> = ({
 
 export default DocPage
 
-type GetStaticPathParams = {
-    path: Array<string>
-}
-
-export const getStaticPaths: GetStaticPaths<GetStaticPathParams> = ({ locales = [] }) => {
-    return {
-        paths: locales.flatMap(locale => {
-            return Array.from(getAllRoutes(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH), (route) => ({
-                params: { path: route.split('/') },
-                locale,
-            }))
-        }),
-        fallback: false,
-    }
-}
-
-export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> = async ({ locale = DEFAULT_LOCALE, params }) => {
+export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params }) => {
     const navTree = getNavTree(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH)
 
     const articles = Array.from(getFlatArticles(navTree))
-    const route = get(params, 'path', []).join('/')
+    const routeParts = get(params, 'path', [])
+    const route = Array.isArray(routeParts) ? routeParts.join('/') : routeParts
     const pageIndex = articles.findIndex((item) => item.route === route)
+
+    if (pageIndex < 0) {
+        return {
+            notFound: true,
+        }
+    }
 
     const currentPage = articles[pageIndex]
     const prevPage = getPrevArticle(articles, pageIndex)
@@ -221,6 +211,7 @@ export const getStaticProps: GetStaticProps<DocPageProps, GetStaticPathParams> =
     const editUrl = DOCS_REPO
         ? `${DOCS_REPO}/${repoRoute}`
         : null
+
 
     return {
         props: {

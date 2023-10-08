@@ -34,8 +34,8 @@ const B2BAppRole = new GQLListSchema('B2BAppRole', {
         'To do this, it can create B2BAppPermissions via service user, ' +
         'the keys of which will appear as properties in the "permissions" field on all B2BAppRole associated with the mini-app.  ' +
         'By default, all existing and new permissions will be set to "true" for all roles in the organization ' +
-        'that have "canManageIntegrations" checked, false for other employees. ' +
-        'When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageIntegrations" checkbox. ' +
+        'that have "canManageB2BApps" checked, false for other employees. ' +
+        'When connecting the miniapp will be automatically created B2BAppRole for all roles that have the "canManageB2BApps" checkbox. ' +
         'B2BAppRole can be created and updated manually by employees with the "canManageRoles" permission for other roles. ' +
         'When deleting B2BAppPermission, its key is also removed from the permissions field of all corresponding B2BAppRole, ' +
         'and when adding it - it is added to all roles, and the value is set according to the rules described above.',

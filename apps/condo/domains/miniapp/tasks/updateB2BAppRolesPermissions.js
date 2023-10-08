@@ -23,12 +23,12 @@ async function updateB2BAppRolesPermissions (appId, oldKey, newKey) {
     const { keystone: context } = await getSchemaCtx('B2BAppRole')
 
     const existingManagingRoles = await find('B2BAppRole', {
-        role: { canManageIntegrations: true },
+        role: { canManageB2BApps: true },
         app: { id: appId },
         deletedAt: null,
     })
     const existingNonManagingRoles = await find('B2BAppRole', {
-        role: { canManageIntegrations: false },
+        role: { canManageB2BApps: false },
         app: { id: appId },
         deletedAt: null,
     })

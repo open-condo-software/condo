@@ -23,6 +23,7 @@ const {
 } = require('@condo/domains/common/constants/errors')
 const { compareStrI } = require('@condo/domains/common/utils/string.utils')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
+const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const access = require('@condo/domains/property/access/Property')
 const MapSchemaJSON = require('@condo/domains/property/components/panels/Builder/MapJsonSchema.json')
@@ -31,12 +32,12 @@ const { PROPERTY_MAP_JSON_FIELDS } = require('@condo/domains/property/gql')
 const { PROPERTY_MAP_GRAPHQL_TYPES } = require('@condo/domains/property/gql')
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 const { normalizePropertyMap } = require('@condo/domains/property/utils/serverSchema/helpers')
-const { manageResidentToPropertyAndOrganizationConnections } = require('@condo/domains/resident/tasks')
-const { discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
+const { manageResidentToPropertyAndOrganizationConnections, discoverServiceConsumersTask } = require('@condo/domains/resident/tasks')
 const { softDeletePropertyScopeProperties } = require('@condo/domains/scope/utils/serverSchema')
 const { manageTicketPropertyAddressChange } = require('@condo/domains/ticket/tasks')
 const { Ticket } = require('@condo/domains/ticket/utils/serverSchema')
 const { softDeleteTicketHintPropertiesByProperty } = require('@condo/domains/ticket/utils/serverSchema/resolveHelpers')
+
 
 const ajv = new Ajv()
 const jsonMapValidator = ajv.compile(MapSchemaJSON)
@@ -312,7 +313,10 @@ const Property = new GQLListSchema('Property', {
             },
         },
     },
-    plugins: [uuided(), addressService({ fieldsHooks: { address: addressFieldHooks } }), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [
+        uuided(), addressService({ fieldsHooks: { address: addressFieldHooks } }),
+        versioned(), tracked(), softDeleted(), dvAndSender(), historical(), serviceUserAccessForB2BApp(),
+    ],
     access: {
         auth: true,
         delete: false,
@@ -379,10 +383,11 @@ const Property = new GQLListSchema('Property', {
                     property: { address: updatedItem.address, deletedAt: null },
                 })
 
-                // TODO(DOMA-6813): maybe prevent redis queue overloading
-                await discoverServiceConsumersTask.delay({
-                    billingAccountsIds: billingAccounts.map(({ id }) => id),
-                })
+                if (billingAccounts.length > 0) {
+                    await discoverServiceConsumersTask.delay({
+                        billingAccountsIds: billingAccounts.map(({ id }) => id),
+                    })
+                }
             }
         },
     },

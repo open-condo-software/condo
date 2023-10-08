@@ -24,6 +24,6 @@ const sendSubmitMeterReadingsPushNotificationsTaskFn = async (context = null) =>
 /**
  * Syncs new and cancelled subscriptions
  */
-const sendSubmitMeterReadingsPushNotificationsTask = createCronTask('sendSubmitMeterReadingsPushNotifications', '0 14 21 * *', sendSubmitMeterReadingsPushNotificationsTaskFn)
+const sendSubmitMeterReadingsPushNotificationsTask = createCronTask('sendSubmitMeterReadingsPushNotifications', '0 14 * * *', sendSubmitMeterReadingsPushNotificationsTaskFn)
 
 module.exports = sendSubmitMeterReadingsPushNotificationsTask

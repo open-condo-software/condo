@@ -6,7 +6,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { UpdateEmployeeForm } from '@condo/domains/organization/components/EmployeeForm/UpdateEmployeeForm'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { EmployeesReadAndManagePermissionRequired } from '@condo/domains/organization/components/PageAccess'
 
 const TITLE_STYLES: CSSProperties = { margin: 0, fontWeight: 'bold' }
 
@@ -40,6 +40,6 @@ export const EmployeeUpdatePage = () => {
     )
 }
 
-EmployeeUpdatePage.requiredAccess = OrganizationRequired
+EmployeeUpdatePage.requiredAccess = EmployeesReadAndManagePermissionRequired
 
 export default EmployeeUpdatePage

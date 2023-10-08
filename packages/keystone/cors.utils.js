@@ -4,6 +4,8 @@
 // start of string + any character except dot + escaped remain part + end of string
 
 function wildcardToRegExp (input) {
+    // not a ReDoS case: it's a part of internal configuration proceeding
+    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
     return new RegExp('^' + input.split(/\*+/).map(escape).join('[^.]*?') + '$')
 }
 

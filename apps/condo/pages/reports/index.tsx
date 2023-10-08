@@ -4,6 +4,7 @@ import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import React, { useMemo } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
@@ -13,8 +14,8 @@ import { ExternalReport } from '@condo/domains/analytics/utils/clientSchema/inde
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { ANALYTICS_V3 } from '@condo/domains/common/constants/featureflags'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
-import { ANALYTICS_V3 } from '@condo/domains/organization/constants/features'
 
 const EXTERNAL_REPORT_ROW_GUTTER: RowProps['gutter'] = [32, 40]
 
@@ -24,6 +25,8 @@ const IndexPage = () => {
     const NoDataTitle = intl.formatMessage({ id: 'NoData' })
 
     const { organization, link } = useOrganization()
+    const { useFlag } = useFeatureFlags()
+    const isDashboardEnabled = useFlag(ANALYTICS_V3)
 
     const {
         objs: externalReports, loading,
@@ -38,10 +41,9 @@ const IndexPage = () => {
     }, { fetchPolicy: 'network-only' })
 
     const pageContent = useMemo(() => {
-        const organizationFeatures = get(organization, 'features')
-        const canReadAnalytics = get(link, [ 'role', 'canManageOrganization'], false)
+        const canReadAnalytics = get(link, [ 'role', 'canReadAnalytics'], false)
 
-        if (organizationFeatures.includes(ANALYTICS_V3) && canReadAnalytics) {
+        if (isDashboardEnabled && canReadAnalytics) {
             return <Dashboard organizationId={organization.id} />
         }
 
@@ -68,7 +70,7 @@ const IndexPage = () => {
                 )}
             </Row>
         )
-    }, [NoDataTitle, externalReports, organization, link])
+    }, [NoDataTitle, externalReports, organization, link, isDashboardEnabled])
 
     return (
         <>

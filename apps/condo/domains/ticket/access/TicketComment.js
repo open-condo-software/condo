@@ -48,8 +48,8 @@ async function canReadTicketComments ({ authentication: { item: user } }) {
         ticket: {
             organization: {
                 OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
                 ],
             },
         },

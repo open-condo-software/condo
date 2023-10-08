@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
+import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import has from 'lodash/has'
 import isArray from 'lodash/isArray'
@@ -11,11 +12,10 @@ import React, { useCallback, useMemo } from 'react'
 import { PlusCircle, Search } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Typography } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -26,12 +26,13 @@ import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { NewsReadPermissionRequired } from '@condo/domains/news/components/PageAccess'
 import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess'
 import { useTableColumns } from '@condo/domains/news/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/news/hooks/useTableFilters'
 import { NewsItem, NewsItemScope } from '@condo/domains/news/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { IFilters } from '@condo/domains/ticket/utils/helpers'
+
 
 interface INewsIndexPage extends React.FC {
     headerAction?: JSX.Element
@@ -54,6 +55,7 @@ const NewsTableContainer = ({
     const { offset } = useMemo(() => parseQuery(router.query), [router.query])
 
     const currentPageIndex = useMemo(() => getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE), [offset])
+    const { canManage } = useNewsItemsAccess()
 
     const {
         loading: isNewsFetching,
@@ -88,8 +90,6 @@ const NewsTableContainer = ({
 
         newsItemScope.forEach(item => {
             const propertyAddress = get(item, ['property'], null)
-            const unitType = get(item, ['unitType'], null)
-            const unitName = get(item, ['unitName'], null)
             const newsItemId = get(item, ['newsItem', 'id'])
             if (propertyAddress && addresses[newsItemId] !== 'hasAllProperties') {
                 if (isArray(addresses[newsItemId])) {
@@ -102,7 +102,7 @@ const NewsTableContainer = ({
             }
         })
 
-        const newsWithAddresses = news
+        return news
             .filter(newsItem => {
                 const newsItemId = get(newsItem, 'id')
                 const hasScope = has(addresses, [newsItemId])
@@ -118,8 +118,6 @@ const NewsTableContainer = ({
                     ...newsItem,
                 }
             })
-
-        return newsWithAddresses
     }, [isNewsItemScopeFetching, newsItemScope, news])
 
     const columns = useTableColumns(filterMetas)
@@ -139,6 +137,16 @@ const NewsTableContainer = ({
 
     const isAllLoaded = !(loading || isNewsFetching || isNewsItemScopeFetching)
 
+    const actionBarButtons: ActionBarProps['actions'] = useMemo(() => [
+        canManage && <Button
+            key='addNews'
+            type='primary'
+            children={CreateNewsLabel}
+            icon={<PlusCircle size='medium'/>}
+            onClick={handleAddNews}
+        />,
+    ], [CreateNewsLabel, canManage, handleAddNews])
+
     return (
         <Row gutter={PAGE_ROW_GUTTER}>
             <Col span={24}>
@@ -151,19 +159,15 @@ const NewsTableContainer = ({
                     onRow={handleRowAction}
                 />
             </Col>
-            <Col span={24}>
-                <ActionBar
-                    actions={[
-                        <Button
-                            key='addNews'
-                            type='primary'
-                            children={CreateNewsLabel}
-                            icon={<PlusCircle size='medium'/>}
-                            onClick={handleAddNews}
-                        />,
-                    ]}
-                />
-            </Col>
+            {
+                !isEmpty(actionBarButtons.filter(Boolean)) && (
+                    <Col span={24}>
+                        <ActionBar
+                            actions={actionBarButtons}
+                        />
+                    </Col>
+                )
+            }
         </Row>
     )
 }
@@ -191,6 +195,7 @@ const NewsPageContent = ({
     const sortBy = sortersToSortBy(sorters, NEWS_DEFAULT_SORT_BY)
     const searchNewsQuery = useMemo(() => ({ ...baseNewsQuery, ...filtersToWhere(filters) }),
         [baseNewsQuery, filters, filtersToWhere])
+    const { canManage } = useNewsItemsAccess()
 
     const {
         count: newsWithoutFiltersCount,
@@ -211,6 +216,7 @@ const NewsPageContent = ({
                 message={EmptyListMessage}
                 createRoute='/news/create'
                 createLabel={CreateNews}
+                accessCheck={canManage}
             />
         )
     }
@@ -243,7 +249,7 @@ const NewsPage: INewsIndexPage = () => {
     const PageTitleMessage = intl.formatMessage({ id: 'pages.condo.news.index.pageTitle' })
 
     const { organization } = useOrganization()
-    const { canRead, isLoading: isAccessLoading } = useNewsItemsAccess()
+    const { isLoading: isAccessLoading } = useNewsItemsAccess()
 
     const { GlobalHints } = useGlobalHints()
 
@@ -255,10 +261,6 @@ const NewsPage: INewsIndexPage = () => {
 
     if (isAccessLoading) {
         return <LoadingOrErrorPage error='' loading={true}/>
-    }
-
-    if (!canRead) {
-        return <AccessDeniedPage/>
     }
 
     return (
@@ -289,5 +291,5 @@ const NewsPage: INewsIndexPage = () => {
     )
 }
 
-NewsPage.requiredAccess = OrganizationRequired
+NewsPage.requiredAccess = NewsReadPermissionRequired
 export default NewsPage

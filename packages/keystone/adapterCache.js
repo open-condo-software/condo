@@ -52,6 +52,7 @@
 const { get, cloneDeep, floor, isEqual } = require('lodash')
 const LRUCache = require('lru-cache')
 
+const { getExecutionContext } = require('./executionContext')
 const { getLogger } = require('./logging')
 const Metrics = require('./metrics')
 const { queryHasField } = require('./queryHasField')
@@ -198,6 +199,7 @@ class AdapterCache {
             listName,
             key,
             result,
+            context: getExecutionContext(),
         })
     }
 
@@ -257,7 +259,7 @@ async function patchKeystoneWithAdapterCache (keystone, cacheAPI) {
     const listAdapters = Object.values(keystoneAdapter.listAdapters)
 
     // Step 1: Preprocess lists.
-    const relations = {}        // list -> [{list, path, many}]
+    const relations = {}               // list -> [{list, path, many}]
     const manyRefs = new Set()  // lists that are referenced in many: true relations
     const manyLists = new Set() // lists that have many: true relations
 
@@ -416,6 +418,7 @@ function getMutationFunctionWithCache (listName, functionName, f, listAdapter, c
  */
 function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cacheAPI, getKey, getQuery = () => null, relations = {}) {
     return async (...args) => {
+
         cacheAPI.incrementTotal()
 
         let key = getKey(args)
@@ -438,6 +441,7 @@ function getQueryFunctionWithCache (listName, functionName, f, listAdapter, cach
                     listName,
                     key,
                     result: cachedItem,
+
                 })
 
                 const cachedResponse = cloneDeep(cachedItem.response)

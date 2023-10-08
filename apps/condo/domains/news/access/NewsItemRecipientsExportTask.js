@@ -33,13 +33,13 @@ async function canManageNewsItemRecipientsExportTasks ({
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageNewsItems')
+        return await checkOrganizationPermission(user.id, organizationId, 'canReadNewsItems')
     } else if (operation === 'update' && itemId) {
         const task = await getById('NewsItemRecipientsExportTask', itemId)
         if (!task) return false
         const { organization: organizationId } = task
 
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageNewsItems')
+        return await checkOrganizationPermission(user.id, organizationId, 'canReadNewsItems')
     }
 
     return false

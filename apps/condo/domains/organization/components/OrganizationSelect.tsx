@@ -1,5 +1,6 @@
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
+import uniqBy from 'lodash/uniqBy'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
@@ -12,8 +13,11 @@ import { Space, Typography  } from '@open-condo/ui'
 import type { TypographyTextProps } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { HOLDING_TYPE } from '@condo/domains/organization/constants/common'
 import { useCreateOrganizationModalForm } from '@condo/domains/organization/hooks/useCreateOrganizationModalForm'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
+
+import { SBBOLIndicator } from './SBBOLIndicator'
 
 import { ASSIGNED_TICKET_VISIBILITY } from '../constants/common'
 
@@ -21,7 +25,6 @@ import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/cond
 import type { DropdownProps } from 'antd'
 
 function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmployeeType) {
-    lhs.organization.name
     return get(lhs, ['organization', 'name'], '')
         .toLowerCase()
         .localeCompare(
@@ -50,11 +53,12 @@ export const InlineOrganizationSelect: React.FC = () => {
             isRejected: false,
             isBlocked: false,
             isAccepted: true,
+            organization: { type_not: HOLDING_TYPE },
         },
     })
 
     // Note: Filter case where organization was deleted
-    const filteredEmployees = userEmployees.filter(employee => employee.organization)
+    const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
 
     const { setIsVisible: showCreateOrganizationModal, ModalForm: CreateOrganizationModalForm } = useCreateOrganizationModalForm({})
 
@@ -102,9 +106,12 @@ export const InlineOrganizationSelect: React.FC = () => {
         const items: DropdownProps['menu']['items'] = sortedEmployees.map(employee => ({
             key: employee.id,
             label: (
-                <Typography.Paragraph ellipsis={{ rows: 2 }} size='medium'>
-                    {get(employee, ['organization', 'name'], '')}
-                </Typography.Paragraph>
+                <Space direction='horizontal' size={8}>
+                    <SBBOLIndicator organization={get(employee, 'organization')} />
+                    <Typography.Paragraph ellipsis={{ rows: 2 }} size='medium'>
+                        {get(employee, ['organization', 'name'], '')}
+                    </Typography.Paragraph>
+                </Space>
             ),
             onClick: selectEmployee(employee.id),
         }))

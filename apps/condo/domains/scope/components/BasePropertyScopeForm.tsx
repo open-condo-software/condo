@@ -16,7 +16,6 @@ import { FormWithAction } from '@condo/domains/common/components/containers/Form
 import { GraphQlSearchInputWithCheckAll } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
-import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { searchEmployeeWithSpecializations } from '@condo/domains/organization/utils/clientSchema/search'
 import { MAX_NAME_LENGTH } from '@condo/domains/scope/constants/index'
@@ -146,7 +145,7 @@ export const BasePropertyScopeForm: React.FC<BasePropertyScopeFormProps> = ({ ch
             await softDeletePropertyScopeEmployeeAction(propertyScopeEmployee)
         }
 
-        await router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_SCOPE}`)
+        await router.push('/settings/propertyScope')
     }, [
         action, createPropertyScopeEmployeeAction, createPropertyScopePropertyAction, initialEmployees,
         initialProperties, propertyScopeEmployees, propertyScopeProperties, router, softDeletePropertyScopeEmployeeAction, softDeletePropertyScopePropertyAction,

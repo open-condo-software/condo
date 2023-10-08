@@ -8,7 +8,7 @@ export const getStepKey = (step: OnBoardingStepInterface) => `${step.action}.${s
 export const getParentStep = (stepTransitions: Record<string, Array<string>>, stepKey: string, steps: Array<OnBoardingStepInterface>) => {
     let parentKey: string | undefined
 
-    Object.keys(stepTransitions).map((key) => {
+    Object.keys(stepTransitions).forEach((key) => {
         if (!parentKey && stepTransitions[key].includes(stepKey)) {
             parentKey = key
         }

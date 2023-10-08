@@ -6,9 +6,19 @@ class AnalyticsDataProvider {
     }
 
     async loadAll () {
+        return await this.load(Object.entries(this.entities))
+    }
+
+    async loadSelected (selectedEntities) {
+        const entitiesToLoad = Object.entries(this.entities).filter(([name]) => selectedEntities.includes(name))
+
+        return await this.load(entitiesToLoad)
+    }
+
+    async load (entities) {
         const result = {}
 
-        for (const [entityName, { provider, queryOptions, remappingOptions = null }] of Object.entries(this.entities)) {
+        for (const [entityName, { provider, queryOptions, remappingOptions = null }] of entities) {
             const providerResult = await provider.get(queryOptions)
 
             if (!isNull(remappingOptions)) {

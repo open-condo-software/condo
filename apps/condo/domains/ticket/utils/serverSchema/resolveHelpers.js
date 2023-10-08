@@ -66,7 +66,7 @@ async function calculateReopenedCounter (context, existingItem, resolvedData, ex
 }
 
 function calculateStatusUpdatedAt (resolvedData, existedStatusId, resolvedStatusId) {
-    if (resolvedStatusId !== existedStatusId) {
+    if (!resolvedData.statusUpdatedAt && resolvedStatusId !== existedStatusId) {
         resolvedData['statusUpdatedAt'] = new Date().toISOString()
     }
 }

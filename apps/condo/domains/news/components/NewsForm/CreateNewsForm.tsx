@@ -168,9 +168,7 @@ export const CreateNewsForm: React.FC = () => {
         }
         return getCompletedNotification(
             intl,
-            async () => {
-                await softDeleteNewsItem(newsItem)
-            },
+            async () => { await softDeleteNewsItem(newsItem) }, // NOSONAR
             newsItem.id,
         )
     }, [intl, softDeleteNewsItem])

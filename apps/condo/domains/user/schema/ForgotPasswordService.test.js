@@ -219,10 +219,11 @@ describe('ForgotPasswordAction Service', () => {
             const admin = await makeLoggedInAdminClient()
             const [user] = await createTestUser(admin)
             const client = await makeClient()
+            const weakPassword = '123456789'
 
             const [{ token }] = await createTestForgotPasswordAction(admin, user)
             await expectToThrowGQLError(
-                async () => await changePasswordWithTokenByTestClient(client, { token, password: '123456789' }),
+                async () => await changePasswordWithTokenByTestClient(client, { token, password: weakPassword }),
                 ERRORS.changePasswordWithToken.PASSWORD_IS_FREQUENTLY_USED,
                 'result'
             )

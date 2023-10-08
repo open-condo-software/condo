@@ -54,11 +54,17 @@
 }
 
 .desktop-menu .menu-items-container {
-  height: 100%;
+  /* 28px offset to logo + 36px logo + 40px offset = 104px */
+  height: calc(100vh - 104px);
 
   /* 32px - 8px of margin - 12px padding of first menu item */
   padding: 12px 28px 40px;
   overflow-x: hidden;
+}
+
+.desktop-menu .actions-container + .menu-items-container {
+  /* Same as above, but include resident actions button (48px) + offset (8px) = 104 + 56 = 160px */
+  height: calc(100vh - 160px);
 }
 
 .desktop-menu .expand-button {
@@ -206,4 +212,30 @@
 /* Note: all notifications must be below modal */
 .ant-notification {
   z-index: 999;
+}
+
+/* Button */
+
+.condo-btn.condo-btn-sbbol {
+  border-color: var(--condo-global-color-teal-5);
+}
+
+.condo-btn.condo-btn-sbbol .condo-btn-text {
+  color: var(--condo-global-color-teal-5);
+}
+
+.condo-btn.condo-btn-sbbol:hover .condo-btn-text {
+  color: var(--condo-global-color-green-5);
+}
+
+.condo-btn.condo-btn-sbbol:active .condo-btn-text {
+  color: var(--condo-global-color-green-7);
+}
+
+.condo-btn.condo-btn-sbbol:hover .condo-btn-icon svg path {
+  fill: var(--condo-global-color-green-5);
+}
+
+.condo-btn.condo-btn-sbbol:active .condo-btn-icon svg path {
+  fill: var(--condo-global-color-green-7);
 }

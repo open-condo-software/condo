@@ -1,6 +1,8 @@
 require('dotenv').config()
 const bodyParser = require('body-parser')
 const express = require('express')
+// this is a public route for signing files - not a source for csrf attack
+// nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
 const app = express()
 
 const { CondoBicryptSign } = require('@open-condo/bicrypt')

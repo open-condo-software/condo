@@ -9,6 +9,9 @@ const { SberIdRoutes } = require('@condo/domains/user/integration/sberid/routes'
 
 class UserExternalIdentityMiddleware {
     async prepareMiddleware ({ keystone }) {
+        // all bellow routes are handling csrf properly
+        // and controlling start/end authorization sources (browsers, mobile clients, etc)
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
 
         // sbbol route

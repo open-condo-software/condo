@@ -3,10 +3,14 @@
  */
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canRegisterNewServiceUser ({ authentication: { item: user } }) {
+const { canDirectlyExecuteService } = require('@condo/domains/user/utils/directAccess')
+
+async function canRegisterNewServiceUser ({ authentication: { item: user }, gqlName }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    return user.isAdmin || user.isSupport
+    if (user.isAdmin || user.isSupport) return true
+
+    return await canDirectlyExecuteService(user, gqlName)
 }
 
 /*

@@ -1,21 +1,29 @@
 import { Organization } from '@app/condo/schema'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 
-import { LogoSBBOL } from '@open-condo/icons'
+import { IconProps, Sber } from '@open-condo/icons'
 
-import { UUID_REGEXP } from '@condo/domains/common/constants/regexps'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { colors } from '@condo/domains/common/constants/style'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
-
 
 type SBBOLIndicatorProps = {
     organization: Organization
+    size?: IconProps['size']
 }
 
 export const SBBOLIndicator: React.FC<SBBOLIndicatorProps> = ({ organization }) => {
+    const { breakpoints } = useLayoutContext()
+
     const importRemoteSystem = get(organization, 'importRemoteSystem')
     const importId = get(organization, 'importId')
 
-    if (importRemoteSystem !== SBBOL_IMPORT_NAME || !UUID_REGEXP.test(importId)) return null
+    if (importRemoteSystem !== SBBOL_IMPORT_NAME || isEmpty(importId)) return null
 
-    return <LogoSBBOL />
+    const size = breakpoints.TABLET_LARGE ? 'large' : 'small'
+
+    return (
+        <Sber color={colors.sberDarkGreen} size={size}/>
+    )
 }

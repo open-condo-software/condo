@@ -6,6 +6,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRightSet')
+const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('@condo/domains/miniapp/constants')
+const { generatePermissionFields } = require('@condo/domains/miniapp/utils/serverSchema/generatePermissionFields')
 
 
 const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
@@ -33,8 +35,7 @@ const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
             },
         },
 
-        // * PLEASE DON'T DELETE THIS NOTE *
-        // NOTE: All other fields are generated automatically in the "B2BAppAccess" global preprocessor
+        ...generatePermissionFields({ config: SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG }),
 
     },
     kmigratorOptions: {

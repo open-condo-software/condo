@@ -32,8 +32,8 @@ import {
     BankAccount,
     BankTransaction,
     BankAccountReport as BankAccountReportClient,
+    BankSyncTask,
 } from '@condo/domains/banking/utils/clientSchema'
-import { BankSyncTask } from '@condo/domains/banking/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { Button as DeprecatedButton } from '@condo/domains/common/components/Button'
 import { PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -238,7 +238,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const CategoryCheckboxTitle = intl.formatMessage({ id: 'pages.banking.categoryNotSet' })
     const UploadFileTitle = intl.formatMessage({ id: 'pages.banking.uploadTransactionsFile' })
     const EditTitle = intl.formatMessage({ id: 'Edit' })
-    const CancelSelectionTitle = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
+    const CancelSelectionTitle = intl.formatMessage({ id: 'global.cancelSelection' })
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const SyncSbbolTransactions = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncTitle' })
 
@@ -391,13 +391,15 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
                                     />
                                 </Col>
                             )}
-                            <Col>
-                                <Checkbox
-                                    label={CategoryCheckboxTitle}
-                                    checked={categoryNotSet}
-                                    onChange={handleCategoryFilterChange}
-                                />
-                            </Col>
+                            {tab !== 'income' && (
+                                <Col>
+                                    <Checkbox
+                                        label={CategoryCheckboxTitle}
+                                        checked={categoryNotSet}
+                                        onChange={handleCategoryFilterChange}
+                                    />
+                                </Col>
+                            )}
                         </Row>
                     </TableFiltersContainer>
                 </Col>
@@ -578,7 +580,7 @@ const PropertyReportPage = (): React.ReactElement => {
     )
 
     useEffect(() => {
-        if (typeof window !== undefined) {
+        if (typeof window !== 'undefined') {
             if (!reportPageEnabled) {
                 push(asPath.split('/report')[0])
             }

@@ -2,8 +2,8 @@ import { Typography } from 'antd'
 import React, { CSSProperties, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Alert } from '@open-condo/ui'
 
-import { Alert } from '@condo/domains/common/components/Alert'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 
 const ALERT_MESSAGE_STYLE: CSSProperties = { color: 'inherit', marginBottom: '4px' }

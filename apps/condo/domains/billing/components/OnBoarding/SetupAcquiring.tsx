@@ -10,16 +10,15 @@ import { Typography, Space } from '@open-condo/ui'
 import { CONTEXT_FINISHED_STATUS, CONTEXT_IN_PROGRESS_STATUS, CONTEXT_VERIFICATION_STATUS } from '@condo/domains/acquiring/constants/context'
 import { AcquiringIntegrationContext as AcquiringContext, AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BillingIntegrationOrganizationContext as BillingContext } from '@condo/domains/billing/utils/clientSchema'
-import { LoginWithSBBOLButton } from '@condo/domains/common/components/Button'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { LoginWithSBBOLButton } from '@condo/domains/common/components/LoginWithSBBOLButton'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 import { CONTEXT_FINISHED_STATUS as BILLING_FINISHED_STATUS } from '@condo/domains/miniapp/constants'
 import { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } from '@condo/domains/organization/constants/common'
 import { SBBOL_IMPORT_NAME } from '@condo/domains/organization/integrations/sbbol/constants'
 
-
-import type{ RowProps } from 'antd'
+import type { RowProps } from 'antd'
 
 type SetupAcquiringProps = {
     onFinish: () => void
@@ -183,7 +182,7 @@ export const SetupAcquiring: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
                     </Space>
                 </Col>
                 <Col span={FULL_COL_SPAN}>
-                    <LoginWithSBBOLButton redirect={router.asPath}/>
+                    <LoginWithSBBOLButton redirect={router.asPath} checkTlsCert/>
                 </Col>
             </Row>
         )

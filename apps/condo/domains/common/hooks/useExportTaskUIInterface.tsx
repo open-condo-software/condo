@@ -63,6 +63,9 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
         if (publicUrl && filename) {
             await downloadFile({ url: publicUrl, name: filename })
         } else {
+            // this log entry for development & support purposes on end user browser
+            // no important logs can be hided by injected external console.log formatters
+            // nosemgrep: javascript.lang.security.audit.unsafe-formatstring.unsafe-formatstring
             console.error(`File is missing in ${schemaName}`, taskRecord)
         }
     }, [downloadFile, schemaName])

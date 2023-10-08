@@ -129,10 +129,15 @@ const MenuItems: React.FC = () => {
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
     const anyReceiptsLoaded = Boolean(get(billingCtx, 'lastReport', null))
-    const hasAccessToBilling = (get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)) && !isAssignedVisibilityType
+    const hasAccessToBilling = get(role, 'canReadPayments', false) || get(role, 'canReadBillingReceipts', false)
     const isManagingCompany = get(organization, 'type', MANAGING_COMPANY_TYPE) === MANAGING_COMPANY_TYPE
+    const hasAccessToTickets = get(role, 'canReadTickets', false)
+    const hasAccessToIncidents = get(role, 'canReadIncidents', false)
+    const hasAccessToEmployees = get(role, 'canReadEmployees', false)
+    const hasAccessToProperties = get(role, 'canReadProperties', false)
+    const hasAccessToContacts = get(role, 'canReadContacts', false)
 
-    const { canRead: canManageNewsItems } = useNewsItemsAccess()
+    const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
     const { appsByCategories, connectedAppsIds } = useConnectedAppsWithIconsContext()
 
@@ -161,21 +166,21 @@ const MenuItems: React.FC = () => {
                     path: 'ticket',
                     icon: AllIcons['LayoutList'],
                     label: 'global.section.controlRoom',
-                    access: isManagingCompany,
+                    access: isManagingCompany && hasAccessToTickets,
                 },
                 {
                     id: 'menuitem-incident',
                     path: 'incident',
                     icon: AllIcons['OnOff'],
                     label: 'global.section.incidents',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToIncidents,
                 },
                 {
                     id: 'menuitem-news',
                     path: 'news',
                     icon: AllIcons['Newspaper'],
                     label: 'global.section.newsItems',
-                    access: canManageNewsItems && isManagingCompany,
+                    access: hasAccessToNewsItems && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -187,7 +192,7 @@ const MenuItems: React.FC = () => {
                     path: 'property',
                     icon: AllIcons['Building'],
                     label: 'global.section.properties',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToProperties,
                 },
             ].filter(checkItemAccess),
         },
@@ -199,7 +204,7 @@ const MenuItems: React.FC = () => {
                     path: 'contact',
                     icon: AllIcons['Contacts'],
                     label: 'global.section.contacts',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToContacts,
                 },
             ].filter(checkItemAccess),
         },
@@ -211,7 +216,7 @@ const MenuItems: React.FC = () => {
                     path: 'employee',
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
-                    access: !isAssignedVisibilityType,
+                    access: !isAssignedVisibilityType && hasAccessToEmployees,
                 },
             ].filter(checkItemAccess),
         },
@@ -258,6 +263,8 @@ const MenuItems: React.FC = () => {
                     icon: AllIcons['Services'],
                     label: 'global.section.miniapps',
                     access: !isAssignedVisibilityType && isManagingCompany,
+                    // not a ReDoS issue: running on end user browser
+                    // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                     excludePaths: connectedAppsIds.map((id) => new RegExp(`/miniapps/${id}$`)),
                 },
             ].filter(checkItemAccess),
@@ -274,16 +281,7 @@ const MenuItems: React.FC = () => {
                 },
             ].filter(checkItemAccess),
         },
-    ]), [
-        isAssignedVisibilityType,
-        canManageNewsItems,
-        isSPPOrg,
-        hasAccessToBilling,
-        anyReceiptsLoaded,
-        sppBillingId,
-        connectedAppsIds,
-        isManagingCompany,
-    ])
+    ]), [isAssignedVisibilityType, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, connectedAppsIds])
 
     return (
         <>
@@ -318,8 +316,11 @@ const MenuItems: React.FC = () => {
                                 excludePaths={item.excludePaths}
                             />
                         ))}
-                        {get(appsByCategories, category.key, []).map((app) => (
-                            <MenuItem
+                        {get(appsByCategories, category.key, []).map((app) => {
+                            // not a ReDoS issue: running on end user browser
+                            // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+                            const miniAppsPattern = new RegExp(`/miniapps/${app.id}/.+`)
+                            return <MenuItem
                                 id={`menu-item-app-${app.id}`}
                                 key={`menu-item-app-${app.id}`}
                                 path={`/miniapps/${app.id}`}
@@ -329,9 +330,9 @@ const MenuItems: React.FC = () => {
                                 disabled={disabled}
                                 isCollapsed={isCollapsed}
                                 toolTipDecorator={disabled ? wrapElementIntoNoOrganizationToolTip : null}
-                                excludePaths={[new RegExp(`/miniapps/${app.id}/.+`)]}
+                                excludePaths={[miniAppsPattern]}
                             />
-                        ))}
+                        })}
                     </>
                 ))}
             </div>

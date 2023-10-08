@@ -79,6 +79,8 @@ const BAD_USER_INPUT = 'BAD_USER_INPUT'
 const INTERNAL_ERROR = 'INTERNAL_ERROR'
 // Access denied
 const FORBIDDEN = 'FORBIDDEN'
+// Too Many Requests
+const TOO_MANY_REQUESTS = 'TOO_MANY_REQUESTS'
 
 
 /**
@@ -93,6 +95,7 @@ const GQLErrorCode = {
     BAD_USER_INPUT,
     INTERNAL_ERROR,
     FORBIDDEN,
+    TOO_MANY_REQUESTS,
 }
 
 

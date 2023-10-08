@@ -52,6 +52,8 @@ getSVGData({
         const componentCode = fillTemplate({ componentName, jsx: jsCodeFiltered })
         fs.ensureDirSync(ICONS_PATH)
         fs.outputFileSync(
+            // this script running only by developers to pull icons from the upstream source
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
             path.join(ICONS_PATH, fileName),
             componentCode
         )
@@ -59,7 +61,7 @@ getSVGData({
 
     console.log(chalk.redBright('-> Generating entry file...'))
     const names = [...new Set(data.map(svg => svg.name))]
-    names.sort()
+    names.sort() // NOSONAR
     const exports = names.map(name => `export { ${name} } from './components/${name}'`).join('\n')
     const indexContent = [CODEGEN_COMMENT, TYPE_EXPORT, exports].join('\n')
     fs.outputFileSync(

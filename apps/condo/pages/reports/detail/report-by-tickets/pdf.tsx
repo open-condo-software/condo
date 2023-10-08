@@ -36,7 +36,7 @@ const PdfView = () => {
     const ManyAddresses = intl.formatMessage({ id:'pages.condo.analytics.TicketAnalyticsPage.ManyAddresses' })
     const AllCategories = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.AllCategories' })
     const DefaultTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.DefaultTickets' })
-    const PaidTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PaidTickets' })
+    const PayableTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PayableTickets' })
     const EmergencyTickets = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.EmergencyTickets' })
     const LoadingTip = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.PDF.LoadingTip' })
     const EmptyCategoryClassifierTitle = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier' })
@@ -125,7 +125,7 @@ const PdfView = () => {
                         const axisLabels = Array.from(new Set(Object.values(data).flatMap(e => Object.keys(e))))
                         const legend = Object.keys(data)
                         const series = []
-                        Object.entries(data).map(([groupBy, dataObj]) => {
+                        Object.entries(data).forEach(([groupBy, dataObj]) => {
                             series.push({
                                 name: groupBy,
                                 type: viewMode,
@@ -182,7 +182,7 @@ const PdfView = () => {
                         const axisLabels = Object.keys(data.summary)
                             .sort((firstLabel, secondLabel) => data.summary[firstLabel] - data.summary[secondLabel])
                         const legend = Object.keys(data)
-                        Object.entries(data).map(([groupBy, dataObj]) => {
+                        Object.entries(data).forEach(([groupBy, dataObj]) => {
                             const seriesData = []
                             axisLabels.forEach(axisLabel => {
                                 seriesData.push(dataObj[axisLabel])
@@ -493,7 +493,7 @@ const PdfView = () => {
     const {
         dateFrom, dateTo, viewMode, ticketType, addressList, specification, executorList, assigneeList, categoryClassifierList,
     } = queryParamsRef.current
-    ticketType === 'paid' && (ticketTypeTitle = PaidTickets)
+    ticketType === 'payable' && (ticketTypeTitle = PayableTickets)
     ticketType === 'emergency' && (ticketTypeTitle = EmergencyTickets)
     const addressListParsed = JSON.parse(addressList)
     let addressFilterTitle = addressListParsed.length ? `${SingleAddress} «${addressListParsed[0].value}»` : AllAddresses

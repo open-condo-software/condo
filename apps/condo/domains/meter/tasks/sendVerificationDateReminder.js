@@ -57,6 +57,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         list: ServiceConsumer,
         where: {
             accountNumber_in: accountNumbers,
+            deletedAt: null,
         },
     })
 
@@ -69,6 +70,7 @@ const joinResidentsToMeters = async ({ context, meters }) => {
         list: Resident,
         where: {
             id_in: residentsIds,
+            deletedAt: null,
         },
     })
 
@@ -84,7 +86,10 @@ const joinResidentsToMeters = async ({ context, meters }) => {
     const metersWithServiceConsumers = rightJoin(
         meters,
         servicesConsumerWithConnectedResidents,
-        (meter, item) => item.servicesConsumer.accountNumber === meter.accountNumber,
+        (meter, item) => (
+            item.servicesConsumer.accountNumber === meter.accountNumber &&
+            item.servicesConsumer.organization.id === meter.organization.id
+        ),
         (meter, servicesConsumers) => ({ meter, servicesConsumers })
     )
         .filter(item => item.servicesConsumers != null && item.servicesConsumers.length > 0)
@@ -122,6 +127,7 @@ const filterSentReminders = async ({ context, date, reminderWindowSize, metersCo
                 id_in: users,
             },
             createdAt_gte: dayjs(date).add(-2, 'month').format('YYYY-MM-DD'),
+            deletedAt: null,
         },
     })
 

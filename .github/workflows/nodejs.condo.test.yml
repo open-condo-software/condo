@@ -8,6 +8,7 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
 
 jobs:
   test-organization-related-domains:
@@ -32,9 +33,10 @@ jobs:
           docker-compose up -d postgresdb redis
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: install packages
         run: |
@@ -134,9 +136,10 @@ jobs:
           docker-compose up -d postgresdb redis
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: install packages
         run: |
@@ -238,9 +241,10 @@ jobs:
           docker-compose up -d postgresdb redis
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: install packages
         run: |
@@ -342,9 +346,10 @@ jobs:
           docker-compose up -d postgresdb redis
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: install packages
         run: |

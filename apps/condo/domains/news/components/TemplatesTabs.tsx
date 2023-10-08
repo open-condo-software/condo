@@ -11,6 +11,7 @@ import { useContainerSize } from '@condo/domains/common/hooks/useContainerSize'
 export const StyledTabs = styled(Tabs)`
     > .condo-tabs-nav {
         margin: 0;
+        height: 46px;
 
         .condo-tabs-ink-bar {
           display: none;
@@ -35,6 +36,9 @@ export const StyledTabs = styled(Tabs)`
             line-height: 22px;
           }
         }
+      .condo-tabs-nav-operations {
+        display: none;
+      }
     }
 `
 
@@ -156,7 +160,7 @@ export const TemplatesTabs: React.FC<INewsFormProps> = ({ items, onChange }) => 
         pressedSide.current = side
         setIsPressed(true)
     }
-  
+
     const handleMouseUp = () => {
         pressedSide.current = null
         setIsPressed(false)
@@ -178,7 +182,7 @@ export const TemplatesTabs: React.FC<INewsFormProps> = ({ items, onChange }) => 
                 items={itemsWithIcons}
                 tabBarExtraContent={
                     {
-                        right: rightButton && 
+                        right: rightButton &&
                         <div
                             style={{ cursor: 'pointer', justifyContent: 'center' }}
                             className={`${CONTROL_PREFIX} ${CONTROL_PREFIX}-next ${CONTROL_PREFIX}-large`}
@@ -186,7 +190,7 @@ export const TemplatesTabs: React.FC<INewsFormProps> = ({ items, onChange }) => 
                             onMouseUp={handleMouseUp}>
                             <ChevronRight size='medium'/>
                         </div>,
-                        left: leftButton && 
+                        left: leftButton &&
                         <div
                             style={{ cursor: 'pointer', justifyContent: 'center' }}
                             className={`${CONTROL_PREFIX} ${CONTROL_PREFIX}-prev ${CONTROL_PREFIX}-large`}

@@ -22,8 +22,52 @@ class UploadingFile {
     }
 }
 
-class ApolloServerClient {
+const normalizeAuthRequisites = (requisites = {}) => {
+    const { email, identity, password, secret, phone } = requisites
+    return Object.fromEntries([
+        ['email', email || identity],
+        ['password', password || secret],
+        ['phone', phone],
+    ].filter(([, value]) => !!value))
+}
 
+class OIDCAuthClient {
+
+    constructor (authToken) {
+        this.authToken = authToken
+        this.cookieJar = new fetch.Headers()
+    }
+
+    async oidcRequest (url) {
+        const response = await fetch(url, {
+            headers: {
+                ...this.authToken ? { authorization: `Bearer ${this.authToken}` } : {},
+                cookie: [...this.cookieJar.entries()].map(([name, value]) => `${name}=${value}`).join('; '),
+            },
+            redirect: 'manual',
+            credentials: 'same-origin',
+        })
+        if (response.status >= 400) {
+            throw new Error(`OIDC request failed: ${response.status} ${response.statusText}`)
+        }
+        const newCookies = response.headers.raw()['set-cookie']
+        if (newCookies) {
+            newCookies.forEach(cookie => {
+                const [cookieValue] = cookie.split(';')
+                const [name, value] = cookieValue.split('=')
+                this.cookieJar.set(name, value)
+            })
+        }
+        return {
+            location: response.headers.get('location'),
+            debug: await response.text(),
+        }
+    }
+
+}
+
+class ApolloServerClient {
+    #isAuthorized = false
     client
     clientName
     authToken
@@ -43,7 +87,9 @@ class ApolloServerClient {
     constructor (endpoint, authRequisites = {}, { clientName = 'apollo-server-client', locale = 'ru' } = {}) {
         this.clientName = clientName
         this.endpoint = endpoint
-        this.authRequisites = authRequisites
+        this.locale = locale
+
+        this.authRequisites = normalizeAuthRequisites(authRequisites)
         this.logger = getLogger(clientName)
         this.batchClient = this.createClient([this.errorLink(), this.authLink(), this.retryLink(), this.batchTerminateLink()])
         this.client = this.createClient([this.errorLink(), this.authLink(), this.retryLink(), this.uploadTerminateLink()])
@@ -76,17 +122,47 @@ class ApolloServerClient {
         }
     }
 
+    /**
+    * @example
+    * const client = new ApolloServerClient(`${CONDO_URL}/admin/api`, { phone:'***', password: '***' })
+    * await client.signIn()
+    * const miniAppClient = await client.signInToMiniApp(`${REGISTRY_URL}/graphql`)
+    */
+    async signInToMiniApp (apiEndpoint) {
+        if (!this.authToken) {
+            throw new Error('You need to authorize on condo first')
+        }
+        const miniAppAuth = new OIDCAuthClient()
+        const condoAuth = new OIDCAuthClient(this.authToken)
+        const { origin } = new URL(apiEndpoint)
+        // Start auth
+        const { location: startAuthUrl } = await miniAppAuth.oidcRequest(`${origin}/oidc/auth`)
+        // Condo redirects
+        const { location: interactUrl } = await condoAuth.oidcRequest(startAuthUrl)
+        const { location: interactCompleteUrl } = await condoAuth.oidcRequest(interactUrl)
+        const { location: completeAuthUrl } = await condoAuth.oidcRequest(interactCompleteUrl)
+        // Complete auth
+        await miniAppAuth.oidcRequest(completeAuthUrl)
+        const decodedToken = decodeURIComponent(miniAppAuth.cookieJar.get('keystone.sid'))
+
+        const miniAppClient = new ApolloServerClient(apiEndpoint, this.authRequisites)
+        miniAppClient.authToken = decodedToken.split('s:')[1]
+
+        return miniAppClient
+    }
+
     async singInByEmailAndPassword () {
-        const { identity, email, password, secret } = this.authRequisites
+        const { email, password } = this.authRequisites
         const { data: { auth: { user, token } } } = await this.client.mutate({
             mutation: SIGNIN_BY_EMAIL_MUTATION,
             variables: {
-                identity: identity || email,
-                secret: secret || password,
+                identity: email,
+                secret: password,
             },
         })
         this.userId = user.id
         this.authToken = token
+        this.#isAuthorized = true
     }
 
     async singInByPhoneAndPassword () {
@@ -97,6 +173,31 @@ class ApolloServerClient {
         })
         this.userId = user.id
         this.authToken = token
+        this.#isAuthorized = true
+    }
+
+    async executeAuthorizedQuery (queryArgs, opts = { batchClient: false }) {
+        if (!this.#isAuthorized) {
+            await this.signIn()
+        }
+
+        if (opts.batchClient) {
+            return await this.batchClient.query(queryArgs)
+        } else {
+            return await this.client.query(queryArgs)
+        }
+    }
+
+    async executeAuthorizedMutation (mutationArgs, opts = { batchClient: false }) {
+        if (!this.#isAuthorized) {
+            await this.signIn()
+        }
+
+        if (opts.batchClient) {
+            return await this.batchClient.mutate(mutationArgs)
+        } else {
+            return await this.client.mutate(mutationArgs)
+        }
     }
 
     async loadByChunks ({ modelGql, where, chunkSize = LOAD_CHUNK_SIZE, limit = 100000, sortBy = ['id_ASC'] }) {
@@ -122,7 +223,7 @@ class ApolloServerClient {
      * @returns {Promise<*>}
      */
     async getCount ({ modelGql, where, first, skip, sortBy }) {
-        const { data: { meta: { count } } } = await this.client.query({
+        const { data: { meta: { count } } } = await this.executeAuthorizedQuery({
             query: modelGql.GET_COUNT_OBJS_QUERY,
             variables: {
                 where,
@@ -139,7 +240,7 @@ class ApolloServerClient {
      * Default limit is 100 (on condo side). To load all models - use loadByChunks
      */
     async getModels ({ modelGql, where, first, skip, sortBy }) {
-        const { data: { objs } } = await this.client.query({
+        const { data: { objs } } = await this.executeAuthorizedQuery({
             query: modelGql.GET_ALL_OBJS_QUERY,
             variables: {
                 where,
@@ -156,7 +257,7 @@ class ApolloServerClient {
 
         if (id) variables.id = id
 
-        const { data: { obj: updatedObj, result: updatedResult } } = await this.client.mutate({
+        const { data: { obj: updatedObj, result: updatedResult } } = await this.executeAuthorizedMutation({
             mutation: modelGql.UPDATE_OBJ_MUTATION,
             variables,
         })
@@ -165,16 +266,15 @@ class ApolloServerClient {
     }
 
     async updateModels ({ modelGql, updateInputs = [], isBatch = false, onProgress = () => null }) {
-        const client = isBatch ? this.batchClient : this.client
         const chunks = splitArray(updateInputs, MAX_MODIFY_OPERATIONS_IN_REQUEST)
         let result = []
         for (const chunk of chunks) {
-            const { data: { objs } } = await client.mutate({
+            const { data: { objs } } = await this.executeAuthorizedMutation({
                 mutation: modelGql.UPDATE_OBJS_MUTATION,
                 variables: {
-                    data: chunk.map( data => ({ id: data.id, data: { ...this.dvSender(), ...data.data } })),
+                    data: chunk.map(data => ({ id: data.id, data: { ...this.dvSender(), ...data.data } })),
                 },
-            })
+            }, { batchClient: isBatch })
             await onProgress(objs.length)
             result = result.concat(objs)
         }
@@ -183,8 +283,7 @@ class ApolloServerClient {
     }
 
     async createModel ({ modelGql, createInput, isBatch = false }) {
-        const client = isBatch ? this.batchClient : this.client
-        const { data: { obj } } = await client.mutate({
+        const { data: { obj } } = await this.executeAuthorizedMutation({
             mutation: modelGql.CREATE_OBJ_MUTATION,
             variables: {
                 data: {
@@ -192,21 +291,20 @@ class ApolloServerClient {
                     ...createInput,
                 },
             },
-        })
+        }, { batchClient: isBatch })
         return obj
     }
 
     async createModels ({ modelGql, createInputs = [], isBatch = false, onProgress = () => null }) {
-        const client = isBatch ? this.batchClient : this.client
         const chunks = splitArray(createInputs, MAX_MODIFY_OPERATIONS_IN_REQUEST)
         let result = []
         for (const chunk of chunks) {
-            const { data: { objs } } = await client.mutate({
+            const { data: { objs } } = await this.executeAuthorizedMutation({
                 mutation: modelGql.CREATE_OBJS_MUTATION,
                 variables: {
-                    data: chunk.map( data => ({ data: { ...this.dvSender(), ...data } })),
+                    data: chunk.map(data => ({ data: { ...this.dvSender(), ...data } })),
                 },
-            })
+            }, { batchClient: isBatch })
             await onProgress(objs.length)
             result = result.concat(objs)
         }
@@ -232,6 +330,7 @@ class ApolloServerClient {
                     authorization: 'Bearer ' + this.authToken,
                     'accept-language': this.locale,
                 },
+                credentials: 'same-origin',
             })
             return forward(operation)
         })
@@ -242,7 +341,10 @@ class ApolloServerClient {
             delay: { initial: 300, max: Infinity, jitter: true },
             attempts: {
                 max: MAX_RETRIES_ON_NETWORK_ERROR,
-                retryIf: (error, _operation) => !!error,
+                retryIf: (error, _operation) => {
+                    this.info('Retry', { error, _operation })
+                    return !!error
+                },
             },
         })
     }
