@@ -12,7 +12,7 @@
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
     "migrate": "./../../bin/kmigrator.py migrate",
     "migrate:down": "./../../bin/kmigrator.py down",
-    "maketypes": "mkdir -p dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js && graphql-codegen -c codegen.yaml",
+    "maketypes": "mkdir -p dist/admin && NODE_ENV=test node ./../../bin/create-graphql-schema.js --no-codegen",
     "createschema": "./../../bin/createschema",
     "createservice": "node ./../../bin/createservice"
   },
