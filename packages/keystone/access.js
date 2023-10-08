@@ -135,6 +135,13 @@ const isSoftDelete = (originalInput) => {
 // Should be used for fields only
 const canOnlyServerSideWithoutUserRequest = () => false
 
+const readOnlyFieldAccess = {
+    read: true,
+    create: false,
+    update: false,
+    delete: false,
+}
+
 // TODO(pahaz): think about naming! ListAccessCheck and FieldAccessCheck has different arguments
 module.exports = {
     userIsAuthenticated,
@@ -150,4 +157,5 @@ module.exports = {
     userIsNotResidentUser,
     canReadOnlyIfUserIsActiveOrganizationEmployee,
     canOnlyServerSideWithoutUserRequest,
+    readOnlyFieldAccess,
 }

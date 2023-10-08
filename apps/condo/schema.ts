@@ -5224,7 +5224,7 @@ export type B2CAppAccessRight = {
   _label_?: Maybe<Scalars['String']>;
   /**  Link to user. Note, that user must be of "service" type  */
   user?: Maybe<User>;
-  /**  Link to B2BApp.accessRights  */
+  /**  Link to B2СApp.accessRights  */
   app?: Maybe<B2CApp>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;

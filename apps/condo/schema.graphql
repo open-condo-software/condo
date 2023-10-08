@@ -60553,7 +60553,7 @@ type B2CAppAccessRight {
   """ Link to user. Note, that user must be of "service" type """
   user: User
 
-  """ Link to B2BApp.accessRights """
+  """ Link to B2СApp.accessRights """
   app: B2CApp
   id: ID!
   v: Int
