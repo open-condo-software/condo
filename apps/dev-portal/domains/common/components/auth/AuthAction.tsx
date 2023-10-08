@@ -5,9 +5,20 @@ import { useIntl } from 'react-intl'
 import { MoreVertical } from '@open-condo/icons'
 import { Button, Space, Typography, Modal } from '@open-condo/ui'
 
+import styles from './AuthAction.module.css'
 import { AuthForm } from './AuthForm'
 
 import { useAuth } from '@/lib/auth'
+
+const MAX_NAME_LENGTH = 27
+
+function formatName (name?: string | null) {
+    if (!name) return name
+    if (name.length <= MAX_NAME_LENGTH) {
+        return name
+    }
+    return name.split(' ')[0]
+}
 
 export const AuthHeaderAction: React.FC = () => {
     const intl = useIntl()
@@ -49,7 +60,9 @@ export const AuthHeaderAction: React.FC = () => {
             {isAuthenticated ? (
                 <Dropdown placement='bottomRight' menu={menu}>
                     <Space size={8} direction='horizontal'>
-                        <Typography.Text>{user?.name}</Typography.Text>
+                        <span className={styles.userNameContainer}>
+                            <Typography.Paragraph ellipsis>{formatName(user?.name)}</Typography.Paragraph>
+                        </span>
                         <MoreVertical size='small'/>
                     </Space>
                 </Dropdown>
