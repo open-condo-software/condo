@@ -150,7 +150,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const DescriptionLabel = intl.formatMessage({ id: 'pages.condo.ticket.field.Description' })
     const EmergencyLabel = intl.formatMessage({ id: 'Emergency' })
     const WarrantyLabel = intl.formatMessage({ id: 'Warranty' })
-    const PaidLabel = intl.formatMessage({ id: 'Paid' })
+    const PayableLabel = intl.formatMessage({ id: 'Payable' })
     const DescriptionPlaceholder = intl.formatMessage({ id: 'placeholder.Description' })
     const ClassifierLabel = intl.formatMessage({ id: 'Classifier' })
 
@@ -181,8 +181,8 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const createdAt = get(initialValues, 'createdAt', null)
 
     const handleChangeType = useCallback(() => {
-        const { isPaid, isEmergency, isWarranty } = form.getFieldsValue(['isPaid', 'isEmergency', 'isWarranty'])
-        const autoAddDays = getTicketDefaultDeadline(ticketSetting, isPaid, isEmergency, isWarranty)
+        const { isPayable, isEmergency, isWarranty } = form.getFieldsValue(['isPayable', 'isEmergency', 'isWarranty'])
+        const autoAddDays = getTicketDefaultDeadline(ticketSetting, isPayable, isEmergency, isWarranty)
         const startDate = createdAt ? dayjs(createdAt) : dayjs()
         const autoDeadlineValue = isNull(autoAddDays) ? autoAddDays : startDate.add(autoAddDays, 'day')
         form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
@@ -251,13 +251,13 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                                 </Form.Item>
                                             </Col>
                                             <Col span={24} lg={6}>
-                                                <Form.Item name='isPaid' valuePropName='checked'>
+                                                <Form.Item name='isPayable' valuePropName='checked'>
                                                     <Checkbox
                                                         disabled={disableUserInteraction}
-                                                        eventName='TicketCreateCheckboxIsPaid'
+                                                        eventName='TicketCreateCheckboxIsPayable'
                                                         onChange={handleChangeType}
                                                     >
-                                                        {PaidLabel}
+                                                        {PayableLabel}
                                                     </Checkbox>
                                                 </Form.Item>
                                             </Col>

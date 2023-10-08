@@ -3,12 +3,15 @@
  */
 const { faker } = require('@faker-js/faker')
 const { Text, Relationship, Uuid, Checkbox } = require('@keystonejs/fields')
+const get = require('lodash/get')
 const { v4: uuid } = require('uuid')
 
 const { userIsAdmin } = require('@open-condo/keystone/access')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, tracked, softDeleted, uuided, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
+const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const { EMAIL_WRONG_FORMAT_ERROR } = require('@condo/domains/common/constants/errors')
 const { normalizeEmail } = require('@condo/domains/common/utils/mail')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
@@ -16,6 +19,17 @@ const { hasDbFields, hasOneOfFields } = require('@condo/domains/common/utils/val
 const access = require('@condo/domains/organization/access/OrganizationEmployee')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { softDeletePropertyScopeOrganizationEmployee } = require('@condo/domains/scope/utils/serverSchema')
+
+
+const ERRORS = {
+    NOT_FOUND_ROLE: {
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        variable: ['data', 'role'],
+        message: 'Role not found for the specified organization',
+        messageForUser: 'api.organizationEmployee.NOT_FOUND_ROLE',
+    },
+}
 
 const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
     schemaDoc: 'B2B customer employees. ' +
@@ -84,6 +98,25 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            hooks: {
+                validateInput: async ({ resolvedData, existingItem, context }) => {
+                    const newItem = { ...existingItem, ...resolvedData }
+                    const organizationId = get(newItem, 'organization')
+                    const newRole = get(newItem, 'role')
+                    const oldRole = get(existingItem, 'role')
+
+                    if (newRole !== oldRole) {
+                        const employeeRole = await getByCondition('OrganizationEmployeeRole', {
+                            id: newRole,
+                            organization: { id: organizationId },
+                        })
+
+                        if (!employeeRole) {
+                            throw new GQLError(ERRORS.NOT_FOUND_ROLE, context)
+                        }
+                    }
+                },
+            },
         },
         position: {
             schemaDoc: 'Free-form description of the employee\'s position',
@@ -157,4 +190,5 @@ const OrganizationEmployee = new GQLListSchema('OrganizationEmployee', {
 
 module.exports = {
     OrganizationEmployee,
+    ERRORS,
 }

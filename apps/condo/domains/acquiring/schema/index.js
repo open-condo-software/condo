@@ -6,6 +6,7 @@
 const { AcquiringIntegration } = require('./AcquiringIntegration')
 const { AcquiringIntegrationAccessRight } = require('./AcquiringIntegrationAccessRight')
 const { AcquiringIntegrationContext } = require('./AcquiringIntegrationContext')
+const { CreatePaymentByLinkService } = require('./CreatePaymentByLinkService')
 const { ExportPaymentsService } = require('./ExportPaymentsService')
 const { GeneratePaymentLinkService } = require('./GeneratePaymentLinkService')
 const { MultiPayment } = require('./MultiPayment')
@@ -34,5 +35,6 @@ module.exports = {
     SumPaymentsService,
     RecurrentPaymentContext,
     RecurrentPayment,
+    CreatePaymentByLinkService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

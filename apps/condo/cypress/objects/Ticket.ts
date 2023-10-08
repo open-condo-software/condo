@@ -90,7 +90,7 @@ class TicketView {
 /*
     Elements:
         ticket__filter-isWarranty
-        ticket__filter-isPaid
+        ticket__filter-isPayable
         ticket__filter-isEmergency
         ticket__table
         ticket__filters-button
@@ -122,14 +122,14 @@ class TicketView {
         return this
     }
 
-    clickIsPaidCheckbox (): this {
-        cy.get('[data-cy=ticket__filter-isPaid]').click()
-        cy.location('search').should('contain', 'isPaid')
+    clickIsPayableCheckbox (): this {
+        cy.get('[data-cy=ticket__filter-isPayable]').click()
+        cy.location('search').should('contain', 'isPayable')
         cy.wait('@getAllTickets')
         cy.get('[data-cy=ticket__table] tbody tr').should('have.length.greaterThan', 0)
 
-        cy.get('[data-cy=ticket__filter-isPaid]').click()
-        cy.location('search').should('not.contain', 'isPaid')
+        cy.get('[data-cy=ticket__filter-isPayable]').click()
+        cy.location('search').should('not.contain', 'isPayable')
         cy.wait('@getAllTickets')
         cy.get('[data-cy=ticket__table] tbody tr').should('have.length.greaterThan', 3)
 

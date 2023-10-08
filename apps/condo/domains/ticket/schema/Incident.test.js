@@ -29,12 +29,13 @@ const INCIDENT_PAYLOAD = {
 }
 
 describe('Incident', () => {
-    let admin, support, employeeUser, notEmployeeUser, anonymous, organization, incidentByAdmin
+    let admin, support, employeeUser, employeeWithoutCanReadIncidentsUser, notEmployeeUser, anonymous, organization, incidentByAdmin
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         employeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
+        employeeWithoutCanReadIncidentsUser = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
 
         const [testOrganization] = await createTestOrganization(admin)
@@ -42,8 +43,13 @@ describe('Incident', () => {
 
         const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
             canManageIncidents: true,
+            canReadIncidents: true,
         })
         await createTestOrganizationEmployee(admin, organization, employeeUser.user, role)
+        const [roleWithoutCanReadIncidents] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canReadIncidents: false,
+        })
+        await createTestOrganizationEmployee(admin, organization, employeeWithoutCanReadIncidentsUser.user, roleWithoutCanReadIncidents)
 
         notEmployeeUser = await makeClientWithNewRegisteredAndLoggedInUser()
         const [secondTestOrganization] = await createTestOrganization(admin)
@@ -120,15 +126,36 @@ describe('Incident', () => {
                 expect(incident).toHaveProperty('number')
                 expect(incident.number).not.toBeNull()
             })
-            test('can read', async () => {
-                const incident = await Incident.getOne(employeeUser, { id: incidentByAdmin.id }, { sortBy: ['updatedAt_DESC'] })
+            test('can read by employee with canReadIncidents', async () => {
+                const incident = await Incident.getOne(employeeUser, { id: incidentByAdmin.id })
+                
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('id', incidentByAdmin.id)
+            })
+            test('can not read by employee without canReadIncidents', async () => {
+                const incident = await Incident.getOne(employeeWithoutCanReadIncidentsUser, { id: incidentByAdmin.id })
+
+                expect(incident).toBeUndefined()
             })
             test('can update', async () => {
                 const [incident, attrs] = await updateTestIncident(employeeUser, incidentByAdmin.id, { details: faker.lorem.sentence() })
                 expect(incident).toBeDefined()
                 expect(incident).toHaveProperty('details', attrs.details)
+            })
+            test('can\'t update from not his organization', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageIncidents: false })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [otherOrganization] = await createTestOrganization(admin)
+                const [roleInOtherOrganization] = await createTestOrganizationEmployeeRole(admin, otherOrganization, { canManageIncidents: true })
+                await createTestOrganizationEmployee(admin, otherOrganization, client.user, roleInOtherOrganization)
+
+                const [incident] = await createTestIncident(admin, organization, INCIDENT_PAYLOAD)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestIncident(client, incident.id, { details: faker.lorem.sentence() })
+                })
             })
             test('can\'t delete', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {

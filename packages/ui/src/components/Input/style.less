@@ -1,0 +1,111 @@
+@import "react-phone-input-2/lib/style.css";
+@import "antd/lib/input/style/index.less";
+@import (reference) "@open-condo/ui/src/tokens/variables.less";
+@import (reference) "@open-condo/ui/src/components/style/mixins/typography";
+
+.condo-input,
+.condo-input-affix-wrapper {
+  box-sizing: content-box;
+  height: @condo-global-typography-text-l-line-height;
+  padding: @condo-global-spacing-12 - @condo-global-border-width-default;
+  color: @condo-global-color-black;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-medium;
+
+  .condo-typography-text-large();
+
+  &-focused {
+    border-color: @condo-global-color-gray-7;
+    box-shadow: none;
+  }
+}
+
+.react-tel-input {
+  .condo-typography-text-large();
+}
+
+.react-tel-input .condo-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: @condo-global-typography-text-l-line-height + 2 * @condo-global-spacing-12;
+  border-radius: @condo-global-border-radius-medium;
+}
+
+.react-tel-input .flag-dropdown {
+  margin: 4px;
+  background: @condo-global-color-gray-3;
+  border: 0;
+  border-radius: @condo-global-border-radius-small;
+
+  &.open,
+  &:hover {
+    background: @condo-global-color-gray-5;
+    border-radius: @condo-global-border-radius-small;
+  }
+
+  .selected-flag {
+    width: @condo-global-spacing-40;
+
+    &:hover,
+    &:focus {
+      background: transparent;
+    }
+  }
+
+  &.open .selected-flag {
+    background: transparent;
+  }
+}
+
+.react-tel-input .form-control.condo-input {
+  font-size: @condo-global-font-size-text-l;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
+}
+
+.condo-input:not(.condo-input-disabled),
+.condo-input-affix-wrapper:not(.condo-input-affix-wrapper-disabled) {
+  &:hover,
+  &:focus,
+  &:active {
+    border-color: @condo-global-color-gray-7;
+    box-shadow: none;
+  }
+}
+
+.condo-input::placeholder,
+.condo-input-affix-wrapper > .condo-input::placeholder {
+  color: @condo-global-color-gray-7;
+
+  .condo-typography-text-large();
+}
+
+.condo-input-affix-wrapper-disabled,
+.condo-input-disabled[disabled] {
+  color: @condo-global-color-black;
+  background-color: @condo-global-color-white;
+  opacity: @condo-global-opacity-disabled;
+
+  &:hover {
+    border-color: @condo-global-color-gray-5;
+  }
+}
+
+.condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled] {
+  opacity: 1;
+}
+
+.condo-input-disabled[disabled]::placeholder,
+.condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled]::placeholder {
+  color: @condo-global-color-gray-7;
+}
+
+.condo-input-clear-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &,
+  &:hover {
+    color: @condo-global-color-black;
+  }
+}

@@ -37,10 +37,10 @@ import { renderPhone } from '@condo/domains/common/utils/Renders'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { ClientType, getClientCardTabKey, redirectToForm } from '@condo/domains/contact/utils/clientCard'
 import { Contact } from '@condo/domains/contact/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { getPropertyAddressParts } from '@condo/domains/property/utils/helpers'
 import { IncidentHints } from '@condo/domains/ticket/components/IncidentHints'
+import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
@@ -957,6 +957,6 @@ const ClientCardPage = () => {
 }
 //#endregion
 
-ClientCardPage.requiredAccess = OrganizationRequired
+ClientCardPage.requiredAccess = TicketReadPermissionRequired
 
 export default ClientCardPage

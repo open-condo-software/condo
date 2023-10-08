@@ -14,6 +14,7 @@ const useDeskFieldsIdsMap = {
     tin: 20560,
     role: 20574,
     organizationName: 20572,
+    userId: 22460,
 }
 
 const getUsedeskMessenger = () => {
@@ -32,12 +33,13 @@ const UseDeskWidget: React.FC = () => {
     const userIdentify = useMemo(() => get(messenger, 'userIdentify', null), [messenger])
 
     useEffect(() => {
+        const userId = get(user, 'id')
+
         try {
             if (UseDeskWidgetId && isFunction(userIdentify) && typeof window !== 'undefined') {
                 const name = get(link, 'name')
                 const email = get(user, 'email')
                 const phone = get(user, 'phone')
-
                 set(window, '__widgetInitCallback', (widget) => {
                     const token = cookie.get('usedeskChatToken')
 
@@ -56,6 +58,9 @@ const UseDeskWidget: React.FC = () => {
                                 {
                                     id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
                                 },
+                                {
+                                    id: useDeskFieldsIdsMap.userId, value: userId,
+                                },
                             ],
                     }
 
@@ -68,6 +73,22 @@ const UseDeskWidget: React.FC = () => {
                     cookie.set('usedeskChatToken', token, { expires: 2 })
                 })
             }
+
+            messenger.setAdditionalFields([
+                {
+                    id: useDeskFieldsIdsMap.tin, value: get(link, ['organization', 'tin'], null),
+                },
+                {
+                    id: useDeskFieldsIdsMap.organizationName, value: get(link, ['organization', 'name'], null),
+                },
+                {
+                    id: useDeskFieldsIdsMap.role, value: get(link, ['role', 'name'], null),
+                },
+                {
+                    id: useDeskFieldsIdsMap.userId, value: userId,
+                },
+            ])
+
         } catch (e) {
             console.error('Failed to load widget "UseDesk"', e)
         }

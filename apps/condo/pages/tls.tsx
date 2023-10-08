@@ -259,7 +259,7 @@ const TlsPagePoster: React.FC = (): JSX.Element => (
     <PosterWrapper>
         <Poster
             src='/dino/searching@2x.png'
-            placeholderSrc='/404PosterPlaceholder.png'
+            placeholderSrc='/404PosterPlaceholder.jpg'
             imageStyle={IMAGE_STYLE}
             imageWrapperStyle={IMAGE_WRAPPER_STYLE}
             posterContentStyle={POSTER_CONTENT_STYLE}

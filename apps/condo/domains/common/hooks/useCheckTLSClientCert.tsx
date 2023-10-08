@@ -1,6 +1,8 @@
 import getConfig from 'next/config'
 import { useState } from 'react'
 
+import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
+
 const {
     publicRuntimeConfig,
 } = getConfig()
@@ -21,6 +23,11 @@ export const useCheckTLSClientCert = ({ onSuccess, onFail }: UseCheckSSLClientCe
     const { checkTLSClientCertConfig: { verificationUrl } } = publicRuntimeConfig
 
     async function checkSSLClientCert () {
+        // Assume also that feature is disabled in case when environment variable is not specified
+        if (!verificationUrl || !hasFeature('check_tls_client_cert_config')) {
+            return await onSuccess()
+        }
+
         setLoading(true)
         try {
             const response = await fetch(verificationUrl, { mode: 'no-cors' })

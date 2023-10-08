@@ -68,7 +68,7 @@ const filterExecutor = getFilter(['executor', 'id'], 'array', 'string', 'in')
 const filterAssignee = getFilter(['assignee', 'id'], 'array', 'string', 'in')
 const filterExecutorName = getStringContainsFilter(['executor', 'name'])
 const filterAssigneeName = getStringContainsFilter(['assignee', 'name'])
-const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPaid', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
+const filterAttribute = getTicketAttributesFilter(['isEmergency', 'isPayable', 'isWarranty', 'statusReopenedCounter', 'isRegular'])
 const filterIsResidentContact = getIsResidentContactFilter()
 const filterFeedbackValue = getFilter('feedbackValue', 'array', 'string', 'in')
 const filterQualityControlValue = getFilter('qualityControlValue', 'array', 'string', 'in')
@@ -93,7 +93,7 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
     const WarrantyMessage = intl.formatMessage({ id: 'Warranty' }).toLowerCase()
     const RegularMessage = intl.formatMessage({ id: 'Regular' }).toLowerCase()
     const NumberMessage = intl.formatMessage({ id: 'ticketsTable.Number' })
-    const PaidMessage = intl.formatMessage({ id: 'Paid' }).toLowerCase()
+    const PayableMessage = intl.formatMessage({ id: 'Payable' }).toLowerCase()
     const DateMessage = intl.formatMessage({ id: 'CreatedDate' })
     const CompletedAtMessage = intl.formatMessage({ id: 'pages.condo.ticket.filters.CompletedAt' })
     const CompleteBeforeMessage = intl.formatMessage({ id: 'ticket.deadline.CompleteBefore' })
@@ -149,11 +149,11 @@ export function useTicketTableFilters (): Array<FiltersMeta<TicketWhereInput, Ti
 
     const attributeOptions = useMemo(() => [
         { label: RegularMessage, value: 'isRegular' },
-        { label: PaidMessage, value: 'isPaid' },
+        { label: PayableMessage, value: 'isPayable' },
         { label: EmergencyMessage, value: 'isEmergency' },
         { label: WarrantyMessage, value: 'isWarranty' },
         { label: ReturnedMessage.toLowerCase(), value: 'statusReopenedCounter' },
-    ], [EmergencyMessage, PaidMessage, RegularMessage, ReturnedMessage, WarrantyMessage])
+    ], [EmergencyMessage, PayableMessage, RegularMessage, ReturnedMessage, WarrantyMessage])
     const feedbackValueOptions = useMemo(() => [
         { label: GoodFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.GOOD },
         { label: BadFeedbackMessage, value: FEEDBACK_VALUES_BY_KEY.BAD },

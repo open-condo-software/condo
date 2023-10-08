@@ -35,3 +35,6 @@
 [submodule "apps/pass"]
 	path = apps/pass
 	url = git@github.com:open-condo-software/condo-pass.git
+[submodule "apps/documents-next"]
+	path = apps/documents-next
+	url = git@github.com:open-condo-software/condo-documents-next.git

@@ -45,8 +45,8 @@ export const PosterLayout: React.FC<IPosterLayoutProps> = ({ children, Header, F
     const { breakpoints } = useLayoutContext()
 
     const LAYOUT_STYLE = { backgroundColor: layoutBgColor }
-    const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.png'
-    const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.png'
+    const BG_POSTER = layoutBgImage ? layoutBgImage.poster : '/authPoster.webp'
+    const BG_POSTER_PLACEHOLDER = layoutBgImage ? layoutBgImage.placeholder : '/authPosterPlaceholder.jpg'
     const pageWrapperStyle = !breakpoints.TABLET_LARGE && PAGE_WRAPPER_STYLE
 
     return (

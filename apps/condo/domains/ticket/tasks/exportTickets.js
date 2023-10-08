@@ -103,7 +103,7 @@ const renderQualityControlAdditionalOptions = (ticket, locale) => {
  * @param ticket - record of Ticket with related objects converted by `GqlWithKnexLoadList` to its display names (for example `Ticket.source` -> `Ticket.source.name`)
  * @param indexedStatuses
  * @param classifier
- * @return {Promise<{clientName, deferredUntil: (*|string), description: string, source: (string|string), feedbackComment: string, operator: string, unitType: (string|string), number, isEmergency: string, createdAt: *, statusReopenedCounter: (*|number|string), executor: string, contact: string, property: (*|string), details, isWarranty: string, floorName, place: string, organizationComments: (string|string), closedAt: (*|string), deadline: (*|string), entranceName: (string|string), updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: (string|string), feedbackAdditionalOptions: (*|string), unitName, clientPhone, feedbackValue: (*|string), isPaid: string, organization, assignee: string, category: string, status: *}>}
+ * @return {Promise<{clientName, deferredUntil: (*|string), description: string, source: (string|string), feedbackComment: string, operator: string, unitType: (string|string), number, isEmergency: string, createdAt: *, statusReopenedCounter: (*|number|string), executor: string, contact: string, property: (*|string), details, isWarranty: string, floorName, place: string, organizationComments: (string|string), closedAt: (*|string), deadline: (*|string), entranceName: (string|string), updatedAt: *, inworkAt: (*|string), completedAt: (*|string), residentComments: (string|string), feedbackAdditionalOptions: (*|string), unitName, clientPhone, feedbackValue: (*|string), isPayable: string, organization, assignee: string, category: string, status: *}>}
  */
 const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
     const { locale, timeZone } = task
@@ -151,7 +151,7 @@ const ticketToRow = async ({ task, ticket, indexedStatuses, classifier }) => {
         clientPhone: ticket.clientPhone,
         details: ticket.details,
         isEmergency: ticket.isEmergency ? YesMessage : NoMessage,
-        isPaid: ticket.isPaid ? YesMessage : NoMessage,
+        isPayable: ticket.isPayable ? YesMessage : NoMessage,
         isWarranty: ticket.isWarranty ? YesMessage : NoMessage,
         place: get(ticketClassifier, [0, 'place']) || EMPTY_VALUE,
         category: get(ticketClassifier, [0, 'category']) || EMPTY_VALUE,

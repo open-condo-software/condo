@@ -95,7 +95,7 @@ export const filterToQuery: IFilterToQuery = ({ filter, viewMode, ticketType, ma
         AND.push(...[
             { isEmergency: ticketType === 'emergency' },
             { isWarranty: ticketType === 'warranty' },
-            { isPaid: ticketType === 'paid' },
+            { isPayable: ticketType === 'payable' },
         ])
     }
 

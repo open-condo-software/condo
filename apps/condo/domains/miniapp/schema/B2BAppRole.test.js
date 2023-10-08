@@ -61,7 +61,7 @@ describe('B2BAppRole', () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
         manager = await makeEmployeeUserClientWithAbilities({
-            canManageIntegrations: true,
+            canManageB2BApps: true,
             canManageRoles: true,
         })
 
@@ -75,7 +75,7 @@ describe('B2BAppRole', () => {
         employee.role = anotherRole
 
         anotherManager = await makeEmployeeUserClientWithAbilities({
-            canManageIntegrations: true,
+            canManageB2BApps: true,
             canManageRoles: true,
         });
         
@@ -457,16 +457,16 @@ describe('B2BAppRole', () => {
                 user = await makeClientWithNewRegisteredAndLoggedInUser();
                 [organization] = await registerNewOrganization(user);
                 [managerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 });
                 [anotherManagerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 });
                 [nonManagerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: false,
+                    canManageB2BApps: false,
                 })
             })
-            describe('Must create default B2BAppRole for all roles with "canManageIntegrations" flag', () => {
+            describe('Must create default B2BAppRole for all roles with "canManageB2BApps" flag', () => {
                 test('Self-connection', async () => {
                     const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
                     const [ctx] = await createTestB2BAppContext(user, app, organization)
@@ -491,7 +491,7 @@ describe('B2BAppRole', () => {
 
                     // Creating role after connection is requested, but before its finished
                     const [newRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManageIntegrations: true,
+                        canManageB2BApps: true,
                     })
 
                     await waitFor(async () => {
@@ -547,7 +547,7 @@ describe('B2BAppRole', () => {
                 })
                 // Meanwhile new role was created
                 const [newRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 })
                 // Support resume app usage by setting status
                 await updateTestB2BAppContext(support, ctx.id, {
@@ -606,7 +606,7 @@ describe('B2BAppRole', () => {
                 const user = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [organization] = await registerNewOrganization(user)
                 const  [managerRole] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 })
                 const [app] = await createTestB2BApp(support, { contextDefaultStatus: CONTEXT_FINISHED_STATUS })
                 const [context] = await createTestB2BAppContext(user, app, organization)

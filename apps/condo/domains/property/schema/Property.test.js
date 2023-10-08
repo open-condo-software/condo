@@ -43,9 +43,11 @@ describe('Property', () => {
             beforeAll(async () => {
                 canManageEmployee = await makeEmployeeUserClientWithAbilities({
                     canManageProperties: true,
+                    canReadProperties: true,
                 })
                 cannotManageEmployee = await makeEmployeeUserClientWithAbilities({
                     canManageProperties: false,
+                    canReadProperties: true,
                 })
             })
             test('Cannot manage properties if has no "canManageProperties" in role', async () => {
@@ -86,6 +88,14 @@ describe('Property', () => {
             test('Can read properties in his organization despite of role', async () => {
                 const property = await Property.getOne(cannotManageEmployee, { id: cannotManageEmployee.property.id })
                 expect(property).toHaveProperty('id', cannotManageEmployee.property.id)
+            })
+            test('Cannot read properties with canReadProperties: false', async () => {
+                const cannotReadEmployee = await makeEmployeeUserClientWithAbilities({
+                    canReadProperties: false,
+                })
+                const property = await Property.getOne(cannotManageEmployee, { id: cannotReadEmployee.property.id })
+
+                expect(property).toBeUndefined()
             })
             test('Cannot approve property despite of role, but can drop isApproved property', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {

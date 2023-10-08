@@ -22,7 +22,7 @@ const { getTmpFile, downloadFile, readXlsx, expectDataFormat } = require('@condo
 const {
     createTestOrganization,
     createTestOrganizationEmployee,
-    makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee,
+    makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee, createTestOrganizationEmployeeRole,
 } = require('@condo/domains/organization/utils/testSchema')
 const { INCIDENT_WORK_TYPE_SCHEDULED, INCIDENT_WORK_TYPE_EMERGENCY, INCIDENT_STATUS_ACTUAL } = require('@condo/domains/ticket/constants/incident')
 const { ERRORS } = require('@condo/domains/ticket/schema/IncidentExportTask')
@@ -184,7 +184,7 @@ describe('IncidentExportTask', () => {
 
             beforeAll(async () => {
                 const { userClient: employee1, organization, role } = await makeAdminClientWithRegisteredOrganizationWithRoleWithEmployee({
-                    canManageIncidents: true,
+                    canReadIncidents: true,
                 })
                 employeeClient1 = employee1
                 organization1 = organization
@@ -237,6 +237,24 @@ describe('IncidentExportTask', () => {
                         where: {
                             organization: {
                                 id: organization2.id,
+                            },
+                        },
+                    })
+                })
+            })
+
+            test('cannot create if employee has canReadIncidents: false', async () => {
+                const employeeClient = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization1, {
+                    canReadIncidents: false,
+                })
+                await createTestOrganizationEmployee(admin, organization1, employeeClient.user, role)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestIncidentExportTask(employeeClient, employeeClient.user, {
+                        where: {
+                            organization: {
+                                id: organization1.id,
                             },
                         },
                     })

@@ -1,11 +1,11 @@
 const { Text } = require('@keystonejs/fields')
 const get = require('lodash/get')
 
-const { Json } = require('@open-condo/keystone/fields')
-const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const {
     createInstance: createAddressServiceClientInstance,
-} = require('@open-condo/keystone/plugins/utils/address-service-client')
+} = require('@open-condo/clients/address-service-client')
+const { Json } = require('@open-condo/keystone/fields')
+const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { ADDRESS_META_FIELD } = require('@open-condo/keystone/plugins/utils/addressMetaDefinition')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 

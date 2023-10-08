@@ -9,7 +9,7 @@ const FLAT_WITHOUT_FLAT_TYPE_MESSAGE = 'Flat is specified, but flat type is not!
  */
 const getAddressUpToBuildingFrom = (addressMeta) => {
     const data = get(addressMeta, 'data')
-    const value = get(addressMeta, 'value')
+    const value = get(addressMeta, 'rawValue', get(addressMeta, 'value'))
 
     const flat = get(data, 'flat')
     let result = value

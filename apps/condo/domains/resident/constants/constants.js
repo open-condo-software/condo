@@ -76,7 +76,7 @@ const PAYMENT_CATEGORIES_META = [
         name: 'Газ',
         key: 'billing.category.gas.name',
         uuid: '40053ebf-7a67-4b9d-8637-a6f398ad7d3c',
-        active: false,
+        active: true,
         canGetBillingFromOrganization: false,
         canGetAcquiringFromOrganization: false,
     },
@@ -164,9 +164,11 @@ const PAYMENT_CATEGORIES_META = [
 
 const RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC = 24 * 60 * 60 // seconds
 const MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC = 10
+const REDIS_LAST_DATE_KEY = 'LAST_SEND_BILLING_RECEIPT_NOTIFICATION_CREATED_AT'
 
 module.exports = {
     PAYMENT_CATEGORIES_META,
     RESIDENT_DISCOVER_CONSUMERS_WINDOW_SEC,
     MAX_RESIDENT_DISCOVER_CONSUMERS_BY_WINDOW_SEC,
+    REDIS_LAST_DATE_KEY,
 }

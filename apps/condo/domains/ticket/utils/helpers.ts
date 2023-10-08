@@ -444,12 +444,12 @@ export function convertDaysToDuration (days: number): string {
 
 const DEFAULT_TICKET_DEADLINE_DURATION_AS_DAYS = dayjs.duration(DEFAULT_TICKET_DEADLINE_DURATION).asDays()
 
-export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetting, isPaid: boolean, isEmergency: boolean, isWarranty: boolean): number | null {
+export function getTicketDefaultDeadline (ticketSetting: TicketOrganizationSetting, isPayable: boolean, isEmergency: boolean, isWarranty: boolean): number | null {
     if (!ticketSetting) return DEFAULT_TICKET_DEADLINE_DURATION_AS_DAYS
 
     let addDays: string | null = get(ticketSetting, 'defaultDeadlineDuration', null)
     if (isWarranty) addDays = get(ticketSetting, 'warrantyDeadlineDuration', null)
-    if (isPaid) addDays = get(ticketSetting, 'paidDeadlineDuration', null)
+    if (isPayable) addDays = get(ticketSetting, 'paidDeadlineDuration', null)
     if (isEmergency) addDays = get(ticketSetting, 'emergencyDeadlineDuration', null)
 
     if (!isNull(addDays)) return convertDurationToDays(addDays)

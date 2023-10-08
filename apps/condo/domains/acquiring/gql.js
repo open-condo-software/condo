@@ -8,6 +8,8 @@ const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
+const { ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
 const ACQUIRING_INTEGRATION_FIELDS = `{ name setupUrl canGroupReceipts hostUrl supportedBillingIntegrationsGroup ${COMMON_FIELDS} }`
@@ -68,6 +70,12 @@ const RecurrentPaymentContext = generateGqlQueries('RecurrentPaymentContext', RE
 const RECURRENT_PAYMENT_FIELDS = `{ status tryCount state payAfter billingReceipts { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
 const RecurrentPayment = generateGqlQueries('RecurrentPayment', RECURRENT_PAYMENT_FIELDS)
 
+const PAYMENT_BY_LINK_MUTATION = gql`
+    mutation createPaymentByLink ($data: CreatePaymentByLinkInput!) {
+        result: createPaymentByLink(data: $data) { multiPaymentId amount explicitFee totalAmount address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } unitType unitName accountNumber period }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -91,5 +99,6 @@ module.exports = {
     SUM_PAYMENTS_QUERY,
     RecurrentPaymentContext,
     RecurrentPayment,
+    PAYMENT_BY_LINK_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

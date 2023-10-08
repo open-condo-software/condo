@@ -1,6 +1,8 @@
+import { OrganizationEmployeeRole } from '@app/condo/schema'
+import { Table } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useCallback, useMemo } from 'react'
+import { CSSProperties, useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
@@ -9,15 +11,34 @@ import { FiltersMeta, getFilterDropdownByKey } from '@condo/domains/common/utils
 import { getFilteredValue } from '@condo/domains/common/utils/helpers'
 import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { IFilters } from '@condo/domains/contact/utils/helpers'
-
 import {
     ASSIGNED_TICKET_VISIBILITY,
     ORGANIZATION_TICKET_VISIBILITY,
     PROPERTY_AND_SPECIALIZATION_VISIBILITY,
     PROPERTY_TICKET_VISIBILITY,
-} from '../constants/common'
+} from '@condo/domains/organization/constants/common'
 
-export function useEmployeeRolesTableColumns<T> (filterMetas: Array<FiltersMeta<T>>): Array<Record<string, unknown>> {
+
+export const GROUP_NAME_COLUMN_WIDTH = '20%'
+export const ROLE_COLUMN_STYLE: CSSProperties = { width: '100px' }
+
+export function useEmployeeRolesTableColumns (roles: OrganizationEmployeeRole[]): Array<Record<string, unknown>> {
+    return [
+        {
+            dataIndex: 'groupName',
+            width: GROUP_NAME_COLUMN_WIDTH,
+            key: 'groupName',
+        },
+        ...roles.map(role => ({
+            title: role.name,
+            key: role.id,
+            render: () => <div style={ROLE_COLUMN_STYLE} />,
+        })),
+        Table.EXPAND_COLUMN,
+    ]
+}
+
+export function useEmployeeRoleTicketVisibilityInfoTableColumns<T> (filterMetas: Array<FiltersMeta<T>>): Array<Record<string, unknown>> {
     const intl = useIntl()
     const NameMessage = intl.formatMessage({ id: 'field.Role' })
     const AvailableTicketsMessage = intl.formatMessage({ id: 'EmployeeRoles.availableTickets' })

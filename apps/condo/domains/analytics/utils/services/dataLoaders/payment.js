@@ -1,5 +1,5 @@
 const Big = require('big.js')
-const { get, pick } = require('lodash')
+const { get, pick, isEmpty } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 
@@ -18,13 +18,27 @@ class BillingResidentKnexLoader extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
+        const propertyIds = get(this.where, 'property.id_in', [])
 
-        this.result = await knex(this.domainName).select(['id', 'address', 'user']).where(this.where)
+        if (!isEmpty(propertyIds)) {
+            this.result = await knex(this.domainName)
+                .select(['id', 'address', 'user'])
+                .where(pick(this.where, ['organization', 'deletedAt']))
+                .whereIn('property', propertyIds)
+        } else {
+            this.result = await knex(this.domainName)
+                .select(['id', 'address', 'user'])
+                .where(this.where)
+        }
     }
 }
 
-const createBillingPropertyRange = async (organizationWhereInput) => {
-    const billingResidentLoader = new BillingResidentKnexLoader({ organization: get(organizationWhereInput, 'organization.id'), deletedAt: null })
+const createBillingPropertyRange = async (organizationWhereInput, propertyFilter = []) => {
+    const billingResidentLoader = new BillingResidentKnexLoader({
+        organization: get(organizationWhereInput, 'organization.id'),
+        deletedAt: null,
+        ...(!isEmpty(propertyFilter) && { property: { id_in: propertyFilter } }),
+    }, ['address', 'user'])
     await billingResidentLoader.loadData()
 
     return billingResidentLoader
@@ -43,38 +57,30 @@ class PaymentGqlKnexLoader extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
-            return Object.fromEntries(
-                Object.entries(condition).map(([field, query]) => (
-                    get(query, 'id') ? [field, query.id] : [field, query]
-                ))
-            )
-        })
-
-        this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
-            const [groupName] = Object.entries(currentFilter)[0]
-            const [filterEntities] = filter
-
-            if (!this.aggregateBy.includes(groupName)) {
-                this.aggregateBy.push(groupName)
-            }
-            filterEntities.push(groupName)
-        }, [[], []])
+        this.extendAggregationWithFilter(this.aggregateBy)
 
         const query = knex(this.domainName).count('id').sum('amount').select(this.groups)
         query.select(knex.raw('to_char("period", \'01.MM.YYYY\') as "dayGroup"'))
-        const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
         this.result = await query.groupBy(this.aggregateBy)
-            .where(knexWhere)
-            .whereIn(...this.whereIn)
+            .where(this.knexWhere)
+            .whereIn(...this.whereIn[0])
             .whereBetween('period', [this.dateRange.from, this.dateRange.to])
             .orderBy('dayGroup', 'asc')
     }
 }
 
 class PaymentDataLoader extends AbstractDataLoader {
-    async get ({ where, groupBy, totalFilter }) {
+    async get ({ where, groupBy, totalFilter, extraFilter }) {
+        const hasPropertyFilter = !isEmpty(extraFilter.propertyIds)
+        let paymentPropertyLabels = []
+
+        for (const group of groupBy) {
+            if (group === 'createdBy') {
+                paymentPropertyLabels = await createBillingPropertyRange(pick(where, ['organization']), extraFilter.propertyIds)
+            }
+        }
+
         const paymentSumLoader = new GqlWithKnexLoadList({
             listKey: 'Payment',
             fields: 'id',
@@ -83,6 +89,7 @@ class PaymentDataLoader extends AbstractDataLoader {
                 status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
                 deletedAt: null,
                 AND: totalFilter,
+                ...(hasPropertyFilter && { createdBy: { id_in: paymentPropertyLabels.map(({ value }) => value) } }),
             },
         })
 
@@ -98,24 +105,16 @@ class PaymentDataLoader extends AbstractDataLoader {
             ...searchResult,
         }))
 
-        for (const group of groupBy) {
-            let groupByLabels = []
-            switch (group) {
-                case 'createdBy':
-                    groupByLabels = await createBillingPropertyRange(pick(where, ['organization']))
-                    payments.forEach(payment => {
-                        const foundMapping = groupByLabels.find(e => e.value === payment[group])
-                        if (foundMapping) {
-                            payment[group] = foundMapping.label
-                        }
-                    })
-                    break
-                default:
-                    break
+        payments.forEach(payment => {
+            const foundMapping = paymentPropertyLabels.find(e => e.value === payment['createdBy'])
+            if (foundMapping) {
+                payment['createdBy'] = foundMapping.label
+            } else if (!isEmpty(extraFilter.propertyIds)) {
+                payment['createdBy'] = null
             }
-        }
+        })
 
-        return { sum, payments }
+        return { sum, payments: isEmpty(extraFilter.propertyIds) ? payments : payments.filter(payment => payment.createdBy !== null) }
     }
 }
 

@@ -5,7 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowAccessDeniedErrorToObjects } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
@@ -29,7 +29,7 @@ const {
     createTestB2BAppContext,
     createTestB2BAppAccessRight,
 } = require('@condo/domains/miniapp/utils/testSchema')
-const { registerNewOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { registerNewOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -41,6 +41,7 @@ describe('B2BAppPermission', () => {
     let admin
     let support
     let manager
+    let organization
     let serviceUser
     let anotherServiceUser
     let anonymous
@@ -61,6 +62,7 @@ describe('B2BAppPermission', () => {
         await createTestB2BAppAccessRight(support, anotherServiceUser.user, anotherApp)
 
         const [org] = await registerNewOrganization(manager)
+        organization = org
         await createTestB2BAppContext(manager, app, org)
     })
     describe('CRUD tests', () => {
@@ -188,9 +190,19 @@ describe('B2BAppPermission', () => {
                     expect(allPermissions).toHaveLength(0)
                 })
             })
-            test('No one in the organization can, including the administrator', async () => {
-                const allPermissions = await B2BAppPermission.getAll(manager, { id: permission.id })
-                expect(allPermissions).toHaveLength(0)
+            describe('Organization employee', () => {
+                test('Employee with canManageRoles can', async () => {
+                    const [readPermission] = await B2BAppPermission.getAll(manager, { id: permission.id })
+                    expect(readPermission).toHaveProperty('id')
+                })
+                test('Employee without canManageRoles cannot', async () => {
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageRoles: false })
+                    const clientWithoutCanManageRoles = await makeClientWithNewRegisteredAndLoggedInUser()
+                    await createTestOrganizationEmployee(admin, organization, clientWithoutCanManageRoles.user, role, { isAccepted: true })
+
+                    const availablePermissions = await B2BAppPermission.getAll(clientWithoutCanManageRoles, { id: permission.id })
+                    expect(availablePermissions).toHaveLength(0)
+                })
             })
             test('Anonymous cannot read anything', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {

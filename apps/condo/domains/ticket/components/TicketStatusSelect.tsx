@@ -62,6 +62,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     const { getSuccessfulChangeNotification } = useNotificationMessages()
 
     const { statuses, loading } = useStatusTransitions(get(ticket, ['status', 'id']), organization, employee)
+    const canManageTickets = useMemo(() => get(employee, ['role', 'canManageTickets'], false), [employee])
     const [isUpdating, setUpdating] = useState(false)
     const handleUpdate = useCallback(() => {
         if (isFunction(onUpdate)) onUpdate()
@@ -127,7 +128,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
     )
 
     const isLoading = loading || isUpdating
-    const isDisabled = isEmpty(statuses) || isLoading
+    const isDisabled = isEmpty(statuses) || isLoading || !canManageTickets
 
     return (
         <>

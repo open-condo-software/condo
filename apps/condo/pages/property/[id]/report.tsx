@@ -238,7 +238,7 @@ const PropertyReport: IPropertyReport = ({ bankAccount, propertyId, role }) => {
     const CategoryCheckboxTitle = intl.formatMessage({ id: 'pages.banking.categoryNotSet' })
     const UploadFileTitle = intl.formatMessage({ id: 'pages.banking.uploadTransactionsFile' })
     const EditTitle = intl.formatMessage({ id: 'Edit' })
-    const CancelSelectionTitle = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
+    const CancelSelectionTitle = intl.formatMessage({ id: 'global.cancelSelection' })
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const SyncSbbolTransactions = intl.formatMessage({ id: 'pages.banking.report.sbbolSyncTitle' })
 

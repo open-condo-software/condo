@@ -7,6 +7,7 @@ import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { MinusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Radio, Space } from '@open-condo/ui'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
@@ -20,7 +21,7 @@ import { CONTACT_TYPE, ContactValue, FieldsType } from './index'
 
 
 interface INewContactFieldsFieldsProps {
-    initialValue?: TContact,
+    initialValueWithoutContact?: TContact,
     onChange: (contact: ContactValue) => void,
     onChecked?: () => void,
     checked?: boolean,
@@ -57,6 +58,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     activeTab,
     contactsLoading,
     unitName,
+    initialValueWithoutContact,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
@@ -64,11 +66,14 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
 
-    const [value, setValue] = useState({})
+    const [value, setValue] = useState(initialValueWithoutContact)
     const [contactWithSamePhoneExistError, setContactWithSamePhoneExistError] = useState<boolean>(false)
 
     const { phoneValidator } = useValidations({ allowLandLine: true })
     const { breakpoints } = useLayoutContext()
+
+    const { link } = useOrganization()
+    const canManageContacts = get(link, ['role', 'canManageContacts'], false)
 
     const handleChangeContact = (field) => (fieldValue) => {
         const newValue = {
@@ -119,6 +124,10 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
 
     const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
+
+    if (!canManageContacts) {
+        return null
+    }
 
     return (
         <Col span={24}>

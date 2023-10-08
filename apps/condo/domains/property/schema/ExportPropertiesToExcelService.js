@@ -18,8 +18,6 @@ const access = require('@condo/domains/property/access/ExportPropertiesToExcelSe
 const { Property: PropertyAPI } = require('@condo/domains/property/utils/serverSchema')
 
 
-
-
 const ERRORS = {
     NOTHING_TO_EXPORT: {
         query: 'exportPropertiesToExcel',

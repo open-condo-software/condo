@@ -76,7 +76,7 @@ const isAutoCloseTicketChanges = (ticketChange) =>
     isNull(ticketChange.createdBy)
     && ticketChange['statusIdTo'] === STATUS_IDS.CLOSED
 
-type TicketType = 'emergency' | 'paid' | 'warranty'
+type TicketType = 'emergency' | 'warranty' | 'payable'
 
 const formatTicketFlag = (value, ticketType: TicketType) => {
     return (
@@ -133,7 +133,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
     const QualityControlCommentMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlComment' })
     const QualityControlAdditionalOptionsMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.qualityControlAdditionalOptions' })
 
-    const IsPaidMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
+    const IsPayableMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsEmergencyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
     const IsWarrantyMessage = intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.ticketType' })
 
@@ -172,7 +172,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
         ['clientPhone', ClientPhoneMessage],
         ['details', DetailsMessage],
         ['clientName', ClientNameMessage],
-        ['isPaid', IsPaidMessage],
+        ['isPayable', IsPayableMessage],
         ['isEmergency', IsEmergencyMessage],
         ['isWarranty', IsWarrantyMessage],
         ['statusDisplayName', StatusDisplayNameMessage],
@@ -197,9 +197,9 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
             'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.true' }),
             'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.canReadByResident.false' }),
         },
-        isPaid: {
-            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.true' }),
-            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPaid.false' }),
+        isPayable: {
+            'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPayable.true' }),
+            'false': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isPayable.false' }),
         },
         isEmergency: {
             'true': intl.formatMessage({ id: 'pages.condo.ticket.TicketChanges.isEmergency.true' }),
@@ -274,7 +274,7 @@ export const useTicketChangedFieldMessagesOf: UseTicketChangedFieldMessagesOfTyp
                 return <Typography.Text>«{value}»</Typography.Text>
             },
             isEmergency: (field, value) => formatTicketFlag(value, 'emergency'),
-            isPaid: (field, value) => formatTicketFlag(value, 'paid'),
+            isPayable: (field, value) => formatTicketFlag(value, 'payable'),
             isWarranty: (field, value) => formatTicketFlag(value, 'warranty'),
             clientName: (field, value, type: TicketChangeFieldMessageType) => addLink(ticketChange, 'contactId', value,  type,  '/contact/{id}'),
             feedbackValue: (field, value) => {

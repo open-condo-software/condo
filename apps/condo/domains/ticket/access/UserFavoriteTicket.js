@@ -21,8 +21,8 @@ async function canReadUserFavoriteTickets ({ authentication: { item: user } }) {
         user: { id: user.id },
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
             ],
         },
     }
@@ -47,6 +47,7 @@ async function canManageUserFavoriteTickets ({ authentication: { item: user }, o
             organization: {
                 id: organizationId,
             },
+            role: { canReadTickets: true },
             user: { id: user.id },
             deletedAt: null,
         })
@@ -56,7 +57,7 @@ async function canManageUserFavoriteTickets ({ authentication: { item: user }, o
         }
 
         const organizationLinks = await find('OrganizationLink', {
-            from: queryOrganizationEmployeeFor(user.id),
+            from: queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
             to: { id: organizationId },
             deletedAt: null,
         })

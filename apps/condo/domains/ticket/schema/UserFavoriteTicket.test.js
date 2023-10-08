@@ -51,6 +51,15 @@ describe('UserFavoriteTicket', () => {
     })
 
     describe('Read', () => {
+        test('can read if it is employee UserFavoriteTicket and employee has canReadTickets', async () => {
+            const [ticket] = await createTestTicket(clientWithProperty1, clientWithProperty1.organization, clientWithProperty1.property)
+            const [userFavoriteTicket] = await createTestUserFavoriteTicket(clientWithProperty1, clientWithProperty1.user, ticket)
+
+            const readUserFavoriteTicket = await UserFavoriteTicket.getOne(clientWithProperty1, { id: userFavoriteTicket.id })
+
+            expect(readUserFavoriteTicket).toBeDefined()
+        })
+
         test('cannot read not his own UserFavoriteTicket', async () => {
             const [ticket] = await createTestTicket(clientWithProperty1, clientWithProperty1.organization, clientWithProperty1.property)
             const [userFavoriteTicket] = await createTestUserFavoriteTicket(clientWithProperty1, clientWithProperty1.user, ticket)

@@ -23,7 +23,7 @@ import { DeleteButtonWithConfirmModal } from '@condo/domains/common/components/D
 import { FieldPairRow as BaseFieldPairRow, FieldPairRowProps } from '@condo/domains/common/components/FieldPairRow'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { EmployeeInviteRetryButton } from '@condo/domains/organization/components/EmployeeInviteRetryButton'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import { NotDefinedField } from '@condo/domains/user/components/NotDefinedField'
@@ -321,6 +321,6 @@ export const EmployeeInfoPage = () => {
     )
 }
 
-EmployeeInfoPage.requiredAccess = OrganizationRequired
+EmployeeInfoPage.requiredAccess = EmployeesReadPermissionRequired
 
 export default EmployeeInfoPage

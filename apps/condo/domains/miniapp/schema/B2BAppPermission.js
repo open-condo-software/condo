@@ -36,7 +36,7 @@ const B2BAppPermission = new GQLListSchema('B2BAppPermission', {
         'and allow the organization administration to manage accesses within the miniapp ' +
         'depending on the employee\'s role ' +
         'by toggling the B2BAppPermissions of a particular application for each role. ' +
-        'By default, for all employees with "canManageIntegrations" in their role, all permissions will be set to True. ' +
+        'By default, for all employees with "canManageB2BApps" in their role, all permissions will be set to True. ' +
         'For all other roles with access to the application the default value is False.',
     fields: {
         app: {

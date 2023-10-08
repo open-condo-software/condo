@@ -4,20 +4,33 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canReadB2CAppAccessRights ({ authentication: { item: user } }) {
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+
+/**
+ * B2CAppAccessRights can be read by:
+ * 1. Admin / support
+ * 2. Users with direct access
+ */
+async function canReadB2CAppAccessRights ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin || user.isSupport) return {}
 
-    return false
+    return await canDirectlyReadSchemaObjects(user, listKey)
 }
 
-async function canManageB2CAppAccessRights ({ authentication: { item: user } }) {
+/**
+ * B2CAppAccessRights can be managed by:
+ * 1. Admin / support
+ * 2. Users with direct access
+ */
+async function canManageB2CAppAccessRights ({ authentication: { item: user }, listKey, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
 
-    return !!(user.isSupport || user.isAdmin)
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 /*

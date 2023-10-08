@@ -31,7 +31,7 @@ export const getTicketAttributesFilter: AttributesFilterGetterType = (dataIndice
                         AND: [{
                             'isWarranty': false,
                             'isEmergency': false,
-                            'isPaid': false,
+                            'isPayable': false,
                         }],
                     }
                 }

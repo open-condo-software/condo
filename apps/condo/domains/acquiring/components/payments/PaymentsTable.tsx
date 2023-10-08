@@ -186,7 +186,15 @@ const PaymentsTableContent: React.FC = (): JSX.Element => {
         MultipleFiltersModal,
         ResetFiltersModalButton,
         setIsMultipleFiltersModalVisible,
-    } = useMultipleFiltersModal(queryMetas, PaymentsFilterTemplate, handleResetSearch)
+    } = useMultipleFiltersModal(
+        queryMetas,
+        PaymentsFilterTemplate,
+        handleResetSearch,
+        null,
+        null,
+        [],
+        { tab: 'payments' },
+    )
 
     return (
         <>

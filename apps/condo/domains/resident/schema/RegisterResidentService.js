@@ -3,10 +3,10 @@
  */
 const { get, omit } = require('lodash')
 
-const { getLogger } = require('@open-condo/keystone/logging')
 const {
     createInstance: createAddressServiceClientInstance,
-} = require('@open-condo/keystone/plugins/utils/address-service-client')
+} = require('@open-condo/clients/address-service-client')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')

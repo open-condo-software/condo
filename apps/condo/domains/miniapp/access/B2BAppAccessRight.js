@@ -4,21 +4,34 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
-async function canReadB2BAppAccessRights ({ authentication: { item: user } }) {
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+
+/**
+ * B2BAppAccessRights can be read by
+ * 1. Admin / support
+ * 2. Users with direct access
+ */
+async function canReadB2BAppAccessRights ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
 
     // TODO(DOMA-6766): Add the ability to read the permissions of B2BApp for employees whose role has the flag "canManageIntegrations"
-    return false
+    return await canDirectlyReadSchemaObjects(user, listKey)
 }
 
-async function canManageB2BAppAccessRights ({ authentication: { item: user } }) {
+/**
+ * B2BAppAccessRights can be managed by
+ * 1. Admin / support
+ * 2. Users with direct access
+ */
+async function canManageB2BAppAccessRights ({ authentication: { item: user }, listKey, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isSupport || user.isAdmin) return true
 
-    return !!(user.isSupport || user.isAdmin)
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 /*

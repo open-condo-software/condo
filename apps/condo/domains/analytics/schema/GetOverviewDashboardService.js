@@ -3,7 +3,9 @@
  */
 
 const dayjs = require('dayjs')
+const { get, isEmpty } = require('lodash')
 
+const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
 const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
@@ -11,13 +13,17 @@ const { i18n } = require('@open-condo/locales/loader')
 const { PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const access = require('@condo/domains/analytics/access/GetOverviewDashboardService')
 const { AnalyticsDataProvider } = require('@condo/domains/analytics/utils/services/AnalyticsDataProvider')
+const { IncidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/incident')
 const { PaymentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/payment')
+const { PropertyDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/property')
 const { ReceiptDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/receipt')
 const { ResidentDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/resident')
-const { TicketDataLoader } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
+const {
+    TicketDataLoader,
+    TicketQualityControlDataLoader,
+} = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
 const { OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
-const { ANALYTICS_V3 } = require('@condo/domains/organization/constants/features')
-const { Organization } = require('@condo/domains/organization/utils/serverSchema')
+const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 
 const ERRORS = {
     FEATURE_IS_DISABLED: {
@@ -44,15 +50,23 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'input GetOverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String! }',
+            type: 'input GetOverviewDashboardWhereInput { organization: String!, dateFrom: String!, dateTo: String!, propertyIds: [ID], executorIds: [ID] }',
         },
         {
             access: true,
-            type: 'input GetOverviewDashboardInput { dv: Int!, sender: JSON!, where: GetOverviewDashboardWhereInput!, groupBy: GetOverviewDashboardGroupByInput! }',
+            type: 'enum OverviewDashboardEntities { ticketByDay, ticketByProperty, ticketByCategory, ticketByExecutor, ticketQualityControlValue, payment, receipt, resident, property, incident }',
         },
         {
             access: true,
-            type: 'type TicketOverviewResult { tickets: [TicketGroupedCounter!] }',
+            type: 'input GetOverviewDashboardInput { dv: Int!, sender: JSON!, where: GetOverviewDashboardWhereInput!, groupBy: GetOverviewDashboardGroupByInput!, entities: [OverviewDashboardEntities] }',
+        },
+        {
+            access: true,
+            type: 'type TicketOverviewTranslations { key: String!, value: String! }',
+        },
+        {
+            access: true,
+            type: 'type TicketOverviewResult { tickets: [TicketGroupedCounter!], translations: [TicketOverviewTranslations] }',
         },
         {
             access: true,
@@ -80,7 +94,15 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         },
         {
             access: true,
-            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult }',
+            type: 'type PropertyOverviewResult { sum: String! }',
+        },
+        {
+            access: true,
+            type: 'type IncidentOverviewResult { count: String! }',
+        },
+        {
+            access: true,
+            type: 'type OverviewData { ticketByProperty: TicketOverviewResult, ticketByDay: TicketOverviewResult, ticketByCategory: TicketOverviewResult, ticketByExecutor: TicketOverviewResult, ticketQualityControlValue: TicketOverviewResult, payment: PaymentOverviewResult, receipt: ReceiptOverviewResult, resident: ResidentOverviewResult, property: PropertyOverviewResult, incident: IncidentOverviewResult }',
         },
         {
             access: true,
@@ -92,12 +114,14 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
         {
             access: access.canGetOverviewDashboard,
             schema: 'getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput',
-            resolver: async (parent, args, context, info, extra = {}) => {
-                const { data: { where, groupBy } } = args
+            resolver: async (parent, args, context) => {
+                const { data: { where, groupBy, entities = [] } } = args
 
-                const organization = await Organization.getOne(context, { id: where.organization })
+                const hasFeature = await featureToggleManager.getFeatureValue(context, ANALYTICS_V3, false, {
+                    organization: where.organization,
+                })
 
-                if (!organization.features.includes(ANALYTICS_V3)) {
+                if (!hasFeature) {
                     throw new GQLError(ERRORS.FEATURE_IS_DISABLED, context)
                 }
 
@@ -113,7 +137,13 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                         { createdAt_lte: where.dateTo },
                     ],
                 }
-                const ticketWhereFilter = { organization: { id: where.organization }, ...dateFilter, deletedAt: null }
+                const ticketWhereFilter = {
+                    organization: { id: where.organization },
+                    ...dateFilter,
+                    deletedAt: null,
+                    ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
+                    ...(get(where, 'executorIds.length', 0) > 0 && { executor: { id_in: where.executorIds } }),
+                }
 
                 const dataProvider = new AnalyticsDataProvider({
                     entities: {
@@ -153,6 +183,22 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                             },
                             remappingOptions: TICKET_REMAPPING_OPTIONS,
                         },
+                        ticketQualityControlValue: {
+                            provider: new TicketQualityControlDataLoader({ context }),
+                            queryOptions: {
+                                where: ticketWhereFilter,
+                                groupBy: [groupBy.aggregatePeriod, 'qualityControlComputedValue'],
+                            },
+                        },
+                        property: {
+                            provider: new PropertyDataLoader({ context }),
+                            queryOptions: {
+                                where: {
+                                    organization: { id: where.organization },
+                                    ...(get(where, 'propertyIds.length', 0) > 0 && { id_in: where.propertyIds }),
+                                },
+                            },
+                        },
                         payment: {
                             provider: new PaymentDataLoader({ context }),
                             queryOptions: {
@@ -170,6 +216,9 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                     { advancedAt_gte: dayjs(where.dateFrom).startOf('day').toISOString() },
                                     { advancedAt_lte: dayjs(where.dateTo).endOf('day').toISOString() },
                                 ],
+                                extraFilter: {
+                                    propertyIds: where.propertyIds,
+                                },
                             },
                         },
                         receipt: {
@@ -192,14 +241,25 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
                                 where: {
                                     organization: { id: where.organization },
                                     deletedAt: null,
+                                    ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
                                 },
                                 groupBy: ['address'],
+                            },
+                        },
+                        incident: {
+                            provider: new IncidentDataLoader({ context }),
+                            queryOptions: {
+                                where: {
+                                    organization: { id: where.organization },
+                                    deletedAt: null,
+                                    ...(get(where, 'propertyIds.length', 0) > 0 && { property: { id_in: where.propertyIds } }),
+                                },
                             },
                         },
                     },
                 })
 
-                const overview = await dataProvider.loadAll()
+                const overview = isEmpty(entities) ? await dataProvider.loadAll() : await dataProvider.loadSelected(entities)
 
                 return { overview }
             },

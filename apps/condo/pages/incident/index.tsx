@@ -33,8 +33,8 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { Property } from '@condo/domains/property/utils/clientSchema'
+import { IncidentReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { INCIDENT_STATUS_ACTUAL, INCIDENT_STATUS_NOT_ACTUAL } from '@condo/domains/ticket/constants/incident'
 import { useBooleanAttributesSearch } from '@condo/domains/ticket/hooks/useBooleanAttributesSearch'
 import { useIncidentExportToExcelTask } from '@condo/domains/ticket/hooks/useIncidentExportToExcelTask'
@@ -271,6 +271,7 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
     const { useTableColumns, filterMetas, baseQuery } = props
 
     const { user } = useAuth() as { user: { id: string } }
+    const { link } = useOrganization()
     const router = useRouter()
 
     const { incidentsLoading, incidents, count, sortBy, where } = useIncidentsSearch({ baseQuery, filterMetas })
@@ -310,6 +311,8 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
         </Col>
     ), [count, incidents, columns, loading, handleRowAction])
 
+    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
+
     return (
         <>
             {IncidentsTable}
@@ -318,14 +321,16 @@ const TableContainer: React.FC<TableContainerProps> = (props) => {
                     <Col span={24}>
                         <ActionBar
                             actions={[
-                                <Button
-                                    key='create'
-                                    type='primary'
-                                    children={AddNewIncidentLabel}
-                                    onClick={handleAddNewIncident}
-                                    id='createIncident'
-                                    icon={<PlusCircle size='medium' />}
-                                />,
+                                canManageIncidents && (
+                                    <Button
+                                        key='create'
+                                        type='primary'
+                                        children={AddNewIncidentLabel}
+                                        onClick={handleAddNewIncident}
+                                        id='createIncident'
+                                        icon={<PlusCircle size='medium' />}
+                                    />
+                                ),
                                 Boolean(count) && <ExportButton key='export' id='exportToExcelIncidents' />,
                             ]}
                         />
@@ -341,6 +346,9 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
     const PageTitle = intl.formatMessage({  id: 'incident.index.title' })
     const EmptyListLabel = intl.formatMessage({  id: 'incident.index.emptyList.label' })
     const CreateIncidentLabel = intl.formatMessage({  id: 'incident.index.createIncident.label' })
+
+    const { link } = useOrganization()
+    const canManageIncidents = useMemo(() => get(link, ['role', 'canManageIncidents'], false), [link])
 
     const { filterMetas, useTableColumns, baseQuery, baseQueryLoading = false } = props
 
@@ -362,6 +370,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
                     label={EmptyListLabel}
                     createRoute='/incident/create'
                     createLabel={CreateIncidentLabel}
+                    accessCheck={canManageIncidents}
                 />
             )
         }
@@ -376,7 +385,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
                 />
             </Row>
         )
-    }, [baseQueryLoading, incidentTotalLoading, incidentTotal, filterMetas, useTableColumns, baseQuery, EmptyListLabel, CreateIncidentLabel])
+    }, [baseQueryLoading, incidentTotalLoading, incidentTotal, filterMetas, useTableColumns, baseQuery, EmptyListLabel, CreateIncidentLabel, canManageIncidents])
 
     return (
         <>
@@ -394,7 +403,7 @@ export const IncidentsPageContent: React.FC<IncidentsPageContentProps> = (props)
     )
 }
 
-const IncidentsPage: IIncidentIndexPage = () => {
+const IncidentsPage: IIncidentIndexPage = (props) => {
     const filterMetas = useIncidentTableFilters()
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id')
@@ -409,6 +418,6 @@ const IncidentsPage: IIncidentIndexPage = () => {
     )
 }
 
-IncidentsPage.requiredAccess = OrganizationRequired
+IncidentsPage.requiredAccess = IncidentReadPermissionRequired
 
 export default IncidentsPage

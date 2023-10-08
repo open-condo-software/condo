@@ -2,7 +2,7 @@ const fs = require('fs')
 
 const { stringify } = require('csv-stringify')
 const dayjs = require('dayjs')
-const Upload = require('graphql-upload/public/Upload')
+const Upload = require('graphql-upload/Upload.js')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')

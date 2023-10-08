@@ -2,7 +2,7 @@ import { TicketGroupedCounter } from '@app/condo/schema'
 import { TableColumnsType, TableProps } from 'antd'
 
 import BaseChart, { IGetBaseChartConfig, IGetBaseTableConfig } from '@condo/domains/common/components/BaseChart'
-export type TicketSelectTypes = 'all' | 'default' | 'paid' | 'emergency' | 'warranty'
+export type TicketSelectTypes = 'all' | 'default' | 'payable' | 'emergency' | 'warranty'
 export type ViewModeTypes = 'bar' | 'line' | 'pie'
 
 export type AnalyticsDataType = Record<string, Record<string, number>>

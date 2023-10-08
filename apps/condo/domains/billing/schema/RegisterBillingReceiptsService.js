@@ -3,12 +3,14 @@
  */
 
 const Big = require('big.js')
-const { get, omit, isEqual } = require('lodash')
+const dayjs = require('dayjs')
+const { get, omit, isEqual, isString } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
+const { CategoryResolver } = require('@condo/domains/billing/schema/helpers/categoryResolver')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
@@ -292,7 +294,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'month: Int! ' +
                     'year: Int! ' +
 
-                    'category: BillingCategoryWhereUniqueInput! ' +
+                    'category: BillingCategoryWhereUniqueInput ' +
 
                     'tin: String! ' +
                     'routingNumber: String! ' +
@@ -316,9 +318,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
-
                 const partialErrors = []
-                const knownCategories = []
 
                 // Step 0:
                 // Perform basic validations:
@@ -334,13 +334,16 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 1:
                 // Parse properties, accounts and receipts from input
+                const categoryResolver = new CategoryResolver()
+                await categoryResolver.loadCategories(context)
+
                 const propertyIndex = {}
                 const accountIndex = {}
                 const receiptIndex = {}
 
                 for (let i = 0; i < receiptsInput.length; ++i) {
 
-                    const { importId, address, accountNumber, unitName, unitType, category, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
+                    const { importId, address, accountNumber, unitName, unitType, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
                     const { tin, tinMeta, routingNumber, bankAccount } = receiptsInput[i]
 
                     // Todo: (DOMA-2225) migrate it to address service
@@ -359,7 +362,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         partialErrors.push(new GQLError({ ...ERRORS.WRONG_YEAR, inputIndex: i }, context))
                         continue
                     }
-                    const period = (month < 10) ? `${year}-0${month}-01` : `${year}-${month}-01`
+
+                    const period = dayjs().year(year).month(month - 1).format('YYYY-MM-01')
 
                     // Validate address field
                     if (address === '') {
@@ -373,15 +377,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             continue
                         }
                         normalizedAddress = normalizedAddressFromSuggestions
-                    }
-
-                    // Validate category field
-                    if (!knownCategories.includes(category.id)) {
-                        if (!(await getById('BillingCategory', category.id))) {
-                            partialErrors.push(new GQLError({ ...ERRORS.BILLING_CATEGORY_NOT_FOUND, inputIndex: i }, context))
-                            continue
-                        }
-                        knownCategories.push(category.id)
                     }
 
                     // TODO (DOMA-4077) When address service is here -> use normalized address to compare properties
@@ -417,6 +412,19 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             raw: { dv: 1 },
                             meta: { dv: 1 },
                         }
+                    }
+
+                    // detect billing category by input
+                    const {
+                        error: detectCategoryErrorKey,
+                        categoryId,
+                    } = categoryResolver.detectCategory(receiptsInput[i])
+                    const category = { id: categoryId }
+
+                    // validate category detection
+                    if (isString(detectCategoryErrorKey)) {
+                        partialErrors.push(new GQLError({ ...ERRORS[detectCategoryErrorKey], inputIndex: i }, context))
+                        continue
                     }
 
                     const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }

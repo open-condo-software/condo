@@ -4,7 +4,7 @@
 const get = require('lodash/get')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById } = require('@open-condo/keystone/schema')
+const { getById, find } = require('@open-condo/keystone/schema')
 
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
@@ -17,13 +17,33 @@ async function canReadOrganizationEmployeeRoles ({ authentication: { item: user 
 
     if (user.isSupport || user.isAdmin) return {}
 
-    return {
+    const userEmployees = await find('OrganizationEmployee', {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
             ],
         },
+    })
+
+    return {
+        OR:[
+            {
+                id_in: userEmployees.map(employee => employee.role),
+            },
+            {
+                AND: [
+                    {
+                        organization: {
+                            OR: [
+                                queryOrganizationEmployeeFor(user.id, 'canReadEmployees'),
+                                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadEmployees'),
+                            ],
+                        },
+                    },
+                ],
+            },
+        ],
     }
 }
 

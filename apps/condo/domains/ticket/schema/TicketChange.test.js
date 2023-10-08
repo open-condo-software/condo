@@ -4,7 +4,6 @@
 
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { sortBy } = require('lodash')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -53,7 +52,7 @@ describe('TicketChange', () => {
                     floorName: faker.lorem.word(),
                     unitName: faker.lorem.word(),
                     isEmergency: true,
-                    isPaid: true,
+                    isPayable: true,
                     isWarranty: true,
                     status: { connect: { id: openedStatus.id } },
                     client: { connect: { id: client.user.id } },
@@ -78,7 +77,7 @@ describe('TicketChange', () => {
                     unitName: faker.lorem.word(),
                     isEmergency: false,
                     isWarranty: false,
-                    isPaid: false,
+                    isPayable: false,
                     property: { connect: { id: client2.property.id } },
                     status: { connect: { id: inProgressStatus.id } },
                     client: { connect: { id: client2.user.id } },
@@ -112,8 +111,8 @@ describe('TicketChange', () => {
                 expect(ticket1.isEmergencyTo).toEqual(payload.isEmergency)
                 expect(ticket1.isWarrantyFrom).toEqual(ticket.isWarranty)
                 expect(ticket1.isWarrantyTo).toEqual(payload.isWarranty)
-                expect(ticket1.isPaidFrom).toEqual(ticket.isPaid)
-                expect(ticket1.isPaidTo).toEqual(payload.isPaid)
+                expect(ticket1.isPayableFrom).toEqual(ticket.isPayable)
+                expect(ticket1.isPayableTo).toEqual(payload.isPayable)
                 expect(ticket1.sectionNameFrom).toEqual(ticket.sectionName)
                 expect(ticket1.sectionNameTo).toEqual(payload.sectionName)
                 expect(ticket1.floorNameFrom).toEqual(ticket.floorName)
@@ -228,9 +227,14 @@ describe('TicketChange', () => {
         })
 
         describe('user: read TicketChange', () => {
-            it('only belonging to organization, it employed in', async () => {
-                const client = await makeClientWithProperty()
-                const [ticket] = await createTestTicket(admin, client.organization, client.property)
+            it('can read ticket change if user is organization employee with canReadTickets permission', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [ticket] = await createTestTicket(admin, organization, property)
 
                 const payload = {
                     details: faker.lorem.sentence(),
@@ -244,6 +248,28 @@ describe('TicketChange', () => {
 
                 expect(objs).toHaveLength(1)
                 expect(objs[0].ticket.id).toEqual(ticket.id)
+            })
+
+            it('can not read ticket change if user is organization employee without canReadTickets permission', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: false })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [ticket] = await createTestTicket(admin, organization, property)
+
+                const payload = {
+                    details: faker.lorem.sentence(),
+                }
+
+                await updateTestTicket(admin, ticket.id, payload)
+
+                const objs = await TicketChange.getAll(client, {
+                    ticket: { id: ticket.id },
+                })
+
+                expect(objs).toHaveLength(0)
             })
         })
 
@@ -400,7 +426,7 @@ describe('TicketChange', () => {
             })
 
             it('ticket changed by related from organization employee', async () => {
-                const { clientFrom, organizationTo, propertyTo, role } = await createTestOrganizationWithAccessToAnotherOrganization({
+                const { clientFrom, organizationTo, propertyTo, roleFrom } = await createTestOrganizationWithAccessToAnotherOrganization({
                     roleExtraAttrs: { canManageTickets: true },
                 })
                 const [ticket] = await createTestTicket(clientFrom, organizationTo, propertyTo)
@@ -412,7 +438,7 @@ describe('TicketChange', () => {
                 const obj = await TicketChange.getOne(clientFrom, {
                     ticket: { id: ticket.id },
                 })
-                expect(obj.changedByRole).toEqual(i18n(role.name))
+                expect(obj.changedByRole).toEqual(i18n(roleFrom.name))
             })
 
             it('ticket changed by deleted organization employee', async () => {
@@ -442,10 +468,11 @@ describe('TicketChange', () => {
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
 
                 const [organizationFrom] = await createTestOrganization(admin, { type: HOLDING_TYPE })
-                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, { canManageTickets: true })
-                await createTestOrganizationEmployee(admin, organizationFrom, client.user, role)
+                const [roleFrom] = await createTestOrganizationEmployeeRole(admin, organizationFrom, { canManageTickets: true })
+                await createTestOrganizationEmployee(admin, organizationFrom, client.user, roleFrom)
 
                 const [organization] = await createTestOrganization(admin)
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canManageTickets: true })
                 const [property] = await createTestProperty(admin, organization)
                 const [employee] = await createTestOrganizationEmployee(admin, organization, client.user, role)
 
@@ -464,7 +491,7 @@ describe('TicketChange', () => {
                 const obj = await TicketChange.getOne(admin, {
                     ticket: { id: ticket.id },
                 })
-                expect(obj.changedByRole).toEqual(i18n(role.name))
+                expect(obj.changedByRole).toEqual(i18n(roleFrom.name))
             })
 
             it('ticket changed by user with deleted related from organization employee and existing organization employee', async () => {

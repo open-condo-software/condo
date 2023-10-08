@@ -25,13 +25,6 @@ class ReceiptGqlKnexLoader extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
-            return Object.fromEntries(
-                Object.entries(condition).map(([field, query]) => (
-                    get(query, 'id') ? [field, query.id] : [field, query]
-                ))
-            )
-        })
         this.whereIn = {}
 
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
@@ -50,10 +43,9 @@ class ReceiptGqlKnexLoader extends GqlToKnexBaseAdapter {
 
         const query = knex(this.domainName).count('id').sum('charge').select(this.groups)
         query.select(knex.raw('to_char("period", \'01.MM.YYYY\') as "dayGroup"'))
-        const knexWhere = where.reduce((acc, curr) => ({ ...acc, ...curr }), {})
 
         this.result = await query.groupBy(this.aggregateBy)
-            .where(knexWhere)
+            .where(this.knexWhere)
             .whereNotNull('charge')
             .whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])
             .whereBetween('period', [this.dateRange.from, this.dateRange.to])
@@ -81,6 +73,7 @@ class ReceiptDataLoader extends AbstractDataLoader {
                 ],
                 charge_not: null,
                 ...billingReceiptContextWhereFilter,
+                deletedAt: null,
             },
         })
 
