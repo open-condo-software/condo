@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [ "16.10" ]
+        node-version: [ "16.x" ]
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
