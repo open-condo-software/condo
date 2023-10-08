@@ -125,6 +125,7 @@
     "antd": "^4.24.12",
     "classnames": "^2.3.2",
     "react-markdown": "^6",
+    "react-phone-input-2": "^2.15.1",
     "remark-gfm": "^1"
   }
 }

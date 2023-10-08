@@ -43,10 +43,6 @@ const Address = new GQLListSchema('Address', {
             adminDoc: `This is a JSON object that must look like {"field":"value", "someField.nestedField": "value2"}. Will use to override ${OVERRIDING_ROOT}`,
             type: Json,
             isRequired: false,
-            access: {
-                create: access.canManageOverrides,
-                update: access.canManageOverrides,
-            },
             hooks: {
                 validateInput: async (data) => {
                     const { resolvedData, addFieldValidationError, existingItem, fieldPath } = data

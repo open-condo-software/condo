@@ -5,6 +5,7 @@
 const { Text, Checkbox, Password, File, Select, Virtual } = require('@keystonejs/fields')
 const { get, isEmpty, isUndefined, isNull } = require('lodash')
 
+const userAccess = require('@open-condo/keystone/access')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
@@ -231,6 +232,22 @@ const User = new GQLListSchema('User', {
             type: 'Checkbox',
             defaultValue: true,
             isRequired: true,
+        },
+
+        rightsSet: {
+            schemaDoc:
+                'A set of permissions that allow the user to directly read or manage certain schemas ' +
+                'as well as run certain mutations.',
+            type: 'Relationship',
+            isRequired: false,
+            ref: 'UserRightsSet',
+            knexOptions: { isNotNullable: false }, // Required relationship only!
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+            access: {
+                read: true,
+                create: userAccess.userIsAdminOrIsSupport,
+                update: userAccess.userIsAdminOrIsSupport,
+            },
         },
     },
     kmigratorOptions: {

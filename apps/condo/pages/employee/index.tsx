@@ -22,7 +22,7 @@ import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersFromQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { EmployeesReadPermissionRequired } from '@condo/domains/organization/components/PageAccess'
 import { useTableColumns } from '@condo/domains/organization/hooks/useTableColumns'
 import { useTableFilters } from '@condo/domains/organization/hooks/useTableFilters'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -80,7 +80,9 @@ export const EmployeesPageContent = ({
                                 label={EmptyListLabel}
                                 message={EmptyListMessage}
                                 createRoute={ADD_EMPLOYEE_ROUTE}
-                                createLabel={AddEmployeeLabel}/>
+                                createLabel={AddEmployeeLabel}
+                                accessCheck={canManageEmployee}
+                            />
                             : <Row gutter={[0, 40]} align='middle'>
                                 <Col span={24}>
                                     <TableFiltersContainer>
@@ -173,6 +175,6 @@ const EmployeesPage = () => {
     )
 }
 
-EmployeesPage.requiredAccess = OrganizationRequired
+EmployeesPage.requiredAccess = EmployeesReadPermissionRequired
 
 export default EmployeesPage

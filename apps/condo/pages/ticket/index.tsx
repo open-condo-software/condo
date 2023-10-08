@@ -36,7 +36,6 @@ import Input from '@condo/domains/common/components/antd/Input'
 import { Button as CommonButton } from '@condo/domains/common/components/Button'
 import { PageHeader, PageWrapper, useLayoutContext } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
-import { hasFeature } from '@condo/domains/common/components/containers/FeatureFlag'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { ImportWrapper } from '@condo/domains/common/components/Import/Index'
@@ -46,10 +45,9 @@ import { TableFiltersContainer } from '@condo/domains/common/components/TableFil
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { useWindowTitleContext, WindowTitleContextProvider } from '@condo/domains/common/components/WindowTitleContext'
 import { EXCEL } from '@condo/domains/common/constants/export'
-import { TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
+import { BIGGER_LIMIT_FOR_IMPORT, TICKET_IMPORT } from '@condo/domains/common/constants/featureflags'
 import {
     DEFAULT_RECORDS_LIMIT_FOR_IMPORT,
-    EXTENDED_RECORDS_LIMIT_FOR_IMPORT,
 } from '@condo/domains/common/constants/import'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useAudio } from '@condo/domains/common/hooks/useAudio'
@@ -65,7 +63,7 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { TicketReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { TicketStatusFilter } from '@condo/domains/ticket/components/TicketStatusFilter/TicketStatusFilter'
 import { MAX_TICKET_BLANKS_EXPORT } from '@condo/domains/ticket/constants/export'
 import {
@@ -163,7 +161,7 @@ const TicketTable = ({
     TicketImportButton,
 }) => {
     const intl = useIntl()
-    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CancelSelectedTicket' })
+    const CancelSelectedTicketLabel = intl.formatMessage({ id: 'global.cancelSelection' })
     const CountSelectedTicketLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.CountSelectedTicket' })
 
     const { getTrackingWrappedCallback } = useTracking()
@@ -441,7 +439,7 @@ const TicketsTableContainer = ({
 
 const SORTABLE_PROPERTIES = ['number', 'status', 'order', 'details', 'property', 'unitName', 'assignee', 'executor', 'createdAt', 'clientName']
 const TICKETS_DEFAULT_SORT_BY = ['order_ASC', 'createdAt_DESC']
-const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPaid']
+const ATTRIBUTE_NAMES_To_FILTERS = ['isEmergency', 'isRegular', 'isWarranty', 'statusReopenedCounter', 'isPayable']
 const CHECKBOX_WRAPPER_GUTTERS: RowProps['gutter'] = [8, 16]
 // todo(doma-5776): update amplitude
 const DETAILED_LOGGING = ['status', 'source', 'attributes', 'feedbackValue', 'qualityControlValue', 'unitType', 'contactIsNull']
@@ -610,7 +608,7 @@ const FiltersContainer = ({ filterMetas }) => {
     const RegularLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.RegularLabel' })
     const WarrantiesLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.WarrantiesLabel' })
     const ReturnedLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.ReturnedLabel' })
-    const PaidLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PaidLabel' })
+    const PayableLabel = intl.formatMessage({ id: 'pages.condo.ticket.index.PayableLabel' })
 
     const router = useRouter()
     const { filters } = parseQuery(router.query)
@@ -626,7 +624,7 @@ const FiltersContainer = ({ filterMetas }) => {
         isRegular: regular,
         isWarranty: warranty,
         statusReopenedCounter: returned,
-        isPaid: paid,
+        isPayable: payable,
     } = attributes
 
     const handleAttributeCheckboxChange = useCallback((attributeName: string) => (e: CheckboxChangeEvent) => {
@@ -704,13 +702,13 @@ const FiltersContainer = ({ filterMetas }) => {
                             </Col>
                             <Col>
                                 <Checkbox
-                                    onChange={handleAttributeCheckboxChange('isPaid')}
-                                    checked={paid}
+                                    onChange={handleAttributeCheckboxChange('isPayable')}
+                                    checked={payable}
                                     style={CHECKBOX_STYLE}
-                                    eventName='TicketFilterCheckboxPaid'
-                                    data-cy='ticket__filter-isPaid'
+                                    eventName='TicketFilterCheckboxPayable'
+                                    data-cy='ticket__filter-isPayable'
                                 >
-                                    {PaidLabel}
+                                    {PayableLabel}
                                 </Checkbox>
                             </Col>
                             <Col>
@@ -802,6 +800,7 @@ export const TicketsPageContent = ({
     const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
     const router = useRouter()
+    const { link } = useOrganization()
     const { filters, sorters } = parseQuery(router.query)
     const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, sortableProperties)
     const sortBy = sortersToSortBy(sorters, TICKETS_DEFAULT_SORT_BY) as SortTicketsBy[]
@@ -821,14 +820,17 @@ export const TicketsPageContent = ({
             favoriteTicketsIds
     }
 
-    const { useFlag } = useFeatureFlags()
+    const { useFlag, useFlagValue } = useFeatureFlags()
     const isTicketImportFeatureEnabled = useFlag(TICKET_IMPORT)
     const [columns, ticketNormalizer, ticketValidator, ticketCreator] = useImporterFunctions()
 
     const exampleTemplateLink = useMemo(() => `/ticket-import-example-${intl.locale}.xlsx`, [intl.locale])
 
+    const maxTableLength: number = useFlagValue(BIGGER_LIMIT_FOR_IMPORT) || DEFAULT_RECORDS_LIMIT_FOR_IMPORT
+    const canManageTickets = useMemo(() => get(link, ['role', 'canManageTickets'], false), [link])
+
     const TicketImportButton = useMemo(() => {
-        return showImport && isTicketImportFeatureEnabled && (
+        return canManageTickets && showImport && isTicketImportFeatureEnabled && (
             <ImportWrapper
                 accessCheck={isTicketImportFeatureEnabled}
                 domainTranslate={TicketReadingObjectsNameManyGenitiveMessage}
@@ -839,11 +841,7 @@ export const TicketsPageContent = ({
                 rowNormalizer={ticketNormalizer}
                 objectCreator={ticketCreator}
                 exampleTemplateLink={exampleTemplateLink}
-                maxTableLength={
-                    hasFeature('bigger_limit_for_import')
-                        ? EXTENDED_RECORDS_LIMIT_FOR_IMPORT
-                        : DEFAULT_RECORDS_LIMIT_FOR_IMPORT
-                }
+                maxTableLength={maxTableLength}
             >
                 <Button
                     type='secondary'
@@ -853,7 +851,10 @@ export const TicketsPageContent = ({
                 </Button>
             </ImportWrapper>
         )
-    }, [ImportButtonMessage, TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, columns, exampleTemplateLink, isTicketImportFeatureEnabled, showImport, ticketCreator, ticketNormalizer, ticketValidator, ticketsWithoutFiltersCount])
+    }, [ImportButtonMessage, TicketReadingObjectsNameManyGenitiveMessage, TicketsMessage, canManageTickets, columns, exampleTemplateLink, isTicketImportFeatureEnabled, maxTableLength, showImport, ticketCreator, ticketNormalizer, ticketValidator, ticketsWithoutFiltersCount])
+
+    //TODO(DOMA-7354): Remove featureflag after resolve global search problem
+    const disableTicketCounters = useFlag('callcenter-disable-ticket-counters')
 
     if (loading || error) {
         const errorToPrint = error ? ServerErrorMsg : null
@@ -868,6 +869,7 @@ export const TicketsPageContent = ({
                 createRoute='/ticket/create'
                 createLabel={CreateTicket}
                 button={TicketImportButton}
+                accessCheck={canManageTickets}
             />
         )
     }
@@ -881,10 +883,14 @@ export const TicketsPageContent = ({
                     />
                 </Col>
                 <Col span={24}>
-                    <TicketStatusFilterContainer
-                        searchTicketsQuery={searchTicketsQuery}
-                        searchTicketsWithoutStatusQuery={searchTicketsWithoutStatusQuery}
-                    />
+                    {
+                        !disableTicketCounters && (
+                            <TicketStatusFilterContainer
+                                searchTicketsQuery={searchTicketsQuery}
+                                searchTicketsWithoutStatusQuery={searchTicketsWithoutStatusQuery}
+                            />
+                        )
+                    }
                 </Col>
             </Row>
             <TicketsTableContainer
@@ -1127,6 +1133,5 @@ const TicketsPage: ITicketIndexPage = () => {
     )
 }
 
-TicketsPage.requiredAccess = OrganizationRequired
-
+TicketsPage.requiredAccess = TicketReadPermissionRequired
 export default TicketsPage

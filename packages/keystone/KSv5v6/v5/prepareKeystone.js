@@ -2,8 +2,8 @@ const { AdminUIApp } = require('@keystonejs/app-admin-ui')
 const { GraphQLApp } = require('@keystonejs/app-graphql')
 const { PasswordAuthStrategy } = require('@keystonejs/auth-password')
 const { Keystone } = require('@keystonejs/keystone')
-const bodyParser = require('body-parser')
 const cuid = require('cuid')
+const { json, urlencoded } = require('express')
 const identity = require('lodash/identity')
 const nextCookie = require('next-cookies')
 const { v4 } = require('uuid')
@@ -87,7 +87,7 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
             }),
             new AdminUIApp({
                 adminPath: '/admin',
-                isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport)),
+                isAccessAllowed: ({ authentication: { item: user } }) => Boolean(user && (user.isAdmin || user.isSupport || user.rightsSet)),
                 authStrategy,
                 ...(ui || {}),
             }),
@@ -101,8 +101,8 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
             app.set('trust proxy', true)
 
             // NOTE(toplenboren): we need a custom body parser for custom file upload limit
-            app.use(bodyParser.json({ limit: '100mb', extended: true }))
-            app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }))
+            app.use(json({ limit: '100mb', extended: true }))
+            app.use(urlencoded({ limit: '100mb', extended: true }))
 
             const requestIdHeaderName = 'X-Request-Id'
             app.use(function reqId (req, res, next) {

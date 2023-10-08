@@ -169,7 +169,7 @@ describe('TicketFilterTemplate', () => {
         test('employee: can read his TicketFilterTemplate', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
-            const [role] = await createTestOrganizationEmployeeRole(admin, organization, {})
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
             const user = await makeClientWithNewRegisteredAndLoggedInUser()
             const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
 

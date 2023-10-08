@@ -18,7 +18,6 @@ import {
 import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { SETTINGS_TAB_PROPERTY_SCOPE } from '@condo/domains/common/constants/settingsTabs'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import {
@@ -60,7 +59,7 @@ const PropertyScopeIdPage = () => {
         where: { id: scopeId },
     })
 
-    const handleDeleteAction = PropertyScope.useSoftDelete(() => router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_SCOPE}`))
+    const handleDeleteAction = PropertyScope.useSoftDelete(() => router.push('/settings/propertyScope'))
 
     const { objs: propertyScopeProperties } = PropertyScopeProperty.useAllObjects({
         where: {

@@ -108,7 +108,7 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
 
     const TicketTypeAll = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.AllTypes' })
     const TicketTypeDefault = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Default' })
-    const TicketTypePaid = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Paid' })
+    const TicketTypePayable = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Payable' })
     const TicketTypeEmergency = intl.formatMessage({ id: 'pages.condo.analytics.TicketAnalyticsPage.ticketType.Emergency' })
 
     return (
@@ -119,7 +119,7 @@ const TicketTypeSelect: React.FC<ITicketTypeSelect> = (props) => {
         >
             <Select.Option value='all'>{TicketTypeAll}</Select.Option>
             <Select.Option value='default'>{TicketTypeDefault}</Select.Option>
-            <Select.Option value='paid'>{TicketTypePaid}</Select.Option>
+            <Select.Option value='payable'>{TicketTypePayable}</Select.Option>
             <Select.Option value='emergency'>{TicketTypeEmergency}</Select.Option>
         </Select>
     )

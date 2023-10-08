@@ -41,7 +41,7 @@ const STATUS_SELECT_COLORS = {
  */
 const TICKET_TYPE_TAG_COLORS = {
     emergency: 'red',
-    paid: 'orange',
+    payable: 'orange',
     warranty: 'purple',
     returned: 'volcano',
 }

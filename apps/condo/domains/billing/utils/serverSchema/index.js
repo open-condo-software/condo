@@ -18,11 +18,13 @@ const { BillingIntegrationProblem: BillingIntegrationProblemGQL } = require('@co
 const { BillingProperty: BillingPropertyGQL } = require('@condo/domains/billing/gql')
 const { BillingAccount: BillingAccountGQL } = require('@condo/domains/billing/gql')
 const { BillingReceipt: BillingReceiptGQL } = require('@condo/domains/billing/gql')
+const { BillingReceiptAdmin: BillingReceiptAdminGQL } = require('@condo/domains/billing/gql')
 const { ResidentBillingReceipt: ResidentBillingReceiptGQL } = require('@condo/domains/billing/gql')
 const { BillingRecipient: BillingRecipientGQL } = require('@condo/domains/billing/gql')
 const { BillingCategory: BillingCategoryGQL } = require('@condo/domains/billing/gql')
 const { REGISTER_BILLING_RECEIPTS_MUTATION } = require('@condo/domains/billing/gql')
 const { BillingReceiptFile: BillingReceiptFileGQL } = require('@condo/domains/billing/gql')
+const { VALIDATE_QRCODE_MUTATION } = require('@condo/domains/billing/gql')
 const { SEND_RESIDENT_MESSAGE_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
@@ -33,6 +35,7 @@ const BillingIntegrationProblem = generateServerUtils(BillingIntegrationProblemG
 const BillingProperty = generateServerUtils(BillingPropertyGQL)
 const BillingAccount = generateServerUtils(BillingAccountGQL)
 const BillingReceipt = generateServerUtils(BillingReceiptGQL)
+const BillingReceiptAdmin = generateServerUtils(BillingReceiptAdminGQL)
 const ResidentBillingReceipt = generateServerUtils(ResidentBillingReceiptGQL)
 const BillingRecipient = generateServerUtils(BillingRecipientGQL)
 const BillingCategory = generateServerUtils(BillingCategoryGQL)
@@ -42,7 +45,6 @@ async function registerBillingReceipts (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write registerBillingReceipts serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: REGISTER_BILLING_RECEIPTS_MUTATION,
@@ -93,6 +95,19 @@ async function sendNewReceiptMessagesToResidentScopes (context, data) {
     })
 }
 
+async function validateQRCode (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: VALIDATE_QRCODE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to validateQRCode',
+        dataPath: 'result',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -103,6 +118,7 @@ module.exports = {
     BillingProperty,
     BillingAccount,
     BillingReceipt,
+    BillingReceiptAdmin,
     ResidentBillingReceipt,
     BillingRecipient,
     BillingCategory,
@@ -110,5 +126,6 @@ module.exports = {
     getPaymentsSum,
     sendNewReceiptMessagesToResidentScopes,
     BillingReceiptFile,
+    validateQRCode,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

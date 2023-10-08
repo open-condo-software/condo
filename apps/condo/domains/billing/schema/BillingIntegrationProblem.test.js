@@ -42,7 +42,7 @@ describe('BillingIntegrationProblem', () => {
 
         const [billing] = await createTestBillingIntegration(admin);
         [context] = await createTestBillingIntegrationOrganizationContext(admin, employee.organization, billing)
-        const { managerUserClient }  = await makeOrganizationIntegrationManager(context)
+        const { managerUserClient }  = await makeOrganizationIntegrationManager({ context })
         manager = managerUserClient
         serviceUser = await makeClientWithServiceUser()
         await createTestBillingIntegrationAccessRight(admin, billing, serviceUser.user)

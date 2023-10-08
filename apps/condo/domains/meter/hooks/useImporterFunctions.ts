@@ -40,6 +40,7 @@ import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchem
 
 
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
+const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 
 // Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
 // It is not extracted into `Importer`, because this is the only place of such format yet.
@@ -115,6 +116,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const MeterValue2InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value2ColumnMessage })
     const MeterValue3InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value3ColumnMessage })
     const MeterValue4InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value4ColumnMessage })
+    const InvalidNormalizationMessage = intl.formatMessage({ id: 'meter.import.error.InvalidNormalization' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -205,59 +207,67 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             value3: normalizeMeterValue(value3),
             value4: normalizeMeterValue(value4),
             place: place ? String(place).trim() : place,
+            invalidNormalization: false,
         }
 
         addons.valuesAmount = [addons.value1, addons.value2, addons.value3, addons.value4].filter(Boolean).length
 
-        // Current suggestion API provider returns no suggestions for address with flat number
-        const suggestionOptions = await addressApi.getSuggestions(String(address))
-        const suggestion = get(suggestionOptions, ['suggestions', 0])
-        if (!suggestion) {
-            return { row, addons }
-        }
-        // Used tell whether suggestion API has found specified address at all
-        addons.address = suggestion.value
-
-        const properties = await searchPropertyWithMap(client, {
-            organization: { id: userOrganizationIdRef.current },
-            address_i: suggestion.value,
-        }, undefined)
-
-        const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
-        const propertyMap = !isEmpty(properties) ? get(properties[0], 'map') : null
-        if (!propertyId) {
-            return { row, addons }
-        }
-
-        addons.propertyId = propertyId
-        addons.propertyMap = propertyMap
-        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
-
-        const searchMeterWhereConditions = {
-            organization: { id: userOrganizationIdRef.current },
-            property: { id: propertyId },
-            unitName,
-            unitType: addons.unitType,
-            accountNumber,
-            number: meterNumber,
-        }
-
-        const meterOptions = await searchMeter(client, searchMeterWhereConditions, SortMetersBy.CreatedAtDesc)
-        addons.meterId = meterOptions.length > 0 ? meterOptions[0].value : null
-
-        const METER_RESOURCE_ABBREVIATION_TO_ID = {
-            [HotWaterResourceTypeValue]: HOT_WATER_METER_RESOURCE_ID,
-            [ColdWaterResourceTypeValue]: COLD_WATER_METER_RESOURCE_ID,
-            [ElectricityResourceTypeValue]: ELECTRICITY_METER_RESOURCE_ID,
-            [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
-            [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
-        }
-        addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
-
         try {
-            addons.readingSubmissionDate = parseDateOrMonth(readingSubmissionDate)
-        } catch (e) {
-            addons.invalidReadingSubmissionDate = true
+            // Current suggestion API provider returns no suggestions for address with flat number
+            const suggestionOptions = await addressApi.getSuggestions(String(address))
+            const suggestion = get(suggestionOptions, ['suggestions', 0])
+            if (!suggestion) {
+                return { row, addons }
+            }
+            // Used tell whether suggestion API has found specified address at all
+            addons.address = suggestion.value
+
+            const properties = await searchPropertyWithMap(client, {
+                organization: { id: userOrganizationIdRef.current },
+                address_i: suggestion.value,
+            }, undefined)
+
+            const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
+            const propertyMap = !isEmpty(properties) ? get(properties[0], 'map') : null
+            if (!propertyId) {
+                return { row, addons }
+            }
+
+            addons.propertyId = propertyId
+            addons.propertyMap = propertyMap
+            addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
+
+            const searchMeterWhereConditions = {
+                organization: { id: userOrganizationIdRef.current },
+                property: { id: propertyId },
+                unitName,
+                unitType: addons.unitType,
+                accountNumber,
+                number: meterNumber,
+            }
+
+            const meterOptions = await searchMeter(client, searchMeterWhereConditions, SortMetersBy.CreatedAtDesc)
+            addons.meterId = meterOptions.length > 0 ? meterOptions[0].value : null
+
+            const METER_RESOURCE_ABBREVIATION_TO_ID = {
+                [HotWaterResourceTypeValue]: HOT_WATER_METER_RESOURCE_ID,
+                [ColdWaterResourceTypeValue]: COLD_WATER_METER_RESOURCE_ID,
+                [ElectricityResourceTypeValue]: ELECTRICITY_METER_RESOURCE_ID,
+                [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
+                [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
+            }
+            addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
+
+            try {
+                addons.readingSubmissionDate = parseDateOrMonth(readingSubmissionDate)
+            } catch (e) {
+                addons.invalidReadingSubmissionDate = true
+            }
+        } catch (error) {
+            addons.invalidNormalization = true
+            console.error('meterReadingNormalizer error')
+            console.error(error)
+            console.error(row)
         }
 
         return { row, addons }
@@ -267,6 +277,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         if (!processedRow) return Promise.resolve(false)
         const errors = []
         if (!processedRow.addons) errors.push(IncorrectRowFormatMessage)
+        if (get(processedRow, ['addons', 'invalidNormalization'])) {
+            console.warn('Invalid normalization. Try loading again')
+            console.warn({ processedRow })
+            errors.push(InvalidNormalizationMessage)
+        }
         if (!get(processedRow, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
         if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
@@ -350,6 +365,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             controlReadingsDate,
         ] = map(row, 'value')
 
+        await sleep(SLEEP_INTERVAL_BEFORE_QUERIES)
+
         let meterId
         if (addons.meterId) {
             meterId = addons.meterId
@@ -386,4 +403,8 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     return [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator]
+}
+
+function sleep (ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms))
 }

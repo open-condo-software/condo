@@ -22,8 +22,8 @@ async function canReadContactRoles ({ authentication: { item: user } }) {
     return {
         OR: [
             { organization_is_null: true },
-            { organization: queryOrganizationEmployeeFor(user.id) },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
+            { organization: queryOrganizationEmployeeFor(user.id, 'canReadContacts') },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadContacts') },
         ],
     }
 }

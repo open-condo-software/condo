@@ -49,6 +49,7 @@ async function checkRelatedOrganizationPermission (userId, organizationId, permi
     const [organizationLink] = await find('OrganizationLink', {
         from: queryOrganizationEmployeeFor(userId),
         to: { id: organizationId },
+        deletedAt: null,
     })
     if (!organizationLink) return false
 
@@ -60,6 +61,7 @@ async function checkRelatedOrganizationsPermission (userId, organizationIds, per
     const organizationLinks = await find('OrganizationLink', {
         from: queryOrganizationEmployeeFor(userId),
         to: { id_in: organizationIds },
+        deletedAt: null,
     })
 
     if (!organizationLinks.length) {
@@ -116,10 +118,43 @@ async function checkUserBelongsToOrganization (userId, organizationId) {
     return employee.deletedAt === null
 }
 
-const queryOrganizationEmployeeFor = userId => ({ employees_some: { user: { id: userId }, isBlocked: false, deletedAt: null } })
-const queryOrganizationEmployeeFromRelatedOrganizationFor = userId => ({ relatedOrganizations_some: { from: queryOrganizationEmployeeFor(userId) } })
+const queryOrganizationEmployeeFor = (userId, permission) => {
+    const baseEmployeeQuery = { user: { id: userId }, isBlocked: false, deletedAt: null }
+
+    if (permission) {
+        return { employees_some: { ...baseEmployeeQuery, role: { [permission]: true } } }
+    }
+
+    return { employees_some: baseEmployeeQuery }
+}
+const queryOrganizationEmployeeFromRelatedOrganizationFor = (userId, permission) => ({
+    relatedOrganizations_some: {
+        AND: [
+            { from: queryOrganizationEmployeeFor(userId, permission), deletedAt: null },
+        ],
+    },
+})
+
+const checkUserPermissionsInOrganizations = async ({ userId, organizationIds, permission }) => {
+    const userEmployeeOrganizations = await find('Organization', {
+        AND: [
+            {
+                id_in: organizationIds,
+            },
+            {
+                OR: [
+                    queryOrganizationEmployeeFor(userId, permission),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(userId, permission),
+                ],
+            },
+        ],
+    })
+
+    return userEmployeeOrganizations.length === organizationIds.length
+}
 
 module.exports = {
+    checkUserPermissionsInOrganizations,
     checkPermissionInUserOrganizationOrRelatedOrganization,
     checkOrganizationPermission,
     checkUserBelongsToOrganization,

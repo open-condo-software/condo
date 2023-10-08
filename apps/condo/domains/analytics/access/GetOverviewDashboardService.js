@@ -13,9 +13,9 @@ async function canGetOverviewDashboard ({ authentication: { item: user }, args: 
     const userBelongsToOrganization = checkUserBelongsToOrganization(user.id, organization)
     if (!userBelongsToOrganization) return false
 
-    const canManageOrganization = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageOrganization')
+    const canReadAnalytics = await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canReadAnalytics')
 
-    return !!canManageOrganization
+    return !!canReadAnalytics
 }
 
 /*

@@ -2,7 +2,7 @@
  * Start recurrent payment context processing task
  *
  * Usage:
- *      yarn workspace @app/condo node bin/createRecurrentPaymentForReadyToPayRecurrentPaymentContexts
+ *      yarn workspace @app/condo node bin/billing/createRecurrentPaymentForReadyToPayRecurrentPaymentContexts
  */
 
 const path = require('path')

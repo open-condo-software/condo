@@ -4,6 +4,14 @@
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 
+const { canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
+
+/**
+ * B2BPromoBlocks are publicly available for any authed non-deleted user including:
+ * 1. Admin / support
+ * 2. Users with direct access
+ * 3. Any employees of any organization
+ */
 async function canReadB2BAppPromoBlocks ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -11,11 +19,17 @@ async function canReadB2BAppPromoBlocks ({ authentication: { item: user } }) {
     return {}
 }
 
-async function canManageB2BAppPromoBlocks ({ authentication: { item: user } }) {
+/**
+ * B2BPromoBlocks can be managed by
+ * 1. Admin / support
+ * 2. Users with direct access
+ */
+async function canManageB2BAppPromoBlocks ({ authentication: { item: user }, listKey, originalInput, operation }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
+    if (user.isAdmin || user.isSupport) return true
 
-    return !!(user.isAdmin || user.isSupport)
+    return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
 }
 
 /*

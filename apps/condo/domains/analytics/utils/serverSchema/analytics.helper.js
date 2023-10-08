@@ -49,14 +49,7 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
         const { keystone } = await getSchemaCtx(this.domainName)
         const knex = keystone.adapter.knex
 
-        const where = this.where.filter(condition => !this.isWhereInCondition(condition)).map(condition => {
-            return Object.fromEntries(
-                Object.entries(condition).map(([field, query]) => (
-                    get(query, 'id') ? [field, query.id] : [field, query]
-                ))
-            )
-        })
-        this.whereIn = {}
+        this.whereIn = Object.fromEntries(this.whereIn)
         // create whereIn structure [['property_id', 'user_id'], [['some_property_id', 'some_user_id'], ...]]
         this.where.filter(this.isWhereInCondition).reduce((filter, currentFilter) => {
             const [groupName, groupCondition] = Object.entries(currentFilter)[0]
@@ -81,20 +74,20 @@ class TicketGqlToKnexAdapter extends GqlToKnexBaseAdapter {
         switch (Object.keys(this.whereIn).length) {
             case 2:
                 this.result = await query.groupBy(this.aggregateBy)
-                    .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
+                    .where(this.knexWhere)
                     .whereIn([Object.keys(this.whereIn)[0]], Object.values(this.whereIn)[0])
                     .whereIn([Object.keys(this.whereIn)[1]], Object.values(this.whereIn)[1])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             case 1:
                 this.result = await query.groupBy(this.aggregateBy)
-                    .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
+                    .where(this.knexWhere)
                     .whereIn(Object.keys(this.whereIn), Object.values(this.whereIn)[0])
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
                 break
             default:
                 this.result = await query.groupBy(this.aggregateBy)
-                    .where(where.reduce((acc, current) => ({ ...acc, ...current }), {}))
+                    .where(this.knexWhere)
                     .whereBetween('createdAt', [this.dateRange.from, this.dateRange.to])
         }
     }
@@ -131,8 +124,8 @@ const getCombinations = ({ options = {}, optionIndex = 0, results = [], current 
     const optionKey = allKeys[optionIndex]
     const option = options[optionKey]
 
-    for (let i = 0; i < option.length; i++) {
-        current[optionKey] = option[i]
+    for (const element of option) {
+        current[optionKey] = element
         if (optionIndex + 1 < allKeys.length) {
             getCombinations({ options, optionIndex: optionIndex + 1, results, current })
         } else {

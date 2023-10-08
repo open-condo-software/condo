@@ -2,7 +2,7 @@
  * Start recurrent payment processing task
  *
  * Usage:
- *      yarn workspace @app/condo node bin/chargeRecurrentPayments
+ *      yarn workspace @app/condo node bin/billing/chargeRecurrentPayments
  */
 
 const path = require('path')

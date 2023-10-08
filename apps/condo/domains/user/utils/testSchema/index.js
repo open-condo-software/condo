@@ -19,7 +19,7 @@ const {
     STAFF,
     SERVICE
 } = require('@condo/domains/user/constants/common')
-const { IDENTITY_TYPES, SBBOL_IDENTITY_TYPE } = require('@condo/domains/user/constants')
+const { IDENTITY_TYPES} = require('@condo/domains/user/constants')
 const {
     ConfirmPhoneAction: ConfirmPhoneActionGQL,
     ForgotPasswordAction: ForgotPasswordActionGQL,
@@ -44,6 +44,7 @@ const UserExternalIdentity = generateGQLTestUtils(UserExternalIdentityGQL)
 
 const { ExternalTokenAccessRight: ExternalTokenAccessRightGQL } = require('@condo/domains/user/gql')
 const { GET_ACCESS_TOKEN_BY_USER_ID_QUERY } = require('@condo/domains/user/gql')
+const { UserRightsSet: UserRightsSetGQL } = require('@condo/domains/user/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function createTestEmail () {
@@ -233,6 +234,7 @@ const ForgotPasswordAction = generateGQLTestUtils(ForgotPasswordActionGQL)
 
 const OidcClient = generateGQLTestUtils(OidcClientGQL)
 const ExternalTokenAccessRight = generateGQLTestUtils(ExternalTokenAccessRightGQL)
+const UserRightsSet = generateGQLTestUtils(UserRightsSetGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestConfirmPhoneAction (client, extraAttrs = {}) {
@@ -491,6 +493,35 @@ async function getAccessTokenByUserIdByTestClient(client, extraAttrs = {}) {
     throwIfError(data, errors)
     return [data.result, attrs]
 }
+async function createTestUserRightsSet (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const name = faker.lorem.words(3)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name,
+        ...extraAttrs,
+    }
+    const obj = await UserRightsSet.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestUserRightsSet (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await UserRightsSet.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -531,5 +562,6 @@ module.exports = {
     OidcClient, createTestOidcClient, updateTestOidcClient,
     ExternalTokenAccessRight, createTestExternalTokenAccessRight, updateTestExternalTokenAccessRight,
     getAccessTokenByUserIdByTestClient,
+    UserRightsSet, createTestUserRightsSet, updateTestUserRightsSet,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

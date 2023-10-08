@@ -1,5 +1,5 @@
 import { SortPropertyScopesBy } from '@app/condo/schema'
-import { Col, Row, Typography } from 'antd'
+import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -9,13 +9,13 @@ import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Button } from '@open-condo/ui'
-
+import { Tabs, Typography } from '@open-condo/ui'
 
 import { ExportToExcelActionBar } from '@condo/domains/common/components/ExportToExcelActionBar'
-import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { EmployeeRoleTicketVisibilityInfo } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
 import { EXPORT_PROPERTY_SCOPE_QUERY } from '@condo/domains/scope/gql'
 import { usePropertyScopeColumns } from '@condo/domains/scope/hooks/useTableColumns'
 import { usePropertyScopeTableFilters } from '@condo/domains/scope/hooks/useTableFilters'
@@ -31,11 +31,11 @@ export const PropertyScopeSettingsContent = () => {
     const intl = useIntl()
     const PropertyScopeTitle = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.title' })
     const CreatePropertyScopeMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.create' })
+    const SettingsTitle = intl.formatMessage({ id: 'global.section.settings' })
+    const WhatEmployeeSeesMessage = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.employeeTicketVisibility' })
 
     const userOrganization = useOrganization()
     const userOrganizationId = get(userOrganization, ['organization', 'id'])
-
-    const { breakpoints } = useLayoutContext()
 
     const router = useRouter()
     const { filters, sorters, offset } = parseQuery(router.query)
@@ -78,45 +78,62 @@ export const PropertyScopeSettingsContent = () => {
 
     const { columns: tableColumns, loading: tableColumnsLoading } = usePropertyScopeColumns(filtersMeta, propertyScopes)
 
+    const tabItems = [
+        {
+            key: 'propertyScopes',
+            label: SettingsTitle,
+            children: <>
+                <Col span={24}>
+                    <Table
+                        totalRows={total}
+                        loading={tableColumnsLoading}
+                        onRow={handleRowAction}
+                        dataSource={propertyScopes}
+                        columns={tableColumns}
+                        data-cy='propertyScope__table'
+                        pageSize={DEFAULT_PAGE_SIZE}
+                    />
+                </Col>
+                {
+                    canManagePropertyScopes && (
+                        <Col span={24}>
+                            <ExportToExcelActionBar
+                                searchObjectsQuery={searchPropertyScopesQuery}
+                                sortBy={sortBy}
+                                exportToExcelQuery={EXPORT_PROPERTY_SCOPE_QUERY}
+                                useTimeZone={false}
+                                actions={[
+                                    <Button
+                                        key='createPropertyScope'
+                                        id='PropertyScopeVisitCreate'
+                                        type='primary'
+                                        icon={<PlusCircle size='medium'/>}
+                                        onClick={handleAddHintButtonClick}
+                                    >
+                                        {CreatePropertyScopeMessage}
+                                    </Button>,
+                                ]}
+                            />
+                        </Col>
+                    )
+                }
+            </>,
+        },
+        {
+            key: 'ticketVisibility',
+            label: WhatEmployeeSeesMessage,
+            children: <EmployeeRoleTicketVisibilityInfo />,
+        },
+    ]
+
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={3}>{PropertyScopeTitle}</Typography.Title>
+                <Typography.Title level={1}>{PropertyScopeTitle}</Typography.Title>
             </Col>
-            <Col span={24}>
-                <Table
-                    totalRows={total}
-                    loading={tableColumnsLoading}
-                    onRow={handleRowAction}
-                    dataSource={propertyScopes}
-                    columns={tableColumns}
-                    data-cy='propertyScope__table'
-                    pageSize={DEFAULT_PAGE_SIZE}
-                />
-            </Col>
-            {
-                canManagePropertyScopes && (
-                    <Col span={24}>
-                        <ExportToExcelActionBar
-                            searchObjectsQuery={searchPropertyScopesQuery}
-                            sortBy={sortBy}
-                            exportToExcelQuery={EXPORT_PROPERTY_SCOPE_QUERY}
-                            useTimeZone={false}
-                            actions={[
-                                <Button
-                                    key='createPropertyScope'
-                                    id='PropertyScopeVisitCreate'
-                                    type='primary'
-                                    icon={<PlusCircle size='medium'/>}
-                                    onClick={handleAddHintButtonClick}
-                                >
-                                    {CreatePropertyScopeMessage}
-                                </Button>,
-                            ]}
-                        />
-                    </Col>
-                )
-            }
+            <Tabs
+                items={tabItems}
+            />
         </Row>
     )
 }

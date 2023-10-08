@@ -21,8 +21,8 @@ async function canReadOrganizationEmployees ({ authentication: { item: user } })
             {
                 organization: {
                     OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                        queryOrganizationEmployeeFor(user.id, 'canReadEmployees'),
+                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadEmployees'),
                     ],
                 },
             },
@@ -34,6 +34,7 @@ async function canManageOrganizationEmployees ({ authentication: { item: user },
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
     // NOTE: you should use `inviteNewOrganizationEmployee`
     if (operation === 'create') return false
     if (user.isSupport) return true

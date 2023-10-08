@@ -2,7 +2,7 @@
  * Start recurrent payment notification processing task
  *
  * Usage:
- *      yarn workspace @app/condo node bin/notifyBeforeRecurrentPaymentDate
+ *      yarn workspace @app/condo node bin/billing/notifyBeforeRecurrentPaymentDate
  */
 
 const path = require('path')

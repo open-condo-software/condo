@@ -61,10 +61,10 @@ describe('B2BAppContext', () => {
                 expect(context).toHaveProperty(['app', 'id'], app.id)
             })
             describe('User', () => {
-                test('Employee with canManageIntegrations can', async () => {
+                test('Employee with canManageB2BApps can', async () => {
                     const client = await makeClientWithNewRegisteredAndLoggedInUser()
                     const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                        canManageIntegrations: true,
+                        canManageB2BApps: true,
                     })
                     await createTestOrganizationEmployee(admin, organization, client.user, role, {
                         isAccepted: true,
@@ -173,7 +173,7 @@ describe('B2BAppContext', () => {
             })
             test('User cannot', async () => {
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, user.user, role, {
                     isAccepted: true,
@@ -209,7 +209,7 @@ describe('B2BAppContext', () => {
                     await B2BAppContext.delete(support, context.id)
                 })
                 const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
-                    canManageIntegrations: true,
+                    canManageB2BApps: true,
                 })
                 await createTestOrganizationEmployee(admin, organization, user.user, role, {
                     isAccepted: true,

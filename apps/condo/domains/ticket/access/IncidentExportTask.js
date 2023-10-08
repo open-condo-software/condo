@@ -5,13 +5,10 @@
 const { get, uniq, compact, isEmpty } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const { CANCELLED } = require('@condo/domains/common/constants/export')
-const {
-    queryOrganizationEmployeeFor,
-    queryOrganizationEmployeeFromRelatedOrganizationFor,
-} = require('@condo/domains/organization/utils/accessSchema')
+const { checkUserPermissionsInOrganizations } = require('@condo/domains/organization/utils/accessSchema')
 
 
 async function canReadIncidentExportTasks ({ authentication: { item: user } }) {
@@ -37,23 +34,11 @@ async function canManageIncidentExportTasks ({ authentication: { item: user }, o
 
         if (isEmpty(organizationIds)) return false
 
-        const userEmployeeOrganizations = await find('Organization', {
-            AND: [
-                {
-                    id_in: organizationIds,
-                },
-                {
-                    OR: [
-                        queryOrganizationEmployeeFor(user.id),
-                        queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
-                    ],
-                },
-            ],
+        return await checkUserPermissionsInOrganizations({
+            userId: user.id,
+            organizationIds,
+            permission: 'canReadIncidents',
         })
-
-        if (userEmployeeOrganizations.length === organizationIds.length) {
-            return true
-        }
     } else if (operation === 'update') {
         const task = await getById('IncidentExportTask', itemId)
 

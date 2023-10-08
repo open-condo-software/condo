@@ -128,12 +128,34 @@ describe('OrganizationEmployeeRole', () => {
         it('can only for organization it employed in', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
-            const [role, attrs] = await createTestOrganizationEmployeeRole(admin, organization)
+            const [role, attrs] = await createTestOrganizationEmployeeRole(admin, organization, { canReadEmployees: true })
             const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
             await createTestOrganizationEmployee(admin, organization, employeeUserClient.user, role)
 
             const [anotherOrganization] = await createTestOrganization(admin)
             await createTestOrganizationEmployeeRole(admin, anotherOrganization)
+
+            const objs = await OrganizationEmployeeRole.getAll(employeeUserClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(objs).toHaveLength(1)
+            expect(objs[0].id).toMatch(role.id)
+            expect(objs[0].dv).toEqual(1)
+            expect(objs[0].sender).toEqual(attrs.sender)
+            expect(objs[0].v).toEqual(1)
+            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+            expect(objs[0].createdAt).toMatch(role.createdAt)
+            expect(objs[0].updatedAt).toMatch(role.updatedAt)
+        })
+
+        it('can only his organization employee roles if employee has not canReadEmployees', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [role, attrs] = await createTestOrganizationEmployeeRole(admin, organization, { canReadEmployees: false })
+            const employeeUserClient = await makeClientWithNewRegisteredAndLoggedInUser()
+            await createTestOrganizationEmployee(admin, organization, employeeUserClient.user, role)
+
+            await createTestOrganizationEmployeeRole(admin, organization)
 
             const objs = await OrganizationEmployeeRole.getAll(employeeUserClient, {}, { sortBy: ['updatedAt_DESC'] })
 

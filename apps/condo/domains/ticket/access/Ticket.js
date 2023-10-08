@@ -18,13 +18,16 @@ const {
     INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_STAFF,
 } = require('@condo/domains/ticket/constants/common')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-
-async function canReadTickets ({ authentication: { item: user } }) {
+async function canReadTickets ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isSupport || user.isAdmin) return {}
+
+    const hasDirectAccess = await canDirectlyReadSchemaObjects(user, listKey)
+    if (hasDirectAccess) return {}
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { user: { id: user.id }, deletedAt: null })
@@ -40,18 +43,21 @@ async function canReadTickets ({ authentication: { item: user } }) {
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadTickets'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadTickets'),
             ],
             deletedAt: null,
         },
     }
 }
 
-async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context }) {
+async function canManageTickets ({ authentication: { item: user }, operation, itemId, originalInput, context, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    const hasDirectAccess = await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    if (hasDirectAccess) return true
 
     if (user.type === RESIDENT) {
         const changedInaccessibleFields = Object.keys(originalInput).some(field => INACCESSIBLE_TICKET_FIELDS_FOR_MANAGE_BY_RESIDENT.includes(field))

@@ -1,4 +1,5 @@
 const { getItems } = require('@keystonejs/server-side-graphql-client')
+const { isFunction } = require('lodash')
 
 const { getSchemaCtx } = require('@open-condo/keystone/schema')
 const GLOBAL_QUERY_LIMIT = 1000
@@ -114,7 +115,7 @@ class GqlWithKnexLoadList {
  * @param {String[]} sortBy
  * @param {Number} chunkSize
  * @param {Number} limit
- * @param {function(Array): Array} chunkProcessor A place to use or/and modify just loaded chunk
+ * @param {function(Array): Array | Promise<Array>} chunkProcessor A place to use or/and modify just loaded chunk
  * @returns {Promise<*[]>}
  */
 const loadListByChunks = async ({
@@ -129,14 +130,27 @@ const loadListByChunks = async ({
     if (chunkSize < 1 || limit < 1) throw new Error('Both chunkSize and limit should be > 0')
     if (chunkSize > 100) throw new Error('chunkSize is too large, max 100 allowed')
     let skip = 0
-    let maxiterationsCount = Math.ceil(limit / chunkSize)
-    let newchunk = []
+    let maxIterationsCount = Math.ceil(limit / chunkSize)
+    let newChunk = []
     let all = []
+    let newChunkLength
+
     do {
-        newchunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
-        all = all.concat(chunkProcessor(newchunk) || [])
-        skip += newchunk.length
-    } while (--maxiterationsCount > 0 && newchunk.length)
+        newChunk = await list.getAll(context, where, { sortBy, first: chunkSize, skip: skip })
+        newChunkLength = newChunk.length
+
+        if (newChunkLength > 0) {
+            if (isFunction(chunkProcessor)) {
+                newChunk = chunkProcessor.constructor.name === 'AsyncFunction'
+                    ? await chunkProcessor(newChunk)
+                    : chunkProcessor(newChunk)
+            }
+
+            skip += newChunkLength
+            all = all.concat(newChunk)
+        }
+    } while (--maxIterationsCount > 0 && newChunkLength)
+
     return all
 }
 

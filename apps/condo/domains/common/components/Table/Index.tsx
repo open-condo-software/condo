@@ -9,6 +9,8 @@ import { GetRowKey } from 'rc-table/lib/interface'
 import { TableProps as RcTableProps } from 'rc-table/lib/Table'
 import React, { useCallback, useMemo } from 'react'
 
+import { ChevronDown, ChevronUp } from '@open-condo/icons'
+
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { updateQuery } from '@condo/domains/common/utils/helpers'
 import {
@@ -150,4 +152,57 @@ export const Table: React.FC<ITableProps> = ({
             {...otherTableProps}
         />
     )
+}
+
+const DEFAULT_EXPANDABLE_COLUMN_WIDTH = '60px'
+const ICON_STUB_WIDTH = { width: '20px' }
+export const EXPANDABLE_COLUMN_STUB = {
+    width: DEFAULT_EXPANDABLE_COLUMN_WIDTH,
+    render: () => <div style={ICON_STUB_WIDTH} />,
+}
+
+export const ExpandableTable: React.FC<ITableProps> = (props) => {
+    const { expandable, ...tableProps } = props
+    const dataSource = props.dataSource
+
+    const getExpandIcon = useCallback(({ expanded, onExpand, record }) =>
+        expanded ? (
+            <ChevronUp size='medium' onClick={e => onExpand(record, e)}/>
+        ) : (
+            <ChevronDown size='medium' onClick={e => onExpand(record, e)}/>
+        ), [])
+
+    const getRowClassName = useCallback((record, index) => {
+        const classNames = ['condo-table-expandable-row']
+
+        if (record.expanded) {
+            classNames.push('condo-table-expandable-row-expanded')
+        }
+        if (index === dataSource.length - 1) {
+            classNames.push('condo-table-expandable-row-last-row')
+        }
+
+        return classNames.join(' ')
+    }, [dataSource.length])
+
+    const getExpandedRowClassName = useCallback(() => 'condo-table-expandable-row-inner-row', [])
+
+    const handleExpand = useCallback((expanded, record) => record.expanded = expanded, [])
+
+    const expandableConfig = useMemo(() => ({
+        indentSize: 0,
+        expandRowByClick: true,
+        columnWidth: DEFAULT_EXPANDABLE_COLUMN_WIDTH,
+        expandedRowClassName: getExpandedRowClassName,
+        onExpand: handleExpand,
+        expandIcon: getExpandIcon,
+        ...expandable,
+    }), [expandable, getExpandIcon, getExpandedRowClassName, handleExpand])
+
+    return <Table
+        sticky
+        rowClassName={getRowClassName}
+        expandable={expandableConfig}
+        {...tableProps}
+    />
 }

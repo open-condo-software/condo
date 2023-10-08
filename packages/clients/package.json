@@ -1,0 +1,21 @@
+{
+    "name": "@open-condo/clients",
+    "main": "index.js",
+    "version": "1.0.0",
+    "description": "Clients for local and external services",
+    "keywords": [
+        "condo",
+        "open-condo-software",
+        "clients"
+    ],
+    "dependencies": {
+        "@open-condo/config": "workspace:^",
+        "dotenv": "^16.3.1"
+    },
+    "repository": "https://github.com/open-condo-software/condo/tree/master/packages/clients",
+    "author": {
+        "name": "Alexander Naydenov",
+        "email": "anaydionov@doma.ai",
+        "url": "https://github.com/AleX83Xpert"
+    }
+}

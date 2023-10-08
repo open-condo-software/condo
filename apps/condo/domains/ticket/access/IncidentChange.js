@@ -16,8 +16,8 @@ async function canReadIncidentChanges ({ authentication: { item: user } }) {
         incident: {
             organization: {
                 OR: [
-                    queryOrganizationEmployeeFor(user.id),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                    queryOrganizationEmployeeFor(user.id, 'canReadIncidents'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadIncidents'),
                 ],
             },
         },

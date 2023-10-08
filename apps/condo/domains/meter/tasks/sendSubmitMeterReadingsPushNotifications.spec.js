@@ -24,7 +24,6 @@ const { Message: MessageApi } = require('@condo/domains/notification/utils/serve
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 
 
-
 const { keystone } = index
 
 const prepareUserAndMeter = async ({ nextVerificationDate }) => {
@@ -78,8 +77,13 @@ const getNewMessages = async ({ userId, meterId }) => {
 
 describe('Submit meter readings push notification', () => {
     setFakeClientMode(index)
+    let adminClient, source
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient();
+        [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+    })
 
-    it('should not send messages for exists this month readings and valid nextVerificationDate', async () => {
+    it('should not send messages for exists readings in this period and valid nextVerificationDate', async () => {
         // arrange
         const client = await prepareUserAndMeter({
             nextVerificationDate: dayjs().add(1, 'day').toISOString(),
@@ -97,7 +101,24 @@ describe('Submit meter readings push notification', () => {
         expect(messages).toHaveLength(0)
     })
 
-    it('should not send messages for exists this month readings and not valid nextVerificationDate', async () => {
+    it('should send messages for not exists readings in this period and valid nextVerificationDate', async () => {
+        // arrange
+        const client = await prepareUserAndMeter({
+            nextVerificationDate: dayjs().add(1, 'day').toISOString(),
+        })
+
+        // act
+        await sendSubmitMeterReadingsPushNotifications()
+
+        // assert
+        const messages = await getNewMessages({
+            userId: client.user.id,
+            meterId: client.meter.id,
+        })
+        expect(messages).toHaveLength(1)
+    })
+
+    it('should send messages for not exists readings in this period and not valid nextVerificationDate', async () => {
         // arrange
         const client = await prepareUserAndMeter({
             nextVerificationDate: dayjs().add(-1, 'day').toISOString(),
@@ -118,7 +139,6 @@ describe('Submit meter readings push notification', () => {
     it('should not send messages for deleted meters', async () => {
         // arrange
         const client = await makeClientWithServiceConsumer()
-        const adminClient = await makeLoggedInAdminClient()
         const { property, organization, serviceConsumer, resident } = client
         const [resource] = await MeterResource.getAll(adminClient, {})
 
@@ -204,11 +224,10 @@ describe('Submit meter readings push notification', () => {
     it('should send messages for empty readings and undefined nextVerificationDate with type METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE', async () => {
         // arrange
         const client = await makeClientWithServiceConsumer()
-        const adminClient = await makeLoggedInAdminClient()
         const { property, organization, serviceConsumer, resident } = client
         const [resource] = await MeterResource.getAll(adminClient, {})
 
-        const [meter, attrs] = await createTestMeter(adminClient, organization, property, resource, {
+        const [meter] = await createTestMeter(adminClient, organization, property, resource, {
             accountNumber: serviceConsumer.accountNumber,
             unitName: resident.unitName,
             verificationDate: dayjs().add(-1, 'year').toISOString(),
@@ -230,5 +249,42 @@ describe('Submit meter readings push notification', () => {
         expect(messages).toHaveLength(1)
         expect(messages[0].type).toEqual(METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE)
         expect(messages[0].organization.id).toEqual(meter.organization.id)
+    })
+
+    it('should not send messages if have readings and undefined nextVerificationDate with type METER_SUBMIT_READINGS_REMINDER_END_PERIOD_TYPE', async () => {
+        // arrange
+        const client = await makeClientWithServiceConsumer()
+        const { property, organization, serviceConsumer, resident } = client
+        const [resource] = await MeterResource.getAll(adminClient, {})
+
+        const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+            accountNumber: serviceConsumer.accountNumber,
+            unitName: resident.unitName,
+            verificationDate: dayjs().add(-1, 'year').toISOString(),
+            nextVerificationDate: undefined,
+        })
+
+        await createTestMeterReading(
+            client,
+            meter,
+            source,
+            {
+                date: dayjs().toISOString(),
+            }
+        )
+
+        await createTestMeterReportingPeriod(adminClient, organization, {
+            notifyStartDay: 1,
+            notifyEndDay: Number(dayjs().format('DD')),
+        })
+        // act
+        await sendSubmitMeterReadingsPushNotifications()
+
+        // assert
+        const messages = await getNewMessages({
+            userId: client.user.id,
+            meterId: meter.id,
+        })
+        expect(messages).toHaveLength(0)
     })
 })

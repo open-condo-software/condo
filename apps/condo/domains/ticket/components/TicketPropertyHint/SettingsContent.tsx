@@ -127,7 +127,7 @@ export const SettingsContent = () => {
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
             <Col span={24}>
-                <Typography.Title level={3}>{TicketPropertyHintTitle}</Typography.Title>
+                <Typography.Title>{TicketPropertyHintTitle}</Typography.Title>
             </Col>
             <Col span={24}>
                 <TableFiltersContainer>

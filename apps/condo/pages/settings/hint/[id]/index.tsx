@@ -16,7 +16,6 @@ import {
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { SETTINGS_TAB_PROPERTY_HINT } from '@condo/domains/common/constants/settingsTabs'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
@@ -45,7 +44,7 @@ const TicketPropertyHintIdPage = () => {
         where: { id: hintId },
     })
 
-    const handleDeleteAction = TicketPropertyHint.useSoftDelete(() => router.push(`/settings?tab=${SETTINGS_TAB_PROPERTY_HINT}`))
+    const handleDeleteAction = TicketPropertyHint.useSoftDelete(() => router.push('/settings/hint'))
 
     const { objs: ticketPropertyHintProperties } = TicketPropertyHintProperty.useObjects({
         where: {

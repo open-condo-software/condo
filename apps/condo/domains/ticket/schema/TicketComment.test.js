@@ -37,6 +37,26 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser }
 
 
 describe('TicketComment', () => {
+    let admin
+    let organization
+    let property
+    let clientWithCanReadTicket
+    let clientWithoutCanReadTicket
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        clientWithCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        clientWithoutCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [testOrganization] = await createTestOrganization(admin)
+        organization = testOrganization
+        const [testProperty] = await createTestProperty(admin, organization)
+        property = testProperty
+        const [roleWithCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+        const [roleWithoutCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: false })
+        await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
+        await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
+    })
+
     describe('employee', () => {
         describe('field access', () => {
             it('does not allows user to set "user" field to another user', async () => {
@@ -271,18 +291,21 @@ describe('TicketComment', () => {
         })
 
         describe('read', () => {
-            it('can be read by user, who has read access to related ticket', async () => {
-                const userClient = await makeClientWithProperty()
-                const [ticket] = await createTestTicket(userClient, userClient.organization, userClient.property)
-                const [obj1] = await createTestTicketComment(userClient, ticket, userClient.user)
+            it('can be read by user, who has canReadTickets permission', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                const [comment] = await createTestTicketComment(admin, ticket, admin.user)
 
-                const anotherUserClient = await makeClientWithProperty()
-                const [anotherTicket] = await createTestTicket(anotherUserClient, anotherUserClient.organization, anotherUserClient.property)
-                await createTestTicketComment(anotherUserClient, anotherTicket, anotherUserClient.user)
+                const readTicketComment = await TicketComment.getOne(clientWithCanReadTicket, { id: comment.id })
+                expect(readTicketComment).toBeDefined()
+                expect(readTicketComment.id).toEqual(comment.id)
+            })
 
-                const objs = await TicketComment.getAll(userClient, {}, { sortBy: ['updatedAt_DESC'] })
-                expect(objs).toHaveLength(1)
-                expect(objs[0].id).toMatch(obj1.id)
+            it('can not be read by user, who has not canReadTickets permission', async () => {
+                const [ticket] = await createTestTicket(admin, organization, property)
+                const [comment] = await createTestTicketComment(admin, ticket, admin.user)
+
+                const readTicketComment = await TicketComment.getOne(clientWithoutCanReadTicket, { id: comment.id })
+                expect(readTicketComment).toBeUndefined()
             })
 
             it('can be read by admin', async () => {
@@ -1162,9 +1185,10 @@ describe('TicketComment', () => {
                 expect(objUpdated.v).toEqual(2)
 
                 const messageWhere = { user: { id: residentClient.user.id }, type: TICKET_COMMENT_ADDED_TYPE }
-                const messages = await Message.getAll(admin, messageWhere)
 
                 await waitFor(async () => {
+                    const messages = await Message.getAll(admin, messageWhere)
+
                     expect(messages).toHaveLength(1)
                     expect(messages[0].organization.id).toEqual(ticket.organization.id)
                 })
@@ -1227,7 +1251,7 @@ describe('TicketComment', () => {
                 expect(ticketComment.id).toMatch(UUID_RE)
                 expect(ticketComment.type).toMatch(RESIDENT_COMMENT_TYPE)
                 expect(ticketComment.content).toMatch(content)
-                
+
                 await waitFor(async () => {
                     const messageForExecutor = await Message.getOne(admin, { user: { id: executorUserId }, type: TICKET_COMMENT_ADDED_TYPE })
                     expect(messageForExecutor.status).toEqual(MESSAGE_SENT_STATUS)

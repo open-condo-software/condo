@@ -158,6 +158,7 @@ async function notifyResidentsAboutNewsItem (newsItemId) {
         // Send delayed items immediately
         await sendNotifications(context, newsItem)
     } else {
+        // TODO(DOMA-6931) refactor this
         // We wait some number of seconds in the case of not delayed news items to take a chance for the user to turn all back
         setTimeout(async () => {
             // The record can be changed during waiting timeout, for example, a user can edit it, therefore it should be requested again right before sending

@@ -5,7 +5,8 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EditContactForm } from '@condo/domains/contact/components/EditContactForm'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { ContactsReadAndManagePermissionRequired } from '@condo/domains/contact/components/PageAccess'
+
 
 const ContactUpdatePage = () => {
     const intl = useIntl()
@@ -27,6 +28,6 @@ const ContactUpdatePage = () => {
     )
 }
 
-ContactUpdatePage.requiredAccess = OrganizationRequired
+ContactUpdatePage.requiredAccess = ContactsReadAndManagePermissionRequired
 
 export default ContactUpdatePage

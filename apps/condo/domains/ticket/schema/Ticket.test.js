@@ -15,6 +15,7 @@ const {
     expectToThrowValidationFailureError,
     expectToThrowGQLError,
     expectValuesOfCommonFields,
+    setAllFeatureFlags,
 } = require('@open-condo/keystone/test.utils')
 
 const { WRONG_VALUE } = require('@app/condo/domains/common/constants/errors')
@@ -104,9 +105,25 @@ const REVIEW_VALUES_WITHOUT_RETURNED = [REVIEW_VALUES.GOOD, REVIEW_VALUES.BAD]
 
 describe('Ticket', () => {
     let admin
+    let organization
+    let property
+    let clientWithCanReadTicket
+    let clientWithoutCanReadTicket
 
     beforeAll(async () => {
+        setAllFeatureFlags(true)
+
         admin = await makeLoggedInAdminClient()
+        clientWithCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        clientWithoutCanReadTicket = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [testOrganization] = await createTestOrganization(admin)
+        organization = testOrganization
+        const [testProperty] = await createTestProperty(admin, organization)
+        property = testProperty
+        const [roleWithCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: true })
+        const [roleWithoutCanReadTickets] = await createTestOrganizationEmployeeRole(admin, organization, { canReadTickets: false })
+        await createTestOrganizationEmployee(admin, organization, clientWithCanReadTicket.user, roleWithCanReadTickets)
+        await createTestOrganizationEmployee(admin, organization, clientWithoutCanReadTicket.user, roleWithoutCanReadTickets)
     })
 
     describe('CRUD', () => {
@@ -131,7 +148,7 @@ describe('Ticket', () => {
             expect(obj.statusReason).toEqual(null)
             expect(obj.statusUpdatedAt).toBeNull()
             expect(obj.details).toEqual(attrs.details)
-            expect(obj.isPaid).toEqual(false)
+            expect(obj.isPayable).toEqual(false)
             expect(obj.isEmergency).toEqual(false)
             expect(obj.isWarranty).toEqual(false)
             expect(obj.meta).toEqual(null)
@@ -801,21 +818,18 @@ describe('Ticket', () => {
             })
         })
 
-        test('user: read Ticket', async () => {
-            const client = await makeClientWithProperty()
-            const [obj, attrs] = await createTestTicket(client, client.organization, client.property)
-            const objs = await Ticket.getAll(client)
-            expect(objs).toHaveLength(1)
-            expect(objs[0].id).toMatch(obj.id)
-            expect(objs[0].dv).toEqual(1)
-            expect(objs[0].sender).toEqual(attrs.sender)
-            expect(objs[0].v).toEqual(1)
-            expect(objs[0].newId).toEqual(null)
-            expect(objs[0].deletedAt).toEqual(null)
-            expect(objs[0].createdBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(objs[0].updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            expect(objs[0].createdAt).toMatch(obj.createdAt)
-            expect(objs[0].updatedAt).toMatch(obj.updatedAt)
+        test('employee with canReadTicket: can read Ticket', async () => {
+            const [ticket] = await createTestTicket(admin, organization, property)
+            const readTicket = await Ticket.getOne(clientWithCanReadTicket, { id: ticket.id })
+
+            expect(readTicket).toBeDefined()
+        })
+
+        test('employee without canReadTicket: can not read Ticket', async () => {
+            const [ticket] = await createTestTicket(admin, organization, property)
+            const readTicket = await Ticket.getOne(clientWithoutCanReadTicket, { id: ticket.id })
+
+            expect(readTicket).toBeUndefined()
         })
 
         test('user: no access to another organization ticket', async () => {
@@ -2792,36 +2806,75 @@ describe('Ticket', () => {
         })
     })
 
-    // TODO(DOMA-5833): delete this describe when the mobile app will use 'feedback*' fields
-    describe('feedback and review', () => {
-        test('feedback should override review', async () => {
-            const residentClient = await makeClientWithResidentAccessAndProperty()
-            const unitName = faker.random.alphaNumeric(5)
-            await createTestResident(admin, residentClient.user, residentClient.property, {
-                unitName,
-            })
-            const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
-                unitName,
-            })
+    describe('backward compatibility', () => {
+        // TODO(DOMA-7224): delete this describe when the mobile app will use 'isPayable' field
+        describe('isPaid and isPayable', () => {
+            test('isPayable should override isPaid', async () => {
+                const client = await makeClientWithProperty()
+                const [contact] = await createTestContact(client, client.organization, client.property)
+                const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                    contact: { connect: { id: contact.id } },
+                })
+                expect(ticket.isPaid).toBeFalsy()
+                expect(ticket.isPayable).toBeFalsy()
 
-            await updateTestTicket(admin, ticket.id, {
-                status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
-            })
-            await updateTestTicket(admin, ticket.id, {
-                status: { connect: { id: STATUS_IDS.COMPLETED } },
-            })
+                const [updatedTicket] = await updateTestTicket(client, ticket.id, { isPaid: true })
+                expect(updatedTicket.isPaid).toBeTruthy()
+                expect(updatedTicket.isPayable).toBeTruthy()
 
-            const [updatedTicket, attrs] = await updateTestTicket(residentClient, ticket.id, {
-                feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
-                reviewValue: faker.helpers.arrayElement(REVIEW_VALUES_WITHOUT_RETURNED),
-                reviewComment: faker.lorem.sentence(),
-            })
+                const [updatedTicket2] = await updateTestTicket(client, ticket.id, { isPayable: false })
+                expect(updatedTicket2.isPaid).toBeFalsy()
+                expect(updatedTicket2.isPayable).toBeFalsy()
 
-            expect(updatedTicket.feedbackValue).toEqual(attrs.feedbackValue)
-            expect(updatedTicket.reviewValue).toEqual(attrs.feedbackValue)
-            expect(updatedTicket.reviewComment).toBeNull()
-            expect(updatedTicket.feedbackComment).toBeNull()
-            expect(updatedTicket.feedbackAdditionalOptions).toBeNull()
+                const [updatedTicket3] = await updateTestTicket(client, ticket.id, { isPayable: true, isPaid: false })
+                expect(updatedTicket3.isPaid).toBeTruthy()
+                expect(updatedTicket3.isPayable).toBeTruthy()
+
+                const [updatedTicket4] = await updateTestTicket(client, ticket.id, { details: faker.random.word() })
+                expect(updatedTicket4.isPaid).toBeTruthy()
+                expect(updatedTicket4.isPayable).toBeTruthy()
+
+                const [ticket2] = await createTestTicket(client, client.organization, client.property, {
+                    contact: { connect: { id: contact.id } },
+                    isPaid: false,
+                    isPayable: true,
+                })
+                expect(ticket2.isPaid).toBeTruthy()
+                expect(ticket2.isPayable).toBeTruthy()
+            })
+        })
+
+        // TODO(DOMA-5833): delete this describe when the mobile app will use 'feedback*' fields
+        describe('feedback and review', () => {
+            test('feedback should override review', async () => {
+                const residentClient = await makeClientWithResidentAccessAndProperty()
+                const unitName = faker.random.alphaNumeric(5)
+                await createTestResident(admin, residentClient.user, residentClient.property, {
+                    unitName,
+                })
+                const [ticket] = await createTestTicket(residentClient, residentClient.organization, residentClient.property, {
+                    unitName,
+                })
+
+                await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.IN_PROGRESS } },
+                })
+                await updateTestTicket(admin, ticket.id, {
+                    status: { connect: { id: STATUS_IDS.COMPLETED } },
+                })
+
+                const [updatedTicket, attrs] = await updateTestTicket(residentClient, ticket.id, {
+                    feedbackValue: faker.helpers.arrayElement(FEEDBACK_VALUES_WITHOUT_RETURNED),
+                    reviewValue: faker.helpers.arrayElement(REVIEW_VALUES_WITHOUT_RETURNED),
+                    reviewComment: faker.lorem.sentence(),
+                })
+
+                expect(updatedTicket.feedbackValue).toEqual(attrs.feedbackValue)
+                expect(updatedTicket.reviewValue).toEqual(attrs.feedbackValue)
+                expect(updatedTicket.reviewComment).toBeNull()
+                expect(updatedTicket.feedbackComment).toBeNull()
+                expect(updatedTicket.feedbackAdditionalOptions).toBeNull()
+            })
         })
     })
 
@@ -3371,6 +3424,7 @@ describe('Ticket', () => {
         })
 
         describe('Ticket created', () => {
+
             beforeAll(async () => {
                 const supportClient = await makeClientWithSupportUser()
                 const allOrganizationsBlackList = await MessageOrganizationBlackList.getAll(supportClient, {

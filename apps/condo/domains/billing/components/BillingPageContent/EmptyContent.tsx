@@ -3,6 +3,7 @@ import React, { CSSProperties } from 'react'
 
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { Space, Typography, Button } from '@open-condo/ui'
 
 import { BasicEmptyListView } from '@condo/domains/common/components/EmptyListView'
@@ -26,6 +27,9 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
     const NoReceiptsTitle = intl.formatMessage({ id: 'accrualsAndPayments.billing.noReceiptsYet' })
     const InstructionButtonLabel = intl.formatMessage({ id: 'accrualsAndPayments.setupBilling.instruction.instructionButtonLabel' })
 
+    const userOrganization = useOrganization()
+    const canImportBillingReceipts = get(userOrganization, ['link', 'role', 'canImportBillingReceipts'], false)
+
     const { billingContext } = useBillingAndAcquiringContexts()
 
     const currentProblem = get(billingContext, 'currentProblem')
@@ -45,7 +49,7 @@ export const EmptyContent: React.FC<EmptyContentProps> = ({
                     <Typography.Text type='secondary'>{message}</Typography.Text>
                 )}
             </Space>
-            {Boolean(instructionUrl || uploadComponent) && (
+            {Boolean(canImportBillingReceipts && (instructionUrl || uploadComponent)) && (
                 <Space size={BLOCK_CONTENT_GAP} direction='vertical' align='center'>
                     {uploadComponent}
                     {Boolean(instructionUrl) && (
