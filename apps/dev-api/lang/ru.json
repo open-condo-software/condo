@@ -4,5 +4,7 @@
   "errors.INCORRECT_PHONE_OR_PASSWORD.message": "Неверный номер телефона или пароль",
   "errors.SMS_DAILY_LIMIT_REACHED.ip.message": "С этого IP-адреса было предпринято слишком много попыток регистрации. Пожалуйста, повторите попытку позже",
   "errors.SMS_DAILY_LIMIT_REACHED.phone.message": "Указанный телефон превысил суточный лимит запросов SMS-сообщений",
-  "errors.INVALID_PHONE.message": "Указанный номер телефона имеет неправильный формат"
+  "errors.INVALID_PHONE.message": "Указанный номер телефона имеет неправильный формат",
+  "errors.ACTION_NOT_FOUND.message": "Срок действия отправленного кода истек или он уже был использован",
+  "errors.INVALID_CODE.message": "Неверный код подтверждения"
 }

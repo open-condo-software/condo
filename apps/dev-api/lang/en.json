@@ -4,5 +4,7 @@
   "errors.INCORRECT_PHONE_OR_PASSWORD.message": "Incorrect phone number or password",
   "errors.SMS_DAILY_LIMIT_REACHED.ip.message": "Too many registration attempts have been made from this IP address. Please try again later",
   "errors.SMS_DAILY_LIMIT_REACHED.phone.message": "The specified phone has exceeded the daily SMS request limit",
-  "errors.INVALID_PHONE.message": "The provided phone number is in the wrong format"
+  "errors.INVALID_PHONE.message": "The provided phone number is in the wrong format",
+  "errors.ACTION_NOT_FOUND.message": "The code has expired or has already been used",
+  "errors.INVALID_CODE.message": "Invalid verification code"
 }

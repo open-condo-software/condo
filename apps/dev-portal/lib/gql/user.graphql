@@ -31,3 +31,9 @@ mutation startConfirmPhoneAction ($data: StartConfirmPhoneActionInput!){
         phone
     }
 }
+
+mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!){
+    completeConfirmPhoneAction(data: $data) {
+        status
+    }
+}

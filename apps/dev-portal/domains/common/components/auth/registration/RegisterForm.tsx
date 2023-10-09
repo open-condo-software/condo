@@ -33,10 +33,22 @@ export const RegisterForm: React.FC = () => {
         startCountdown()
     }, [startCountdown])
 
+    const handleCodeInputComplete = useCallback(() => {
+        setIsPhoneConfirmed(true)
+    }, [])
+
     const handlePhoneChange = useCallback(() => {
         setConfirmAction(null)
         resetCountdown()
     }, [resetCountdown])
+
+    const handleResendActionComplete = useCallback((newActionId: string) => {
+        if (confirmAction) {
+            setConfirmAction({ ...confirmAction, actionId: newActionId })
+        }
+        resetCountdown()
+        startCountdown()
+    }, [confirmAction, resetCountdown, startCountdown])
 
     if (!confirmAction) {
         return <PhoneInputStep onComplete={handlePhoneInputComplete} />
@@ -45,12 +57,13 @@ export const RegisterForm: React.FC = () => {
     if (!isPhoneConfirmed) {
         return (
             <CodeInputStep
-                resetCountDown={resetCountdown}
-                startCountDown={startCountdown}
-                phoneChangeAction={handlePhoneChange}
+                actionId={confirmAction.actionId}
                 phone={confirmAction.phone}
-                actionTTL={actionTTL}
                 formattedPhone={confirmAction.formattedPhone}
+                actionTTL={actionTTL}
+                onComplete={handleCodeInputComplete}
+                onCodeResendComplete={handleResendActionComplete}
+                phoneChangeAction={handlePhoneChange}
             />
         )
     }

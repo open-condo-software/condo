@@ -1652,6 +1652,13 @@ export type StartConfirmPhoneActionMutationVariables = Exact<{
 
 export type StartConfirmPhoneActionMutation = { __typename?: 'Mutation', startConfirmPhoneAction?: { __typename?: 'StartConfirmPhoneActionOutput', actionId: string, phone: string } | null }
 
+export type CompleteConfirmPhoneActionMutationVariables = Exact<{
+    data: CompleteConfirmPhoneActionInput;
+}>
+
+
+export type CompleteConfirmPhoneActionMutation = { __typename?: 'Mutation', completeConfirmPhoneAction?: { __typename?: 'CompleteConfirmPhoneActionOutput', status: string } | null }
+
 
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
@@ -1793,3 +1800,36 @@ export function useStartConfirmPhoneActionMutation (baseOptions?: Apollo.Mutatio
 export type StartConfirmPhoneActionMutationHookResult = ReturnType<typeof useStartConfirmPhoneActionMutation>
 export type StartConfirmPhoneActionMutationResult = Apollo.MutationResult<StartConfirmPhoneActionMutation>
 export type StartConfirmPhoneActionMutationOptions = Apollo.BaseMutationOptions<StartConfirmPhoneActionMutation, StartConfirmPhoneActionMutationVariables>
+export const CompleteConfirmPhoneActionDocument = gql`
+    mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!) {
+  completeConfirmPhoneAction(data: $data) {
+    status
+  }
+}
+    `
+export type CompleteConfirmPhoneActionMutationFn = Apollo.MutationFunction<CompleteConfirmPhoneActionMutation, CompleteConfirmPhoneActionMutationVariables>
+
+/**
+ * __useCompleteConfirmPhoneActionMutation__
+ *
+ * To run a mutation, you first call `useCompleteConfirmPhoneActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCompleteConfirmPhoneActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [completeConfirmPhoneActionMutation, { data, loading, error }] = useCompleteConfirmPhoneActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCompleteConfirmPhoneActionMutation (baseOptions?: Apollo.MutationHookOptions<CompleteConfirmPhoneActionMutation, CompleteConfirmPhoneActionMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<CompleteConfirmPhoneActionMutation, CompleteConfirmPhoneActionMutationVariables>(CompleteConfirmPhoneActionDocument, options)
+}
+export type CompleteConfirmPhoneActionMutationHookResult = ReturnType<typeof useCompleteConfirmPhoneActionMutation>
+export type CompleteConfirmPhoneActionMutationResult = Apollo.MutationResult<CompleteConfirmPhoneActionMutation>
+export type CompleteConfirmPhoneActionMutationOptions = Apollo.BaseMutationOptions<CompleteConfirmPhoneActionMutation, CompleteConfirmPhoneActionMutationVariables>

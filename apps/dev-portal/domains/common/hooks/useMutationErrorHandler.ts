@@ -45,10 +45,9 @@ export function useMutationErrorHandler<FormType> (opts: UseMutationErrorHandler
                 if (form && typeToFieldMapping && typeToFieldMapping.hasOwnProperty(type)) {
                     formAffected = true
                     const fieldName = typeToFieldMapping[type]
-                    const currentErrors = form.getFieldError(fieldName)
                     form.setFields([{
                         name: fieldName,
-                        errors: [...currentErrors, userMessage],
+                        errors: [userMessage],
                     }])
                 } else {
                     messageToShow = userMessage

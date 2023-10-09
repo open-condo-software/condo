@@ -8,14 +8,20 @@ import { Typography, Input } from '@open-condo/ui'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { CONFIRM_ACTION_CODE_LENGTH } from '@dev-api/domains/user/constants'
+import { INVALID_CODE, ACTION_NOT_FOUND } from '@dev-api/domains/user/constants/errors'
 
 import styles from './CodeInputStep.module.css'
 
+import { useCompleteConfirmPhoneActionMutation } from '@/lib/gql'
 import { useStartConfirmPhoneActionMutation } from '@/lib/gql'
 
 
 const FULL_SPAN_COL = 24
 const RAW_PHONE_REGEXP = /^\+\d+$/
+const CODE_FORM_ERRORS_TO_FIELDS_MAP = {
+    [INVALID_CODE]: 'code',
+    [ACTION_NOT_FOUND]: 'code',
+}
 
 
 function hidePhone (phone: string) {
@@ -54,20 +60,22 @@ function formatCountDown (ttl: number): string {
 
 type CodeInputStepProps = {
     phone: string
+    actionId: string
     formattedPhone?: string
     actionTTL: number
     phoneChangeAction: () => void
-    resetCountDown: () => void
-    startCountDown: () => void
+    onCodeResendComplete: (newActionId: string) => void
+    onComplete: () => void
 }
 
 export const CodeInputStep: React.FC<CodeInputStepProps> = ({
     phone,
+    actionId,
     formattedPhone,
     actionTTL,
     phoneChangeAction,
-    resetCountDown,
-    startCountDown,
+    onCodeResendComplete,
+    onComplete,
 }) => {
     const intl = useIntl()
     const HidePhoneMessage = intl.formatMessage({ id: 'global.registerForm.phone.hide' })
@@ -83,15 +91,34 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
         setIsPhoneHidden(prev => !prev)
     }, [])
 
-    const onError = useMutationErrorHandler()
-    const onCompleted = useCallback(() => {
-        resetCountDown()
-        startCountDown()
-    }, [resetCountDown, startCountDown])
+    const onResendActionError = useMutationErrorHandler()
     const [restartConfirmPhoneAction] = useStartConfirmPhoneActionMutation({
-        onError,
-        onCompleted,
+        onError: onResendActionError,
+        onCompleted: (data) => {
+            if (data.startConfirmPhoneAction?.actionId) {
+                onCodeResendComplete(data.startConfirmPhoneAction.actionId)
+            }
+        },
     })
+
+    const onCompleteConfirmPhoneActionError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: CODE_FORM_ERRORS_TO_FIELDS_MAP,
+    })
+    const onCompleteConfirmPhoneActionCompleted = useCallback(() => { onComplete() }, [onComplete])
+    const [completeConfirmPhoneActionMutation] = useCompleteConfirmPhoneActionMutation({
+        onError: onCompleteConfirmPhoneActionError,
+        onCompleted: onCompleteConfirmPhoneActionCompleted,
+    })
+    const completeConfirmPhoneAction = useCallback((values) => {
+        const data = {
+            dv: 1,
+            sender: getClientSideSenderInfo(),
+            actionId,
+            code: values.code,
+        }
+        completeConfirmPhoneActionMutation({ variables: { data } })
+    }, [completeConfirmPhoneActionMutation, actionId])
 
     const handleResendCode = useCallback(() => {
         const data = {
@@ -105,10 +132,8 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
     }, [restartConfirmPhoneAction, phone])
 
     const handleCodeValueChange = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-        event.preventDefault()
         let value = event.target.value
         if (value.length === CONFIRM_ACTION_CODE_LENGTH) {
-            console.log('SUBMITTT')
             form.submit()
         } else if (value.length > CONFIRM_ACTION_CODE_LENGTH) {
             value = value.substring(0, CONFIRM_ACTION_CODE_LENGTH)
@@ -123,7 +148,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
             layout='vertical'
             requiredMark={false}
             form={form}
-            onFinish={console.log}
+            onFinish={completeConfirmPhoneAction}
         >
             <Row>
                 <Col span={FULL_SPAN_COL}>
