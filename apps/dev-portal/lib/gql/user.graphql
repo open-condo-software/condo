@@ -37,3 +37,9 @@ mutation completeConfirmPhoneAction($data: CompleteConfirmPhoneActionInput!){
         status
     }
 }
+
+mutation registerNewUser($data: RegisterNewUserInput!) {
+    registerNewUser(data: $data) {
+        id
+    }
+}

@@ -168,8 +168,8 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                     <Typography.Link onClick={phoneChangeAction}>{ChangePhoneNumberMessage}</Typography.Link>
                 </Col>
                 <Col span={FULL_SPAN_COL}>
-                    <Form.Item name='code' label={SMSCodeFieldLabel}>
-                        <Input inputMode='numeric' pattern='[0-9]*' placeholder='1234' onChange={handleCodeValueChange} maxLength={4}/>
+                    <Form.Item name='code' label={SMSCodeFieldLabel} required>
+                        <Input inputMode='numeric' pattern='[0-9]*' placeholder='1234' onChange={handleCodeValueChange} maxLength={4} autoComplete='one-time-code'/>
                     </Form.Item>
                 </Col>
                 <Col span={FULL_SPAN_COL}>

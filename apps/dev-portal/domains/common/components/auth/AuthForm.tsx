@@ -27,7 +27,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ onComplete }) => {
                 {
                     key: 'register',
                     label: RegisterTabLabel,
-                    children: <RegisterForm/>,
+                    children: <RegisterForm onComplete={onComplete}/>,
                 },
             ]}
             destroyInactiveTabPane

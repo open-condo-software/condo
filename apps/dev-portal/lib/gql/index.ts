@@ -1659,6 +1659,13 @@ export type CompleteConfirmPhoneActionMutationVariables = Exact<{
 
 export type CompleteConfirmPhoneActionMutation = { __typename?: 'Mutation', completeConfirmPhoneAction?: { __typename?: 'CompleteConfirmPhoneActionOutput', status: string } | null }
 
+export type RegisterNewUserMutationVariables = Exact<{
+    data: RegisterNewUserInput;
+}>
+
+
+export type RegisterNewUserMutation = { __typename?: 'Mutation', registerNewUser?: { __typename?: 'User', id: string } | null }
+
 
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
@@ -1833,3 +1840,36 @@ export function useCompleteConfirmPhoneActionMutation (baseOptions?: Apollo.Muta
 export type CompleteConfirmPhoneActionMutationHookResult = ReturnType<typeof useCompleteConfirmPhoneActionMutation>
 export type CompleteConfirmPhoneActionMutationResult = Apollo.MutationResult<CompleteConfirmPhoneActionMutation>
 export type CompleteConfirmPhoneActionMutationOptions = Apollo.BaseMutationOptions<CompleteConfirmPhoneActionMutation, CompleteConfirmPhoneActionMutationVariables>
+export const RegisterNewUserDocument = gql`
+    mutation registerNewUser($data: RegisterNewUserInput!) {
+  registerNewUser(data: $data) {
+    id
+  }
+}
+    `
+export type RegisterNewUserMutationFn = Apollo.MutationFunction<RegisterNewUserMutation, RegisterNewUserMutationVariables>
+
+/**
+ * __useRegisterNewUserMutation__
+ *
+ * To run a mutation, you first call `useRegisterNewUserMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRegisterNewUserMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [registerNewUserMutation, { data, loading, error }] = useRegisterNewUserMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useRegisterNewUserMutation (baseOptions?: Apollo.MutationHookOptions<RegisterNewUserMutation, RegisterNewUserMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<RegisterNewUserMutation, RegisterNewUserMutationVariables>(RegisterNewUserDocument, options)
+}
+export type RegisterNewUserMutationHookResult = ReturnType<typeof useRegisterNewUserMutation>
+export type RegisterNewUserMutationResult = Apollo.MutationResult<RegisterNewUserMutation>
+export type RegisterNewUserMutationOptions = Apollo.BaseMutationOptions<RegisterNewUserMutation, RegisterNewUserMutationVariables>

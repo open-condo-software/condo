@@ -4,6 +4,7 @@ import { useCountdown } from 'usehooks-ts'
 import { CONFIRM_ACTION_TTL_IN_SEC } from '@dev-api/domains/user/constants'
 
 import { CodeInputStep } from './CodeInputStep'
+import { IdentityInputStep } from './IdentityInputStep'
 import { PhoneInputStep } from './PhoneInputStep'
 
 import type { PhoneInputStepProps } from './PhoneInputStep'
@@ -19,7 +20,11 @@ type ConfirmActionType =  {
     formattedPhone?: string
 }
 
-export const RegisterForm: React.FC = () => {
+type RegisterFormProps = {
+    onComplete: () => void
+}
+
+export const RegisterForm: React.FC<RegisterFormProps> = ({ onComplete }) => {
     const [confirmAction, setConfirmAction] = useState<ConfirmActionType | null>(null)
     const [isPhoneConfirmed, setIsPhoneConfirmed] = useState(false)
 
@@ -68,7 +73,5 @@ export const RegisterForm: React.FC = () => {
         )
     }
 
-
-
-    return null
+    return <IdentityInputStep phone={confirmAction.phone} actionId={confirmAction.actionId} onComplete={onComplete}/>
 }

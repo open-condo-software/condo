@@ -5,6 +5,8 @@
   "errors.SMS_DAILY_LIMIT_REACHED.ip.message": "С этого IP-адреса было предпринято слишком много попыток регистрации. Пожалуйста, повторите попытку позже",
   "errors.SMS_DAILY_LIMIT_REACHED.phone.message": "Указанный телефон превысил суточный лимит запросов SMS-сообщений",
   "errors.INVALID_PHONE.message": "Указанный номер телефона имеет неправильный формат",
-  "errors.ACTION_NOT_FOUND.message": "Срок действия отправленного кода истек или он уже был использован",
-  "errors.INVALID_CODE.message": "Неверный код подтверждения"
+  "errors.ACTION_NOT_FOUND.code.message": "Срок действия отправленного кода истек или он уже был использован",
+  "errors.ACTION_NOT_FOUND.user.message": "С момента подтверждения телефона прошло слишком много времени",
+  "errors.INVALID_CODE.message": "Неверный код подтверждения",
+  "errors.USER_ALREADY_EXISTS.message": "Пользователь с таким номером телефона уже был зарегистрирован ранее"
 }

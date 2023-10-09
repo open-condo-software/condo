@@ -5,6 +5,8 @@
   "errors.SMS_DAILY_LIMIT_REACHED.ip.message": "Too many registration attempts have been made from this IP address. Please try again later",
   "errors.SMS_DAILY_LIMIT_REACHED.phone.message": "The specified phone has exceeded the daily SMS request limit",
   "errors.INVALID_PHONE.message": "The provided phone number is in the wrong format",
-  "errors.ACTION_NOT_FOUND.message": "The code has expired or has already been used",
-  "errors.INVALID_CODE.message": "Invalid verification code"
+  "errors.ACTION_NOT_FOUND.code.message": "The code has expired or has already been used",
+  "errors.ACTION_NOT_FOUND.user.message": "It's been too long since the phone was confirmed",
+  "errors.INVALID_CODE.message": "Invalid verification code",
+  "errors.USER_ALREADY_EXISTS.message": "A user with this phone number has already been registered before"
 }

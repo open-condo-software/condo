@@ -82,7 +82,7 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
         >
             <Row>
                 <Col span={FULL_SPAN_COL}>
-                    <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]}>
+                    <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]} required>
                         <Input.Phone onChange={onPhoneInputChange}/>
                     </Form.Item>
                 </Col>

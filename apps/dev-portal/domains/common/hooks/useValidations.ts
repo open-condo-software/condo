@@ -1,9 +1,10 @@
-import { Rule } from 'rc-field-form/lib/interface'
 import { useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { isValidPassword } from '@dev-api/domains/user/utils/password'
 import { normalizePhone } from '@dev-api/domains/user/utils/phone'
+
+import type { Rule } from 'rc-field-form/lib/interface'
 
 
 type Validators = {
