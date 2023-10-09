@@ -30,7 +30,7 @@ function tokenifyAddress (addressStr) {
 async function findPropertyByOrganizationAndAddress (context, organizationId, address) {
     const targetTokens = tokenifyAddress(address)
 
-    let theMostProbablyProperty
+    let theMostProbablyProperties = []
     let maxScore = 0
 
     await loadListByChunks({
@@ -42,9 +42,13 @@ async function findPropertyByOrganizationAndAddress (context, organizationId, ad
             for (const property of chunk) {
                 const tokens = tokenifyAddress(property.address)
                 const score = 100 / targetTokens.length * intersection(targetTokens, tokens).length
-                if (score > maxScore) {
-                    theMostProbablyProperty = property
-                    maxScore = score
+                if (score >= maxScore) {
+                    if (score === maxScore) {
+                        theMostProbablyProperties.push(property)
+                    } else {
+                        theMostProbablyProperties = [property]
+                        maxScore = score
+                    }
                 }
             }
 
@@ -52,7 +56,7 @@ async function findPropertyByOrganizationAndAddress (context, organizationId, ad
         },
     })
 
-    return [theMostProbablyProperty, Number(maxScore.toFixed(2))]
+    return [theMostProbablyProperties, Number(maxScore.toFixed(2))]
 }
 
 module.exports = { findPropertyByOrganizationAndAddress, tokenifyAddress }
