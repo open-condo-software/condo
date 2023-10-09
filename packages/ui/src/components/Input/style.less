@@ -4,8 +4,8 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 
 .condo-input,
-.react-tel-input,
-.react-tel-input .condo-input,
+.condo-input-phone,
+.condo-input-phone .condo-input,
 .condo-input-affix-wrapper {
   color: @condo-global-color-black;
   .condo-typography-text-large();
@@ -30,17 +30,11 @@
   box-shadow: none;
 }
 
-.react-tel-input .flag-dropdown {
+.condo-input-phone .flag-dropdown {
   margin: 4px;
   background: @condo-global-color-gray-3;
   border: 0;
   border-radius: @condo-global-border-radius-small;
-
-  &.open,
-  &:hover {
-    background: @condo-global-color-gray-5;
-    border-radius: @condo-global-border-radius-small;
-  }
 
   .selected-flag {
     width: @condo-global-spacing-40;
@@ -56,11 +50,23 @@
   }
 }
 
-.react-tel-input .country-list .country .dial-code {
+.condo-input-phone-disabled .flag-dropdown {
+  cursor: not-allowed !important;
+}
+
+.condo-input-phone .flag-dropdown.open,
+.condo-input-phone .flag-dropdown:hover:not(.condo-input-phone-disabled .flag-dropdown) {
+  background: @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-small;
+}
+
+.condo-input-phone .country-list .country .dial-code {
   color: @condo-global-color-gray-7;
 }
 
-.condo-input:not(.condo-input-affix-wrapper .condo-input, .condo-input-disabled),
+.condo-input:not(.condo-input-affix-wrapper .condo-input,
+.condo-input-disabled,
+.condo-input-phone-disabled .condo-input),
 .condo-input-affix-wrapper:not(.condo-input-affix-wrapper-disabled) {
   &:hover,
   &:focus,
@@ -76,7 +82,8 @@
 }
 
 .condo-input-affix-wrapper-disabled,
-.condo-input-disabled[disabled] {
+.condo-input-disabled[disabled],
+.condo-input[disabled] {
   color: @condo-global-color-black;
   background-color: @condo-global-color-white;
   opacity: @condo-global-opacity-disabled;
@@ -90,6 +97,7 @@
   opacity: 1;
 }
 
+.condo-input[disabled]::placeholder,
 .condo-input-disabled[disabled]::placeholder,
 .condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled]::placeholder {
   color: @condo-global-color-gray-7;

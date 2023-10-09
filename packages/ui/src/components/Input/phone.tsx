@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import React, { useCallback } from 'react'
 import ReactPhoneInput from 'react-phone-input-2'
 
@@ -12,7 +13,11 @@ export type PhoneInputProps = Omit<React.InputHTMLAttributes<HTMLInputElement>, 
 & Pick<DefaultPhoneInputProps, 'country' | 'placeholder' | 'onChange' | 'value'>
 
 const Phone: React.FC<PhoneInputProps> = (props) => {
-    const { country, placeholder, onChange, ...restProps } = props
+    const { country, placeholder, onChange, disabled = false, ...restProps } = props
+
+    const containerClasses = classNames(`${INPUT_CLASS_PREFIX}-phone`, {
+        [`${INPUT_CLASS_PREFIX}-phone-disabled`]: disabled,
+    })
 
     const internalOnChange = useCallback<Required<PhoneInputProps>['onChange']>((rawValue, data, event, formattedValue) => {
         const value = rawValue ? `+${rawValue}` : rawValue
@@ -25,7 +30,8 @@ const Phone: React.FC<PhoneInputProps> = (props) => {
         <ReactPhoneInput
             {...restProps}
             onChange={internalOnChange}
-            containerClass={`${INPUT_CLASS_PREFIX}-phone`}
+            containerClass={containerClasses}
+            disabled={disabled}
             inputClass={INPUT_CLASS_PREFIX}
             country={country || DEFAULT_COUNTRY}
             copyNumbersOnly={false}

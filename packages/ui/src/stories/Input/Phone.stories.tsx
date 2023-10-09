@@ -6,6 +6,9 @@ import { Input } from '@open-condo/ui/src'
 export default {
     title: 'Components/Input',
     component: Input.Phone,
+    args: {
+        disabled: false,
+    },
 } as ComponentMeta<typeof Input.Phone>
 
 const Template: ComponentStory<typeof Input.Phone> = (props) => <Input.Phone {...props}/>
