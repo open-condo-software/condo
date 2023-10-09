@@ -24,3 +24,10 @@ mutation signOut {
         success
     }
 }
+
+mutation startConfirmPhoneAction ($data: StartConfirmPhoneActionInput!){
+    startConfirmPhoneAction(data: $data) {
+        actionId
+        phone
+    }
+}

@@ -993,14 +993,17 @@ __metadata:
     "@types/title": 3.4.1
     antd: 5.1.7
     cookies-next: 2.1.1
+    dayjs: ^1.11.10
     deepmerge: ^4.3.1
     glob: 8.1.0
     graphql: ^16.8.1
     graphql-tag: ^2.12.6
     gray-matter: 4.0.3
+    js-cookie: ^2.2.1
     lodash: ^4.17.21
     next: 13.3.0
     next-mdx-remote: 4.3.0
+    phone: ^3.1.41
     rc-field-form: 1.27.1
     react: 18.2.0
     react-dom: 18.2.0
@@ -1011,6 +1014,7 @@ __metadata:
     title: 3.5.3
     ts-node: ^10.9.1
     typescript: 4.9.4
+    usehooks-ts: ^2.9.1
     zod: ^3.22.4
   languageName: unknown
   linkType: soft
@@ -22987,6 +22991,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"dayjs@npm:^1.11.10":
+  version: 1.11.10
+  resolution: "dayjs@npm:1.11.10"
+  checksum: a6b5a3813b8884f5cd557e2e6b7fa569f4c5d0c97aca9558e38534af4f2d60daafd3ff8c2000fed3435cfcec9e805bcebd99f90130c6d1c5ef524084ced588c4
+  languageName: node
+  linkType: hard
+
 "dayjs@npm:^1.11.6":
   version: 1.11.6
   resolution: "dayjs@npm:1.11.6"
@@ -37534,6 +37545,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"phone@npm:^3.1.41":
+  version: 3.1.41
+  resolution: "phone@npm:3.1.41"
+  checksum: 720f29dc6a6140e34be4f534eddf20aeeba1114b965984044b48dd2d8ced2518b1f00929fee05f9d22f9af792cd223a7446dbed91caa25a6d5b81fb89e0e1b0d
+  languageName: node
+  linkType: hard
+
 "picocolors@npm:^0.2.1":
   version: 0.2.1
   resolution: "picocolors@npm:0.2.1"
@@ -48153,6 +48171,16 @@ __metadata:
   version: 3.1.1
   resolution: "use@npm:3.1.1"
   checksum: 08a130289f5238fcbf8f59a18951286a6e660d17acccc9d58d9b69dfa0ee19aa038e8f95721b00b432c36d1629a9e32a464bf2e7e0ae6a244c42ddb30bdd8b33
+  languageName: node
+  linkType: hard
+
+"usehooks-ts@npm:^2.9.1":
+  version: 2.9.1
+  resolution: "usehooks-ts@npm:2.9.1"
+  peerDependencies:
+    react: ^16.8.0  || ^17.0.0 || ^18.0.0
+    react-dom: ^16.8.0  || ^17.0.0 || ^18.0.0
+  checksum: 36f1e4142ce23bc019b81d2e93aefd7f2c350abcf255598c21627114a69a2f2f116b35dc3a353375f09c6e4c9b704a04f104e3d10e98280545c097feca66c30a
   languageName: node
   linkType: hard
 

@@ -16,13 +16,14 @@ const { normalizePhone } = require('@dev-api/domains/user/utils/phone')
 const ERRORS = {
     INVALID_PHONE: {
         code: BAD_USER_INPUT,
-        message: 'The provided phone number is in the wrong format',
         type: INVALID_PHONE,
+        message: 'The provided phone number is in the wrong format',
+        messageForUser: 'errors.INVALID_PHONE.message',
     },
     PASSWORD_TOO_SIMPLE: {
         code: BAD_USER_INPUT,
-        message: 'The provided password is too simple',
         type: PASSWORD_TOO_SIMPLE,
+        message: 'The provided password is too simple',
     },
 }
 

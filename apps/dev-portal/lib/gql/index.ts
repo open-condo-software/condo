@@ -1645,6 +1645,13 @@ export type SignOutMutationVariables = Exact<{ [key: string]: never; }>
 
 export type SignOutMutation = { __typename?: 'Mutation', unauthenticateUser?: { __typename?: 'unauthenticateUserOutput', success?: boolean | null } | null }
 
+export type StartConfirmPhoneActionMutationVariables = Exact<{
+    data: StartConfirmPhoneActionInput;
+}>
+
+
+export type StartConfirmPhoneActionMutation = { __typename?: 'Mutation', startConfirmPhoneAction?: { __typename?: 'StartConfirmPhoneActionOutput', actionId: string, phone: string } | null }
+
 
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
@@ -1752,3 +1759,37 @@ export function useSignOutMutation (baseOptions?: Apollo.MutationHookOptions<Sig
 export type SignOutMutationHookResult = ReturnType<typeof useSignOutMutation>
 export type SignOutMutationResult = Apollo.MutationResult<SignOutMutation>
 export type SignOutMutationOptions = Apollo.BaseMutationOptions<SignOutMutation, SignOutMutationVariables>
+export const StartConfirmPhoneActionDocument = gql`
+    mutation startConfirmPhoneAction($data: StartConfirmPhoneActionInput!) {
+  startConfirmPhoneAction(data: $data) {
+    actionId
+    phone
+  }
+}
+    `
+export type StartConfirmPhoneActionMutationFn = Apollo.MutationFunction<StartConfirmPhoneActionMutation, StartConfirmPhoneActionMutationVariables>
+
+/**
+ * __useStartConfirmPhoneActionMutation__
+ *
+ * To run a mutation, you first call `useStartConfirmPhoneActionMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useStartConfirmPhoneActionMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [startConfirmPhoneActionMutation, { data, loading, error }] = useStartConfirmPhoneActionMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useStartConfirmPhoneActionMutation (baseOptions?: Apollo.MutationHookOptions<StartConfirmPhoneActionMutation, StartConfirmPhoneActionMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<StartConfirmPhoneActionMutation, StartConfirmPhoneActionMutationVariables>(StartConfirmPhoneActionDocument, options)
+}
+export type StartConfirmPhoneActionMutationHookResult = ReturnType<typeof useStartConfirmPhoneActionMutation>
+export type StartConfirmPhoneActionMutationResult = Apollo.MutationResult<StartConfirmPhoneActionMutation>
+export type StartConfirmPhoneActionMutationOptions = Apollo.BaseMutationOptions<StartConfirmPhoneActionMutation, StartConfirmPhoneActionMutationVariables>
