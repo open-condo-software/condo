@@ -4,7 +4,8 @@ const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const SYMBOLS_TO_REMOVE_REGEXP = /[!@#$%^&*)(+=_:"'`[\]]/g
-const SPLITTERS_REGEXP = /[,;. ]/
+const SPLITTERS_REGEXP = /[,;. -]/
+const IS_DIGITS_ONLY_REGEXP = /^\d+$/
 
 /**
  * @param {string} addressStr
@@ -12,10 +13,11 @@ const SPLITTERS_REGEXP = /[,;. ]/
  */
 function tokenifyAddress (addressStr) {
     return addressStr
+        .toLowerCase()
         .replace(SYMBOLS_TO_REMOVE_REGEXP, '')
         .split(SPLITTERS_REGEXP)
         .filter(Boolean)
-        .filter((x) => x.length > 1)
+        .filter((x) => x.length > 1 || IS_DIGITS_ONLY_REGEXP.test(x))
 }
 
 /**
