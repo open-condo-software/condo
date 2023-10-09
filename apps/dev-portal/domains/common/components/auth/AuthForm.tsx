@@ -4,7 +4,7 @@ import { useIntl } from 'react-intl'
 import { Tabs } from '@open-condo/ui'
 
 import { LoginForm } from './LoginForm'
-import { RegisterForm } from './RegisterForm'
+import { RegisterForm } from './registration/RegisterForm'
 
 type AuthFormProps =  {
     onComplete: () => void
