@@ -25,7 +25,7 @@ function tokenifyAddress (addressStr) {
  * @param {string} organizationId
  * @param {string} address
  *
- * @returns {[Property, number]} The most probably property and score (percent of matched tokens)
+ * @returns {[Property[], number]} The most probably property and score (percent of matched tokens)
  */
 async function findPropertyByOrganizationAndAddress (context, organizationId, address) {
     const targetTokens = tokenifyAddress(address)
