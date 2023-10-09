@@ -15,7 +15,12 @@ const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/doma
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
 
+const { findPropertyByOrganizationAndAddress } = require('./helpers/propertyFinder')
+
 const RECEIPTS_LIMIT = 50
+
+// This is a percent of matched tokens while searching through the organization's properties
+const PROPERTY_SCORE_TO_PASS = 95
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -370,6 +375,15 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         partialErrors.push(new GQLError({ ...ERRORS.ADDRESS_EMPTY_VALUE, inputIndex: i }, context))
                         continue
                     }
+
+                    if (!normalizedAddress) {
+                        const [findedOrganizationProperties, score] = await findPropertyByOrganizationAndAddress(context, billingContext.organization.id, address)
+
+                        if (score > PROPERTY_SCORE_TO_PASS && findedOrganizationProperties.length === 1) {
+                            normalizedAddress = findedOrganizationProperties[0].address
+                        }
+                    }
+
                     if (!normalizedAddress) {
                         const normalizedAddressFromSuggestions = get(await getAddressSuggestions(address, 1), ['0', 'value'])
                         if (!normalizedAddressFromSuggestions) {
@@ -471,7 +485,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             },
         },
     ],
-    
 })
 
 module.exports = {
