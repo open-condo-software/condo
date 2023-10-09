@@ -205,8 +205,8 @@ const obsRouterHandler = ({ keystone }) => {
         }
 
         try {
-            const { id, isAdmin, isSupport, type } = req.user
-            const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type }, listKey: 'User' } })
+            const { id, isAdmin, isSupport, type, phone } = req.user
+            const context = await keystone.createContext({ authentication: { item: { id, isAdmin, isSupport, type, phone }, listKey: 'User' } })
 
             let hasAccessToReadFile
 
