@@ -73,7 +73,7 @@ const mapSectionsToUnitLabels = (sections) => sections.map(
 ).flat(2)
 
 const isValidDate = (date) => {
-    return dayjs(date).isValid() || !dayjs(date, 'DD.MM.YYYY').isValid()
+    return dayjs(date).isValid()
 }
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
@@ -174,6 +174,14 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
     }), [ApartmentUnitTypeValue, CommercialUnitTypeValue, FlatUnitTypeValue, ParkingUnitTypeValue, WarehouseUnitTypeValue])
 
+    const METER_RESOURCE_ABBREVIATION_TO_ID = {
+        [HotWaterResourceTypeValue]: HOT_WATER_METER_RESOURCE_ID,
+        [ColdWaterResourceTypeValue]: COLD_WATER_METER_RESOURCE_ID,
+        [ElectricityResourceTypeValue]: ELECTRICITY_METER_RESOURCE_ID,
+        [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
+        [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
+    }
+
     const meterReadingNormalizer: RowNormalizer = async (row) => {
         if (row.length !== columns.length) return Promise.resolve({ row })
         const [
@@ -221,15 +229,24 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         addons.valuesAmount = [addons.value1, addons.value2, addons.value3, addons.value4].filter(Boolean).length
 
         try {
+            addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
+            addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
+
+            try {
+                addons.readingSubmissionDate = parseDateOrMonth(readingSubmissionDate)
+            } catch (e) {
+                addons.invalidReadingSubmissionDate = true
+            }
+
             // Current suggestion API provider returns no suggestions for address with flat number
             const suggestionOptions = await addressApi.getSuggestions(String(address))
             const suggestion = get(suggestionOptions, ['suggestions', 0])
-            if (!suggestion) {
-                return { row, addons }
-            }
-            // Used tell whether suggestion API has found specified address at all
+
+            if (!suggestion) return { row, addons }
+
             addons.address = suggestion.value
 
+            // Used tell whether suggestion API has found specified address at all
             const properties = await searchPropertyWithMap(client, {
                 organization: { id: userOrganizationIdRef.current },
                 address_i: suggestion.value,
@@ -237,13 +254,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
             const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
             const propertyMap = !isEmpty(properties) ? get(properties[0], 'map') : null
-            if (!propertyId) {
-                return { row, addons }
-            }
+
+            if (!propertyId) return { row, addons }
 
             addons.propertyId = propertyId
             addons.propertyMap = propertyMap
-            addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
 
             const searchMeterWhereConditions = {
                 organization: { id: userOrganizationIdRef.current },
@@ -256,21 +271,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
             const meterOptions = await searchMeter(client, searchMeterWhereConditions, SortMetersBy.CreatedAtDesc)
             addons.meterId = meterOptions.length > 0 ? meterOptions[0].value : null
-
-            const METER_RESOURCE_ABBREVIATION_TO_ID = {
-                [HotWaterResourceTypeValue]: HOT_WATER_METER_RESOURCE_ID,
-                [ColdWaterResourceTypeValue]: COLD_WATER_METER_RESOURCE_ID,
-                [ElectricityResourceTypeValue]: ELECTRICITY_METER_RESOURCE_ID,
-                [HeatSupplyResourceTypeValue]: HEAT_SUPPLY_METER_RESOURCE_ID,
-                [GasSupplyResourceTypeValue]: GAS_SUPPLY_METER_RESOURCE_ID,
-            }
-            addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
-
-            try {
-                addons.readingSubmissionDate = parseDateOrMonth(readingSubmissionDate)
-            } catch (e) {
-                addons.invalidReadingSubmissionDate = true
-            }
         } catch (error) {
             addons.invalidNormalization = true
             console.error('meterReadingNormalizer error')
@@ -323,9 +323,9 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     }
                     break
                 case VerificationDateMessage:
-                case NextVerificationDateMessage: 
-                case InstallationDateMessage: 
-                case CommissioningDateMessage: 
+                case NextVerificationDateMessage:
+                case InstallationDateMessage:
+                case CommissioningDateMessage:
                 case SealingDateMessage:
                 case ControlReadingsDate:
                     if (cell.value && !isValidDate(cell.value)) {
