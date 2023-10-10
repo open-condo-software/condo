@@ -2072,7 +2072,7 @@
   "excelExport.headers.propertyScopes.name": "Property scope name",
   "excelExport.headers.propertyScopes.properties": "Properties",
   "excelExport.headers.propertyScopes.employees": "Employees",
-  "excelExport.headers.incidents.title": "Contacts for all time",
+  "excelExport.headers.incidents.title": "Incidents for all time",
   "excelExport.headers.incidents.forPeriod.title": "Incidents for the period",
   "excelExport.headers.incidents.number": "Number",
   "excelExport.headers.incidents.addresses": "Addresses",
