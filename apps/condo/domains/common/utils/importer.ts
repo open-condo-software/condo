@@ -42,6 +42,7 @@ interface IImporter {
 type ColumnType = 'string' | 'number' | 'date' | 'custom'
 
 export const DATE_PARSING_FORMAT = 'YYYY-MM-DD'
+export const DATE_PARSING_FORMAT_2 = 'DD.MM.YYYY'
 
 export interface ColumnInfo {
     name: string
@@ -146,11 +147,18 @@ export class Importer implements IImporter {
             if (row[i].value === undefined && this.columnsRequired[i]) {
                 return false
             } else if (this.columnsTypes[i] === 'custom') {
-                return true
+                continue
             } else if (this.columnsTypes[i] === 'string' && valueType === 'number') {
                 row[i].value = String(row[i].value)
             } else if (this.columnsTypes[i] === 'date' && valueType === 'string') {
-                row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT).toDate()
+                // NOTE: We support only 2 formats of date: "YYYY-MM-DD" and "DD.MM.YYYY"
+                if (dayjs(row[i].value, DATE_PARSING_FORMAT, true).isValid()) {
+                    row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT, true).toDate()
+                } else if (dayjs(row[i].value, DATE_PARSING_FORMAT_2, true).isValid()) {
+                    row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT_2, true).toDate()
+                } else {
+                    return false
+                }
             } else if (valueType !== 'undefined' && valueType !== this.columnsTypes[i]) {
                 return false
             }
