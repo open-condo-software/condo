@@ -211,8 +211,9 @@ export class Importer implements IImporter {
                                     try {
                                         const mutationErrors = get(e, 'graphQLErrors', []) || []
                                         if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
-                                            console.warn('No "graphQLErrors" for formatting errors')
+                                            console.warn('Unexpected error! No "graphQLErrors" for formatting errors')
                                             console.error(e)
+                                            normalizedRow.errors.push('Unexpected error')
                                         }
                                         normalizedRow.errors = normalizedRow.errors || []
 
