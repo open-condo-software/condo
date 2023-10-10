@@ -327,6 +327,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case InstallationDateMessage: 
                 case CommissioningDateMessage: 
                 case SealingDateMessage:
+                case ControlReadingsDate:
                     if (cell.value && !isValidDate(cell.value)) {
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].name, format: DATE_PARSING_FORMAT }))
                     }
