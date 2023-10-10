@@ -9,6 +9,9 @@ import type { ComponentStory, ComponentMeta } from '@storybook/react'
 export default {
     title: 'Components/Tabs',
     component: Tabs,
+    args: {
+        centered: false,
+    },
 } as ComponentMeta<React.FC<TabsProps>>
 
 const simpleItems: Array<TabItem> = [

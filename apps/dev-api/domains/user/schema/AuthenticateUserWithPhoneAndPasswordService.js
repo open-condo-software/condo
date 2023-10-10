@@ -13,11 +13,13 @@ const ERRORS =  {
         code: BAD_USER_INPUT,
         type: INCORRECT_PHONE_OR_PASSWORD,
         message: 'Incorrect phone number or password',
+        messageForUser: 'errors.INCORRECT_PHONE_OR_PASSWORD.message',
     },
     AUTH_ATTEMPTS_DAILY_LIMIT_REACHED: {
         code: TOO_MANY_REQUESTS,
         type: AUTH_ATTEMPTS_DAILY_LIMIT_REACHED,
         message: 'Too many authorization attempts have been made from this IP address. Please try again later',
+        messageForUser: 'errors.AUTH_ATTEMPTS_DAILY_LIMIT_REACHED.message',
     },
 }
 

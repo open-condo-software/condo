@@ -1,3 +1,4 @@
+import { ApolloProvider } from '@apollo/client'
 import { ConfigProvider, Layout } from 'antd'
 import en from 'lang/en.json'
 import ru from 'lang/ru.json'
@@ -22,6 +23,9 @@ const monoFont = Noto_Sans_Mono({
 
 import type { AppProps } from 'next/app'
 import type { ReactNode } from 'react'
+
+import { useApollo } from '@/lib/apollo'
+import { AuthProvider } from '@/lib/auth'
 
 import 'antd/dist/reset.css'
 import '@open-condo/ui/dist/styles.min.css'
@@ -49,19 +53,26 @@ declare global {
     }
 }
 
-export default function App ({ Component, pageProps, router }: AppProps): ReactNode {
+function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
     const { locale = DEFAULT_LOCALE } = router
+    const client = useApollo(pageProps)
 
     return (
-        <ConfigProvider theme={theme}>
-            <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
-                <main className={`${mainFont.variable} ${monoFont.variable}`}>
-                    <Layout>
-                        <Header/>
-                        <Component {...pageProps}/>
-                    </Layout>
-                </main>
-            </IntlProvider>
-        </ConfigProvider>
+        <ApolloProvider client={client}>
+            <AuthProvider>
+                <ConfigProvider theme={theme}>
+                    <IntlProvider locale={locale} messages={get(MESSAGES, locale, {})}>
+                        <main className={`${mainFont.variable} ${monoFont.variable}`}>
+                            <Layout>
+                                <Header/>
+                                <Component {...pageProps}/>
+                            </Layout>
+                        </main>
+                    </IntlProvider>
+                </ConfigProvider>
+            </AuthProvider>
+        </ApolloProvider>
     )
 }
+
+export default DevPortalApp

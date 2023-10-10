@@ -25,6 +25,7 @@ import {
     extractLocalizedTitleParts, 
 } from '@/domains/docs/utils/routing'
 
+
 import styles from './path.module.css'
 
 import type { Heading } from '@/domains/docs/utils/mdx'
@@ -32,6 +33,9 @@ import type { NavItem, ArticleInfo } from '@/domains/docs/utils/routing'
 import type { RowProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 import type { MDXRemoteSerializeResult } from 'next-mdx-remote'
+
+import { initializeApollo, extractApolloState } from '@/lib/apollo'
+import { prefetchAuth, extractAuthHeadersFromRequest } from '@/lib/auth'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
 const SIDER_WIDTH = 336
@@ -78,7 +82,7 @@ const DocPage: React.FC<DocPageProps> = ({
 
     const openPaths = useMemo(() => {
         const parts = currentRoute.split('/').filter(Boolean)
-        const result = []
+        const result: Array<string> = []
         for (let i = 0; i < parts.length - 2; ++i) {
             const route = `/${parts.slice(0, parts.length - (i + 1)).join('/')}`
             result.push(route)
@@ -183,7 +187,8 @@ const DocPage: React.FC<DocPageProps> = ({
 
 export default DocPage
 
-export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params }) => {
+export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ locale = DEFAULT_LOCALE, params, req }) => {
+    // Static props
     const navTree = getNavTree(DOCS_ROOT_PATH, locale, DOCS_ROOT_PATH)
 
     const articles = Array.from(getFlatArticles(navTree))
@@ -212,8 +217,12 @@ export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ loc
         ? `${DOCS_REPO}/${repoRoute}`
         : null
 
+    // Prefetch client queries
+    const client = initializeApollo()
+    const headers = extractAuthHeadersFromRequest(req)
+    await prefetchAuth(client, { headers })
 
-    return {
+    return extractApolloState<DocPageProps>(client, {
         props: {
             navigation: navTree,
             serializedContent,
@@ -224,5 +233,5 @@ export const getServerSideProps: GetServerSideProps<DocPageProps> = async ({ loc
             articleTitle: currentPage.label,
             localizedPageTitleParts,
         },
-    }
+    })
 }

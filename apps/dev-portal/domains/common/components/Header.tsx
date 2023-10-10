@@ -13,6 +13,7 @@ import { colors } from '@open-condo/ui/colors'
 
 import { LOCALES } from '@/domains/common/constants/locales'
 
+import { AuthHeaderAction } from './auth/AuthAction'
 import styles from './Header.module.css'
 
 const logoFont = Montserrat({
@@ -56,6 +57,7 @@ export const Header: React.FC = () => {
                         <Globe size='large' color={colors.gray['7']}/>
                     </span>
                 </Dropdown>
+                <AuthHeaderAction/>
             </Space>
         </Layout.Header>
     )

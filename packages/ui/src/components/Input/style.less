@@ -4,44 +4,37 @@
 @import (reference) "@open-condo/ui/src/components/style/mixins/typography";
 
 .condo-input,
+.condo-input-phone,
+.condo-input-phone .condo-input,
 .condo-input-affix-wrapper {
-  box-sizing: content-box;
-  height: @condo-global-typography-text-l-line-height;
-  padding: @condo-global-spacing-12 - @condo-global-border-width-default;
   color: @condo-global-color-black;
-  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
-  border-radius: @condo-global-border-radius-medium;
-
-  .condo-typography-text-large();
-
-  &-focused {
-    border-color: @condo-global-color-gray-7;
-    box-shadow: none;
-  }
-}
-
-.react-tel-input {
   .condo-typography-text-large();
 }
 
-.react-tel-input .condo-input {
+.condo-input:not(.condo-input-affix-wrapper .condo-input),
+.condo-input-affix-wrapper {
   box-sizing: border-box;
   width: 100%;
   height: @condo-global-typography-text-l-line-height + 2 * @condo-global-spacing-12;
+  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
   border-radius: @condo-global-border-radius-medium;
 }
 
-.react-tel-input .flag-dropdown {
-  margin: 4px;
+.condo-input-affix-wrapper {
+  padding: @condo-global-spacing-12 - @condo-global-border-width-default;
+}
+
+.condo-input-focused,
+.condo-input-affix-wrapper-focused {
+  border-color: @condo-global-color-gray-7;
+  box-shadow: none;
+}
+
+.condo-input-phone .flag-dropdown {
+  margin: @condo-global-spacing-4;
   background: @condo-global-color-gray-3;
   border: 0;
   border-radius: @condo-global-border-radius-small;
-
-  &.open,
-  &:hover {
-    background: @condo-global-color-gray-5;
-    border-radius: @condo-global-border-radius-small;
-  }
 
   .selected-flag {
     width: @condo-global-spacing-40;
@@ -57,12 +50,23 @@
   }
 }
 
-.react-tel-input .form-control.condo-input {
-  font-size: @condo-global-font-size-text-l;
-  border: @condo-global-border-width-default solid @condo-global-color-gray-5;
+.condo-input-phone-disabled .flag-dropdown {
+  cursor: not-allowed !important;
 }
 
-.condo-input:not(.condo-input-disabled),
+.condo-input-phone .flag-dropdown.open,
+.condo-input-phone .flag-dropdown:hover:not(.condo-input-phone-disabled .flag-dropdown) {
+  background: @condo-global-color-gray-5;
+  border-radius: @condo-global-border-radius-small;
+}
+
+.condo-input-phone .country-list .country .dial-code {
+  color: @condo-global-color-gray-7;
+}
+
+.condo-input:not(.condo-input-affix-wrapper .condo-input,
+.condo-input-disabled,
+.condo-input-phone-disabled .condo-input),
 .condo-input-affix-wrapper:not(.condo-input-affix-wrapper-disabled) {
   &:hover,
   &:focus,
@@ -72,15 +76,14 @@
   }
 }
 
-.condo-input::placeholder,
-.condo-input-affix-wrapper > .condo-input::placeholder {
+.condo-input::placeholder {
   color: @condo-global-color-gray-7;
-
   .condo-typography-text-large();
 }
 
 .condo-input-affix-wrapper-disabled,
-.condo-input-disabled[disabled] {
+.condo-input-disabled[disabled],
+.condo-input[disabled] {
   color: @condo-global-color-black;
   background-color: @condo-global-color-white;
   opacity: @condo-global-opacity-disabled;
@@ -94,6 +97,7 @@
   opacity: 1;
 }
 
+.condo-input[disabled]::placeholder,
 .condo-input-disabled[disabled]::placeholder,
 .condo-input-affix-wrapper-disabled > .condo-input-disabled[disabled]::placeholder {
   color: @condo-global-color-gray-7;

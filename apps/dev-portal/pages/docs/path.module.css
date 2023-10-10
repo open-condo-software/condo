@@ -3,6 +3,7 @@
   flex-direction: row;
   width: 100%;
   max-width: 1200px;
+  margin: auto;
   column-gap: 40px;
 }
 
@@ -30,7 +31,7 @@
 .content {
   min-height: calc(100vh - 72px);
   padding: 40px 48px 0 20px;
-  background: var(--condo-global-color-white)
+  background: var(--condo-global-color-white);
 }
 
 .menu {

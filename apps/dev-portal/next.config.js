@@ -8,6 +8,7 @@ const localesPath = path.resolve(__dirname, 'domains/common/constants/locales.ts
 const { LOCALES, DEFAULT_LOCALE } = requireTs(localesPath)
 
 const DOCS_ENTRY_ENDPOINT = process.env.DOCS_ENTRY_ENDPOINT || '/docs/index'
+const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -20,6 +21,10 @@ const nextConfig = {
     transpilePackages: [
         'antd',
     ],
+    publicRuntimeConfig: {
+        serverUrl: SERVER_URL,
+        apolloGraphQLUrl: `${SERVER_URL}/admin/api`,
+    },
     async redirects () {
         return [
             {

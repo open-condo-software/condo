@@ -9,6 +9,7 @@ export const theme: ThemeConfig = {
         colorPrimaryBgHover: colors.green['1'],
         colorBgContainer: colors.white,
         colorFillTertiary: colors.gray['1'],
+        colorError: colors.red['5'],
     },
     components: {
         Menu: {
