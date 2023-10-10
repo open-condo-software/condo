@@ -1,7 +1,7 @@
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { useOrganization } from '@open-condo/next/organization'
@@ -30,6 +30,16 @@ export const MobileFeatureConfigContent: React.FC = () => {
     const hasTicketSubmittingSettingFeature = useFlag(TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP)
     const hasOnlyProgressionMeterReadingsSettingFeature = useFlag(SUBMIT_ONLY_PROGRESSION_METER_READINGS)
 
+    const content = useMemo(() => ([
+        !hasTicketSubmittingSettingFeature ? undefined : (loading
+            ? <SettingCardSkeleton/>
+            : <TicketSubmittingSettingCard mobileConfig={mobileConfig}/>),
+
+        !hasOnlyProgressionMeterReadingsSettingFeature ? undefined : (loading
+            ? <SettingCardSkeleton/>
+            : <OnlyProgressionMeterReadingsSettingCard mobileConfig={mobileConfig}/>),
+    ]).filter(Boolean), [hasOnlyProgressionMeterReadingsSettingFeature, hasTicketSubmittingSettingFeature, mobileConfig, loading])
+
     if (!hasMobileFeatureConfigurationFeature) {
         return null
     }
@@ -37,18 +47,7 @@ export const MobileFeatureConfigContent: React.FC = () => {
     return (
         <Row gutter={CONTENT_GUTTER}>
             <Col span={24}>
-                <CardsContainer cardsPerRow={2}>
-                    {
-                        !hasTicketSubmittingSettingFeature ? null : (loading
-                            ? <SettingCardSkeleton/>
-                            : <TicketSubmittingSettingCard mobileConfig={mobileConfig}/>)
-                    }
-                    {
-                        !hasOnlyProgressionMeterReadingsSettingFeature ? null : (loading
-                            ? <SettingCardSkeleton />
-                            : <OnlyProgressionMeterReadingsSettingCard mobileConfig={mobileConfig}/>)
-                    }
-                </CardsContainer>
+                <CardsContainer cardsPerRow={2} children={content}/>
             </Col>
         </Row>
     )
