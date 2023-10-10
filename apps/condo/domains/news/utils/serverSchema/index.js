@@ -13,6 +13,7 @@ const { NewsItemUserRead: NewsItemUserReadGQL } = require('@condo/domains/news/g
 const { EXPORT_NEWS_RECIPIENTS_MUTATION } = require('@condo/domains/news/gql')
 const { GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION } = require('@condo/domains/news/gql')
 const { NewsItemRecipientsExportTask: NewsItemRecipientsExportTaskGQL } = require('@condo/domains/news/gql')
+const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateServerUtils(NewsItemGQL)
@@ -46,6 +47,7 @@ async function getNewsItemsRecipientsCounters (context, data) {
 }
 
 const NewsItemRecipientsExportTask = generateServerUtils(NewsItemRecipientsExportTaskGQL)
+const NewsItemSharing = generateServerUtils(NewsItemSharingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -56,5 +58,6 @@ module.exports = {
     exportNewsRecipients,
     getNewsItemsRecipientsCounters,
     NewsItemRecipientsExportTask,
+    NewsItemSharing,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

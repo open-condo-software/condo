@@ -19,6 +19,7 @@ const {
 } = require('@condo/domains/news/gql')
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -27,6 +28,7 @@ const NewsItemTemplate = generateGQLTestUtils(NewsItemTemplateGQL)
 const NewsItemUserRead = generateGQLTestUtils(NewsItemUserReadGQL)
 const NewsItemRecipientsExportTask = generateGQLTestUtils(NewsItemRecipientsExportTaskGQL)
 
+const NewsItemSharing = generateGQLTestUtils(NewsItemSharingGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const getPropertyMap = (floors, unitsOnFloor) => ({
@@ -290,6 +292,41 @@ async function updateTestNewsItemRecipientsExportTask (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
+async function createTestNewsItemSharing (client, b2bApp, newsItem, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!b2bApp || !b2bApp.id) throw new Error('no b2bApp.id')
+    if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestNewsItemSharing logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        b2bApp: { connect: { id: b2bApp.id } },
+        newsItem: { connect: { id: newsItem.id } },
+        ...extraAttrs,
+    }
+    const obj = await NewsItemSharing.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNewsItemSharing (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestNewsItemSharing logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemSharing.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -302,5 +339,6 @@ module.exports = {
     exportNewsRecipientsByTestClient,
     getNewsItemsRecipientsCountersByTestClient,
     NewsItemRecipientsExportTask, createTestNewsItemRecipientsExportTask, updateTestNewsItemRecipientsExportTask,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+        NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

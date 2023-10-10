@@ -8,4 +8,5 @@ export * as NewsItemScope from './NewsItemScope'
 export * as NewsItemTemplate from './NewsItemTemplate'
 export * as NewsItemUserRead from './NewsItemUserRead'
 export * as NewsItemRecipientsExportTask from './NewsItemRecipientsExportTask'
+export * as NewsItemSharing from './NewsItemSharing'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
