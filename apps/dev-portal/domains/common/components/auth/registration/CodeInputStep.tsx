@@ -33,12 +33,12 @@ function hidePhone (phone: string) {
         const data = parsePhone(phone)
         // +1********
         const begin = data.countryCode?.length || 2
-        const end = 4
+        const end = 2
         return `${phone.substring(0, begin)}${'*'.repeat(phone.length - begin - end)}${phone.substring(phone.length - end)}`
     }
 
 
-    // Extract country prefix and mask everything else except last 2 digits
+    // Extract country prefix and mask everything else except last 2 characters
     // E.g +7 (123) 123-45-67 -> +7 (***) ***-**-67
     // E.g +44 1231 231231 -> +44 **** ****31
     // E.g +44 1231 231231 5 -> +44 **** ****** 5
@@ -141,7 +141,6 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
             form.submit()
         } else if (value.length > CONFIRM_ACTION_CODE_LENGTH) {
             value = value.substring(0, CONFIRM_ACTION_CODE_LENGTH)
-            console.log(value)
             form.setFieldsValue([{ name: 'code', value }])
         }
     }, [form])
@@ -173,7 +172,14 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
                 </Col>
                 <Col span={FULL_SPAN_COL}>
                     <Form.Item name='code' label={SMSCodeFieldLabel} required>
-                        <Input inputMode='numeric' pattern='[0-9]*' placeholder='1234' onChange={handleCodeValueChange} maxLength={4} autoComplete='one-time-code'/>
+                        <Input
+                            inputMode='numeric'
+                            pattern='[0-9]*'
+                            placeholder='1234'
+                            onChange={handleCodeValueChange}
+                            maxLength={CONFIRM_ACTION_CODE_LENGTH}
+                            autoComplete='one-time-code'
+                        />
                     </Form.Item>
                 </Col>
                 <Col span={FULL_SPAN_COL}>

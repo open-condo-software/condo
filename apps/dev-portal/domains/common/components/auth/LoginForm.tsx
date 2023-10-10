@@ -16,7 +16,7 @@ const LOGIN_FORM_ERRORS_TO_FIELDS_MAP = {
     [INCORRECT_PHONE_OR_PASSWORD]: 'password',
 }
 
-const FUL_SPAN_COL = 24
+const FULL_SPAN_COL = 24
 
 type LoginFormValues = {
     phone: string
@@ -59,17 +59,17 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
             form={form}
         >
             <Row>
-                <Col span={FUL_SPAN_COL}>
+                <Col span={FULL_SPAN_COL}>
                     <Form.Item name='phone' label={PhoneLabel} rules={[phoneFormatValidator]}>
                         <Input.Phone/>
                     </Form.Item>
                 </Col>
-                <Col span={FUL_SPAN_COL}>
+                <Col span={FULL_SPAN_COL}>
                     <Form.Item name='password' label={PasswordLabel} rules={[requiredValidator]}>
                         <Input.Password/>
                     </Form.Item>
                 </Col>
-                <Col span={FUL_SPAN_COL} className={styles.submitButtonCol}>
+                <Col span={FULL_SPAN_COL} className={styles.submitButtonCol}>
                     <Button type='primary' block htmlType='submit'>
                         {SignInButtonLabel}
                     </Button>

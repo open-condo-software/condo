@@ -24,6 +24,7 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: PASSWORD_TOO_SIMPLE,
         message: 'The provided password is too simple',
+        messageForUser: 'errors.PASSWORD_TOO_SIMPLE.message',
     },
 }
 

@@ -7,7 +7,7 @@ import { Button, Input } from '@open-condo/ui'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
-import { USER_ALREADY_EXISTS } from '@dev-api/domains/user/constants/errors'
+import { USER_ALREADY_EXISTS, PASSWORD_TOO_SIMPLE } from '@dev-api/domains/user/constants/errors'
 
 import styles from './IdentityInputStep.module.css'
 
@@ -20,6 +20,7 @@ import { useRegisterNewUserMutation, useSignInMutation } from '@/lib/gql'
 const FULL_SPAN_COL = 24
 const IDENTITY_FORM_ERRORS_TO_FIELDS_MAP = {
     [USER_ALREADY_EXISTS]: 'phone',
+    [PASSWORD_TOO_SIMPLE]: 'password',
 }
 
 type IdentityFormValues = {
