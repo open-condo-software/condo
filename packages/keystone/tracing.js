@@ -41,7 +41,6 @@ if (IS_OTEL_TRACING_ENABLED) {
         }),
 
         instrumentations: [
-            new HttpInstrumentation(),
             new PgInstrumentation(),
             new IORedisInstrumentation(),
         ],
@@ -66,16 +65,8 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
         const parsedName = typeof name === 'function' ? name(...args) : name
 
         return tracer.startActiveSpan(parsedName, async (span) => {
-            const executionContext = getExecutionContext()
-            if (executionContext.reqId) {
-                span.setAttribute('reqId', executionContext.reqId)
-            } else if (executionContext.execId) {
-                span.setAttribute('execId', executionContext.execId)
-                span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
-            } else if (executionContext.taskId) {
-                span.setAttribute('taskId', executionContext.taskId)
-                span.setAttribute('taskName', executionContext.taskName)
-            }
+
+            _addExecutionContextAttributes(span)
 
             spanHook(span, ...args)
 
@@ -83,6 +74,19 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
             span.end()
             return res
         })
+    }
+}
+
+function _addExecutionContextAttributes (span) {
+    const executionContext = getExecutionContext()
+    if (executionContext.reqId) {
+        span.setAttribute('reqId', executionContext.reqId)
+    } else if (executionContext.execId) {
+        span.setAttribute('execId', executionContext.execId)
+        span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
+    } else if (executionContext.taskId) {
+        span.setAttribute('taskId', executionContext.taskId)
+        span.setAttribute('taskName', executionContext.taskName)
     }
 }
 
@@ -158,29 +162,23 @@ class KeystoneTracingApp {
 
         const app = express()
         app.use((req, res, next) => {
-            const requestId = get(req, ['headers', 'x-request-id'])
+
+            const requestUrl = get(req, ['url'])
             const requestUserId = get(req, ['user', 'id'])
-            const requestOpName = get(req, ['body', 'operationName'])
+            const requestOpName = get(req, ['body', 'operationName']) || get(req, ['query', 'operationName'])
             
-            let operationName = 'op:' + requestOpName
-            if (!requestOpName) {
-                operationName = 'op:unknown'
+            let operationName = 'op:unknown'
+            if (requestOpName) {
+                operationName = 'op:' + requestOpName
             }
             
             tracer.startActiveSpan(operationName, async (span) => {
-                const executionContext = getExecutionContext()
-                if (executionContext.reqId) {
-                    span.setAttribute('reqId', executionContext.reqId)
-                    span.setAttribute('xReqId', requestId)
-                    span.setAttribute('userId', requestUserId)
-                    span.setAttribute('opName', requestOpName)
-                } else if (executionContext.execId) {
-                    span.setAttribute('execId', executionContext.execId)
-                    span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
-                } else if (executionContext.taskId) {
-                    span.setAttribute('taskId', executionContext.taskId)
-                    span.setAttribute('taskName', executionContext.taskName)
-                }
+
+                _addExecutionContextAttributes(span)
+
+                span.setAttribute('url', requestUrl)
+                span.setAttribute('userId', requestUserId)
+                span.setAttribute('opName', requestOpName)
 
                 res.on('close', () => {
                     span.end()

@@ -73,8 +73,8 @@ function prepareKeystone ({ onConnect, extendExpressApp, schemas, schemasPreproc
         cors: (conf.CORS) ? parseCorsSettings(JSON.parse(conf.CORS)) : { origin: true, credentials: true },
         pinoOptions: getKeystonePinoOptions(),
         apps: [
-            ...((apps) ? apps() : []),
             new KeystoneTracingApp(),
+            ...((apps) ? apps() : []),
             new GraphQLApp({
                 apollo: {
                     formatError,
