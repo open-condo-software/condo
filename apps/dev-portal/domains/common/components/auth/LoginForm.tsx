@@ -1,5 +1,4 @@
 import { Col, Form, Row } from 'antd'
-import get from 'lodash/get'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -7,7 +6,7 @@ import { Input, Button } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
-import { INCORRECT_PHONE_OR_PASSWORD } from '@dev-api/domains/user/constants/errors'
+import { INCORRECT_PHONE_OR_PASSWORD } from '@app/dev-api/domains/user/constants/errors'
 
 import styles from './LoginForm.module.css'
 
@@ -18,6 +17,11 @@ const LOGIN_FORM_ERRORS_TO_FIELDS_MAP = {
 }
 
 const FUL_SPAN_COL = 24
+
+type LoginFormValues = {
+    phone: string
+    password: string
+}
 
 type LoginFormProps =  {
     onComplete: () => void
@@ -42,10 +46,8 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onComplete }) => {
         onError: onSignInError,
     })
 
-    const onSubmit = useCallback((values) => {
-        const phone = get(values, 'phone')
-        const password = get(values, 'password')
-        signInMutation({ variables: { phone, password } })
+    const onSubmit = useCallback((values: LoginFormValues) => {
+        signInMutation({ variables: { phone: values.phone, password: values.password } })
     }, [signInMutation])
 
     return (

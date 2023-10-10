@@ -6,11 +6,13 @@ import { useMemo } from 'react'
 
 const { publicRuntimeConfig: { apolloGraphQLUrl } } = getConfig()
 
-type PageProps<PropsType> = {
-    props: PropsType
-}
-
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'
+
+type SSRResult<PropsType> = {
+    props: PropsType & {
+        [APOLLO_STATE_PROP_NAME]?: NormalizedCacheObject
+    }
+}
 
 let apolloClient: ApolloClient<NormalizedCacheObject> | undefined
 
@@ -77,7 +79,7 @@ export function initializeApollo (initialState: NormalizedCacheObject | null = n
  * Extracts apollo state which was generated from queries inside getServerSideProps,
  * and passes it pageProps, so client can restore all prefetched data.
  * @param {ApolloClient<NormalizedCacheObject>} client - apollo client
- * @param {PropsType extends EmptyPageProps} pageProps - pageProps to wrap
+ * @param {PropsType extends EmptyPageProps} pageParams - page parameters to wrap
  * @return {PropsType extends EmptyPageProps}
  * @example
  * ```typescript
@@ -94,12 +96,12 @@ export function initializeApollo (initialState: NormalizedCacheObject | null = n
  * }
  * ```
  */
-export function extractApolloState<PropsType> (client: ApolloClient<NormalizedCacheObject>, pageProps: PageProps<PropsType>): PageProps<PropsType> {
-    if (pageProps?.props) {
-        pageProps.props[APOLLO_STATE_PROP_NAME] = client.cache.extract()
+export function extractApolloState<PropsType> (client: ApolloClient<NormalizedCacheObject>, pageParams: SSRResult<PropsType>): SSRResult<PropsType> {
+    if (pageParams?.props) {
+        pageParams.props[APOLLO_STATE_PROP_NAME] = client.cache.extract()
     }
 
-    return pageProps
+    return pageParams
 }
 
 /**
@@ -107,7 +109,7 @@ export function extractApolloState<PropsType> (client: ApolloClient<NormalizedCa
  * provides client with a cache from extractApolloState of getServerSideProps
  * @param {PropsType extends EmptyPageProps} pageProps - pageProps received in _app.tsx
  */
-export function useApollo<PropsType> (pageProps: PageProps<PropsType>): ApolloClient<NormalizedCacheObject> {
+export function useApollo<PropsType> (pageProps: SSRResult<PropsType>['props']): ApolloClient<NormalizedCacheObject> {
     const state = pageProps[APOLLO_STATE_PROP_NAME]
     return useMemo(() => initializeApollo(state), [state])
 }

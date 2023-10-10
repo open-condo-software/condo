@@ -918,7 +918,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@app/dev-api@workspace:apps/dev-api":
+"@app/dev-api@workspace:^, @app/dev-api@workspace:apps/dev-api":
   version: 0.0.0-use.local
   resolution: "@app/dev-api@workspace:apps/dev-api"
   dependencies:
@@ -971,6 +971,7 @@ __metadata:
   dependencies:
     "@ant-design/cssinjs": 1.5.6
     "@apollo/client": ^3.8.4
+    "@app/dev-api": "workspace:^"
     "@babel/core": 7.20.12
     "@babel/preset-env": 7.20.2
     "@babel/preset-typescript": 7.18.6

@@ -3,6 +3,7 @@ import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Input, Button, Typography } from '@open-condo/ui'
+import type { PhoneInputProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
@@ -16,6 +17,10 @@ import { useStartConfirmPhoneActionMutation } from '@/lib/gql'
 const FULL_SPAN_COL = 24
 const START_CONFIRM_PHONE_ACTION_ERRORS_TO_FIELDS_MAP = {
     [INVALID_PHONE]: 'phone',
+}
+
+type PhoneFormValues = {
+    phone: string
 }
 
 export type PhoneInputStepProps = {
@@ -41,7 +46,7 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
     const { phoneFormatValidator } = useValidations()
     const [form] = Form.useForm()
 
-    const onPhoneInputChange = useCallback((value, opts, evt, maskedValue) => {
+    const onPhoneInputChange = useCallback<Required<PhoneInputProps>['onChange']>((value, opts, evt, maskedValue) => {
         setFormattedPhone(maskedValue)
     }, [])
 
@@ -63,7 +68,7 @@ export const PhoneInputStep: React.FC<PhoneInputStepProps> = ({ onComplete }) =>
         onError: onStartConfirmPhoneActionError,
     })
 
-    const startConfirmPhoneAction = useCallback((values) => {
+    const startConfirmPhoneAction = useCallback((values: PhoneFormValues) => {
         const data = {
             ...values,
             dv: 1,

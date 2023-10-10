@@ -22,6 +22,11 @@ const IDENTITY_FORM_ERRORS_TO_FIELDS_MAP = {
     [USER_ALREADY_EXISTS]: 'phone',
 }
 
+type IdentityFormValues = {
+    name: string
+    password: string
+}
+
 type IdentityInputStepProps = {
     phone: string
     actionId: string,
@@ -54,7 +59,7 @@ export const IdentityInputStep: React.FC<IdentityInputStepProps> = ({ phone, act
     const [registerNewUserMutation] = useRegisterNewUserMutation({ onError: onRegisterNewUserError })
     const [signInMutation] = useSignInMutation({ onError: onSignInError })
 
-    const registerAndLogin = useCallback(async (values) => {
+    const registerAndLogin = useCallback(async (values: IdentityFormValues) => {
         const data = {
             name: values.name,
             password: values.password,

@@ -3,7 +3,7 @@
   "extends": "@open-condo/tsconfig/next-app.json",
   "compilerOptions": {
     "strict": true,
-    "noImplicitAny": false,
+    "maxNodeModuleJsDepth": 1,
     "baseUrl": ".",
     "preserveSymlinks": true,
     "paths": {

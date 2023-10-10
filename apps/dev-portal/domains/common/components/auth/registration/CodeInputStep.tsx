@@ -58,6 +58,10 @@ function formatCountDown (ttl: number): string {
     return `${minutes}:${seconds}`
 }
 
+type CodeFormValues = {
+    code: string
+}
+
 type CodeInputStepProps = {
     phone: string
     actionId: string
@@ -110,7 +114,7 @@ export const CodeInputStep: React.FC<CodeInputStepProps> = ({
         onError: onCompleteConfirmPhoneActionError,
         onCompleted: onCompleteConfirmPhoneActionCompleted,
     })
-    const completeConfirmPhoneAction = useCallback((values) => {
+    const completeConfirmPhoneAction = useCallback((values: CodeFormValues) => {
         const data = {
             dv: 1,
             sender: getClientSideSenderInfo(),

@@ -5,7 +5,7 @@
     "hoistingLimits": "workspaces"
   },
   "scripts": {
-    "build:deps": "turbo build --filter=dev-portal^...",
+    "build:deps": "turbo build --filter=dev-portal^... --filter=!dev-api",
     "dev": "yarn build:deps && next dev & yarn types:watch",
     "build": "yarn build:deps && next build",
     "start": "next start",
@@ -51,6 +51,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
+    "@app/dev-api": "workspace:^",
     "@graphql-codegen/cli": "5.0.0",
     "@graphql-codegen/client-preset": "4.1.0",
     "@graphql-codegen/typescript": "^4.0.1",
