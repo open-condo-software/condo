@@ -26,6 +26,7 @@ export type ImporterErrorMessages = {
     invalidColumns: string
     tooManyRows: string
     invalidTypes: string
+    unexpected?: string
 }
 export type MutationErrorsToMessagesType = { [errorCode: string]: string }
 
@@ -166,7 +167,7 @@ export class Importer implements IImporter {
         return true
     }
 
-    private updateProgress (value?: number) {
+    private updateProgress (value?: number): void {
         if (value) {
             this.progress.current = value
         } else {
@@ -180,16 +181,15 @@ export class Importer implements IImporter {
         }
     }
 
-    // TODO: remove `index`, it is not used
-    private async createRecord (table, index = 0) {
+    private async createRecord (table): Promise<void> {
         if (this.breakImport) {
-            return Promise.resolve()
+            return
         }
 
         if (!table.length) {
             this.updateProgress(100)
             this.finishHandler()
-            return Promise.resolve()
+            return
         }
 
         const row = table.shift()
@@ -198,81 +198,65 @@ export class Importer implements IImporter {
             if (this.failProcessingHandler) {
                 this.failProcessingHandler({ row, errors: [this.errors.invalidTypes] })
             }
-            return this.createRecord(table, index++)
+            return this.createRecord(table)
         }
-        return this.rowNormalizer(row)
-            .then(normalizedRow => {
-                return this.rowValidator(normalizedRow)
-                    .then(isValid => {
-                        if (isValid) {
-                            return this.objectCreator(normalizedRow)
-                                .then(() => {
-                                    if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
-                                        this.failProcessingHandler(normalizedRow)
-                                    }
-                                    if (this.successProcessingHandler) {
-                                        this.successProcessingHandler(row)
-                                    }
-                                    return Promise.resolve()
-                                })
-                                .catch((e) => {
-                                    try {
-                                        const mutationErrors = get(e, 'graphQLErrors', []) || []
-                                        if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
-                                            console.warn('Unexpected error! No "graphQLErrors" for formatting errors')
-                                            console.error(e)
-                                            normalizedRow.errors.push('Unexpected error')
-                                        }
-                                        normalizedRow.errors = normalizedRow.errors || []
 
-                                        mutationErrors.forEach(mutationError => {
-                                            const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
-                                            mutationErrorMessages.forEach(message => {
-                                                const errorCodes = Object.keys(this.mutationErrorsToMessages)
+        const normalizedRow = await this.rowNormalizer(row)
 
-                                                errorCodes.forEach(code => {
-                                                    if (message.includes(code)) {
-                                                        normalizedRow.errors.push(this.mutationErrorsToMessages[code])
-                                                    }
-                                                })
-                                            })
-                                        })
-                                    } catch (error) {
-                                        console.debug('Error when formatting errors from "graphQLErrors"', {
-                                            row,
-                                            normalizedRow,
-                                            isValid,
-                                        })
-                                        console.error(error)
-                                        console.error(e)
-                                    }
+        const isValidRow = await this.rowValidator(normalizedRow)
 
-                                    if (this.failProcessingHandler) {
-                                        this.failProcessingHandler(normalizedRow)
-                                        return Promise.resolve()
+        if (isValidRow) {
+            try {
+                await sleep(this.sleepInterval)
+
+                await this.objectCreator(normalizedRow)
+
+                if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
+                    this.failProcessingHandler(normalizedRow)
+                }
+                if (this.successProcessingHandler) {
+                    this.successProcessingHandler(row)
+                }
+            } catch (e) {
+                const mutationErrors = get(e, 'graphQLErrors', []) || []
+                normalizedRow.errors = normalizedRow.errors || []
+
+                if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
+                    console.warn('Unexpected error! No "graphQLErrors" for formatting errors')
+                    console.error(e)
+                    normalizedRow.errors.push(this.errors.unexpected || 'Unexpected error')
+                } else {
+                    for (const mutationError of mutationErrors) {
+                        const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
+                        for (const message of mutationErrorMessages) {
+                            const errorCodes = Object.keys(this.mutationErrorsToMessages)
+                            for (const code of errorCodes) {
+                                if (message.includes(code)) {
+                                    if (!(code in this.mutationErrorsToMessages)) {
+                                        console.warn(`"mutationErrorsToMessages" has not code "${code}"`)
                                     }
-                                })
-                        } else {
-                            if (this.failProcessingHandler) {
-                                this.failProcessingHandler(normalizedRow)
-                                return Promise.resolve()
+                                    normalizedRow.errors.push(this.mutationErrorsToMessages[code])
+                                }
                             }
                         }
-                    })
-            })
-            .then(() => {
-                this.updateProgress()
-            })
-            .then(() => {
-                return sleep(this.sleepInterval)
-            })
-            .then(() => {
-                return this.createRecord(table, index++)
-            })
-            .catch((error) => {
-                this.errorHandler(error)
-            })
+                    }
+                }
 
+                if (this.failProcessingHandler) {
+                    this.failProcessingHandler(normalizedRow)
+                }
+            }
+        } else {
+            if (this.failProcessingHandler) {
+                this.failProcessingHandler(normalizedRow)
+            }
+        }
+
+        this.updateProgress()
+
+        await sleep(this.sleepInterval)
+
+        return this.createRecord(table)
     }
 
 }
