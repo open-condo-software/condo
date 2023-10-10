@@ -163,6 +163,11 @@ export const EXPANDABLE_COLUMN_STUB = {
 
 export const ExpandableTable: React.FC<ITableProps> = (props) => {
     const { expandable, ...tableProps } = props
+    const LayoutContext = useLayoutContext()
+    const { shouldTableScroll } = LayoutContext
+
+    const tableScrollConfig = useMemo(() => shouldTableScroll ? { x: 1600 } : {}, [shouldTableScroll])
+
     const dataSource = props.dataSource
 
     const getExpandIcon = useCallback(({ expanded, onExpand, record }) =>
@@ -203,6 +208,7 @@ export const ExpandableTable: React.FC<ITableProps> = (props) => {
         sticky
         rowClassName={getRowClassName}
         expandable={expandableConfig}
+        scroll={tableScrollConfig}
         {...tableProps}
     />
 }
