@@ -290,8 +290,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             console.warn({ processedRow })
             errors.push(InvalidNormalizationMessage)
         }
-        if (!get(processedRow, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
-        if (!get(processedRow, ['addons', 'propertyId'])) errors.push(PropertyNotFoundMessage)
+
+        const address = get(processedRow, ['addons', 'address'])
+        const propertyId = get(processedRow, ['addons', 'propertyId'])
+        if (!address) errors.push(AddressNotFoundMessage)
+        if (address && !propertyId) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
         if (!get(processedRow, ['addons', 'valuesAmount'])) errors.push(NoValuesErrorMessage)
 
@@ -333,6 +336,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                     }
                     break
                 case UnitNameColumnMessage:
+                    if (!propertyId) break
                     if (unitType === PARKING_UNIT_TYPE && parkingUnitLabels.includes(cell.value)) break
                     if (unitType !== PARKING_UNIT_TYPE && sectionsUnitLabels.includes(cell.value)) break
 
