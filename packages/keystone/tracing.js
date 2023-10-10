@@ -6,11 +6,13 @@ const { IORedisInstrumentation } = require('@opentelemetry/instrumentation-iored
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg')
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
 const otelSdk = require('@opentelemetry/sdk-node')
+const express = require('express')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
 const { getExecutionContext } = require('./executionContext')
+
 
 const DELIMETER = ':'
 const SERVER_URL = conf.SERVER_URL
@@ -153,6 +155,40 @@ class KeystoneTracingApp {
         const tracer = this.tracer
         this._patchKeystoneGraphQLExecutor(tracer, keystone)
         this._patchKeystoneAdapter(tracer, keystone)
+
+        const app = express()
+        app.use((req, res, next) => {
+            const requestId = get(req, ['headers', 'x-request-id'])
+            const requestUserId = get(req, ['user', 'id'])
+            const requestOpName = get(req, ['body', 'operationName'])
+            
+            let operationName = 'op:' + requestOpName
+            if (!requestOpName) {
+                operationName = 'op:unknown'
+            }
+            
+            tracer.startActiveSpan(operationName, async (span) => {
+                const executionContext = getExecutionContext()
+                if (executionContext.reqId) {
+                    span.setAttribute('reqId', executionContext.reqId)
+                    span.setAttribute('xReqId', requestId)
+                    span.setAttribute('userId', requestUserId)
+                    span.setAttribute('opName', requestOpName)
+                } else if (executionContext.execId) {
+                    span.setAttribute('execId', executionContext.execId)
+                    span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
+                } else if (executionContext.taskId) {
+                    span.setAttribute('taskId', executionContext.taskId)
+                    span.setAttribute('taskName', executionContext.taskName)
+                }
+
+                res.on('close', () => {
+                    span.end()
+                })
+                next()
+            })
+        })
+        return app
     }
 }
 
