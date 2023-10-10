@@ -1,5 +1,6 @@
 import { SortMetersBy } from '@app/condo/schema'
 import dayjs from 'dayjs'
+import customParseFormat from 'dayjs/plugin/customParseFormat'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
@@ -39,6 +40,9 @@ import { normalizeMeterValue, validateMeterValue } from '@condo/domains/meter/ut
 import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
 
 
+dayjs.extend(customParseFormat)
+
+
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
 const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 
@@ -67,6 +71,10 @@ const mapSectionsToUnitLabels = (sections) => sections.map(
         )
     )
 ).flat(2)
+
+const isValidDate = (date) => {
+    return dayjs(date).isValid() || !dayjs(date, 'DD.MM.YYYY').isValid()
+}
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
     const intl = useIntl()
@@ -319,7 +327,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 case InstallationDateMessage: 
                 case CommissioningDateMessage: 
                 case SealingDateMessage:
-                    if (cell.value && !dayjs(cell.value).isValid()) {
+                    if (cell.value && !isValidDate(cell.value)) {
                         errors.push(intl.formatMessage({ id: 'meter.import.error.WrongDateFormatMessage' }, { columnName: columns[i].name, format: DATE_PARSING_FORMAT }))
                     }
                     break
