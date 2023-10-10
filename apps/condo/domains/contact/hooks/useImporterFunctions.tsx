@@ -115,7 +115,16 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: IsVerifiedTitle, type: 'string', required: false },
     ]
 
+    const UNIT_TYPE_TRANSLATION_TO_TYPE = {
+        [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
+        [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
+        [ApartmentUnitTypeValue.toLowerCase()]: APARTMENT_UNIT_TYPE,
+        [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
+        [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
+    }
+
     const contactNormalizer: RowNormalizer = async (row) => {
+        if (row.length !== columns.length) return Promise.resolve({ row })
         const addons = {
             address: null,
             property: null,
@@ -126,19 +135,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             role: null,
             isVerified: null,
         }
-        if (row.length !== columns.length) return Promise.resolve({ row })
         const [address, , unitType, phones, fullName, email, role, isVerified] = row
+
         email.value = email.value && String(email.value).trim().length ? String(email.value).trim() : undefined
 
         const unitTypeValue = String(get(unitType, 'value', '')).trim().toLowerCase()
-        const UNIT_TYPE_TRANSLATION_TO_TYPE = {
-            [FlatUnitTypeValue.toLowerCase()]: FLAT_UNIT_TYPE,
-            [ParkingUnitTypeValue.toLowerCase()]: PARKING_UNIT_TYPE,
-            [ApartmentUnitTypeValue.toLowerCase()]: APARTMENT_UNIT_TYPE,
-            [WarehouseUnitTypeValue.toLowerCase()]: WAREHOUSE_UNIT_TYPE,
-            [CommercialUnitTypeValue.toLowerCase()]: COMMERCIAL_UNIT_TYPE,
-        }
-
         addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[unitTypeValue]
 
         const roleValue = get(role, 'value')
@@ -147,31 +148,27 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         }
         addons.isVerified = normalizeBooleanValue(String(get(isVerified, 'value', '')), YesMessage, NoMessage)
 
-        return addressApi.getSuggestions(String(address.value)).then(result => {
-            const suggestion = get(result, ['suggestions', 0])
-            if (suggestion) {
-                addons.address = suggestion.value
-                const where = {
-                    address: suggestion.value,
-                    organization: { id: userOrganizationIdRef.current },
-                }
-                return searchProperty(client, where, undefined).then((res) => {
-                    addons.property = res.length > 0 ? res[0].value : null
-                    addons.phones = parsePhones(String(phones.value))
-                    addons.fullName = String(get(fullName, 'value', '')).trim()
-                    addons.email = normalizeEmail(email.value)
-                    return { row, addons }
-                })
-            }
-            addons.phones = parsePhones(String(phones.value))
-            addons.fullName = String(get(fullName, 'value', '')).trim()
-            addons.email = normalizeEmail(email.value)
-            return { row, addons }
-        })
+        addons.phones = parsePhones(String(phones.value))
+        addons.fullName = String(get(fullName, 'value', '')).trim()
+        addons.email = normalizeEmail(email.value)
+
+        const suggestionOptions = await addressApi.getSuggestions(String(address.value))
+        const suggestion = get(suggestionOptions, ['suggestions', 0])
+
+        if (!suggestion) return { row, addons }
+
+        addons.address = suggestion.value
+        const properties = await searchProperty(client, {
+            address: suggestion.value,
+            organization: { id: userOrganizationIdRef.current },
+        }, undefined)
+        addons.property = properties.length > 0 ? properties[0].value : null
+
+        return { row, addons }
     }
 
     const contactValidator: RowValidator = async (row) => {
-        if (!row) return Promise.resolve(false)
+        if (!row) return false
         const errors = []
         if (!row.addons) errors.push(IncorrectRowFormatMessage)
         if (!get(row, ['addons', 'address'])) errors.push(AddressNotFoundMessage)
@@ -216,10 +213,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         if (errors.length) {
             row.errors = errors
-            return Promise.resolve(false)
+            return false
         }
 
-        return Promise.resolve(true)
+        return true
     }
 
     const contactCreator: ObjectCreator = (row) => {

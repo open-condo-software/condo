@@ -49,6 +49,10 @@ export const useImporter = ({
         value: columns.map(column => `"${column.name}"`).join(', '),
     })
     const NotValidRowTypesMessage = intl.formatMessage({ id:'errors.import.InvalidColumnTypes' })
+    const NormalizationErrorMessage = intl.formatMessage({ id:'errors.import.NormalizationError' })
+    const ValidationErrorMessage = intl.formatMessage({ id:'errors.import.ValidationError' })
+    const CreationErrorMessage = intl.formatMessage({ id:'errors.import.CreationError' })
+
     const [progress, setProgress] = useState(0)
     const [error, setError] = useState(null)
     const [isImported, setIsImported] = useState(false)
@@ -57,6 +61,9 @@ export const useImporter = ({
         tooManyRows: TooManyRowsErrorMessage,
         invalidColumns: InvalidHeadersErrorMessage,
         invalidTypes: NotValidRowTypesMessage,
+        normalization: NormalizationErrorMessage,
+        validation: ValidationErrorMessage,
+        creation: CreationErrorMessage,
     }
 
     const importData = useCallback((data) => {

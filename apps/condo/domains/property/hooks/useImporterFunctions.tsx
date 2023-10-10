@@ -73,6 +73,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     ]
 
     const propertyNormalizer: RowNormalizer = async (row: TableRow) => {
+        const addons = {
+            suggestion: null,
+            isHouse: null,
+        }
+
         const [address] = row
         const suggestions = await addressApi.getSuggestions(String(address.value))
 
@@ -82,13 +87,10 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         const suggestionType = get(suggestion, 'type')
         const houseTypeFull = get(suggestion, ['data', 'house_type_full'])
 
-        return {
-            row,
-            addons: {
-                suggestion,
-                isHouse: suggestionType === 'building' || (houseTypeFull && validHouseTypes.includes(houseTypeFull)),
-            },
-        }
+        addons.suggestion = suggestion
+        addons.isHouse = suggestionType === 'building' || (houseTypeFull && validHouseTypes.includes(houseTypeFull))
+
+        return { row, addons }
     }
 
     const propertyValidator: RowValidator = async (row) => {
@@ -119,13 +121,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         return true
     }
 
-    const propertyCreator: ObjectCreator = (row) => {
-        if (!row) return Promise.resolve()
+    const propertyCreator: ObjectCreator = async (row) => {
+        if (!row) return
         const [, units, sections, floors] = row.row
         const property = get(row.addons, ['suggestion'])
         const value = get(property, 'value')
         const map = createPropertyUnitsMap(units.value, sections.value, floors.value)
-        return createPropertyAction({
+        return await createPropertyAction({
             dv: 1,
             type: PropertyTypeType.Building,
             name: String(value),

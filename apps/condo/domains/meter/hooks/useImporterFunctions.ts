@@ -1,6 +1,5 @@
 import { SortMetersBy } from '@app/condo/schema'
 import dayjs from 'dayjs'
-import customParseFormat from 'dayjs/plugin/customParseFormat'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import isString from 'lodash/isString'
@@ -40,11 +39,7 @@ import { normalizeMeterValue, validateMeterValue } from '@condo/domains/meter/ut
 import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
 
 
-dayjs.extend(customParseFormat)
-
-
 const MONTH_PARSING_FORMAT = 'YYYY-MM'
-const SLEEP_INTERVAL_BEFORE_QUERIES = 300
 
 // Will be parsed as date 'YYYY-MM-DD' or month 'YYYY-MM'.
 // It is not extracted into `Importer`, because this is the only place of such format yet.
@@ -74,6 +69,10 @@ const mapSectionsToUnitLabels = (sections) => sections.map(
 
 const isValidDate = (date) => {
     return dayjs(date).isValid()
+}
+
+const toISO = (str) =>  {
+    return dayjs(str).toISOString()
 }
 
 export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, ObjectCreator] => {
@@ -124,7 +123,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const MeterValue2InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value2ColumnMessage })
     const MeterValue3InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value3ColumnMessage })
     const MeterValue4InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value4ColumnMessage })
-    const InvalidNormalizationMessage = intl.formatMessage({ id: 'meter.import.error.InvalidNormalization' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -223,73 +221,60 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             value3: normalizeMeterValue(value3),
             value4: normalizeMeterValue(value4),
             place: place ? String(place).trim() : place,
-            invalidNormalization: false,
         }
 
         addons.valuesAmount = [addons.value1, addons.value2, addons.value3, addons.value4].filter(Boolean).length
 
+        addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
+        addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
+
         try {
-            addons.unitType = UNIT_TYPE_TRANSLATION_TO_TYPE[String(unitType).toLowerCase()]
-            addons.meterResourceId = METER_RESOURCE_ABBREVIATION_TO_ID[String(meterResourceTypeAbbr)]
-
-            try {
-                addons.readingSubmissionDate = parseDateOrMonth(readingSubmissionDate)
-            } catch (e) {
-                addons.invalidReadingSubmissionDate = true
-            }
-
-            // Current suggestion API provider returns no suggestions for address with flat number
-            const suggestionOptions = await addressApi.getSuggestions(String(address))
-            const suggestion = get(suggestionOptions, ['suggestions', 0])
-
-            if (!suggestion) return { row, addons }
-
-            addons.address = suggestion.value
-
-            // Used tell whether suggestion API has found specified address at all
-            const properties = await searchPropertyWithMap(client, {
-                organization: { id: userOrganizationIdRef.current },
-                address_i: suggestion.value,
-            }, undefined)
-
-            const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
-            const propertyMap = !isEmpty(properties) ? get(properties[0], 'map') : null
-
-            if (!propertyId) return { row, addons }
-
-            addons.propertyId = propertyId
-            addons.propertyMap = propertyMap
-
-            const searchMeterWhereConditions = {
-                organization: { id: userOrganizationIdRef.current },
-                property: { id: propertyId },
-                unitName,
-                unitType: addons.unitType,
-                accountNumber,
-                number: meterNumber,
-            }
-
-            const meterOptions = await searchMeter(client, searchMeterWhereConditions, SortMetersBy.CreatedAtDesc)
-            addons.meterId = meterOptions.length > 0 ? meterOptions[0].value : null
-        } catch (error) {
-            addons.invalidNormalization = true
-            console.error('meterReadingNormalizer error')
-            console.error(error)
-            console.error(row)
+            addons.readingSubmissionDate = parseDateOrMonth(readingSubmissionDate)
+        } catch (e) {
+            addons.invalidReadingSubmissionDate = true
         }
+
+        // Current suggestion API provider returns no suggestions for address with flat number
+        const suggestionOptions = await addressApi.getSuggestions(String(address))
+        const suggestion = get(suggestionOptions, ['suggestions', 0])
+
+        if (!suggestion) return { row, addons }
+
+        addons.address = suggestion.value
+
+        // Used tell whether suggestion API has found specified address at all
+        const properties = await searchPropertyWithMap(client, {
+            organization: { id: userOrganizationIdRef.current },
+            address_i: suggestion.value,
+        }, undefined)
+
+        const propertyId = !isEmpty(properties) ? get(properties[0], 'id') : null
+        const propertyMap = !isEmpty(properties) ? get(properties[0], 'map') : null
+
+        if (!propertyId) return { row, addons }
+
+        addons.propertyId = propertyId
+        addons.propertyMap = propertyMap
+
+        const searchMeterWhereConditions = {
+            organization: { id: userOrganizationIdRef.current },
+            property: { id: propertyId },
+            unitName,
+            unitType: addons.unitType,
+            accountNumber,
+            number: meterNumber,
+        }
+
+        const meterOptions = await searchMeter(client, searchMeterWhereConditions, SortMetersBy.CreatedAtDesc)
+        addons.meterId = meterOptions.length > 0 ? meterOptions[0].value : null
 
         return { row, addons }
     }
 
-    const meterReadingValidator: RowValidator = (processedRow) => {
-        if (!processedRow) return Promise.resolve(false)
+    const meterReadingValidator: RowValidator = async (processedRow) => {
+        if (!processedRow) return false
         const errors = []
         if (!processedRow.addons) errors.push(IncorrectRowFormatMessage)
-        if (get(processedRow, ['addons', 'invalidNormalization'])) {
-            console.warn('Invalid normalization. Try loading again')
-            console.warn({ processedRow })
-            errors.push(InvalidNormalizationMessage)
-        }
 
         const address = get(processedRow, ['addons', 'address'])
         const propertyId = get(processedRow, ['addons', 'propertyId'])
@@ -348,15 +333,13 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         })
         if (errors.length) {
             processedRow.errors = errors
-            return Promise.resolve(false)
+            return false
         }
-        return Promise.resolve(true)
+        return true
     }
-    const toISO = (str) =>  {
-        return dayjs(str).toISOString()
-    }
+
     const meterReadingCreator: ObjectCreator = async ({ row, addons }: ProcessedRow) => {
-        if (!row) return Promise.resolve()
+        if (!row) return
         const [
             , // address
             unitName,
@@ -377,8 +360,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             sealingDate,
             controlReadingsDate,
         ] = map(row, 'value')
-
-        await sleep(SLEEP_INTERVAL_BEFORE_QUERIES)
 
         let meterId
         if (addons.meterId) {
@@ -404,7 +385,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             meterId = get(newMeter, 'id')
         }
 
-        return meterReadingCreateAction({
+        return await meterReadingCreateAction({
             meter: { connect: { id: meterId } },
             source: { connect: { id: IMPORT_CONDO_METER_READING_SOURCE_ID } },
             value1: get(addons, 'value1'),
@@ -416,8 +397,4 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     return [columns, meterReadingNormalizer, meterReadingValidator, meterReadingCreator]
-}
-
-function sleep (ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms))
 }

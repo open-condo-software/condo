@@ -196,7 +196,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
             unitType,
         }
 
-        return ticketCreateAction(ticketPayload)
+        return await ticketCreateAction(ticketPayload)
     }
 
     return [columns, ticketNormalizer, ticketValidator, ticketCreator]

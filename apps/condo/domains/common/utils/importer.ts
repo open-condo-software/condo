@@ -26,7 +26,9 @@ export type ImporterErrorMessages = {
     invalidColumns: string
     tooManyRows: string
     invalidTypes: string
-    unexpected?: string
+    normalization: string
+    validation: string
+    creation: string
 }
 export type MutationErrorsToMessagesType = { [errorCode: string]: string }
 
@@ -201,30 +203,51 @@ export class Importer implements IImporter {
             return this.createRecord(table)
         }
 
-        const normalizedRow = await this.rowNormalizer(row)
+        let processedRow: ProcessedRow = { row }
+        let isValidRow = false
+        let isNormalizedRow = false
 
-        const isValidRow = await this.rowValidator(normalizedRow)
+        try {
+            processedRow = await this.rowNormalizer(row)
+            isNormalizedRow = true
+        } catch (error) {
+            console.error('Unexpected error in "rowNormalizer"!')
+            console.error(error)
+            processedRow.errors = processedRow.errors || []
+            processedRow.errors.push(this.errors.normalization)
+        }
 
-        if (isValidRow) {
+        if (isNormalizedRow) {
+            try {
+                isValidRow = await this.rowValidator(processedRow)
+            } catch (error) {
+                console.error('Unexpected error in "rowValidator"!')
+                console.error(error)
+                processedRow.errors = processedRow.errors || []
+                processedRow.errors.push(this.errors.validation)
+            }
+        }
+
+        if (isNormalizedRow && isValidRow) {
             try {
                 await sleep(this.sleepInterval)
 
-                await this.objectCreator(normalizedRow)
+                await this.objectCreator(processedRow)
 
-                if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
-                    this.failProcessingHandler(normalizedRow)
+                if (processedRow.shouldBeReported && this.failProcessingHandler) {
+                    this.failProcessingHandler(processedRow)
                 }
                 if (this.successProcessingHandler) {
                     this.successProcessingHandler(row)
                 }
             } catch (e) {
                 const mutationErrors = get(e, 'graphQLErrors', []) || []
-                normalizedRow.errors = normalizedRow.errors || []
+                processedRow.errors = processedRow.errors || []
 
                 if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
-                    console.warn('Unexpected error! No "graphQLErrors" for formatting errors')
+                    console.error('Unexpected error in "objectCreator"!')
                     console.error(e)
-                    normalizedRow.errors.push(this.errors.unexpected || 'Unexpected error')
+                    processedRow.errors.push(this.errors.creation)
                 } else {
                     for (const mutationError of mutationErrors) {
                         const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
@@ -232,10 +255,7 @@ export class Importer implements IImporter {
                             const errorCodes = Object.keys(this.mutationErrorsToMessages)
                             for (const code of errorCodes) {
                                 if (message.includes(code)) {
-                                    if (!(code in this.mutationErrorsToMessages)) {
-                                        console.warn(`"mutationErrorsToMessages" has not code "${code}"`)
-                                    }
-                                    normalizedRow.errors.push(this.mutationErrorsToMessages[code])
+                                    processedRow.errors.push(this.mutationErrorsToMessages[code])
                                 }
                             }
                         }
@@ -243,12 +263,12 @@ export class Importer implements IImporter {
                 }
 
                 if (this.failProcessingHandler) {
-                    this.failProcessingHandler(normalizedRow)
+                    this.failProcessingHandler(processedRow)
                 }
             }
         } else {
             if (this.failProcessingHandler) {
-                this.failProcessingHandler(normalizedRow)
+                this.failProcessingHandler(processedRow)
             }
         }
 
