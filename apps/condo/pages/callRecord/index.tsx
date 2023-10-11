@@ -19,7 +19,6 @@ import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
@@ -32,8 +31,8 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CallRecordModal } from '@condo/domains/ticket/components/CallRecordModal'
+import { CallRecordReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { useCallRecordTableColumns } from '@condo/domains/ticket/hooks/useCallRecordTableColumns'
 import { useCallRecordTableFilters } from '@condo/domains/ticket/hooks/useCallRecordTableFilters'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
@@ -197,19 +196,12 @@ export const CallRecordsPageContent = (props) => {
 
     const { filterMetas, useTableColumns, baseQuery, baseQueryLoading = false } = props
 
-    const { link } = useOrganization()
-    const canReadCallRecords = get(link, ['role', 'canReadCallRecords'], false)
-
     const {
         count: callRecordTotal,
         loading: callRecordTotalLoading,
     } = CallRecordFragment.useCount({ where: { ...baseQuery } })
 
     const PageContet = useMemo(() => {
-        if (!canReadCallRecords) {
-            return <AccessDeniedPage />
-        }
-
         if (baseQueryLoading || callRecordTotalLoading) {
             return <Loader fill size='large' />
         }
@@ -265,6 +257,6 @@ const CallRecordsPage: ICallRecordIndexPage = () => {
     )
 }
 
-CallRecordsPage.requiredAccess = OrganizationRequired
+CallRecordsPage.requiredAccess = CallRecordReadPermissionRequired
 
 export default CallRecordsPage

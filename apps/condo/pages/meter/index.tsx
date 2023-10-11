@@ -192,6 +192,7 @@ export const MetersPageContent = ({
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
                     createLabel={CreateMeter}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                    accessCheck={canManageMeterReadings}
                 />
                 <Row
                     gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
@@ -371,6 +372,7 @@ export const PropertyMetersPageContent = ({
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
                     createLabel={CreateMeter}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                    accessCheck={canManageMeterReadings}
                 />
                 <Row
                     gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
@@ -427,6 +429,8 @@ export const MeterReportingPeriodPageContent = ({
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const canManageMeters = get(role, 'canManageMeters', false)
+
     const {
         loading: periodLoading,
         count: total,
@@ -451,7 +455,7 @@ export const MeterReportingPeriodPageContent = ({
     }, [reportingPeriods])
     const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { notifyStartDay: get(defaultPeriod, 'current.notifyStartDay'), notifyEndDay: get(defaultPeriod, 'current.notifyEndDay') })
 
-    const [search, handleSearchChange, handleSearchReset] = useSearch()
+    const [search, handleSearchChange] = useSearch()
     const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading
 
     const handleRowAction = useCallback((record) => {
@@ -485,10 +489,6 @@ export const MeterReportingPeriodPageContent = ({
             setSelectedRows([])
         }
     }, [reportingPeriodsProcessedForTable])
-
-    const clearSelection = () => {
-        setSelectedRows([])
-    }
 
     const rowSelection: TableRowSelection<MeterReportingPeriodType> = useMemo(() => ({
         type: 'checkbox',
@@ -534,6 +534,7 @@ export const MeterReportingPeriodPageContent = ({
                     createRoute='/meter/reportingPeriod/create'
                     createLabel={CreateReportingPeriodLabel}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                    accessCheck={canManageMeters}
                 />
                 <Row
                     gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
@@ -572,7 +573,7 @@ export const MeterReportingPeriodPageContent = ({
                     </Col>
                 </Row>
                 {
-                    isNoMeterData ? '' :
+                    canManageMeters && !isNoMeterData && (
                         <ActionBar
                             actions={[
                                 <Button
@@ -592,6 +593,7 @@ export const MeterReportingPeriodPageContent = ({
                                 /> : undefined,
                             ]}
                         />
+                    )
                 }
             </TablePageContent>
         </>
