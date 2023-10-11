@@ -81,6 +81,9 @@ const DEFAULT_ROLES = {
         'canManageMarketItems': true,
         'canReadMeters': true,
         'canReadCallRecords': true,
+        'canReadSettings': true,
+        'canReadExternalReports': true,
+        'canReadServices': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -127,6 +130,9 @@ const DEFAULT_ROLES = {
         'canManageInvoices': true,
         'canReadMeters': true,
         'canReadCallRecords': true,
+        'canReadSettings': true,
+        'canReadExternalReports': true,
+        'canReadServices': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -178,6 +184,9 @@ const DEFAULT_ROLES = {
         'canManageMarketItems': true,
         'canReadMeters': true,
         'canReadCallRecords': true,
+        'canReadSettings': true,
+        'canReadExternalReports': true,
+        'canReadServices': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -221,6 +230,9 @@ const DEFAULT_ROLES = {
         'canReadProperties': true,
         'canReadMeters': true,
         'canReadCallRecords': true,
+        'canReadSettings': true,
+        'canReadExternalReports': true,
+        'canReadServices': true,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -263,6 +275,9 @@ const DEFAULT_ROLES = {
         'canReadProperties': true,
         'canReadMeters': true,
         'canReadCallRecords': true,
+        'canReadSettings': true,
+        'canReadExternalReports': true,
+        'canReadServices': true,
     },
     'Contractor': {
         'name': 'employee.role.Contractor.name',
@@ -305,6 +320,9 @@ const DEFAULT_ROLES = {
         'canManageB2BApps': false,
         'canReadMeters': false,
         'canReadCallRecords': false,
+        'canReadSettings': false,
+        'canReadExternalReports': false,
+        'canReadServices': false,
     },
 }
 
