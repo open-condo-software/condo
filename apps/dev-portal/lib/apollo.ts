@@ -4,7 +4,7 @@ import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
 import { useMemo } from 'react'
 
-const { publicRuntimeConfig: { apolloGraphQLUrl } } = getConfig()
+const { publicRuntimeConfig: { serviceUrl } } = getConfig()
 
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'
 
@@ -25,7 +25,7 @@ function createApolloClient (): ApolloClient<NormalizedCacheObject> {
     return new ApolloClient({
         ssrMode: typeof window === 'undefined',
         link: new HttpLink({
-            uri: apolloGraphQLUrl,
+            uri: `${serviceUrl}/graphql`,
             credentials: 'include',
             fetchOptions: {
                 mode: 'cors',
