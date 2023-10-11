@@ -8,7 +8,10 @@ const localesPath = path.resolve(__dirname, 'domains/common/constants/locales.ts
 const { LOCALES, DEFAULT_LOCALE } = requireTs(localesPath)
 
 const DOCS_ENTRY_ENDPOINT = process.env.DOCS_ENTRY_ENDPOINT || '/docs/index'
-const SERVER_URL = process.env.SERVER_URL || 'http://localhost:3000'
+// NOTE: Url of API server
+const SERVER_URL = process.env.SERVER_URL || 'http://localhost:4006'
+// NOTE: Url of current service
+const SERVICE_URL = process.env.DEVPORTAL_DOMAIN || 'http://localhost:3000'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -23,7 +26,15 @@ const nextConfig = {
     ],
     publicRuntimeConfig: {
         serverUrl: SERVER_URL,
-        apolloGraphQLUrl: `${SERVER_URL}/admin/api`,
+        serviceUrl: SERVICE_URL,
+    },
+    async rewrites () {
+        return [
+            {
+                source: '/graphql',
+                destination: `${SERVER_URL}/admin/api`,
+            },
+        ]
     },
     async redirects () {
         return [
