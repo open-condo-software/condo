@@ -588,6 +588,16 @@ describe('Meter', () => {
                 expect(meters).toHaveLength(1)
             })
 
+            test('employee without "canReadMeters": can not read Meters', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const client = await makeEmployeeUserClientWithAbilities({ canReadMeters: false })
+                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
+                const readMeter = await Meter.getOne(client, { id: meter.id })
+
+                expect(readMeter).toBeUndefined()
+            })
+
             test('employee from "from" related organization: can read Meters', async () => {
                 const admin = await makeLoggedInAdminClient()
                 const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()

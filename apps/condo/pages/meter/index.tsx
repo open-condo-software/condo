@@ -48,6 +48,7 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
 import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
 import { MeterReportingPeriod as MeterReportingPeriodGQL } from '@condo/domains/meter/gql'
@@ -64,7 +65,6 @@ import {
     MeterReportingPeriod,
     METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
@@ -729,6 +729,6 @@ const MetersPage: IMeterIndexPage = () => {
     )
 }
 
-MetersPage.requiredAccess = OrganizationRequired
+MetersPage.requiredAccess = MeterReadPermissionRequired
 
 export default MetersPage

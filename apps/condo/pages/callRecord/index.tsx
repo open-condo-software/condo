@@ -19,6 +19,7 @@ import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import Input from '@condo/domains/common/components/antd/Input'
+import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
@@ -196,12 +197,19 @@ export const CallRecordsPageContent = (props) => {
 
     const { filterMetas, useTableColumns, baseQuery, baseQueryLoading = false } = props
 
+    const { link } = useOrganization()
+    const canReadCallRecords = get(link, ['role', 'canReadCallRecords'], false)
+
     const {
         count: callRecordTotal,
         loading: callRecordTotalLoading,
     } = CallRecordFragment.useCount({ where: { ...baseQuery } })
 
     const PageContet = useMemo(() => {
+        if (!canReadCallRecords) {
+            return <AccessDeniedPage />
+        }
+
         if (baseQueryLoading || callRecordTotalLoading) {
             return <Loader fill size='large' />
         }

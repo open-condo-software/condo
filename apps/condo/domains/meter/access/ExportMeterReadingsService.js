@@ -16,14 +16,14 @@ async function canExportMeterReadings ({ args: { data: { where } }, authenticati
     const organizationId = get(where, ['organization', 'id'])
 
     if (organizationId) {
-        return await checkOrganizationPermission(user.id, organizationId, 'canManageMeters')
+        return await checkOrganizationPermission(user.id, organizationId, 'canReadMeters')
     } else {
         const organizationWhere = get(where, 'organization')
         if (!organizationWhere) return false
         const [relatedFromOrganization] = await find('Organization', organizationWhere)
         if (!relatedFromOrganization) return false
 
-        return await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canManageMeters')
+        return await checkRelatedOrganizationPermission(user.id, relatedFromOrganization.id, 'canReadMeters')
     }
 }
 

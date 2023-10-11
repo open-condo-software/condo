@@ -4,7 +4,8 @@ import React from 'react'
 
 import { isSafeUrl } from '@condo/domains/common/utils/url.utils'
 import { B2BAppPage } from '@condo/domains/miniapp/components/AppDescription'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { ServicesReadPermissionRequired } from '@condo/domains/miniapp/components/PageAccess'
+
 
 type PageType = React.FC & {
     requiredAccess: React.ReactNode
@@ -18,6 +19,6 @@ const MiniappDescriptionPage: PageType = () => {
     return <B2BAppPage id={id}/>
 }
 
-MiniappDescriptionPage.requiredAccess = OrganizationRequired
+MiniappDescriptionPage.requiredAccess = ServicesReadPermissionRequired
 
 export default MiniappDescriptionPage

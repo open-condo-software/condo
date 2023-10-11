@@ -8,7 +8,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { ContactRoleForm } from '@condo/domains/contact/components/contactRoles/ContactRoleForm'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
@@ -43,6 +43,6 @@ const UpdateContactRolePage = () => {
     )
 }
 
-UpdateContactRolePage.requiredAccess = OrganizationRequired
+UpdateContactRolePage.requiredAccess = SettingsReadPermissionRequired
 
 export default UpdateContactRolePage

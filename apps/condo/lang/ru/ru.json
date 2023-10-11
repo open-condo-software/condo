@@ -909,6 +909,7 @@
   "pages.condo.settings.employeeRoles.permission.canReadIncidents": "Просмотр отключений",
   "pages.condo.settings.employeeRoles.permission.canManageIncidents": "Управление отключениями",
   "pages.condo.settings.employeeRoles.permissionGroup.services": "Сервисы",
+  "pages.condo.settings.employeeRoles.permission.canReadServices": "Просмотр сервисов",
   "pages.condo.settings.employeeRoles.permission.canManageB2BApps": "Подключение сервисов",
   "pages.condo.settings.employeeRoles.permissionGroup.analytics": "Аналитика",
   "pages.condo.settings.employeeRoles.permission.canReadAnalytics": "Просмотр аналитики",

@@ -17,8 +17,8 @@ async function canReadExternalReports ({ authentication: { item: user } }) {
     return {
         OR: [
             { organization_is_null: true },
-            { organization: queryOrganizationEmployeeFor(user.id) },
-            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
+            { organization: queryOrganizationEmployeeFor(user.id, 'canReadExternalReports') },
+            { organization: queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadExternalReports') },
         ],
     }
 }

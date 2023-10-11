@@ -19,7 +19,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
 import { SETTINGS_TAB_CONTACT_ROLES } from '@condo/domains/common/constants/settingsTabs'
 import { ContactRole } from '@condo/domains/contact/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 
 const BIG_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: [Gutter, Gutter] = [0, 24]
@@ -132,6 +132,6 @@ const TheContactRolePage = (): JSX.Element => {
     )
 }
 
-TheContactRolePage.requiredAccess = OrganizationRequired
+TheContactRolePage.requiredAccess = SettingsReadPermissionRequired
 
 export default TheContactRolePage

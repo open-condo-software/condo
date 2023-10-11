@@ -79,6 +79,8 @@ const DEFAULT_ROLES = {
         'canManageInvoices': true,
         'canReadMarketItems': true,
         'canManageMarketItems': true,
+        'canReadMeters': true,
+        'canReadCallRecords': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -123,6 +125,8 @@ const DEFAULT_ROLES = {
         'canReadProperties': true,
         'canReadInvoices': true,
         'canManageInvoices': true,
+        'canReadMeters': true,
+        'canReadCallRecords': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -172,6 +176,8 @@ const DEFAULT_ROLES = {
         'canManageInvoices': true,
         'canReadMarketItems': true,
         'canManageMarketItems': true,
+        'canReadMeters': true,
+        'canReadCallRecords': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
@@ -213,6 +219,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageB2BApps': false,
         'canReadProperties': true,
+        'canReadMeters': true,
+        'canReadCallRecords': true,
     },
     'Technician': {
         'name': 'employee.role.Technician.name',
@@ -253,6 +261,8 @@ const DEFAULT_ROLES = {
         'ticketVisibilityType': PROPERTY_AND_SPECIALIZATION_VISIBILITY,
         'canManageB2BApps': false,
         'canReadProperties': true,
+        'canReadMeters': true,
+        'canReadCallRecords': true,
     },
     'Contractor': {
         'name': 'employee.role.Contractor.name',
@@ -262,8 +272,8 @@ const DEFAULT_ROLES = {
         'canReadEmployees': true,
         'canReadTickets': true,
         'canManageTickets': true,
-        'canReadContacts': true,
-        'canManageContacts': false,
+        'canReadContacts': false,
+        'canManageContacts': true,
         'canShareTickets': true,
         'canManageTicketComments': true,
         'canManageOrganization': false,
@@ -293,6 +303,8 @@ const DEFAULT_ROLES = {
         'canDownloadCallRecords': false,
         'ticketVisibilityType': ASSIGNED_TICKET_VISIBILITY,
         'canManageB2BApps': false,
+        'canReadMeters': false,
+        'canReadCallRecords': false,
     },
 }
 

@@ -909,6 +909,7 @@
   "pages.condo.settings.employeeRoles.permission.canReadIncidents": "View incidents",
   "pages.condo.settings.employeeRoles.permission.canManageIncidents": "Manage incidents",
   "pages.condo.settings.employeeRoles.permissionGroup.services": "Services",
+  "pages.condo.settings.employeeRoles.permission.canReadServices": "View services",
   "pages.condo.settings.employeeRoles.permission.canManageB2BApps": "Connect services",
   "pages.condo.settings.employeeRoles.permissionGroup.analytics": "Analytics",
   "pages.condo.settings.employeeRoles.permission.canReadAnalytics": "View analytics",

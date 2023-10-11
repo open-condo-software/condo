@@ -4,6 +4,7 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import {
     SettingsContent as TicketPropertyHintSettings,
 } from '@condo/domains/ticket/components/TicketPropertyHint/SettingsContent'
@@ -25,5 +26,7 @@ const PropertyHintsPage = () => {
         </>
     )
 }
+
+PropertyHintsPage.requiredAccess = SettingsReadPermissionRequired
 
 export default PropertyHintsPage

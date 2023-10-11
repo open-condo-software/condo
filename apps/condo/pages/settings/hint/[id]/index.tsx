@@ -16,7 +16,7 @@ import {
 } from '@condo/domains/common/components/DeleteButtonWithConfirmModal'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { TicketPropertyHintContent } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintContent'
 import { TicketPropertyHint, TicketPropertyHintProperty } from '@condo/domains/ticket/utils/clientSchema'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
@@ -141,6 +141,6 @@ const TicketPropertyHintIdPage = () => {
     )
 }
 
-TicketPropertyHintIdPage.requiredAccess = OrganizationRequired
+TicketPropertyHintIdPage.requiredAccess = SettingsReadPermissionRequired
 
 export default TicketPropertyHintIdPage

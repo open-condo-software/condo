@@ -19,8 +19,8 @@ async function canReadCallRecords ({ authentication: { item: user } }) {
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadCallRecords'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadCallRecords'),
             ],
         },
     }

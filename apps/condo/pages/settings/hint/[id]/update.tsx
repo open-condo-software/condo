@@ -7,7 +7,7 @@ import React, { CSSProperties } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { TicketPropertyHintForm } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintForm'
 
 const ROW_STYLES: CSSProperties = { height: '100%' }
@@ -40,6 +40,6 @@ const UpdateTicketPropertyHintPage = () => {
     )
 }
 
-UpdateTicketPropertyHintPage.requiredAccess = OrganizationRequired
+UpdateTicketPropertyHintPage.requiredAccess = SettingsReadPermissionRequired
 
 export default UpdateTicketPropertyHintPage

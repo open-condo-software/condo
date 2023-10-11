@@ -22,8 +22,9 @@ export const TicketClientField: React.FC<TicketClientFieldProps> = ({ ticket, ph
     const NotResidentClientMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.NotResidentClient' })
 
     const contactId = get(ticket, ['contact', 'id'])
-    const ClientMessage = useMemo(() => contactId ? ResidentClientMessage : NotResidentClientMessage,
-        [NotResidentClientMessage, ResidentClientMessage, contactId])
+    const isResidentTicket = get(ticket, ['isResidentTicket'])
+    const ClientMessage = useMemo(() => isResidentTicket ? ResidentClientMessage : NotResidentClientMessage,
+        [NotResidentClientMessage, ResidentClientMessage, isResidentTicket])
 
     const contactUser = useMemo(() => ({
         name: get(ticket, ['contact', 'name']),
