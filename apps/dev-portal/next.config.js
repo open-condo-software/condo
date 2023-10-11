@@ -28,14 +28,6 @@ const nextConfig = {
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,
     },
-    async rewrites () {
-        return [
-            {
-                source: '/graphql',
-                destination: `${SERVER_URL}/admin/api`,
-            },
-        ]
-    },
     async redirects () {
         return [
             {
