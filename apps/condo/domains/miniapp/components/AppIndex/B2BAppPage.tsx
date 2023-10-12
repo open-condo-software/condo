@@ -77,7 +77,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
 
         const visitedAt = dayjs().toISOString()
         logEvent({
-            eventName: 'MiniappsSessionVisitDetail',
+            eventName: 'MiniappSessionStart',
             eventProperties: { appId: id, appUrl, appName, visitedAt },
         })
 
@@ -86,7 +86,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
             const diff = dayjs(leftAt).diff(dayjs(visitedAt))
             const sessionTime = dayjs.duration(diff).format('YYYY-MM-DDTHH:mm:ss')
             logEvent({
-                eventName: 'MiniappsSessionLeaveDetail',
+                eventName: 'MiniappSessionEnd',
                 eventProperties: { appId: id, appUrl, appName, visitedAt, leftAt, sessionTime },
             })
         }
