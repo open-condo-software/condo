@@ -951,7 +951,7 @@ __metadata:
     "@types/node": ^16
     babel-jest: ^29.4.0
     cross-env: ^7.0.3
-    dayjs: ^1.11.9
+    dayjs: ^1.11.10
     express: ^4.17.1
     graphql-tag: ^2.12.6
     identity-obj-proxy: ^3.0.0
@@ -23009,13 +23009,6 @@ __metadata:
   version: 1.11.6
   resolution: "dayjs@npm:1.11.6"
   checksum: 18bdfd927009b68eab08dca578e421d4a581cefcbe9337f54c5d9e0d941ffb6b221c4b2c1cab15cdd9d419940e768ac4c984531461a90bbe1c158b75fe160580
-  languageName: node
-  linkType: hard
-
-"dayjs@npm:^1.11.9":
-  version: 1.11.9
-  resolution: "dayjs@npm:1.11.9"
-  checksum: a4844d83dc87f921348bb9b1b93af851c51e6f71fa259604809cfe1b49d1230e6b0212dab44d1cb01994c096ad3a77ea1cf18fa55154da6efcc9d3610526ac38
   languageName: node
   linkType: hard
 
