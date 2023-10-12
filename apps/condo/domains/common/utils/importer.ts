@@ -201,7 +201,7 @@ export class Importer implements IImporter {
 
         if (!this.parseAndValidateRow(row)) {
             if (this.failProcessingHandler) {
-                this.failProcessingHandler({ row, errors: [this.errors.invalidTypes] })
+                this.failProcessingHandler({ row, originalRow, errors: [this.errors.invalidTypes] })
             }
             return this.createRecord(table)
         }
