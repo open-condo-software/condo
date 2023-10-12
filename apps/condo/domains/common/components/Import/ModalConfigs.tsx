@@ -123,7 +123,7 @@ export const getPartlyLoadedModalConfig = (
                 try {
                     const data = [columns.map(column => column.name).concat(['Errors'])]
                     for (let i = 0; i < erroredRows.length; i++) {
-                        const line = erroredRows[i].row.map(cell => {
+                        const line = erroredRows[i].originalRow.map(cell => {
                             if (!cell.value) return null
                             if (isDate(cell.value)) {
                                 return dayjs(cell.value).format('DD.MM.YYYY')

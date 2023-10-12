@@ -7,7 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
-import { TableRow, Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
+import { Columns, RowNormalizer, RowValidator, ObjectCreator } from '@condo/domains/common/utils/importer'
 import { MapEdit } from '@condo/domains/property/components/panels/Builder/MapConstructor'
 import { validHouseTypes } from '@condo/domains/property/constants/property'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -72,7 +72,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         { name: FloorLabel, type: 'number', required: true },
     ]
 
-    const propertyNormalizer: RowNormalizer = async (row: TableRow) => {
+    const propertyNormalizer: RowNormalizer = async (row) => {
         const addons = {
             suggestion: null,
             isHouse: null,

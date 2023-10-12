@@ -4,9 +4,11 @@ import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import pick from 'lodash/pick'
 
 export type TableRow = Array<Record<'value', string | number | Date>>
 export type ProcessedRow = {
+    originalRow: TableRow
     row: TableRow
     addons?: { [id: string]: any }
     shouldBeReported?: boolean
@@ -18,7 +20,7 @@ export type FinishHandler = () => void
 export type SuccessProcessingHandler = (row: TableRow) => void
 export type FailProcessingHandler = (row: ProcessedRow) => void
 export type ErrorHandler = (error: Error) => void
-export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow>
+export type RowNormalizer = (row: TableRow) => Promise<Pick<ProcessedRow, 'addons' | 'shouldBeReported' | 'row'>>
 export type RowValidator = (row: ProcessedRow) => Promise<boolean>
 export type ObjectCreator = (row: ProcessedRow) => Promise<unknown>
 export type Columns = Array<ColumnInfo>
@@ -195,6 +197,7 @@ export class Importer implements IImporter {
         }
 
         const row = table.shift()
+        const originalRow = cloneDeep(row)
 
         if (!this.parseAndValidateRow(row)) {
             if (this.failProcessingHandler) {
@@ -203,17 +206,20 @@ export class Importer implements IImporter {
             return this.createRecord(table)
         }
 
-        let processedRow: ProcessedRow = { row }
+        let processedRow: ProcessedRow = { row, originalRow, errors: [] }
         let isValidRow = false
         let isNormalizedRow = false
 
         try {
-            processedRow = await this.rowNormalizer(row)
+            const normalizedData = await this.rowNormalizer(row)
+            processedRow = {
+                ...processedRow,
+                ...pick(normalizedData, ['row', 'addons', 'shouldBeReported']),
+            }
             isNormalizedRow = true
         } catch (error) {
             console.error('Unexpected error in "rowNormalizer"!')
             console.error(error)
-            processedRow.errors = processedRow.errors || []
             processedRow.errors.push(this.errors.normalization)
         }
 
@@ -223,7 +229,6 @@ export class Importer implements IImporter {
             } catch (error) {
                 console.error('Unexpected error in "rowValidator"!')
                 console.error(error)
-                processedRow.errors = processedRow.errors || []
                 processedRow.errors.push(this.errors.validation)
             }
         }
@@ -242,7 +247,6 @@ export class Importer implements IImporter {
                 }
             } catch (e) {
                 const mutationErrors = get(e, 'graphQLErrors', []) || []
-                processedRow.errors = processedRow.errors || []
 
                 if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
                     console.error('Unexpected error in "objectCreator"!')
