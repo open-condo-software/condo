@@ -13,6 +13,7 @@ on:
 jobs:
   domains-tests-job:
     strategy:
+      fail-fast: false  # for debug
       matrix:
         domain:
           - organization
