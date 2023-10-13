@@ -1,11 +1,7 @@
 project: condo
-configVersion: 1
+configVersion: 2
 ---
 
-docker:
-  ENV:
-    LANG: C.UTF-8
----
 image: 
   - condo
   - callcenter 
