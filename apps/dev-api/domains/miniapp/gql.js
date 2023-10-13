@@ -7,12 +7,16 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const B2C_APP_FIELDS = `{ name ${COMMON_FIELDS} }`
+const B2C_APP_FIELDS = `{ name logo { publicUrl } ${COMMON_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
+
+const B2C_APP_BUILD_FIELDS = `{ app { id } version data { publicUrl } ${COMMON_FIELDS} }`
+const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     B2CApp,
+    B2CAppBuild,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

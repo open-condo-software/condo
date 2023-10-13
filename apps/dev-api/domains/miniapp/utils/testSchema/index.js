@@ -4,13 +4,20 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const conf = require('@open-condo/config')
+const path = require('path')
 const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
 
 const { B2CApp: B2CAppGQL } = require('@dev-api/domains/miniapp/gql')
+const { B2CAppBuild: B2CAppBuildGQL } = require('@dev-api/domains/miniapp/gql')
+const { UploadingFile } = require('@open-condo/keystone/test.utils')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
+const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-api/domains/miniapp/utils/testSchema/assets/build.zip')
 
 async function createTestB2CApp (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
@@ -51,9 +58,47 @@ async function updateTestB2CApps (client, attrsArray) {
     return [objs, data]
 }
 
+function generateBuildVersion () {
+    return `${faker.datatype.number()}.${faker.datatype.number()}.${faker.datatype.number()}`
+}
+
+async function createTestB2CAppBuild (client, app, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!app || !app.id) throw new Error('no app.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const version = generateBuildVersion()
+    const data = new UploadingFile(FAKE_BUILD_ASSET_PATH)
+
+    const attrs = {
+        dv: 1,
+        sender,
+        app: { connect: { id: app.id } },
+        data,
+        version,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppBuild.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2CAppBuild.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
+    B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

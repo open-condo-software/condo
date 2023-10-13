@@ -1,0 +1,5 @@
+const INVALID_MIMETYPE = 'INVALID_MIMETYPE'
+
+module.exports = {
+    INVALID_MIMETYPE,
+}

@@ -9,5 +9,7 @@
   "errors.ACTION_NOT_FOUND.user.message": "С момента подтверждения телефона прошло слишком много времени",
   "errors.INVALID_CODE.message": "Неверный код подтверждения",
   "errors.USER_ALREADY_EXISTS.message": "Пользователь с таким номером телефона уже был зарегистрирован ранее",
-  "errors.PASSWORD_TOO_SIMPLE.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов"
+  "errors.PASSWORD_TOO_SIMPLE.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
+  "errors.INVALID_MIMETYPE.message": "Неверный тип файла. Файл должен иметь одно из следующих расширений: {types}",
+  "errors.INVALID_BUILD_VERSION.message": "Версия билда должна быть семантически корректной и иметь формат X.Y.Z"
 }

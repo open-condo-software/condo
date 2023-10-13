@@ -4,9 +4,11 @@
  */
 
 const { B2CApp } = require('./B2CApp')
+const { B2CAppBuild } = require('./B2CAppBuild')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     B2CApp,
+    B2CAppBuild,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -7,12 +7,15 @@
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
 
 const { B2CApp: B2CAppGQL } = require('@dev-api/domains/miniapp/gql')
+const { B2CAppBuild: B2CAppBuildGQL } = require('@dev-api/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateServerUtils(B2CAppGQL)
+const B2CAppBuild = generateServerUtils(B2CAppBuildGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     B2CApp,
+    B2CAppBuild,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -5,8 +5,15 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const {
+    getFileMetaAfterChange,
+    FileAdapter,
+    getMimeTypesValidator,
+} = require('@dev-api/domains/common/utils/files')
 const access = require('@dev-api/domains/miniapp/access/B2CApp')
 
+const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos')
+const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
 
 const B2CApp = new GQLListSchema('B2CApp', {
     schemaDoc: 'B2C application',
@@ -16,6 +23,18 @@ const B2CApp = new GQLListSchema('B2CApp', {
             type: 'Text',
             isRequired: true,
         },
+        logo: {
+            schemaDoc: 'Icon of application',
+            type: 'File',
+            isRequired: false,
+            adapter: LOGO_FILE_ADAPTER,
+            hooks: {
+                validateInput: getMimeTypesValidator({ allowedTypes: ['image/png'] }),
+            },
+        },
+    },
+    hooks: {
+        afterChange: LOGO_META_AFTER_CHANGE,
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
