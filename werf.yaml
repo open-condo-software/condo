@@ -17,27 +17,6 @@ image:
   - documents
   - devportalapi
 dockerfile: Dockerfile
-fromCacheVersion: "1"
-git:
-- add: /
-  to: /app
-  stageDependencies:
-    install:
-    - "yarn.lock"
-    - "package.json"
-    - "**/yarn.lock"
-    - "**/package.json"
-    setup:
-    - "apps/**"
-    - "packages/**"
-    - "bin/**/*"
-  excludePaths:
-  - .github
-  - .helm
-  - werf.yaml
-  - werf-giterminism.yaml
-  owner: app
-  group: app
 ---
 image: postgresreview
 from: postgres:13.2
