@@ -1,41 +1,17 @@
-# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
-
-name: RUN CONDO TESTS
-
 on:
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      domain_name:
+        required: true
+        type: string
+      runs-on:
+        required: false
+        type: string
+        default: ubuntu-latest
 
 jobs:
-  domains-tests-job:
-    strategy:
-      matrix:
-        domain:
-          - organization
-          - user
-          - scope
-          - property
-          - acquiring
-          - billing
-          - miniapp
-          - banking
-          - ticket
-          - meter
-          - contact
-          - resident
-          - notification
-          - common
-    uses: ./.github/workflows/_nodejs.condo.core.tests.yml
-    with:
-      domain_name: ${{ matrix.domain }}
-    secrets: inherit
-
-  test-other-domains:
-    runs-on: ubuntu-latest
+  tests:
+    runs-on: ${{ inputs.runs-on }}
 
     strategy:
       matrix:
@@ -54,6 +30,7 @@ jobs:
         run: |
           cp .env.example .env
           docker-compose up -d postgresdb redis
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
@@ -66,9 +43,11 @@ jobs:
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
+
       - name: build deps
         run: |
           turbo build --filter=condo^...
+
       - name: run tests for ${{ matrix.database }}
         run: |
           set -x
@@ -83,32 +62,37 @@ jobs:
           export NODE_OPTIONS="--max_old_space_size=4096"
           export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
           export NEWS_ITEMS_SENDING_DELAY_SEC=2
+
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
+
           # NOTE(pahaz): Keystone not in dev mode trying to check dist/admin folder
           mkdir -p ./apps/condo/dist/admin
+
           [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
+
           yarn workspace @app/condo dev 2>&1 > condo.dev.log &
           bash ./.github/workflows/waitForLocalhostApiReady.sh
+
           # check migrations
           yarn workspace @app/condo makemigrations --check &> /dev/null
+          
           source bin/validate-db-schema-ts-to-match-graphql-api.sh
+
           yarn workspace @app/condo worker 2>&1 > condo.worker.log &
           sleep 3
+
           # And check background processes!
           [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
           sleep 3
+
           # TESTS
-          yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/schema/(.*)[.]test.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.4.test.other-domains.log
-          yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]test.js$' --testPathIgnorePatterns='/schema/(.*)[.]test.js$' 2>&1 > condo.5.test.others.log
+          yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/${{ inputs.domain_name }}/schema/(.*)[.]test.js$' 2>&1 > condo.1.test.organization-user-scope-property.log
           # SPECS
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '(.*)[.]spec.js$' --testPathIgnorePatterns='/domains/(organization|user|scope|property|acquiring|billing|miniapp|banking|ticket|meter|contact|resident|notification|common)/' 2>&1 > condo.4.spec.others.log
+          yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/${{ inputs.domain_name }}/(.*)[.]spec.js$' 2>&1 > condo.1.spec.organization-user-scope-property.log
+        
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
           killall node || echo 'no node processes'
-          
-          yarn jest ./packages/keystone --workerIdleMemoryLimit="50%" --maxWorkers=2
-          
-          yarn workspace @app/condo lint-schema
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
