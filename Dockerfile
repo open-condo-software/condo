@@ -39,7 +39,8 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "COOKIE_SECRET=undefined" >> /app/.env && \
 	echo "DATABASE_URL=undefined" >> /app/.env && \
 	echo "REDIS_URL=undefined" >> /app/.env && \
-	echo "NODE_ENV=production" >> /app/.env
+	echo "NODE_ENV=production" >> /app/.env && \
+	echp "FILE_FIELD_ADAPTER=local"
 
 COPY --chown=app:app . /app
 RUN yarn install --immutable
