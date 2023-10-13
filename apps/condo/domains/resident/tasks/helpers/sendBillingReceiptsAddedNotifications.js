@@ -113,25 +113,18 @@ const sendBillingReceiptsAddedNotificationsForPeriod = async (receiptsWhere, onL
 
         skip += receipts.length
 
-        const contextIds = uniq(receipts.map(receipt => get(receipt, 'context.id')))
-        const accountsData = receipts.map(receipt => ({
-            accountNumber_i: get(receipt, 'account.number'),
-            resident: {
-                unitType: get(receipt, 'account.unitType'),
-                unitName_i: get(receipt, 'account.unitName'),
-                address_i: get(receipt, 'property.address'),
-                deletedAt: null,
-            },
-        }))
+        let organisationIds = []
+        const accountsNumbers = []
+        for (const receipt of receipts) {
+            organisationIds.push(get(receipt, 'context.organization.id'))
+            accountsNumbers.push(get(receipt, 'account.number'))
+        }
+        organisationIds = uniq(organisationIds)
 
         const serviceConsumerWhere = {
-            AND: [
-                {
-                    billingIntegrationContext: { id_in: contextIds, deletedAt: null },
-                    deletedAt: null,
-                },
-                { OR: accountsData },
-            ],
+            organization: { id_in: organisationIds },
+            accountNumber_in: accountsNumbers,
+            deletedAt: null,
         }
         const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumerWhere })
 
