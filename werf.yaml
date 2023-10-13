@@ -1,7 +1,6 @@
 project: condo
 configVersion: 1
 ---
-
 image: 
   - condo
   - callcenter 
@@ -39,11 +38,6 @@ git:
   - werf-giterminism.yaml
   owner: app
   group: app
-
-
-docker:
-  ENV:
-    LANG: C.UTF-8
 ---
 image: postgresreview
 from: postgres:13.2
@@ -61,7 +55,6 @@ shell:
   - "mkdir obsutil_linux_amd64 && tar -xf obsutil_linux_amd64.tar.gz -C obsutil_linux_amd64 --strip-components 1"
   - "cd obsutil_linux_amd64"
   - "chmod 755 obsutil"
-
 ---
 image: python-base
 from: python:3.9-slim
@@ -74,10 +67,6 @@ shell:
   - "apt install -qq -y --no-install-recommends
       python3-pip
       python3-dev"
-
-docker:
-  ENV:
-    LANG: C.UTF-8
 ---
 image: classifier
 fromImage: python-base
