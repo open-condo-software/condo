@@ -86,9 +86,9 @@ jobs:
           sleep 3
 
           # TESTS
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/${{ inputs.domain_name }}/schema/(.*)[.]test.js$' 2>&1 > 'condo.${{ inputs.domain_name }}.tests.log'
+          yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/${{ inputs.domain_name }}/schema/(.*)[.]test.js$' 2>&1 > 'condo.${{ inputs.domain_name }}.tests.log'
           # SPECS
-          yarn workspace @app/condo test --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/${{ inputs.domain_name }}/(.*)[.]spec.js$' 2>&1 > 'condo.${{ inputs.domain_name }}.specs.log'
+          yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/${{ inputs.domain_name }}/(.*)[.]spec.js$' 2>&1 > 'condo.${{ inputs.domain_name }}.specs.log'
         
           # Note: we need to stop background worker! because packages tests use the same redis queue
           kill $(jobs -p) || echo 'background worker and dev server is already killed!'
