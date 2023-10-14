@@ -19,14 +19,6 @@ jobs:
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
-      - name: Install packages
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git build-essential python3-pip docker-compose curl
-
-      - name: Verify Git Installation
-        run: git --version
-
       - name: Checkout code with submodules
         uses: actions/checkout@v3
         with:
@@ -43,10 +35,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+          cache: 'yarn'
 
       - name: install packages
         run: |
-          npm i -g yarn turbo
+          npm i -g turbo
           yarn install --immutable
           pip3 install django
           pip3 install psycopg2-binary
