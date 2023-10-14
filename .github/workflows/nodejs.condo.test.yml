@@ -8,7 +8,14 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-image:
+    steps:
+      - name: test
+        run: |
+          echo 'hello images!'
+
   domains-tests-job:
+    needs: build-image
     strategy:
       fail-fast: false  # for debug
       matrix:
