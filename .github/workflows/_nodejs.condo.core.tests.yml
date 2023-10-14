@@ -50,7 +50,8 @@ jobs:
 
       - name: run tests for ${{ matrix.database }}
         run: |
-          bash .github/workflows/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}
+          chmod +x .github/workflows/run_condo_domain_tests.sh
+          .github/workflows/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}
         env:
           DATABASE_URL: ${{ matrix.database }}
           NODE_ENV: development
