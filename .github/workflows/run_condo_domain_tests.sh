@@ -67,10 +67,10 @@ sleep 3
 
 if [ $domain_name != "others" ]; then
     # TESTS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/\$domain_name/schema/(.*)[.]test.js$' 2>&1 > 'condo.$domain_name.tests.log'
+    yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > 'condo.'$domain_name'.tests.log'
     # SPECS
     if [ -n "$(find apps/condo/domains/$domain_name -name '*spec.js' 2>/dev/null)" ]; then
-    yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/\$domain_name/(.*)[.]spec.js$' 2>&1 > 'condo.$domain_name.specs.log'
+    yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$ 2>&1' > 'condo.'$domain_name'.specs.log'
     else
     echo "Files matching (.*)[.]spec.js in directory apps/condo/domains/$domain_name not found! Skipping..."
     fi 
