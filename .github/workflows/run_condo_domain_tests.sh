@@ -1,5 +1,6 @@
 #!/bin/bash
 # NOTE: CI USAGE ONLY!
+set -x
 
 domain_name=""
 
@@ -64,7 +65,7 @@ sleep 3
 [[ $(jobs | wc -l | tr -d ' ') != '2' ]] && exit 2
 sleep 3
 
-if [ "$domain_name" != "others" ]; then
+if [ $domain_name != "others" ]; then
     # TESTS
     yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/$domain_name/schema/(.*)[.]test.js$' 2>&1 > 'condo.$domain_name.tests.log'
     # SPECS
