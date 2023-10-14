@@ -31,4 +31,5 @@ jobs:
     uses: ./.github/workflows/_nodejs.condo.core.tests.yml
     with:
       domain_name: ${{ matrix.domain }}
+      runs-on: doma-runners-cluster
     secrets: inherit
