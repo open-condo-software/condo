@@ -32,7 +32,7 @@ COPY --chown=app:app . /app
 RUN chmod +x /app/run_condo_domain_tests.sh
 
 RUN \
-	--mount=type=cache,target=/app/.yarn/,sharing=locked,uid=999,gid=999 \
+	--mount=type=cache,target=/app/.yarn/berry,sharing=locked,uid=999,gid=999 \
 	yarn install --immutable
 
 RUN set -ex \
