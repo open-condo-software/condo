@@ -13,8 +13,12 @@ jobs:
     outputs:
       DOCKER_IMAGE_FULL: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image/${{ github.sha }}
     steps:
-      - name: checkout
+      - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
       
       - name: setup docker buildx
         uses: docker/setup-buildx-action@v3
