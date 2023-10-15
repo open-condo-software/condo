@@ -1,0 +1,60 @@
+on:
+  workflow_call:
+    inputs:
+      domain_name:
+        required: true
+        type: string
+      image:
+        required: true
+        type: string
+      runs-on:
+        required: false
+        type: string
+        default: ubuntu-latest
+
+jobs:
+  tests:
+    runs-on: ${{ inputs.runs-on }}
+
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
+
+    steps:
+      - name: login to sbercloud registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.docker_registry }}
+          username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
+          password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+      
+      - name: run tests inside docker
+        run: |
+          docker run \
+            && -e DATABASE_URL=$DATABASE_URL \
+            && -e NODE_ENV=$NODE_ENV \
+            && -e DISABLE_LOGGING=$DISABLE_LOGGING \
+            && ${{ inputs.image }} \
+            && bash -c ".github/workflows/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}; exit \$?"
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
+
+      # # TODO: these two should collect logs from dirs which will be volumes for container above
+      # - name: Collect docker logs on failure
+      #   if: failure()
+      #   uses: jwalton/gh-docker-logs@v1
+      #   with:
+      #     dest: './docker-logs'
+
+      # - name: Upload log artifact
+      #   uses: actions/upload-artifact@v3
+      #   if: failure()
+      #   with:
+      #     name: logs
+      #     path: |
+      #       *.log
+      #       ./docker-logs
+      #     retention-days: 2
