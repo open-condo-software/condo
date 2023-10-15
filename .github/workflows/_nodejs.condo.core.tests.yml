@@ -31,6 +31,11 @@ jobs:
           registry: ${{ inputs.registry }}
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
+
+      - name: Docker compose up databases
+        run: |
+          cp .env.example .env
+          docker-compose up -d postgresdb redis
       
       - name: run tests inside docker
         run: |
