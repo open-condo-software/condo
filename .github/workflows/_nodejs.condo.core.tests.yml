@@ -42,8 +42,11 @@ jobs:
       
       - name: run tests inside docker
         run: |
-          docker run --env-file=.env --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}; exit \$?"
-
+          docker run -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}; exit \$?"
+        env:
+          DATABASE_URL: ${{ matrix.database }}
+          NODE_ENV: development
+          DISABLE_LOGGING: true
       # # TODO: these two should collect logs from dirs which will be volumes for container above
       # - name: Collect docker logs on failure
       #   if: failure()
