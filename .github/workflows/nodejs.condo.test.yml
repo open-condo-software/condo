@@ -36,7 +36,7 @@ jobs:
       - name: cache yarn packages
         uses: actions/cache@v3
         with:
-          path: /app/.yarn/cache
+          path: yarn-cache
           key: yarn-packages-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             yarn-packages-${{ runner.os }}-
@@ -44,7 +44,8 @@ jobs:
       - name: inject yarn cache into docker
         uses: reproducible-containers/buildkit-cache-dance@v2.1.2
         with:
-          cache-source: /app/.yarn/cache
+          cache-source: yarn-cache
+          cache-target: /app/.yarn/cache
 
       - name: build condo image for tests and push
         uses: docker/build-push-action@v5
