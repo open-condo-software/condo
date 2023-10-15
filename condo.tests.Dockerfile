@@ -31,7 +31,7 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 COPY --chown=app:app . /app
 
 RUN \
-	--mount=type=cache,target=/app/.yarn/cache,sharing=locked,uid=999,gid=999 \
+	--mount=type=cache,target=/app/.yarn/,sharing=locked,uid=999,gid=999 \
 	yarn install --immutable
 
 RUN set -ex \
