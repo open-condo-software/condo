@@ -40,6 +40,8 @@ jobs:
           file: condo.tests.Dockerfile
           push: true
           tags: ${{ env.DOCKER_IMAGE_FULL }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
   domains-tests-job:
     needs: build-image
