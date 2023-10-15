@@ -30,6 +30,7 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 
 COPY --chown=app:app . /app
 RUN chmod +x /app/run_condo_domain_tests.sh
+RUN chmod +x /app/waitForLocalhostApiReady.sh
 
 RUN \
 	--mount=type=cache,target=/app/.yarn/berry,sharing=locked,uid=999,gid=999 \

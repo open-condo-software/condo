@@ -51,7 +51,7 @@ mkdir -p ./apps/condo/dist/admin
 [[ $DATABASE_URL == postgresql* ]] && yarn workspace @app/condo migrate
 
 yarn workspace @app/condo dev 2>&1 > condo.dev.log &
-bash ./.github/workflows/waitForLocalhostApiReady.sh
+bash /app/waitForLocalhostApiReady.sh
 
 # check migrations
 yarn workspace @app/condo makemigrations --check &> /dev/null
