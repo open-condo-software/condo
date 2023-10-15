@@ -35,18 +35,14 @@ jobs:
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
-      - name: Docker compose up databases
+      - name: docker compose up databases
         run: |
           cp .env.example .env
           docker-compose up -d postgresdb redis
       
       - name: run tests inside docker
         run: |
-          docker run -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}; exit \$?"
-        env:
-          DATABASE_URL: ${{ matrix.database }}
-          NODE_ENV: development
-          DISABLE_LOGGING: true
+          docker run --env-file=.env --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}; exit \$?"
 
       # # TODO: these two should collect logs from dirs which will be volumes for container above
       # - name: Collect docker logs on failure
