@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE_FULL: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image/${{ github.sha }}
+  DOCKER_IMAGE_FULL: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:${{ github.sha }}
 
 jobs:
   build-image:
@@ -16,7 +16,7 @@ jobs:
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -32,7 +32,20 @@ jobs:
           registry: swr.ru-moscow-1.hc.sbercloud.ru
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
-      
+
+      - name: cache yarn packages
+        uses: actions/cache@v3
+        with:
+          path: /app/.yarn/cache
+          key: yarn-packages-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            yarn-packages-${{ runner.os }}-
+
+      - name: inject yarn cache into docker
+        uses: reproducible-containers/buildkit-cache-dance@v2.1.2
+        with:
+          cache-source: /app/.yarn/cache
+
       - name: build condo image for tests and push
         uses: docker/build-push-action@v5
         with:
