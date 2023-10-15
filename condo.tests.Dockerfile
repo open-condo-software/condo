@@ -29,6 +29,7 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "NODE_ENV=production" >> /app/.env
 
 COPY --chown=app:app . /app
+RUN chmod +x /app/run_condo_domain_tests.sh
 
 RUN \
 	--mount=type=cache,target=/app/.yarn/,sharing=locked,uid=999,gid=999 \
