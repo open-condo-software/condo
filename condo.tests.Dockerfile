@@ -29,7 +29,9 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "NODE_ENV=production" >> /app/.env
 
 COPY --chown=app:app . /app
-RUN yarn install --immutable
+RUN \
+	--mount=type=cache,target=/app/.yarn/cache,sharing=locked \
+	yarn install --immutable
 
 RUN set -ex \
     && turbo build --filter=condo^... \

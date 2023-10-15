@@ -54,6 +54,7 @@ jobs:
           file: condo.tests.Dockerfile
           push: true
           tags: ${{ env.DOCKER_IMAGE_FULL }}
+          provenance: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
