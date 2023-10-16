@@ -16,7 +16,6 @@ const { sendMessage, Message } = require('@condo/domains/notification/utils/serv
 const { ServiceConsumer } = require('@condo/domains/resident/utils/serverSchema')
 
 
-
 const logger = getLogger('notifyResidentsOnPayday')
 
 const DV_SENDER = { dv: 1, sender: { dv: 1, fingerprint: 'notifyResidentsOnPayday' } }
@@ -41,7 +40,7 @@ async function sendNotification (context, receipt, consumer) {
     const resident = consumer.resident
     const userId = resident.user.id
     const lang = get(COUNTRIES, [get(receipt, 'organization.country', conf.DEFAULT_LOCALE), 'locale'], conf.DEFAULT_LOCALE)
-    const now = dayjs().subtract(1, 'month')
+    const monthName = lang === RU_LOCALE ? dayjs(receipt.period).locale('ru').format('MMMM') : dayjs(receipt.period).format('MMMM')
 
     if (await hasConflictingPushes(context, userId)) {
         logger.info({ msg: 'Today the User received push notifications with a conflicting type', userId })
@@ -54,10 +53,11 @@ async function sendNotification (context, receipt, consumer) {
         to: { user: { id: userId } },
         lang,
         type: SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE_TYPE,
+        organization: { id: consumer.organization.id },
         meta: {
             dv: 1,
             data: {
-                monthName: lang === RU_LOCALE ? now.locale('ru').format('MMMM') : now.format('MMMM'),
+                monthName,
                 serviceConsumerId: consumer.id,
                 residentId: resident.id,
                 userId,
@@ -89,6 +89,9 @@ async function notifyResidentsOnPayday () {
             },
             billingAccount_is_null: false,
             billingIntegrationContext_is_null: false,
+            resident: {
+                deletedAt: null,
+            },
             deletedAt: null,
         }, {
             skip: state.consumersOffset,
@@ -100,32 +103,56 @@ async function notifyResidentsOnPayday () {
 
         for (const consumer of consumers) {
             try {
-                const userId = consumer.resident.user.id
-                const organizationId = consumer.organization.id
-
-                //checking whether this user has been processed
-                if (state.recipientsMap.has(organizationId) && state.recipientsMap.get(organizationId) === userId) continue
-                state.recipientsMap.set(organizationId, userId)
+                const accountNumber = get(consumer, ['accountNumber'])
 
                 const receipts = await loadListByChunks({
                     context,
                     chunkSize:20,
                     list: BillingReceipt,
                     where: {
+                        account: {
+                            number: accountNumber,
+                        },
                         context: {
                             id: consumer.billingIntegrationContext.id,
                         },
-                        period: consumer.billingIntegrationContext.lastReport.period,
+                        period_gte: dayjs().subtract(2, 'month').startOf('month').toISOString(),
                         toPay_gt: '0',
                         deletedAt: null,
                     },
                 })
                 state.processedReceipts += receipts.length
 
-                let isAllPaid = true
+                const receiptsByAccountAndRecipient = {}
                 for (const receipt of receipts) {
-                    const organizationId = get(receipt, ['context', 'organization', 'id'])
                     const accountNumber = get(receipt, ['account', 'number'])
+                    const recipientId = get(receipt, ['receiver', 'id'])
+                    const categoryId = get(receipt, ['category', 'id'])
+                    const key = accountNumber + '-' + recipientId + '-' + categoryId
+
+                    const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
+
+                    if (!(key in receiptsByAccountAndRecipient)) {
+                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
+                        continue
+                    }
+
+                    // If we have a receipt with later period -- we take it
+                    const existingRecipientPeriod = dayjs(get(receiptsByAccountAndRecipient[key], 'period'), 'YYYY-MM-DD')
+                    if (existingRecipientPeriod < period) {
+                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
+                    }
+                }
+
+                const processedReceipts = (Object.values(receiptsByAccountAndRecipient)).map(r => r.id)
+                receipts.forEach(receipt => {
+                    receipt.isPayable = processedReceipts.includes(receipt.id)
+                })
+                const payableReceipts = receipts.filter(r => r.isPayable)
+
+                let isAllPaid = true
+                for (const receipt of payableReceipts) {
+                    const organizationId = get(receipt, ['context', 'organization', 'id'])
                     const toPay = Number(get(receipt, ['toPay']))
                     const paid = Number(await getPaymentsSum(
                         context,
@@ -138,7 +165,7 @@ async function notifyResidentsOnPayday () {
                     if (paid < toPay) isAllPaid = false
                 }
 
-                if (!isAllPaid) await sendNotification(context, receipts[0], consumer)
+                if (!isAllPaid) await sendNotification(context, payableReceipts[0], consumer)
             } catch (error) {
                 logger.error({ error })
                 state.failedConsumers++
