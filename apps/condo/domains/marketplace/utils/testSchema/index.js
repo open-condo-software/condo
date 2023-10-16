@@ -13,6 +13,7 @@ const { InvoiceContext: InvoiceContextGQL } = require('@condo/domains/marketplac
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
@@ -24,6 +25,7 @@ async function createTestInvoiceContext (client, organization, extraAttrs = {}) 
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
+        implicitFeePercent: String(faker.datatype.number({ min: 1, max: 10 })),
         ...extraAttrs,
     }
     const obj = await InvoiceContext.create(client, attrs)
