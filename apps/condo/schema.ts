@@ -18817,7 +18817,7 @@ export type ConfirmPhoneAction = {
    *  4. As an alias to the 'id' field on the ConfirmPhoneAction List.
    */
   _label_?: Maybe<Scalars['String']>;
-  /**  Phone. In international E.164 format without spaces  */
+  /**  Normalized phone in E.164 format without spaces  */
   phone?: Maybe<Scalars['String']>;
   /**  Unique token to complete confirmation  */
   token?: Maybe<Scalars['String']>;
@@ -63039,7 +63039,7 @@ export type RegisterNewUserInput = {
   sender: SenderFieldInput;
   name: Scalars['String'];
   password: Scalars['String'];
-  confirmPhoneActionToken?: Maybe<Scalars['String']>;
+  confirmPhoneActionToken: Scalars['String'];
   email?: Maybe<Scalars['String']>;
   phone?: Maybe<Scalars['String']>;
   meta?: Maybe<Scalars['JSON']>;

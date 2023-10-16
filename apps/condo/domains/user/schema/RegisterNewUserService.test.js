@@ -1,10 +1,10 @@
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, expectToThrowGraphQLRequestError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectToThrowGraphQLRequestError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const { expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 
+const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH } = require('@condo/domains/user/constants/common')
-const { REGISTER_NEW_USER_MUTATION } = require('@condo/domains/user/gql')
 const { createTestUser, registerNewUser, createTestPhone, createTestEmail, createTestLandlineNumber, makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { errors } = require('./RegisterNewUserService')
@@ -40,8 +40,8 @@ describe('RegisterNewUserService', () => {
 
         await expectToThrowGQLError(
             async () => await registerNewUser(client, { phone }),
-            errors.WRONG_PHONE_FORMAT,
-            'user',
+            COMMON_ERRORS.WRONG_PHONE_FORMAT,
+            'obj',
         )
     })
 
@@ -53,29 +53,12 @@ describe('RegisterNewUserService', () => {
         const password = faker.internet.password()
         const email = userAttrs.email
         const phone = createTestPhone()
-        const dv = 1
-        const sender = { dv: 1, fingerprint: 'tests' }
-        const { errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
-            data: {
-                dv,
-                sender,
-                name,
-                phone,
-                password,
-                email,
-            },
-        })
-        expect(errors).toMatchObject([{
-            message: 'User with specified email already exists',
-            name: 'GQLError',
-            path: ['user'],
-            extensions: {
-                mutation: 'registerNewUser',
-                variable: ['data', 'email'],
-                code: 'BAD_USER_INPUT',
-                type: 'NOT_UNIQUE',
-            },
-        }])
+
+        await expectToThrowGQLError(
+            async () => await registerNewUser(client, { name, phone, password, email }),
+            errors.USER_WITH_SPECIFIED_EMAIL_ALREADY_EXISTS,
+            'user',
+        )
     })
 
     test('register with empty password', async () => {
@@ -191,5 +174,19 @@ describe('RegisterNewUserService', () => {
             errors.UNABLE_TO_FIND_CONFIRM_PHONE_ACTION,
             'user',
         )
+    })
+
+    test('register with no token', async () => {
+        const client = await makeClient()
+
+        await catchErrorFrom(async () => {
+            await registerNewUser(client, { confirmPhoneActionToken: null })
+        }, ({ errors }) => {
+            expect(errors).toMatchObject([{
+                name: 'UserInputError',
+                message: 'Variable "$data" got invalid value null at "data.confirmPhoneActionToken"; Expected non-nullable type "String!" not to be null.',
+                extensions: { code: 'BAD_USER_INPUT' },
+            }])
+        })
     })
 })

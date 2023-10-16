@@ -124,21 +124,25 @@ async function updateTestUser (client, id, extraAttrs = {}) {
 
 async function registerNewUser (client, extraAttrs = {}, { raw = false } = {}) {
     if (!client) throw new Error('no client')
+    const admin = await makeLoggedInAdminClient()
     const sender = { dv: 1, fingerprint: 'test-' + faker.random.alphaNumeric(8) }
     const name = faker.name.firstName()
     const email = createTestEmail()
     const password = getRandomString()
-    const phone = createTestPhone()
+    const phone = extraAttrs.phone || createTestPhone()
     const meta = {
         dv: 1, city: faker.address.city(), county: faker.address.county(),
     }
+    const [{ token }] = await createTestConfirmPhoneAction(admin, { phone, isPhoneVerified: true })
     const attrs = {
         dv: 1,
         sender,
         name,
         email,
         phone,
-        password, meta,
+        password,
+        meta,
+        confirmPhoneActionToken: token,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_NEW_USER_MUTATION, {
