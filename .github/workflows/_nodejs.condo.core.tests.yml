@@ -29,9 +29,6 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-pip docker-compose curl
-          
-      - name: checkout code
-        uses: actions/checkout@v3
 
       - name: login to sbercloud registry
         uses: docker/login-action@v3
@@ -42,7 +39,6 @@ jobs:
 
       - name: docker compose up databases
         run: |
-          cp .env.example .env
           docker-compose up -d postgresdb redis
       
       - name: run tests inside docker

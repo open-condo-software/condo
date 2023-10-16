@@ -69,12 +69,11 @@ if [ $domain_name != "others" ]; then
     # TESTS
     yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/schema/(.*)[.]test.js$' 2>&1 > 'condo.'$domain_name'.tests.log'
     # SPECS
-    yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$ 2>&1' > 'condo.'$domain_name'.specs.log'
-    # if [ -n "$(find apps/condo/domains/$domain_name -name '*spec.js' 2>/dev/null)" ]; then
-    # yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$ 2>&1' > 'condo.'$domain_name'.specs.log'
-    # else
-    # echo "Files matching (.*)[.]spec.js in directory apps/condo/domains/$domain_name not found! Skipping..."
-    # fi 
+    if [ -n "$(find apps/condo/domains/$domain_name -name '*spec.js' 2>/dev/null)" ]; then
+        yarn workspace @app/condo test --workerIdleMemoryLimit="50%" --testTimeout=15000 --runInBand --forceExit --silent=false --verbose --bail --testPathPattern '/domains/'$domain_name'/(.*)[.]spec.js$' 2>&1 > 'condo.'$domain_name'.specs.log'
+    else
+        echo "Files matching (.*)[.]spec.js in directory apps/condo/domains/$domain_name not found! Skipping..."
+    fi 
     # Note: we need to stop background worker! because packages tests use the same redis queue
     kill $(jobs -p) || echo 'background worker and dev server is already killed!'
     killall node || echo 'no node processes'
