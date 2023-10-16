@@ -12,6 +12,8 @@ const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } 
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createTestOrganization } = require('../../organization/utils/testSchema')
+const {createTestNewsItem} = require("../utils/testSchema");
+const {createTestB2BApp, createTestB2BAppContext} = require("../../miniapp/utils/testSchema");
 
 let adminClient, supportClient, anonymousClient, dummyO10n
 
@@ -25,18 +27,19 @@ describe('NewsItemSharing', () => {
         dummyO10n = o10n
     })
 
-
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
                 // 1) prepare data
-                const admin = await makeLoggedInAdminClient()
+                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                const [newNewsSharingApp] = await createTestB2BApp(adminClient)
+                const [newNewsSharingAppContext] = await createTestB2BAppContext(adminClient, newNewsSharingApp, dummyO10n)
 
                 // 2) action
-                const [obj, attrs] = await createTestNewsItemSharing(admin)
+                const [obj, attrs] = await createTestNewsItemSharing(adminClient, dummyO10n, newsItem)
 
                 // 3) check
-                expectValuesOfCommonFields(obj, attrs, admin)
+                expectValuesOfCommonFields(obj, attrs, adminClient)
                 // TODO(codegen): write others fields here! provide as match fields as you can here!
             })
 
