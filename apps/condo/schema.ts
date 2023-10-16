@@ -24713,6 +24713,10 @@ export type InvoiceContext = {
   status?: Maybe<Scalars['String']>;
   /**  How much money do we charge from companies. The percent.  */
   implicitFeePercent?: Maybe<Scalars['String']>;
+  /**  The percentage of VAT  */
+  vat?: Maybe<Scalars['Int']>;
+  /**  The regime of counting taxes for company  */
+  taxRegime?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -24735,6 +24739,8 @@ export type InvoiceContextCreateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   implicitFeePercent?: Maybe<Scalars['String']>;
+  vat?: Maybe<Scalars['Int']>;
+  taxRegime?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24762,6 +24768,8 @@ export type InvoiceContextHistoryRecord = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   implicitFeePercent?: Maybe<Scalars['String']>;
+  vat?: Maybe<Scalars['String']>;
+  taxRegime?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -24783,6 +24791,8 @@ export type InvoiceContextHistoryRecordCreateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   implicitFeePercent?: Maybe<Scalars['String']>;
+  vat?: Maybe<Scalars['String']>;
+  taxRegime?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24809,6 +24819,8 @@ export type InvoiceContextHistoryRecordUpdateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   implicitFeePercent?: Maybe<Scalars['String']>;
+  vat?: Maybe<Scalars['String']>;
+  taxRegime?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24864,6 +24876,42 @@ export type InvoiceContextHistoryRecordWhereInput = {
   implicitFeePercent_gte?: Maybe<Scalars['String']>;
   implicitFeePercent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   implicitFeePercent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vat?: Maybe<Scalars['String']>;
+  vat_not?: Maybe<Scalars['String']>;
+  vat_contains?: Maybe<Scalars['String']>;
+  vat_not_contains?: Maybe<Scalars['String']>;
+  vat_starts_with?: Maybe<Scalars['String']>;
+  vat_not_starts_with?: Maybe<Scalars['String']>;
+  vat_ends_with?: Maybe<Scalars['String']>;
+  vat_not_ends_with?: Maybe<Scalars['String']>;
+  vat_i?: Maybe<Scalars['String']>;
+  vat_not_i?: Maybe<Scalars['String']>;
+  vat_contains_i?: Maybe<Scalars['String']>;
+  vat_not_contains_i?: Maybe<Scalars['String']>;
+  vat_starts_with_i?: Maybe<Scalars['String']>;
+  vat_not_starts_with_i?: Maybe<Scalars['String']>;
+  vat_ends_with_i?: Maybe<Scalars['String']>;
+  vat_not_ends_with_i?: Maybe<Scalars['String']>;
+  vat_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vat_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  taxRegime?: Maybe<Scalars['String']>;
+  taxRegime_not?: Maybe<Scalars['String']>;
+  taxRegime_contains?: Maybe<Scalars['String']>;
+  taxRegime_not_contains?: Maybe<Scalars['String']>;
+  taxRegime_starts_with?: Maybe<Scalars['String']>;
+  taxRegime_not_starts_with?: Maybe<Scalars['String']>;
+  taxRegime_ends_with?: Maybe<Scalars['String']>;
+  taxRegime_not_ends_with?: Maybe<Scalars['String']>;
+  taxRegime_i?: Maybe<Scalars['String']>;
+  taxRegime_not_i?: Maybe<Scalars['String']>;
+  taxRegime_contains_i?: Maybe<Scalars['String']>;
+  taxRegime_not_contains_i?: Maybe<Scalars['String']>;
+  taxRegime_starts_with_i?: Maybe<Scalars['String']>;
+  taxRegime_not_starts_with_i?: Maybe<Scalars['String']>;
+  taxRegime_ends_with_i?: Maybe<Scalars['String']>;
+  taxRegime_not_ends_with_i?: Maybe<Scalars['String']>;
+  taxRegime_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  taxRegime_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -24961,6 +25009,8 @@ export type InvoiceContextUpdateInput = {
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   implicitFeePercent?: Maybe<Scalars['String']>;
+  vat?: Maybe<Scalars['Int']>;
+  taxRegime?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24997,6 +25047,14 @@ export type InvoiceContextWhereInput = {
   implicitFeePercent_gte?: Maybe<Scalars['String']>;
   implicitFeePercent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   implicitFeePercent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vat?: Maybe<Scalars['Int']>;
+  vat_not?: Maybe<Scalars['Int']>;
+  vat_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  vat_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  taxRegime?: Maybe<Scalars['String']>;
+  taxRegime_not?: Maybe<Scalars['String']>;
+  taxRegime_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  taxRegime_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -69230,6 +69288,10 @@ export enum SortInvoiceContextHistoryRecordsBy {
   StatusDesc = 'status_DESC',
   ImplicitFeePercentAsc = 'implicitFeePercent_ASC',
   ImplicitFeePercentDesc = 'implicitFeePercent_DESC',
+  VatAsc = 'vat_ASC',
+  VatDesc = 'vat_DESC',
+  TaxRegimeAsc = 'taxRegime_ASC',
+  TaxRegimeDesc = 'taxRegime_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -69255,6 +69317,10 @@ export enum SortInvoiceContextsBy {
   StatusDesc = 'status_DESC',
   ImplicitFeePercentAsc = 'implicitFeePercent_ASC',
   ImplicitFeePercentDesc = 'implicitFeePercent_DESC',
+  VatAsc = 'vat_ASC',
+  VatDesc = 'vat_DESC',
+  TaxRegimeAsc = 'taxRegime_ASC',
+  TaxRegimeDesc = 'taxRegime_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

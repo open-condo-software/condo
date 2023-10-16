@@ -64444,6 +64444,8 @@ type InvoiceContextHistoryRecord {
   settings: JSON
   status: String
   implicitFeePercent: String
+  vat: String
+  taxRegime: String
   id: ID!
   v: Int
   createdAt: String
@@ -64500,6 +64502,42 @@ input InvoiceContextHistoryRecordWhereInput {
   implicitFeePercent_gte: String
   implicitFeePercent_in: [String]
   implicitFeePercent_not_in: [String]
+  vat: String
+  vat_not: String
+  vat_contains: String
+  vat_not_contains: String
+  vat_starts_with: String
+  vat_not_starts_with: String
+  vat_ends_with: String
+  vat_not_ends_with: String
+  vat_i: String
+  vat_not_i: String
+  vat_contains_i: String
+  vat_not_contains_i: String
+  vat_starts_with_i: String
+  vat_not_starts_with_i: String
+  vat_ends_with_i: String
+  vat_not_ends_with_i: String
+  vat_in: [String]
+  vat_not_in: [String]
+  taxRegime: String
+  taxRegime_not: String
+  taxRegime_contains: String
+  taxRegime_not_contains: String
+  taxRegime_starts_with: String
+  taxRegime_not_starts_with: String
+  taxRegime_ends_with: String
+  taxRegime_not_ends_with: String
+  taxRegime_i: String
+  taxRegime_not_i: String
+  taxRegime_contains_i: String
+  taxRegime_not_contains_i: String
+  taxRegime_starts_with_i: String
+  taxRegime_not_starts_with_i: String
+  taxRegime_ends_with_i: String
+  taxRegime_not_ends_with_i: String
+  taxRegime_in: [String]
+  taxRegime_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -64587,6 +64625,10 @@ enum SortInvoiceContextHistoryRecordsBy {
   status_DESC
   implicitFeePercent_ASC
   implicitFeePercent_DESC
+  vat_ASC
+  vat_DESC
+  taxRegime_ASC
+  taxRegime_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -64611,6 +64653,8 @@ input InvoiceContextHistoryRecordUpdateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
+  vat: String
+  taxRegime: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64636,6 +64680,8 @@ input InvoiceContextHistoryRecordCreateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
+  vat: String
+  taxRegime: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64680,6 +64726,12 @@ type InvoiceContext {
 
   """ How much money do we charge from companies. The percent. """
   implicitFeePercent: String
+
+  """ The percentage of VAT """
+  vat: Int
+
+  """ The regime of counting taxes for company """
+  taxRegime: String
   id: ID!
   v: Int
   createdAt: String
@@ -64728,6 +64780,14 @@ input InvoiceContextWhereInput {
   implicitFeePercent_gte: String
   implicitFeePercent_in: [String]
   implicitFeePercent_not_in: [String]
+  vat: Int
+  vat_not: Int
+  vat_in: [Int]
+  vat_not_in: [Int]
+  taxRegime: String
+  taxRegime_not: String
+  taxRegime_in: [String]
+  taxRegime_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -64797,6 +64857,10 @@ enum SortInvoiceContextsBy {
   status_DESC
   implicitFeePercent_ASC
   implicitFeePercent_DESC
+  vat_ASC
+  vat_DESC
+  taxRegime_ASC
+  taxRegime_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -64821,6 +64885,8 @@ input InvoiceContextUpdateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
+  vat: Int
+  taxRegime: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64843,6 +64909,8 @@ input InvoiceContextCreateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
+  vat: Int
+  taxRegime: String
   v: Int
   createdAt: String
   updatedAt: String
