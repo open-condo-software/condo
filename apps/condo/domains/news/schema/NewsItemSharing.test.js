@@ -11,9 +11,9 @@ const {
 const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
+const { createTestB2BApp, createTestB2BAppContext } = require('../../miniapp/utils/testSchema')
 const { createTestOrganization } = require('../../organization/utils/testSchema')
-const {createTestNewsItem} = require("../utils/testSchema");
-const {createTestB2BApp, createTestB2BAppContext} = require("../../miniapp/utils/testSchema");
+const { createTestNewsItem } = require('../utils/testSchema')
 
 let adminClient, supportClient, anonymousClient, dummyO10n
 
@@ -32,8 +32,8 @@ describe('NewsItemSharing', () => {
             test('admin can', async () => {
                 // 1) prepare data
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, {
-                    title: 'Hello world!',
-                    body: 'This news was created from NewsItemSharing.test.js',
+                    title: '🚧 Planned Water Outage Notification 🚧',
+                    body: 'We are conducting a planned water outage on September 25 2023 The outage will last approximately 4 hours',
                 })
                 const [newNewsSharingApp] = await createTestB2BApp(adminClient)
                 const [newNewsSharingAppContext] = await createTestB2BAppContext(adminClient, newNewsSharingApp, dummyO10n, {

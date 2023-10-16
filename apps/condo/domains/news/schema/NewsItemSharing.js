@@ -110,16 +110,22 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             const newsItem = await getById('NewsItem', newsItemId)
 
             const postUrl = get(b2bAppContext, ['settings', 'postUrl'])
+
             const chatId = get(b2bAppContext, ['settings', 'chatId'])
+            const title = get(newsItem, 'title')
+            const message = get(newsItem, 'body')
 
             try {
                 const response = await fetch(postUrl, {
                     method: 'POST',
-                    body: {
-                        title: get(newsItem, 'title'),
-                        message: get(newsItem, 'body'),
-                        chatId: chatId,
+                    headers: {
+                        'Content-Type': 'application/json',
                     },
+                    body: JSON.stringify({
+                        title,
+                        message,
+                        chatId,
+                    }),
                 })
                 console.log(response)
             } catch (err) {
