@@ -266,9 +266,6 @@ describe('InvoiceContext', () => {
             })
 
             test('anonymous can\'t', async () => {
-                const [o10n] = await createTestOrganization(adminClient)
-                await createTestInvoiceContext(adminClient, o10n)
-
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await InvoiceContext.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
