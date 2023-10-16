@@ -201,7 +201,6 @@ describe('B2CAppBuild', () => {
             const [anotherApp] = await createTestB2CApp(anotherUser)
             const [anotherBuild] = await createTestB2CAppBuild(anotherUser, anotherApp, { version })
             expect(anotherBuild).toHaveProperty('version', version)
-
         })
     })
 })
