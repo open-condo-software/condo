@@ -19,19 +19,11 @@ jobs:
   tests:
     runs-on: ${{ inputs.runs-on }}
 
-    strategy:
-      matrix:
-        node-version: [ 16.x ]
-        database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
-
     steps:
       - name: Install packages
         run: |
           sudo apt-get update
           sudo apt-get install -y git build-essential python3-pip docker-compose curl
-      
-      - name: checkout code
-        uses: actions/checkout@v3
 
       - name: login to sbercloud registry
         uses: docker/login-action@v3
@@ -40,17 +32,26 @@ jobs:
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
-      - name: docker compose up databases
+      - name: run postgresql for tests
         run: |
-          docker-compose up -d postgresdb redis
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d postgres:13.2
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: main
       
-      - name: run tests inside docker
+      - name: run redis for tests
+        run: |
+          docker run -p="127.0.0.1:6379:6379" -d redis:6.2
+      
+      - name: run tests
         run: |
           docker run -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
         env:
-          DATABASE_URL: ${{ matrix.database }}
+          DATABASE_URL: postgresql://postgres:postgres@127.0.0.1/main
           NODE_ENV: development
           DISABLE_LOGGING: true
+
       # # TODO: these two should collect logs from dirs which will be volumes for container above
       # - name: Collect docker logs on failure
       #   if: failure()

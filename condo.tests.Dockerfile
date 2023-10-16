@@ -33,7 +33,7 @@ RUN chmod +x /app/run_condo_domain_tests.sh
 RUN chmod +x /app/waitForLocalhostApiReady.sh
 
 RUN \
-	--mount=type=cache,target=/app/.yarn/berry,sharing=locked,uid=999,gid=999 \
+	--mount=type=cache,target=/app/.yarn/cache,sharing=locked,uid=999,gid=999 \
 	yarn install --immutable
 
 RUN set -ex \
