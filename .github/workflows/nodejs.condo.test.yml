@@ -88,4 +88,5 @@ jobs:
       domain_name: ${{ matrix.domain }}
       image: ${{ needs.build-image.outputs.DOCKER_IMAGE_FULL }}
       registry: swr.ru-moscow-1.hc.sbercloud.ru
+      runs-on: doma-runners-cluster
     secrets: inherit
