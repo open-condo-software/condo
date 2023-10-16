@@ -1,6 +1,6 @@
 #!/bin/bash
 # NOTE: CI USAGE ONLY!
-set -x
+set -ex
 
 domain_name=""
 
