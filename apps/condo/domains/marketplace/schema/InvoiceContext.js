@@ -45,7 +45,7 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             ref: 'Organization',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { unique: true, null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
         },
 
         recipient: {
@@ -73,6 +73,16 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             options: INVOICE_CONTEXT_STATUSES,
         },
 
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['organization'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'invoiceContext_unique_organization',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
