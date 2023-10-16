@@ -45,7 +45,7 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             ref: 'Organization',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
-            kmigratorOptions: { null: false, on_delete: 'models.PROTECT' },
+            kmigratorOptions: { unique: true, null: false, on_delete: 'models.PROTECT' },
         },
 
         recipient: {
