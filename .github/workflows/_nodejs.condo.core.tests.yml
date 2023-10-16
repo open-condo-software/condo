@@ -25,6 +25,11 @@ jobs:
         database: [ "postgresql://postgres:postgres@127.0.0.1/main" ]
 
     steps:
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git build-essential python3-pip docker-compose curl
+          
       - name: checkout code
         uses: actions/checkout@v3
 
