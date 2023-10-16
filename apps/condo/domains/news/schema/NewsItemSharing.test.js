@@ -31,12 +31,20 @@ describe('NewsItemSharing', () => {
         describe('create', () => {
             test('admin can', async () => {
                 // 1) prepare data
-                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n)
+                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, {
+                    title: 'Hello world!',
+                    body: 'This news was created from NewsItemSharing.test.js',
+                })
                 const [newNewsSharingApp] = await createTestB2BApp(adminClient)
-                const [newNewsSharingAppContext] = await createTestB2BAppContext(adminClient, newNewsSharingApp, dummyO10n)
+                const [newNewsSharingAppContext] = await createTestB2BAppContext(adminClient, newNewsSharingApp, dummyO10n, {
+                    settings: {
+                        'postUrl': 'http://localhost:3003/post',
+                        'chatId': '-1001729369016',
+                    },
+                })
 
                 // 2) action
-                const [obj, attrs] = await createTestNewsItemSharing(adminClient, dummyO10n, newsItem)
+                const [obj, attrs] = await createTestNewsItemSharing(adminClient, newNewsSharingAppContext, newsItem)
 
                 // 3) check
                 expectValuesOfCommonFields(obj, attrs, adminClient)

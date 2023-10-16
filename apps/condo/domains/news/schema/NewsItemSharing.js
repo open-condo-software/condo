@@ -3,15 +3,15 @@
  */
 
 const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File, Url } = require('@keystonejs/fields')
+const get = require('lodash/get')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find} = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemSharing')
 
 const { normalizeText } = require('../../common/utils/text')
-const get = require("lodash/get");
 
 
 const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
@@ -19,15 +19,24 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
     schemaDoc: 'TODO DOC!',
     fields: {
 
-        b2bApp: {
-            // TODO(codegen): write doc for NewsItemSharing.b2bApp field!
+        b2bAppContext: {
             schemaDoc: 'TODO DOC!',
             type: Relationship,
-            ref: 'B2BApp',
+            ref: 'B2BAppContext',
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
+
+        // b2bApp: {
+        //     // TODO(codegen): write doc for NewsItemSharing.b2bApp field!
+        //     schemaDoc: 'TODO DOC!',
+        //     type: Relationship,
+        //     ref: 'B2BApp',
+        //     isRequired: true,
+        //     knexOptions: { isNotNullable: true }, // Required relationship only!
+        //     kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        // },
 
         newsItem: {
             // TODO(codegen): write doc for NewsItemSharing.newsItem field!
@@ -43,7 +52,7 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             // TODO(codegen): write doc for NewsItemSharing.sharingParams field!
             schemaDoc: 'TODO DOC!',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
 
         status: {
@@ -52,34 +61,35 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             type: Select,
             options: 'processing,published,moderation,declined,archive',
             isRequired: true,
+            defaultValue: 'processing',
         },
 
         statusMessage: {
             // TODO(codegen): write doc for NewsItemSharing.statusMessage field!
             schemaDoc: 'TODO DOC!',
             type: Text,
-            isRequired: true,
+            isRequired: false,
         },
 
         lastGetRecipientsRequest: {
             // TODO(codegen): write doc for NewsItemSharing.lastGetRecipientsRequest field!
             schemaDoc: 'TODO DOC!',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
 
         lastPostRequest: {
             // TODO(codegen): write doc for NewsItemSharing.lastPostRequest field!
             schemaDoc: 'TODO DOC!',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
 
         lastGetStatusRequest: {
             // TODO(codegen): write doc for NewsItemSharing.lastGetStatusRequest field!
             schemaDoc: 'TODO DOC!',
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
 
         publicationViewsCount: {
@@ -87,20 +97,34 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             schemaDoc: 'TODO DOC!',
             type: Integer,
             isRequired: true,
+            defaultValue: 0,
         },
     },
 
     hooks: {
         afterChange: async ({ operation, updatedItem, existingData }) => {
-            const newsSharingContexts = find('B2BAppContext', {
-                b2bApp: { id: get(updatedItem, ['b2bApp', 'id']) },
-                organization: { id: get(updatedItem, ['newsItem', 'organization', 'id']) }
-            })
+            const b2bAppContextId = get( updatedItem, ['b2bAppContext'])
+            const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
 
-            newsSharingContexts.forEach(context => {
-                console.log('Hooray!')
-                console.log(context.id)
-            })
+            const newsItemId = get( updatedItem, ['newsItem'])
+            const newsItem = await getById('NewsItem', newsItemId)
+
+            const postUrl = get(b2bAppContext, ['settings', 'postUrl'])
+            const chatId = get(b2bAppContext, ['settings', 'chatId'])
+
+            try {
+                const response = await fetch(postUrl, {
+                    method: 'POST',
+                    body: {
+                        title: get(newsItem, 'title'),
+                        message: get(newsItem, 'body'),
+                        chatId: chatId,
+                    },
+                })
+                console.log(response)
+            } catch (err) {
+                console.log(err)
+            }
         },
     },
 

@@ -292,9 +292,9 @@ async function updateTestNewsItemRecipientsExportTask (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
-async function createTestNewsItemSharing (client, b2bApp, newsItem, extraAttrs = {}) {
+async function createTestNewsItemSharing (client, b2bAppContext, newsItem, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!b2bApp || !b2bApp.id) throw new Error('no b2bApp.id')
+    if (!b2bAppContext || !b2bAppContext.id) throw new Error('no b2bAppContext.id')
     if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
@@ -303,7 +303,7 @@ async function createTestNewsItemSharing (client, b2bApp, newsItem, extraAttrs =
     const attrs = {
         dv: 1,
         sender,
-        b2bApp: { connect: { id: b2bApp.id } },
+        b2bAppContext: { connect: { id: b2bAppContext.id } },
         newsItem: { connect: { id: newsItem.id } },
         ...extraAttrs,
     }
