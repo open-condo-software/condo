@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const INVOICE_CONTEXT_FIELDS = `{ organization { id } recipient email settings state ${COMMON_FIELDS} }`
+const INVOICE_CONTEXT_FIELDS = `{ organization { id } recipient { bic bankAccount tin } settings status implicitFeePercent ${COMMON_FIELDS} }`
 const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */

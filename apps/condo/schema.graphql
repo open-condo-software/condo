@@ -64443,6 +64443,7 @@ type InvoiceContextHistoryRecord {
   recipient: JSON
   settings: JSON
   status: String
+  implicitFeePercent: String
   id: ID!
   v: Int
   createdAt: String
@@ -64491,6 +64492,14 @@ input InvoiceContextHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
+  implicitFeePercent: String
+  implicitFeePercent_not: String
+  implicitFeePercent_lt: String
+  implicitFeePercent_lte: String
+  implicitFeePercent_gt: String
+  implicitFeePercent_gte: String
+  implicitFeePercent_in: [String]
+  implicitFeePercent_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -64576,6 +64585,8 @@ input InvoiceContextHistoryRecordWhereUniqueInput {
 enum SortInvoiceContextHistoryRecordsBy {
   status_ASC
   status_DESC
+  implicitFeePercent_ASC
+  implicitFeePercent_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -64599,6 +64610,7 @@ input InvoiceContextHistoryRecordUpdateInput {
   recipient: JSON
   settings: JSON
   status: String
+  implicitFeePercent: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64623,6 +64635,7 @@ input InvoiceContextHistoryRecordCreateInput {
   recipient: JSON
   settings: JSON
   status: String
+  implicitFeePercent: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64664,6 +64677,9 @@ type InvoiceContext {
 
   """ The current status of the context """
   status: String
+
+  """ How much money do we charge from companies. The percent. """
+  implicitFeePercent: String
   id: ID!
   v: Int
   createdAt: String
@@ -64704,6 +64720,14 @@ input InvoiceContextWhereInput {
   status_not: String
   status_in: [String]
   status_not_in: [String]
+  implicitFeePercent: String
+  implicitFeePercent_not: String
+  implicitFeePercent_lt: String
+  implicitFeePercent_lte: String
+  implicitFeePercent_gt: String
+  implicitFeePercent_gte: String
+  implicitFeePercent_in: [String]
+  implicitFeePercent_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -64771,6 +64795,8 @@ enum SortInvoiceContextsBy {
   organization_DESC
   status_ASC
   status_DESC
+  implicitFeePercent_ASC
+  implicitFeePercent_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -64794,6 +64820,7 @@ input InvoiceContextUpdateInput {
   recipient: RecipientFieldInput
   settings: JSON
   status: String
+  implicitFeePercent: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64815,6 +64842,7 @@ input InvoiceContextCreateInput {
   recipient: RecipientFieldInput
   settings: JSON
   status: String
+  implicitFeePercent: String
   v: Int
   createdAt: String
   updatedAt: String

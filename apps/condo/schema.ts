@@ -24711,6 +24711,8 @@ export type InvoiceContext = {
   settings?: Maybe<Scalars['JSON']>;
   /**  The current status of the context  */
   status?: Maybe<Scalars['String']>;
+  /**  How much money do we charge from companies. The percent.  */
+  implicitFeePercent?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -24732,6 +24734,7 @@ export type InvoiceContextCreateInput = {
   recipient?: Maybe<RecipientFieldInput>;
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
+  implicitFeePercent?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24758,6 +24761,7 @@ export type InvoiceContextHistoryRecord = {
   recipient?: Maybe<Scalars['JSON']>;
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
+  implicitFeePercent?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -24778,6 +24782,7 @@ export type InvoiceContextHistoryRecordCreateInput = {
   recipient?: Maybe<Scalars['JSON']>;
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
+  implicitFeePercent?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24803,6 +24808,7 @@ export type InvoiceContextHistoryRecordUpdateInput = {
   recipient?: Maybe<Scalars['JSON']>;
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
+  implicitFeePercent?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24850,6 +24856,14 @@ export type InvoiceContextHistoryRecordWhereInput = {
   status_not_ends_with_i?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  implicitFeePercent?: Maybe<Scalars['String']>;
+  implicitFeePercent_not?: Maybe<Scalars['String']>;
+  implicitFeePercent_lt?: Maybe<Scalars['String']>;
+  implicitFeePercent_lte?: Maybe<Scalars['String']>;
+  implicitFeePercent_gt?: Maybe<Scalars['String']>;
+  implicitFeePercent_gte?: Maybe<Scalars['String']>;
+  implicitFeePercent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  implicitFeePercent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -24946,6 +24960,7 @@ export type InvoiceContextUpdateInput = {
   recipient?: Maybe<RecipientFieldInput>;
   settings?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
+  implicitFeePercent?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -24974,6 +24989,14 @@ export type InvoiceContextWhereInput = {
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  implicitFeePercent?: Maybe<Scalars['String']>;
+  implicitFeePercent_not?: Maybe<Scalars['String']>;
+  implicitFeePercent_lt?: Maybe<Scalars['String']>;
+  implicitFeePercent_lte?: Maybe<Scalars['String']>;
+  implicitFeePercent_gt?: Maybe<Scalars['String']>;
+  implicitFeePercent_gte?: Maybe<Scalars['String']>;
+  implicitFeePercent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  implicitFeePercent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -69205,6 +69228,8 @@ export enum SortIncidentsBy {
 export enum SortInvoiceContextHistoryRecordsBy {
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  ImplicitFeePercentAsc = 'implicitFeePercent_ASC',
+  ImplicitFeePercentDesc = 'implicitFeePercent_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -69228,6 +69253,8 @@ export enum SortInvoiceContextsBy {
   OrganizationDesc = 'organization_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  ImplicitFeePercentAsc = 'implicitFeePercent_ASC',
+  ImplicitFeePercentDesc = 'implicitFeePercent_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

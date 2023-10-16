@@ -57,7 +57,7 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
         settings: {
             schemaDoc: 'Settings required the context to work',
             type: 'Json',
-            isRequired: true,
+            isRequired: false,
             hooks: {
                 validateInput: ({ resolvedData, fieldPath }) => {
                     validateSettingsField(resolvedData[fieldPath])
@@ -71,6 +71,12 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             type: 'Select',
             dataType: 'string',
             options: INVOICE_CONTEXT_STATUSES,
+        },
+
+        implicitFeePercent: {
+            schemaDoc: 'How much money do we charge from companies. The percent.',
+            isRequired: true,
+            type: 'Decimal',
         },
 
     },
