@@ -39,7 +39,7 @@ export NOTIFICATION__DISABLE_LOGGING=true
 export FAKE_ADDRESS_SUGGESTIONS=true
 export TESTS_LOG_REQUEST_RESPONSE=true
 export WORKER_CONCURRENCY=50
-export NODE_OPTIONS="--max_old_space_size=4096"
+export NODE_OPTIONS="--max_old_space_size=8192"
 export METABASE_CONFIG='{"url": "https://metabase.example.com", "secret": "4879960c-a625-4096-9add-7a81d925774a"}'
 export NEWS_ITEMS_SENDING_DELAY_SEC=2
 
