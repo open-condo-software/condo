@@ -8,7 +8,6 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-
 const { MARKET_CATEGORY_ERRORS } = require('@condo/domains/marketplace/constants')
 const { MarketCategory, createTestMarketCategory, updateTestMarketCategory } = require('@condo/domains/marketplace/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
@@ -64,7 +63,7 @@ describe('MarketCategory', () => {
                 expectValuesOfCommonFields(obj, attrs, support)
             })
 
-            test('can\'t update', async () => {
+            test('can update', async () => {
                 const [objCreated] = await createTestMarketCategory(support)
 
                 const [obj, attrs] = await updateTestMarketCategory(support, objCreated.id)
@@ -122,7 +121,6 @@ describe('MarketCategory', () => {
                     }),
                 ]))
             })
-
         })
 
         describe('anonymous', () => {
@@ -150,7 +148,6 @@ describe('MarketCategory', () => {
                 })
             })
         })
-
     })
 
     describe('logic tests', () => {

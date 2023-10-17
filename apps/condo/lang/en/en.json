@@ -1870,7 +1870,6 @@
   "api.meter.MeterReportingPeriod.INVALID_START": "The \"start\" field can take values in the range from 1 to 31",
   "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Organization is required for create meter reading reporting period",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "The depth of category inheritance should be no more than 2",
-  "api.marketplace.MarketCategory.CANNOT_BE_LINKED_TO_A_DELETED_CATEGORY": "Cannot link to a deleted category",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "No contacts found for export",
   "api.propertyScope.MAX_NAME_LENGTH_ERROR": "Exceeded the maximum number of characters in the title ({max} characters)",
   "api.propertyScope.exportPropertyScopesToExcel.NOTHING_TO_EXPORT": "No property scopes found for export",

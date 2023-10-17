@@ -13,7 +13,7 @@ async function canReadMarketCategories ({ authentication: { item: user } }) {
 async function canManageMarketCategories ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-    return !!(user.isAdmin || user.isSupport)
+    return user.isAdmin || user.isSupport
 }
 
 /*

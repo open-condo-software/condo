@@ -55,7 +55,7 @@ async function createTestMarketCategory (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
-        name: faker.random.alphaNumeric(8),
+        name: sender.fingerprint,
         ...extraAttrs,
     }
     const obj = await MarketCategory.create(client, attrs)

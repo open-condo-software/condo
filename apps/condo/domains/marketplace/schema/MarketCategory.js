@@ -33,15 +33,10 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
                 validateInput: async ({ resolvedData, existingItem, context }) => {
                     if (resolvedData.parentCategory) {
                         const parentCategoryRecord = await getById('MarketCategory', resolvedData.parentCategory)
-                        let isMaximumDepthReached = false
 
-                        //check parentCategory is not subCategory
-                        if (parentCategoryRecord.parentCategory) {
-                            const secondOrderParentCategoryRecord = await getById('MarketCategory', parentCategoryRecord.parentCategory)
-                            isMaximumDepthReached = secondOrderParentCategoryRecord.deletedAt === null
-                        }
-
-                        if (isMaximumDepthReached) throw new GQLError(MARKET_CATEGORY_ERRORS.MAXIMUM_DEPTH_REACHED, context)
+                        // A->B, B->A then when drawing the category tree there will be a recursion between these two categories.
+                        //Is only possible if nesting is greater than 2. So far we have a limit of 2.
+                        if (parentCategoryRecord.parentCategory) throw new GQLError(MARKET_CATEGORY_ERRORS.MAXIMUM_DEPTH_REACHED, context)
                     }
                 },
             },

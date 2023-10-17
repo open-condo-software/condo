@@ -1870,7 +1870,6 @@
   "api.meter.MeterReportingPeriod.INVALID_START": "Начало периода может принимать значение только от 1 до 31",
   "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Необходима организация для создания периода сдачи показаний",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "Глубина наследования категорий должна быть не больше 2",
-  "api.marketplace.MarketCategory.CANNOT_BE_LINKED_TO_A_DELETED_CATEGORY": "Нельзя привязать к удаленной категории",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "Не найдено контактов для экспорта",
   "api.propertyScope.MAX_NAME_LENGTH_ERROR": "Превышено максимальное количество символов в названии ({max} символов)",
   "api.propertyScope.exportPropertyScopesToExcel.NOTHING_TO_EXPORT": "Не найдено областей видимости для экспорта",

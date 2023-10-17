@@ -23,7 +23,7 @@ const MARKET_CATEGORY_ERRORS = {
     MAXIMUM_DEPTH_REACHED: {
         code: BAD_USER_INPUT,
         type: 'MAXIMUM_DEPTH_REACHED',
-        message: 'MAXIMUM_DEPTH_REACHED',
+        message: 'The depth of category inheritance should be no more than 2',
         messageForUser: 'api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED',
     },
 }
