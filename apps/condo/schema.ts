@@ -25150,6 +25150,10 @@ export type MarketCategory = {
   /**  Key for i18n  */
   name?: Maybe<Scalars['String']>;
   nameNonLocalized?: Maybe<Scalars['String']>;
+  /**  Preview image  */
+  image?: Maybe<File>;
+  /**  Settings for mobile ui  */
+  mobileSettings?: Maybe<Scalars['JSON']>;
   /**  Which category does this subcategory belong to  */
   parentCategory?: Maybe<MarketCategory>;
   id: Scalars['ID'];
@@ -25170,6 +25174,8 @@ export type MarketCategory = {
 
 export type MarketCategoryCreateInput = {
   name?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['Upload']>;
+  mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<MarketCategoryRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25194,6 +25200,8 @@ export type MarketCategoryHistoryRecord = {
    */
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['JSON']>;
+  mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -25212,6 +25220,8 @@ export type MarketCategoryHistoryRecord = {
 
 export type MarketCategoryHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['JSON']>;
+  mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25235,6 +25245,8 @@ export enum MarketCategoryHistoryRecordHistoryActionType {
 
 export type MarketCategoryHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['JSON']>;
+  mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25271,6 +25283,14 @@ export type MarketCategoryHistoryRecordWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  image?: Maybe<Scalars['JSON']>;
+  image_not?: Maybe<Scalars['JSON']>;
+  image_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  image_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  mobileSettings?: Maybe<Scalars['JSON']>;
+  mobileSettings_not?: Maybe<Scalars['JSON']>;
+  mobileSettings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  mobileSettings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   parentCategory?: Maybe<Scalars['String']>;
   parentCategory_not?: Maybe<Scalars['String']>;
   parentCategory_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -25375,6 +25395,8 @@ export type MarketCategoryRelateToOneInput = {
 
 export type MarketCategoryUpdateInput = {
   name?: Maybe<Scalars['String']>;
+  image?: Maybe<Scalars['Upload']>;
+  mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<MarketCategoryRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25408,6 +25430,14 @@ export type MarketCategoryWhereInput = {
   name_not_ends_with_i?: Maybe<Scalars['String']>;
   name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  image?: Maybe<Scalars['String']>;
+  image_not?: Maybe<Scalars['String']>;
+  image_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  image_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  mobileSettings?: Maybe<Scalars['JSON']>;
+  mobileSettings_not?: Maybe<Scalars['JSON']>;
+  mobileSettings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  mobileSettings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   parentCategory?: Maybe<MarketCategoryWhereInput>;
   parentCategory_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;

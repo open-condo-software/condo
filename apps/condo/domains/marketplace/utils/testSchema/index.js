@@ -4,6 +4,9 @@
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
 const { faker } = require('@faker-js/faker')
+const path = require('path')
+const conf = require('@open-condo/config')
+const { UploadingFile } = require('@open-condo/keystone/test.utils')
 
 const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
 
@@ -48,6 +51,8 @@ async function updateTestInvoiceContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/dino.png')
+
 async function createTestMarketCategory (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
@@ -56,6 +61,8 @@ async function createTestMarketCategory (client, extraAttrs = {}) {
         dv: 1,
         sender,
         name: sender.fingerprint,
+        image: new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+        mobileSettings: { bgColor: '#fff', titleColor: '#fff' },
         ...extraAttrs,
     }
     const obj = await MarketCategory.create(client, attrs)

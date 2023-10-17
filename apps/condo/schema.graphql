@@ -64943,6 +64943,8 @@ type MarketCategoryHistoryRecord {
   """
   _label_: String
   name: String
+  image: JSON
+  mobileSettings: JSON
   parentCategory: String
   id: ID!
   v: Int
@@ -64980,6 +64982,14 @@ input MarketCategoryHistoryRecordWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  image: JSON
+  image_not: JSON
+  image_in: [JSON]
+  image_not_in: [JSON]
+  mobileSettings: JSON
+  mobileSettings_not: JSON
+  mobileSettings_in: [JSON]
+  mobileSettings_not_in: [JSON]
   parentCategory: String
   parentCategory_not: String
   parentCategory_in: [String]
@@ -65089,6 +65099,8 @@ enum SortMarketCategoryHistoryRecordsBy {
 
 input MarketCategoryHistoryRecordUpdateInput {
   name: String
+  image: JSON
+  mobileSettings: JSON
   parentCategory: String
   v: Int
   createdAt: String
@@ -65111,6 +65123,8 @@ input MarketCategoryHistoryRecordsUpdateInput {
 
 input MarketCategoryHistoryRecordCreateInput {
   name: String
+  image: JSON
+  mobileSettings: JSON
   parentCategory: String
   v: Int
   createdAt: String
@@ -65152,6 +65166,12 @@ type MarketCategory {
   """ Key for i18n """
   name: String
   nameNonLocalized: String
+
+  """ Preview image """
+  image: File
+
+  """ Settings for mobile ui """
+  mobileSettings: JSON
 
   """ Which category does this subcategory belong to """
   parentCategory: MarketCategory
@@ -65199,6 +65219,14 @@ input MarketCategoryWhereInput {
   name_not_ends_with_i: String
   name_in: [String]
   name_not_in: [String]
+  image: String
+  image_not: String
+  image_in: [String]
+  image_not_in: [String]
+  mobileSettings: JSON
+  mobileSettings_not: JSON
+  mobileSettings_in: [JSON]
+  mobileSettings_not_in: [JSON]
   parentCategory: MarketCategoryWhereInput
   parentCategory_is_null: Boolean
   id: ID
@@ -65288,6 +65316,8 @@ enum SortMarketCategoriesBy {
 
 input MarketCategoryUpdateInput {
   name: String
+  image: Upload
+  mobileSettings: JSON
   parentCategory: MarketCategoryRelateToOneInput
   v: Int
   createdAt: String
@@ -65307,6 +65337,8 @@ input MarketCategoriesUpdateInput {
 
 input MarketCategoryCreateInput {
   name: String
+  image: Upload
+  mobileSettings: JSON
   parentCategory: MarketCategoryRelateToOneInput
   v: Int
   createdAt: String

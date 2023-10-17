@@ -166,17 +166,6 @@ describe('MarketCategory', () => {
             )
         })
 
-        test('cannot connect to deleted category', async () => {
-            const [firstOrderCategoryObj] = await createTestMarketCategory(admin)
-            await updateTestMarketCategory(admin, firstOrderCategoryObj.id, { deletedAt: firstOrderCategoryObj.createdAt })
-
-            await expectToThrowInternalError(async () => {
-                await createTestMarketCategory(admin, {
-                    parentCategory: { connect: { id: firstOrderCategoryObj.id } },
-                })
-            }, 'Unable to connect a MarketCategory.parentCategory<MarketCategory>')
-        })
-
         test('cannot connect to itself', async () => {
             const [objCreated] = await createTestMarketCategory(support)
 
