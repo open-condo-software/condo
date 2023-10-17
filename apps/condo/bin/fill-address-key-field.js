@@ -20,7 +20,7 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 
 const DADATA_CONFIG = process.env.ADDRESS_SUGGESTIONS_CONFIG ? JSON.parse(process.env.ADDRESS_SUGGESTIONS_CONFIG) : {}
-const PROCESS_CHUNK_SIZE = 10
+const PROCESS_CHUNK_SIZE = 20
 const DADATA_REQ_BOTTOM_LIMIT = 10000 + PROCESS_CHUNK_SIZE
 const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'fill-address-key-field-processing-v2' } }
 
@@ -117,15 +117,16 @@ async function proceedEntityPage (context, entity, items, state) {
     let offsetCount = 0
     let filledUpCount = 0
     let errorToUpdateCount = 0
-    for (let i = 0; i < items.length; i++) {
+
+    await Promise.all(items.map(async (item) => {
         try {
-            offsetCount += await proceedEntityItem(context, entity, items[i])
+            offsetCount += await proceedEntityItem(context, entity, item)
             filledUpCount += 1
         } catch (e) {
-            logCatch(e, { entityName: entity.gql.SINGULAR_FORM, entityId: items[i].id })
+            logCatch(e, { entityName: entity.gql.SINGULAR_FORM, entityId: item.id })
             errorToUpdateCount += 1
         }
-    }
+    }))
 
     // update state
     state[entity.gql.SINGULAR_FORM].pageProcessed += 1
