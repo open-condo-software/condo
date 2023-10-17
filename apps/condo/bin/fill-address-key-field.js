@@ -91,7 +91,7 @@ async function readPage (context, entity) {
             deletedAt: null,
             addressKey: null,
         }, {
-            sortBy: 'id_ASC',
+            sortBy: 'id_DESC',
             first: PROCESS_CHUNK_SIZE,
         }
     )
@@ -99,11 +99,15 @@ async function readPage (context, entity) {
 
 async function proceedEntityItem (context, entity, item) {
     // in order to update addressKey we will use exists trigger that starts at any update action
-    await entity.update(context, item.id, dvAndSender)
+    // we have to avoid the update it twice - let's check item sender to control that last update wasn't our update
+    if (item.sender.fingerprint !== dvAndSender.sender.fingerprint) {
+        await entity.update(context, item.id, dvAndSender)
+    }
 }
 
 async function proceedEntityPage (context, entity, items, state) {
     await checkLimits(state)
+    const emptyEntityCount = await count(context, entity)
 
     // proceed item one by one
     let filledUpCount = 0
@@ -131,7 +135,7 @@ async function proceedEntityPage (context, entity, items, state) {
     const totalCount = state[entity.gql.SINGULAR_FORM].total
     const percentage = totalCount > 0 ? parseFloat(totalProceededCount / totalCount * 100).toFixed(5) : 100
 
-    log(`Page #${pageProcessed} for ${entity.gql.SINGULAR_FORM} processed. Proceeding percentage ${percentage} %`)
+    log(`Page #${pageProcessed} for ${entity.gql.SINGULAR_FORM} processed. Proceeding percentage ${percentage} %. Remaining: ${emptyEntityCount}`)
 }
 
 async function proceedEntity (context, entity, state) {
