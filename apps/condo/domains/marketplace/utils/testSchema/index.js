@@ -10,10 +10,12 @@ const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codeg
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { InvoiceContext: InvoiceContextGQL } = require('@condo/domains/marketplace/gql')
+const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
 
+const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
@@ -46,9 +48,38 @@ async function updateTestInvoiceContext (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMarketCategory (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        name: faker.random.alphaNumeric(8),
+        ...extraAttrs,
+    }
+    const obj = await MarketCategory.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMarketCategory (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MarketCategory.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     InvoiceContext, createTestInvoiceContext, updateTestInvoiceContext,
+    MarketCategory, createTestMarketCategory, updateTestMarketCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

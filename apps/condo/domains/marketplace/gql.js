@@ -11,9 +11,13 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const INVOICE_CONTEXT_FIELDS = `{ organization { id } recipient { bic bankAccount tin } settings status implicitFeePercent ${COMMON_FIELDS} }`
 const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
 
+const MARKET_CATEGORY_FIELDS = `{ name parentCategory { id } ${COMMON_FIELDS} }`
+const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     InvoiceContext,
+    MarketCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

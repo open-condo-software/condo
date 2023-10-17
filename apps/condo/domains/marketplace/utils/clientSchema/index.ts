@@ -4,4 +4,5 @@
  */
 
 export * as InvoiceContext from './InvoiceContext'
+export * as MarketCategory from './MarketCategory'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
