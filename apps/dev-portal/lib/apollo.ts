@@ -25,7 +25,7 @@ function createApolloClient (): ApolloClient<NormalizedCacheObject> {
     return new ApolloClient({
         ssrMode: typeof window === 'undefined',
         link: new HttpLink({
-            uri: `${serviceUrl}/graphql`,
+            uri: `${serviceUrl}/api/graphql`,
             credentials: 'include',
             fetchOptions: {
                 mode: 'cors',
