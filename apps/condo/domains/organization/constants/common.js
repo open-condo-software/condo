@@ -73,6 +73,10 @@ const DEFAULT_ROLES = {
         'canReadAnalytics': true,
         'canReadNewsItems': true,
         'canReadProperties': true,
+        canReadInvoiceContexts: true,
+        canManageInvoiceContexts: true,
+        canReadInvoices: true,
+        canManageInvoices: true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -115,6 +119,8 @@ const DEFAULT_ROLES = {
         'canManageB2BApps': false,
         'canReadNewsItems': true,
         'canReadProperties': true,
+        canReadInvoices: true,
+        canManageInvoices: true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -158,6 +164,10 @@ const DEFAULT_ROLES = {
         'canManageNewsItemTemplates': true,
         'canManageB2BApps': false,
         'canReadProperties': true,
+        canReadInvoiceContexts: true,
+        canManageInvoiceContexts: true,
+        canReadInvoices: true,
+        canManageInvoices: true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',
