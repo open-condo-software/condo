@@ -75,7 +75,7 @@ async function pushOrganizationToSalesCRM (organization) {
         logger.error({ msg: 'SALES_CRM_WEBHOOKS_URL is blank or has incorrect value', data: SALES_CRM_WEBHOOKS_URL })
         return
     }
-    const { tin, name: orgName, createdBy } = organization
+    const { tin, name: orgName, createdBy, features } = organization
     const fingerprint = get(organization, ['sender', 'fingerprint'])
     const { phone: userPhone, name: userName, email } = await getById('User', createdBy.id)
     try {
@@ -86,6 +86,7 @@ async function pushOrganizationToSalesCRM (organization) {
             tin,
             email,
             fromSbbol: fingerprint === SBBOL_FINGERPRINT_NAME,
+            features,
         }
         await axios.post(SALES_CRM_WEBHOOKS_URL.organizations, data)
         logger.info({ msg: 'Posted data to sales CRM', url: SALES_CRM_WEBHOOKS_URL.organizations, data })
