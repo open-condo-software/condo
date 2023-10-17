@@ -21,8 +21,6 @@ describe('MarketCategory', () => {
         user = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient();
         [checkReadAccessCategoryObj] = await createTestMarketCategory(admin)
-
-
     })
     describe('access tests', () => {
         describe('admin', () => {
@@ -182,5 +180,4 @@ describe('MarketCategory', () => {
             }, 'Unable to connect a MarketCategory.parentCategory<MarketCategory>')
         })
     })
-
 })

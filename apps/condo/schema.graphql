@@ -65137,7 +65137,8 @@ input MarketCategoryRelateToOneInput {
   disconnectAll: Boolean
 }
 
-""" TODO DOC! """
+""" An entity that allows you to define a category tree in the marketplace 
+"""
 type MarketCategory {
   """
   This virtual field will be resolved in one of the following ways (in this order):
@@ -65152,7 +65153,7 @@ type MarketCategory {
   name: String
   nameNonLocalized: String
 
-  """ TODO DOC! """
+  """ Which category does this subcategory belong to """
   parentCategory: MarketCategory
   id: ID!
   v: Int

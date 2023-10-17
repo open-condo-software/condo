@@ -25136,7 +25136,7 @@ export type MarketCategoriesUpdateInput = {
   data?: Maybe<MarketCategoryUpdateInput>;
 };
 
-/**  TODO DOC!  */
+/**  An entity that allows you to define a category tree in the marketplace  */
 export type MarketCategory = {
   __typename?: 'MarketCategory';
   /**
@@ -25150,7 +25150,7 @@ export type MarketCategory = {
   /**  Key for i18n  */
   name?: Maybe<Scalars['String']>;
   nameNonLocalized?: Maybe<Scalars['String']>;
-  /**  TODO DOC!  */
+  /**  Which category does this subcategory belong to  */
   parentCategory?: Maybe<MarketCategory>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
