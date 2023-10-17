@@ -15,12 +15,11 @@ const { normalizeText } = require('../../common/utils/text')
 
 
 const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
-    // TODO(codegen): write doc for the NewsItemSharing domain model!
-    schemaDoc: 'TODO DOC!',
+    schemaDoc: 'Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API.',
     fields: {
 
         b2bAppContext: {
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Connection to the mini-app responsible for sending news to the selected resource',
             type: Relationship,
             ref: 'B2BAppContext',
             isRequired: true,
@@ -28,19 +27,8 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
         },
 
-        // b2bApp: {
-        //     // TODO(codegen): write doc for NewsItemSharing.b2bApp field!
-        //     schemaDoc: 'TODO DOC!',
-        //     type: Relationship,
-        //     ref: 'B2BApp',
-        //     isRequired: true,
-        //     knexOptions: { isNotNullable: true }, // Required relationship only!
-        //     kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
-        // },
-
         newsItem: {
-            // TODO(codegen): write doc for NewsItemSharing.newsItem field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Connection to the published news item',
             type: Relationship,
             ref: 'NewsItem',
             isRequired: true,
@@ -49,52 +37,45 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
 
         sharingParams: {
-            // TODO(codegen): write doc for NewsItemSharing.sharingParams field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Sending parameters specific to a particular mini-app',
             type: Json,
             isRequired: false,
         },
 
         status: {
-            // TODO(codegen): write doc for NewsItemSharing.status field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Publication status of the news: updated automatically',
             type: Select,
-            options: 'processing,published,moderation,declined,archive',
+            options: 'scheduled,processing,published,moderation,declined,archive',
             isRequired: true,
-            defaultValue: 'processing',
+            defaultValue: 'scheduled',
         },
 
         statusMessage: {
-            // TODO(codegen): write doc for NewsItemSharing.statusMessage field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'Explanations regarding the publication status. For example, the reason for rejection by moderators, details of a system error on the mini-app side',
             type: Text,
             isRequired: false,
         },
 
         lastGetRecipientsRequest: {
-            // TODO(codegen): write doc for NewsItemSharing.lastGetRecipientsRequest field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The outcome from the most recent invocation of the lastGetRecipientsRequest',
             type: Json,
             isRequired: false,
         },
 
         lastPostRequest: {
-            // TODO(codegen): write doc for NewsItemSharing.lastPostRequest field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The outcome from the most recent invocation of the lastPostRequest',
             type: Json,
             isRequired: false,
         },
 
         lastGetStatusRequest: {
-            // TODO(codegen): write doc for NewsItemSharing.lastGetStatusRequest field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'The outcome from the most recent invocation of the lastGetStatusRequest',
             type: Json,
             isRequired: false,
         },
 
         publicationViewsCount: {
-            // TODO(codegen): write doc for NewsItemSharing.publicationViewsCount field!
-            schemaDoc: 'TODO DOC!',
+            schemaDoc: 'How many users have seen this shared news item',
             type: Integer,
             isRequired: true,
             defaultValue: 0,
