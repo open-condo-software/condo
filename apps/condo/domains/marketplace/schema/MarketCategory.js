@@ -32,6 +32,7 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
             hooks: {
                 validateInput: async ({ resolvedData, existingItem, context }) => {
                     if (resolvedData.parentCategory) {
+                        if (resolvedData.parentCategory === existingItem.id) throw new GQLError(MARKET_CATEGORY_ERRORS.CANNOT_CONNECT_TO_ITSELF, context)
                         const parentCategoryRecord = await getById('MarketCategory', resolvedData.parentCategory)
 
                         // A->B, B->A then when drawing the category tree there will be a recursion between these two categories.

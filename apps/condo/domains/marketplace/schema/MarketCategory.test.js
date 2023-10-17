@@ -176,5 +176,17 @@ describe('MarketCategory', () => {
                 })
             }, 'Unable to connect a MarketCategory.parentCategory<MarketCategory>')
         })
+
+        test('cannot connect to itself', async () => {
+            const [objCreated] = await createTestMarketCategory(support)
+
+            await expectToThrowGQLError(
+                async () => { await updateTestMarketCategory(admin, objCreated.id, {
+                    parentCategory: { connect: { id: objCreated.id } },
+                }) },
+                { ...MARKET_CATEGORY_ERRORS.CANNOT_CONNECT_TO_ITSELF },
+                'obj'
+            )
+        })
     })
 })

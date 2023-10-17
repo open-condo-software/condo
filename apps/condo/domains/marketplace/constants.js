@@ -26,6 +26,12 @@ const MARKET_CATEGORY_ERRORS = {
         message: 'The depth of category inheritance should be no more than 2',
         messageForUser: 'api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED',
     },
+    CANNOT_CONNECT_TO_ITSELF: {
+        code: BAD_USER_INPUT,
+        type: 'CANNOT_CONNECT_TO_ITSELF',
+        message: 'Cannot connect to itself',
+        messageForUser: 'api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF',
+    },
 }
 
 module.exports = {
