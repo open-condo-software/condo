@@ -22,6 +22,12 @@ const PARSER_CASES = [
     ['Нововладыкинский пр-д, д.1 корпус 4, кв.6', 'НОВОВЛАДЫКИНСКИЙ ПР-Д, Д.1 КОРПУС 4', 'flat', '6'],
     ['ул.2-я Линейная, д.19, кл.59 (19Дк1 кв.67)', 'УЛ.2-Я ЛИНЕЙНАЯ, Д.19', 'warehouse', '59 (19ДК1 67)'],
     ['ул.Щорса,103,212', 'УЛ.ЩОРСА, 103', 'flat', '212'],
+
+    // fias cases
+    ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'flat', ''],
+    ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909, кв. 1', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'flat', '1'],
+    ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909, парковка 1', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'parking', '1'],
+    ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909, м/м   1', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'parking', '1'],
 ]
 
 const TRANSFORM_CASES = [

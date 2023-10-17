@@ -51,7 +51,7 @@ class AddressTransform {
         // let's fold those space sequences
         return input
             .replaceAll(/\s\s\s/g, ' ')
-            .replaceAll(/\s\s/g, ' ')
+            .replaceAll(/\s+/g, ' ')
             .trim()
     }
 
@@ -113,14 +113,13 @@ class AddressParser {
             if (!detectedType && unitTypeRegex.test(unitInput)) {
                 detectedType = unitType
             }
-            if (!fromFias) {
-                unitInput = this.trim(unitInput.replace(unitTypeRegex, '').replace(/\s+/g, ' '))
-            }
+
+            unitInput = this.trim(unitInput.replace(unitTypeRegex, '').replace(/\s+/g, ' '))
         }
         if (fromFias) {
             unitInput = this.trim(unitInput.replace(/\s+/g, ' '))
         }
-        //console.log('>', fromFias, unitInput)
+
         return {
             unitName: unitInput,
             unitType: detectedType || 'flat',
