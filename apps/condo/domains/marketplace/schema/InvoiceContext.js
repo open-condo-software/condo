@@ -6,6 +6,7 @@ const { Select } = require('@keystonejs/fields')
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 
+const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
@@ -80,6 +81,11 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             schemaDoc: 'How much money do we charge from companies. The percent.',
             isRequired: true,
             type: 'Decimal',
+            access: {
+                read: true,
+                create: userIsAdminOrIsSupport,
+                update: userIsAdminOrIsSupport,
+            },
         },
 
         vat: {

@@ -6,6 +6,7 @@ const {
     makeLoggedInAdminClient,
     makeClient,
     expectValuesOfCommonFields, expectToThrowGQLError, expectToThrowUniqueConstraintViolationError,
+    expectToThrowAccessDeniedToFieldError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -270,6 +271,44 @@ describe('InvoiceContext', () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await InvoiceContext.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 })
+            })
+        })
+    })
+
+    describe('field: implicitFeePercent', () => {
+
+        let fee_invoiceContext, fee_o10n
+
+        beforeAll(async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            fee_o10n = o10n
+            const [obj] = await createTestInvoiceContext(adminClient, o10n)
+            fee_invoiceContext = obj
+        })
+
+        test('admin can edit', async () => {
+            const [obj, attrs] = await updateTestInvoiceContext(adminClient, fee_invoiceContext.id, { implicitFeePercent: '3.1' })
+
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(Number(obj.implicitFeePercent)).toEqual(Number(attrs.implicitFeePercent))
+        })
+
+        test('support can edit', async () => {
+            const [obj, attrs] = await updateTestInvoiceContext(supportClient, fee_invoiceContext.id, { implicitFeePercent: '8' })
+
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(Number(obj.implicitFeePercent)).toEqual(Number(attrs.implicitFeePercent))
+        })
+
+        test('staff with permission can\'t edit', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, fee_o10n, { canManageInvoiceContexts: true })
+            await createTestOrganizationEmployee(adminClient, fee_o10n, client.user, role)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestInvoiceContext(client, fee_invoiceContext.id, { implicitFeePercent: '4' })
             })
         })
     })
