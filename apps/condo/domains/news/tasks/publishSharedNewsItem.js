@@ -1,3 +1,4 @@
+const dayjs = require('dayjs')
 const get = require('lodash/get')
 const fetch = require('node-fetch')
 
@@ -8,7 +9,7 @@ const { createTask } = require('@open-condo/keystone/tasks')
 
 //const { NEWS_ITEM_SHARING_STATUSES } = require('@condo/domains/news/schema/NewsItemSharing')
 
-const { NewsItemSharing } = require('../utils/serverSchema')
+const { NewsItemSharing, NewsItem } = require('@condo/domains/news/utils/serverSchema')
 
 const logger = getLogger('publishSharedNewsItem')
 
@@ -44,11 +45,15 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
 
         if (response.ok) {
             const parsedResponse = await response.json()
-            const { keystone: context } = getSchemaCtx('NewsItemSharing')
-            await NewsItemSharing.update(context, newsItemSharing.id, {
-                ...{ DV_SENDER },
-                status: 'published',
-            })
+
+            const { keystone: contextNewsItemSharing } = await getSchemaCtx('NewsItemSharing')
+            await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, { status: 'published', ...DV_SENDER })
+
+            // const { keystone: context } = getSchemaCtx('NewsItemSharing')
+            // await NewsItemSharing.update(context, newsItemSharing.id, {
+            //     ...DV_SENDER,
+            //     status: 'published',
+            // })
         }
     } catch (err) {
         logger.log(err)
