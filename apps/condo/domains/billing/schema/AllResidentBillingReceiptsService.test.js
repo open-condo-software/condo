@@ -18,7 +18,7 @@ const {
     createTestAcquiringIntegrationContext,
     createTestAcquiringIntegration,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { makeClientWithPropertyAndBilling, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const { makeClientWithPropertyAndBilling, createTestBillingRecipient } = require('@condo/domains/billing/utils/testSchema')
 const { createTestBillingAccount, createTestBillingProperty, createTestBillingIntegrationOrganizationContext, createTestBillingIntegrationAccessRight, makeClientWithResidentAndServiceConsumer } = require('@condo/domains/billing/utils/testSchema')
 const {
     createTestContact,
@@ -952,22 +952,22 @@ describe('AllResidentBillingReceiptsService', () => {
                 const MARCH_PERIOD = '2022-03-01'
                 const APRIL_PERIOD = '2022-04-01'
 
-                const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co' })
-                const ELECTRICITY_RECIPIENT = createTestRecipient({ name: 'Electricity & co' })
+                const [waterRecipient] = await createTestBillingRecipient(adminClient, context, { name: 'Water & co' })
+                const [electricityRecipient] = await createTestBillingRecipient(adminClient, context, { name: 'Water & co' })
 
 
                 // March receipt for water
                 const [marchWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
-                    recipient: WATER_RECIPIENT,
+                    receiver: { connect: { id: waterRecipient.id } },
                 })
                 const [marchElectricityReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
-                    recipient: ELECTRICITY_RECIPIENT,
+                    receiver: { connect: { id: electricityRecipient.id } },
                 })
                 const [aprilWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: APRIL_PERIOD,
-                    recipient: WATER_RECIPIENT,
+                    receiver: { connect: { id: waterRecipient.id } },
                 })
 
                 const objs = await ResidentBillingReceipt.getAll(userClient, {}, {
@@ -1021,22 +1021,22 @@ describe('AllResidentBillingReceiptsService', () => {
                 const APRIL_PERIOD = '2022-04-01'
                 const MAY_PERIOD = '2022-05-01'
 
-                const WATER_RECIPIENT = createTestRecipient({ name: 'Water & co' })
+                const [waterRecipient] = await createTestBillingRecipient(adminClient, context, { name: 'Water & co' })
 
                 // March receipt for water
                 const [marchWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
-                    recipient: WATER_RECIPIENT,
+                    receiver: { connect: { id: waterRecipient.id } },
                 })
 
                 const [aprilWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: APRIL_PERIOD,
-                    recipient: WATER_RECIPIENT,
+                    receiver: { connect: { id: waterRecipient.id } },
                 })
 
                 const [mayWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MAY_PERIOD,
-                    recipient: WATER_RECIPIENT,
+                    receiver: { connect: { id: waterRecipient.id } },
                 })
 
                 const objs = await ResidentBillingReceipt.getAll(userClient, {}, { sortBy: 'period_DESC' })
@@ -1062,7 +1062,7 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 const [juneWaterReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: JUNE_PERIOD,
-                    recipient: WATER_RECIPIENT,
+                    receiver: { connect: { id: waterRecipient.id } },
                 })
                 const objsWithJune = await ResidentBillingReceipt.getAll(userClient, {}, { sortBy: 'period_DESC' })
 
@@ -1113,17 +1113,17 @@ describe('AllResidentBillingReceiptsService', () => {
 
                 const MARCH_PERIOD = '2022-03-01'
 
-                const SINGLE_RECIPIENT = createTestRecipient({ name: 'Electricity & co' })
+                const [singleRecipient] = await createTestBillingRecipient(adminClient, context, { name: 'Electricity & co' })
 
                 const [marchHousingReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
-                    recipient: SINGLE_RECIPIENT,
+                    receiver: { connect: { id: singleRecipient.id } },
                     category: { connect: { id: '928c97ef-5289-4daa-b80e-4b9fed50c629' } }, // HOUSING CATEGORY
                     toPay: '20.00000000',
                 })
                 const [marchRepairsReceipt] = await createTestBillingReceipt(adminClient, context, billingProperty, billingAccount, {
                     period: MARCH_PERIOD,
-                    recipient: SINGLE_RECIPIENT,
+                    receiver: { connect: { id: singleRecipient.id } },
                     category: { connect: { id: 'c0b9db6a-c351-4bf4-aa35-8e5a500d0195' } }, // REPAIRS CATEGORY
                     toPay: '30.00000000',
                 })
@@ -1428,7 +1428,7 @@ describe('AllResidentBillingReceiptsService', () => {
                 organizationClient.billingAccount,
                 {
                     toPay: '2500.00',
-                    recipient: receiptWithSinglePayment.recipient,
+                    receiver: { connect: { id: receiptWithSinglePayment.receiver.id } },
                 }
             )
 

@@ -14,6 +14,7 @@ const { PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS } = require('@condo/domain
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
 const access = require('@condo/domains/billing/access/AllResidentBillingReceipts')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
+const { RECIPIENT_GRAPHQL_TYPES } = require('@condo/domains/billing/schema/fields/BillingReceipt/Recipient')
 const { BillingReceiptAdmin, getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
@@ -66,6 +67,10 @@ const getFile = (receipt, contacts) => {
 
 const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillingReceiptsService', {
     types: [
+        {
+            access: true,
+            type: RECIPIENT_GRAPHQL_TYPES,
+        },
         {
             access: true,
             type: generateQueryWhereInput('ResidentBillingReceipt', ALL_RESIDENT_BILLING_RECEIPTS_FIELDS),
@@ -157,7 +162,13 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                         id: receipt.id,
                         dv: receipt.dv,
                         category: receipt.category,
-                        recipient: receipt.recipient,
+                        // TODO: ask mobile app to remove recipient and use receiver
+                        recipient: {
+                            tin: get(receipt, ['receiver', 'tin'], null),
+                            iec: get(receipt, ['receiver', 'iec'], null),
+                            bic: get(receipt, ['receiver', 'bic'], null),
+                            bankAccount: get(receipt, ['receiver', 'bankAccount'], null),
+                        },
                         receiver: receipt.receiver,
                         account: receipt.account,
                         period: receipt.period,
