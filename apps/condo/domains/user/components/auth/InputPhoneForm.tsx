@@ -56,6 +56,7 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
     const LoginBySBBOLMsg = intl.formatMessage({ id: 'LoginBySBBOL' })
     const ConsentContent = intl.formatMessage({ id: 'pages.auth.register.info.ConsentContent' })
     const PrivacyPolicyContent = intl.formatMessage({ id: 'pages.auth.register.info.PrivacyPolicyContent' })
+    const TermsOfUseContent = intl.formatMessage({ id: 'pages.auth.register.info.termsOfUseContent' })
 
     const REGISTER_PHONE_LABEL = <label style={{ alignSelf: 'flex-end' }}>{PhoneMsg}</label>
 
@@ -167,6 +168,16 @@ export const InputPhoneForm: React.FC<IInputPhoneFormProps> = ({ onFinish }) => 
                                         <FormattedMessage
                                             id='pages.auth.register.info.PersonalDataProcessingConsent'
                                             values={{
+                                                termsOfUse: (
+                                                    <Typography.Link
+                                                        style={{ color: colors.black }}
+                                                        target='_blank'
+                                                        href='/termsofuse.pdf'
+                                                        rel='noreferrer'
+                                                    >
+                                                        {TermsOfUseContent}
+                                                    </Typography.Link>
+                                                ),
                                                 consentLink: (
                                                     <Typography.Link
                                                         style={{ color: colors.black }}
