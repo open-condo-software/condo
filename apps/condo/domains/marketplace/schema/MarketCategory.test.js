@@ -8,7 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { MARKET_CATEGORY_ERRORS } = require('@condo/domains/marketplace/constants')
+const { ERRORS } = require('@condo/domains/marketplace/schema/MarketCategory')
 const { MarketCategory, createTestMarketCategory, updateTestMarketCategory } = require('@condo/domains/marketplace/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -152,16 +152,16 @@ describe('MarketCategory', () => {
 
     describe('logic tests', () => {
         test('inheritance depth no more than 2', async () => {
-            const [firstOrderCategoryObj] = await createTestMarketCategory(admin)
-            const [secondOrderCategoryObj] = await createTestMarketCategory(admin, {
+            const [firstOrderCategoryObj] = await createTestMarketCategory(support)
+            const [secondOrderCategoryObj] = await createTestMarketCategory(support, {
                 parentCategory: { connect: { id: firstOrderCategoryObj.id } },
             })
 
             await expectToThrowGQLError(
-                async () => { await createTestMarketCategory(admin, {
+                async () => { await createTestMarketCategory(support, {
                     parentCategory: { connect: { id: secondOrderCategoryObj.id } },
                 }) },
-                { ...MARKET_CATEGORY_ERRORS.MAXIMUM_DEPTH_REACHED },
+                { ...ERRORS.MAXIMUM_DEPTH_REACHED },
                 'obj'
             )
         })
@@ -173,7 +173,21 @@ describe('MarketCategory', () => {
                 async () => { await updateTestMarketCategory(admin, objCreated.id, {
                     parentCategory: { connect: { id: objCreated.id } },
                 }) },
-                { ...MARKET_CATEGORY_ERRORS.CANNOT_CONNECT_TO_ITSELF },
+                { ...ERRORS.CANNOT_CONNECT_TO_ITSELF },
+                'obj'
+            )
+        })
+
+        test('mobileSettings validation', async () => {
+            await expectToThrowGQLError(
+                async () => { await createTestMarketCategory(support, {
+                    mobileSettings: { bgColor: '#3123d23r', titleColor: '#12sdf3' },
+                }) },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_MOBILE_SETTINGS',
+                    variable: ['data', 'mobileSettings'],
+                },
                 'obj'
             )
         })

@@ -61,7 +61,7 @@ async function createTestMarketCategory (client, extraAttrs = {}) {
         dv: 1,
         sender,
         name: sender.fingerprint,
-        image: new UploadingFile(path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')),
+        image: new UploadingFile(TEST_FILE),
         mobileSettings: { bgColor: '#fff', titleColor: '#fff' },
         ...extraAttrs,
     }

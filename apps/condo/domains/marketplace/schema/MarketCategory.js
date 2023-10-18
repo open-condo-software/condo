@@ -7,6 +7,7 @@ const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 
 const { GQLError } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { LocalizedText } = require('@open-condo/keystone/fields')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -16,7 +17,22 @@ const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.util
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/marketplace/access/MarketCategory')
-const { MARKET_CATEGORY_ERRORS, ERROR_INVALID_SETTINGS } = require('@condo/domains/marketplace/constants')
+const { ERROR_INVALID_MOBILE_SETTINGS } = require('@condo/domains/marketplace/constants')
+
+const ERRORS = {
+    MAXIMUM_DEPTH_REACHED: {
+        code: BAD_USER_INPUT,
+        type: 'MAXIMUM_DEPTH_REACHED',
+        message: 'The depth of category inheritance should be no more than 2',
+        messageForUser: 'api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED',
+    },
+    CANNOT_CONNECT_TO_ITSELF: {
+        code: BAD_USER_INPUT,
+        type: 'CANNOT_CONNECT_TO_ITSELF',
+        message: 'Cannot connect to itself',
+        messageForUser: 'api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF',
+    },
+}
 
 const MARKET_CATEGORY_FILE_ADAPTER = new FileAdapter('market_category')
 const imageMetaAfterChange = getFileMetaAfterChange(MARKET_CATEGORY_FILE_ADAPTER, 'image')
@@ -39,11 +55,11 @@ const settingsFieldSchema = {
         },
     },
 }
-const validateSettingsField = getGQLErrorValidator(ajv.compile(settingsFieldSchema), ERROR_INVALID_SETTINGS)
+const validateSettingsField = getGQLErrorValidator(ajv.compile(settingsFieldSchema), ERROR_INVALID_MOBILE_SETTINGS)
 
 const MarketCategory = new GQLListSchema('MarketCategory', {
     schemaDoc: 'An entity that allows you to define a category tree in the marketplace',
-    adminDoc: 'mobileSettings={bgColor:’#rrggbb’, titleColor:’#rrggbb’}',
+    adminDoc: 'mobileSettings = {"bgColor":"#rrggbb", "titleColor":"#rrggbb"}',
     fields: {
 
         name: {
@@ -65,9 +81,7 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
             type: Json,
             isRequired: true,
             hooks: {
-                validateInput: (args) => {
-                    validateSettingsField(args)
-                },
+                validateInput: validateSettingsField,
             },
         },
 
@@ -82,12 +96,12 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
                 },
                 validateInput: async ({ resolvedData, existingItem, context }) => {
                     if (resolvedData.parentCategory) {
-                        if (existingItem && resolvedData.parentCategory === existingItem.id) throw new GQLError(MARKET_CATEGORY_ERRORS.CANNOT_CONNECT_TO_ITSELF, context)
+                        if (existingItem && resolvedData.parentCategory === existingItem.id) throw new GQLError(ERRORS.CANNOT_CONNECT_TO_ITSELF, context)
                         const parentCategoryRecord = await getById('MarketCategory', resolvedData.parentCategory)
     
                         // A->B, B->A then when drawing the category tree there will be a recursion between these two categories.
                         //Is only possible if nesting is greater than 2. So far we have a limit of 2.
-                        if (parentCategoryRecord.parentCategory) throw new GQLError(MARKET_CATEGORY_ERRORS.MAXIMUM_DEPTH_REACHED, context)
+                        if (parentCategoryRecord.parentCategory) throw new GQLError(ERRORS.MAXIMUM_DEPTH_REACHED, context)
                     }
                 },
             },
@@ -106,4 +120,5 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
 
 module.exports = {
     MarketCategory,
+    ERRORS,
 }
