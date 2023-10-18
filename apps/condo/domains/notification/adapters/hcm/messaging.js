@@ -84,7 +84,7 @@ class HCMMessaging {
 
         // https://developer.huawei.com/consumer/en/doc/development/HMSCore-References/https-send-api-0000001050986197#section13968115715131
         if (!(get(response, 'status') === 200 && responseCode && SUCCESS_CODES.includes(responseCode))) {
-            logger.error({ msg: 'send push notification request error', body, json })
+            logger.error({ msg: 'HCMMessaging sendRequest error', url, data: { body, headers }, result: json })
         }
 
         return json
