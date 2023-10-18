@@ -200,7 +200,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
              */
         }
 
-        this.logger.warn({ msg: 'CallToDaData error', status, url, data: body })
+        this.logger.warn({ msg: 'CallToDaData error', status, url, data: body, reqId: this.req.id })
 
         return null
     }
