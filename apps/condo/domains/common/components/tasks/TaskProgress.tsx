@@ -9,10 +9,9 @@ import React, { useCallback, useContext, useEffect, useState } from 'react'
 import { ChevronDown, ChevronUp, Check, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Space } from '@open-condo/ui'
-import { colors as uiColors } from '@open-condo/ui/dist/colors'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { colors } from '@condo/domains/common/constants/style'
 import {
     TASK_COMPLETED_STATUS,
     TASK_ERROR_STATUS,
@@ -21,7 +20,6 @@ import {
 } from '@condo/domains/common/constants/tasks'
 
 import { CloseCircleIcon } from '../icons/CloseCircleIcon'
-import { CrossIcon } from '../icons/CrossIcon'
 
 import {
     ITaskTrackableItem,
@@ -95,9 +93,13 @@ const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
             onClick={removeTask}
         >
             {
-                taskStatus === TASK_COMPLETED_STATUS ? (isHovered ? <Close color={uiColors.red['5']} /> : <Check color={uiColors.green['5']} />) :
-                    taskStatus === TASK_ERROR_STATUS ? <CloseCircleIcon/> :
-                        (isHovered ? <CrossIcon/> : <CircularProgress progress={progress}/>)
+                taskStatus === TASK_COMPLETED_STATUS
+                    ? (isHovered
+                        ? <Close size='medium' color={colors.red['5']} />
+                        : <Check size='medium' color={colors.green['5']} />
+                    ) : taskStatus === TASK_ERROR_STATUS
+                        ? <CloseCircleIcon />
+                        : (isHovered ? <Close size='medium' color={colors.red['5']} /> : <CircularProgress progress={progress}/>)
             }
         </TaskIconsWrapper>
     )
@@ -230,11 +232,13 @@ const RIGHT_ALIGN_STYLE: React.CSSProperties = {
     cursor: 'pointer',
     zIndex: 1,
 }
-
-const infoIconStyles = css`
-  color: ${colors.infoIconColor};
-  font-size: 24px;
-`
+const INFO_ICON_STYLE: React.CSSProperties = {
+    fontSize: '24px',
+    color: colors.blue['5'],
+}
+const RELATIVE_CONTAINER_STYLE: React.CSSProperties = {
+    position: 'relative',
+}
 
 interface ITasksProgressProps {
     tasks: ITaskTrackableItem[]
@@ -262,37 +266,35 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
         maxHeight: isDesktop ? 'calc(100vh - 260px)' : 'calc(100vh - 60px)',
         overflowY: 'auto',
     }
-    const contentColStyle: React.CSSProperties = {
-        position: 'relative',
-        paddingRight: isDesktop ? '6px' : 0,
-    }
 
     const isAllTasksFinished = tasks.every(task => task.record.status !== TASK_STATUS.PROCESSING)
 
     return (
         <div>
             <Row gutter={[12, 12]}>
-                <Col span={2}>
-                    <InfoCircleOutlined css={infoIconStyles}/>
+                <Col>
+                    <InfoCircleOutlined style={INFO_ICON_STYLE} />
                 </Col>
-                <Col span={22} style={contentColStyle}>
+                <Col flex={1} style={RELATIVE_CONTAINER_STYLE}>
                     <Space direction='horizontal' size={4} align='center'>
                         <Typography.Title level={4} onClick={toggleCollapsed}>
                             {TitleMsg}
                         </Typography.Title>
-                        {!isDesktop ? (<>{collapsed ? <ChevronDown /> : <ChevronUp />}</>) : null}
+                        {!isDesktop ? (<>{collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />}</>) : null}
                     </Space>
                     {isDesktop && (
                         <div style={{ ...RIGHT_ALIGN_STYLE, right: '10px' }}>
                             <Space direction='horizontal' align='baseline' size={12}>
-                                <div onClick={toggleCollapsed}>{collapsed ? <ChevronDown /> : <ChevronUp />}</div>
-                                {isAllTasksFinished && <Close onClick={deleteAllTasks} />}
+                                <div onClick={toggleCollapsed}>
+                                    {collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />}
+                                </div>
+                                {isAllTasksFinished && <Close size='medium' onClick={deleteAllTasks} />}
                             </Space>
                         </div>
                     )}
                     {!isDesktop && (
                         <div style={RIGHT_ALIGN_STYLE}>
-                            <Close onClick={deleteAllTasks} />
+                            <Close size='medium' onClick={deleteAllTasks} />
                         </div>
                     )}
                     <List

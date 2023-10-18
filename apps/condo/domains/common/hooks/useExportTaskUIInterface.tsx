@@ -97,7 +97,7 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
                             {publicUrl && (
                                 <>
                                     <br/>
-                                    <Typography.Link size='small' href={publicUrl}>
+                                    <Typography.Link size='large' href={publicUrl}>
                                         {ExportTaskProgressDescriptionCompletedLinkLabel}
                                     </Typography.Link>
                                 </>
