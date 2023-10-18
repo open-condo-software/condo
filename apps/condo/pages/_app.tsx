@@ -134,7 +134,7 @@ const MenuItems: React.FC = () => {
     const hasAccessToEmployees = get(role, 'canReadEmployees', false)
     const hasAccessToProperties = get(role, 'canReadProperties', false)
     const hasAccessToContacts = get(role, 'canReadContacts', false)
-    const hasAccessToAnalytics = get(role, 'canReadAnalytics') || get(role, 'canReadExternalReports', false)
+    const hasAccessToAnalytics = get(role, 'canReadAnalytics')
     const hasAccessToMeters = get(role, 'canReadMeters', false)
     const hasAccessToServices = get(role, 'canReadServices', false)
     const hasAccessToSettings = get(role, 'canReadSettings', false)

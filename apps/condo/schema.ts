@@ -50299,6 +50299,11 @@ export type OrganizationEmployeeRole = {
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -50365,6 +50370,11 @@ export type OrganizationEmployeeRoleCreateInput = {
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50437,6 +50447,11 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -50503,6 +50518,11 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50574,6 +50594,11 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50745,6 +50770,16 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadMarketItems_not?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems_not?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeters_not?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadSettings_not?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports_not?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadServices_not?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -50883,6 +50918,11 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canManageInvoices?: Maybe<Scalars['Boolean']>;
   canReadMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -51031,6 +51071,16 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketItems_not?: Maybe<Scalars['Boolean']>;
   canManageMarketItems?: Maybe<Scalars['Boolean']>;
   canManageMarketItems_not?: Maybe<Scalars['Boolean']>;
+  canReadMeters?: Maybe<Scalars['Boolean']>;
+  canReadMeters_not?: Maybe<Scalars['Boolean']>;
+  canReadSettings?: Maybe<Scalars['Boolean']>;
+  canReadSettings_not?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports?: Maybe<Scalars['Boolean']>;
+  canReadExternalReports_not?: Maybe<Scalars['Boolean']>;
+  canReadServices?: Maybe<Scalars['Boolean']>;
+  canReadServices_not?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords?: Maybe<Scalars['Boolean']>;
+  canReadCallRecords_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -72873,6 +72923,16 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadMarketItemsDesc = 'canReadMarketItems_DESC',
   CanManageMarketItemsAsc = 'canManageMarketItems_ASC',
   CanManageMarketItemsDesc = 'canManageMarketItems_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanReadSettingsAsc = 'canReadSettings_ASC',
+  CanReadSettingsDesc = 'canReadSettings_DESC',
+  CanReadExternalReportsAsc = 'canReadExternalReports_ASC',
+  CanReadExternalReportsDesc = 'canReadExternalReports_DESC',
+  CanReadServicesAsc = 'canReadServices_ASC',
+  CanReadServicesDesc = 'canReadServices_DESC',
+  CanReadCallRecordsAsc = 'canReadCallRecords_ASC',
+  CanReadCallRecordsDesc = 'canReadCallRecords_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -72992,6 +73052,16 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadMarketItemsDesc = 'canReadMarketItems_DESC',
   CanManageMarketItemsAsc = 'canManageMarketItems_ASC',
   CanManageMarketItemsDesc = 'canManageMarketItems_DESC',
+  CanReadMetersAsc = 'canReadMeters_ASC',
+  CanReadMetersDesc = 'canReadMeters_DESC',
+  CanReadSettingsAsc = 'canReadSettings_ASC',
+  CanReadSettingsDesc = 'canReadSettings_DESC',
+  CanReadExternalReportsAsc = 'canReadExternalReports_ASC',
+  CanReadExternalReportsDesc = 'canReadExternalReports_DESC',
+  CanReadServicesAsc = 'canReadServices_ASC',
+  CanReadServicesDesc = 'canReadServices_DESC',
+  CanReadCallRecordsAsc = 'canReadCallRecords_ASC',
+  CanReadCallRecordsDesc = 'canReadCallRecords_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

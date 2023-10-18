@@ -5524,6 +5524,11 @@ type OrganizationEmployeeRoleHistoryRecord {
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
   canManageMarketItems: Boolean
+  canReadMeters: Boolean
+  canReadSettings: Boolean
+  canReadExternalReports: Boolean
+  canReadServices: Boolean
+  canReadCallRecords: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5696,6 +5701,16 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadMarketItems_not: Boolean
   canManageMarketItems: Boolean
   canManageMarketItems_not: Boolean
+  canReadMeters: Boolean
+  canReadMeters_not: Boolean
+  canReadSettings: Boolean
+  canReadSettings_not: Boolean
+  canReadExternalReports: Boolean
+  canReadExternalReports_not: Boolean
+  canReadServices: Boolean
+  canReadServices_not: Boolean
+  canReadCallRecords: Boolean
+  canReadCallRecords_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5867,6 +5882,16 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadMarketItems_DESC
   canManageMarketItems_ASC
   canManageMarketItems_DESC
+  canReadMeters_ASC
+  canReadMeters_DESC
+  canReadSettings_ASC
+  canReadSettings_DESC
+  canReadExternalReports_ASC
+  canReadExternalReports_DESC
+  canReadServices_ASC
+  canReadServices_DESC
+  canReadCallRecords_ASC
+  canReadCallRecords_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5936,6 +5961,11 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
   canManageMarketItems: Boolean
+  canReadMeters: Boolean
+  canReadSettings: Boolean
+  canReadExternalReports: Boolean
+  canReadServices: Boolean
+  canReadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6006,6 +6036,11 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
   canManageMarketItems: Boolean
+  canReadMeters: Boolean
+  canReadSettings: Boolean
+  canReadExternalReports: Boolean
+  canReadServices: Boolean
+  canReadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6105,6 +6140,11 @@ type OrganizationEmployeeRole {
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
   canManageMarketItems: Boolean
+  canReadMeters: Boolean
+  canReadSettings: Boolean
+  canReadExternalReports: Boolean
+  canReadServices: Boolean
+  canReadCallRecords: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6265,6 +6305,16 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketItems_not: Boolean
   canManageMarketItems: Boolean
   canManageMarketItems_not: Boolean
+  canReadMeters: Boolean
+  canReadMeters_not: Boolean
+  canReadSettings: Boolean
+  canReadSettings_not: Boolean
+  canReadExternalReports: Boolean
+  canReadExternalReports_not: Boolean
+  canReadServices: Boolean
+  canReadServices_not: Boolean
+  canReadCallRecords: Boolean
+  canReadCallRecords_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6418,6 +6468,16 @@ enum SortOrganizationEmployeeRolesBy {
   canReadMarketItems_DESC
   canManageMarketItems_ASC
   canManageMarketItems_DESC
+  canReadMeters_ASC
+  canReadMeters_DESC
+  canReadSettings_ASC
+  canReadSettings_DESC
+  canReadExternalReports_ASC
+  canReadExternalReports_DESC
+  canReadServices_ASC
+  canReadServices_DESC
+  canReadCallRecords_ASC
+  canReadCallRecords_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6486,6 +6546,11 @@ input OrganizationEmployeeRoleUpdateInput {
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
   canManageMarketItems: Boolean
+  canReadMeters: Boolean
+  canReadSettings: Boolean
+  canReadExternalReports: Boolean
+  canReadServices: Boolean
+  canReadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6552,6 +6617,11 @@ input OrganizationEmployeeRoleCreateInput {
   canManageInvoices: Boolean
   canReadMarketItems: Boolean
   canManageMarketItems: Boolean
+  canReadMeters: Boolean
+  canReadSettings: Boolean
+  canReadExternalReports: Boolean
+  canReadServices: Boolean
+  canReadCallRecords: Boolean
   v: Int
   createdAt: String
   updatedAt: String
