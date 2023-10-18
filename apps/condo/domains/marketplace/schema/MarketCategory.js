@@ -91,9 +91,6 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
             ref: 'MarketCategory',
             kmigratorOptions: { null: true, on_delete: 'models.CASCADE' },
             hooks: {
-                afterChange: async (args) => {
-                    await imageMetaAfterChange(args)
-                },
                 validateInput: async ({ resolvedData, existingItem, context }) => {
                     if (resolvedData.parentCategory) {
                         if (existingItem && resolvedData.parentCategory === existingItem.id) throw new GQLError(ERRORS.CANNOT_CONNECT_TO_ITSELF, context)
@@ -106,7 +103,11 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
                 },
             },
         },
-
+    },
+    hooks: {
+        afterChange: async (args) => {
+            await imageMetaAfterChange(args)
+        },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
