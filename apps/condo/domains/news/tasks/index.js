@@ -1,5 +1,5 @@
 const notifyResidentsAboutDelayedNewsItem = require('./notifyResidentsAboutDelayedNewsItems')
 const notifyResidentsAboutNewsItem = require('./notifyResidentsAboutNewsItem')
-const publishSharedNewsItems = require('./publishSharedNewsItems')
+const publishSharedNewsItem = require('./publishSharedNewsItem')
 
-module.exports = { notifyResidentsAboutNewsItem, notifyResidentsAboutDelayedNewsItem, publishSharedNewsItems }
+module.exports = { notifyResidentsAboutNewsItem, notifyResidentsAboutDelayedNewsItem, publishSharedNewsItem }

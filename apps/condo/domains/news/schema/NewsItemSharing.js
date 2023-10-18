@@ -7,12 +7,10 @@ const get = require('lodash/get')
 
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, find, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemSharing')
-
-const { normalizeText } = require('../../common/utils/text')
-
+const publishSharedNewsItem = require('@condo/domains/news/tasks/publishSharedNewsItem')
 
 const NEWS_ITEM_SHARING_STATUSES = {
     SCHEDULED: 'scheduled',
@@ -87,6 +85,18 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             type: Integer,
             isRequired: true,
             defaultValue: 0,
+        },
+    },
+
+    hooks: {
+        afterChange: async ({ updatedItem }) => {
+            // TODO: @toplenboren what if we already tried to publish newsItemSharing ?
+            if (updatedItem.status === NEWS_ITEM_SHARING_STATUSES.SCHEDULED) {
+                const newsItem = await getById('NewsItem', updatedItem.newsItem)
+                if (newsItem.isPublished) {
+                    await publishSharedNewsItem.delay(updatedItem.id)
+                }
+            }
         },
     },
 

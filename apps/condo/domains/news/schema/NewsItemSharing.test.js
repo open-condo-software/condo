@@ -5,7 +5,7 @@
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
@@ -13,7 +13,7 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 
 const { createTestB2BApp, createTestB2BAppContext } = require('../../miniapp/utils/testSchema')
 const { createTestOrganization } = require('../../organization/utils/testSchema')
-const { createTestNewsItem } = require('../utils/testSchema')
+const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('../utils/testSchema')
 
 let adminClient, supportClient, anonymousClient, dummyO10n
 
@@ -30,11 +30,14 @@ describe('NewsItemSharing', () => {
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
-                // 1) prepare data
+                // 1) prepare published news item
                 const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, {
                     title: '🚧 Planned Water Outage Notification 🚧',
                     body: 'We are conducting a planned water outage on September 25 2023 The outage will last approximately 4 hours',
                 })
+                await createTestNewsItemScope(adminClient, newsItem)
+                await publishTestNewsItem(adminClient, newsItem.id)
+
                 const [newNewsSharingApp] = await createTestB2BApp(adminClient)
                 const [newNewsSharingAppContext] = await createTestB2BAppContext(adminClient, newNewsSharingApp, dummyO10n, {
                     settings: {

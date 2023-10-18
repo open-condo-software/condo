@@ -26,7 +26,7 @@ const {
     NO_NEWS_ITEM_SCOPES,
 } = require('@condo/domains/news/constants/errors')
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
-const { notifyResidentsAboutNewsItem, publishSharedNewsItems } = require('@condo/domains/news/tasks')
+const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
 const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
 const { checkBadWordsExclusions } = require('@condo/domains/news/utils/serverSchema/badWords')
 
@@ -277,10 +277,10 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 await notifyResidentsAboutNewsItem.delay(updatedItem.id)
 
                 // Publish connected NewsItemSharing items
-                const sharedNewsItems = find('NewsItemSharing', { newsItem: { id: updatedItem.id } })
-                if (Array.isArray(sharedNewsItems) && sharedNewsItems.length > 0) {
-                    await publishSharedNewsItems(sharedNewsItems.map(x => x.id))
-                }
+                // const sharedNewsItems = find('NewsItemSharing', { newsItem: { id: updatedItem.id } })
+                // if (Array.isArray(sharedNewsItems) && sharedNewsItems.length > 0) {
+                //     await publishSharedNewsItems(sharedNewsItems.map(x => x.id))
+                // }
             }
         },
     },
