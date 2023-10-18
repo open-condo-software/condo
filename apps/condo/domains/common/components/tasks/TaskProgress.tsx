@@ -2,7 +2,7 @@
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, List, notification, Progress, Row } from 'antd'
+import { Col, List, notification, Progress, Row, RowProps } from 'antd'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
@@ -118,11 +118,11 @@ interface ITaskProgressProps {
  */
 export const TaskProgress = ({ task, translations, progress, removeTask, isDesktop }: ITaskProgressProps) => {
     const intl = useIntl()
-    const CloseTitle = intl.formatMessage({ id: 'Close' })
+    const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const CancelTitle = intl.formatMessage({ id: 'Cancel' })
 
     return (
-        <List.Item style={{ position: 'relative' }}>
+        <List.Item style={RELATIVE_CONTAINER_STYLE}>
             <Space direction='vertical' size={16} width='100%'>
                 <List.Item.Meta
                     title={
@@ -134,7 +134,7 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
                 />
                 {!isDesktop && (
                     <Typography.Text type='danger' onClick={removeTask}>
-                        {task.status === TASK_STATUS.PROCESSING ? CancelTitle : CloseTitle}
+                        {task.status === TASK_STATUS.PROCESSING ? CancelTitle : DeleteTitle}
                     </Typography.Text>
                 )}
             </Space>
@@ -239,6 +239,7 @@ const INFO_ICON_STYLE: React.CSSProperties = {
 const RELATIVE_CONTAINER_STYLE: React.CSSProperties = {
     position: 'relative',
 }
+const TASK_ROW_GUTTER: RowProps['gutter'] = [12, 0]
 
 interface ITasksProgressProps {
     tasks: ITaskTrackableItem[]
@@ -271,11 +272,11 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
 
     return (
         <div>
-            <Row gutter={[12, 12]}>
+            <Row gutter={TASK_ROW_GUTTER}>
                 <Col>
                     <InfoCircleOutlined style={INFO_ICON_STYLE} />
                 </Col>
-                <Col flex={1} style={RELATIVE_CONTAINER_STYLE}>
+                <Col flex={1} style={{ ...RELATIVE_CONTAINER_STYLE, paddingRight: isDesktop ? 6 : 0 }}>
                     <Space direction='horizontal' size={4} align='center'>
                         <Typography.Title level={4} onClick={toggleCollapsed}>
                             {TitleMsg}
