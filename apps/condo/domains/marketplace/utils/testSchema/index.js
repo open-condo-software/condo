@@ -14,11 +14,13 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 
 const { InvoiceContext: InvoiceContextGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
+const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
 
 const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
+const MarketItem = generateGQLTestUtils(MarketItemGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
@@ -83,10 +85,44 @@ async function updateTestMarketCategory (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMarketItem (client, marketCategory, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!marketCategory || !marketCategory.id) throw new Error('no marketCategory.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        sku: sender.fingerprint,
+        name: sender.fingerprint,
+        marketCategory: { connect: { id: marketCategory.id } },
+        organization: { connect: { id: organization.id } },
+        ...extraAttrs,
+    }
+    const obj = await MarketItem.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMarketItem (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MarketItem.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     InvoiceContext, createTestInvoiceContext, updateTestInvoiceContext,
     MarketCategory, createTestMarketCategory, updateTestMarketCategory,
+    MarketItem, createTestMarketItem, updateTestMarketItem,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

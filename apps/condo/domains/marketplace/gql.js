@@ -14,10 +14,14 @@ const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIEL
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings parentCategory { id } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
 
+const MARKET_ITEM_FIELDS = `{ name marketCategory { id } sku description organization { id } ${COMMON_FIELDS} }`
+const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     InvoiceContext,
     MarketCategory,
+    MarketItem,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
