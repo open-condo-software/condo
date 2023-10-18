@@ -88,11 +88,16 @@ export const useExportTaskUIInterface = <T extends ExportTaskTypes> ({
                 return taskStatus === TASK_COMPLETED_STATUS
                     ? (
                         <>
-                            <Typography.Text>{ExportTaskProgressDescriptionCompleted}</Typography.Text>
+                            <Typography.Text
+                                type='secondary'
+                                size='small'
+                            >
+                                {ExportTaskProgressDescriptionCompleted}
+                            </Typography.Text>
                             {publicUrl && (
                                 <>
                                     <br/>
-                                    <Typography.Link href={publicUrl}>
+                                    <Typography.Link size='small' href={publicUrl}>
                                         {ExportTaskProgressDescriptionCompletedLinkLabel}
                                     </Typography.Link>
                                 </>

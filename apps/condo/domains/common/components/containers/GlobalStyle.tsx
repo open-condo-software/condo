@@ -455,6 +455,34 @@ export default function GlobalStyle () {
               ${cardCSS}
               ${previewCSS}
               
+              .tasks-container {
+                width: 100%;
+                height: auto;
+
+                .ant-list-item {
+                  padding: 12px 0 0 0;
+                }
+                
+                .ant-notification {
+                  width: 100%;
+                  top: unset !important;
+                  margin: 0;
+                  z-index: 12;
+
+                  .ant-notification-notice {
+                    margin-bottom: 0;
+                    padding: 16px;
+                    max-width: unset;
+                    width: 100%;
+                    border-radius: unset;
+                    line-height: 24px;
+                  }
+                }
+              }
+              .tasks-container > div {
+                min-height: 56px;
+              }
+              
               .ant-notification-notice.tasks {
                 padding: 17px;
                 

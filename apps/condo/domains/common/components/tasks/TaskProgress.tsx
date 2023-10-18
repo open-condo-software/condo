@@ -2,17 +2,24 @@
 import { InfoCircleOutlined } from '@ant-design/icons'
 import { css, jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, List, notification, Progress, Row, Typography } from 'antd'
+import { Col, List, notification, Progress, Row } from 'antd'
 import isFunction from 'lodash/isFunction'
 import React, { useCallback, useContext, useEffect, useState } from 'react'
 
+import { ChevronDown, ChevronUp, Check, Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Space } from '@open-condo/ui'
+import { colors as uiColors } from '@open-condo/ui/dist/colors'
 
-import { ChevronIcon } from '@condo/domains/common/components/icons/ChevronIcon'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { colors } from '@condo/domains/common/constants/style'
-import { TASK_COMPLETED_STATUS, TASK_ERROR_STATUS, TASK_PROCESSING_STATUS, TASK_CANCELLED_STATUS } from '@condo/domains/common/constants/tasks'
+import {
+    TASK_COMPLETED_STATUS,
+    TASK_ERROR_STATUS,
+    TASK_PROCESSING_STATUS,
+    TASK_CANCELLED_STATUS,
+} from '@condo/domains/common/constants/tasks'
 
-import { CheckIcon } from '../icons/Check'
 import { CloseCircleIcon } from '../icons/CloseCircleIcon'
 import { CrossIcon } from '../icons/CrossIcon'
 
@@ -68,7 +75,10 @@ export const CircularProgress = ({ progress }: ICircularProgressProps) => (
 const TaskIconsWrapper = styled.div`
     cursor: pointer;
     align-self: flex-start;
-  
+    position: absolute;
+    top: 12px;
+    right: 0;
+
     > * {
       position: relative;
       right: 3px;
@@ -85,7 +95,7 @@ const TaskIconsHoverSwitcher = ({ progress, taskStatus, removeTask }) => {
             onClick={removeTask}
         >
             {
-                taskStatus === TASK_COMPLETED_STATUS ? (isHovered ? <CrossIcon/> : <CheckIcon/>) :
+                taskStatus === TASK_COMPLETED_STATUS ? (isHovered ? <Close color={uiColors.red['5']} /> : <Check color={uiColors.green['5']} />) :
                     taskStatus === TASK_ERROR_STATUS ? <CloseCircleIcon/> :
                         (isHovered ? <CrossIcon/> : <CircularProgress progress={progress}/>)
             }
@@ -98,33 +108,45 @@ interface ITaskProgressProps {
     translations: TaskProgressTranslations
     progress: TaskRecordProgress
     removeTask: () => void
+    isDesktop: boolean
 }
 
 /**
  * Displays task as an item in tasks list on panel
  */
-export const TaskProgress = ({ task, translations, progress, removeTask }: ITaskProgressProps) => (
-    <List.Item>
-        <List.Item.Meta
-            title={
-                <Typography.Text strong>
-                    {translations.title(task)}
-                </Typography.Text>
-            }
-            description={translations.description(task)}
-        />
-        <TaskIconsHoverSwitcher
-            progress={progress}
-            taskStatus={task.status}
-            removeTask={removeTask}
-        />
-    </List.Item>
-)
+export const TaskProgress = ({ task, translations, progress, removeTask, isDesktop }: ITaskProgressProps) => {
+    const intl = useIntl()
+    const CloseTitle = intl.formatMessage({ id: 'Close' })
+    const CancelTitle = intl.formatMessage({ id: 'Cancel' })
 
-
-
+    return (
+        <List.Item style={{ position: 'relative' }}>
+            <Space direction='vertical' size={16} width='100%'>
+                <List.Item.Meta
+                    title={
+                        <Typography.Title level={5}>
+                            {translations.title(task)}
+                        </Typography.Title>
+                    }
+                    description={translations.description(task)}
+                />
+                {!isDesktop && (
+                    <Typography.Text type='danger' onClick={removeTask}>
+                        {task.status === TASK_STATUS.PROCESSING ? CancelTitle : CloseTitle}
+                    </Typography.Text>
+                )}
+            </Space>
+            <TaskIconsHoverSwitcher
+                progress={progress}
+                taskStatus={task.status}
+                removeTask={removeTask}
+            />
+        </List.Item>
+    )
+}
 interface ITaskProgressTrackerProps {
     task: ITaskTrackableItem
+    isDesktop: boolean
 }
 
 // Prevents calling handle function multiple times when tracking component will be remounted.
@@ -135,7 +157,7 @@ const handledTerminalStatesOfTasksIds = []
 /**
  * Polls tasks record for updates and handles its transition to completed status.
  */
-export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task }) => {
+export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task, isDesktop }) => {
     const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
@@ -196,32 +218,22 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task 
             progress={calculateProgress(record)}
             translations={translations}
             removeTask={handleRemoveTask}
+            isDesktop={isDesktop}
         />
     )
 }
 
-const VisibilityControlButton = styled.div`
-  position: absolute;
-  right: 20px;
-  top: 19px;
-  z-index: 1;
-  cursor: pointer;
-`
-
-const ChevronCollapseIconStyle = css`
-  transform-origin: center;
-  transform: rotate(180deg);
-`
+const RIGHT_ALIGN_STYLE: React.CSSProperties = {
+    position: 'absolute',
+    right: '2px',
+    top: 0,
+    cursor: 'pointer',
+    zIndex: 1,
+}
 
 const infoIconStyles = css`
   color: ${colors.infoIconColor};
-  font-size: 20px;
-`
-
-const TasksProgressTitleStyle = css`
-  font-size: 16px;
-  line-height: 1.25;
-  margin-bottom: 0;
+  font-size: 24px;
 `
 
 interface ITasksProgressProps {
@@ -235,37 +247,62 @@ interface ITasksProgressProps {
 export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
     const intl = useIntl()
     const TitleMsg = intl.formatMessage({ id: 'tasks.progressNotification.title' })
-    const [collapsed, setCollapsed] = useState(false)
+
+    const { breakpoints: { TABLET_LARGE: isDesktop } } = useLayoutContext()
+    const { deleteAllTasks } = useContext(TasksContext)
+
+    const [collapsed, setCollapsed] = useState(!isDesktop)
 
     const toggleCollapsed = () => {
         setCollapsed(!collapsed)
     }
+
+    const listStyle: React.CSSProperties = {
+        display: collapsed ? 'none' : 'block',
+        maxHeight: isDesktop ? 'calc(100vh - 260px)' : 'calc(100vh - 60px)',
+        overflowY: 'auto',
+    }
+    const contentColStyle: React.CSSProperties = {
+        position: 'relative',
+        paddingRight: isDesktop ? '6px' : 0,
+    }
+
+    const isAllTasksFinished = tasks.every(task => task.record.status !== TASK_STATUS.PROCESSING)
+
     return (
         <div>
-            <VisibilityControlButton
-                onClick={toggleCollapsed}
-            >
-                {collapsed ? (
-                    <ChevronIcon/>
-                ) : (
-                    <ChevronIcon css={ChevronCollapseIconStyle}/>
-                )}
-            </VisibilityControlButton>
-            <Row>
+            <Row gutter={[12, 12]}>
                 <Col span={2}>
                     <InfoCircleOutlined css={infoIconStyles}/>
                 </Col>
-                <Col span={22}>
-                    <Typography.Paragraph strong css={TasksProgressTitleStyle}>
-                        {TitleMsg}
-                    </Typography.Paragraph>
+                <Col span={22} style={contentColStyle}>
+                    <Space direction='horizontal' size={4} align='center'>
+                        <Typography.Title level={4} onClick={toggleCollapsed}>
+                            {TitleMsg}
+                        </Typography.Title>
+                        {!isDesktop ? (<>{collapsed ? <ChevronDown /> : <ChevronUp />}</>) : null}
+                    </Space>
+                    {isDesktop && (
+                        <div style={{ ...RIGHT_ALIGN_STYLE, right: '10px' }}>
+                            <Space direction='horizontal' align='baseline' size={12}>
+                                <div onClick={toggleCollapsed}>{collapsed ? <ChevronDown /> : <ChevronUp />}</div>
+                                {isAllTasksFinished && <Close onClick={deleteAllTasks} />}
+                            </Space>
+                        </div>
+                    )}
+                    {!isDesktop && (
+                        <div style={RIGHT_ALIGN_STYLE}>
+                            <Close onClick={deleteAllTasks} />
+                        </div>
+                    )}
                     <List
-                        style={{ display: collapsed ? 'none' : 'block' }}
+                        style={listStyle}
                         dataSource={tasks}
                         renderItem={(task) => (
                             <TaskProgressTracker
                                 key={task.record.id}
                                 task={task}
+                                isDesktop={isDesktop}
                             />
                         )}
                     />
@@ -289,6 +326,7 @@ export const displayTasksProgress = ({ notificationApi, tasks }: IDisplayTasksPr
         className: 'tasks',
         duration: 0,
         top: 60,
+        getContainer: () => document.getElementById('tasks-container') || document.body,
         description: (
             <TasksProgress tasks={tasks}/>
         ),
@@ -297,5 +335,5 @@ export const displayTasksProgress = ({ notificationApi, tasks }: IDisplayTasksPr
 
 export const closeTasksProgress = () => {
     // NOTE: `notificationApi` obtained via `notification.useNotification` does not have `close` method ;) That's why we have a little inconsistency here
-    notification.close('tasks')
+    notification.destroy()
 }

@@ -9,9 +9,12 @@ import React, { useEffect, useState, useReducer, useRef } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+
+
 import { closeTasksProgress, displayTasksProgress } from './TaskProgress'
 
-import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext } from './index'
+import { ITask, ITasksContext, ITaskTrackableItem, TaskRecord, TasksContext, TASK_REMOVE_STRATEGY } from './index'
 
 
 // Map of task schema name to its UI interface implementation
@@ -52,13 +55,23 @@ const buildTrackableTasksFrom = (records: TaskRecord[], uiInterfaces: TaskUIInte
  * TODO: Progress should be tracked after closing progress panel
  */
 const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedTaskRecords = [], uiInterfaces, children }) => {
+    const { breakpoints: { TABLET_LARGE } } = useLayoutContext()
     const { user } = useAuth()
+    /**
+     * To make notifications work with all context providers of our MyApp component,
+     * context of notifications should be mounted inside it.
+     * Otherwise it will be mounted by Ant into its own context and following error will occur:
+     * > Error: [React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.
+     * @see https://ant.design/components/notification/#Why-I-can-not-access-context,-redux,-ConfigProvider-locale/prefixCls-in-notification
+     */
+    const [notificationApi, contextHolder] = notification.useNotification()
     // NOTE: Initial state of `tasks` cannot be initialized with `preloadedTaskRecords` prop, because a hook in parent component that loads tasks
     // will rerender this component as data comes, so, the state will not be reinitialized.
     const [tasks, setTasks] = useState<ITaskTrackableItem[]>([])
     // Timestamp of latest update in tasks without changing length of trackable tasks array
     // Used to trigger `useEffects` when tasks are updated or deleted. Relying on length of tasks is not enough in effects
     const [lastUpdated, forceUpdate] = useReducer(x => x + 1, 0)
+    const breakpointRef = useRef(TABLET_LARGE)
 
     // After first render we can await tasks from network requests
     // As they will come, we should add them to state
@@ -93,16 +106,18 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
         } else (
             closeTasksProgress()
         )
-    }, [tasks.length, lastUpdated])
+    }, [tasks, lastUpdated, notificationApi])
 
-    /**
-     * To make notifications work with all context providers of our MyApp component,
-     * context of notifications should be mounted inside it.
-     * Otherwise it will be mounted by Ant into its own context and following error will occur:
-     * > Error: [React Intl] Could not find required `intl` object. <IntlProvider> needs to exist in the component ancestry.
-     * @see https://ant.design/components/notification/#Why-I-can-not-access-context,-redux,-ConfigProvider-locale/prefixCls-in-notification
-     */
-    const [notificationApi, contextHolder] = notification.useNotification()
+    useEffect(() => {
+        if (breakpointRef.current !== TABLET_LARGE && !isEmpty(tasks)) {
+            closeTasksProgress()
+            displayTasksProgress({
+                notificationApi, tasks,
+            })
+        }
+
+        breakpointRef.current = TABLET_LARGE
+    }, [TABLET_LARGE, tasks, notificationApi])
 
     function findExistingTaskById (id: string): [ITaskTrackableItem | null, number] {
         const index = findIndex(tasksRef.current, { record: { id } })
@@ -148,6 +163,17 @@ const TasksContextProvider: React.FC<ITasksContextProviderProps> = ({ preloadedT
                 return
             }
             setTasks(prevState => prevState.filter((task) => task.record.id !== record.id))
+            forceUpdate()
+        },
+        deleteAllTasks: () => {
+            tasks.forEach(task => {
+                const { storage, removeStrategy } = task
+
+                if (removeStrategy.includes(TASK_REMOVE_STRATEGY.STORAGE)) {
+                    storage.useDeleteTask({}, () => null)
+                }
+            })
+            setTasks([])
             forceUpdate()
         },
         tasks,
