@@ -14,6 +14,14 @@ const access = require('@condo/domains/news/access/NewsItemSharing')
 const { normalizeText } = require('../../common/utils/text')
 
 
+const NEWS_ITEM_SHARING_STATUSES = {
+    SCHEDULED: 'scheduled',
+    PROCESSING: 'processing',
+    PUBLISHED: 'published',
+    ARCHIVE: 'archive',
+}
+
+
 const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
     schemaDoc: 'Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API.',
     fields: {
@@ -82,39 +90,6 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
     },
 
-    hooks: {
-        afterChange: async ({ operation, updatedItem, existingData }) => {
-            const b2bAppContextId = get( updatedItem, ['b2bAppContext'])
-            const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
-
-            const newsItemId = get( updatedItem, ['newsItem'])
-            const newsItem = await getById('NewsItem', newsItemId)
-
-            const postUrl = get(b2bAppContext, ['settings', 'postUrl'])
-
-            const chatId = get(b2bAppContext, ['settings', 'chatId'])
-            const title = get(newsItem, 'title')
-            const message = get(newsItem, 'body')
-
-            try {
-                const response = await fetch(postUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        title,
-                        message,
-                        chatId,
-                    }),
-                })
-                console.log(response)
-            } catch (err) {
-                console.log(err)
-            }
-        },
-    },
-
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
         read: access.canReadNewsItemSharings,
@@ -127,4 +102,5 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
 
 module.exports = {
     NewsItemSharing,
+    NEWS_ITEM_SHARING_STATUSES,
 }
