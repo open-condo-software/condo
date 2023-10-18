@@ -5,8 +5,9 @@
 const {
     makeLoggedInAdminClient,
     makeClient,
-    expectValuesOfCommonFields, expectToThrowGQLError, expectToThrowUniqueConstraintViolationError,
-    expectToThrowAccessDeniedToFieldError,
+    expectValuesOfCommonFields,
+    expectToThrowGQLError,
+    expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -328,6 +329,36 @@ describe('InvoiceContext', () => {
                     variable: ['data', 'dv'],
                 },
             )
+        })
+
+        test('should have correct emails within settings', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, {
+                    settings: {
+                        emails: ['SomeWrongString', 'normal@email.yes'],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_SETTINGS',
+            })
+        })
+
+        test('should contain unique emails within settings', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, {
+                    settings: {
+                        emails: ['normal@email.yes', 'normal@email.yes'],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_SETTINGS',
+            })
         })
     })
 })

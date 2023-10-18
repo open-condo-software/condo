@@ -63,9 +63,7 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             type: 'Json',
             isRequired: false,
             hooks: {
-                validateInput: ({ resolvedData, fieldPath }) => {
-                    validateSettingsField(resolvedData[fieldPath])
-                },
+                validateInput: validateSettingsField,
             },
         },
 
