@@ -15,6 +15,7 @@ const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/doma
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
 
+const { BillingRecipientResolver } = require('./helpers/billingRecipientResolver')
 const { findPropertyByOrganizationAndAddress } = require('./helpers/propertyFinder')
 
 const RECEIPTS_LIMIT = 50
@@ -159,15 +160,9 @@ const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) =
 
     item.property = { connect: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
     item.account = { connect: { id: get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
+    item.receiver = { connect: { id: get(item, ['receiver', 'id'], null) } }
 
-    item.recipient = {
-        tin: item.tin,
-        ...item.iec && { iec: item.iec },
-        bankAccount: item.bankAccount,
-        bic: item.bic,
-    }
-
-    return omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
+    return omit(item, ['tin', 'iec', 'bic', 'bankAccount', 'routingNumber'])
 }
 
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
@@ -456,14 +451,18 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             toPay: toPay,
                             services: services,
                             toPayDetails: toPayDetails,
-                            tin,
-                            iec,
-                            bic,
                             bankAccount,
+                            routingNumber,
+                            tin,
                             raw: { ...{ dv: 1 }, ...raw },
                         }
                     }
                 }
+
+                // sync billing recipients (new flow)
+                const billingRecipientResolver = new BillingRecipientResolver()
+                await billingRecipientResolver.init(billingContext)
+                const receiptsWithRecipients = await billingRecipientResolver.processReceipts(Object.values(receiptIndex))
 
                 // Step 2:
                 // Sync billing properties and billing accounts
@@ -472,7 +471,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 3:
                 // Sync billing receipts
-                const { createdReceipts, updatedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
+                const { createdReceipts, updatedReceipts } = await syncBillingReceipts(context, receiptsWithRecipients, { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
 
                 // Step 4:
                 // Forming result
