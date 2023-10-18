@@ -1,3 +1,5 @@
+const { get } = require('lodash')
+
 const { getById } = require('@open-condo/keystone/schema')
 
 // TODO(savelevMatthew): Replace with single request from serverSchema after gql refactoring
@@ -26,6 +28,12 @@ async function freezeBillingReceipt (flatReceipt) {
             billingIntegration,
             organization,
             receiver,
+            recipient: {
+                tin: get(receiver, 'tin', null),
+                iec: get(receiver, 'iec', null),
+                bic: get(receiver, 'bic', null),
+                bankAccount: get(receiver, 'bankAccount', null),
+            },
         },
     }
 }
