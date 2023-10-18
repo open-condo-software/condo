@@ -1,7 +1,7 @@
 import { Row, Col } from 'antd'
-import React, { useMemo } from 'react'
+import React from 'react'
 
-import { useBreakpoints } from '@open-condo/ui/dist/hooks'
+import { useContainerSize } from '@open-condo/ui/dist/hooks'
 
 import type { RowProps } from 'antd'
 
@@ -10,13 +10,23 @@ type GridProps = {
     children: React.ReactNode
 }
 
-const ROW_GUTTER: RowProps['gutter'] = [32, 32]
+const GAP = 32
+const ROW_GUTTER: RowProps['gutter'] = [GAP, GAP]
+const MIN_COL_WIDTH = 350
+const MIN_COLS = 1
+const MAX_COLS = 4
+
+function getColsAmount (width: number): number {
+    const fitCols = Math.floor((width + GAP) / (MIN_COL_WIDTH + GAP))
+    return Math.min(MAX_COLS, Math.max(MIN_COLS, fitCols))
+}
 
 export const Grid: React.FC<GridProps> = ({ children }) => {
-    const { DESKTOP_SMALL } = useBreakpoints()
-    const colSpan = useMemo(() => DESKTOP_SMALL ? 12 : 24, [DESKTOP_SMALL])
+    const [{ width }, setRef] = useContainerSize()
+    const cols = getColsAmount(width)
+    const colSpan = 24 / cols
     return (
-        <Row gutter={ROW_GUTTER}>
+        <Row gutter={ROW_GUTTER} ref={setRef}>
             {React.Children.map(children, (child, index) => (
                 <Col span={colSpan} key={index}>
                     {child}

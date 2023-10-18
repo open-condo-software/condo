@@ -3,7 +3,6 @@
   "global.service.name.short": "For devs",
   "global.lang.ru": "Русский",
   "global.lang.en": "English",
-  "global.menu": "Menu",
   "global.action.signIn": "Sign in",
   "global.action.signOut": "Sign out",
   "global.action.signUp": "Sign up",
@@ -32,5 +31,6 @@
   "global.errors.serverError.title": "Server error",
   "docs.editPage": "Edit this page on Github",
   "docs.nextArticle": "Next: {title}",
-  "docs.prevArticle": "Back: {title}"
+  "docs.prevArticle": "Back: {title}",
+  "docs.menu.title": "Navigation"
 }

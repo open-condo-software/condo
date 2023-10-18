@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { Menu, Row, Col, Anchor } from 'antd'
+import { Row, Col, Anchor } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -13,6 +13,7 @@ import { ChevronLeft, ChevronRight, Edit } from '@open-condo/icons'
 import { Typography, Card, Space } from '@open-condo/ui'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
+import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
 import { DOCS_REPO, DOCS_ROOT_PATH, DOCS_REPO_DOCS_ROOT, DOCS_EDIT_BRANCH } from '@/domains/common/constants/buildVars'
 import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 import { MDXMapping } from '@/domains/docs/components/mdx'
@@ -65,6 +66,7 @@ const DocPage: React.FC<DocPageProps> = ({
     editUrl,
 }) => {
     const intl = useIntl()
+    const MenuTitle = intl.formatMessage({ id: 'docs.menu.title' })
     const EditPageMessage = intl.formatMessage({ id: 'docs.editPage' })
     const NextPageMessage = intl.formatMessage({ id: 'docs.nextArticle' }, {
         title: nextPage ? nextPage.label : '',
@@ -96,7 +98,8 @@ const DocPage: React.FC<DocPageProps> = ({
             </Head>
             <BaseLayout
                 menuElement={(
-                    <Menu
+                    <CollapsibleMenu
+                        menuTitle={MenuTitle}
                         mode='inline'
                         items={menuItems}
                         defaultOpenKeys={openPaths}
