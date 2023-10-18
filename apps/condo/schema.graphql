@@ -12019,7 +12019,6 @@ type BillingReceiptHistoryRecord {
   paid: String
   toPayDetails: JSON
   services: JSON
-  recipient: JSON
   receiver: String
   invalidServicesError: JSON
   file: String
@@ -12187,10 +12186,6 @@ input BillingReceiptHistoryRecordWhereInput {
   services_not: JSON
   services_in: [JSON]
   services_not_in: [JSON]
-  recipient: JSON
-  recipient_not: JSON
-  recipient_in: [JSON]
-  recipient_not_in: [JSON]
   receiver: String
   receiver_not: String
   receiver_in: [String]
@@ -12345,7 +12340,6 @@ input BillingReceiptHistoryRecordUpdateInput {
   paid: String
   toPayDetails: JSON
   services: JSON
-  recipient: JSON
   receiver: String
   invalidServicesError: JSON
   file: String
@@ -12387,7 +12381,6 @@ input BillingReceiptHistoryRecordCreateInput {
   paid: String
   toPayDetails: JSON
   services: JSON
-  recipient: JSON
   receiver: String
   invalidServicesError: JSON
   file: String
@@ -12483,28 +12476,6 @@ input BillingReceiptServiceFieldInput {
   toPayDetails: BillingReceiptServiceToPayDetailsFieldInput
 }
 
-type BillingReceiptsRecipientField {
-  name: String
-  bankName: String
-  territoryCode: String
-  offsettingAccount: String
-  tin: String!
-  iec: String
-  bic: String!
-  bankAccount: String!
-}
-
-input BillingReceiptsRecipientFieldInput {
-  name: String
-  bankName: String
-  territoryCode: String
-  offsettingAccount: String
-  tin: String!
-  iec: String
-  bic: String!
-  bankAccount: String!
-}
-
 input BillingRecipientRelateToOneInput {
   create: BillingRecipientCreateInput
   connect: BillingRecipientWhereUniqueInput
@@ -12592,10 +12563,6 @@ type BillingReceipt {
   """ Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4 
   """
   services: [BillingReceiptServiceField!]
-
-  """ Recipient. Should contain all meta information to identify the organization 
-  """
-  recipient: BillingReceiptsRecipientField
 
   """ Relation to the BillingRecipient. Going to override recipient field, has the same meaning 
   """
@@ -12771,10 +12738,6 @@ input BillingReceiptWhereInput {
   services_not: [BillingReceiptServiceFieldInput!]
   services_in: [[BillingReceiptServiceFieldInput!]]
   services_not_in: [[BillingReceiptServiceFieldInput!]]
-  recipient: BillingReceiptsRecipientFieldInput
-  recipient_not: BillingReceiptsRecipientFieldInput
-  recipient_in: [BillingReceiptsRecipientFieldInput]
-  recipient_not_in: [BillingReceiptsRecipientFieldInput]
   receiver: BillingRecipientWhereInput
   receiver_is_null: Boolean
   file: BillingReceiptFileWhereInput
@@ -12913,7 +12876,6 @@ input BillingReceiptUpdateInput {
   paid: String
   toPayDetails: BillingReceiptToPayDetailsFieldInput
   services: [BillingReceiptServiceFieldInput!]
-  recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
   v: Int
@@ -12951,7 +12913,6 @@ input BillingReceiptCreateInput {
   paid: String
   toPayDetails: BillingReceiptToPayDetailsFieldInput
   services: [BillingReceiptServiceFieldInput!]
-  recipient: BillingReceiptsRecipientFieldInput
   receiver: BillingRecipientRelateToOneInput
   file: BillingReceiptFileRelateToOneInput
   v: Int
@@ -66466,6 +66427,28 @@ input ExportPropertiesToExcelInput {
 type ExportPropertiesToExcelOutput {
   status: String!
   linkToFile: String!
+}
+
+type BillingReceiptsRecipientField {
+  name: String
+  bankName: String
+  territoryCode: String
+  offsettingAccount: String
+  tin: String!
+  iec: String
+  bic: String!
+  bankAccount: String!
+}
+
+input BillingReceiptsRecipientFieldInput {
+  name: String
+  bankName: String
+  territoryCode: String
+  offsettingAccount: String
+  tin: String!
+  iec: String
+  bic: String!
+  bankAccount: String!
 }
 
 input ResidentBillingReceiptWhereInput {

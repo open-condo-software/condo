@@ -15847,8 +15847,6 @@ export type BillingReceipt = {
   toPayDetails?: Maybe<BillingReceiptToPayDetailsField>;
   /**  Services to pay for. Every service has id, name and toPay. Service may or may not have toPay detail. Detail level 3 and 4  */
   services?: Maybe<Array<BillingReceiptServiceField>>;
-  /**  Recipient. Should contain all meta information to identify the organization  */
-  recipient?: Maybe<BillingReceiptsRecipientField>;
   /**  Relation to the BillingRecipient. Going to override recipient field, has the same meaning  */
   receiver?: Maybe<BillingRecipient>;
   /**  Indicates if services are valid and add up to total sum toPay.  */
@@ -15890,7 +15888,6 @@ export type BillingReceiptCreateInput = {
   paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
-  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   receiver?: Maybe<BillingRecipientRelateToOneInput>;
   file?: Maybe<BillingReceiptFileRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -16372,7 +16369,6 @@ export type BillingReceiptHistoryRecord = {
   paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
@@ -16410,7 +16406,6 @@ export type BillingReceiptHistoryRecordCreateInput = {
   paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
@@ -16453,7 +16448,6 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<Scalars['JSON']>;
   services?: Maybe<Scalars['JSON']>;
-  recipient?: Maybe<Scalars['JSON']>;
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
@@ -16620,10 +16614,6 @@ export type BillingReceiptHistoryRecordWhereInput = {
   services_not?: Maybe<Scalars['JSON']>;
   services_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   services_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  recipient?: Maybe<Scalars['JSON']>;
-  recipient_not?: Maybe<Scalars['JSON']>;
-  recipient_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  recipient_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   receiver?: Maybe<Scalars['String']>;
   receiver_not?: Maybe<Scalars['String']>;
   receiver_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -16816,7 +16806,6 @@ export type BillingReceiptUpdateInput = {
   paid?: Maybe<Scalars['String']>;
   toPayDetails?: Maybe<BillingReceiptToPayDetailsFieldInput>;
   services?: Maybe<Array<BillingReceiptServiceFieldInput>>;
-  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
   receiver?: Maybe<BillingRecipientRelateToOneInput>;
   file?: Maybe<BillingReceiptFileRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
@@ -16971,10 +16960,6 @@ export type BillingReceiptWhereInput = {
   services_not?: Maybe<Array<BillingReceiptServiceFieldInput>>;
   services_in?: Maybe<Array<Maybe<Array<BillingReceiptServiceFieldInput>>>>;
   services_not_in?: Maybe<Array<Maybe<Array<BillingReceiptServiceFieldInput>>>>;
-  recipient?: Maybe<BillingReceiptsRecipientFieldInput>;
-  recipient_not?: Maybe<BillingReceiptsRecipientFieldInput>;
-  recipient_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
-  recipient_not_in?: Maybe<Array<Maybe<BillingReceiptsRecipientFieldInput>>>;
   receiver?: Maybe<BillingRecipientWhereInput>;
   receiver_is_null?: Maybe<Scalars['Boolean']>;
   file?: Maybe<BillingReceiptFileWhereInput>;
