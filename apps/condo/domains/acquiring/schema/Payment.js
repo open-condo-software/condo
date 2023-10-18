@@ -231,6 +231,7 @@ const Payment = new GQLListSchema('Payment', {
                         return addValidationError(PAYMENT_NO_PAIRED_CONTEXT)
                     }
                     const receipt = await getById('BillingReceipt', resolvedData['receipt'])
+                    const recipient = await getById('BillingRecipient', receipt.receiver)
                     const billingContext = await getById('BillingIntegrationOrganizationContext', receipt.context)
                     const billingIntegration = await getById('BillingIntegration', billingContext.integration)
                     const acquiringContexts = await AcquiringIntegrationContext.getAll(context, {
@@ -243,8 +244,8 @@ const Payment = new GQLListSchema('Payment', {
                     if (!acquiringContexts.length) {
                         return addValidationError(PAYMENT_NO_SUPPORTED_CONTEXT)
                     }
-                    if (get(receipt, ['recipient', 'bic']) !== resolvedData['recipientBic']
-                        || get(receipt, ['recipient', 'bankAccount']) !== resolvedData['recipientBankAccount']) {
+                    if (get(recipient, 'bic') !== resolvedData['recipientBic']
+                        || get(recipient, 'bankAccount') !== resolvedData['recipientBankAccount']) {
                         return addValidationError(PAYMENT_RECIPIENT_MISMATCH)
                     }
                 }
