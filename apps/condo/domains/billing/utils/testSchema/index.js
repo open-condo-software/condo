@@ -373,6 +373,7 @@ async function updateTestBillingAccounts (client, attrsArray) {
 async function createTestBillingReceipt (client, context, property, account, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+    const [recipient] = await createTestBillingRecipient(client, context)
 
     const attrs = {
         dv: 1,
@@ -384,7 +385,7 @@ async function createTestBillingReceipt (client, context, property, account, ext
         period: '2020-12-01',
         importId: faker.random.alphaNumeric(8),
         toPay: (faker.datatype.number() + 50).toString(),
-        recipient: createTestRecipient(),
+        receiver: { connect: { id: recipient.id } },
         services: generateServicesData(1),
         toPayDetails: {
             formula: "charge + penalty",
@@ -420,7 +421,6 @@ async function createTestBillingReceipts (client, contexts, properties, accounts
                 period: '2021-12-01',
                 importId: faker.random.alphaNumeric(8),
                 toPay: (faker.datatype.number() + 50).toString(),
-                recipient: createTestRecipient(),
                 services: generateServicesData(1),
                 toPayDetails: {
                     formula: "charge + penalty",
