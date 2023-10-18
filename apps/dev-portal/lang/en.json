@@ -3,6 +3,7 @@
   "global.service.name.short": "For devs",
   "global.lang.ru": "Русский",
   "global.lang.en": "English",
+  "global.menu": "Menu",
   "global.action.signIn": "Sign in",
   "global.action.signOut": "Sign out",
   "global.action.signUp": "Sign up",

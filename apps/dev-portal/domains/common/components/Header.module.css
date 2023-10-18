@@ -6,6 +6,7 @@
   width: 304px;
   height: 28px;
   padding-right: 40px;
+  text-decoration: none;
   column-gap: 10px;
 }
 
@@ -31,17 +32,19 @@
 }
 
 .header {
-  position: sticky;
+  position: fixed;
   top: 0;
+  right: 0;
+  left: 0;
   z-index: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   box-sizing: border-box;
-  height: 72px !important;
-  padding: 0 48px;
-  line-height: inherit !important;
-  background-color: var(--condo-global-color-white) !important;
+  height: 72px;
+  padding: 0 32px;
+  line-height: inherit;
+  background-color: var(--condo-global-color-white);
   border-bottom: 1px solid var(--condo-global-color-gray-3);
 }

@@ -1,4 +1,4 @@
-import { Layout, Dropdown } from 'antd'
+import { Dropdown } from 'antd'
 import { setCookie } from 'cookies-next'
 import { Montserrat } from 'next/font/google'
 import Image from 'next/image'
@@ -33,7 +33,7 @@ export const Header: React.FC = () => {
     }, [router])
 
     return (
-        <Layout.Header className={styles.header}>
+        <header className={styles.header}>
             <Link href='/' className={styles.logoContainer} locale={router.locale}>
                 <div className={styles.logoImageWrapper}>
                     <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
@@ -59,6 +59,6 @@ export const Header: React.FC = () => {
                 </Dropdown>
                 <AuthHeaderAction/>
             </Space>
-        </Layout.Header>
+        </header>
     )
 }

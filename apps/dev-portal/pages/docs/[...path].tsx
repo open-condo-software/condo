@@ -1,6 +1,6 @@
 import path from 'path'
 
-import { Layout, Menu, Row, Col, Anchor } from 'antd'
+import { Menu, Row, Col, Anchor } from 'antd'
 import get from 'lodash/get'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -12,6 +12,7 @@ import { useIntl } from 'react-intl'
 import { ChevronLeft, ChevronRight, Edit } from '@open-condo/icons'
 import { Typography, Card, Space } from '@open-condo/ui'
 
+import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { DOCS_REPO, DOCS_ROOT_PATH, DOCS_REPO_DOCS_ROOT, DOCS_EDIT_BRANCH } from '@/domains/common/constants/buildVars'
 import { DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 import { MDXMapping } from '@/domains/docs/components/mdx'
@@ -38,8 +39,6 @@ import { initializeApollo, extractApolloState } from '@/lib/apollo'
 import { prefetchAuth, extractAuthHeadersFromRequest } from '@/lib/auth'
 
 const DOCS_ROOT_ENDPOINT = '/docs'
-const SIDER_WIDTH = 336
-const CARD_WIDTH = 308
 const CARD_PADDING = '20px 24px 20px 0'
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FOOTER_GUTTER: RowProps['gutter'] = [40, 60]
@@ -95,92 +94,84 @@ const DocPage: React.FC<DocPageProps> = ({
             <Head>
                 <title>{PageTitle}</title>
             </Head>
-            <Layout hasSider>
-                <Layout.Sider width={SIDER_WIDTH} className={styles.sider} theme='light'>
+            <BaseLayout
+                menuElement={(
                     <Menu
                         mode='inline'
                         items={menuItems}
                         defaultOpenKeys={openPaths}
                         defaultSelectedKeys={[currentRoute]}
                         selectedKeys={[currentRoute]}
-                        className={styles.menu}
                     />
-                </Layout.Sider>
-                <Layout.Content className={styles.content}>
-                    <div className={styles.pageContainer}>
-                        <div className={styles.articleColumn}>
-                            <Row gutter={FOOTER_GUTTER}>
+                )}
+                anchorElement={Boolean(headings.length) && (
+                    <Card bodyPadding={CARD_PADDING}>
+                        <Anchor
+                            affix={false}
+                            showInkInFixed={true}
+                            offsetTop={112}
+                            items={headings.map(heading => ({
+                                key: heading.id,
+                                href: `#${heading.id}`,
+                                title: <Typography.Text type='secondary'>{heading.heading}</Typography.Text>,
+                            }))}
+                        />
+                    </Card>
+                )}
+            >
+                <Row gutter={FOOTER_GUTTER}>
+                    <Col span={24}>
+                        <Row gutter={TITLE_GUTTER} id='article'>
+                            <Col span={24}>
+                                <Typography.Title id='article-title'>{articleTitle}</Typography.Title>
+                            </Col>
+                            <Col span={24}>
+                                <article className='condo-markdown' id='article-content'>
+                                    <MDXRemote {...serializedContent} components={MDXMapping} lazy/>
+                                </article>
+                            </Col>
+                            {editUrl && (
                                 <Col span={24}>
-                                    <Row gutter={TITLE_GUTTER} id='article'>
-                                        <Col span={24}>
-                                            <Typography.Title id='article-title'>{articleTitle}</Typography.Title>
-                                        </Col>
-                                        <Col span={24}>
-                                            <article className='condo-markdown' id='article-content'>
-                                                <MDXRemote {...serializedContent} components={MDXMapping} lazy/>
-                                            </article>
-                                        </Col>
-                                        {editUrl && (
-                                            <Col span={24}>
-                                                <Typography.Link size='large' target='_blank' href={editUrl}>
-                                                    <Space direction='horizontal' size={8}>
-                                                        <Edit size='medium'/>
-                                                        {EditPageMessage}
-                                                    </Space>
-                                                </Typography.Link>
-                                            </Col>
-                                        )}
-                                    </Row>
+                                    <Typography.Link size='large' target='_blank' href={editUrl}>
+                                        <Space direction='horizontal' size={8}>
+                                            <Edit size='medium'/>
+                                            {EditPageMessage}
+                                        </Space>
+                                    </Typography.Link>
                                 </Col>
-                                <Col span={24}>
-                                    <div className={styles.bottomNavContainer}>
-                                        <div className={styles.bottomNavLink}>
-                                            {prevPage && (
-                                                <Link href={`${DOCS_ROOT_ENDPOINT}/${prevPage.route}`} legacyBehavior>
-                                                    <Typography.Link size='large'>
-                                                        <Space direction='horizontal' size={8} align='center'>
-                                                            <ChevronLeft size='medium'/>
-                                                            {PrevPageMessage}
-                                                        </Space>
-                                                    </Typography.Link>
-                                                </Link>
-                                            )}
-                                        </div>
-                                        <div className={`${styles.alignRight} ${styles.bottomNavLink}`}>
-                                            {nextPage && (
-                                                <Link href={`${DOCS_ROOT_ENDPOINT}/${nextPage.route}`} legacyBehavior>
-                                                    <Typography.Link size='large'>
-                                                        <Space direction='horizontal' size={8} align='center'>
-                                                            {NextPageMessage}
-                                                            <ChevronRight size='medium'/>
-                                                        </Space>
-                                                    </Typography.Link>
-                                                </Link>
-                                            )}
-                                        </div>
-                                    </div>
-                                </Col>
-                            </Row>
-                        </div>
-                        {Boolean(headings.length) && (
-                            <div className={styles.tableOfContentsColumn}>
-                                <Card width={CARD_WIDTH} bodyPadding={CARD_PADDING}>
-                                    <Anchor
-                                        affix={false}
-                                        showInkInFixed={true}
-                                        offsetTop={112}
-                                        items={headings.map(heading => ({
-                                            key: heading.id,
-                                            href: `#${heading.id}`,
-                                            title: <Typography.Text type='secondary'>{heading.heading}</Typography.Text>,
-                                        }))}
-                                    />
-                                </Card>
+                            )}
+                        </Row>
+                    </Col>
+                    <Col span={24}>
+                        <div className={styles.bottomNavContainer}>
+                            <div className={styles.bottomNavLink}>
+                                {prevPage && (
+                                    <Link href={`${DOCS_ROOT_ENDPOINT}/${prevPage.route}`} legacyBehavior>
+                                        <Typography.Link size='large'>
+                                            <Space direction='horizontal' size={8} align='center'>
+                                                <ChevronLeft size='medium'/>
+                                                {PrevPageMessage}
+                                            </Space>
+                                        </Typography.Link>
+                                    </Link>
+                                )}
                             </div>
-                        )}
-                    </div>
-                </Layout.Content>
-            </Layout>
+                            <div className={`${styles.alignRight} ${styles.bottomNavLink}`}>
+                                {nextPage && (
+                                    <Link href={`${DOCS_ROOT_ENDPOINT}/${nextPage.route}`} legacyBehavior>
+                                        <Typography.Link size='large'>
+                                            <Space direction='horizontal' size={8} align='center'>
+                                                {NextPageMessage}
+                                                <ChevronRight size='medium'/>
+                                            </Space>
+                                        </Typography.Link>
+                                    </Link>
+                                )}
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+            </BaseLayout>
         </>
     )
 }
