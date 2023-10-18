@@ -20,7 +20,7 @@ const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquir
 const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
 const { Payment, MultiPayment, AcquiringIntegration, RecurrentPaymentContext } = require('@condo/domains/acquiring/utils/serverSchema')
 const { getAcquiringIntegrationContextFormula, FeeDistribution } = require('@condo/domains/acquiring/utils/serverSchema/feeDistribution')
-const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
+const { getPaymentsSum, BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
 const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 
@@ -432,6 +432,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     const formula = await getAcquiringIntegrationContextFormula(context, serviceConsumer.acquiringIntegrationContext)
                     for (const receiptInfo of group['receipts']) {
                         const receipt = receiptsByIds[receiptInfo.id]
+                        const billingRecipient = await BillingRecipient.getOne(context, { id: receipt.receiver })
                         const billingCategoryId = get(receipt, 'category')
                         const frozenReceipt = await freezeBillingReceipt(receipt)
                         const billingAccountNumber = get(frozenReceipt, ['data', 'account', 'number'])
@@ -468,8 +469,8 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                             frozenReceipt,
                             context: { connect: { id: acquiringContext.id } },
                             organization: { connect: { id: acquiringContext.organization } },
-                            recipientBic: receipt.recipient.bic,
-                            recipientBankAccount: receipt.recipient.bankAccount,
+                            recipientBic: billingRecipient.bic,
+                            recipientBankAccount: billingRecipient.bankAccount,
                             ...paymentCommissionFields,
                         })
                         payments.push({ ...payment, serviceFee: paymentCommissionFields.serviceFee })
