@@ -20,10 +20,9 @@ const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 
 const DADATA_CONFIG = process.env.ADDRESS_SUGGESTIONS_CONFIG ? JSON.parse(process.env.ADDRESS_SUGGESTIONS_CONFIG) : {}
-const PROCESS_CHUNK_SIZE = 10
+const PROCESS_CHUNK_SIZE = 20
 const DADATA_REQ_BOTTOM_LIMIT = 10000 + PROCESS_CHUNK_SIZE
-const logger = getLogger('fill-address-key-field')
-const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'fill-address-key-field-processing' } }
+const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'fill-address-key-field-processing-v2' } }
 
 function log (msg, params = '') {
     console.log(msg, params)
@@ -34,6 +33,7 @@ function logError (msg, params = '') {
 }
 
 function logCatch (error, params = '') {
+    console.error(error)
     console.error(error.message, params)
 }
 
@@ -61,6 +61,7 @@ async function getLimits () {
 
 async function checkLimits (state) {
     const limits = await getLimits()
+    state.limits = limits
     const remainingSuggestions = get(limits, ['remaining', 'suggestions'])
 
     if (!isNil(remainingSuggestions)) {
@@ -72,51 +73,60 @@ async function checkLimits (state) {
         logError('Can not continue to filling up addressKey since can not retrieve remaining suggestion limits', state)
         process.exit(1)
     }
+}
 
-    state.limits = limits
+function getEntityQuery (context, entity) {
+    return context.adapter.knex(entity.gql.SINGULAR_FORM)
+        .whereRaw(`"deletedAt" is null and "addressKey" is null and "sender" ->> 'fingerprint' != '${dvAndSender.sender.fingerprint}'`)
 }
 
 async function count (context, entity) {
-    return await entity.count(
-        context, {
-            deletedAt: null,
-            addressKey: null,
-        }
-    )
+    const result = await getEntityQuery(context, entity).count('id')
+    return parseInt(result[0].count)
 }
 
-async function readPage (context, entity) {
-    return await entity.getAll(
-        context, {
-            deletedAt: null,
-            addressKey: null,
-        }, {
-            sortBy: 'id_ASC',
-            first: PROCESS_CHUNK_SIZE,
-        }
-    )
+async function readPage (context, entity, state) {
+    return await getEntityQuery(context, entity)
+        .orderBy('id', 'desc')
+        .limit(PROCESS_CHUNK_SIZE)
+        .offset(state[entity.gql.SINGULAR_FORM].offset)
+        .select('id')
 }
 
 async function proceedEntityItem (context, entity, item) {
     // in order to update addressKey we will use exists trigger that starts at any update action
     await entity.update(context, item.id, dvAndSender)
+
+    // let's check if addressKey update occurred
+    const missingAddressKeyCount = await entity.count(
+        context, {
+            id: item.id,
+            deletedAt: null,
+            addressKey: null,
+        }
+    )
+
+    return missingAddressKeyCount
 }
 
 async function proceedEntityPage (context, entity, items, state) {
     await checkLimits(state)
+    const emptyEntityCount = await count(context, entity)
 
     // proceed item one by one
+    let offsetCount = 0
     let filledUpCount = 0
     let errorToUpdateCount = 0
-    for (let i = 0 ; i < items.length; i++) {
+
+    await Promise.all(items.map(async (item) => {
         try {
-            await proceedEntityItem(context, entity, items[i])
+            offsetCount += await proceedEntityItem(context, entity, item)
             filledUpCount += 1
         } catch (e) {
-            logCatch(e, { entityName: entity.gql.SINGULAR_FORM, entityId: items[i].id })
+            logCatch(e, { entityName: entity.gql.SINGULAR_FORM, entityId: item.id })
             errorToUpdateCount += 1
         }
-    }
+    }))
 
     // update state
     state[entity.gql.SINGULAR_FORM].pageProcessed += 1
@@ -131,7 +141,15 @@ async function proceedEntityPage (context, entity, items, state) {
     const totalCount = state[entity.gql.SINGULAR_FORM].total
     const percentage = totalCount > 0 ? parseFloat(totalProceededCount / totalCount * 100).toFixed(5) : 100
 
-    log(`Page #${pageProcessed} for ${entity.gql.SINGULAR_FORM} processed. Proceeding percentage ${percentage} %`)
+    log(`Page #${pageProcessed} for ${entity.gql.SINGULAR_FORM} processed. Proceeding percentage ${percentage} %. Remaining (waiting for processing): ${emptyEntityCount}. TotalOffset (not recognized addresses): ${state[entity.gql.SINGULAR_FORM].offset}. Page processing stat: ${JSON.stringify({
+        offsetCount,
+        filledUpCount,
+        errorToUpdateCount,
+    })}`)
+
+    // since some addresses can be not recognized, we have to determinate
+    // how many entities we need to skip in the next page load
+    state[entity.gql.SINGULAR_FORM].offset += offsetCount
 }
 
 async function proceedEntity (context, entity, state) {
@@ -152,9 +170,9 @@ async function proceedEntity (context, entity, state) {
     let items = []
     const checkAlreadyProceededCount = () => state[entity.gql.SINGULAR_FORM].total > state[entity.gql.SINGULAR_FORM].filledUpCount + state[entity.gql.SINGULAR_FORM].errorToUpdateCount
     do {
-        items = await readPage(context, entity)
+        items = await readPage(context, entity, state)
         await proceedEntityPage(context, entity, items, state)
-    } while (items.length > 0 && checkAlreadyProceededCount() )
+    } while (items.length > 0 && checkAlreadyProceededCount())
 }
 
 async function main () {
@@ -168,7 +186,13 @@ async function main () {
     // prepare initial vars
     log('Start filling up addressKey data for entities: Resident, Property, BillingProperty, B2CAppProperty')
     const chunkSize = 100
-    const getEntityStartState = () => ({ filledUpCount: 0, errorToUpdateCount: 0, pageProcessed: 0, total: 0 })
+    const getEntityStartState = () => ({
+        filledUpCount: 0,
+        errorToUpdateCount: 0,
+        pageProcessed: 0,
+        offset: 0,
+        total: 0,
+    })
     const state = {
         Resident: getEntityStartState(),
         Property: getEntityStartState(),
