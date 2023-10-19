@@ -121,6 +121,8 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
     const DeleteTitle = intl.formatMessage({ id: 'Delete' })
     const CancelTitle = intl.formatMessage({ id: 'Cancel' })
 
+    const isProcessing = task.status === TASK_STATUS.PROCESSING
+
     return (
         <List.Item style={RELATIVE_CONTAINER_STYLE}>
             <Space direction='vertical' size={16} width='100%'>
@@ -133,8 +135,8 @@ export const TaskProgress = ({ task, translations, progress, removeTask, isDeskt
                     description={translations.description(task)}
                 />
                 {!isDesktop && (
-                    <Typography.Text type='danger' onClick={removeTask}>
-                        {task.status === TASK_STATUS.PROCESSING ? CancelTitle : DeleteTitle}
+                    <Typography.Text type={isProcessing ? 'primary' : 'danger'} onClick={removeTask}>
+                        {isProcessing ? CancelTitle : DeleteTitle}
                     </Typography.Text>
                 )}
             </Space>
@@ -163,7 +165,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
     const { storage, removeStrategy, calculateProgress, onComplete, onCancel, onError, translations } = task
     const { record, stopPolling } = storage.useTask(task.record.id)
 
-    const { deleteTask: deleteTaskFromContext } = useContext(TasksContext)
+    const { deleteTask: deleteTaskFromContext, updateTask } = useContext(TasksContext)
 
     const removeTaskFromStorage = storage.useDeleteTask({}, () => {
         if (removeStrategy.includes(TASK_REMOVE_STRATEGY.PANEL)) {
@@ -206,6 +208,7 @@ export const TaskProgressTracker: React.FC<ITaskProgressTrackerProps> = ({ task,
                     handledTerminalStatesOfTasksIds.push(record.id)
                     onError(record)
                 }
+                updateTask(record)
             }
         }
     }, [record])
@@ -269,6 +272,7 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
     }
 
     const isAllTasksFinished = tasks.every(task => task.record.status !== TASK_STATUS.PROCESSING)
+    const chevronIcon = collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />
 
     return (
         <div>
@@ -277,23 +281,25 @@ export const TasksProgress = ({ tasks }: ITasksProgressProps) => {
                     <InfoCircleOutlined style={INFO_ICON_STYLE} />
                 </Col>
                 <Col flex={1} style={{ ...RELATIVE_CONTAINER_STYLE, paddingRight: isDesktop ? 6 : 0 }}>
-                    <Space direction='horizontal' size={4} align='center'>
-                        <Typography.Title level={4} onClick={toggleCollapsed}>
-                            {TitleMsg}
-                        </Typography.Title>
-                        {!isDesktop ? (<>{collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />}</>) : null}
-                    </Space>
+                    <div onClick={toggleCollapsed}>
+                        <Space direction='horizontal' size={4} align='center'>
+                            <Typography.Title level={4}>
+                                {TitleMsg}
+                            </Typography.Title>
+                            {!isDesktop && chevronIcon}
+                        </Space>
+                    </div>
                     {isDesktop && (
                         <div style={{ ...RIGHT_ALIGN_STYLE, right: '10px' }}>
                             <Space direction='horizontal' align='baseline' size={12}>
                                 <div onClick={toggleCollapsed}>
-                                    {collapsed ? <ChevronDown size='medium' /> : <ChevronUp size='medium' />}
+                                    {chevronIcon}
                                 </div>
                                 {isAllTasksFinished && <Close size='medium' onClick={deleteAllTasks} />}
                             </Space>
                         </div>
                     )}
-                    {!isDesktop && (
+                    {(!isDesktop && isAllTasksFinished) && (
                         <div style={RIGHT_ALIGN_STYLE}>
                             <Close size='medium' onClick={deleteAllTasks} />
                         </div>
