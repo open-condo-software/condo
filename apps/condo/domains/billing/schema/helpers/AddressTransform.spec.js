@@ -25,6 +25,7 @@ const PARSER_CASES = [
 
     // fias cases
     ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'flat', ''],
+    ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909, 1', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'flat', '1'],
     ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909, кв. 1', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'flat', '1'],
     ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909, парковка 1', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'parking', '1'],
     ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909, м/м   1', 'fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'parking', '1'],
