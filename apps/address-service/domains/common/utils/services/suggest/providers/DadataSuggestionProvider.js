@@ -170,7 +170,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
      * @returns {Promise<*|null>}
      */
     async callToDadata (url, body) {
-        this.logger.info({ msg: 'call to dadata', url, body, reqId: this.req.id })
+        this.logger.info({ msg: 'CallToDaData', url, data: body, reqId: this.req.id })
         const result = await fetch(
             url,
             {
@@ -200,7 +200,7 @@ class DadataSuggestionProvider extends AbstractSuggestionProvider {
              */
         }
 
-        this.logger.warn({ msg: 'dadata responded with error status code', status, url, body })
+        this.logger.warn({ msg: 'CallToDaData error', status, url, data: body, reqId: this.req.id })
 
         return null
     }
