@@ -4,9 +4,11 @@
  */
 
 const { InvoiceContext } = require('./InvoiceContext')
+const { MarketCategory } = require('./MarketCategory')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
     InvoiceContext,
+    MarketCategory,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
