@@ -20,6 +20,7 @@ const {
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
+const { NewsItemSharingProvider: NewsItemSharingProviderGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -29,6 +30,7 @@ const NewsItemUserRead = generateGQLTestUtils(NewsItemUserReadGQL)
 const NewsItemRecipientsExportTask = generateGQLTestUtils(NewsItemRecipientsExportTaskGQL)
 
 const NewsItemSharing = generateGQLTestUtils(NewsItemSharingGQL)
+const NewsItemSharingProvider = generateGQLTestUtils(NewsItemSharingProviderGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const getPropertyMap = (floors, unitsOnFloor) => ({
@@ -327,6 +329,39 @@ async function updateTestNewsItemSharing (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestNewsItemSharingProvider (client, b2bApp, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!b2bApp || !b2bApp.id) throw new Error('no b2bApp.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestNewsItemSharingProvider logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        b2bApp: { connect: { id: b2bApp.id } },
+        ...extraAttrs,
+    }
+    const obj = await NewsItemSharingProvider.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestNewsItemSharingProvider (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestNewsItemSharingProvider logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await NewsItemSharingProvider.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -340,5 +375,6 @@ module.exports = {
     getNewsItemsRecipientsCountersByTestClient,
     NewsItemRecipientsExportTask, createTestNewsItemRecipientsExportTask, updateTestNewsItemRecipientsExportTask,
         NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing,
+    NewsItemSharingProvider, createTestNewsItemSharingProvider, updateTestNewsItemSharingProvider,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

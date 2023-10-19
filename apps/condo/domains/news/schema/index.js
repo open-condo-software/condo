@@ -10,6 +10,7 @@ const { NewsItemScope } = require('./NewsItemScope')
 const { NewsItemTemplate } = require('./NewsItemTemplate')
 const { NewsItemUserRead } = require('./NewsItemUserRead')
 const { NewsItemSharing } = require('./NewsItemSharing')
+const { NewsItemSharingProvider } = require('./NewsItemSharingProvider')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -20,5 +21,6 @@ module.exports = {
     GetNewsItemsRecipientsCountersService,
     NewsItemRecipientsExportTask,
     NewsItemSharing,
+    NewsItemSharingProvider,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
