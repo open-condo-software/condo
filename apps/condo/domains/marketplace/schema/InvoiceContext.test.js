@@ -14,6 +14,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { TAX_REGIME_SIMPLE, DEFAULT_IMPLICIT_FEE_PERCENT } = require('@condo/domains/marketplace/constants')
 const {
     InvoiceContext,
     createTestInvoiceContext,
@@ -44,6 +45,7 @@ describe('InvoiceContext', () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const [obj, attrs] = await createTestInvoiceContext(adminClient, o10n)
                 expectValuesOfCommonFields(obj, attrs, adminClient)
+                expect(Number(obj.implicitFeePercent)).toEqual(Number(DEFAULT_IMPLICIT_FEE_PERCENT))
             })
 
             test('support can', async () => {
@@ -53,8 +55,9 @@ describe('InvoiceContext', () => {
             })
 
             test('staff with permission can', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [o10n] = await createTestOrganization(adminClient)
+
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageInvoiceContexts: true })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
@@ -342,7 +345,7 @@ describe('InvoiceContext', () => {
                 })
             }, {
                 code: 'BAD_USER_INPUT',
-                type: 'INVALID_SETTINGS',
+                type: 'INVALID_INVOICE_CONTEXT_SETTINGS',
             })
         })
 
@@ -357,7 +360,19 @@ describe('InvoiceContext', () => {
                 })
             }, {
                 code: 'BAD_USER_INPUT',
-                type: 'INVALID_SETTINGS',
+                type: 'INVALID_INVOICE_CONTEXT_SETTINGS',
+            })
+        })
+
+        test('vat=0% is not correct for taxRegime=simple', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, { taxRegime: TAX_REGIME_SIMPLE, vatPercent: 0 })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TAX_REGIME_AND_VAT_NOT_MATCHED',
+                message: 'Tax regime and vat values are not matched',
             })
         })
     })
