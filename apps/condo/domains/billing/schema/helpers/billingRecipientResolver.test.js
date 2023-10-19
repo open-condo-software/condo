@@ -65,8 +65,7 @@ describe('Logic tests',  () => {
         expect(updatedRecipient).toHaveProperty('tin', payload.tin)
         expect(updatedRecipient).toHaveProperty('bic', payload.routingNumber)
         expect(updatedRecipient).toHaveProperty('bankAccount', payload.bankAccount)
-        !expect(updatedRecipient.offsettingAccount).toEqual(recipient.offsettingAccount)
-        !expect(updatedRecipient.territoryCode).toEqual(recipient.territoryCode)
+        expect(updatedRecipient.name).not.toEqual(recipient.name)
         expect(updatedRecipient).toHaveProperty('isApproved', false)
     })
 
