@@ -10,7 +10,7 @@ const { AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
+const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
     ERROR_INVALID_INVOICE_ROWS,
@@ -35,6 +35,28 @@ const ERRORS = {
     },
 }
 
+const INVOICE_ROW_GQL_TYPE_NAME = 'InvoiceRowSchemaField'
+const INVOICE_ROW_GQL_INPUT_NAME = 'InvoiceRowSchemaFieldInput'
+
+const invoiceRowSchemaFields = {
+    name: 'String!',
+    toPay: 'String!',
+    count: 'Int!',
+    vat: 'String',
+    salesTax: 'String',
+    sku: 'String!',
+}
+
+const rowsGqlSchemaTypes = `
+    type ${INVOICE_ROW_GQL_TYPE_NAME} {
+        ${render(invoiceRowSchemaFields)}
+    }
+    
+    input ${INVOICE_ROW_GQL_INPUT_NAME} {
+        ${render(invoiceRowSchemaFields)}
+    }
+`
+
 const ajv = new Ajv()
 addFormats(ajv)
 
@@ -50,7 +72,7 @@ const rowsFieldSchema = {
             salesTax: { type: 'string' },
             sku: { type: 'string' },
         },
-        required: ['name', 'toPay'],
+        required: ['name', 'toPay', 'count', 'sku'],
         additionalProperties: false,
     },
 }
@@ -113,6 +135,17 @@ const Invoice = new GQLListSchema('Invoice', {
             hooks: {
                 validateInput: validateRowsField,
             },
+            extendGraphQLTypes: [rowsGqlSchemaTypes],
+            graphQLInputType: `[${INVOICE_ROW_GQL_INPUT_NAME}!]`,
+            graphQLReturnType: `[${INVOICE_ROW_GQL_TYPE_NAME}!]`,
+            graphQLAdminFragment: `{ ${Object.keys(invoiceRowSchemaFields).join(' ')} }`,
+        },
+
+        ticket: {
+            schemaDoc: 'The ticket related to this invoice',
+            type: 'Relationship',
+            ref: 'Ticket',
+            kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
         contact: {
