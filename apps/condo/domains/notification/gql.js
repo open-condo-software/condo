@@ -58,6 +58,9 @@ const MessageBatch = generateGqlQueries('MessageBatch', MESSAGE_BATCH_FIELDS)
 const NOTIFICATION_USER_SETTING_FIELDS = `{ user { id } messageType messageTransport isEnabled ${COMMON_FIELDS} }`
 const NotificationUserSetting = generateGqlQueries('NotificationUserSetting', NOTIFICATION_USER_SETTING_FIELDS)
 
+const TELEGRAM_USER_CHAT_FIELDS = `{ user { id } telegramChatId ${COMMON_FIELDS} }`
+const TelegramUserChat = generateGqlQueries('TelegramUserChat', TELEGRAM_USER_CHAT_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -72,5 +75,6 @@ module.exports = {
     MessageOrganizationBlackList,
     MessageBatch,
     NotificationUserSetting,
+    TelegramUserChat,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

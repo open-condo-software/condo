@@ -33,6 +33,7 @@ const {
 } = require('@condo/domains/notification/gql')
 
 const { NotificationUserSetting: NotificationUserSettingGQL } = require('@condo/domains/notification/gql')
+const { TelegramUserChat: TelegramUserChatGQL } = require('@condo/domains/notification/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const Message = generateGQLTestUtils(MessageGQL)
@@ -43,6 +44,7 @@ const MessageOrganizationBlackList = generateGQLTestUtils(MessageOrganizationBla
 const MessageBatch = generateGQLTestUtils(MessageBatchGQL)
 
 const NotificationUserSetting = generateGQLTestUtils(NotificationUserSettingGQL)
+const TelegramUserChat = generateGQLTestUtils(TelegramUserChatGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const lang = 'en'
@@ -318,6 +320,39 @@ async function updateTestNotificationUserSetting (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestTelegramUserChat (client, user, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!user || !user.id) throw new Error('no user.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestTelegramUserChat logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        user: { connect: { id: user.id } },
+        ...extraAttrs,
+    }
+    const obj = await TelegramUserChat.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestTelegramUserChat (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestTelegramUserChat logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await TelegramUserChat.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -331,5 +366,6 @@ module.exports = {
     updateTestMessageOrganizationBlackList,
     MessageBatch, createTestMessageBatch, updateTestMessageBatch,
     NotificationUserSetting, createTestNotificationUserSetting, updateTestNotificationUserSetting,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+        TelegramUserChat, createTestTelegramUserChat, updateTestTelegramUserChat,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }
