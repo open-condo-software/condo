@@ -10,6 +10,7 @@ const { AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
@@ -122,11 +123,7 @@ const Invoice = new GQLListSchema('Invoice', {
             type: 'Text',
         },
 
-        toPay: {
-            schemaDoc: 'How much money the payer must pay',
-            type: 'Decimal',
-            isRequired: true,
-        },
+        toPay: MONEY_AMOUNT_FIELD,
 
         rows: {
             schemaDoc: 'The list of paid items',
