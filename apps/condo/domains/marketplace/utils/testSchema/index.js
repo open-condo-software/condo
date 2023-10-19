@@ -197,8 +197,6 @@ async function updateTestMarketItemFile (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestMarketItemFile logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
