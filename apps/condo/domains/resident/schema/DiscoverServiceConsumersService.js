@@ -281,7 +281,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                             billingReceiptsIdsWithoutDuplicates.push(lastReceipt.account.id)
                         } else {
                             // It's impossible but must be logged :)
-                            logger.warn({ msg: `There are duplicated billing accounts ids with no receipts: ${billingAccountsIds.join(',')}` })
+                            logger.warn({ msg: 'Duplicated billing accounts without receipts', billingAccountsIds })
                         }
                     }
                 }
@@ -500,11 +500,11 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 }
 
                 logger.info({
-                    msg: 'Created ServiceConsumers',
-                    payload: { billingAccountsIds },
+                    msg: 'DiscoverServiceConsumersService created ServiceConsumers',
+                    billingAccountsIds,
                     statistics,
+                    data: discoveringSteps,
                     reqId,
-                    discoveringSteps,
                 })
 
                 return { status: 'success', statistics }
