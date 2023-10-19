@@ -14,6 +14,7 @@ const { InvoiceContext: InvoiceContextGQL, Invoice: InvoiceGQL } = require('@con
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
 const { VAT_OPTIONS, TAX_REGIME_GENEGAL } = require('@condo/domains/marketplace/constants')
+const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
@@ -21,6 +22,7 @@ const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
 const MarketItem = generateGQLTestUtils(MarketItemGQL)
 const Invoice = generateGQLTestUtils(InvoiceGQL)
 
+const MarketItemFile = generateGQLTestUtils(MarketItemFileGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
@@ -174,6 +176,38 @@ async function updateTestInvoice (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMarketItemFile (client, marketItem, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!marketItem || !marketItem.id) throw new Error('no marketItem.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        file: new UploadingFile(TEST_FILE),
+        marketItem: { connect: { id: marketItem.id } },
+        ...extraAttrs,
+    }
+    const obj = await MarketItemFile.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMarketItemFile (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMarketItemFile logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MarketItemFile.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -182,5 +216,6 @@ module.exports = {
     MarketItem, createTestMarketItem, updateTestMarketItem,
     Invoice, createTestInvoice, updateTestInvoice,
     generateInvoiceRow,
+    MarketItemFile, createTestMarketItemFile, updateTestMarketItemFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
