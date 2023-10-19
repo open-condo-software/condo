@@ -9,6 +9,7 @@ import { useIntl } from 'react-intl'
 
 import { Globe } from '@open-condo/icons'
 import { Space } from '@open-condo/ui'
+import { Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/colors'
 
 import { LOCALES } from '@/domains/common/constants/locales'
@@ -34,13 +35,23 @@ export const Header: React.FC = () => {
 
     return (
         <header className={styles.header}>
-            <Link href='/' className={styles.logoContainer} locale={router.locale}>
-                <div className={styles.logoImageWrapper}>
-                    <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
-                </div>
-                <span className={`${logoFont.className} ${styles.logoText}`}>{ServiceShortTitle}</span>
-            </Link>
-            <Space direction='horizontal' align='center' size={24}>
+            <Space direction='horizontal' size={40}>
+                <Link href='/' className={styles.logoContainer} locale={router.locale}>
+                    <div className={styles.logoImageWrapper}>
+                        <Image className={styles.logo} src='/logo.svg' alt='Logo' fill priority draggable={false}/>
+                    </div>
+                    <span
+                        className={`${logoFont.className} ${styles.logoText}`}
+                    >
+                        {ServiceShortTitle}
+                    </span>
+                </Link>
+                <Space direction='horizontal' size={20}>
+                    <Typography.Title level={4} type='secondary'>Документация</Typography.Title>
+                    <Typography.Title level={4} type='secondary'>Мои приложения</Typography.Title>
+                </Space>
+            </Space>
+            <Space direction='horizontal' align='center' size={20}>
                 <Dropdown
                     menu={{
                         items: LOCALES.map(locale => ({

@@ -2,10 +2,8 @@
   position: relative;
   display: flex;
   flex-direction: row;
-  align-items: flex-end;
-  width: 300px;
+  align-items: center;
   height: 28px;
-  padding-right: 40px;
   text-decoration: none;
   column-gap: 10px;
 }
@@ -13,6 +11,7 @@
 .logo-image-wrapper {
   width: 28px;
   height: 28px;
+  transform: translateY(-2px);
 }
 
 .logo-text {

@@ -10,7 +10,7 @@ import { AuthForm } from './AuthForm'
 
 import { useAuth } from '@/lib/auth'
 
-const MAX_NAME_LENGTH = 27
+const MAX_NAME_LENGTH = 18
 
 function formatName (name?: string | null) {
     if (!name) return name
