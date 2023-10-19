@@ -9,9 +9,7 @@ const {
     makeClient,
     expectToThrowAuthenticationErrorToResult,
     expectToThrowAccessDeniedErrorToResult,
-    expectToThrowGQLError,
     expectToThrowGraphQLRequestError,
-    setFeatureFlag,
 } = require('@open-condo/keystone/test.utils')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -29,10 +27,8 @@ const {
     createTestMultiPayment,
     updateTestMultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { ERRORS } = require('@condo/domains/analytics/schema/GetOverviewDashboardService')
 const { getOverviewDashboardByTestClient } = require('@condo/domains/analytics/utils/testSchema')
 const { updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/miniapp/constants')
 const {
     createTestOrganization,
@@ -57,14 +53,6 @@ const INCIDENT_PAYLOAD = {
     details: faker.lorem.sentence(),
     workStart: faker.date.recent().toISOString(),
 }
-
-beforeEach(() => {
-    setFeatureFlag(ANALYTICS_V3, true)
-})
-
-afterAll(() => {
-    setFeatureFlag(ANALYTICS_V3, false)
-})
 
 describe('GetOverviewDashboardService', () => {
     let admin
@@ -513,18 +501,6 @@ describe('GetOverviewDashboardService', () => {
     })
 
     describe('Validations', () => {
-        it('cannot query OverviewDashboard without organization feature provided', async () => {
-            setFeatureFlag(ANALYTICS_V3, false)
-            const [organization] = await createTestOrganization(admin)
-
-            await expectToThrowGQLError(async () => {
-                await getOverviewDashboardByTestClient(admin, {
-                    where: { organization: organization.id, dateFrom, dateTo },
-                    groupBy: { aggregatePeriod: 'day' },
-                })
-            }, ERRORS.FEATURE_IS_DISABLED, 'result')
-        })
-
         it('cannot query OverviewDashboard with unsupported period type', async () => {
             await expectToThrowGraphQLRequestError(async () => {
                 await getOverviewDashboardByTestClient(admin, {
