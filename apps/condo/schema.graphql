@@ -39970,6 +39970,394 @@ input NotificationUserSettingsCreateInput {
   data: NotificationUserSettingCreateInput
 }
 
+enum TelegramUserChatHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type TelegramUserChatHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the TelegramUserChatHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the TelegramUserChatHistoryRecord List config, or
+   3. As an alias to a 'name' field on the TelegramUserChatHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the TelegramUserChatHistoryRecord List.
+  """
+  _label_: String
+  user: String
+  telegramChatId: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TelegramUserChatHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TelegramUserChatHistoryRecordWhereInput {
+  AND: [TelegramUserChatHistoryRecordWhereInput]
+  OR: [TelegramUserChatHistoryRecordWhereInput]
+  user: String
+  user_not: String
+  user_in: [String]
+  user_not_in: [String]
+  telegramChatId: String
+  telegramChatId_not: String
+  telegramChatId_contains: String
+  telegramChatId_not_contains: String
+  telegramChatId_starts_with: String
+  telegramChatId_not_starts_with: String
+  telegramChatId_ends_with: String
+  telegramChatId_not_ends_with: String
+  telegramChatId_i: String
+  telegramChatId_not_i: String
+  telegramChatId_contains_i: String
+  telegramChatId_not_contains_i: String
+  telegramChatId_starts_with_i: String
+  telegramChatId_not_starts_with_i: String
+  telegramChatId_ends_with_i: String
+  telegramChatId_not_ends_with_i: String
+  telegramChatId_in: [String]
+  telegramChatId_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: TelegramUserChatHistoryRecordHistoryActionType
+  history_action_not: TelegramUserChatHistoryRecordHistoryActionType
+  history_action_in: [TelegramUserChatHistoryRecordHistoryActionType]
+  history_action_not_in: [TelegramUserChatHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input TelegramUserChatHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortTelegramUserChatHistoryRecordsBy {
+  telegramChatId_ASC
+  telegramChatId_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input TelegramUserChatHistoryRecordUpdateInput {
+  user: String
+  telegramChatId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TelegramUserChatHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TelegramUserChatHistoryRecordsUpdateInput {
+  id: ID!
+  data: TelegramUserChatHistoryRecordUpdateInput
+}
+
+input TelegramUserChatHistoryRecordCreateInput {
+  user: String
+  telegramChatId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: TelegramUserChatHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input TelegramUserChatHistoryRecordsCreateInput {
+  data: TelegramUserChatHistoryRecordCreateInput
+}
+
+""" Link between condo user and user's telegram chat with bot """
+type TelegramUserChat {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the TelegramUserChat List config, or
+   2. As an alias to the field set on 'labelField' in the TelegramUserChat List config, or
+   3. As an alias to a 'name' field on the TelegramUserChat List (if one exists), or
+   4. As an alias to the 'id' field on the TelegramUserChat List.
+  """
+  _label_: String
+
+  """ Condo user """
+  user: User
+
+  """ Id of user's telegram chat with bot """
+  telegramChatId: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input TelegramUserChatWhereInput {
+  AND: [TelegramUserChatWhereInput]
+  OR: [TelegramUserChatWhereInput]
+  user: UserWhereInput
+  user_is_null: Boolean
+  telegramChatId: String
+  telegramChatId_not: String
+  telegramChatId_contains: String
+  telegramChatId_not_contains: String
+  telegramChatId_starts_with: String
+  telegramChatId_not_starts_with: String
+  telegramChatId_ends_with: String
+  telegramChatId_not_ends_with: String
+  telegramChatId_i: String
+  telegramChatId_not_i: String
+  telegramChatId_contains_i: String
+  telegramChatId_not_contains_i: String
+  telegramChatId_starts_with_i: String
+  telegramChatId_not_starts_with_i: String
+  telegramChatId_ends_with_i: String
+  telegramChatId_not_ends_with_i: String
+  telegramChatId_in: [String]
+  telegramChatId_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input TelegramUserChatWhereUniqueInput {
+  id: ID!
+}
+
+enum SortTelegramUserChatsBy {
+  user_ASC
+  user_DESC
+  telegramChatId_ASC
+  telegramChatId_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input TelegramUserChatUpdateInput {
+  user: UserRelateToOneInput
+  telegramChatId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input TelegramUserChatsUpdateInput {
+  id: ID!
+  data: TelegramUserChatUpdateInput
+}
+
+input TelegramUserChatCreateInput {
+  user: UserRelateToOneInput
+  telegramChatId: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input TelegramUserChatsCreateInput {
+  data: TelegramUserChatCreateInput
+}
+
 enum ContactHistoryRecordHistoryActionType {
   c
   u
@@ -74182,6 +74570,34 @@ type Query {
   """ Retrieve the meta-data for the NotificationUserSetting list. """
   _NotificationUserSettingsMeta: _ListMeta
 
+  """ Search for all TelegramUserChatHistoryRecord items which match the where clause. 
+  """
+  allTelegramUserChatHistoryRecords(where: TelegramUserChatHistoryRecordWhereInput, search: String, sortBy: [SortTelegramUserChatHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [TelegramUserChatHistoryRecord]
+
+  """ Search for the TelegramUserChatHistoryRecord item with the matching ID. 
+  """
+  TelegramUserChatHistoryRecord(where: TelegramUserChatHistoryRecordWhereUniqueInput!): TelegramUserChatHistoryRecord
+
+  """ Perform a meta-query on all TelegramUserChatHistoryRecord items which match the where clause. 
+  """
+  _allTelegramUserChatHistoryRecordsMeta(where: TelegramUserChatHistoryRecordWhereInput, search: String, sortBy: [SortTelegramUserChatHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the TelegramUserChatHistoryRecord list. """
+  _TelegramUserChatHistoryRecordsMeta: _ListMeta
+
+  """ Search for all TelegramUserChat items which match the where clause. """
+  allTelegramUserChats(where: TelegramUserChatWhereInput, search: String, sortBy: [SortTelegramUserChatsBy!], orderBy: String, first: Int, skip: Int): [TelegramUserChat]
+
+  """ Search for the TelegramUserChat item with the matching ID. """
+  TelegramUserChat(where: TelegramUserChatWhereUniqueInput!): TelegramUserChat
+
+  """ Perform a meta-query on all TelegramUserChat items which match the where clause. 
+  """
+  _allTelegramUserChatsMeta(where: TelegramUserChatWhereInput, search: String, sortBy: [SortTelegramUserChatsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the TelegramUserChat list. """
+  _TelegramUserChatsMeta: _ListMeta
+
   """ Search for all ContactHistoryRecord items which match the where clause. 
   """
   allContactHistoryRecords(where: ContactHistoryRecordWhereInput, search: String, sortBy: [SortContactHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [ContactHistoryRecord]
@@ -78373,6 +78789,42 @@ type Mutation {
 
   """ Delete multiple NotificationUserSetting items by ID. """
   deleteNotificationUserSettings(ids: [ID!]): [NotificationUserSetting]
+
+  """ Create a single TelegramUserChatHistoryRecord item. """
+  createTelegramUserChatHistoryRecord(data: TelegramUserChatHistoryRecordCreateInput): TelegramUserChatHistoryRecord
+
+  """ Create multiple TelegramUserChatHistoryRecord items. """
+  createTelegramUserChatHistoryRecords(data: [TelegramUserChatHistoryRecordsCreateInput]): [TelegramUserChatHistoryRecord]
+
+  """ Update a single TelegramUserChatHistoryRecord item by ID. """
+  updateTelegramUserChatHistoryRecord(id: ID!, data: TelegramUserChatHistoryRecordUpdateInput): TelegramUserChatHistoryRecord
+
+  """ Update multiple TelegramUserChatHistoryRecord items by ID. """
+  updateTelegramUserChatHistoryRecords(data: [TelegramUserChatHistoryRecordsUpdateInput]): [TelegramUserChatHistoryRecord]
+
+  """ Delete a single TelegramUserChatHistoryRecord item by ID. """
+  deleteTelegramUserChatHistoryRecord(id: ID!): TelegramUserChatHistoryRecord
+
+  """ Delete multiple TelegramUserChatHistoryRecord items by ID. """
+  deleteTelegramUserChatHistoryRecords(ids: [ID!]): [TelegramUserChatHistoryRecord]
+
+  """ Create a single TelegramUserChat item. """
+  createTelegramUserChat(data: TelegramUserChatCreateInput): TelegramUserChat
+
+  """ Create multiple TelegramUserChat items. """
+  createTelegramUserChats(data: [TelegramUserChatsCreateInput]): [TelegramUserChat]
+
+  """ Update a single TelegramUserChat item by ID. """
+  updateTelegramUserChat(id: ID!, data: TelegramUserChatUpdateInput): TelegramUserChat
+
+  """ Update multiple TelegramUserChat items by ID. """
+  updateTelegramUserChats(data: [TelegramUserChatsUpdateInput]): [TelegramUserChat]
+
+  """ Delete a single TelegramUserChat item by ID. """
+  deleteTelegramUserChat(id: ID!): TelegramUserChat
+
+  """ Delete multiple TelegramUserChat items by ID. """
+  deleteTelegramUserChats(ids: [ID!]): [TelegramUserChat]
 
   """ Create a single ContactHistoryRecord item. """
   createContactHistoryRecord(data: ContactHistoryRecordCreateInput): ContactHistoryRecord

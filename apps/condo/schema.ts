@@ -36744,6 +36744,30 @@ export type Mutation = {
   deleteNotificationUserSetting?: Maybe<NotificationUserSetting>;
   /**  Delete multiple NotificationUserSetting items by ID.  */
   deleteNotificationUserSettings?: Maybe<Array<Maybe<NotificationUserSetting>>>;
+  /**  Create a single TelegramUserChatHistoryRecord item.  */
+  createTelegramUserChatHistoryRecord?: Maybe<TelegramUserChatHistoryRecord>;
+  /**  Create multiple TelegramUserChatHistoryRecord items.  */
+  createTelegramUserChatHistoryRecords?: Maybe<Array<Maybe<TelegramUserChatHistoryRecord>>>;
+  /**  Update a single TelegramUserChatHistoryRecord item by ID.  */
+  updateTelegramUserChatHistoryRecord?: Maybe<TelegramUserChatHistoryRecord>;
+  /**  Update multiple TelegramUserChatHistoryRecord items by ID.  */
+  updateTelegramUserChatHistoryRecords?: Maybe<Array<Maybe<TelegramUserChatHistoryRecord>>>;
+  /**  Delete a single TelegramUserChatHistoryRecord item by ID.  */
+  deleteTelegramUserChatHistoryRecord?: Maybe<TelegramUserChatHistoryRecord>;
+  /**  Delete multiple TelegramUserChatHistoryRecord items by ID.  */
+  deleteTelegramUserChatHistoryRecords?: Maybe<Array<Maybe<TelegramUserChatHistoryRecord>>>;
+  /**  Create a single TelegramUserChat item.  */
+  createTelegramUserChat?: Maybe<TelegramUserChat>;
+  /**  Create multiple TelegramUserChat items.  */
+  createTelegramUserChats?: Maybe<Array<Maybe<TelegramUserChat>>>;
+  /**  Update a single TelegramUserChat item by ID.  */
+  updateTelegramUserChat?: Maybe<TelegramUserChat>;
+  /**  Update multiple TelegramUserChat items by ID.  */
+  updateTelegramUserChats?: Maybe<Array<Maybe<TelegramUserChat>>>;
+  /**  Delete a single TelegramUserChat item by ID.  */
+  deleteTelegramUserChat?: Maybe<TelegramUserChat>;
+  /**  Delete multiple TelegramUserChat items by ID.  */
+  deleteTelegramUserChats?: Maybe<Array<Maybe<TelegramUserChat>>>;
   /**  Create a single ContactHistoryRecord item.  */
   createContactHistoryRecord?: Maybe<ContactHistoryRecord>;
   /**  Create multiple ContactHistoryRecord items.  */
@@ -44794,6 +44818,68 @@ export type MutationDeleteNotificationUserSettingArgs = {
 
 
 export type MutationDeleteNotificationUserSettingsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTelegramUserChatHistoryRecordArgs = {
+  data?: Maybe<TelegramUserChatHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateTelegramUserChatHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TelegramUserChatHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateTelegramUserChatHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TelegramUserChatHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateTelegramUserChatHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<TelegramUserChatHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTelegramUserChatHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTelegramUserChatHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateTelegramUserChatArgs = {
+  data?: Maybe<TelegramUserChatCreateInput>;
+};
+
+
+export type MutationCreateTelegramUserChatsArgs = {
+  data?: Maybe<Array<Maybe<TelegramUserChatsCreateInput>>>;
+};
+
+
+export type MutationUpdateTelegramUserChatArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<TelegramUserChatUpdateInput>;
+};
+
+
+export type MutationUpdateTelegramUserChatsArgs = {
+  data?: Maybe<Array<Maybe<TelegramUserChatsUpdateInput>>>;
+};
+
+
+export type MutationDeleteTelegramUserChatArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteTelegramUserChatsArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -60899,6 +60985,22 @@ export type Query = {
   _allNotificationUserSettingsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the NotificationUserSetting list.  */
   _NotificationUserSettingsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TelegramUserChatHistoryRecord items which match the where clause.  */
+  allTelegramUserChatHistoryRecords?: Maybe<Array<Maybe<TelegramUserChatHistoryRecord>>>;
+  /**  Search for the TelegramUserChatHistoryRecord item with the matching ID.  */
+  TelegramUserChatHistoryRecord?: Maybe<TelegramUserChatHistoryRecord>;
+  /**  Perform a meta-query on all TelegramUserChatHistoryRecord items which match the where clause.  */
+  _allTelegramUserChatHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TelegramUserChatHistoryRecord list.  */
+  _TelegramUserChatHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all TelegramUserChat items which match the where clause.  */
+  allTelegramUserChats?: Maybe<Array<Maybe<TelegramUserChat>>>;
+  /**  Search for the TelegramUserChat item with the matching ID.  */
+  TelegramUserChat?: Maybe<TelegramUserChat>;
+  /**  Perform a meta-query on all TelegramUserChat items which match the where clause.  */
+  _allTelegramUserChatsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the TelegramUserChat list.  */
+  _TelegramUserChatsMeta?: Maybe<_ListMeta>;
   /**  Search for all ContactHistoryRecord items which match the where clause.  */
   allContactHistoryRecords?: Maybe<Array<Maybe<ContactHistoryRecord>>>;
   /**  Search for the ContactHistoryRecord item with the matching ID.  */
@@ -65267,6 +65369,56 @@ export type Query_AllNotificationUserSettingsMetaArgs = {
   where?: Maybe<NotificationUserSettingWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortNotificationUserSettingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTelegramUserChatHistoryRecordsArgs = {
+  where?: Maybe<TelegramUserChatHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTelegramUserChatHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTelegramUserChatHistoryRecordArgs = {
+  where: TelegramUserChatHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllTelegramUserChatHistoryRecordsMetaArgs = {
+  where?: Maybe<TelegramUserChatHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTelegramUserChatHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllTelegramUserChatsArgs = {
+  where?: Maybe<TelegramUserChatWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTelegramUserChatsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryTelegramUserChatArgs = {
+  where: TelegramUserChatWhereUniqueInput;
+};
+
+
+export type Query_AllTelegramUserChatsMetaArgs = {
+  where?: Maybe<TelegramUserChatWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortTelegramUserChatsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -78176,6 +78328,50 @@ export enum SortServiceSubscriptionsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortTelegramUserChatHistoryRecordsBy {
+  TelegramChatIdAsc = 'telegramChatId_ASC',
+  TelegramChatIdDesc = 'telegramChatId_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortTelegramUserChatsBy {
+  UserAsc = 'user_ASC',
+  UserDesc = 'user_DESC',
+  TelegramChatIdAsc = 'telegramChatId_ASC',
+  TelegramChatIdDesc = 'telegramChatId_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortTicketCategoryClassifierHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
@@ -79836,6 +80032,343 @@ export type SyncRemoteClientInput = {
   pushTokenVoIP?: Maybe<Scalars['String']>;
   pushTransportVoIP?: Maybe<PushTransportType>;
   pushTypeVoIP?: Maybe<PushType>;
+};
+
+/**  Link between condo user and user's telegram chat with bot  */
+export type TelegramUserChat = {
+  __typename?: 'TelegramUserChat';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TelegramUserChat List config, or
+   *  2. As an alias to the field set on 'labelField' in the TelegramUserChat List config, or
+   *  3. As an alias to a 'name' field on the TelegramUserChat List (if one exists), or
+   *  4. As an alias to the 'id' field on the TelegramUserChat List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Condo user  */
+  user?: Maybe<User>;
+  /**  Id of user's telegram chat with bot  */
+  telegramChatId?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type TelegramUserChatCreateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  telegramChatId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type TelegramUserChatHistoryRecord = {
+  __typename?: 'TelegramUserChatHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the TelegramUserChatHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the TelegramUserChatHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the TelegramUserChatHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the TelegramUserChatHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  user?: Maybe<Scalars['String']>;
+  telegramChatId?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TelegramUserChatHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TelegramUserChatHistoryRecordCreateInput = {
+  user?: Maybe<Scalars['String']>;
+  telegramChatId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TelegramUserChatHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum TelegramUserChatHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type TelegramUserChatHistoryRecordUpdateInput = {
+  user?: Maybe<Scalars['String']>;
+  telegramChatId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<TelegramUserChatHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type TelegramUserChatHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<TelegramUserChatHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TelegramUserChatHistoryRecordWhereInput>>>;
+  user?: Maybe<Scalars['String']>;
+  user_not?: Maybe<Scalars['String']>;
+  user_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  user_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  telegramChatId?: Maybe<Scalars['String']>;
+  telegramChatId_not?: Maybe<Scalars['String']>;
+  telegramChatId_contains?: Maybe<Scalars['String']>;
+  telegramChatId_not_contains?: Maybe<Scalars['String']>;
+  telegramChatId_starts_with?: Maybe<Scalars['String']>;
+  telegramChatId_not_starts_with?: Maybe<Scalars['String']>;
+  telegramChatId_ends_with?: Maybe<Scalars['String']>;
+  telegramChatId_not_ends_with?: Maybe<Scalars['String']>;
+  telegramChatId_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_i?: Maybe<Scalars['String']>;
+  telegramChatId_contains_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_contains_i?: Maybe<Scalars['String']>;
+  telegramChatId_starts_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_starts_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_ends_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_ends_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  telegramChatId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<TelegramUserChatHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<TelegramUserChatHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<TelegramUserChatHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<TelegramUserChatHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type TelegramUserChatHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TelegramUserChatHistoryRecordsCreateInput = {
+  data?: Maybe<TelegramUserChatHistoryRecordCreateInput>;
+};
+
+export type TelegramUserChatHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TelegramUserChatHistoryRecordUpdateInput>;
+};
+
+export type TelegramUserChatUpdateInput = {
+  user?: Maybe<UserRelateToOneInput>;
+  telegramChatId?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type TelegramUserChatWhereInput = {
+  AND?: Maybe<Array<Maybe<TelegramUserChatWhereInput>>>;
+  OR?: Maybe<Array<Maybe<TelegramUserChatWhereInput>>>;
+  user?: Maybe<UserWhereInput>;
+  user_is_null?: Maybe<Scalars['Boolean']>;
+  telegramChatId?: Maybe<Scalars['String']>;
+  telegramChatId_not?: Maybe<Scalars['String']>;
+  telegramChatId_contains?: Maybe<Scalars['String']>;
+  telegramChatId_not_contains?: Maybe<Scalars['String']>;
+  telegramChatId_starts_with?: Maybe<Scalars['String']>;
+  telegramChatId_not_starts_with?: Maybe<Scalars['String']>;
+  telegramChatId_ends_with?: Maybe<Scalars['String']>;
+  telegramChatId_not_ends_with?: Maybe<Scalars['String']>;
+  telegramChatId_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_i?: Maybe<Scalars['String']>;
+  telegramChatId_contains_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_contains_i?: Maybe<Scalars['String']>;
+  telegramChatId_starts_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_starts_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_ends_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_not_ends_with_i?: Maybe<Scalars['String']>;
+  telegramChatId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  telegramChatId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type TelegramUserChatWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type TelegramUserChatsCreateInput = {
+  data?: Maybe<TelegramUserChatCreateInput>;
+};
+
+export type TelegramUserChatsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<TelegramUserChatUpdateInput>;
 };
 
 /**  Users request or contact with the user. It has fields `clientName`, `clientPhone`, `clientEmail`, which stores contact information at the moment of creating or updating. Values of these fields are independent from related entities, like Contact, Resident etc. If by some reason related entities will be deleted, unavailable or will change its contact information, these fields will stay unchanged.So, by creating a new ticket with connection to some contact entity (Contact, Resident), these fields will be populated by its contact information if other values are not explicitly provided.  */
