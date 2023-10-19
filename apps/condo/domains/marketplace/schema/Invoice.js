@@ -133,8 +133,8 @@ const Invoice = new GQLListSchema('Invoice', {
                 validateInput: validateRowsField,
             },
             extendGraphQLTypes: [rowsGqlSchemaTypes],
-            graphQLInputType: `[${INVOICE_ROW_GQL_INPUT_NAME}!]`,
-            graphQLReturnType: `[${INVOICE_ROW_GQL_TYPE_NAME}!]`,
+            graphQLInputType: `[${INVOICE_ROW_GQL_INPUT_NAME}!]!`,
+            graphQLReturnType: `[${INVOICE_ROW_GQL_TYPE_NAME}!]!`,
             graphQLAdminFragment: `{ ${Object.keys(invoiceRowSchemaFields).join(' ')} }`,
         },
 
