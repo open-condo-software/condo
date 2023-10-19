@@ -586,6 +586,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'NO_INVOICE_RECEIVERS',
                 message: 'Nobody sees this invoice. You must set property+unitType+unitName or accountNumber',
+                messageForUser: 'marketplace.invoice.error.noReceivers',
             })
         })
 
@@ -598,6 +599,7 @@ describe('Invoice', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'INVOICE_ALREADY_PAID',
                 message: 'Changing of paid invoice is forbidden',
+                messageForUser: 'marketplace.invoice.error.alreadyPaid',
             })
         })
     })

@@ -23,6 +23,11 @@ async function canReadInvoices ({ authentication: { item: user } }) {
 
     if (user.type === RESIDENT) {
         const residents = await find('Resident', { deletedAt: null, user: { id: user.id } })
+
+        if (residents.length === 0) {
+            return false
+        }
+
         const serviceConsumers = await find('ServiceConsumer', {
             deletedAt: null,
             resident: { id_in: map(residents, 'id') },
@@ -32,8 +37,8 @@ async function canReadInvoices ({ authentication: { item: user } }) {
             deletedAt: null,
             status: INVOICE_STATUS_PUBLISHED,
             OR: [
-                ...map(residents, (resident) => ({ AND: [{ property: { addressKey: resident.addressKey } }, { unitType: resident.unitType }, { unitName: resident.unitName }] })),
-                ...map(serviceConsumers, (serviceConsumer) => ({ AND: [{ context: { organization: { id: serviceConsumer.organization } } }, { accountNumber: serviceConsumer.accountNumber }] })),
+                ...residents.map((resident) => ({ AND: [{ property: { addressKey: resident.addressKey } }, { unitType: resident.unitType }, { unitName: resident.unitName }] })),
+                ...serviceConsumers.map((serviceConsumer) => ({ AND: [{ context: { organization: { id: serviceConsumer.organization } } }, { accountNumber: serviceConsumer.accountNumber }] })),
             ],
         }
 

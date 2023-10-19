@@ -17,7 +17,6 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 async function canReadInvoiceContexts ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
     if (user.isAdmin || user.isSupport) return {}
 
     return {

@@ -25,11 +25,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ERROR_NO_INVOICE_RECEIVERS,
         message: 'Nobody sees this invoice. You must set property+unitType+unitName or accountNumber',
+        messageForUser: 'marketplace.invoice.error.noReceivers',
     },
     ALREADY_PAID: {
         code: BAD_USER_INPUT,
         type: ERROR_INVOICE_ALREADY_PAID,
         message: 'Changing of paid invoice is forbidden',
+        messageForUser: 'marketplace.invoice.error.alreadyPaid',
     },
 }
 

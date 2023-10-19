@@ -2300,5 +2300,7 @@
   "incident.changeHistory.workFinish": "work finish",
   "incident.changeHistory.workType": "work type",
   "incident.hints.more.label": "More details",
-  "timezone.msk": "MSK"
+  "timezone.msk": "MSK",
+  "marketplace.invoice.error.noReceivers": "Nobody sees this invoice. You must set property+unitType+unitName or accountNumber",
+  "marketplace.invoice.error.alreadyPaid": "Changing of paid invoice is forbidden"
 }
