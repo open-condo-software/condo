@@ -2301,6 +2301,6 @@
   "incident.changeHistory.workType": "тип работ",
   "incident.hints.more.label": "Подробнее",
   "timezone.msk": "МСК",
-  "marketplace.invoice.error.noReceivers": "Не указан получатель счета",
-  "marketplace.invoice.error.alreadyPaid": "Нельзя изменять оплаченный счет"
+  "api.marketplace.invoice.error.noReceivers": "Не указан получатель счета",
+  "api.marketplace.invoice.error.alreadyPaid": "Нельзя изменять оплаченный счет"
 }
