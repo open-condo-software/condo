@@ -164,6 +164,38 @@ describe('Invoice', () => {
                 })
             })
 
+            test('each staff user can update only his organization\'s invoices', async () => {
+                const [o10n1] = await createTestOrganization(adminClient)
+                const [o10n2] = await createTestOrganization(adminClient)
+
+                const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1)
+                const [invoiceContext2] = await createTestInvoiceContext(adminClient, o10n2)
+
+                const [objCreated1] = await createTestInvoice(adminClient, invoiceContext1)
+                const [objCreated2] = await createTestInvoice(adminClient, invoiceContext2)
+
+                const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
+                const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [role1] = await createTestOrganizationEmployeeRole(adminClient, o10n1, {
+                    canReadInvoices: true,
+                    canManageInvoices: true,
+                })
+                await createTestOrganizationEmployee(adminClient, o10n1, client1.user, role1)
+
+                const [role2] = await createTestOrganizationEmployeeRole(adminClient, o10n2, {
+                    canReadInvoices: true,
+                    canManageInvoices: true,
+                })
+                await createTestOrganizationEmployee(adminClient, o10n2, client2.user, role2)
+
+                await updateTestInvoice(client1, objCreated1.id)
+                await expectToThrowAccessDeniedErrorToObj(async () => await updateTestInvoice(client1, objCreated2.id))
+
+                await updateTestInvoice(client2, objCreated2.id)
+                await expectToThrowAccessDeniedErrorToObj(async () => await updateTestInvoice(client2, objCreated1.id))
+            })
+
             test('anonymous can\'t', async () => {
                 const [objCreated] = await createTestInvoice(adminClient, dummyInvoiceContext)
 
