@@ -656,6 +656,7 @@ describe('Invoice', () => {
                 ['name', 'String!'],
                 ['toPay', 'String!'],
                 ['count', 'Int!'],
+                ['currencyCode', 'String!'],
             ]
 
             test.each(necessaryFields)('%s', async (fieldToOmit, omittedFieldType) => {

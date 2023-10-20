@@ -13,6 +13,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
+const { CURRENCY_CODE_FIELD, PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/marketplace/access/InvoiceContext')
 const {
@@ -120,11 +121,9 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             isRequired: false,
         },
 
-        salesTaxPercent: {
-            schemaDoc: 'The percentage of sales tax',
-            type: 'Decimal',
-            isRequired: false,
-        },
+        salesTaxPercent: PERCENT_FIELD,
+
+        currencyCode: CURRENCY_CODE_FIELD,
 
     },
     hooks: {

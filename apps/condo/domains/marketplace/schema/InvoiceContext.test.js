@@ -14,6 +14,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { TAX_REGIME_SIMPLE, DEFAULT_IMPLICIT_FEE_PERCENT } = require('@condo/domains/marketplace/constants')
 const {
     InvoiceContext,
@@ -374,6 +375,14 @@ describe('InvoiceContext', () => {
                 type: 'TAX_REGIME_AND_VAT_NOT_MATCHED',
                 message: 'Tax regime and vat values are not matched',
             })
+        })
+
+        test('salesTaxPercent must be between 0 and 100', async () => {
+            const [o10n1] = await createTestOrganization(adminClient)
+            const [o10n2] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n1, { salesTaxPercent: '-2' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
+            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n2, { salesTaxPercent: '200' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
         })
     })
 })

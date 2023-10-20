@@ -1906,6 +1906,7 @@
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Specified employee has already accepted invitation",
   "api.organizationEmployee.NOT_FOUND_ROLE": "Role not found for your organization",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Invalid phone number format",
+  "api.common.WRONG_PERCENT_VALUE": "Invalid percent value",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Incorrect propertyId was provided. Please check that this id related to passed organizationId",
   "api.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED": "The end of the work cannot be earlier than the start",
   "api.incident.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS": "The end of the work should be specified if the incident has status not actual",

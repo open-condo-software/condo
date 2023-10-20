@@ -33,6 +33,7 @@ async function createTestInvoiceContext (client, organization, extraAttrs = {}) 
         sender,
         organization: { connect: { id: organization.id } },
         taxRegime: TAX_REGIME_GENEGAL,
+        currencyCode: 'RUB',
         ...extraAttrs,
     }
     const obj = await InvoiceContext.create(client, attrs)
@@ -123,6 +124,7 @@ function generateInvoiceRow (attrs = {}) {
         name: faker.commerce.productName(),
         toPay: String(faker.commerce.price()),
         count: faker.datatype.number({ min: 1, max: 3 }),
+        currencyCode: 'RUB',
         vat: String(VAT_OPTIONS[0]),
         salesTax: String(faker.datatype.number({ min: 1, max: 7 })),
         sku: faker.random.word(),

@@ -4,11 +4,10 @@
 const { get } = require('lodash')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-const { AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
+const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
     ERROR_NO_INVOICE_RECEIVERS,
@@ -57,7 +56,7 @@ const Invoice = new GQLListSchema('Invoice', {
 
         number: {
             schemaDoc: 'The invoice number within organization',
-            type: AutoIncrementInteger,
+            type: 'AutoIncrementInteger',
             isRequired: true,
             autoIncrementScopeFields: ['context.organization'],
         },
@@ -70,10 +69,7 @@ const Invoice = new GQLListSchema('Invoice', {
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
         },
 
-        unitType: {
-            schemaDoc: 'The payer\'s unitType',
-            type: 'Text',
-        },
+        unitType: UNIT_TYPE_FIELD,
 
         unitName: {
             schemaDoc: 'The payer\'s unitName',
@@ -128,6 +124,8 @@ const Invoice = new GQLListSchema('Invoice', {
             }
 
             if (operation === 'update' && existingItem.status === INVOICE_STATUS_PAID) {
+                // TODO (DOMA-7447) prevent updating only for paid online (with Payment model) +TESTS
+                // In the case of cash it's may be needed to uncheck the "paid" status
                 throw new GQLError(ERRORS.ALREADY_PAID, context)
             }
 

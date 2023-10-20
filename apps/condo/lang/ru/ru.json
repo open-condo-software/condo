@@ -1906,6 +1906,7 @@
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Указанный сотрудник уже принял приглашение",
   "api.organizationEmployee.NOT_FOUND_ROLE": "Роль не найдена в вашей организаии",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Некорректный формат номера телефона",
+  "api.common.WRONG_PERCENT_VALUE": "Некорректное значение процента",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Неверное значение propertyId. Данный дом не принадлежит выбранной организации",
   "api.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED": "Окончание работ не может быть раньше начала",
   "api.incident.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS": "Окончание работ не может быть пустым, если отключение имеет статус \"неактуально\"",
