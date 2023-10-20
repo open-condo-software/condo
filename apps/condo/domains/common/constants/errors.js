@@ -1,5 +1,3 @@
-const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
-
 const PHONE_WRONG_FORMAT_ERROR = '[phone:wrongFormat:'
 const EMAIL_WRONG_FORMAT_ERROR = '[email:wrongFormat:'
 
@@ -48,14 +46,14 @@ const DUPLICATE_CONSTRAINT_VIOLATION_ERROR_MESSAGE = 'duplicate key value violat
 
 const COMMON_ERRORS = {
     WRONG_PHONE_FORMAT: {
-        code: BAD_USER_INPUT,
+        code: 'BAD_USER_INPUT',
         type: WRONG_PHONE_FORMAT,
         message: 'Wrong phone number format',
         messageForUser: 'api.common.INVALID_PHONE_NUMBER_FORMAT',
     },
 
     INVALID_PERCENT_VALUE: {
-        code: BAD_USER_INPUT,
+        code: 'BAD_USER_INPUT',
         type: WRONG_PERCENT_VALUE,
         message: 'The percent value must be between 0 and 100',
         messageForUser: 'api.common.WRONG_PERCENT_VALUE',

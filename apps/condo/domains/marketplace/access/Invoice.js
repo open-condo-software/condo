@@ -5,6 +5,7 @@
 const { get } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { getById, find } = require('@open-condo/keystone/schema')
 
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
@@ -15,7 +16,9 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canReadInvoices ({ authentication: { item: user } }) {
+const logger = getLogger('invoiceAccess')
+
+async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
@@ -28,10 +31,26 @@ async function canReadInvoices ({ authentication: { item: user } }) {
             return false
         }
 
+        if (residents.length > 50) {
+            logger.warn({
+                msg: `user ${user.id} has ${residents.length} residents`,
+                reqId: context.req.id,
+                userId: user.id,
+            })
+        }
+
         const serviceConsumers = await find('ServiceConsumer', {
             deletedAt: null,
             resident: { id_in: residents.map(({ id }) => id) },
         })
+
+        if (serviceConsumers.length > 50) {
+            logger.warn({
+                msg: `user ${user.id} has ${serviceConsumers.length} service consumers`,
+                reqId: context.req.id,
+                userId: user.id,
+            })
+        }
 
         return {
             deletedAt: null,
