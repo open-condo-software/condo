@@ -4,9 +4,11 @@ import get from 'lodash/get'
 import isArray from 'lodash/isArray'
 import isEmpty from 'lodash/isEmpty'
 import isEqual from 'lodash/isEqual'
+import pick from 'lodash/pick'
 
 export type TableRow = Array<Record<'value', string | number | Date>>
 export type ProcessedRow = {
+    originalRow: TableRow
     row: TableRow
     addons?: { [id: string]: any }
     shouldBeReported?: boolean
@@ -18,7 +20,7 @@ export type FinishHandler = () => void
 export type SuccessProcessingHandler = (row: TableRow) => void
 export type FailProcessingHandler = (row: ProcessedRow) => void
 export type ErrorHandler = (error: Error) => void
-export type RowNormalizer = (row: TableRow) => Promise<ProcessedRow>
+export type RowNormalizer = (row: TableRow) => Promise<Pick<ProcessedRow, 'addons' | 'shouldBeReported' | 'row'>>
 export type RowValidator = (row: ProcessedRow) => Promise<boolean>
 export type ObjectCreator = (row: ProcessedRow) => Promise<unknown>
 export type Columns = Array<ColumnInfo>
@@ -26,6 +28,9 @@ export type ImporterErrorMessages = {
     invalidColumns: string
     tooManyRows: string
     invalidTypes: string
+    normalization: string
+    validation: string
+    creation: string
 }
 export type MutationErrorsToMessagesType = { [errorCode: string]: string }
 
@@ -42,6 +47,7 @@ interface IImporter {
 type ColumnType = 'string' | 'number' | 'date' | 'custom'
 
 export const DATE_PARSING_FORMAT = 'YYYY-MM-DD'
+export const DATE_PARSING_FORMAT_2 = 'DD.MM.YYYY'
 
 export interface ColumnInfo {
     name: string
@@ -146,11 +152,18 @@ export class Importer implements IImporter {
             if (row[i].value === undefined && this.columnsRequired[i]) {
                 return false
             } else if (this.columnsTypes[i] === 'custom') {
-                return true
+                continue
             } else if (this.columnsTypes[i] === 'string' && valueType === 'number') {
                 row[i].value = String(row[i].value)
             } else if (this.columnsTypes[i] === 'date' && valueType === 'string') {
-                row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT).toDate()
+                // NOTE: We support only 2 formats of date: "YYYY-MM-DD" and "DD.MM.YYYY"
+                if (dayjs(row[i].value, DATE_PARSING_FORMAT, true).isValid()) {
+                    row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT, true).toDate()
+                } else if (dayjs(row[i].value, DATE_PARSING_FORMAT_2, true).isValid()) {
+                    row[i].value = dayjs(row[i].value, DATE_PARSING_FORMAT_2, true).toDate()
+                } else {
+                    return false
+                }
             } else if (valueType !== 'undefined' && valueType !== this.columnsTypes[i]) {
                 return false
             }
@@ -158,7 +171,7 @@ export class Importer implements IImporter {
         return true
     }
 
-    private updateProgress (value?: number) {
+    private updateProgress (value?: number): void {
         if (value) {
             this.progress.current = value
         } else {
@@ -172,98 +185,102 @@ export class Importer implements IImporter {
         }
     }
 
-    // TODO: remove `index`, it is not used
-    private async createRecord (table, index = 0) {
+    private async createRecord (table): Promise<void> {
         if (this.breakImport) {
-            return Promise.resolve()
+            return
         }
 
         if (!table.length) {
             this.updateProgress(100)
             this.finishHandler()
-            return Promise.resolve()
+            return
         }
 
         const row = table.shift()
+        const originalRow = cloneDeep(row)
 
         if (!this.parseAndValidateRow(row)) {
             if (this.failProcessingHandler) {
-                this.failProcessingHandler({ row, errors: [this.errors.invalidTypes] })
+                this.failProcessingHandler({ row, originalRow, errors: [this.errors.invalidTypes] })
             }
-            return this.createRecord(table, index++)
+            return this.createRecord(table)
         }
-        return this.rowNormalizer(row)
-            .then(normalizedRow => {
-                return this.rowValidator(normalizedRow)
-                    .then(isValid => {
-                        if (isValid) {
-                            return this.objectCreator(normalizedRow)
-                                .then(() => {
-                                    if (normalizedRow.shouldBeReported && this.failProcessingHandler) {
-                                        this.failProcessingHandler(normalizedRow)
-                                    }
-                                    if (this.successProcessingHandler) {
-                                        this.successProcessingHandler(row)
-                                    }
-                                    return Promise.resolve()
-                                })
-                                .catch((e) => {
-                                    try {
-                                        const mutationErrors = get(e, 'graphQLErrors', []) || []
-                                        if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
-                                            console.warn('No "graphQLErrors" for formatting errors')
-                                            console.error(e)
-                                        }
-                                        normalizedRow.errors = normalizedRow.errors || []
 
-                                        mutationErrors.forEach(mutationError => {
-                                            const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
-                                            mutationErrorMessages.forEach(message => {
-                                                const errorCodes = Object.keys(this.mutationErrorsToMessages)
+        let processedRow: ProcessedRow = { row, originalRow, errors: [] }
+        let isValidRow = false
+        let isNormalizedRow = false
 
-                                                errorCodes.forEach(code => {
-                                                    if (message.includes(code)) {
-                                                        normalizedRow.errors.push(this.mutationErrorsToMessages[code])
-                                                    }
-                                                })
-                                            })
-                                        })
-                                    } catch (error) {
-                                        console.debug('Error when formatting errors from "graphQLErrors"', {
-                                            row,
-                                            normalizedRow,
-                                            isValid,
-                                        })
-                                        console.error(error)
-                                        console.error(e)
-                                    }
+        try {
+            const normalizedData = await this.rowNormalizer(row)
+            processedRow = {
+                ...processedRow,
+                ...pick(normalizedData, ['row', 'addons', 'shouldBeReported']),
+            }
+            isNormalizedRow = true
+        } catch (error) {
+            console.error('Unexpected error in "rowNormalizer"!')
+            console.error(error)
+            processedRow.errors.push(this.errors.normalization)
+        }
 
-                                    if (this.failProcessingHandler) {
-                                        this.failProcessingHandler(normalizedRow)
-                                        return Promise.resolve()
-                                    }
-                                })
-                        } else {
-                            if (this.failProcessingHandler) {
-                                this.failProcessingHandler(normalizedRow)
-                                return Promise.resolve()
+        if (isNormalizedRow) {
+            try {
+                isValidRow = await this.rowValidator(processedRow)
+            } catch (error) {
+                console.error('Unexpected error in "rowValidator"!')
+                console.error(error)
+                processedRow.errors.push(this.errors.validation)
+            }
+        }
+
+        if (isNormalizedRow && isValidRow) {
+            try {
+                await sleep(this.sleepInterval)
+
+                await this.objectCreator(processedRow)
+
+                if (processedRow.shouldBeReported && this.failProcessingHandler) {
+                    this.failProcessingHandler(processedRow)
+                }
+                if (this.successProcessingHandler) {
+                    this.successProcessingHandler(row)
+                }
+            } catch (e) {
+                const mutationErrors = get(e, 'graphQLErrors', []) || []
+
+                if (!isArray(mutationErrors) || isEmpty(mutationErrors)) {
+                    console.error('Unexpected error in "objectCreator"!')
+                    console.error(e)
+                    processedRow.errors.push(this.errors.creation)
+                } else {
+                    for (const mutationError of mutationErrors) {
+                        const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
+                        for (const message of mutationErrorMessages) {
+                            const errorCodes = Object.keys(this.mutationErrorsToMessages)
+                            for (const code of errorCodes) {
+                                if (message.includes(code)) {
+                                    processedRow.errors.push(this.mutationErrorsToMessages[code])
+                                }
                             }
                         }
-                    })
-            })
-            .then(() => {
-                this.updateProgress()
-            })
-            .then(() => {
-                return sleep(this.sleepInterval)
-            })
-            .then(() => {
-                return this.createRecord(table, index++)
-            })
-            .catch((error) => {
-                this.errorHandler(error)
-            })
+                    }
+                }
 
+                if (this.failProcessingHandler) {
+                    this.failProcessingHandler(processedRow)
+                }
+            }
+        } else {
+            if (this.failProcessingHandler) {
+                this.failProcessingHandler(processedRow)
+            }
+        }
+
+        this.updateProgress()
+
+        await sleep(this.sleepInterval)
+
+        return this.createRecord(table)
     }
 
 }

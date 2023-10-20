@@ -1,5 +1,7 @@
 import { Alert, Progress } from 'antd'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
+import isDate from 'lodash/isDate'
 import React, { createContext } from 'react'
 import XLSX from 'xlsx'
 
@@ -121,7 +123,13 @@ export const getPartlyLoadedModalConfig = (
                 try {
                     const data = [columns.map(column => column.name).concat(['Errors'])]
                     for (let i = 0; i < erroredRows.length; i++) {
-                        const line = erroredRows[i].row.map(cell => cell.value ? String(cell.value) : null)
+                        const line = erroredRows[i].originalRow.map(cell => {
+                            if (!cell.value) return null
+                            if (isDate(cell.value)) {
+                                return dayjs(cell.value).format('DD.MM.YYYY')
+                            }
+                            return String(cell.value)
+                        })
                         line.push(erroredRows[i].errors ? erroredRows[i].errors.join(', \n') : null)
                         data.push(line)
                     }
