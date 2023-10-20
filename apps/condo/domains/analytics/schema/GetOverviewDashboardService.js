@@ -5,8 +5,7 @@
 const dayjs = require('dayjs')
 const { get, isEmpty } = require('lodash')
 
-const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
-const { GQLError, GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { FORBIDDEN } } = require('@open-condo/keystone/errors')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 const { i18n } = require('@open-condo/locales/loader')
 
@@ -23,7 +22,6 @@ const {
     TicketQualityControlDataLoader,
 } = require('@condo/domains/analytics/utils/services/dataLoaders/ticket')
 const { OPERATION_FORBIDDEN } = require('@condo/domains/common/constants/errors')
-const { ANALYTICS_V3 } = require('@condo/domains/common/constants/featureflags')
 
 const ERRORS = {
     FEATURE_IS_DISABLED: {
@@ -116,14 +114,6 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
             schema: 'getOverviewDashboard(data: GetOverviewDashboardInput!): GetOverviewDashboardOutput',
             resolver: async (parent, args, context) => {
                 const { data: { where, groupBy, entities = [] } } = args
-
-                const hasFeature = await featureToggleManager.getFeatureValue(context, ANALYTICS_V3, false, {
-                    organization: where.organization,
-                })
-
-                if (!hasFeature) {
-                    throw new GQLError(ERRORS.FEATURE_IS_DISABLED, context)
-                }
 
                 const ticketNullReplaces = {
                     categoryClassifier: i18n('pages.condo.analytics.TicketAnalyticsPage.NullReplaces.CategoryClassifier'),

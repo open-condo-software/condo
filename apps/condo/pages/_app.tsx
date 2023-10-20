@@ -136,6 +136,7 @@ const MenuItems: React.FC = () => {
     const hasAccessToEmployees = get(role, 'canReadEmployees', false)
     const hasAccessToProperties = get(role, 'canReadProperties', false)
     const hasAccessToContacts = get(role, 'canReadContacts', false)
+    const canReadAnalytics = get(role, 'canReadAnalytics', false)
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -154,7 +155,7 @@ const MenuItems: React.FC = () => {
                     path: 'reports',
                     icon: AllIcons['BarChartVertical'],
                     label: 'global.section.analytics',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: !isAssignedVisibilityType && isManagingCompany && canReadAnalytics,
                 },
             ].filter(checkItemAccess),
         },
