@@ -11,6 +11,7 @@ const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplac
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
 const { Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
+const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateServerUtils(InvoiceContextGQL)
@@ -18,6 +19,7 @@ const MarketCategory = generateServerUtils(MarketCategoryGQL)
 const MarketItem = generateServerUtils(MarketItemGQL)
 const Invoice = generateServerUtils(InvoiceGQL)
 const MarketItemFile = generateServerUtils(MarketItemFileGQL)
+const MarketItemPrice = generateServerUtils(MarketItemPriceGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -26,5 +28,6 @@ module.exports = {
     MarketItem,
     Invoice,
     MarketItemFile,
+    MarketItemPrice,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

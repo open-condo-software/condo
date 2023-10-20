@@ -15,6 +15,7 @@ const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplac
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
 const { VAT_OPTIONS, TAX_REGIME_GENEGAL } = require('@condo/domains/marketplace/constants')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
+const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
@@ -23,6 +24,7 @@ const MarketItem = generateGQLTestUtils(MarketItemGQL)
 const Invoice = generateGQLTestUtils(InvoiceGQL)
 
 const MarketItemFile = generateGQLTestUtils(MarketItemFileGQL)
+const MarketItemPrice = generateGQLTestUtils(MarketItemPriceGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
@@ -206,6 +208,40 @@ async function updateTestMarketItemFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMarketItemPrice (client, marketItem, organization, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!marketItem || !marketItem.id) throw new Error('no marketItem.id')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        marketItem: { connect: { id: marketItem.id } },
+        organization: { connect: { id: organization.id } },
+        price: { type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vat: '20', salesTax: '0' },
+        ...extraAttrs,
+    }
+    const obj = await MarketItemPrice.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMarketItemPrice (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMarketItemPrice logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MarketItemPrice.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -215,5 +251,6 @@ module.exports = {
     Invoice, createTestInvoice, updateTestInvoice,
     generateInvoiceRow,
     MarketItemFile, createTestMarketItemFile, updateTestMarketItemFile,
+    MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

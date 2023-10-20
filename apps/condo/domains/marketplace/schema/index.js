@@ -8,6 +8,7 @@ const { InvoiceContext } = require('./InvoiceContext')
 const { MarketCategory } = require('./MarketCategory')
 const { MarketItem } = require('./MarketItem')
 const { MarketItemFile } = require('./MarketItemFile')
+const { MarketItemPrice } = require('./MarketItemPrice')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
@@ -16,5 +17,6 @@ module.exports = {
     MarketItem,
     Invoice,
     MarketItemFile,
+    MarketItemPrice,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
