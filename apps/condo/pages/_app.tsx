@@ -137,8 +137,6 @@ const MenuItems: React.FC = () => {
     const hasAccessToProperties = get(role, 'canReadProperties', false)
     const hasAccessToContacts = get(role, 'canReadContacts', false)
     const canReadAnalytics = get(role, 'canReadAnalytics', false)
-    // NOTE: That's because if v3 is disabled -> anyone can see external reports.
-    // Otherwise, you should check canReadAnalytics
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
