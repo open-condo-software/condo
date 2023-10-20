@@ -2301,6 +2301,7 @@
   "incident.changeHistory.workType": "тип работ",
   "incident.hints.more.label": "Подробнее",
   "timezone.msk": "МСК",
-  "api.marketplace.invoice.error.noReceivers": "Не указан получатель счета",
-  "api.marketplace.invoice.error.alreadyPaid": "Нельзя изменять оплаченный счет"
+  "api.marketplace.invoice.error.noReceivers": "Не указан получатель счета. Укажите или полный адрес или номер лицевого счета.",
+  "api.marketplace.invoice.error.alreadyPaid": "Нельзя изменять оплаченный счет",
+  "api.marketplace.invoice.error.emptyRows": "Счет не содержит товаров/услуг"
 }

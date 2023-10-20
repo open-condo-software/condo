@@ -602,5 +602,18 @@ describe('Invoice', () => {
                 messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
             })
         })
+
+        test('can\'t publish invoice without rows', async () => {
+            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { rows: [] })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestInvoice(adminClient, obj.id, { status: INVOICE_STATUS_PUBLISHED })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'EMPTY_ROWS',
+                message: 'The invoice contains no rows',
+                messageForUser: 'api.marketplace.invoice.error.emptyRows',
+            })
+        })
     })
 })
