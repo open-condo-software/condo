@@ -4,6 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
+const { omit } = require('lodash')
 
 const {
     makeLoggedInAdminClient,
@@ -13,6 +14,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
+    expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
@@ -32,6 +34,7 @@ const {
     createTestInvoice,
     updateTestInvoice,
     createTestInvoiceContext,
+    generateInvoiceRow,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     createTestOrganization,
@@ -645,6 +648,22 @@ describe('Invoice', () => {
                 type: 'EMPTY_ROWS',
                 message: 'The invoice contains no rows',
                 messageForUser: 'api.marketplace.invoice.error.emptyRows',
+            })
+        })
+
+        describe('invoice rows must contain fields', () => {
+            const necessaryFields = [
+                ['name', 'String!'],
+                ['toPay', 'String!'],
+                ['count', 'Int!'],
+            ]
+
+            test.each(necessaryFields)('%s', async (fieldToOmit, omittedFieldType) => {
+                await expectToThrowGraphQLRequestError(async () => {
+                    await createTestInvoice(adminClient, dummyInvoiceContext, {
+                        rows: [omit(generateInvoiceRow(), fieldToOmit)],
+                    })
+                }, `Field "${fieldToOmit}" of required type "${omittedFieldType}" was not provided.`)
             })
         })
     })

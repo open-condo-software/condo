@@ -178,6 +178,6 @@ module.exports = {
     MarketCategory, createTestMarketCategory, updateTestMarketCategory,
     MarketItem, createTestMarketItem, updateTestMarketItem,
     Invoice, createTestInvoice, updateTestInvoice,
-    generateInvoiceRows,
+    generateInvoiceRow,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
