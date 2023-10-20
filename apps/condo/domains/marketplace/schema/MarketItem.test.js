@@ -25,7 +25,7 @@ describe('MarketItem', () => {
         [marketCategory] = await createTestMarketCategory(admin);
         [organization] = await createTestOrganization(admin)
     })
-    describe('access tests', () => {
+    describe('Accesses', () => {
         describe('admin', () => {
             test('can create', async () => {
                 const [obj, attrs] = await createTestMarketItem(admin, marketCategory, organization)
@@ -107,7 +107,7 @@ describe('MarketItem', () => {
             })
         })
 
-        describe('user staff with access', () => {
+        describe('employee with access', () => {
             let organization, client
             beforeAll(async () => {
                 [organization] = await createTestOrganization(admin)
@@ -159,7 +159,7 @@ describe('MarketItem', () => {
             })
         })
 
-        describe('user staff without access', () => {
+        describe('employee without access', () => {
             let organization, client
             beforeAll(async () => {
                 [organization] = await createTestOrganization(admin)
@@ -230,56 +230,58 @@ describe('MarketItem', () => {
                 })
             })
         })
-    })
 
-    describe('resident', () => {
-        let organization, client
-        beforeAll(async () => {
-            [organization] = await createTestOrganization(admin)
-            client = await makeClientWithResidentUser()
-            const unitName = faker.random.alphaNumeric(8)
-            const accountNumber = faker.random.alphaNumeric(8)
+        describe('resident', () => {
+            let organization, client
+            beforeAll(async () => {
+                [organization] = await createTestOrganization(admin)
+                client = await makeClientWithResidentUser()
+                const unitName = faker.random.alphaNumeric(8)
+                const accountNumber = faker.random.alphaNumeric(8)
 
-            const [property] = await createTestProperty(admin, organization)
-            const [resident] = await createTestResident(admin, client.user, property, {
-                unitName,
+                const [property] = await createTestProperty(admin, organization)
+                const [resident] = await createTestResident(admin, client.user, property, {
+                    unitName,
+                })
+                await createTestServiceConsumer(admin, resident, organization, {
+                    accountNumber,
+                })
             })
-            await createTestServiceConsumer(admin, resident, organization, {
-                accountNumber,
+
+            test('can\'t create', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestMarketItem(client, marketCategory, organization)
+                })
             })
+
+            test('can\'t update', async () => {
+                const [objCreated] = await createTestMarketItem(admin, marketCategory, organization)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestMarketItem(client, objCreated.id)
+                })
+            })
+
+            test('can\'t delete', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await MarketItem.delete(client, 'id')
+                })
+            })
+
+            test('can read MarketItem of his organization', async () => {
+                const [obj] = await createTestMarketItem(admin, marketCategory, organization)
+
+                const objs = await MarketItem.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: obj.id,
+                    }),
+                ]))
+            })
+            // TODO (DOMA-7503) test('Resident can read items according to PriceScope settings')
         })
 
-        test('can\'t create', async () => {
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await createTestMarketItem(client, marketCategory, organization)
-            })
-        })
-
-        test('can\'t update', async () => {
-            const [objCreated] = await createTestMarketItem(admin, marketCategory, organization)
-
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await updateTestMarketItem(client, objCreated.id)
-            })
-        })
-
-        test('can\'t delete', async () => {
-            await expectToThrowAccessDeniedErrorToObj(async () => {
-                await MarketItem.delete(client, 'id')
-            })
-        })
-
-        test('can read', async () => {
-            const [obj] = await createTestMarketItem(admin, marketCategory, organization)
-
-            const objs = await MarketItem.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
-            expect(objs.length).toBeGreaterThanOrEqual(1)
-            expect(objs).toEqual(expect.arrayContaining([
-                expect.objectContaining({
-                    id: obj.id,
-                }),
-            ]))
-        })
     })
 
     describe('constraint tests', () => {

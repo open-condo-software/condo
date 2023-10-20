@@ -25519,7 +25519,7 @@ export type MarketItem = {
   marketCategory?: Maybe<MarketCategory>;
   /**  Stock keeping unit  */
   sku?: Maybe<Scalars['String']>;
-  /**  description of market item  */
+  /**  Description of market item  */
   description?: Maybe<Scalars['String']>;
   /**  Organization to which the item belongs  */
   organization?: Maybe<Organization>;

@@ -17,19 +17,20 @@ async function canReadMarketItems ({ authentication: { item: user } }) {
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
+        // TODO (DOMA-7503) use PriceScope to check access
         const userResidents = await find('Resident', { user: { id: user.id }, deletedAt: null })
         if (!userResidents.length) return false
-        const residentOrganizations = compact(userResidents.map(resident => get(resident, 'organization')))
+        const residentOrganizationsIds = compact(userResidents.map(resident => get(resident, 'organization')))
         const residentsIds = userResidents.map(resident => resident.id)
         const userServiceConsumers = await find('ServiceConsumer', {
             resident: { id_in: residentsIds },
             deletedAt: null,
         })
-        const serviceConsumerOrganizations = userServiceConsumers.map(sc => sc.organization)
-        const organizations = [...residentOrganizations, ...serviceConsumerOrganizations]
-        if (organizations.length) {
+        const serviceConsumerOrganizationIds = userServiceConsumers.map(sc => sc.organization)
+        const organizationIds = [...residentOrganizationsIds, ...serviceConsumerOrganizationIds]
+        if (organizationIds.length) {
             return {
-                organization: { id_in: uniq(organizations) },
+                organization: { id_in: uniq(organizationIds) },
             }
         }
         return false

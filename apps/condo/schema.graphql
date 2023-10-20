@@ -65660,7 +65660,7 @@ type MarketItem {
   """ Stock keeping unit """
   sku: String
 
-  """ description of market item """
+  """ Description of market item """
   description: String
 
   """ Organization to which the item belongs """
