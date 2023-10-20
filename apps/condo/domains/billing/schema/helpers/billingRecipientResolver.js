@@ -67,11 +67,11 @@ class BillingRecipientResolver {
         if (getBankError || getOrganizationError) {
             console.log('Error while getting Bank Info or Organization Info: ', getBankError ?? getOrganizationError)
         }
-        const bankName = get(routingNumberMeta, 'bankName', null)
-        const offsettingAccount = get(routingNumberMeta, 'offsettingAccount', null)
-        const name = get(tinMeta, 'name', null)
-        const iec = get(tinMeta, 'iec', null)
-        const territoryCode = get(tinMeta, 'territoryCode', null)
+        const bankName = get(routingNumberMeta, 'bankName', get(existingRecipient, 'bankName', null))
+        const offsettingAccount = get(routingNumberMeta, 'offsettingAccount', get(existingRecipient, 'offsettingAccount', null))
+        const name = get(tinMeta, 'name', get(existingRecipient, 'name', null))
+        const iec = get(tinMeta, 'iec', get(existingRecipient, 'iec', null))
+        const territoryCode = get(tinMeta, 'territoryCode', get(existingRecipient, 'territoryCode', null))
         const { id } = await this.syncBillingRecipient(existingRecipient, { context: { connect: { id: this.billingContext.id } }, name, iec, tin, bankAccount, bankName, bic: routingNumber, offsettingAccount, territoryCode })
         return id
     }

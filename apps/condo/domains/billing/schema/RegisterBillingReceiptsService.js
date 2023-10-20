@@ -204,11 +204,11 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     const receiptsToAdd = []
     const notChangedReceipts = []
 
-    receipts.forEach((item) => {
+    for (const item of receipts) {
         const receiptKey = getBillingReceiptKey(
             {
                 ...item,
-                ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
+            }
         )
 
         const receiptExists = Reflect.has(receiptsIndex, receiptKey)
@@ -232,14 +232,10 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
             const newToPayDetails = item.toPayDetails ? item.toPayDetails : null
             const toPayDetailsIsEqual = isEqual(existingToPayDetails, newToPayDetails)
 
-            const existingRecipient = existingReceiptByKey.recipient
-            const newRecipient = {
-                tin: item.tin,
-                bic: item.bic,
-                iec: item.iec,
-                bankAccount: item.bankAccount,
-            }
-            const recipientIsEqual = isEqual(existingRecipient, newRecipient)
+            const existingBillingRecipient = await getById('BillingRecipient', existingReceiptByKey.receiver)
+            const newBillingRecipient = await getById('BillingRecipient', item.receiver.id)
+
+            const recipientIsEqual = isEqual(existingBillingRecipient, newBillingRecipient)
 
             const shouldUpdateReceipt = !toPayIsEqual || !servicesIsEqual || !toPayDetailsIsEqual || !recipientIsEqual
 
@@ -250,7 +246,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
                 notChangedReceipts.push(item)
             }
         }
-    })
+    }
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
