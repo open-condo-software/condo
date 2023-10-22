@@ -17,6 +17,8 @@ const {
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_PUBLISHED,
     ERROR_INVOICE_EMPTY_ROWS,
+    ERROR_INVOICE_ROW_WRONG_COUNT,
+    ERROR_INVOICE_ROW_WRONG_PRICE,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 
@@ -39,6 +41,20 @@ const ERRORS = {
         message: 'The invoice contains no rows',
         messageForUser: 'api.marketplace.invoice.error.emptyRows',
     },
+    WRONG_COUNT: (rowNumber) => ({
+        code: BAD_USER_INPUT,
+        type: ERROR_INVOICE_ROW_WRONG_COUNT,
+        message: `Count at line ${rowNumber} can't be less than 1`,
+        messageForUser: 'api.marketplace.invoice.error.rows.count',
+        messageInterpolation: { rowNumber },
+    }),
+    WRONG_PRICE: (rowNumber) => ({
+        code: BAD_USER_INPUT,
+        type: ERROR_INVOICE_ROW_WRONG_PRICE,
+        message: `Price at line ${rowNumber} can't be less than 0`,
+        messageForUser: 'api.marketplace.invoice.error.rows.toPay',
+        messageInterpolation: { rowNumber },
+    }),
 }
 
 const Invoice = new GQLListSchema('Invoice', {
@@ -131,6 +147,17 @@ const Invoice = new GQLListSchema('Invoice', {
 
             if (get(resolvedData, 'status') === INVOICE_STATUS_PUBLISHED && get(nextData, 'rows', []).length === 0) {
                 throw new GQLError(ERRORS.EMPTY_ROWS, context)
+            }
+
+            // Check rows
+            const nextRows = get(nextData, 'rows', [])
+            for (let i = 0; i < nextRows.length; i++) {
+                if (Number(get(nextRows[i], 'count', null)) < 1) {
+                    throw new GQLError(ERRORS.WRONG_COUNT(i + 1), context)
+                }
+                if (Number(get(nextRows[i], 'toPay', null)) < 0) {
+                    throw new GQLError(ERRORS.WRONG_PRICE(i + 1), context)
+                }
             }
         },
     },

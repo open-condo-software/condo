@@ -2304,5 +2304,7 @@
   "timezone.msk": "МСК",
   "api.marketplace.invoice.error.noReceivers": "Не указан получатель счета. Укажите или полный адрес или номер лицевого счета.",
   "api.marketplace.invoice.error.alreadyPaid": "Нельзя изменять оплаченный счет",
-  "api.marketplace.invoice.error.emptyRows": "Счет не содержит товаров/услуг"
+  "api.marketplace.invoice.error.emptyRows": "Счет не содержит товаров/услуг",
+  "api.marketplace.invoice.error.rows.count": "Количество не может быть меньше 1. Проверьте строку {rowNumber}.",
+  "api.marketplace.invoice.error.rows.toPay": "Цена не может быть меньше 0. Проверьте строку {rowNumber}."
 }

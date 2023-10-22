@@ -2304,5 +2304,7 @@
   "timezone.msk": "MSK",
   "api.marketplace.invoice.error.noReceivers": "Nobody sees this invoice. Please set full address or account number.",
   "api.marketplace.invoice.error.alreadyPaid": "Changing of paid invoice is forbidden",
-  "api.marketplace.invoice.error.emptyRows": "The invoice contains no rows"
+  "api.marketplace.invoice.error.emptyRows": "The invoice contains no rows",
+  "api.marketplace.invoice.error.rows.count": "Count can't be less than 1. Check line {rowNumber}.",
+  "api.marketplace.invoice.error.rows.toPay": "Price can't be less than 0. Check line {rowNumber}."
 }

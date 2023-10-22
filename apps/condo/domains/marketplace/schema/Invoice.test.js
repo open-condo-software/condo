@@ -651,7 +651,7 @@ describe('Invoice', () => {
             })
         })
 
-        describe('invoice rows must contain fields', () => {
+        describe('invoice rows must contain necessary fields', () => {
             const necessaryFields = [
                 ['name', 'String!'],
                 ['toPay', 'String!'],
@@ -665,6 +665,39 @@ describe('Invoice', () => {
                         rows: [omit(generateInvoiceRow(), fieldToOmit)],
                     })
                 }, `Field "${fieldToOmit}" of required type "${omittedFieldType}" was not provided.`)
+            })
+        })
+
+        test('invoice.rows.*.count must be 1+', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestInvoice(
+                    adminClient,
+                    dummyInvoiceContext,
+                    {
+                        rows: [
+                            generateInvoiceRow(),
+                            generateInvoiceRow({ count: -4 }),
+                        ],
+                    },
+                )
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_COUNT',
+                message: 'Count at line 2 can\'t be less than 1',
+                messageForUser: 'api.marketplace.invoice.error.rows.count',
+                messageInterpolation: { rowNumber: 2 },
+            })
+        })
+
+        test('invoice.rows.*.toPay must be positive', async () => {
+            await expectToThrowGQLError(async () => {
+                await createTestInvoice(adminClient, dummyInvoiceContext, { rows: [generateInvoiceRow({ toPay: '-4' })] })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'WRONG_PRICE',
+                message: 'Price at line 1 can\'t be less than 0',
+                messageForUser: 'api.marketplace.invoice.error.rows.toPay',
+                messageInterpolation: { rowNumber: 1 },
             })
         })
     })
