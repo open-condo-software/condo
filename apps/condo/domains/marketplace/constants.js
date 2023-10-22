@@ -38,40 +38,6 @@ const INVOICE_STATUSES = [
 // The default value for invoice context
 const DEFAULT_IMPLICIT_FEE_PERCENT = '5'
 
-const taxOptions = ['null', '0', '10', '20']
-const PRICE_FIELD_SCHEMA = {
-    type: 'object',
-    additionalProperties: false,
-    required: ['type', 'group', 'name', 'price', 'isMin', 'vat', 'salesTax'],
-    properties: {
-        type: {
-            type: 'string',
-            enum: ['variant', 'extra'],
-        },
-        group: {
-            type: 'string',
-        },
-        name: {
-            type: 'string',
-        },
-        price: {
-            type: 'string',
-            pattern: '^[0-9]+$',
-        },
-        isMin: {
-            type: 'boolean',
-        },
-        vat: {
-            type: 'string',
-            enum: taxOptions,
-        },
-        salesTax: {
-            type: 'string',
-            enum: taxOptions,
-        },
-    },
-}
-
 module.exports = {
     INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_CONTEXT_STATUSES,
@@ -94,5 +60,4 @@ module.exports = {
     INVOICE_STATUS_PAID,
     INVOICE_STATUSES,
     ERROR_INVALID_PRICE,
-    PRICE_FIELD_SCHEMA,
 }

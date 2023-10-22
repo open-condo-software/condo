@@ -12,7 +12,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { PRICE_FIELD_SCHEMA } = require('@condo/domains/marketplace/constants')
+const { PRICE_FIELD_SCHEMA } = require('@condo/domains/marketplace/schema/fields/price')
 const { MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketCategory } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
