@@ -21,7 +21,7 @@ function getGraphQLReqLoggerContext (requestContext) {
     const operationName = get(requestContext, 'operationName')
     const queryHash = get(requestContext, 'queryHash')
 
-    const graphQLOperations = get(requestContext, 'document.definitions', []).map(renderExecutableDefinitionNode)
+    const graphQLOperations = get(requestContext, 'document.definitions', []).map(renderExecutableDefinitionNode).filter(Boolean)
     const query = normalizeQuery(get(requestContext, 'request.query'))
     const variables = normalizeVariables(get(requestContext, 'request.variables'))
 
@@ -35,10 +35,8 @@ function renderExecutableDefinitionNode (node) {
     if (!node) return ''
     if (node.kind === 'OperationDefinition') {
         return `${node.operation} ${node.name ? `${node.name.value}` : ''}`
-    } else if (node.kind === 'FragmentDefinition') {
-        return `Fragment_${node.name ? `${node.name.value}` : ''}`
     }
-    return `${node.kind}`
+    return ''
 }
 
 /**
