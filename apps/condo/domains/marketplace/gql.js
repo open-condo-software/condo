@@ -8,7 +8,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const INVOICE_CONTEXT_FIELDS = `{ organization { id } recipient { bic bankAccount tin } settings status implicitFeePercent ${COMMON_FIELDS} }`
+const INVOICE_CONTEXT_FIELDS = `{ organization { id } recipient { bic bankAccount tin } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent ${COMMON_FIELDS} }`
 const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
 
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings parentCategory { id } ${COMMON_FIELDS} }`
@@ -17,11 +17,15 @@ const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIEL
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
+const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vat salesTax sku } ticket { id } contact { id name phone email unitType unitName } client { id name } status ${COMMON_FIELDS} }`
+const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     InvoiceContext,
     MarketCategory,
     MarketItem,
+    Invoice,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

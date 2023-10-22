@@ -1906,6 +1906,7 @@
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Указанный сотрудник уже принял приглашение",
   "api.organizationEmployee.NOT_FOUND_ROLE": "Роль не найдена в вашей организаии",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Некорректный формат номера телефона",
+  "api.common.WRONG_PERCENT_VALUE": "Некорректное значение процента",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Неверное значение propertyId. Данный дом не принадлежит выбранной организации",
   "api.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED": "Окончание работ не может быть раньше начала",
   "api.incident.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS": "Окончание работ не может быть пустым, если отключение имеет статус \"неактуально\"",
@@ -2300,5 +2301,10 @@
   "incident.changeHistory.workFinish": "дату завершения работ",
   "incident.changeHistory.workType": "тип работ",
   "incident.hints.more.label": "Подробнее",
-  "timezone.msk": "МСК"
+  "timezone.msk": "МСК",
+  "api.marketplace.invoice.error.noReceivers": "Не указан получатель счета. Укажите или полный адрес или номер лицевого счета.",
+  "api.marketplace.invoice.error.alreadyPaid": "Нельзя изменять оплаченный счет",
+  "api.marketplace.invoice.error.emptyRows": "Счет не содержит товаров/услуг",
+  "api.marketplace.invoice.error.rows.count": "Количество не может быть меньше 1. Проверьте строку {rowNumber}.",
+  "api.marketplace.invoice.error.rows.toPay": "Цена не может быть меньше 0. Проверьте строку {rowNumber}."
 }

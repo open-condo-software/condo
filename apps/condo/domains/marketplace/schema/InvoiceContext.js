@@ -5,19 +5,34 @@
 const { Select } = require('@keystonejs/fields')
 const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
+const { get } = require('lodash')
 
+const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
+const { CURRENCY_CODE_FIELD, PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/marketplace/access/InvoiceContext')
 const {
     INVOICE_CONTEXT_STATUSES,
-    ERROR_INVALID_SETTINGS,
+    ERROR_INVALID_INVOICE_CONTEXT_SETTINGS,
+    ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED,
     VAT_OPTIONS,
     TAX_REGIMES,
+    TAX_REGIME_SIMPLE,
+    DEFAULT_IMPLICIT_FEE_PERCENT,
 } = require('@condo/domains/marketplace/constants')
+
+const ERRORS = {
+    TAX_REGIME_AND_VAT_NOT_MATCHED: {
+        code: BAD_USER_INPUT,
+        type: ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED,
+        message: 'Tax regime and vat values are not matched',
+    },
+}
 
 const ajv = new Ajv()
 addFormats(ajv)
@@ -36,7 +51,7 @@ const settingsFieldSchema = {
     },
 }
 
-const validateSettingsField = getGQLErrorValidator(ajv.compile(settingsFieldSchema), ERROR_INVALID_SETTINGS)
+const validateSettingsField = getGQLErrorValidator(ajv.compile(settingsFieldSchema), ERROR_INVALID_INVOICE_CONTEXT_SETTINGS)
 
 const InvoiceContext = new GQLListSchema('InvoiceContext', {
     schemaDoc: 'Model contains the settings for processing invoices for organization',
@@ -62,9 +77,7 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             type: 'Json',
             isRequired: false,
             hooks: {
-                validateInput: ({ resolvedData, fieldPath }) => {
-                    validateSettingsField(resolvedData[fieldPath])
-                },
+                validateInput: validateSettingsField,
             },
         },
 
@@ -80,9 +93,27 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             schemaDoc: 'How much money do we charge from companies. The percent.',
             isRequired: true,
             type: 'Decimal',
+            access: {
+                read: true,
+                create: userIsAdminOrIsSupport,
+                update: userIsAdminOrIsSupport,
+            },
+            hooks: {
+                resolveInput: ({ resolvedData, fieldPath }) => {
+                    return get(resolvedData, fieldPath, DEFAULT_IMPLICIT_FEE_PERCENT)
+                },
+            },
         },
 
-        vat: {
+        taxRegime: {
+            schemaDoc: 'The regime of counting taxes for company',
+            isRequired: true,
+            type: 'Select',
+            dataType: 'string',
+            options: TAX_REGIMES,
+        },
+
+        vatPercent: {
             schemaDoc: 'The percentage of VAT',
             type: Select,
             dataType: 'integer',
@@ -90,14 +121,31 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             isRequired: false,
         },
 
-        taxRegime: {
-            schemaDoc: 'The regime of counting taxes for company',
-            isRequired: false,
-            type: 'Select',
-            dataType: 'string',
-            options: TAX_REGIMES,
-        },
+        salesTaxPercent: PERCENT_FIELD,
 
+        currencyCode: CURRENCY_CODE_FIELD,
+
+    },
+    hooks: {
+        validateInput: ({ resolvedData, existingItem, context }) => {
+            /*
+             vatPercent constraints:
+             __________________________________
+                       |  vatPercent values
+             taxRegime | 20% | 10% |  0% | null
+             ---------------------------------
+             general   |  +  |  +  |  +  |  +
+             simple    |  +  |  +  |  -  |  +
+             ----------------------------------
+             */
+            const nextData = { ...existingItem, ...resolvedData }
+            const nextVat = get(nextData, 'vatPercent')
+            const nextTaxRegime = get(nextData, 'taxRegime')
+
+            if (nextTaxRegime === TAX_REGIME_SIMPLE && nextVat === 0) {
+                throw new GQLError(ERRORS.TAX_REGIME_AND_VAT_NOT_MATCHED, context)
+            }
+        },
     },
     kmigratorOptions: {
         constraints: [

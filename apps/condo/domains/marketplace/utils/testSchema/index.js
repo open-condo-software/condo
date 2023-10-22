@@ -8,19 +8,19 @@ const path = require('path')
 const conf = require('@open-condo/config')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 
-const { generateServerUtils, execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.utils')
-
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
-const { InvoiceContext: InvoiceContextGQL } = require('@condo/domains/marketplace/gql')
+const { InvoiceContext: InvoiceContextGQL, Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
+const { VAT_OPTIONS, TAX_REGIME_GENEGAL } = require('@condo/domains/marketplace/constants')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
-
 const MarketCategory = generateGQLTestUtils(MarketCategoryGQL)
 const MarketItem = generateGQLTestUtils(MarketItemGQL)
+const Invoice = generateGQLTestUtils(InvoiceGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
@@ -32,7 +32,8 @@ async function createTestInvoiceContext (client, organization, extraAttrs = {}) 
         dv: 1,
         sender,
         organization: { connect: { id: organization.id } },
-        implicitFeePercent: String(faker.datatype.number({ min: 1, max: 10 })),
+        taxRegime: TAX_REGIME_GENEGAL,
+        currencyCode: 'RUB',
         ...extraAttrs,
     }
     const obj = await InvoiceContext.create(client, attrs)
@@ -118,11 +119,68 @@ async function updateTestMarketItem (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+function generateInvoiceRow (attrs = {}) {
+    return {
+        name: faker.commerce.productName(),
+        toPay: String(faker.commerce.price()),
+        count: faker.datatype.number({ min: 1, max: 3 }),
+        currencyCode: 'RUB',
+        vat: String(VAT_OPTIONS[0]),
+        salesTax: String(faker.datatype.number({ min: 1, max: 7 })),
+        sku: faker.random.word(),
+        ...attrs,
+    }
+}
+
+function generateInvoiceRows () {
+    const count = faker.datatype.number({ min: 1, max: 5 })
+    const rows = []
+    for (let i = 0; i < count; i++) {
+        rows.push(generateInvoiceRow())
+    }
+
+    return rows
+}
+
+async function createTestInvoice (client, invoiceContext, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!invoiceContext || !invoiceContext.id) throw new Error('no invoiceContext.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        context: { connect: { id: invoiceContext.id } },
+        toPay: String(faker.datatype.float()),
+        rows: generateInvoiceRows(),
+        accountNumber: faker.random.alphaNumeric(13),
+        ...extraAttrs,
+    }
+    const obj = await Invoice.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestInvoice (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await Invoice.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     InvoiceContext, createTestInvoiceContext, updateTestInvoiceContext,
     MarketCategory, createTestMarketCategory, updateTestMarketCategory,
     MarketItem, createTestMarketItem, updateTestMarketItem,
+    Invoice, createTestInvoice, updateTestInvoice,
+    generateInvoiceRow,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

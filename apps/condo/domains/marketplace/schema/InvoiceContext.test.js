@@ -5,13 +5,17 @@
 const {
     makeLoggedInAdminClient,
     makeClient,
-    expectValuesOfCommonFields, expectToThrowGQLError, expectToThrowUniqueConstraintViolationError,
+    expectValuesOfCommonFields,
+    expectToThrowGQLError,
+    expectToThrowUniqueConstraintViolationError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const { TAX_REGIME_SIMPLE, DEFAULT_IMPLICIT_FEE_PERCENT } = require('@condo/domains/marketplace/constants')
 const {
     InvoiceContext,
     createTestInvoiceContext,
@@ -42,6 +46,7 @@ describe('InvoiceContext', () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const [obj, attrs] = await createTestInvoiceContext(adminClient, o10n)
                 expectValuesOfCommonFields(obj, attrs, adminClient)
+                expect(Number(obj.implicitFeePercent)).toEqual(Number(DEFAULT_IMPLICIT_FEE_PERCENT))
             })
 
             test('support can', async () => {
@@ -51,8 +56,9 @@ describe('InvoiceContext', () => {
             })
 
             test('staff with permission can', async () => {
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [o10n] = await createTestOrganization(adminClient)
+
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageInvoiceContexts: true })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
@@ -274,6 +280,44 @@ describe('InvoiceContext', () => {
         })
     })
 
+    describe('field: implicitFeePercent', () => {
+
+        let fee_invoiceContext, fee_o10n
+
+        beforeAll(async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            fee_o10n = o10n
+            const [obj] = await createTestInvoiceContext(adminClient, o10n)
+            fee_invoiceContext = obj
+        })
+
+        test('admin can edit', async () => {
+            const [obj, attrs] = await updateTestInvoiceContext(adminClient, fee_invoiceContext.id, { implicitFeePercent: '3.1' })
+
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: adminClient.user.id }))
+            expect(Number(obj.implicitFeePercent)).toEqual(Number(attrs.implicitFeePercent))
+        })
+
+        test('support can edit', async () => {
+            const [obj, attrs] = await updateTestInvoiceContext(supportClient, fee_invoiceContext.id, { implicitFeePercent: '8' })
+
+            expect(obj.sender).toEqual(attrs.sender)
+            expect(obj.updatedBy).toEqual(expect.objectContaining({ id: supportClient.user.id }))
+            expect(Number(obj.implicitFeePercent)).toEqual(Number(attrs.implicitFeePercent))
+        })
+
+        test('staff with permission can\'t edit', async () => {
+            const client = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, fee_o10n, { canManageInvoiceContexts: true })
+            await createTestOrganizationEmployee(adminClient, fee_o10n, client.user, role)
+
+            await expectToThrowAccessDeniedErrorToObj(async () => {
+                await updateTestInvoiceContext(client, fee_invoiceContext.id, { implicitFeePercent: '4' })
+            })
+        })
+    })
+
     describe('Validation tests', () => {
         test('Should have correct dv field (=== 1)', async () => {
             const [o10n] = await createTestOrganization(adminClient)
@@ -289,6 +333,56 @@ describe('InvoiceContext', () => {
                     variable: ['data', 'dv'],
                 },
             )
+        })
+
+        test('should have correct emails within settings', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, {
+                    settings: {
+                        emails: ['SomeWrongString', 'normal@email.yes'],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_INVOICE_CONTEXT_SETTINGS',
+            })
+        })
+
+        test('should contain unique emails within settings', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, {
+                    settings: {
+                        emails: ['normal@email.yes', 'normal@email.yes'],
+                    },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVALID_INVOICE_CONTEXT_SETTINGS',
+            })
+        })
+
+        test('vat=0% is not correct for taxRegime=simple', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, { taxRegime: TAX_REGIME_SIMPLE, vatPercent: 0 })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'TAX_REGIME_AND_VAT_NOT_MATCHED',
+                message: 'Tax regime and vat values are not matched',
+            })
+        })
+
+        test('salesTaxPercent must be between 0 and 100', async () => {
+            const [o10n1] = await createTestOrganization(adminClient)
+            const [o10n2] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n1, { salesTaxPercent: '-2' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
+            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n2, { salesTaxPercent: '200' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
         })
     })
 })

@@ -64472,8 +64472,10 @@ type InvoiceContextHistoryRecord {
   settings: JSON
   status: String
   implicitFeePercent: String
-  vat: String
   taxRegime: String
+  vatPercent: String
+  salesTaxPercent: String
+  currencyCode: String
   id: ID!
   v: Int
   createdAt: String
@@ -64530,24 +64532,6 @@ input InvoiceContextHistoryRecordWhereInput {
   implicitFeePercent_gte: String
   implicitFeePercent_in: [String]
   implicitFeePercent_not_in: [String]
-  vat: String
-  vat_not: String
-  vat_contains: String
-  vat_not_contains: String
-  vat_starts_with: String
-  vat_not_starts_with: String
-  vat_ends_with: String
-  vat_not_ends_with: String
-  vat_i: String
-  vat_not_i: String
-  vat_contains_i: String
-  vat_not_contains_i: String
-  vat_starts_with_i: String
-  vat_not_starts_with_i: String
-  vat_ends_with_i: String
-  vat_not_ends_with_i: String
-  vat_in: [String]
-  vat_not_in: [String]
   taxRegime: String
   taxRegime_not: String
   taxRegime_contains: String
@@ -64566,6 +64550,50 @@ input InvoiceContextHistoryRecordWhereInput {
   taxRegime_not_ends_with_i: String
   taxRegime_in: [String]
   taxRegime_not_in: [String]
+  vatPercent: String
+  vatPercent_not: String
+  vatPercent_contains: String
+  vatPercent_not_contains: String
+  vatPercent_starts_with: String
+  vatPercent_not_starts_with: String
+  vatPercent_ends_with: String
+  vatPercent_not_ends_with: String
+  vatPercent_i: String
+  vatPercent_not_i: String
+  vatPercent_contains_i: String
+  vatPercent_not_contains_i: String
+  vatPercent_starts_with_i: String
+  vatPercent_not_starts_with_i: String
+  vatPercent_ends_with_i: String
+  vatPercent_not_ends_with_i: String
+  vatPercent_in: [String]
+  vatPercent_not_in: [String]
+  salesTaxPercent: String
+  salesTaxPercent_not: String
+  salesTaxPercent_lt: String
+  salesTaxPercent_lte: String
+  salesTaxPercent_gt: String
+  salesTaxPercent_gte: String
+  salesTaxPercent_in: [String]
+  salesTaxPercent_not_in: [String]
+  currencyCode: String
+  currencyCode_not: String
+  currencyCode_contains: String
+  currencyCode_not_contains: String
+  currencyCode_starts_with: String
+  currencyCode_not_starts_with: String
+  currencyCode_ends_with: String
+  currencyCode_not_ends_with: String
+  currencyCode_i: String
+  currencyCode_not_i: String
+  currencyCode_contains_i: String
+  currencyCode_not_contains_i: String
+  currencyCode_starts_with_i: String
+  currencyCode_not_starts_with_i: String
+  currencyCode_ends_with_i: String
+  currencyCode_not_ends_with_i: String
+  currencyCode_in: [String]
+  currencyCode_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -64653,10 +64681,14 @@ enum SortInvoiceContextHistoryRecordsBy {
   status_DESC
   implicitFeePercent_ASC
   implicitFeePercent_DESC
-  vat_ASC
-  vat_DESC
   taxRegime_ASC
   taxRegime_DESC
+  vatPercent_ASC
+  vatPercent_DESC
+  salesTaxPercent_ASC
+  salesTaxPercent_DESC
+  currencyCode_ASC
+  currencyCode_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -64681,8 +64713,10 @@ input InvoiceContextHistoryRecordUpdateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
-  vat: String
   taxRegime: String
+  vatPercent: String
+  salesTaxPercent: String
+  currencyCode: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64708,8 +64742,10 @@ input InvoiceContextHistoryRecordCreateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
-  vat: String
   taxRegime: String
+  vatPercent: String
+  salesTaxPercent: String
+  currencyCode: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64755,11 +64791,17 @@ type InvoiceContext {
   """ How much money do we charge from companies. The percent. """
   implicitFeePercent: String
 
-  """ The percentage of VAT """
-  vat: Int
-
   """ The regime of counting taxes for company """
   taxRegime: String
+
+  """ The percentage of VAT """
+  vatPercent: Int
+
+  """ The percent value """
+  salesTaxPercent: String
+
+  """ Code of currency in ISO-4217 format """
+  currencyCode: String
   id: ID!
   v: Int
   createdAt: String
@@ -64808,14 +64850,26 @@ input InvoiceContextWhereInput {
   implicitFeePercent_gte: String
   implicitFeePercent_in: [String]
   implicitFeePercent_not_in: [String]
-  vat: Int
-  vat_not: Int
-  vat_in: [Int]
-  vat_not_in: [Int]
   taxRegime: String
   taxRegime_not: String
   taxRegime_in: [String]
   taxRegime_not_in: [String]
+  vatPercent: Int
+  vatPercent_not: Int
+  vatPercent_in: [Int]
+  vatPercent_not_in: [Int]
+  salesTaxPercent: String
+  salesTaxPercent_not: String
+  salesTaxPercent_lt: String
+  salesTaxPercent_lte: String
+  salesTaxPercent_gt: String
+  salesTaxPercent_gte: String
+  salesTaxPercent_in: [String]
+  salesTaxPercent_not_in: [String]
+  currencyCode: String
+  currencyCode_not: String
+  currencyCode_in: [String]
+  currencyCode_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -64885,10 +64939,14 @@ enum SortInvoiceContextsBy {
   status_DESC
   implicitFeePercent_ASC
   implicitFeePercent_DESC
-  vat_ASC
-  vat_DESC
   taxRegime_ASC
   taxRegime_DESC
+  vatPercent_ASC
+  vatPercent_DESC
+  salesTaxPercent_ASC
+  salesTaxPercent_DESC
+  currencyCode_ASC
+  currencyCode_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -64913,8 +64971,10 @@ input InvoiceContextUpdateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
-  vat: Int
   taxRegime: String
+  vatPercent: Int
+  salesTaxPercent: String
+  currencyCode: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -64937,8 +64997,10 @@ input InvoiceContextCreateInput {
   settings: JSON
   status: String
   implicitFeePercent: String
-  vat: Int
   taxRegime: String
+  vatPercent: Int
+  salesTaxPercent: String
+  currencyCode: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -65881,6 +65943,669 @@ input MarketItemCreateInput {
 
 input MarketItemsCreateInput {
   data: MarketItemCreateInput
+}
+
+enum InvoiceHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type InvoiceHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the InvoiceHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the InvoiceHistoryRecord List config, or
+   3. As an alias to a 'name' field on the InvoiceHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the InvoiceHistoryRecord List.
+  """
+  _label_: String
+  context: String
+  number: JSON
+  property: String
+  unitType: String
+  unitName: String
+  accountNumber: String
+  toPay: String
+  rows: JSON
+  ticket: String
+  contact: String
+  client: String
+  status: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: InvoiceHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input InvoiceHistoryRecordWhereInput {
+  AND: [InvoiceHistoryRecordWhereInput]
+  OR: [InvoiceHistoryRecordWhereInput]
+  context: String
+  context_not: String
+  context_in: [String]
+  context_not_in: [String]
+  number: JSON
+  number_not: JSON
+  number_in: [JSON]
+  number_not_in: [JSON]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
+  unitType: String
+  unitType_not: String
+  unitType_contains: String
+  unitType_not_contains: String
+  unitType_starts_with: String
+  unitType_not_starts_with: String
+  unitType_ends_with: String
+  unitType_not_ends_with: String
+  unitType_i: String
+  unitType_not_i: String
+  unitType_contains_i: String
+  unitType_not_contains_i: String
+  unitType_starts_with_i: String
+  unitType_not_starts_with_i: String
+  unitType_ends_with_i: String
+  unitType_not_ends_with_i: String
+  unitType_in: [String]
+  unitType_not_in: [String]
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
+  toPay: String
+  toPay_not: String
+  toPay_lt: String
+  toPay_lte: String
+  toPay_gt: String
+  toPay_gte: String
+  toPay_in: [String]
+  toPay_not_in: [String]
+  rows: JSON
+  rows_not: JSON
+  rows_in: [JSON]
+  rows_not_in: [JSON]
+  ticket: String
+  ticket_not: String
+  ticket_in: [String]
+  ticket_not_in: [String]
+  contact: String
+  contact_not: String
+  contact_in: [String]
+  contact_not_in: [String]
+  client: String
+  client_not: String
+  client_in: [String]
+  client_not_in: [String]
+  status: String
+  status_not: String
+  status_contains: String
+  status_not_contains: String
+  status_starts_with: String
+  status_not_starts_with: String
+  status_ends_with: String
+  status_not_ends_with: String
+  status_i: String
+  status_not_i: String
+  status_contains_i: String
+  status_not_contains_i: String
+  status_starts_with_i: String
+  status_not_starts_with_i: String
+  status_ends_with_i: String
+  status_not_ends_with_i: String
+  status_in: [String]
+  status_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: InvoiceHistoryRecordHistoryActionType
+  history_action_not: InvoiceHistoryRecordHistoryActionType
+  history_action_in: [InvoiceHistoryRecordHistoryActionType]
+  history_action_not_in: [InvoiceHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input InvoiceHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortInvoiceHistoryRecordsBy {
+  unitType_ASC
+  unitType_DESC
+  unitName_ASC
+  unitName_DESC
+  accountNumber_ASC
+  accountNumber_DESC
+  toPay_ASC
+  toPay_DESC
+  status_ASC
+  status_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input InvoiceHistoryRecordUpdateInput {
+  context: String
+  number: JSON
+  property: String
+  unitType: String
+  unitName: String
+  accountNumber: String
+  toPay: String
+  rows: JSON
+  ticket: String
+  contact: String
+  client: String
+  status: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: InvoiceHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input InvoiceHistoryRecordsUpdateInput {
+  id: ID!
+  data: InvoiceHistoryRecordUpdateInput
+}
+
+input InvoiceHistoryRecordCreateInput {
+  context: String
+  number: JSON
+  property: String
+  unitType: String
+  unitName: String
+  accountNumber: String
+  toPay: String
+  rows: JSON
+  ticket: String
+  contact: String
+  client: String
+  status: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: InvoiceHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input InvoiceHistoryRecordsCreateInput {
+  data: InvoiceHistoryRecordCreateInput
+}
+
+input InvoiceContextRelateToOneInput {
+  create: InvoiceContextCreateInput
+  connect: InvoiceContextWhereUniqueInput
+  disconnect: InvoiceContextWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+type InvoiceRowSchemaField {
+  name: String!
+  toPay: String!
+  count: Int!
+  currencyCode: String!
+  vat: String
+  salesTax: String
+  sku: String
+}
+
+input InvoiceRowSchemaFieldInput {
+  name: String!
+  toPay: String!
+  count: Int!
+  currencyCode: String!
+  vat: String
+  salesTax: String
+  sku: String
+}
+
+""" Invoice model contains information about paid items and payer """
+type Invoice {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the Invoice List config, or
+   2. As an alias to the field set on 'labelField' in the Invoice List config, or
+   3. As an alias to a 'name' field on the Invoice List (if one exists), or
+   4. As an alias to the 'id' field on the Invoice List.
+  """
+  _label_: String
+
+  """ The invoice context the invoice was created for """
+  context: InvoiceContext
+
+  """ The invoice number within organization """
+  number: Int
+
+  """ The payer's property """
+  property: Property
+
+  """ Type of unit, such as parking lot or flat """
+  unitType: String
+
+  """ The payer's unitName """
+  unitName: String
+
+  """ The payer's accountNumber within organization """
+  accountNumber: String
+
+  """ Money field """
+  toPay: String
+
+  """ The list of paid items """
+  rows: [InvoiceRowSchemaField!]!
+
+  """ The ticket related to this invoice """
+  ticket: Ticket
+
+  """ The contact the invoice created for. Fill if invoice was created or connected via the ticket form 
+  """
+  contact: Contact
+
+  """ The user who sees the invoice. Must filled with the user of corresponding resident. 
+  """
+  client: User
+
+  """ The regime of counting taxes for company """
+  status: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input InvoiceWhereInput {
+  AND: [InvoiceWhereInput]
+  OR: [InvoiceWhereInput]
+  context: InvoiceContextWhereInput
+  context_is_null: Boolean
+  number: Int
+  number_not: Int
+  number_lt: Int
+  number_lte: Int
+  number_gt: Int
+  number_gte: Int
+  number_in: [Int]
+  number_not_in: [Int]
+  property: PropertyWhereInput
+  property_is_null: Boolean
+  unitType: String
+  unitType_not: String
+  unitType_in: [String]
+  unitType_not_in: [String]
+  unitName: String
+  unitName_not: String
+  unitName_contains: String
+  unitName_not_contains: String
+  unitName_starts_with: String
+  unitName_not_starts_with: String
+  unitName_ends_with: String
+  unitName_not_ends_with: String
+  unitName_i: String
+  unitName_not_i: String
+  unitName_contains_i: String
+  unitName_not_contains_i: String
+  unitName_starts_with_i: String
+  unitName_not_starts_with_i: String
+  unitName_ends_with_i: String
+  unitName_not_ends_with_i: String
+  unitName_in: [String]
+  unitName_not_in: [String]
+  accountNumber: String
+  accountNumber_not: String
+  accountNumber_contains: String
+  accountNumber_not_contains: String
+  accountNumber_starts_with: String
+  accountNumber_not_starts_with: String
+  accountNumber_ends_with: String
+  accountNumber_not_ends_with: String
+  accountNumber_i: String
+  accountNumber_not_i: String
+  accountNumber_contains_i: String
+  accountNumber_not_contains_i: String
+  accountNumber_starts_with_i: String
+  accountNumber_not_starts_with_i: String
+  accountNumber_ends_with_i: String
+  accountNumber_not_ends_with_i: String
+  accountNumber_in: [String]
+  accountNumber_not_in: [String]
+  toPay: String
+  toPay_not: String
+  toPay_lt: String
+  toPay_lte: String
+  toPay_gt: String
+  toPay_gte: String
+  toPay_in: [String]
+  toPay_not_in: [String]
+  rows: [InvoiceRowSchemaFieldInput!]
+  rows_not: [InvoiceRowSchemaFieldInput!]
+  rows_in: [[InvoiceRowSchemaFieldInput!]]
+  rows_not_in: [[InvoiceRowSchemaFieldInput!]]
+  ticket: TicketWhereInput
+  ticket_is_null: Boolean
+  contact: ContactWhereInput
+  contact_is_null: Boolean
+  client: UserWhereInput
+  client_is_null: Boolean
+  status: String
+  status_not: String
+  status_in: [String]
+  status_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input InvoiceWhereUniqueInput {
+  id: ID!
+}
+
+enum SortInvoicesBy {
+  context_ASC
+  context_DESC
+  number_ASC
+  number_DESC
+  property_ASC
+  property_DESC
+  unitType_ASC
+  unitType_DESC
+  unitName_ASC
+  unitName_DESC
+  accountNumber_ASC
+  accountNumber_DESC
+  toPay_ASC
+  toPay_DESC
+  ticket_ASC
+  ticket_DESC
+  contact_ASC
+  contact_DESC
+  client_ASC
+  client_DESC
+  status_ASC
+  status_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input InvoiceUpdateInput {
+  context: InvoiceContextRelateToOneInput
+  number: Int
+  property: PropertyRelateToOneInput
+  unitType: String
+  unitName: String
+  accountNumber: String
+  toPay: String
+  rows: [InvoiceRowSchemaFieldInput!]
+  ticket: TicketRelateToOneInput
+  contact: ContactRelateToOneInput
+  client: UserRelateToOneInput
+  status: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input InvoicesUpdateInput {
+  id: ID!
+  data: InvoiceUpdateInput
+}
+
+input InvoiceCreateInput {
+  context: InvoiceContextRelateToOneInput
+  number: Int
+  property: PropertyRelateToOneInput
+  unitType: String
+  unitName: String
+  accountNumber: String
+  toPay: String
+  rows: [InvoiceRowSchemaFieldInput!]
+  ticket: TicketRelateToOneInput
+  contact: ContactRelateToOneInput
+  client: UserRelateToOneInput
+  status: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input InvoicesCreateInput {
+  data: InvoiceCreateInput
 }
 
 enum WebhookHistoryRecordHistoryActionType {
@@ -71663,6 +72388,33 @@ type Query {
   """ Retrieve the meta-data for the MarketItem list. """
   _MarketItemsMeta: _ListMeta
 
+  """ Search for all InvoiceHistoryRecord items which match the where clause. 
+  """
+  allInvoiceHistoryRecords(where: InvoiceHistoryRecordWhereInput, search: String, sortBy: [SortInvoiceHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [InvoiceHistoryRecord]
+
+  """ Search for the InvoiceHistoryRecord item with the matching ID. """
+  InvoiceHistoryRecord(where: InvoiceHistoryRecordWhereUniqueInput!): InvoiceHistoryRecord
+
+  """ Perform a meta-query on all InvoiceHistoryRecord items which match the where clause. 
+  """
+  _allInvoiceHistoryRecordsMeta(where: InvoiceHistoryRecordWhereInput, search: String, sortBy: [SortInvoiceHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the InvoiceHistoryRecord list. """
+  _InvoiceHistoryRecordsMeta: _ListMeta
+
+  """ Search for all Invoice items which match the where clause. """
+  allInvoices(where: InvoiceWhereInput, search: String, sortBy: [SortInvoicesBy!], orderBy: String, first: Int, skip: Int): [Invoice]
+
+  """ Search for the Invoice item with the matching ID. """
+  Invoice(where: InvoiceWhereUniqueInput!): Invoice
+
+  """ Perform a meta-query on all Invoice items which match the where clause. 
+  """
+  _allInvoicesMeta(where: InvoiceWhereInput, search: String, sortBy: [SortInvoicesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the Invoice list. """
+  _InvoicesMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -76082,6 +76834,42 @@ type Mutation {
 
   """ Delete multiple MarketItem items by ID. """
   deleteMarketItems(ids: [ID!]): [MarketItem]
+
+  """ Create a single InvoiceHistoryRecord item. """
+  createInvoiceHistoryRecord(data: InvoiceHistoryRecordCreateInput): InvoiceHistoryRecord
+
+  """ Create multiple InvoiceHistoryRecord items. """
+  createInvoiceHistoryRecords(data: [InvoiceHistoryRecordsCreateInput]): [InvoiceHistoryRecord]
+
+  """ Update a single InvoiceHistoryRecord item by ID. """
+  updateInvoiceHistoryRecord(id: ID!, data: InvoiceHistoryRecordUpdateInput): InvoiceHistoryRecord
+
+  """ Update multiple InvoiceHistoryRecord items by ID. """
+  updateInvoiceHistoryRecords(data: [InvoiceHistoryRecordsUpdateInput]): [InvoiceHistoryRecord]
+
+  """ Delete a single InvoiceHistoryRecord item by ID. """
+  deleteInvoiceHistoryRecord(id: ID!): InvoiceHistoryRecord
+
+  """ Delete multiple InvoiceHistoryRecord items by ID. """
+  deleteInvoiceHistoryRecords(ids: [ID!]): [InvoiceHistoryRecord]
+
+  """ Create a single Invoice item. """
+  createInvoice(data: InvoiceCreateInput): Invoice
+
+  """ Create multiple Invoice items. """
+  createInvoices(data: [InvoicesCreateInput]): [Invoice]
+
+  """ Update a single Invoice item by ID. """
+  updateInvoice(id: ID!, data: InvoiceUpdateInput): Invoice
+
+  """ Update multiple Invoice items by ID. """
+  updateInvoices(data: [InvoicesUpdateInput]): [Invoice]
+
+  """ Delete a single Invoice item by ID. """
+  deleteInvoice(id: ID!): Invoice
+
+  """ Delete multiple Invoice items by ID. """
+  deleteInvoices(ids: [ID!]): [Invoice]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord

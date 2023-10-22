@@ -5,10 +5,19 @@ const { GQLError } = require('@open-condo/keystone/errors')
 const { Json, SignedDecimal } = require('@open-condo/keystone/fields')
 
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
-const { PHONE_WRONG_FORMAT_ERROR, JSON_UNKNOWN_VERSION_ERROR, REQUIRED_NO_VALUE_ERROR, JSON_EXPECT_OBJECT_ERROR, COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
+const {
+    PHONE_WRONG_FORMAT_ERROR,
+    JSON_UNKNOWN_VERSION_ERROR,
+    REQUIRED_NO_VALUE_ERROR,
+    JSON_EXPECT_OBJECT_ERROR,
+    COMMON_ERRORS,
+} = require('@condo/domains/common/constants/errors')
 const { normalizePhone } = require('@condo/domains/common/utils/phone')
 const { UNIT_TYPES, FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
-const { ADDRESS_META_FIELD_GRAPHQL_TYPES, ADDRESS_META_SUBFIELDS_QUERY_LIST } = require('@condo/domains/property/schema/fields/AddressMetaField')
+const {
+    ADDRESS_META_FIELD_GRAPHQL_TYPES,
+    ADDRESS_META_SUBFIELDS_QUERY_LIST,
+} = require('@condo/domains/property/schema/fields/AddressMetaField')
 
 /** @deprecated use dvSenderPlugin! */
 const DV_FIELD = {
@@ -52,7 +61,9 @@ const ADDRESS_META_FIELD = {
         validateInput: ({ resolvedData, fieldPath, addFieldValidationError }) => {
             if (!resolvedData.hasOwnProperty(fieldPath)) return addFieldValidationError(`${REQUIRED_NO_VALUE_ERROR}${fieldPath}] Value is required`)
             const value = resolvedData[fieldPath]
-            if (typeof value !== 'object' || value === null) { return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`) }
+            if (typeof value !== 'object' || value === null) {
+                return addFieldValidationError(`${JSON_EXPECT_OBJECT_ERROR}${fieldPath}] ${fieldPath} field type error. We expect JSON Object`)
+            }
             const { dv } = value
             if (dv === 1) {
                 // TODO(pahaz): need to checkIt!
@@ -164,6 +175,20 @@ const UNIT_TYPE_FIELD = {
     defaultValue: FLAT_UNIT_TYPE,
 }
 
+const PERCENT_FIELD = {
+    schemaDoc: 'The percent value',
+    type: 'Decimal',
+    isRequired: false,
+    hooks: {
+        validateInput: ({ resolvedData, fieldPath, context }) => {
+            const value = Number(resolvedData[fieldPath])
+            if (value < 0 || value > 100) {
+                throw new GQLError(COMMON_ERRORS.INVALID_PERCENT_VALUE, context)
+            }
+        },
+    },
+}
+
 const getPhoneFieldHooks = ({ allowLandline }) => ({
     resolveInput: async ({ resolvedData, fieldPath }) => {
         const newValue = normalizePhone(resolvedData[fieldPath], allowLandline)
@@ -175,7 +200,7 @@ const getPhoneFieldHooks = ({ allowLandline }) => ({
         if (resolvedData[fieldPath] && newCallerPhone !== resolvedData[fieldPath]) {
             throw new GQLError(
                 { ...COMMON_ERRORS.WRONG_PHONE_FORMAT, variable: ['data', fieldPath] },
-                context
+                context,
             )
         }
     },
@@ -210,4 +235,5 @@ module.exports = {
     UNIT_TYPE_FIELD,
     PHONE_FIELD,
     PHONE_WITHOUT_LAND_LINE_FIELD,
+    PERCENT_FIELD,
 }

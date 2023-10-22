@@ -1906,6 +1906,7 @@
   "api.organization.reInviteOrganizationEmployee.ALREADY_ACCEPTED_INVITATION": "Specified employee has already accepted invitation",
   "api.organizationEmployee.NOT_FOUND_ROLE": "Role not found for your organization",
   "api.common.INVALID_PHONE_NUMBER_FORMAT": "Invalid phone number format",
+  "api.common.WRONG_PERCENT_VALUE": "Invalid percent value",
   "api.banking.createBankAccountRequest.INCORRECT_PROPERTY_ID": "Incorrect propertyId was provided. Please check that this id related to passed organizationId",
   "api.incident.WORK_FINISHED_EARLIER_THEN_WORK_STARTED": "The end of the work cannot be earlier than the start",
   "api.incident.WORK_FINISH_MUST_BE_SPECIFIED_IF_NOT_ACTUAL_STATUS": "The end of the work should be specified if the incident has status not actual",
@@ -2300,5 +2301,10 @@
   "incident.changeHistory.workFinish": "work finish",
   "incident.changeHistory.workType": "work type",
   "incident.hints.more.label": "More details",
-  "timezone.msk": "MSK"
+  "timezone.msk": "MSK",
+  "api.marketplace.invoice.error.noReceivers": "Nobody sees this invoice. Please set full address or account number.",
+  "api.marketplace.invoice.error.alreadyPaid": "Changing of paid invoice is forbidden",
+  "api.marketplace.invoice.error.emptyRows": "The invoice contains no rows",
+  "api.marketplace.invoice.error.rows.count": "Count can't be less than 1. Check line {rowNumber}.",
+  "api.marketplace.invoice.error.rows.toPay": "Price can't be less than 0. Check line {rowNumber}."
 }

@@ -38,6 +38,7 @@ const WRONG_VALUE = 'WRONG_VALUE'
 const VALUE_TOO_SHORT = '[value:tooShort:'
 
 const WRONG_PHONE_FORMAT = 'WRONG_PHONE_FORMAT'
+const WRONG_PERCENT_VALUE = 'WRONG_PERCENT_VALUE'
 
 const UNKNOWN_ATTRIBUTE = 'UNKNOWN_ATTRIBUTE'
 
@@ -49,6 +50,13 @@ const COMMON_ERRORS = {
         type: WRONG_PHONE_FORMAT,
         message: 'Wrong phone number format',
         messageForUser: 'api.common.INVALID_PHONE_NUMBER_FORMAT',
+    },
+
+    INVALID_PERCENT_VALUE: {
+        code: 'BAD_USER_INPUT',
+        type: WRONG_PERCENT_VALUE,
+        message: 'The percent value must be between 0 and 100',
+        messageForUser: 'api.common.WRONG_PERCENT_VALUE',
     },
 }
 

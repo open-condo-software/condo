@@ -6,4 +6,5 @@
 export * as InvoiceContext from './InvoiceContext'
 export * as MarketCategory from './MarketCategory'
 export * as MarketItem from './MarketItem'
+export * as Invoice from './Invoice'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
