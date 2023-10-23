@@ -202,7 +202,10 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 billingAccountItemsData = billingAccountItemsData.filter((item) => organizationsIdsWithProperties.has(`${item.organizationId}_${item.address}`))
 
-                discoveringSteps.push({ name: 'start filtration', billingAccountItemsData })
+                discoveringSteps.push({
+                    name: 'start filtration',
+                    billingAccountItemsData: [...billingAccountItemsData],
+                })
 
                 // Before filtering duplicates we must load additional billing accounts that may not be included into arguments of this mutation
                 // Filter duplicates (same address, unitType, and unitName) of each billing account
@@ -250,7 +253,10 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 billingAccountItemsData.push(...additionalBillingAccountsData)
 
-                discoveringSteps.push({ name: 'mix input data with additional data', billingAccountItemsData })
+                discoveringSteps.push({
+                    name: 'mix input data with additional data',
+                    billingAccountItemsData: [...billingAccountItemsData],
+                })
 
                 // Filter duplicates (same organization and number) of each billing account
                 /** @type {Object<string, string[]>} */
@@ -291,7 +297,10 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                 })
                 billingAccountItemsData = billingAccountItemsData.filter(({ id }) => billingReceiptsIdsWithoutDuplicates.includes(id))
 
-                discoveringSteps.push({ name: 'filter out duplicates by number', billingAccountItemsData })
+                discoveringSteps.push({
+                    name: 'filter out duplicates by number',
+                    billingAccountItemsData: [...billingAccountItemsData],
+                })
 
                 // Filter out billing accounts that have the same address, unitType, and unitName,
                 // and one of two last receipts have the same category as the receipt for the 2nd account
@@ -363,7 +372,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
                     name: 'filter out duplicates by same address and category',
                     billingAccountsIdsExcludedBySameCategory,
                     billingAccountsWithoutReceipts,
-                    billingAccountItemsData,
+                    billingAccountItemsData: [...billingAccountItemsData],
                 })
 
                 // filter out additionally added billing accounts
@@ -372,7 +381,7 @@ const DiscoverServiceConsumersService = new GQLCustomSchema('DiscoverServiceCons
 
                 discoveringSteps.push({
                     name: 'filter out additional accounts',
-                    billingAccountItemsData,
+                    billingAccountItemsData: [...billingAccountItemsData],
                     additionalBillingAccountIds,
                 })
 
