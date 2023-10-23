@@ -1,8 +1,7 @@
 const Ajv = require('ajv')
-const addFormats = require('ajv-formats')
 
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
-const { ERROR_INVALID_PRICE } = require('@condo/domains/marketplace/constants')
+const { ERROR_INVALID_PRICE, VAT_OPTIONS } = require('@condo/domains/marketplace/constants')
 const PRICE_GQL_TYPE_NAME = 'PriceSchemaField'
 const PRICE_GQL_INPUT_NAME = 'PriceSchemaFieldInput'
 
@@ -12,8 +11,8 @@ const priceSchemaFields = {
     name: 'String!',
     price: 'String!',
     isMin: 'Boolean!',
-    vat: 'String!',
-    salesTax: 'String!',
+    vatPercent: 'String',
+    salesTaxPercent: 'String',
 }
 
 const priceGqlSchemaTypes = `
@@ -26,11 +25,10 @@ const priceGqlSchemaTypes = `
     }
 `
 
-const taxOptions = ['null', '0', '10', '20']
 const PRICE_FIELD_SCHEMA = {
     type: 'object',
     additionalProperties: false,
-    required: ['type', 'group', 'name', 'price', 'isMin', 'vat', 'salesTax'],
+    required: ['type', 'group', 'name', 'price', 'isMin'],
     properties: {
         type: {
             type: 'string',
@@ -49,19 +47,17 @@ const PRICE_FIELD_SCHEMA = {
         isMin: {
             type: 'boolean',
         },
-        vat: {
+        vatPercent: {
             type: 'string',
-            enum: taxOptions,
+            enum: VAT_OPTIONS.map(opt => opt.toString()),
         },
-        salesTax: {
+        salesTaxPercent: {
             type: 'string',
-            enum: taxOptions,
         },
     },
 }
 
 const ajv = new Ajv()
-addFormats(ajv)
 const validatePriceField = getGQLErrorValidator(ajv.compile(PRICE_FIELD_SCHEMA), ERROR_INVALID_PRICE)
 
 const PRICE_FIELD = {

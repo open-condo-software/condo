@@ -208,18 +208,16 @@ async function updateTestMarketItemFile (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMarketItemPrice (client, marketItem, organization, extraAttrs = {}) {
+async function createTestMarketItemPrice (client, marketItem, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!marketItem || !marketItem.id) throw new Error('no marketItem.id')
-    if (!organization || !organization.id) throw new Error('no organization.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
         marketItem: { connect: { id: marketItem.id } },
-        organization: { connect: { id: organization.id } },
-        price: { type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vat: '20', salesTax: '0' },
+        price: { type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' },
         ...extraAttrs,
     }
     const obj = await MarketItemPrice.create(client, attrs)
@@ -231,7 +229,6 @@ async function updateTestMarketItemPrice (client, id, extraAttrs = {}) {
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): check the updateTestMarketItemPrice logic for generate fields
 
     const attrs = {
         dv: 1,

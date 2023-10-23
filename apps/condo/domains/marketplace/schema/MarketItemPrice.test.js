@@ -4,9 +4,8 @@
 
 const { faker } = require('@faker-js/faker')
 const Ajv = require('ajv')
-const addFormats = require('ajv-formats')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
@@ -22,9 +21,8 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 const ajv = new Ajv()
-addFormats(ajv)
 const validatePriceField = ajv.compile(PRICE_FIELD_SCHEMA)
-const validPriceFieldValue = { type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vat: '20', salesTax: '0' }
+const validPriceFieldValue = { type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' }
 
 describe('MarketItemPrice', () => {
     let admin, organization, marketCategory
@@ -41,12 +39,12 @@ describe('MarketItemPrice', () => {
                 [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
             })
             test('can create', async () => {
-                const [obj, attrs] = await createTestMarketItemPrice(admin, marketItem, organization)
+                const [obj, attrs] = await createTestMarketItemPrice(admin, marketItem)
                 expectValuesOfCommonFields(obj, attrs, admin)
             })
 
             test('can update', async () => {
-                const [objCreated] = await createTestMarketItemPrice(admin, marketItem, organization)
+                const [objCreated] = await createTestMarketItemPrice(admin, marketItem)
                 const [obj, attrs] = await  updateTestMarketItemPrice(admin, objCreated.id)
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -60,7 +58,7 @@ describe('MarketItemPrice', () => {
                 })
             })
             test('can read', async () => {
-                const [obj] = await createTestMarketItemPrice(admin, marketItem, organization)
+                const [obj] = await createTestMarketItemPrice(admin, marketItem)
 
                 const objs = await MarketItemPrice.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -80,12 +78,12 @@ describe('MarketItemPrice', () => {
                 [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
             })
             test('can create', async () => {
-                const [obj, attrs] = await createTestMarketItemPrice(client, marketItem, organization)
+                const [obj, attrs] = await createTestMarketItemPrice(client, marketItem)
                 expectValuesOfCommonFields(obj, attrs, client)
             })
 
             test('can update', async () => {
-                const [objCreated] = await createTestMarketItemPrice(client, marketItem, organization)
+                const [objCreated] = await createTestMarketItemPrice(client, marketItem)
                 const [obj, attrs] = await  updateTestMarketItemPrice(client, objCreated.id)
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
@@ -99,7 +97,7 @@ describe('MarketItemPrice', () => {
                 })
             })
             test('can read', async () => {
-                const [obj] = await createTestMarketItemPrice(client, marketItem, organization)
+                const [obj] = await createTestMarketItemPrice(client, marketItem)
 
                 const objs = await MarketItemPrice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -127,12 +125,12 @@ describe('MarketItemPrice', () => {
             })
 
             test('can create', async () => {
-                const [obj, attrs] = await createTestMarketItemPrice(client, marketItem, organization)
+                const [obj, attrs] = await createTestMarketItemPrice(client, marketItem)
                 expectValuesOfCommonFields(obj, attrs, client)
             })
 
             test('can update', async () => {
-                const [objCreated] = await createTestMarketItemPrice(client, marketItem, organization)
+                const [objCreated] = await createTestMarketItemPrice(client, marketItem)
                 const [obj, attrs] = await updateTestMarketItemPrice(client, objCreated.id)
 
                 expect(obj.id).toMatch(UUID_RE)
@@ -149,7 +147,7 @@ describe('MarketItemPrice', () => {
             })
 
             test('can read', async () => {
-                const [obj] = await createTestMarketItemPrice(client, marketItem, organization)
+                const [obj] = await createTestMarketItemPrice(client, marketItem)
 
                 const objs = await MarketItemPrice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -178,12 +176,12 @@ describe('MarketItemPrice', () => {
 
             test('can\'t create', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestMarketItemPrice(client, marketItem, organization)
+                    await createTestMarketItemPrice(client, marketItem)
                 })
             })
 
             test('can\'t update', async () => {
-                const [objCreated] = await createTestMarketItemPrice(admin, marketItem, organization)
+                const [objCreated] = await createTestMarketItemPrice(admin, marketItem)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestMarketItemPrice(client, objCreated.id)
@@ -197,7 +195,7 @@ describe('MarketItemPrice', () => {
             })
 
             test('can\'t read', async () => {
-                await createTestMarketItemPrice(admin, marketItem, organization)
+                await createTestMarketItemPrice(admin, marketItem)
                 const objs = await MarketItemPrice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 expect(objs).toHaveLength(0)
             })
@@ -211,7 +209,7 @@ describe('MarketItemPrice', () => {
 
             test('can\'t create', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestMarketItemPrice(client, { id: 'id' }, { id: 'id' })
+                    await createTestMarketItemPrice(client, { id: 'id' })
                 })
             })
 
@@ -255,12 +253,12 @@ describe('MarketItemPrice', () => {
 
             test('can\'t create', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestMarketItemPrice(client, marketItem, organization)
+                    await createTestMarketItemPrice(client, marketItem)
                 })
             })
 
             test('can\'t update', async () => {
-                const [objCreated] = await createTestMarketItemPrice(admin, marketItem, organization)
+                const [objCreated] = await createTestMarketItemPrice(admin, marketItem)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestMarketItemPrice(client, objCreated.id)
@@ -274,7 +272,7 @@ describe('MarketItemPrice', () => {
             })
 
             test('can read MarketItem of his organization', async () => {
-                const [obj] = await createTestMarketItemPrice(admin, marketItem, organization)
+                const [obj] = await createTestMarketItemPrice(admin, marketItem)
 
                 const objs = await MarketItemPrice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 expect(objs.length).toBeGreaterThanOrEqual(1)
@@ -289,6 +287,41 @@ describe('MarketItemPrice', () => {
 
     })
 
+    describe('Hooks validation tests', () => {
+        let marketItem
+        beforeAll(async () => {
+            [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
+        })
+        test('Validate item price', async () => {
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestMarketItemPrice(admin, marketItem, {
+                        price: { ...validPriceFieldValue, price: '0' },
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_PRICE',
+                },
+                'obj'
+            )
+        })
+        test('Validate salesTaxPercent', async () => {
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestMarketItemPrice(admin, marketItem, {
+                        price: { ...validPriceFieldValue, salesTaxPercent: '-1' },
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_SALES_TAX_PERCENT',
+                },
+                'obj'
+            )
+        })
+    })
+
     describe('Price field validation tests', () => {
         test('positive validation test', async () => {
             expect(validatePriceField(validPriceFieldValue)).toEqual(true)
@@ -301,8 +334,7 @@ describe('MarketItemPrice', () => {
                 [{ ...validPriceFieldValue, name: [] }],
                 [{ ...validPriceFieldValue, price: 'invalid' }],
                 [{ ...validPriceFieldValue, isMin: 'invalid' }],
-                [{ ...validPriceFieldValue, vat: '100' }],
-                [{ ...validPriceFieldValue, salesTax: '100' }],
+                [{ ...validPriceFieldValue, vatPercent: '100' }],
             ]
             test.each(cases)('%j', (data) => {
                 expect(validatePriceField(data)).toEqual(false)

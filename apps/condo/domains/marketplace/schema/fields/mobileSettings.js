@@ -1,5 +1,4 @@
 const Ajv = require('ajv')
-const addFormats = require('ajv-formats')
 
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { ERROR_INVALID_MOBILE_SETTINGS } = require('@condo/domains/marketplace/constants')
@@ -38,7 +37,6 @@ const SETTINGS_FIELD_SCHEMA = {
 }
 
 const ajv = new Ajv()
-addFormats(ajv)
 const validateSettingsField = getGQLErrorValidator(ajv.compile(SETTINGS_FIELD_SCHEMA), ERROR_INVALID_MOBILE_SETTINGS)
 
 const MOBILE_SETTINGS_FIELD = {

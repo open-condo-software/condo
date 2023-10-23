@@ -30,19 +30,23 @@ async function canReadMarketItemPrices ({ authentication: { item: user } }) {
         const organizationIds = [...residentOrganizationsIds, ...serviceConsumerOrganizationIds]
         if (organizationIds.length) {
             return {
-                organization: { id_in: uniq(organizationIds) },
+                marketItem: {
+                    organization: { id_in: uniq(organizationIds) },
+                },
             }
         }
         return false
     }
 
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadMarketItemPrices'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItemPrices'),
-            ],
-            deletedAt: null,
+        marketItem: {
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(user.id, 'canReadMarketItemPrices'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItemPrices'),
+                ],
+                deletedAt: null,
+            },
         },
     }
 }
@@ -56,11 +60,21 @@ async function canManageMarketItemPrices ({ authentication: { item: user }, orig
     let organizationId
 
     if (operation === 'create') {
-        organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        const marketItem = await getById('MarketItem', get(originalInput, ['marketItem', 'connect', 'id']))
+        if (!marketItem) return false
+
+        organizationId = get(await getById('Organization', marketItem.organization), 'id')
+        if (!organizationId) return false
     } else if (operation === 'update') {
         if (!itemId) return false
-        const item = await getById('MarketItemPrice', itemId)
-        organizationId = get(item, 'organization', null)
+
+        const marketItemPrice = await getById('MarketItemPrice', itemId)
+
+        const marketItem = await getById('MarketItem', get(marketItemPrice, 'marketItem'))
+
+        if (!marketItem) return false
+
+        organizationId = get(await getById('Organization', marketItem.organization), 'id')
     }
 
     if (!organizationId) return false
