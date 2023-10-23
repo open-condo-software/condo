@@ -18,7 +18,8 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
+const { PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const { addAcquiringIntegrationAndContext, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     addBillingIntegrationAndContext, createTestBillingProperty,
     createRegisterBillingReceiptsPayload,
@@ -625,8 +626,13 @@ describe('Invoice', () => {
             })
         })
 
-        test('can\'t change paid invoice', async () => {
+        test('can\'t change online-paid invoice', async () => {
             const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PAID })
+
+            await createTestPayment(adminClient, dummyO10n, null, null, {
+                invoice: obj,
+                status: PAYMENT_WITHDRAWN_STATUS,
+            })
 
             await expectToThrowGQLError(async () => {
                 await updateTestInvoice(adminClient, obj.id)
@@ -636,6 +642,13 @@ describe('Invoice', () => {
                 message: 'Changing of paid invoice is forbidden',
                 messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
             })
+        })
+
+        test('can change cash-paid invoice', async () => {
+            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PAID })
+            const [updatedObj, updatedAttrs] = await updateTestInvoice(adminClient, obj.id, { status: INVOICE_STATUS_PUBLISHED })
+
+            expect(updatedObj.sender).toEqual(updatedAttrs.sender)
         })
 
         test('can\'t publish invoice without rows', async () => {

@@ -7,6 +7,12 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
+const {
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_DONE_STATUS,
+    PAYMENT_WITHDRAWN_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
+const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
@@ -133,16 +139,28 @@ const Invoice = new GQLListSchema('Invoice', {
 
     },
     hooks: {
-        validateInput: ({ resolvedData, operation, existingItem, context }) => {
+        validateInput: async ({ resolvedData, operation, existingItem, context }) => {
             const nextData = { ...existingItem, ...resolvedData }
             if (!((!!nextData.property && !!nextData.unitType && !!nextData.unitName) || !!nextData.accountNumber)) {
                 throw new GQLError(ERRORS.NO_RECEIVERS, context)
             }
 
             if (operation === 'update' && existingItem.status === INVOICE_STATUS_PAID) {
-                // TODO (DOMA-7447) prevent updating only for paid online (with Payment model) +TESTS
+                // Prevent updating only for paid online invoices (with Payment model)
                 // In the case of cash it's may be needed to uncheck the "paid" status
-                throw new GQLError(ERRORS.ALREADY_PAID, context)
+                const payments = await Payment.getAll(
+                    context,
+                    {
+                        invoice: { id: existingItem.id },
+                        status_in: [
+                            PAYMENT_PROCESSING_STATUS,
+                            PAYMENT_DONE_STATUS,
+                            PAYMENT_WITHDRAWN_STATUS,
+                        ],
+                    })
+                if (payments.length > 0) {
+                    throw new GQLError(ERRORS.ALREADY_PAID, context)
+                }
             }
 
             if (get(resolvedData, 'status') === INVOICE_STATUS_PUBLISHED && get(nextData, 'rows', []).length === 0) {
