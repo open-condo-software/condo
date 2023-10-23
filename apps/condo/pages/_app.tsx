@@ -442,14 +442,14 @@ const MyApp = ({ Component, pageProps }) => {
                         <GlobalStyle/>
                         {shouldDisplayCookieAgreement && <CookieAgreement/>}
                         <FocusContextProvider>
-                            <TasksProvider>
-                                <PostMessageProvider>
-                                    <TrackingProvider>
-                                        <OnBoardingProvider>
-                                            <SubscriptionProvider>
-                                                <GlobalAppsFeaturesProvider>
-                                                    <GlobalAppsContainer/>
-                                                    <LayoutContextProvider>
+                            <LayoutContextProvider>
+                                <TasksProvider>
+                                    <PostMessageProvider>
+                                        <TrackingProvider>
+                                            <OnBoardingProvider>
+                                                <SubscriptionProvider>
+                                                    <GlobalAppsFeaturesProvider>
+                                                        <GlobalAppsContainer/>
                                                         <TicketVisibilityContextProvider>
                                                             <ActiveCallContextProvider>
                                                                 <ConnectedAppsWithIconsContextProvider>
@@ -466,13 +466,13 @@ const MyApp = ({ Component, pageProps }) => {
                                                                 </ConnectedAppsWithIconsContextProvider>
                                                             </ActiveCallContextProvider>
                                                         </TicketVisibilityContextProvider>
-                                                    </LayoutContextProvider>
-                                                </GlobalAppsFeaturesProvider>
-                                            </SubscriptionProvider>
-                                        </OnBoardingProvider>
-                                    </TrackingProvider>
-                                </PostMessageProvider>
-                            </TasksProvider>
+                                                    </GlobalAppsFeaturesProvider>
+                                                </SubscriptionProvider>
+                                            </OnBoardingProvider>
+                                        </TrackingProvider>
+                                    </PostMessageProvider>
+                                </TasksProvider>
+                            </LayoutContextProvider>
                         </FocusContextProvider>
                         <GoogleAnalytics/>
                         <YandexMetrika/>

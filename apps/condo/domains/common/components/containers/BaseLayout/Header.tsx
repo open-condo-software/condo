@@ -52,24 +52,27 @@ export const Header: React.FC<IHeaderProps> = (props) => {
     return (
         !breakpoints.TABLET_LARGE
             ? (
-                <Layout.Header className='header mobile-header'>
-                    <div className='context-bar'>
-                        <Space direction='horizontal' size={4}>
-                            <SBBOLIndicator organization={organization} />
-                            <InlineOrganizationSelect/>
-                        </Space>
-                        <UserMenu/>
-                    </div>
-                    <div className='appeals-bar'>
-                        <Menu size='large' onClick={toggleCollapsed}/>
-                        <Logo onClick={handleLogoClick} minified/>
-                        <div>
-                            {hasAccessToAppeals && (
-                                <ResidentActions minified/>
-                            )}
+                <>
+                    <div id='tasks-container' className='tasks-container' />
+                    <Layout.Header className='header mobile-header'>
+                        <div className='context-bar'>
+                            <Space direction='horizontal' size={4}>
+                                <SBBOLIndicator organization={organization} />
+                                <InlineOrganizationSelect/>
+                            </Space>
+                            <UserMenu/>
                         </div>
-                    </div>
-                </Layout.Header>
+                        <div className='appeals-bar'>
+                            <Menu size='large' onClick={toggleCollapsed}/>
+                            <Logo onClick={handleLogoClick} minified/>
+                            <div>
+                                {hasAccessToAppeals && (
+                                    <ResidentActions minified/>
+                                )}
+                            </div>
+                        </div>
+                    </Layout.Header>
+                </>
             )
             : (
                 <Layout.Header className='header desktop-header'>

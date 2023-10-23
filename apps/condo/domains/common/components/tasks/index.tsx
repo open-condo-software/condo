@@ -38,7 +38,7 @@ export type TaskRecord = {
     user: {
         id: string,
     }
-    
+
     // Used to find appropriate `ITask` interface implementation for this record
     __typename: string
 
@@ -127,6 +127,7 @@ export interface ITasksContext {
     addTask: (newTask: ITaskTrackableItem) => void
     updateTask: (record: TaskRecord) => void
     deleteTask?: (record: TaskRecord) => void
+    deleteAllTasks?: () => void
     tasks: ITaskTrackableItem[]
 }
 
