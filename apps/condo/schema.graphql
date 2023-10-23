@@ -66735,7 +66735,6 @@ type MarketItemFileHistoryRecord {
   _label_: String
   marketItem: String
   file: JSON
-  organization: String
   id: ID!
   v: Int
   createdAt: String
@@ -66762,10 +66761,6 @@ input MarketItemFileHistoryRecordWhereInput {
   file_not: JSON
   file_in: [JSON]
   file_not_in: [JSON]
-  organization: String
-  organization_not: String
-  organization_in: [String]
-  organization_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -66870,7 +66865,6 @@ enum SortMarketItemFileHistoryRecordsBy {
 input MarketItemFileHistoryRecordUpdateInput {
   marketItem: String
   file: JSON
-  organization: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -66893,7 +66887,6 @@ input MarketItemFileHistoryRecordsUpdateInput {
 input MarketItemFileHistoryRecordCreateInput {
   marketItem: String
   file: JSON
-  organization: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -66935,10 +66928,6 @@ type MarketItemFile {
 
   """ File object with meta information and publicUrl """
   file: File
-
-  """ Ref to the organization. It is filled in on the server and is read-only 
-  """
-  organization: Organization
   id: ID!
   v: Int
   createdAt: String
@@ -66971,8 +66960,6 @@ input MarketItemFileWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
-  organization: OrganizationWhereInput
-  organization_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67038,8 +67025,6 @@ input MarketItemFileWhereUniqueInput {
 enum SortMarketItemFilesBy {
   marketItem_ASC
   marketItem_DESC
-  organization_ASC
-  organization_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67061,7 +67046,6 @@ enum SortMarketItemFilesBy {
 input MarketItemFileUpdateInput {
   marketItem: MarketItemRelateToOneInput
   file: Upload
-  organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -67081,7 +67065,6 @@ input MarketItemFilesUpdateInput {
 input MarketItemFileCreateInput {
   marketItem: MarketItemRelateToOneInput
   file: Upload
-  organization: OrganizationRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String

@@ -35,13 +35,13 @@ describe('MarketItemFile', () => {
             test('can create', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
 
-                const [obj, attrs] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [obj, attrs] = await createTestMarketItemFile(admin, marketItem)
                 expectValuesOfCommonFields(obj, attrs, admin)
             })
 
             test('can update', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                const [objCreated] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [objCreated] = await createTestMarketItemFile(admin, marketItem)
 
                 const [obj, attrs] = await updateTestMarketItemFile(admin, objCreated.id)
                 expect(obj.dv).toEqual(1)
@@ -58,7 +58,7 @@ describe('MarketItemFile', () => {
 
             test('can read', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                const [obj] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [obj] = await createTestMarketItemFile(admin, marketItem)
                 const objs = await MarketItemFile.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
@@ -78,13 +78,13 @@ describe('MarketItemFile', () => {
             test('can create', async () => {
                 const [marketItem] = await createTestMarketItem(client, marketCategory, organization)
 
-                const [obj, attrs] = await createTestMarketItemFile(client, marketItem, organization)
+                const [obj, attrs] = await createTestMarketItemFile(client, marketItem)
                 expectValuesOfCommonFields(obj, attrs, client)
             })
 
             test('can update', async () => {
                 const [marketItem] = await createTestMarketItem(client, marketCategory, organization)
-                const [objCreated] = await createTestMarketItemFile(client, marketItem, organization)
+                const [objCreated] = await createTestMarketItemFile(client, marketItem)
 
                 const [obj, attrs] = await updateTestMarketItemFile(client, objCreated.id)
                 expect(obj.dv).toEqual(1)
@@ -101,7 +101,7 @@ describe('MarketItemFile', () => {
 
             test('can read', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                const [obj] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [obj] = await createTestMarketItemFile(admin, marketItem)
                 const objs = await MarketItemFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
@@ -128,13 +128,13 @@ describe('MarketItemFile', () => {
             test('can create', async () => {
                 const [marketItem] = await createTestMarketItem(client, marketCategory, organization)
 
-                const [obj, attrs] = await createTestMarketItemFile(client, marketItem, organization)
+                const [obj, attrs] = await createTestMarketItemFile(client, marketItem)
                 expectValuesOfCommonFields(obj, attrs, client)
             })
 
             test('can update', async () => {
                 const [marketItem] = await createTestMarketItem(client, marketCategory, organization)
-                const [objCreated] = await createTestMarketItemFile(client, marketItem, organization)
+                const [objCreated] = await createTestMarketItemFile(client, marketItem)
 
                 const [obj, attrs] = await updateTestMarketItemFile(client, objCreated.id)
                 expect(obj.dv).toEqual(1)
@@ -151,7 +151,7 @@ describe('MarketItemFile', () => {
 
             test('can read', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                const [obj] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [obj] = await createTestMarketItemFile(admin, marketItem)
                 const objs = await MarketItemFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs.length).toBeGreaterThanOrEqual(1)
@@ -179,13 +179,13 @@ describe('MarketItemFile', () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestMarketItemFile(client, marketItem, organization)
+                    await createTestMarketItemFile(client, marketItem)
                 })
             })
 
             test('can update', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                const [objCreated] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [objCreated] = await createTestMarketItemFile(admin, marketItem)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestMarketItemFile(client, objCreated.id)
@@ -200,7 +200,7 @@ describe('MarketItemFile', () => {
 
             test('can read', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                await createTestMarketItemFile(admin, marketItem, organization)
+                await createTestMarketItemFile(admin, marketItem)
                 const objs = await MarketItemFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs).toHaveLength(0)
@@ -208,14 +208,13 @@ describe('MarketItemFile', () => {
         })
 
         describe('anonymus', () => {
-            let organization, client
+            let client
             beforeAll(async () => {
-                [organization] = await createTestOrganization(admin)
                 client = await makeClient()
             })
             test('can\'t create', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestMarketItemFile(client, { id: 'id' }, organization)
+                    await createTestMarketItemFile(client, { id: 'id' })
                 })
             })
 
@@ -258,13 +257,13 @@ describe('MarketItemFile', () => {
             test('can\'t create', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestMarketItemFile(client, marketItem, organization)
+                    await createTestMarketItemFile(client, marketItem)
                 })
             })
 
             test('can\'t update', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                const [objCreated] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [objCreated] = await createTestMarketItemFile(admin, marketItem)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestMarketItemFile(client, objCreated.id)
@@ -279,7 +278,7 @@ describe('MarketItemFile', () => {
 
             test('can read', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-                const [obj] = await createTestMarketItemFile(admin, marketItem, organization)
+                const [obj] = await createTestMarketItemFile(admin, marketItem)
 
                 const objs = await MarketItemFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
                 expect(objs.length).toBeGreaterThanOrEqual(1)
@@ -293,10 +292,10 @@ describe('MarketItemFile', () => {
     })
 
     describe('constraint tests', () => {
-        test('cant create two MarketItemFile for one MarketItem in one organization', async () => {
+        test('can create two MarketItemFile for one MarketItem in one organization', async () => {
             const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-            await createTestMarketItemFile(admin, marketItem, organization)
-            const [obj, attrs] = await createTestMarketItemFile(admin, marketItem, organization)
+            await createTestMarketItemFile(admin, marketItem)
+            const [obj, attrs] = await createTestMarketItemFile(admin, marketItem)
             expectValuesOfCommonFields(obj, attrs, admin)
         })
 
@@ -304,8 +303,8 @@ describe('MarketItemFile', () => {
             const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
             const [marketItem2] = await createTestMarketItem(admin, marketCategory, organization)
 
-            await createTestMarketItemFile(admin, marketItem, organization)
-            await createTestMarketItemFile(admin, marketItem2, organization)
+            await createTestMarketItemFile(admin, marketItem)
+            await createTestMarketItemFile(admin, marketItem2)
         })
     })
 
@@ -314,7 +313,7 @@ describe('MarketItemFile', () => {
             const TEST_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/test-assets/simple-text-file.txt')
             const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
             await expectToThrowGQLError(async () => {
-                await createTestMarketItemFile(admin, marketItem, organization, {
+                await createTestMarketItemFile(admin, marketItem, {
                     file: new UploadingFile(TEST_FILE),
                 })
             }, {

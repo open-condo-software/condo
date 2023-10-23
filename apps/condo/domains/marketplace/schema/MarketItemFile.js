@@ -10,9 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
-const { canReadMarketItems } = require('@condo/domains/marketplace/access/MarketItem')
 const access = require('@condo/domains/marketplace/access/MarketItemFile')
-const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
 
 const MARKET_ITEM_FILE_FOLDER_NAME = 'marketitemfile'
@@ -61,10 +59,9 @@ const MarketItemFile = new GQLListSchema('MarketItemFile', {
     hooks: {
         afterChange: fileMetaAfterChange,
     },
-    plugins: [addOrganizationFieldPlugin({ fromField: 'marketItem', isRequired: true }),
-        uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
-        read: canReadMarketItems,
+        read: access.canReadMarketItemFiles,
         create: access.canManageMarketItemFiles,
         update: access.canManageMarketItemFiles,
         delete: false,

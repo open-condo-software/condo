@@ -176,7 +176,7 @@ async function updateTestInvoice (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestMarketItemFile (client, marketItem, organization, extraAttrs = {}) {
+async function createTestMarketItemFile (client, marketItem, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!marketItem || !marketItem.id) throw new Error('no marketItem.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }

@@ -26205,8 +26205,6 @@ export type MarketItemFile = {
   marketItem?: Maybe<MarketItem>;
   /**  File object with meta information and publicUrl  */
   file?: Maybe<File>;
-  /**  Ref to the organization. It is filled in on the server and is read-only  */
-  organization?: Maybe<Organization>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -26226,7 +26224,6 @@ export type MarketItemFile = {
 export type MarketItemFileCreateInput = {
   marketItem?: Maybe<MarketItemRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26251,7 +26248,6 @@ export type MarketItemFileHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   marketItem?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -26270,7 +26266,6 @@ export type MarketItemFileHistoryRecord = {
 export type MarketItemFileHistoryRecordCreateInput = {
   marketItem?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26294,7 +26289,6 @@ export enum MarketItemFileHistoryRecordHistoryActionType {
 export type MarketItemFileHistoryRecordUpdateInput = {
   marketItem?: Maybe<Scalars['String']>;
   file?: Maybe<Scalars['JSON']>;
-  organization?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26320,10 +26314,6 @@ export type MarketItemFileHistoryRecordWhereInput = {
   file_not?: Maybe<Scalars['JSON']>;
   file_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  organization?: Maybe<Scalars['String']>;
-  organization_not?: Maybe<Scalars['String']>;
-  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26418,7 +26408,6 @@ export type MarketItemFileHistoryRecordsUpdateInput = {
 export type MarketItemFileUpdateInput = {
   marketItem?: Maybe<MarketItemRelateToOneInput>;
   file?: Maybe<Scalars['Upload']>;
-  organization?: Maybe<OrganizationRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26439,8 +26428,6 @@ export type MarketItemFileWhereInput = {
   file_not?: Maybe<Scalars['String']>;
   file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  organization?: Maybe<OrganizationWhereInput>;
-  organization_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -71963,8 +71950,6 @@ export enum SortMarketItemFileHistoryRecordsBy {
 export enum SortMarketItemFilesBy {
   MarketItemAsc = 'marketItem_ASC',
   MarketItemDesc = 'marketItem_DESC',
-  OrganizationAsc = 'organization_ASC',
-  OrganizationDesc = 'organization_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
