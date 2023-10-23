@@ -26979,6 +26979,13 @@ export type MarketItemPricePriceSchemaFieldInput = {
   salesTaxPercent?: Maybe<Scalars['String']>;
 };
 
+export type MarketItemPriceRelateToOneInput = {
+  create?: Maybe<MarketItemPriceCreateInput>;
+  connect?: Maybe<MarketItemPriceWhereUniqueInput>;
+  disconnect?: Maybe<MarketItemPriceWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type MarketItemPriceUpdateInput = {
   price?: Maybe<Array<MarketItemPricePriceSchemaFieldInput>>;
   marketItem?: Maybe<MarketItemRelateToOneInput>;
@@ -27227,6 +27234,313 @@ export type MarketItemsCreateInput = {
 export type MarketItemsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<MarketItemUpdateInput>;
+};
+
+/**  Which residents can see the particular market item price instance  */
+export type MarketPriceScope = {
+  __typename?: 'MarketPriceScope';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MarketPriceScope List config, or
+   *  2. As an alias to the field set on 'labelField' in the MarketPriceScope List config, or
+   *  3. As an alias to a 'name' field on the MarketPriceScope List (if one exists), or
+   *  4. As an alias to the 'id' field on the MarketPriceScope List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Link to market item price  */
+  marketItemPrice?: Maybe<MarketItemPrice>;
+  /**  Link to property  */
+  property?: Maybe<Property>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type MarketPriceScopeCreateInput = {
+  marketItemPrice?: Maybe<MarketItemPriceRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type MarketPriceScopeHistoryRecord = {
+  __typename?: 'MarketPriceScopeHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MarketPriceScopeHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MarketPriceScopeHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MarketPriceScopeHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MarketPriceScopeHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  marketItemPrice?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MarketPriceScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MarketPriceScopeHistoryRecordCreateInput = {
+  marketItemPrice?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MarketPriceScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MarketPriceScopeHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MarketPriceScopeHistoryRecordUpdateInput = {
+  marketItemPrice?: Maybe<Scalars['String']>;
+  property?: Maybe<Scalars['String']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MarketPriceScopeHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MarketPriceScopeHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecordWhereInput>>>;
+  marketItemPrice?: Maybe<Scalars['String']>;
+  marketItemPrice_not?: Maybe<Scalars['String']>;
+  marketItemPrice_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  marketItemPrice_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property?: Maybe<Scalars['String']>;
+  property_not?: Maybe<Scalars['String']>;
+  property_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  property_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MarketPriceScopeHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MarketPriceScopeHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MarketPriceScopeHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MarketPriceScopeHistoryRecordsCreateInput = {
+  data?: Maybe<MarketPriceScopeHistoryRecordCreateInput>;
+};
+
+export type MarketPriceScopeHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketPriceScopeHistoryRecordUpdateInput>;
+};
+
+export type MarketPriceScopeUpdateInput = {
+  marketItemPrice?: Maybe<MarketItemPriceRelateToOneInput>;
+  property?: Maybe<PropertyRelateToOneInput>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type MarketPriceScopeWhereInput = {
+  AND?: Maybe<Array<Maybe<MarketPriceScopeWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MarketPriceScopeWhereInput>>>;
+  marketItemPrice?: Maybe<MarketItemPriceWhereInput>;
+  marketItemPrice_is_null?: Maybe<Scalars['Boolean']>;
+  property?: Maybe<PropertyWhereInput>;
+  property_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type MarketPriceScopeWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MarketPriceScopesCreateInput = {
+  data?: Maybe<MarketPriceScopeCreateInput>;
+};
+
+export type MarketPriceScopesUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketPriceScopeUpdateInput>;
 };
 
 /**  Notification message  */
@@ -36519,6 +36833,30 @@ export type Mutation = {
   deleteMarketItemPrice?: Maybe<MarketItemPrice>;
   /**  Delete multiple MarketItemPrice items by ID.  */
   deleteMarketItemPrices?: Maybe<Array<Maybe<MarketItemPrice>>>;
+  /**  Create a single MarketPriceScopeHistoryRecord item.  */
+  createMarketPriceScopeHistoryRecord?: Maybe<MarketPriceScopeHistoryRecord>;
+  /**  Create multiple MarketPriceScopeHistoryRecord items.  */
+  createMarketPriceScopeHistoryRecords?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecord>>>;
+  /**  Update a single MarketPriceScopeHistoryRecord item by ID.  */
+  updateMarketPriceScopeHistoryRecord?: Maybe<MarketPriceScopeHistoryRecord>;
+  /**  Update multiple MarketPriceScopeHistoryRecord items by ID.  */
+  updateMarketPriceScopeHistoryRecords?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecord>>>;
+  /**  Delete a single MarketPriceScopeHistoryRecord item by ID.  */
+  deleteMarketPriceScopeHistoryRecord?: Maybe<MarketPriceScopeHistoryRecord>;
+  /**  Delete multiple MarketPriceScopeHistoryRecord items by ID.  */
+  deleteMarketPriceScopeHistoryRecords?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecord>>>;
+  /**  Create a single MarketPriceScope item.  */
+  createMarketPriceScope?: Maybe<MarketPriceScope>;
+  /**  Create multiple MarketPriceScope items.  */
+  createMarketPriceScopes?: Maybe<Array<Maybe<MarketPriceScope>>>;
+  /**  Update a single MarketPriceScope item by ID.  */
+  updateMarketPriceScope?: Maybe<MarketPriceScope>;
+  /**  Update multiple MarketPriceScope items by ID.  */
+  updateMarketPriceScopes?: Maybe<Array<Maybe<MarketPriceScope>>>;
+  /**  Delete a single MarketPriceScope item by ID.  */
+  deleteMarketPriceScope?: Maybe<MarketPriceScope>;
+  /**  Delete multiple MarketPriceScope items by ID.  */
+  deleteMarketPriceScopes?: Maybe<Array<Maybe<MarketPriceScope>>>;
   /**  Create a single WebhookHistoryRecord item.  */
   createWebhookHistoryRecord?: Maybe<WebhookHistoryRecord>;
   /**  Create multiple WebhookHistoryRecord items.  */
@@ -46325,6 +46663,68 @@ export type MutationDeleteMarketItemPricesArgs = {
 };
 
 
+export type MutationCreateMarketPriceScopeHistoryRecordArgs = {
+  data?: Maybe<MarketPriceScopeHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMarketPriceScopeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMarketPriceScopeHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketPriceScopeHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMarketPriceScopeHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMarketPriceScopeHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMarketPriceScopeHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMarketPriceScopeArgs = {
+  data?: Maybe<MarketPriceScopeCreateInput>;
+};
+
+
+export type MutationCreateMarketPriceScopesArgs = {
+  data?: Maybe<Array<Maybe<MarketPriceScopesCreateInput>>>;
+};
+
+
+export type MutationUpdateMarketPriceScopeArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MarketPriceScopeUpdateInput>;
+};
+
+
+export type MutationUpdateMarketPriceScopesArgs = {
+  data?: Maybe<Array<Maybe<MarketPriceScopesUpdateInput>>>;
+};
+
+
+export type MutationDeleteMarketPriceScopeArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMarketPriceScopesArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateWebhookHistoryRecordArgs = {
   data?: Maybe<WebhookHistoryRecordCreateInput>;
 };
@@ -51142,6 +51542,8 @@ export type OrganizationEmployeeRole = {
   canReadCallRecords?: Maybe<Scalars['Boolean']>;
   canReadMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -51215,6 +51617,8 @@ export type OrganizationEmployeeRoleCreateInput = {
   canReadCallRecords?: Maybe<Scalars['Boolean']>;
   canReadMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -51294,6 +51698,8 @@ export type OrganizationEmployeeRoleHistoryRecord = {
   canReadCallRecords?: Maybe<Scalars['Boolean']>;
   canReadMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -51367,6 +51773,8 @@ export type OrganizationEmployeeRoleHistoryRecordCreateInput = {
   canReadCallRecords?: Maybe<Scalars['Boolean']>;
   canReadMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -51445,6 +51853,8 @@ export type OrganizationEmployeeRoleHistoryRecordUpdateInput = {
   canReadCallRecords?: Maybe<Scalars['Boolean']>;
   canReadMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -51630,6 +52040,10 @@ export type OrganizationEmployeeRoleHistoryRecordWhereInput = {
   canReadMarketItemPrices_not?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices_not?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -51775,6 +52189,8 @@ export type OrganizationEmployeeRoleUpdateInput = {
   canReadCallRecords?: Maybe<Scalars['Boolean']>;
   canReadMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -51937,6 +52353,10 @@ export type OrganizationEmployeeRoleWhereInput = {
   canReadMarketItemPrices_not?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices?: Maybe<Scalars['Boolean']>;
   canManageMarketItemPrices_not?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canReadMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes?: Maybe<Scalars['Boolean']>;
+  canManageMarketPriceScopes_not?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -59337,6 +59757,22 @@ export type Query = {
   _allMarketItemPricesMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MarketItemPrice list.  */
   _MarketItemPricesMeta?: Maybe<_ListMeta>;
+  /**  Search for all MarketPriceScopeHistoryRecord items which match the where clause.  */
+  allMarketPriceScopeHistoryRecords?: Maybe<Array<Maybe<MarketPriceScopeHistoryRecord>>>;
+  /**  Search for the MarketPriceScopeHistoryRecord item with the matching ID.  */
+  MarketPriceScopeHistoryRecord?: Maybe<MarketPriceScopeHistoryRecord>;
+  /**  Perform a meta-query on all MarketPriceScopeHistoryRecord items which match the where clause.  */
+  _allMarketPriceScopeHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MarketPriceScopeHistoryRecord list.  */
+  _MarketPriceScopeHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MarketPriceScope items which match the where clause.  */
+  allMarketPriceScopes?: Maybe<Array<Maybe<MarketPriceScope>>>;
+  /**  Search for the MarketPriceScope item with the matching ID.  */
+  MarketPriceScope?: Maybe<MarketPriceScope>;
+  /**  Perform a meta-query on all MarketPriceScope items which match the where clause.  */
+  _allMarketPriceScopesMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MarketPriceScope list.  */
+  _MarketPriceScopesMeta?: Maybe<_ListMeta>;
   /**  Search for all WebhookHistoryRecord items which match the where clause.  */
   allWebhookHistoryRecords?: Maybe<Array<Maybe<WebhookHistoryRecord>>>;
   /**  Search for the WebhookHistoryRecord item with the matching ID.  */
@@ -65458,6 +65894,56 @@ export type Query_AllMarketItemPricesMetaArgs = {
   where?: Maybe<MarketItemPriceWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortMarketItemPricesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMarketPriceScopeHistoryRecordsArgs = {
+  where?: Maybe<MarketPriceScopeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketPriceScopeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMarketPriceScopeHistoryRecordArgs = {
+  where: MarketPriceScopeHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMarketPriceScopeHistoryRecordsMetaArgs = {
+  where?: Maybe<MarketPriceScopeHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketPriceScopeHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMarketPriceScopesArgs = {
+  where?: Maybe<MarketPriceScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketPriceScopesBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMarketPriceScopeArgs = {
+  where: MarketPriceScopeWhereUniqueInput;
+};
+
+
+export type Query_AllMarketPriceScopesMetaArgs = {
+  where?: Maybe<MarketPriceScopeWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMarketPriceScopesBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -72575,6 +73061,48 @@ export enum SortMarketItemsBy {
   DvDesc = 'dv_DESC'
 }
 
+export enum SortMarketPriceScopeHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMarketPriceScopesBy {
+  MarketItemPriceAsc = 'marketItemPrice_ASC',
+  MarketItemPriceDesc = 'marketItemPrice_DESC',
+  PropertyAsc = 'property_ASC',
+  PropertyDesc = 'property_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
 export enum SortMessageAppBlackListHistoryRecordsBy {
   TypeAsc = 'type_ASC',
   TypeDesc = 'type_DESC',
@@ -74033,6 +74561,10 @@ export enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   CanReadMarketItemPricesDesc = 'canReadMarketItemPrices_DESC',
   CanManageMarketItemPricesAsc = 'canManageMarketItemPrices_ASC',
   CanManageMarketItemPricesDesc = 'canManageMarketItemPrices_DESC',
+  CanReadMarketPriceScopesAsc = 'canReadMarketPriceScopes_ASC',
+  CanReadMarketPriceScopesDesc = 'canReadMarketPriceScopes_DESC',
+  CanManageMarketPriceScopesAsc = 'canManageMarketPriceScopes_ASC',
+  CanManageMarketPriceScopesDesc = 'canManageMarketPriceScopes_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -74166,6 +74698,10 @@ export enum SortOrganizationEmployeeRolesBy {
   CanReadMarketItemPricesDesc = 'canReadMarketItemPrices_DESC',
   CanManageMarketItemPricesAsc = 'canManageMarketItemPrices_ASC',
   CanManageMarketItemPricesDesc = 'canManageMarketItemPrices_DESC',
+  CanReadMarketPriceScopesAsc = 'canReadMarketPriceScopes_ASC',
+  CanReadMarketPriceScopesDesc = 'canReadMarketPriceScopes_DESC',
+  CanManageMarketPriceScopesAsc = 'canManageMarketPriceScopes_ASC',
+  CanManageMarketPriceScopesDesc = 'canManageMarketPriceScopes_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

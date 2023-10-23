@@ -9,4 +9,5 @@ export * as MarketItem from './MarketItem'
 export * as Invoice from './Invoice'
 export * as MarketItemFile from './MarketItemFile'
 export * as MarketItemPrice from './MarketItemPrice'
+export * as MarketPriceScope from './MarketPriceScope'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
