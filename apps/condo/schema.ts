@@ -25560,6 +25560,13 @@ export type InvoiceHistoryRecordsUpdateInput = {
   data?: Maybe<InvoiceHistoryRecordUpdateInput>;
 };
 
+export type InvoiceRelateToOneInput = {
+  create?: Maybe<InvoiceCreateInput>;
+  connect?: Maybe<InvoiceWhereUniqueInput>;
+  disconnect?: Maybe<InvoiceWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type InvoiceRowSchemaField = {
   __typename?: 'InvoiceRowSchemaField';
   name: Scalars['String'];
@@ -52665,6 +52672,10 @@ export type Payment = {
   receipt?: Maybe<BillingReceipt>;
   /**  Frozen billing receipt, used to resolving conflicts  */
   frozenReceipt?: Maybe<Scalars['JSON']>;
+  /**  Link to the invoice that user paid for.  */
+  invoice?: Maybe<Invoice>;
+  /**  Frozen invoice, used to resolving conflicts  */
+  frozenInvoice?: Maybe<Scalars['JSON']>;
   /**  Link to a payment related MultiPayment. Required field to update, but initially created unlinked  */
   multiPayment?: Maybe<MultiPayment>;
   /**  Acquiring context, which used to link organization and acquiring integration and provide storage for organization-acquiring-specific settings / state  */
@@ -52718,6 +52729,8 @@ export type PaymentCreateInput = {
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
+  invoice?: Maybe<InvoiceRelateToOneInput>;
+  frozenInvoice?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<MultiPaymentRelateToOneInput>;
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -52768,6 +52781,8 @@ export type PaymentHistoryRecord = {
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
+  invoice?: Maybe<Scalars['String']>;
+  frozenInvoice?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<Scalars['String']>;
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -52804,6 +52819,8 @@ export type PaymentHistoryRecordCreateInput = {
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
+  invoice?: Maybe<Scalars['String']>;
+  frozenInvoice?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<Scalars['String']>;
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -52845,6 +52862,8 @@ export type PaymentHistoryRecordUpdateInput = {
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<Scalars['String']>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
+  invoice?: Maybe<Scalars['String']>;
+  frozenInvoice?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<Scalars['String']>;
   context?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
@@ -52988,6 +53007,14 @@ export type PaymentHistoryRecordWhereInput = {
   frozenReceipt_not?: Maybe<Scalars['JSON']>;
   frozenReceipt_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   frozenReceipt_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  invoice?: Maybe<Scalars['String']>;
+  invoice_not?: Maybe<Scalars['String']>;
+  invoice_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  invoice_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  frozenInvoice?: Maybe<Scalars['JSON']>;
+  frozenInvoice_not?: Maybe<Scalars['JSON']>;
+  frozenInvoice_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  frozenInvoice_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   multiPayment?: Maybe<Scalars['String']>;
   multiPayment_not?: Maybe<Scalars['String']>;
   multiPayment_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -53207,6 +53234,8 @@ export type PaymentUpdateInput = {
   purpose?: Maybe<Scalars['String']>;
   receipt?: Maybe<BillingReceiptRelateToOneInput>;
   frozenReceipt?: Maybe<Scalars['JSON']>;
+  invoice?: Maybe<InvoiceRelateToOneInput>;
+  frozenInvoice?: Maybe<Scalars['JSON']>;
   multiPayment?: Maybe<MultiPaymentRelateToOneInput>;
   context?: Maybe<AcquiringIntegrationContextRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -53331,6 +53360,12 @@ export type PaymentWhereInput = {
   frozenReceipt_not?: Maybe<Scalars['JSON']>;
   frozenReceipt_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   frozenReceipt_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  invoice?: Maybe<InvoiceWhereInput>;
+  invoice_is_null?: Maybe<Scalars['Boolean']>;
+  frozenInvoice?: Maybe<Scalars['JSON']>;
+  frozenInvoice_not?: Maybe<Scalars['JSON']>;
+  frozenInvoice_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  frozenInvoice_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   multiPayment?: Maybe<MultiPaymentWhereInput>;
   multiPayment_is_null?: Maybe<Scalars['Boolean']>;
   context?: Maybe<AcquiringIntegrationContextWhereInput>;
@@ -73357,6 +73392,8 @@ export enum SortPaymentsBy {
   PurposeDesc = 'purpose_DESC',
   ReceiptAsc = 'receipt_ASC',
   ReceiptDesc = 'receipt_DESC',
+  InvoiceAsc = 'invoice_ASC',
+  InvoiceDesc = 'invoice_DESC',
   MultiPaymentAsc = 'multiPayment_ASC',
   MultiPaymentDesc = 'multiPayment_DESC',
   ContextAsc = 'context_ASC',
