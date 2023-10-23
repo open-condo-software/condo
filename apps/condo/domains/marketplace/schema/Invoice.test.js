@@ -18,7 +18,11 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { PAYMENT_WITHDRAWN_STATUS } = require('@condo/domains/acquiring/constants/payment')
+const {
+    PAYMENT_WITHDRAWN_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_DONE_STATUS,
+} = require('@condo/domains/acquiring/constants/payment')
 const { addAcquiringIntegrationAndContext, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     addBillingIntegrationAndContext, createTestBillingProperty,
@@ -626,21 +630,29 @@ describe('Invoice', () => {
             })
         })
 
-        test('can\'t change online-paid invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PAID })
+        describe('can\'t change online-paid invoice', () => {
+            const paymentStatuses = [
+                PAYMENT_PROCESSING_STATUS,
+                PAYMENT_DONE_STATUS,
+                PAYMENT_WITHDRAWN_STATUS,
+            ]
 
-            await createTestPayment(adminClient, dummyO10n, null, null, {
-                invoice: obj,
-                status: PAYMENT_WITHDRAWN_STATUS,
-            })
+            test.each(paymentStatuses)('payment status: %s', async (paymentStatus) => {
+                const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PAID })
 
-            await expectToThrowGQLError(async () => {
-                await updateTestInvoice(adminClient, obj.id)
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'INVOICE_ALREADY_PAID',
-                message: 'Changing of paid invoice is forbidden',
-                messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
+                await createTestPayment(adminClient, dummyO10n, null, null, {
+                    invoice: obj,
+                    status: paymentStatus,
+                })
+
+                await expectToThrowGQLError(async () => {
+                    await updateTestInvoice(adminClient, obj.id)
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVOICE_ALREADY_PAID',
+                    message: 'Changing of paid invoice is forbidden',
+                    messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
+                })
             })
         })
 
