@@ -931,6 +931,8 @@
   "pages.condo.settings.employeeRoles.permission.canReadBillingReceipts": "View section",
   "pages.condo.settings.employeeRoles.permission.canImportBillingReceipts": "Import receipts",
   "pages.condo.settings.employeeRoles.permission.canReadService": "View service",
+  "pages.condo.settings.employeeRoles.permissionGroup.settings": "Settings",
+  "pages.condo.settings.employeeRoles.permission.canReadSettings": "View settings",
   "pages.condo.settings.employeeRoles.notification.updatePermissions": "Permissions updated",
   "pages.condo.settings.employeeRoles.notification.deletePermissions": "Permissions withdrawn",
   "pages.condo.settings.employeeRoles.disabledCheckboxTitle": "You can not turn off the rights of all roles, for correct work of someone they must be available",
