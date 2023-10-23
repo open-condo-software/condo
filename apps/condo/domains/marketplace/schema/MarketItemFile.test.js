@@ -293,12 +293,11 @@ describe('MarketItemFile', () => {
     })
 
     describe('constraint tests', () => {
-        test('can\'t create two MarketItemFile for one MarketItem in one organization', async () => {
+        test('cant create two MarketItemFile for one MarketItem in one organization', async () => {
             const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
+            await createTestMarketItemFile(admin, marketItem, organization)
             const [obj, attrs] = await createTestMarketItemFile(admin, marketItem, organization)
-            await expectToThrowUniqueConstraintViolationError(async () => {
-                await createTestMarketItemFile(admin, marketItem, organization)
-            }, 'MarketItemFile_unique_organization_marketItem')
+            expectValuesOfCommonFields(obj, attrs, admin)
         })
 
         test('can create two MarketItemFile for different MarketItem in one organization', async () => {
@@ -320,7 +319,7 @@ describe('MarketItemFile', () => {
                 })
             }, {
                 code: 'BAD_USER_INPUT',
-                type: 'NON_IMAGE_FILE',
+                type: 'FORBIDDEN_FILE_TYPE',
             })
         })
     })

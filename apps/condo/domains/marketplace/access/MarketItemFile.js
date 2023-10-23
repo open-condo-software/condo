@@ -7,12 +7,9 @@ const { get } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
-const { canReadMarketItems } = require('@condo/domains/marketplace/access/MarketItem')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { STAFF } = require('@condo/domains/user/constants/common')
-
-const canReadMarketItemFiles = canReadMarketItems
 
 async function canManageMarketItemFiles ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
@@ -29,6 +26,8 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
                 const marketItem = await getById('MarketItem', marketItemId)
                 const organizationId = get(marketItem, 'organization', null)
 
+                if (!organizationId) return false
+
                 return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMarketItems')
             }
 
@@ -38,8 +37,8 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
         const marketItemFile = await getById('MarketItemFile', itemId)
         if (!marketItemFile) return false
 
-        const { createdBy, organization } = marketItemFile
-        if (!organization) return createdBy === user.id
+        const { organization } = marketItemFile
+        if (!organization) return false
 
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organization, 'canManageMarketItems')
     }
@@ -52,6 +51,5 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canReadMarketItemFiles,
     canManageMarketItemFiles,
 }

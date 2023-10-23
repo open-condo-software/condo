@@ -10,6 +10,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const { canReadMarketItems } = require('@condo/domains/marketplace/access/MarketItem')
 const access = require('@condo/domains/marketplace/access/MarketItemFile')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 
@@ -23,14 +24,15 @@ const ALLOWED_MIME_TYPES = [
     'image/heic',
 ]
 const ERRORS = {
-    NON_IMAGE_FILE: {
+    FORBIDDEN_FILE_TYPE: (mimeType) => ({
         code: BAD_USER_INPUT,
-        type: 'NON_IMAGE_FILE',
-    },
+        type: 'FORBIDDEN_FILE_TYPE',
+        message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: ${mimeType}`,
+    }),
 }
 
 const MarketItemFile = new GQLListSchema('MarketItemFile', {
-    schemaDoc: 'File attached to the market item',
+    schemaDoc: 'Image file attached to the market item',
     fields: {
 
         marketItem: {
@@ -50,37 +52,19 @@ const MarketItemFile = new GQLListSchema('MarketItemFile', {
             hooks: {
                 validateInput: ({ resolvedData, fieldPath, context }) => {
                     const mimetype = get(resolvedData, [fieldPath, 'mimetype'])
-                    if (!ALLOWED_MIME_TYPES.includes(mimetype)) {
-                        throw new GQLError({
-                            ...ERRORS.NON_IMAGE_FILE,
-                            message: `Expected file to be one of the following mimetypes: ${ALLOWED_MIME_TYPES.map(type => `"${type}"`).join(', ')}. But got: ${mimetype}`,
-                        }, context)
-                    }
+                    if (!ALLOWED_MIME_TYPES.includes(mimetype)) throw new GQLError(ERRORS.FORBIDDEN_FILE_TYPE(mimetype), context)
                 },
             },
         },
 
     },
-    kmigratorOptions: {
-        constraints: [
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['organization', 'marketItem'],
-                condition: 'Q(deletedAt__isnull=True)',
-                name: 'MarketItemFile_unique_organization_marketItem',
-            },
-        ],
-    },
     hooks: {
         afterChange: fileMetaAfterChange,
-        // afterDelete: async ({ existingItem }) => {
-        //     await Adapter.delete(existingItem.file)
-        // },
     },
     plugins: [addOrganizationFieldPlugin({ fromField: 'marketItem', isRequired: true }),
         uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
-        read: access.canReadMarketItemFiles,
+        read: canReadMarketItems,
         create: access.canManageMarketItemFiles,
         update: access.canManageMarketItemFiles,
         delete: false,
