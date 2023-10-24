@@ -1,6 +1,7 @@
 import styled from '@emotion/styled'
 import { Col, Form, FormInstance, FormItemProps, Row } from 'antd'
 import { get, isFunction } from 'lodash'
+import isArray from 'lodash/isArray'
 import React, { ComponentProps, useCallback, useEffect, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -15,7 +16,7 @@ import { GraphQlSearchInput } from './GraphQlSearchInput'
 export type InputWithCheckAllProps = {
     onCheckBoxChange?: (value: boolean) => void
     selectFormItemProps: FormItemProps & Required<Pick<FormItemProps, 'name'>>
-    checkAllFieldName: string,
+    checkAllFieldName: FormItemProps['name'],
     checkAllInitialValue: boolean,
     CheckAllMessage: string,
     selectProps: ComponentProps<typeof GraphQlSearchInput>
@@ -24,6 +25,7 @@ export type InputWithCheckAllProps = {
     checkBoxEventName?: string
     disabled?: boolean
     onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
+    prepareSetFieldsValue?: (form: FormInstance, formItemName: FormItemProps['name'], checkAllFieldName: FormItemProps['name']) => any
 }
 
 const CheckAllCheckboxFormItem = styled(Form.Item)`
@@ -45,6 +47,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         checkBoxEventName,
         disabled,
         onDataLoaded,
+        prepareSetFieldsValue,
     }
 ) => {
     const intl = useIntl()
@@ -87,11 +90,19 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     }, [allDataLength, onCheckBoxChange, selectProps])
 
     const formItemName = String(selectFormItemProps.name)
+    const checkAllFieldNameInString = String(checkAllFieldName)
     useEffect(() => {
-        if (isAllChecked) {
-            form.setFieldsValue({ [formItemName]: [], [checkAllFieldName]: true })
+        if ((isArray(selectFormItemProps.name) || isArray(checkAllFieldName)) && !isFunction(prepareSetFieldsValue)) {
+            console.error('You should set "prepareSetFieldsValue" for "GraphQlSearchInputWithCheckAll". Form item name or field name is array type.')
         }
-    }, [checkAllFieldName, form, formItemName, isAllChecked])
+        if (isAllChecked) {
+            if (isFunction(prepareSetFieldsValue)) {
+                form.setFieldsValue(prepareSetFieldsValue(form, selectFormItemProps.name, checkAllFieldName))
+            } else {
+                form.setFieldsValue({ [formItemName]: [], [checkAllFieldNameInString]: true })
+            }
+        }
+    }, [checkAllFieldNameInString, form, formItemName, isAllChecked])
 
     useEffect(() => {
         if (selectFormItemProps.required) {
