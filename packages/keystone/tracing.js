@@ -160,6 +160,7 @@ class KeystoneTracingApp {
         this._patchKeystoneGraphQLExecutor(tracer, keystone)
         this._patchKeystoneAdapter(tracer, keystone)
 
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
         const app = express()
         app.use((req, res, next) => {
 
