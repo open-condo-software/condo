@@ -148,9 +148,10 @@ const Invoice = new GQLListSchema('Invoice', {
             if (operation === 'update' && existingItem.status === INVOICE_STATUS_PAID) {
                 // Prevent updating only for paid online invoices (with Payment model)
                 // In the case of cash it's may be needed to uncheck the "paid" status
-                const payments = await Payment.getAll(
+                const paymentsCount = await Payment.count(
                     context,
                     {
+                        deletedAt: null,
                         invoice: { id: existingItem.id },
                         status_in: [
                             PAYMENT_PROCESSING_STATUS,
@@ -158,7 +159,7 @@ const Invoice = new GQLListSchema('Invoice', {
                             PAYMENT_WITHDRAWN_STATUS,
                         ],
                     })
-                if (payments.length > 0) {
+                if (paymentsCount > 0) {
                     throw new GQLError(ERRORS.ALREADY_PAID, context)
                 }
             }
