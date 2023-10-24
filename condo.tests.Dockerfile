@@ -41,4 +41,4 @@ RUN set -ex \
     && rm -rf /app/.env  \
     && rm -rf /app/.config /app/.cache /app/.docker  \
     && ls -lah /app/ \
-	&& ls -lahtr /app/.yarn/berry/cache
+	&& ls -lahtr /app/.yarn/
