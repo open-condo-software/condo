@@ -50,6 +50,7 @@ jobs:
       - name: check host
         run: |
           ls -lahtr
+          ls /app/.yarn/berry/cache
 
       - name: build condo image for tests and push
         uses: docker/build-push-action@v5
@@ -61,6 +62,11 @@ jobs:
           provenance: false
           cache-from: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache
           cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=max,image-manifest=true
+
+      - name: check host after
+        run: |
+          ls -lahtr
+          ls /app/.yarn/berry/cache
 
   domains-tests-job:
     needs: build-image
