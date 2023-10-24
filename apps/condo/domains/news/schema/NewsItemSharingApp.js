@@ -11,7 +11,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 const access = require('@condo/domains/news/access/NewsItemSharingProvider')
 
 
-const NewsItemSharingProvider = new GQLListSchema('NewsItemSharingProvider', {
+const NewsItemSharingApp = new GQLListSchema('NewsItemSharingApp', {
     // TODO(codegen): write doc for the NewsItemSharingProvider domain model!
     schemaDoc: 'TODO DOC!',
     fields: {
@@ -66,5 +66,5 @@ const NewsItemSharingProvider = new GQLListSchema('NewsItemSharingProvider', {
 })
 
 module.exports = {
-    NewsItemSharingProvider,
+    NewsItemSharingApp,
 }

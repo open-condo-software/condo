@@ -36,8 +36,11 @@ const NewsItemRecipientsExportTask = generateGqlQueries('NewsItemRecipientsExpor
 const NEWS_ITEM_SHARING_FIELDS = `{ b2bAppContext { id } newsItem { id } sharingParams status statusMessage lastGetRecipientsRequest lastPostRequest lastGetStatusRequest publicationViewsCount ${COMMON_FIELDS} }`
 const NewsItemSharing = generateGqlQueries('NewsItemSharing', NEWS_ITEM_SHARING_FIELDS)
 
-const NEWS_ITEM_SHARING_PROVIDER_FIELDS = `{ b2bApp { id } name newsItemPostUrl newsItemPreviewUrl newsItemSendingFeatures ${COMMON_FIELDS} }`
-const NewsItemSharingProvider = generateGqlQueries('NewsItemSharingProvider', NEWS_ITEM_SHARING_PROVIDER_FIELDS)
+const NEWS_ITEM_SHARING_APP_FIELDS = `{ b2bApp { id } name newsItemPostUrl newsItemPreviewUrl newsItemSendingFeatures ${COMMON_FIELDS} }`
+const NewsItemSharingApp = generateGqlQueries('NewsItemSharingApp', NEWS_ITEM_SHARING_APP_FIELDS)
+
+const NEWS_ITEM_SHARING_CONTEXT_FIELDS = `{ b2bAppContext { id } newsItemSharingApp { id } ${COMMON_FIELDS} }`
+const NewsItemSharingContext = generateGqlQueries('NewsItemSharingContext', NEWS_ITEM_SHARING_CONTEXT_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -49,6 +52,7 @@ module.exports = {
     GET_NEWS_ITEMS_RECIPIENTS_COUNTERS_MUTATION,
     NewsItemRecipientsExportTask,
     NewsItemSharing,
-    NewsItemSharingProvider,
+    NewsItemSharingApp,
+    NewsItemSharingContext,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

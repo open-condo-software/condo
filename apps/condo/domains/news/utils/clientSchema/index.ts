@@ -10,4 +10,5 @@ export * as NewsItemUserRead from './NewsItemUserRead'
 export * as NewsItemRecipientsExportTask from './NewsItemRecipientsExportTask'
 export * as NewsItemSharing from './NewsItemSharing'
 export * as NewsItemSharingProvider from './NewsItemSharingProvider'
+export * as NewsItemSharingContext from './NewsItemSharingContext'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

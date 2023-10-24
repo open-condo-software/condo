@@ -3,15 +3,14 @@
  */
 
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields } = require('@open-condo/keystone/test.utils')
-
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
 } = require('@open-condo/keystone/test.utils')
 
+const { NewsItemSharingApp, createTestNewsItemSharingProvider, updateTestNewsItemSharingProvider } = require('@condo/domains/news/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { NewsItemSharingProvider, createTestNewsItemSharingProvider, updateTestNewsItemSharingProvider } = require('@condo/domains/news/utils/testSchema')
 
 describe('NewsItemSharingProvider', () => {
     describe('CRUD tests', () => {
@@ -21,7 +20,7 @@ describe('NewsItemSharingProvider', () => {
                 const admin = await makeLoggedInAdminClient()
 
                 // 2) action
-                const [obj, attrs] = await createTestNewsItemSharingProvider(admin)
+                const [obj, attrs] = await createTestNewsItemSharingApp(admin)
 
                 // 3) check
                 expectValuesOfCommonFields(obj, attrs, admin)
@@ -32,7 +31,7 @@ describe('NewsItemSharingProvider', () => {
             test('support can', async () => {
                 const client = await makeClientWithSupportUser()  // TODO(codegen): create SUPPORT client!
 
-                const [obj, attrs] = await createTestNewsItemSharingProvider(client)  // TODO(codegen): write 'support: create NewsItemSharingProvider' test
+                const [obj, attrs] = await createTestNewsItemSharingApp(client)  // TODO(codegen): write 'support: create NewsItemSharingProvider' test
 
                 expect(obj.id).toMatch(UUID_RE)
                 expect(obj.dv).toEqual(1)
