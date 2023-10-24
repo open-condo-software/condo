@@ -1,4 +1,4 @@
-const { AddressTransform, AddressParser } = require('./AddressTransform')
+const { AddressTransform, AddressParser } = require('./addressTransform')
 
 const rules = {
     'ул.Революции 1905 года': 'г. Новороссийск, ул.Революции 1905 года',
