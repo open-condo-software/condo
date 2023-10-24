@@ -46,6 +46,10 @@ jobs:
         with:
           cache-source: yarn-cache
           cache-target: /app/.yarn/berry/cache
+      
+      - name: check host
+        run: |
+          ls -lahtr
 
       - name: build condo image for tests and push
         uses: docker/build-push-action@v5
