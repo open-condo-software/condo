@@ -6,11 +6,13 @@ const { IORedisInstrumentation } = require('@opentelemetry/instrumentation-iored
 const { PgInstrumentation } = require('@opentelemetry/instrumentation-pg')
 const { PeriodicExportingMetricReader } = require('@opentelemetry/sdk-metrics')
 const otelSdk = require('@opentelemetry/sdk-node')
+const express = require('express')
 const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 
 const { getExecutionContext } = require('./executionContext')
+
 
 const DELIMETER = ':'
 const SERVER_URL = conf.SERVER_URL
@@ -39,7 +41,6 @@ if (IS_OTEL_TRACING_ENABLED) {
         }),
 
         instrumentations: [
-            new HttpInstrumentation(),
             new PgInstrumentation(),
             new IORedisInstrumentation(),
         ],
@@ -64,16 +65,8 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
         const parsedName = typeof name === 'function' ? name(...args) : name
 
         return tracer.startActiveSpan(parsedName, async (span) => {
-            const executionContext = getExecutionContext()
-            if (executionContext.reqId) {
-                span.setAttribute('reqId', executionContext.reqId)
-            } else if (executionContext.execId) {
-                span.setAttribute('execId', executionContext.execId)
-                span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
-            } else if (executionContext.taskId) {
-                span.setAttribute('taskId', executionContext.taskId)
-                span.setAttribute('taskName', executionContext.taskName)
-            }
+
+            _addExecutionContextAttributes(span)
 
             spanHook(span, ...args)
 
@@ -81,6 +74,19 @@ function _getTracedFunction ({ name, spanHook, tracer, ctx, f }) {
             span.end()
             return res
         })
+    }
+}
+
+function _addExecutionContextAttributes (span) {
+    const executionContext = getExecutionContext()
+    if (executionContext.reqId) {
+        span.setAttribute('reqId', executionContext.reqId)
+    } else if (executionContext.execId) {
+        span.setAttribute('execId', executionContext.execId)
+        span.setAttribute('execProcessArgv', executionContext.execProcessArgv)
+    } else if (executionContext.taskId) {
+        span.setAttribute('taskId', executionContext.taskId)
+        span.setAttribute('taskName', executionContext.taskName)
     }
 }
 
@@ -153,6 +159,35 @@ class KeystoneTracingApp {
         const tracer = this.tracer
         this._patchKeystoneGraphQLExecutor(tracer, keystone)
         this._patchKeystoneAdapter(tracer, keystone)
+
+        // nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
+        const app = express()
+        app.use((req, res, next) => {
+
+            const requestUrl = get(req, ['url'])
+            const requestUserId = get(req, ['user', 'id'])
+            const requestOpName = get(req, ['body', 'operationName']) || get(req, ['query', 'operationName'])
+            
+            let operationName = 'op:unknown'
+            if (requestOpName) {
+                operationName = 'op:' + requestOpName
+            }
+            
+            tracer.startActiveSpan(operationName, async (span) => {
+
+                _addExecutionContextAttributes(span)
+
+                span.setAttribute('url', requestUrl)
+                span.setAttribute('userId', requestUserId)
+                span.setAttribute('opName', requestOpName)
+
+                res.on('close', () => {
+                    span.end()
+                })
+                next()
+            })
+        })
+        return app
     }
 }
 
