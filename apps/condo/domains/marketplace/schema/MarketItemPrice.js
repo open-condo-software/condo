@@ -13,17 +13,25 @@ const { PRICE_FIELD } = require('@condo/domains/marketplace/schema/fields/price'
 
 
 const ERRORS = {
-    INVALID_SALES_TAX_PERCENT: {
+    INVALID_SALES_TAX_PERCENT: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: 'INVALID_SALES_TAX_PERCENT',
-        message: 'INVALID_SALES_TAX_PERCENT',
-        messageForUser: 'api.marketplace.MarketPrice.INVALID_SALES_TAX_PERCENT',
-    },
-    INVALID_PRICE: {
+        messageForUser: 'api.marketplace.MarketItemPrice.error.INVALID_SALES_TAX_PERCENT',
+        messageInterpolation: { rowNumber },
+        message: `Invalid sales tax percent on line ${rowNumber}. Must be greater or equal to 0 and less or equal to 100.`,
+    }),
+    INVALID_PRICE: (rowNumber) => ({
         code: BAD_USER_INPUT,
         type: 'INVALID_PRICE',
-        message: 'INVALID_PRICE',
-        messageForUser: 'api.marketplace.MarketPrice.INVALID_PRICE',
+        messageForUser: 'api.marketplace.MarketItemPrice.error.INVALID_PRICE',
+        messageInterpolation: { rowNumber },
+        message: `Invalid price on line ${rowNumber}. Must be greater or equal to 0.`,
+    }),
+    EMPTY_PRICE: {
+        code: BAD_USER_INPUT,
+        type: 'EMPTY_PRICE',
+        messageForUser: 'api.marketplace.MarketItemPrice.error.EMPTY_PRICE',
+        message: 'Price cannot be empty.',
     },
 }
 
@@ -45,10 +53,19 @@ const MarketItemPrice = new GQLListSchema('MarketItemPrice', {
     },
     hooks: {
         validateInput: ({ resolvedData, existingItem, context }) => {
-            const salesTaxPercent = get(resolvedData, 'price.salesTaxPercent')
-            const itemPrice = get(resolvedData, 'price.price')
-            if (salesTaxPercent && Number(salesTaxPercent) < 0) throw new GQLError(ERRORS.INVALID_SALES_TAX_PERCENT, context)
-            if (itemPrice && Number(itemPrice) <= 0) throw new GQLError(ERRORS.INVALID_PRICE, context)
+            const nextData = { ...existingItem, ...resolvedData }
+            // Check rows
+            const prices = get(nextData, 'price', [])
+            if (prices.length === 0) throw new GQLError(ERRORS.EMPTY_PRICE, context)
+            for (let i = 0; i < prices.length; i++) {
+                const salesTaxPercent = Number(get(prices[i], 'salesTaxPercent', null))
+                if (salesTaxPercent < 0 || salesTaxPercent > 100) {
+                    throw new GQLError(ERRORS.INVALID_SALES_TAX_PERCENT(i + 1), context)
+                }
+                if (Number(get(prices[i], 'price', null)) < 0) {
+                    throw new GQLError(ERRORS.INVALID_PRICE(i + 1), context)
+                }
+            }
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

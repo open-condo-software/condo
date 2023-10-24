@@ -2312,5 +2312,8 @@
   "api.marketplace.invoice.error.alreadyPaid": "Changing of paid invoice is forbidden",
   "api.marketplace.invoice.error.emptyRows": "The invoice contains no rows",
   "api.marketplace.invoice.error.rows.count": "Count can't be less than 1. Check line {rowNumber}.",
-  "api.marketplace.invoice.error.rows.toPay": "Price can't be less than 0. Check line {rowNumber}."
+  "api.marketplace.invoice.error.rows.toPay": "Price can't be less than 0. Check line {rowNumber}.",
+  "api.marketplace.MarketItemPrice.error.INVALID_SALES_TAX_PERCENT": "Sales tax must be positive, but not more than 100. Check line {rowNumber}.",
+  "api.marketplace.MarketItemPrice.error.INVALID_PRICE": "The price cannot be less than 0. Check line {rowNumber}.",
+  "api.marketplace.MarketItemPrice.error.EMPTY_PRICE": "Price cannot be empty."
 }

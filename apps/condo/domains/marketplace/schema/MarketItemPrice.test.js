@@ -22,7 +22,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const ajv = new Ajv()
 const validatePriceField = ajv.compile(PRICE_FIELD_SCHEMA)
-const validPriceFieldValue = { type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' }
+const validPriceFieldValue = [{ type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' }]
 
 describe('MarketItemPrice', () => {
     let admin, organization, marketCategory
@@ -271,7 +271,7 @@ describe('MarketItemPrice', () => {
                 })
             })
 
-            test('can read MarketItem of his organization', async () => {
+            test('can read MarketItemPrice of his organization', async () => {
                 const [obj] = await createTestMarketItemPrice(admin, marketItem)
 
                 const objs = await MarketItemPrice.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
@@ -296,26 +296,61 @@ describe('MarketItemPrice', () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestMarketItemPrice(admin, marketItem, {
-                        price: { ...validPriceFieldValue, price: '0' },
+                        price: [{ ...validPriceFieldValue[0], price: '-1' }],
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'INVALID_PRICE',
+                    message: 'Invalid price on line 1. Must be greater or equal to 0.',
                 },
                 'obj'
             )
         })
-        test('Validate salesTaxPercent', async () => {
+
+        test('Validate salesTaxPercent less when 0', async () => {
             await expectToThrowGQLError(
                 async () => {
                     await createTestMarketItemPrice(admin, marketItem, {
-                        price: { ...validPriceFieldValue, salesTaxPercent: '-1' },
+                        price: [{ ...validPriceFieldValue[0], salesTaxPercent: '-1' }],
                     })
                 },
                 {
                     code: 'BAD_USER_INPUT',
                     type: 'INVALID_SALES_TAX_PERCENT',
+                    message: 'Invalid sales tax percent on line 1. Must be greater or equal to 0 and less or equal to 100.',
+                },
+                'obj'
+            )
+        })
+
+        test('Validate salesTaxPercent greater when 100', async () => {
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestMarketItemPrice(admin, marketItem, {
+                        price: [{ ...validPriceFieldValue[0], salesTaxPercent: '101' }],
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVALID_SALES_TAX_PERCENT',
+                    message: 'Invalid sales tax percent on line 1. Must be greater or equal to 0 and less or equal to 100.',
+                },
+                'obj'
+            )
+        })
+
+        test('Validate price field is empty', async () => {
+            await expectToThrowGQLError(
+                async () => {
+                    await createTestMarketItemPrice(admin, marketItem, {
+                        price: [],
+                    })
+                },
+                {
+                    code: 'BAD_USER_INPUT',
+                    type: 'EMPTY_PRICE',
+                    message: 'Price cannot be empty.',
                 },
                 'obj'
             )
@@ -335,6 +370,7 @@ describe('MarketItemPrice', () => {
                 [{ ...validPriceFieldValue, price: 'invalid' }],
                 [{ ...validPriceFieldValue, isMin: 'invalid' }],
                 [{ ...validPriceFieldValue, vatPercent: '100' }],
+                [{ ...validPriceFieldValue, salesTaxPercent: 'invalid' }],
             ]
             test.each(cases)('%j', (data) => {
                 expect(validatePriceField(data)).toEqual(false)

@@ -2312,5 +2312,8 @@
   "api.marketplace.invoice.error.alreadyPaid": "Нельзя изменять оплаченный счет",
   "api.marketplace.invoice.error.emptyRows": "Счет не содержит товаров/услуг",
   "api.marketplace.invoice.error.rows.count": "Количество не может быть меньше 1. Проверьте строку {rowNumber}.",
-  "api.marketplace.invoice.error.rows.toPay": "Цена не может быть меньше 0. Проверьте строку {rowNumber}."
+  "api.marketplace.invoice.error.rows.toPay": "Цена не может быть меньше 0. Проверьте строку {rowNumber}.",
+  "api.marketplace.MarketItemPrice.error.INVALID_SALES_TAX_PERCENT": "Налог с продажи должен быть положительным, но не больше 100. Проверьте строку {rowNumber}.",
+  "api.marketplace.MarketItemPrice.error.INVALID_PRICE": "Цена не может быть меньше 0. Проверьте строку {rowNumber}.",
+  "api.marketplace.MarketItemPrice.error.EMPTY_PRICE": "Цена не может быть пустой."
 }

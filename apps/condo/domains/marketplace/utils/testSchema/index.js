@@ -217,7 +217,7 @@ async function createTestMarketItemPrice (client, marketItem, extraAttrs = {}) {
         dv: 1,
         sender,
         marketItem: { connect: { id: marketItem.id } },
-        price: { type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' },
+        price: [{ type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' }],
         ...extraAttrs,
     }
     const obj = await MarketItemPrice.create(client, attrs)

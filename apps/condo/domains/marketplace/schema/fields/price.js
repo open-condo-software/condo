@@ -2,8 +2,8 @@ const Ajv = require('ajv')
 
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { ERROR_INVALID_PRICE, VAT_OPTIONS } = require('@condo/domains/marketplace/constants')
-const PRICE_GQL_TYPE_NAME = 'PriceSchemaField'
-const PRICE_GQL_INPUT_NAME = 'PriceSchemaFieldInput'
+const PRICE_GQL_TYPE_NAME = 'MarketItemPricePriceSchemaField'
+const PRICE_GQL_INPUT_NAME = 'MarketItemPricePriceSchemaFieldInput'
 
 const priceSchemaFields = {
     type: 'String!',
@@ -26,33 +26,36 @@ const priceGqlSchemaTypes = `
 `
 
 const PRICE_FIELD_SCHEMA = {
-    type: 'object',
-    additionalProperties: false,
-    required: ['type', 'group', 'name', 'price', 'isMin'],
-    properties: {
-        type: {
-            type: 'string',
-            enum: ['variant', 'extra'],
-        },
-        group: {
-            type: 'string',
-        },
-        name: {
-            type: 'string',
-        },
-        price: {
-            type: 'string',
-            pattern: '^[0-9]+$',
-        },
-        isMin: {
-            type: 'boolean',
-        },
-        vatPercent: {
-            type: 'string',
-            enum: VAT_OPTIONS.map(opt => opt.toString()),
-        },
-        salesTaxPercent: {
-            type: 'string',
+    type: 'array',
+    items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['type', 'group', 'name', 'price', 'isMin'],
+        properties: {
+            type: {
+                type: 'string',
+                enum: ['variant', 'extra'],
+            },
+            group: {
+                type: 'string',
+            },
+            name: {
+                type: 'string',
+            },
+            price: {
+                type: 'string',
+                pattern: '^-?[0-9]\\d*(\\.\\d+)?$',
+            },
+            isMin: {
+                type: 'boolean',
+            },
+            vatPercent: {
+                type: 'string',
+                enum: VAT_OPTIONS.map(opt => opt.toString()),
+            },
+            salesTaxPercent: {
+                type: 'string',
+            },
         },
     },
 }
@@ -71,8 +74,8 @@ const PRICE_FIELD = {
         validateInput: validatePriceField,
     },
     extendGraphQLTypes: priceGqlSchemaTypes,
-    graphQLInputType: `${PRICE_GQL_INPUT_NAME}`,
-    graphQLReturnType: `${PRICE_GQL_TYPE_NAME}`,
+    graphQLInputType: `[${PRICE_GQL_INPUT_NAME}!]`,
+    graphQLReturnType: `[${PRICE_GQL_TYPE_NAME}!]!`,
     graphQLAdminFragment: `{ ${Object.keys(priceSchemaFields).join(' ')} }`,
 }
 

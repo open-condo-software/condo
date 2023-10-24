@@ -2,8 +2,8 @@ const Ajv = require('ajv')
 
 const { render, getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const { ERROR_INVALID_MOBILE_SETTINGS } = require('@condo/domains/marketplace/constants')
-const MOBILE_SETTINGS_GQL_INPUT_NAME = 'MobileSettingsSchemaField'
-const MOBILE_SETTINGS_GQL_TYPE_NAME = 'MobileSettingsSchemaFieldInput'
+const MOBILE_SETTINGS_GQL_INPUT_NAME = 'MarketCategoryMobileSettingsSchemaField'
+const MOBILE_SETTINGS_GQL_TYPE_NAME = 'MarketCategoryMobileSettingsSchemaFieldInput'
 
 const mobileSettingsSchemaFields = {
     bgColor: 'String!',
