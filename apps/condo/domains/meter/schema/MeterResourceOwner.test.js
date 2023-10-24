@@ -13,6 +13,8 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowGraphQLRequestError,
+    catchErrorFrom,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -130,49 +132,51 @@ describe('MeterResourceOwner', () => {
 
                 const resourceToUpdate = await MeterResource.getOne(admin, { id: HOT_WATER_METER_RESOURCE_ID })
 
-                await expectToThrowAccessDeniedErrorToObj(async () => {
+                await expectToThrowGraphQLRequestError(async () => {
                     await updateTestMeterResourceOwner(admin, objCreated.id, {
                         resource: { connect: { id: resourceToUpdate.id } },
                     })
+                }, 'Field "resource" is not defined by type "MeterResourceOwnerUpdateInput"')
+            })
+
+            test('support can update only organization field', async () => {
+                const [originalOrganization] = await createTestOrganization(support)
+                const [swappedOrganization] = await createTestOrganization(support)
+                const [property] = await createTestProperty(support, originalOrganization, { map: buildingMapJson })
+                const [objCreated] = await createTestMeterResourceOwner(admin, originalOrganization, resource, {
+                    ...defaultPayload,
+                    address: property.address,
+                })
+
+                const [obj, attrs] = await updateTestMeterResourceOwner(support, objCreated.id, {
+                    organization: { connect: { id: swappedOrganization.id } },
+                })
+
+                expect(obj.id).toMatch(UUID_RE)
+                expect(obj.dv).toEqual(1)
+                expect(obj.sender).toEqual(attrs.sender)
+                expect(obj.v).toEqual(2)
+                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: support.user.id }))
+                expect(obj).toHaveProperty(['organization', 'id'], swappedOrganization.id)
+            })
+
+            // TODO: add check for error when support try to update fields other than organization
+
+            test('user can\'t', async () => {
+                const [organization] = await createTestOrganization(admin)
+                const [objCreated] = await createTestMeterResourceOwner(admin, organization, resource, defaultPayload)
+
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestMeterResourceOwner(user, objCreated.id, { organization: { connect: { id: organization.id } } })
                 })
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
-            test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestMeterResourceOwner(admin)
-
-                const client = await makeClientWithSupportUser()  // TODO(codegen): update SUPPORT client!
-                const [obj, attrs] = await updateTestMeterResourceOwner(client, objCreated.id)  // TODO(codegen): write 'support: update MeterResourceOwner' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestMeterResourceOwner(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const [obj, attrs] = await updateTestMeterResourceOwner(client, objCreated.id)  // TODO(codegen): write 'user: update MeterResourceOwner' test
-
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
-            })
-
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestMeterResourceOwner(admin)
+                const [organization] = await createTestOrganization(admin)
+                const [objCreated] = await createTestMeterResourceOwner(admin, organization, resource, defaultPayload)
 
-                const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestMeterResourceOwner(client, objCreated.id)  // TODO(codegen): write 'anonymous: update MeterResourceOwner' test
+                    await updateTestMeterResourceOwner(anonymous, objCreated.id, { organization: { connect: { id: organization.id } } })
                 })
             })
         })
