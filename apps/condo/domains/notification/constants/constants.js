@@ -18,6 +18,7 @@ const MESSAGE_TRANSPORTS = [SMS_TRANSPORT, EMAIL_TRANSPORT, TELEGRAM_TRANSPORT, 
 const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 const FAKE_ERROR_MESSAGE_PREFIX = 'fake-error-message'
 
+const TICKET_CREATED_TYPE = 'TICKET_CREATED'
 const INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'INVITE_NEW_EMPLOYEE'
 const SHARE_TICKET_MESSAGE_TYPE = 'SHARE_TICKET'
 const DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS'
@@ -109,6 +110,16 @@ const recurrentPaymentProceedingFailedCommonMessageMeta = {
 //TODO: maybe we should gather all data about messages types in the single object
 //TODO(DOMA-2778) add recursive validation for internal objects like [TICKET_EXECUTOR_CONNECTED_TYPE].data
 const MESSAGE_META = {
+    [TICKET_CREATED_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            // ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            // userId: { defaultValue: '', required: true },
+            // url: { defaultValue: '', required: true },
+            // organizationId: { defaultValue: '', required: true },
+        },
+    },
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
         dv: { defaultValue: '', required: true },
         inviteCode: { defaultValue: '', required: true },
@@ -611,6 +622,13 @@ const DEFAULT_MESSAGE_DELIVERY_OPTIONS = {
  * TODO: add MESSAGE_DELIVERY_OPTIONS structure and values validator
  */
 const MESSAGE_DELIVERY_OPTIONS = {
+    [TICKET_CREATED_TYPE]: {
+        ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+        allowedTransports: [TELEGRAM_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
         priority: MESSAGE_DELIVERY_FAST_PRIORITY,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
@@ -867,6 +885,7 @@ module.exports = {
     TELEGRAM_TRANSPORT,
     PUSH_TRANSPORT,
     MESSAGE_TRANSPORTS,
+    TICKET_CREATED_TYPE,
     REGISTER_NEW_USER_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,

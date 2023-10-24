@@ -68,6 +68,8 @@ const {
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
 
+const { sendTicketCreatedNotifications } = require('../tasks/sendTicketCreatedNorifications')
+
 
 const usersWithoutTicketLimits = Object.keys(conf.USERS_WITHOUT_TICKET_LIMITS ? JSON.parse(conf.USERS_WITHOUT_TICKET_LIMITS) : {})
 
@@ -979,6 +981,11 @@ const Ticket = new GQLListSchema('Ticket', {
 
             /* NOTE: this sends different kinds of notifications on ticket create/update */
             await sendTicketNotifications(requestData)
+
+            const { operation, updatedItem } = args
+            if (operation === 'create') {
+                await sendTicketCreatedNotifications.delay(updatedItem.id)
+            }
         },
     },
     access: {

@@ -15,6 +15,7 @@ const {
     SMS_TRANSPORT,
     EMAIL_TRANSPORT,
     PUSH_TRANSPORT,
+    TELEGRAM_TRANSPORT,
     MESSAGE_SENDING_STATUS,
     MESSAGE_RESENDING_STATUS,
     MESSAGE_PROCESSING_STATUS,
@@ -29,6 +30,7 @@ const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/n
 const emailAdapter = require('@condo/domains/notification/transports/email')
 const pushAdapter = require('@condo/domains/notification/transports/push')
 const smsAdapter = require('@condo/domains/notification/transports/sms')
+const telegramAdapter = require('@condo/domains/notification/transports/telegram')
 const {
     Message,
     checkMessageTypeInBlackList,
@@ -46,6 +48,7 @@ const TRANSPORT_ADAPTERS = {
     [SMS_TRANSPORT]: smsAdapter,
     [EMAIL_TRANSPORT]: emailAdapter,
     [PUSH_TRANSPORT]: pushAdapter,
+    [TELEGRAM_TRANSPORT]: telegramAdapter,
 }
 const MESSAGE_TASK_RETRY_STATUSES = [
     MESSAGE_PROCESSING_STATUS,

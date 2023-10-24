@@ -149,8 +149,13 @@ function translateObjectItems (obj, locale) {
 /**
  * Renders message template for Telegram
  */
-function telegramRenderer () {
-    throw new Error('There was no telegram transport. Please write the renderer for Telegram.')
+function telegramRenderer ({ message, env }) {
+    const { lang: locale } = message
+    const messageTranslated = substituteTranslations(message, locale)
+
+    return {
+        text: normalizeSMSText(nunjucks.render(getTemplate(message.lang, message.type, TELEGRAM_TRANSPORT), { message: messageTranslated, env })),
+    }
 }
 
 /**
