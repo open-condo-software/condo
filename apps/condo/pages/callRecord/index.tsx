@@ -31,8 +31,8 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getFiltersQueryData } from '@condo/domains/common/utils/filters.utils'
 import { getFiltersFromQuery, updateQuery } from '@condo/domains/common/utils/helpers'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { CallRecordModal } from '@condo/domains/ticket/components/CallRecordModal'
+import { CallRecordReadPermissionRequired } from '@condo/domains/ticket/components/PageAccess'
 import { useCallRecordTableColumns } from '@condo/domains/ticket/hooks/useCallRecordTableColumns'
 import { useCallRecordTableFilters } from '@condo/domains/ticket/hooks/useCallRecordTableFilters'
 import { CallRecordFragment } from '@condo/domains/ticket/utils/clientSchema'
@@ -257,6 +257,6 @@ const CallRecordsPage: ICallRecordIndexPage = () => {
     )
 }
 
-CallRecordsPage.requiredAccess = OrganizationRequired
+CallRecordsPage.requiredAccess = CallRecordReadPermissionRequired
 
 export default CallRecordsPage

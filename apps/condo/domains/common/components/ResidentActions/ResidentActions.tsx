@@ -30,10 +30,13 @@ export const ResidentAppealDropDownMenuItemWrapperProps = {
 
 const DIVIDER_STYLES: CSSProperties = { margin: 0 }
 
-const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchByPhoneModalVisible, setDropdownVisible }) => {
+const ResidentAppealDropdownOverlay = ({ setIsSearchByPhoneModalVisible, setDropdownVisible }) => {
     const { link } = useOrganization()
+    const canReadContacts = get(link, ['role', 'canReadContacts'], false)
     const canReadTickets = get(link, ['role', 'canReadTickets'], false)
     const canManageTickets = get(link, ['role', 'canManageTickets'], false)
+    const canManageMeterReadings = get(link, ['role', 'canManageMeterReadings'], false)
+    const showSearchButton = canReadContacts && canReadTickets
 
     const handleButtonClick = useCallback(() => {
         setDropdownVisible(false)
@@ -43,7 +46,7 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
     return (
         <StyledMenu>
             {
-                canReadTickets && !isAssignedVisibilityType && (
+                showSearchButton && (
                     <>
                         <MenuItem
                             id='menuitem-action-SearchByPhoneNumber'
@@ -53,35 +56,35 @@ const ResidentAppealDropdownOverlay = ({ isAssignedVisibilityType, setIsSearchBy
                             label='SearchByPhoneNumber'
                             eventName='MenuSearchByPhoneClick'
                         />
-                        <Divider style={DIVIDER_STYLES}/>
+                        {(canManageTickets || canManageMeterReadings) && <Divider style={DIVIDER_STYLES}/>}
                     </>
                 )
             }
             {
                 canManageTickets && (
-                    <MenuItem
-                        id='menuitem-action-CreateAppeal'
-                        menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                        path='/ticket/create'
-                        icon={NewAppeal}
-                        label='CreateAppeal'
-                        eventName='MenuCreateTicketClick'
-                    />
+                    <>
+                        <MenuItem
+                            id='menuitem-action-CreateAppeal'
+                            menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
+                            path='/ticket/create'
+                            icon={NewAppeal}
+                            label='CreateAppeal'
+                            eventName='MenuCreateTicketClick'
+                        />
+                        {canManageMeterReadings && <Divider style={DIVIDER_STYLES}/>}
+                    </>
                 )
             }
             {
-                !isAssignedVisibilityType && (
-                    <>
-                        <Divider style={DIVIDER_STYLES}/>
-                        <MenuItem
-                            id='menuitem-action-CreateMeterReading'
-                            menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
-                            path='/meter/create'
-                            icon={Readings}
-                            label='CreateMeterReading'
-                            eventName='MenuCreateMeterReadingClick'
-                        />
-                    </>
+                canManageMeterReadings && (
+                    <MenuItem
+                        id='menuitem-action-CreateMeterReading'
+                        menuItemWrapperProps={ResidentAppealDropDownMenuItemWrapperProps}
+                        path='/meter/create'
+                        icon={Readings}
+                        label='CreateMeterReading'
+                        eventName='MenuCreateMeterReadingClick'
+                    />
                 )
             }
         </StyledMenu>
@@ -117,21 +120,26 @@ export const ResidentActions: React.FC<IResidentActionsProps> = (props) => {
     } = useSearchByPhoneModal(searchByPhoneFn, canManageContacts)
     const { isMobile } = useLayoutContext()
 
-    const role = get(link, 'role', {})
-    const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
-
     const [dropdownVisible, setDropdownVisible] = useState<boolean>()
 
     const Overlay = useMemo(() => (
         <ResidentAppealDropdownOverlay
             setIsSearchByPhoneModalVisible={setIsSearchByPhoneModalVisible}
-            isAssignedVisibilityType={isAssignedVisibilityType}
             setDropdownVisible={setDropdownVisible}
         />
-    ), [setIsSearchByPhoneModalVisible, isAssignedVisibilityType, setDropdownVisible])
+    ), [setIsSearchByPhoneModalVisible, setDropdownVisible])
 
     const trigger: DropDownProps['trigger'] = useMemo(() => isMobile ? ['click'] : ['hover'], [isMobile])
     const iconSize: IconProps['size'] = minified ? 'medium' : 'small'
+
+    const canReadTickets = get(link, ['role', 'canReadTickets'], false)
+    const canManageTickets = get(link, ['role', 'canManageTickets'], false)
+    const canManageMeterReadings = get(link, ['role', 'canManageMeterReadings'], false)
+    const canReadContacts = get(link, ['role', 'canReadContacts'], false)
+
+    if (!canReadTickets && !canReadContacts && !canManageTickets && !canManageMeterReadings) {
+        return null
+    }
 
     return (
         <div id={DROPDOWN_POPUP_CONTAINER_ID}>

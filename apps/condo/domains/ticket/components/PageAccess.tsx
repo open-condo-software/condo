@@ -4,3 +4,4 @@ export const TicketReadPermissionRequired = ({ children }) => <PermissionsRequir
 export const TicketReadAndManagePermissionRequired = ({ children }) => <PermissionsRequired permissionKeys={['canReadTickets', 'canManageTickets']} children={children} />
 export const IncidentReadPermissionRequired = ({ children }) => <PermissionsRequired permissionKeys={['canReadIncidents']} children={children} />
 export const IncidentReadAndManagePermissionRequired = ({ children }) => <PermissionsRequired permissionKeys={['canReadIncidents', 'canManageIncidents']} children={children} />
+export const CallRecordReadPermissionRequired = ({ children }) => <PermissionsRequired permissionKeys={['canReadCallRecords']} children={children} />

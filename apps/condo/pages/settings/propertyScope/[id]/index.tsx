@@ -18,7 +18,6 @@ import {
 import { renderBlockedObject } from '@condo/domains/common/components/GraphQlSearchInput'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { OrganizationEmployeeSpecialization } from '@condo/domains/organization/utils/clientSchema'
 import {
     EmployeeNameAndSpecializations,
@@ -29,6 +28,7 @@ import {
     PropertyScopeOrganizationEmployee,
     PropertyScopeProperty,
 } from '@condo/domains/scope/utils/clientSchema'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { getAddressRender } from '@condo/domains/ticket/utils/clientSchema/Renders'
 
 
@@ -225,6 +225,6 @@ const PropertyScopeIdPage = () => {
     )
 }
 
-PropertyScopeIdPage.requiredAccess = OrganizationRequired
+PropertyScopeIdPage.requiredAccess = SettingsReadPermissionRequired
 
 export default PropertyScopeIdPage

@@ -65,9 +65,8 @@ import { useNewsItemsAccess } from '@condo/domains/news/hooks/useNewsItemsAccess
 import { OnBoardingProvider } from '@condo/domains/onboarding/components/OnBoardingContext'
 import { OnBoardingProgressIconContainer } from '@condo/domains/onboarding/components/OnBoardingProgressIconContainer'
 import { useNoOrganizationToolTip } from '@condo/domains/onboarding/hooks/useNoOrganizationToolTip'
-import { ASSIGNED_TICKET_VISIBILITY, MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
+import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 import { GET_ORGANIZATION_EMPLOYEE_BY_ID_QUERY } from '@condo/domains/organization/gql'
-import { OnlyTicketPagesAccess } from '@condo/domains/scope/components/OnlyTicketPagesAccess'
 import {
     SubscriptionProvider,
     useServiceSubscriptionContext,
@@ -124,7 +123,6 @@ const MenuItems: React.FC = () => {
     const role = get(link, 'role', {})
     const orgId = get(organization, 'id', null)
     const orgFeatures = get(organization, 'features', [])
-    const isAssignedVisibilityType = get(role, 'ticketVisibilityType') === ASSIGNED_TICKET_VISIBILITY
     const isSPPOrg = useFlag(SERVICE_PROVIDER_PROFILE)
     const sppBillingId = get(sppConfig, 'BillingIntegrationId', null)
     const { obj: billingCtx } = BillingContext.useObject({ where: { integration: { id: sppBillingId }, organization: { id: orgId } } })
@@ -136,7 +134,10 @@ const MenuItems: React.FC = () => {
     const hasAccessToEmployees = get(role, 'canReadEmployees', false)
     const hasAccessToProperties = get(role, 'canReadProperties', false)
     const hasAccessToContacts = get(role, 'canReadContacts', false)
-    const canReadAnalytics = get(role, 'canReadAnalytics', false)
+    const hasAccessToAnalytics = get(role, 'canReadAnalytics')
+    const hasAccessToMeters = get(role, 'canReadMeters', false)
+    const hasAccessToServices = get(role, 'canReadServices', false)
+    const hasAccessToSettings = get(role, 'canReadSettings', false)
 
     const { canRead: hasAccessToNewsItems } = useNewsItemsAccess()
 
@@ -155,7 +156,7 @@ const MenuItems: React.FC = () => {
                     path: 'reports',
                     icon: AllIcons['BarChartVertical'],
                     label: 'global.section.analytics',
-                    access: !isAssignedVisibilityType && isManagingCompany && canReadAnalytics,
+                    access: hasAccessToAnalytics && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -174,7 +175,7 @@ const MenuItems: React.FC = () => {
                     path: 'incident',
                     icon: AllIcons['OnOff'],
                     label: 'global.section.incidents',
-                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToIncidents,
+                    access: isManagingCompany && hasAccessToIncidents,
                 },
                 {
                     id: 'menuitem-news',
@@ -193,7 +194,7 @@ const MenuItems: React.FC = () => {
                     path: 'property',
                     icon: AllIcons['Building'],
                     label: 'global.section.properties',
-                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToProperties,
+                    access: isManagingCompany && hasAccessToProperties,
                 },
             ].filter(checkItemAccess),
         },
@@ -205,7 +206,7 @@ const MenuItems: React.FC = () => {
                     path: 'contact',
                     icon: AllIcons['Contacts'],
                     label: 'global.section.contacts',
-                    access: !isAssignedVisibilityType && isManagingCompany && hasAccessToContacts,
+                    access: isManagingCompany && hasAccessToContacts,
                 },
             ].filter(checkItemAccess),
         },
@@ -217,7 +218,7 @@ const MenuItems: React.FC = () => {
                     path: 'employee',
                     icon: AllIcons['Employee'],
                     label: 'global.section.employees',
-                    access: !isAssignedVisibilityType && hasAccessToEmployees,
+                    access: hasAccessToEmployees,
                 },
             ].filter(checkItemAccess),
         },
@@ -251,7 +252,7 @@ const MenuItems: React.FC = () => {
                     path: 'meter',
                     icon: AllIcons['Meters'],
                     label: 'global.section.meters',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: hasAccessToMeters && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
@@ -263,7 +264,7 @@ const MenuItems: React.FC = () => {
                     path: 'miniapps',
                     icon: AllIcons['Services'],
                     label: 'global.section.miniapps',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: hasAccessToServices && isManagingCompany,
                     // not a ReDoS issue: running on end user browser
                     // nosemgrep: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
                     excludePaths: connectedAppsIds.map((id) => new RegExp(`/miniapps/${id}$`)),
@@ -278,16 +279,16 @@ const MenuItems: React.FC = () => {
                     path: 'settings',
                     icon: AllIcons['Settings'],
                     label: 'global.section.settings',
-                    access: !isAssignedVisibilityType && isManagingCompany,
+                    access: hasAccessToSettings && isManagingCompany,
                 },
             ].filter(checkItemAccess),
         },
-    ]), [isAssignedVisibilityType, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, connectedAppsIds])
+    ]), [hasAccessToAnalytics, isManagingCompany, hasAccessToTickets, hasAccessToIncidents, hasAccessToNewsItems, hasAccessToProperties, hasAccessToContacts, hasAccessToEmployees, isSPPOrg, hasAccessToBilling, anyReceiptsLoaded, sppBillingId, hasAccessToMeters, hasAccessToServices, connectedAppsIds, hasAccessToSettings])
 
     return (
         <>
             {
-                !isAssignedVisibilityType && isManagingCompany &&  (
+                isManagingCompany &&  (
                     <FocusElement>
                         <OnBoardingProgressIconContainer>
                             <MenuItem
@@ -412,12 +413,7 @@ const MyApp = ({ Component, pageProps }) => {
     const HeaderAction = Component.headerAction
     let RequiredAccess: React.FC = React.Fragment
 
-    const organization = useOrganization()
-    if (!Component.isError &&
-        get(organization, ['link', 'role', 'ticketVisibilityType']) === ASSIGNED_TICKET_VISIBILITY &&
-        router.route !== '/') {
-        RequiredAccess = OnlyTicketPagesAccess
-    } else if (Component.requiredAccess) {
+    if (Component.requiredAccess) {
         RequiredAccess = Component.requiredAccess
     }
 

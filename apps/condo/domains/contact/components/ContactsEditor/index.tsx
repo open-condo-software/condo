@@ -151,7 +151,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const initialValueWithoutContact = !initialValue.id && initialValue
     const isEmptyInitialNotResidentValue = useMemo(() => isEmpty(Object.values(initialValueWithoutContact).filter(Boolean)), [initialValueWithoutContact])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
-    const initialTab = hasNotResidentTab && (isEmptyInitialValue || !isEmptyInitialNotResidentValue || !canReadContacts)
+    const initialTab = hasNotResidentTab && (isEmptyInitialValue || !isEmptyInitialNotResidentValue || (!canReadContacts && !canManageContacts))
         ? CONTACT_TYPE.NOT_RESIDENT : CONTACT_TYPE.RESIDENT
 
     const {
@@ -215,7 +215,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     }, [activeTab, fields.id, fields.name, fields.phone, form])
 
     useEffect(() => {
-        if (!canReadContacts) return
+        if (!canReadContacts && !canManageContacts) return
 
         if (hasNotResidentTab) {
             if (unitName && (redirectToClientCard || isEmptyInitialNotResidentValue)) {
@@ -230,7 +230,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         } else {
             setActiveTab(CONTACT_TYPE.RESIDENT)
         }
-    }, [canReadContacts, hasNotResidentTab, isEmptyInitialNotResidentValue, redirectToClientCard, unitName])
+    }, [canManageContacts, canReadContacts, hasNotResidentTab, isEmptyInitialNotResidentValue, redirectToClientCard, unitName])
 
     useEffect(() => {
         setActiveTab(initialTab)
@@ -343,7 +343,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                     onChange={handleTabChange}
                 >
                     {
-                        canReadContacts && (
+                        (canReadContacts || canManageContacts) && (
                             <TabPane tab={residentTitle || TicketFromResidentMessage} key={CONTACT_TYPE.RESIDENT} disabled={!unitName}>
                                 <Row gutter={TAB_PANE_ROW_GUTTERS}>
                                     {isEmpty(initialContacts) || !unitName ? (

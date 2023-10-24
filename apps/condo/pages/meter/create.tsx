@@ -13,8 +13,10 @@ import {
     CreateMeterReadingsForm,
     CreatePropertyMeterReadingsForm,
 } from '@condo/domains/meter/components/CreateMeterReadingsForm'
+import {
+    MeterReadAndManagePermissionRequired,
+} from '@condo/domains/meter/components/PageAccess'
 import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 interface ICreateMeterPage extends React.FC {
     headerAction?: JSX.Element
@@ -73,6 +75,6 @@ const CreateMeterPage: ICreateMeterPage = () => {
     )
 }
 
-CreateMeterPage.requiredAccess = OrganizationRequired
+CreateMeterPage.requiredAccess = MeterReadAndManagePermissionRequired
 
 export default CreateMeterPage

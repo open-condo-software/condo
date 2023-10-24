@@ -29,6 +29,7 @@ import {
 } from '@condo/domains/organization/components/EmployeeRolesSettingsContent'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { RecipientSettingsContent } from '@condo/domains/organization/components/Recipient/SettingsContent'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { SubscriptionPane } from '@condo/domains/subscription/components/SubscriptionPane'
 
 
@@ -36,7 +37,7 @@ const TITLE_STYLES: CSSProperties = { margin: 0 }
 
 const ALWAYS_AVAILABLE_TABS = [SETTINGS_TAB_PAYMENT_DETAILS, SETTINGS_TAB_CONTROL_ROOM]
 
-const SettingsPage: React.FC = () => {
+const SettingsPage = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.section.settings' })
     const SubscriptionTitle = intl.formatMessage({ id: 'Subscription' })
@@ -128,5 +129,6 @@ const SettingsPage: React.FC = () => {
     )
 }
 
+SettingsPage.requiredAccess = SettingsReadPermissionRequired
 
 export default SettingsPage

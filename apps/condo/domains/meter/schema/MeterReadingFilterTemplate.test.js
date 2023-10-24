@@ -170,6 +170,19 @@ describe('MeterReadingFilterTemplate', () => {
             expect(templates[0].id).toEqual(filtersTemplate.id)
         })
 
+        test('employee without "canReadMeters": can not read his MeterReadingFilterTemplate', async () => {
+            const admin = await makeLoggedInAdminClient()
+            const [organization] = await createTestOrganization(admin)
+            const [role] = await createTestOrganizationEmployeeRole(admin, organization, { canReadMeters: false })
+            const user = await makeClientWithNewRegisteredAndLoggedInUser()
+            const [employee] = await createTestOrganizationEmployee(admin, organization, user.user, role)
+
+            const [filtersTemplate] = await createTestMeterReadingFilterTemplate(user, employee, {})
+            const template = await MeterReadingFilterTemplate.getOne(user, { id: filtersTemplate.id })
+
+            expect(template).toBeUndefined()
+        })
+
         test('employee: cannot read not his own MeterReadingFilterTemplate', async () => {
             const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)

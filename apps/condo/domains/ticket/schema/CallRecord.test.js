@@ -113,7 +113,7 @@ describe('CallRecord', () => {
 
         describe('Employee', () => {
             describe('Organization employee', () => {
-                describe('with canManageCallRecords access', function () {
+                describe('with access', function () {
                     test('can create', async () => {
                         const [callRecord] = await createTestCallRecord(employeeWithCanManageCallRecordsUser, organization)
                         expect(callRecord).toBeDefined()
@@ -141,17 +141,22 @@ describe('CallRecord', () => {
                         })
                     })
                 })
-                describe('without canManageCallRecords access', function () {
+                describe('without access', function () {
                     test('can\'t create', async () => {
                         await expectToThrowAccessDeniedErrorToObj(
                             async () => await createTestCallRecord(employeeWithoutCanManageCallRecordsUser, organization)
                         )
                     })
-                    test('can read', async () => {
-                        const callRecord = await CallRecord.getOne(employeeWithoutCanManageCallRecordsUser, { id: testCallRecord.id })
+                    test('can not read without canReadCallRecords', async () => {
+                        const newUser = await makeClientWithNewRegisteredAndLoggedInUser()
+                        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                            canReadCallRecords: false,
+                        })
+                        await createTestOrganizationEmployee(admin, organization, newUser.user, role)
 
-                        expect(callRecord).toBeDefined()
-                        expect(callRecord).toHaveProperty('id', callRecord.id)
+                        const callRecord = await CallRecord.getOne(newUser, { id: testCallRecord.id })
+
+                        expect(callRecord).toBeUndefined()
                     })
                     test('can\'t update', async () => {
                         await expectToThrowAccessDeniedErrorToObj(

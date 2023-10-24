@@ -199,6 +199,24 @@ describe('PropertyMeterReading', () => {
                 })
             })
 
+            test('employee without "canReadMeters": can not read', async () => {
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization, { map: buildingMapJson })
+                const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+                    canReadMeters: false,
+                })
+                await createTestOrganizationEmployee(admin, organization, client.user, role)
+
+                const [meter] = await createTestPropertyMeter(admin, organization, property, resource, {})
+                const [meterReading] = await createTestPropertyMeterReading(admin, meter, source)
+
+                const obj = await PropertyMeterReading.getOne(client, { id: meterReading.id })
+
+                expect(obj).toBeUndefined()
+            })
+
             test('anonymous can\'t', async () => {
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {

@@ -7,8 +7,8 @@ import React, { CSSProperties } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 import { PropertyScopeForm } from '@condo/domains/scope/components/PropertyScopeForm'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
@@ -41,6 +41,6 @@ const UpdatePropertyScopePage = () => {
     )
 }
 
-UpdatePropertyScopePage.requiredAccess = OrganizationRequired
+UpdatePropertyScopePage.requiredAccess = SettingsReadPermissionRequired
 
 export default UpdatePropertyScopePage

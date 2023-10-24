@@ -33,7 +33,7 @@ import {
 import { Close } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip, Typography } from '@open-condo/ui'
+import { ActionBar, ActionBarProps, Button, Checkbox, Tooltip } from '@open-condo/ui'
 
 import {
     EXPANDABLE_COLUMN_STUB,
@@ -44,7 +44,6 @@ import {
 import { B2BAppContext, B2BAppPermission, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
 import {
     GROUP_NAME_COLUMN_WIDTH,
-    ROLE_COLUMN_STYLE,
     useEmployeeRolesTableColumns,
     useEmployeeRoleTicketVisibilityInfoTableColumns,
 } from '@condo/domains/organization/hooks/useEmployeeRolesTableColumns'
@@ -348,11 +347,9 @@ const TableCheckbox: React.FC<TableCheckboxProps> = ({
     }
 
     return (
-        <div style={ROLE_COLUMN_STYLE}>
-            <Tooltip title={tooltipTitle}>
-                <Checkbox checked={value} onChange={onChange} disabled={checkboxDisabled} />
-            </Tooltip>
-        </div>
+        <Tooltip title={tooltipTitle}>
+            <Checkbox checked={value} onChange={onChange} disabled={checkboxDisabled} />
+        </Tooltip>
     )
 }
 

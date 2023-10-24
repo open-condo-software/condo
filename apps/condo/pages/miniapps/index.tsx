@@ -5,7 +5,8 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageWrapper, PageContent } from '@condo/domains/common/components/containers/BaseLayout'
 import { CatalogPageContent } from '@condo/domains/miniapp/components/Catalog/PageContent'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { ServicesReadPermissionRequired } from '@condo/domains/miniapp/components/PageAccess'
+
 
 type PageType = React.FC & {
     requiredAccess: React.ReactNode
@@ -29,6 +30,6 @@ const MiniappsCatalogPage: PageType = () => {
     )
 }
 
-MiniappsCatalogPage.requiredAccess = OrganizationRequired
+MiniappsCatalogPage.requiredAccess = ServicesReadPermissionRequired
 
 export default MiniappsCatalogPage

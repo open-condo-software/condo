@@ -19,8 +19,6 @@ import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSc
 
 import { SBBOLIndicator } from './SBBOLIndicator'
 
-import { ASSIGNED_TICKET_VISIBILITY } from '../constants/common'
-
 import type { OrganizationEmployee as OrganizationEmployeeType } from '@app/condo/schema'
 import type { DropdownProps } from 'antd'
 
@@ -71,15 +69,6 @@ export const InlineOrganizationSelect: React.FC = () => {
             selectLink({ id })
         }
     }, [selectLink])
-
-    // Note Only available section for contractors is tickets,
-    // so the case when they were on other page and then changed org to contractors one
-    // is processed here
-    useDeepCompareEffect(() => {
-        if (get(link, ['role', 'ticketVisibilityType']) === ASSIGNED_TICKET_VISIBILITY && !router.route.includes('ticket')) {
-            router.push('/ticket')
-        }
-    }, [link, router])
 
     useDeepCompareEffect(() => {
         if (employeesLoaded && user) {

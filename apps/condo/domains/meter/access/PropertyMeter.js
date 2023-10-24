@@ -18,8 +18,8 @@ async function canReadPropertyMeters ({ authentication: { item: user } }) {
     return {
         organization: {
             OR: [
-                queryOrganizationEmployeeFor(user.id),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id),
+                queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
+                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
             ],
         },
     }

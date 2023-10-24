@@ -48,6 +48,7 @@ import {
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
+import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
 import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
 import { MeterReportingPeriod as MeterReportingPeriodGQL } from '@condo/domains/meter/gql'
@@ -64,7 +65,6 @@ import {
     MeterReportingPeriod,
     METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
 
 
 const METERS_PAGE_CONTENT_ROW_GUTTERS: RowProps['gutter'] = [0, 40]
@@ -192,6 +192,7 @@ export const MetersPageContent = ({
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.meter}`}
                     createLabel={CreateMeter}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                    accessCheck={canManageMeterReadings}
                 />
                 <Row
                     gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
@@ -371,6 +372,7 @@ export const PropertyMetersPageContent = ({
                     createRoute={`/meter/create?meterType=${METER_PAGE_TYPES.propertyMeter}`}
                     createLabel={CreateMeter}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                    accessCheck={canManageMeterReadings}
                 />
                 <Row
                     gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
@@ -427,6 +429,8 @@ export const MeterReportingPeriodPageContent = ({
     const router = useRouter()
     const { filters, offset } = parseQuery(router.query)
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
+    const canManageMeters = get(role, 'canManageMeters', false)
+
     const {
         loading: periodLoading,
         count: total,
@@ -451,7 +455,7 @@ export const MeterReportingPeriodPageContent = ({
     }, [reportingPeriods])
     const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { notifyStartDay: get(defaultPeriod, 'current.notifyStartDay'), notifyEndDay: get(defaultPeriod, 'current.notifyEndDay') })
 
-    const [search, handleSearchChange, handleSearchReset] = useSearch()
+    const [search, handleSearchChange] = useSearch()
     const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading
 
     const handleRowAction = useCallback((record) => {
@@ -485,10 +489,6 @@ export const MeterReportingPeriodPageContent = ({
             setSelectedRows([])
         }
     }, [reportingPeriodsProcessedForTable])
-
-    const clearSelection = () => {
-        setSelectedRows([])
-    }
 
     const rowSelection: TableRowSelection<MeterReportingPeriodType> = useMemo(() => ({
         type: 'checkbox',
@@ -534,6 +534,7 @@ export const MeterReportingPeriodPageContent = ({
                     createRoute='/meter/reportingPeriod/create'
                     createLabel={CreateReportingPeriodLabel}
                     containerStyle={{ display: isNoMeterData ? 'flex' : 'none' }}
+                    accessCheck={canManageMeters}
                 />
                 <Row
                     gutter={METERS_PAGE_CONTENT_ROW_GUTTERS}
@@ -572,7 +573,7 @@ export const MeterReportingPeriodPageContent = ({
                     </Col>
                 </Row>
                 {
-                    isNoMeterData ? '' :
+                    canManageMeters && !isNoMeterData && (
                         <ActionBar
                             actions={[
                                 <Button
@@ -592,6 +593,7 @@ export const MeterReportingPeriodPageContent = ({
                                 /> : undefined,
                             ]}
                         />
+                    )
                 }
             </TablePageContent>
         </>
@@ -729,6 +731,6 @@ const MetersPage: IMeterIndexPage = () => {
     )
 }
 
-MetersPage.requiredAccess = OrganizationRequired
+MetersPage.requiredAccess = MeterReadPermissionRequired
 
 export default MetersPage

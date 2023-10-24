@@ -6,7 +6,7 @@ import React, { CSSProperties } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
-import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { SettingsReadPermissionRequired } from '@condo/domains/settings/components/PageAccess'
 import { TicketPropertyHintForm } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintForm'
 
 const TITLE_STYLES: CSSProperties = { margin: 0 }
@@ -37,6 +37,6 @@ const CreateTicketPropertyHintPage = () => {
     )
 }
 
-CreateTicketPropertyHintPage.requiredAccess = OrganizationRequired
+CreateTicketPropertyHintPage.requiredAccess = SettingsReadPermissionRequired
 
 export default CreateTicketPropertyHintPage
