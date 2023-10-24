@@ -25,6 +25,8 @@ const SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR = '[acquiringIntegr
 const CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT = '[acquiringIntegrationContext:alreadyCreated] Specified organization already have active acquiring context'
 const PAYMENT_NO_PAIRED_RECEIPT = '[payment:frozenReceipt:noReceipt] Input is containing "frozenReceipt", but "receipt" is not specified'
 const PAYMENT_NO_PAIRED_FROZEN_RECEIPT = '[payment:receipt:noFrozenReceipt] Input is containing "receipt", but no "frozenReceipt" is not specified'
+const PAYMENT_NO_PAIRED_INVOICE = 'PAYMENT_NO_PAIRED_INVOICE'
+const PAYMENT_NO_PAIRED_FROZEN_INVOICE = 'PAYMENT_NO_PAIRED_FROZEN_INVOICE'
 const PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH = '[payment:context:organization:noMatch] Organization in acquiring context does not match with organization specified in Payment'
 const PAYMENT_NOT_ALLOWED_TRANSITION = '[payment:status:transitionNotAllowed] Restricted status transition.'
 const PAYMENT_MISSING_REQUIRED_FIELDS = '[payment:requiredFieldsMissing] Some required fields for this status are missing.'
@@ -108,6 +110,8 @@ module.exports = {
     CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT,
     PAYMENT_NO_PAIRED_RECEIPT,
     PAYMENT_NO_PAIRED_FROZEN_RECEIPT,
+    PAYMENT_NO_PAIRED_INVOICE,
+    PAYMENT_NO_PAIRED_FROZEN_INVOICE,
     PAYMENT_CONTEXT_ORGANIZATION_NOT_MATCH,
     PAYMENT_NOT_ALLOWED_TRANSITION,
     PAYMENT_MISSING_REQUIRED_FIELDS,

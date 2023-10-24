@@ -1127,8 +1127,8 @@ describe('DiscoverServiceConsumersService', () => {
                 period: now.format('YYYY-MM-01'),
             })
 
-            // start discovering only with the first created billing account
-            await discoverServiceConsumersByTestClient(admin, { billingAccountsIds: [billingAccount1.id] })
+            // start discovering only with the second created billing account
+            await discoverServiceConsumersByTestClient(admin, { billingAccountsIds: [billingAccount2.id] })
 
             const createdServiceConsumers = await ResidentBillingReceipt.getAll(residentClient, {})
 

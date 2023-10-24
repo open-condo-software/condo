@@ -52,6 +52,7 @@ const {
 const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
+const { createTestInvoiceContext, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganization,
@@ -408,6 +409,35 @@ describe('Payment', () => {
                     })
                 }, PAYMENT_NO_PAIRED_RECEIPT)
             })
+
+            test('Invoice and frozen invoice should be updated at the same time', async () => {
+                const { admin, organization } = await makePayer()
+                const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+                const [invoice] = await createTestInvoice(admin, invoiceContext)
+
+                await expectToThrowGQLError(async () => {
+                    await createTestPayment(admin, organization, null, null, {
+                        invoice,
+                        frozenInvoice: null,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PAYMENT_NO_PAIRED_FROZEN_INVOICE',
+                    message: 'Input is containing "invoice", but "frozenInvoice" is not specified',
+                })
+
+                await expectToThrowGQLError(async () => {
+                    await createTestPayment(admin, organization, null, null, {
+                        invoice: null,
+                        frozenInvoice: { dv: 1, data: invoice },
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'PAYMENT_NO_PAIRED_INVOICE',
+                    message: 'Input is containing "frozenInvoice", but "invoice" is not specified',
+                })
+            })
+
             test('context should should have same organization as payment',  async () => {
                 const { admin, acquiringContext } = await makePayer()
                 const [secondOrganization] = await createTestOrganization(admin)

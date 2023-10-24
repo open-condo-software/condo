@@ -299,6 +299,13 @@ async function createTestPayment (client, organization, receipt=null, context=nu
     const contextId = get(context, 'id')
     const receiptId = get(receipt, 'id')
 
+    const invoice = get(extraAttrs, 'invoice')
+    const invoiceId = get(extraAttrs, ['invoice', 'id'])
+    extraAttrs.invoice = invoiceId ? { connect: { id: invoiceId } } : null
+    if (extraAttrs.frozenInvoice === undefined) {
+        extraAttrs.frozenInvoice = invoiceId ? { dv: 1, data: invoice } : null
+    }
+
     const attrs = {
         dv: 1,
         sender,
@@ -311,7 +318,7 @@ async function createTestPayment (client, organization, receipt=null, context=nu
         receipt: receiptId ? { connect: { id: receipt.id } } : null,
         frozenReceipt: receiptId ? { dv: 1, data: receipt } : null,
         organization: { connect: { id: organization.id } },
-        context: contextId ? { connect: {id: contextId} } : null,
+        context: contextId ? { connect: { id: contextId } } : null,
         period,
         recipientBic,
         recipientBankAccount,

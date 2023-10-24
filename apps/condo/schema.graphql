@@ -51377,6 +51377,8 @@ type PaymentHistoryRecord {
   purpose: String
   receipt: String
   frozenReceipt: JSON
+  invoice: String
+  frozenInvoice: JSON
   multiPayment: String
   context: String
   organization: String
@@ -51521,6 +51523,14 @@ input PaymentHistoryRecordWhereInput {
   frozenReceipt_not: JSON
   frozenReceipt_in: [JSON]
   frozenReceipt_not_in: [JSON]
+  invoice: String
+  invoice_not: String
+  invoice_in: [String]
+  invoice_not_in: [String]
+  frozenInvoice: JSON
+  frozenInvoice_not: JSON
+  frozenInvoice_in: [JSON]
+  frozenInvoice_not_in: [JSON]
   multiPayment: String
   multiPayment_not: String
   multiPayment_in: [String]
@@ -51767,6 +51777,8 @@ input PaymentHistoryRecordUpdateInput {
   purpose: String
   receipt: String
   frozenReceipt: JSON
+  invoice: String
+  frozenInvoice: JSON
   multiPayment: String
   context: String
   organization: String
@@ -51807,6 +51819,8 @@ input PaymentHistoryRecordCreateInput {
   purpose: String
   receipt: String
   frozenReceipt: JSON
+  invoice: String
+  frozenInvoice: JSON
   multiPayment: String
   context: String
   organization: String
@@ -51831,6 +51845,13 @@ input PaymentHistoryRecordCreateInput {
 
 input PaymentHistoryRecordsCreateInput {
   data: PaymentHistoryRecordCreateInput
+}
+
+input InvoiceRelateToOneInput {
+  create: InvoiceCreateInput
+  connect: InvoiceWhereUniqueInput
+  disconnect: InvoiceWhereUniqueInput
+  disconnectAll: Boolean
 }
 
 input MultiPaymentRelateToOneInput {
@@ -51894,6 +51915,12 @@ type Payment {
 
   """ Frozen billing receipt, used to resolving conflicts """
   frozenReceipt: JSON
+
+  """ Link to the invoice that user paid for. """
+  invoice: Invoice
+
+  """ Frozen invoice, used to resolving conflicts """
+  frozenInvoice: JSON
 
   """ Link to a payment related MultiPayment. Required field to update, but initially created unlinked 
   """
@@ -52054,6 +52081,12 @@ input PaymentWhereInput {
   frozenReceipt_not: JSON
   frozenReceipt_in: [JSON]
   frozenReceipt_not_in: [JSON]
+  invoice: InvoiceWhereInput
+  invoice_is_null: Boolean
+  frozenInvoice: JSON
+  frozenInvoice_not: JSON
+  frozenInvoice_in: [JSON]
+  frozenInvoice_not_in: [JSON]
   multiPayment: MultiPaymentWhereInput
   multiPayment_is_null: Boolean
   context: AcquiringIntegrationContextWhereInput
@@ -52221,6 +52254,8 @@ enum SortPaymentsBy {
   purpose_DESC
   receipt_ASC
   receipt_DESC
+  invoice_ASC
+  invoice_DESC
   multiPayment_ASC
   multiPayment_DESC
   context_ASC
@@ -52268,6 +52303,8 @@ input PaymentUpdateInput {
   purpose: String
   receipt: BillingReceiptRelateToOneInput
   frozenReceipt: JSON
+  invoice: InvoiceRelateToOneInput
+  frozenInvoice: JSON
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
@@ -52305,6 +52342,8 @@ input PaymentCreateInput {
   purpose: String
   receipt: BillingReceiptRelateToOneInput
   frozenReceipt: JSON
+  invoice: InvoiceRelateToOneInput
+  frozenInvoice: JSON
   multiPayment: MultiPaymentRelateToOneInput
   context: AcquiringIntegrationContextRelateToOneInput
   organization: OrganizationRelateToOneInput
