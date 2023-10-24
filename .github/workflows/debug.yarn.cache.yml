@@ -1,0 +1,43 @@
+name: Install packages
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [ 16.x ]
+
+    steps:
+      - name: Checkout code with submodules
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          submodules: recursive
+          ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "dir=$(yarn config get cacheFolder)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: Install packages
+        run: |
+          yarn install --immutable
+
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
