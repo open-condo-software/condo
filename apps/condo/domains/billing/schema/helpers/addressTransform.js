@@ -14,11 +14,6 @@ class AddressTransform {
     regExps = {}
     replaces = {}
 
-    /**
-     * Prepare address transformer to work with provided rule set
-     * @param config
-     * @returns {{errorMessage: (string|undefined), error: (string|null)}}
-     */
     init (config) {
         try {
             for (const [search, replace] of Object.entries(config)) {

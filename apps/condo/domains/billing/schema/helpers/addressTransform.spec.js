@@ -1,4 +1,4 @@
-const { AddressTransform, AddressParser } = require('./addressTransform')
+const { AddressTransform, AddressParser } = require('./AddressTransform')
 
 const rules = {
     'ул.Революции 1905 года': 'г. Новороссийск, ул.Революции 1905 года',
@@ -58,32 +58,30 @@ const TRANSFORM_CASES = [
     },
 ]
 
-describe('AddressService tests', () => {
-    describe('Parsing unit names with unit types from address strings', () => {
-        for (const rawData of PARSER_CASES) {
-            const [ rawInput, house, unitType, unit ] = rawData
-            test(`"${rawInput}" to be: "${house} = ${unitType} = ${unit}" `, () => {
-                const parser = new AddressParser()
-                const { address, unitName: parsedUnit, unitType: parsedUnitType } = parser.parse(rawInput)
-                expect(address.toUpperCase()).toEqual(house.toUpperCase())
-                expect(parsedUnit.toUpperCase()).toEqual(unit.toUpperCase())
-                expect(unitType.toUpperCase()).toEqual(parsedUnitType.toUpperCase())
-            })
-        }
-    })
+describe('Parsing unit names with unit types from address strings', () => {
+    for (const rawData of PARSER_CASES) {
+        const [ rawInput, house, unitType, unit ] = rawData
+        test(`"${rawInput}" to be: "${house} = ${unitType} = ${unit}" `, () => {
+            const parser = new AddressParser()
+            const { address, unitName: parsedUnit, unitType: parsedUnitType } = parser.parse(rawInput)
+            expect(address.toUpperCase()).toEqual(house.toUpperCase())
+            expect(parsedUnit.toUpperCase()).toEqual(unit.toUpperCase())
+            expect(unitType.toUpperCase()).toEqual(parsedUnitType.toUpperCase())
+        })
+    }
+})
 
-    describe('Transform address according to context rules', () => {
-        for (const rawData of TRANSFORM_CASES) {
-            const { input, output } = rawData
-            test(`"${input}" to be: "${output}" `, () => {
-                const transform = new AddressTransform()
-                const initResult = transform.init(rules)
-                expect(initResult.error).not.toBeTruthy()
-                expect(initResult.errorMessage).not.toBeTruthy()
+describe('Transform address according to context rules', () => {
+    for (const rawData of TRANSFORM_CASES) {
+        const { input, output } = rawData
+        test(`"${input}" to be: "${output}" `, () => {
+            const transform = new AddressTransform()
+            const initResult = transform.init(rules)
+            expect(initResult.error).not.toBeTruthy()
+            expect(initResult.errorMessage).not.toBeTruthy()
 
-                const result = transform.apply(input)
-                expect(result).toEqual(output)
-            })
-        }
-    })
+            const result = transform.apply(input)
+            expect(result).toEqual(output)
+        })
+    }
 })
