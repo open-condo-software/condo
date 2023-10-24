@@ -50,7 +50,6 @@ jobs:
       - name: check host
         run: |
           ls -lahtr
-          ls /app/.yarn/berry/cache
 
       - name: build condo image for tests and push
         uses: docker/build-push-action@v5
@@ -66,7 +65,6 @@ jobs:
       - name: check host after
         run: |
           ls -lahtr
-          ls /app/.yarn/berry/cache
 
   domains-tests-job:
     needs: build-image

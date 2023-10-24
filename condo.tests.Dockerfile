@@ -40,4 +40,5 @@ RUN set -ex \
     && turbo build --filter=condo^... \
     && rm -rf /app/.env  \
     && rm -rf /app/.config /app/.cache /app/.docker  \
-    && ls -lah /app/
+    && ls -lah /app/ \
+	&& ls -lahtr /app/.yarn/berry/cache
