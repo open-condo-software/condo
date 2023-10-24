@@ -19,6 +19,7 @@ const { DELETE_METER_AND_METER_READINGS_MUTATION } = require('@condo/domains/met
 const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
 const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
+const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -29,6 +30,7 @@ const MeterReadingFilterTemplate = generateGQLTestUtils(MeterReadingFilterTempla
 const PropertyMeter = generateGQLTestUtils(PropertyMeterGQL)
 const PropertyMeterReading = generateGQLTestUtils(PropertyMeterReadingGQL)
 const MeterReportingPeriod = generateGQLTestUtils(MeterReportingPeriodGQL)
+const MeterResourceOwner = generateGQLTestUtils(MeterResourceOwnerGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const { makeClientWithServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
@@ -339,6 +341,41 @@ async function updateTestMeterReportingPeriod (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestMeterResourceOwner (client, organization, resource, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!resource || !resource.id) throw new Error('no resource.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestMeterResourceOwner logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        organization: { connect: { id: organization.id } },
+        resource: { connect: { id: resource.id } },
+        ...extraAttrs,
+    }
+    const obj = await MeterResourceOwner.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestMeterResourceOwner (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestMeterResourceOwner logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await MeterResourceOwner.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -353,5 +390,6 @@ module.exports = {
         PropertyMeter, createTestPropertyMeter, updateTestPropertyMeter,
     PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading,
     MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
+    MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -49,6 +49,9 @@ const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
     }
 `
 
+const METER_RESOURCE_OWNER_FIELDS = `{ organization { id } resource { id } address unitName unitType ${COMMON_FIELDS} }`
+const MeterResourceOwner = generateGqlQueries('MeterResourceOwner', METER_RESOURCE_OWNER_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -62,6 +65,7 @@ module.exports = {
     PropertyMeterReading,
     MeterReportingPeriod,
     DELETE_METER_AND_METER_READINGS_MUTATION,
+    MeterResourceOwner,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 
