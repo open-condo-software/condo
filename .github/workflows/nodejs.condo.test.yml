@@ -33,20 +33,19 @@ jobs:
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
-      # NOT WORKING
-      # - name: cache yarn packages
-      #   uses: actions/cache@v3
-      #   with:
-      #     path: yarn-cache
-      #     key: yarn-packages-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-      #     restore-keys: |
-      #       yarn-packages-${{ runner.os }}-
+      - name: cache yarn packages
+        uses: actions/cache@v3
+        with:
+          path: yarn-cache
+          key: yarn-packages-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            yarn-packages-${{ runner.os }}-
 
-      # - name: inject yarn cache into docker
-      #   uses: reproducible-containers/buildkit-cache-dance@v2.1.2
-      #   with:
-      #     cache-source: yarn-cache
-      #     cache-target: /app/.yarn/cache
+      - name: inject yarn cache into docker
+        uses: reproducible-containers/buildkit-cache-dance@v2.1.2
+        with:
+          cache-source: yarn-cache
+          cache-target: /app/.yarn/berry/cache
 
       - name: build condo image for tests and push
         uses: docker/build-push-action@v5
