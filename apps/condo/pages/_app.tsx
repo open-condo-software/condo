@@ -240,7 +240,7 @@ const MenuItems: React.FC = () => {
                     path: 'service-provider-profile',
                     icon: AllIcons['Sber'],
                     label: 'global.section.SPP',
-                    access: sppBillingId && isSPPOrg,
+                    access: hasAccessToBilling && sppBillingId && isSPPOrg,
                 },
             ].filter(checkItemAccess),
         },
