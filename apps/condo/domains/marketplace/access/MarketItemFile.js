@@ -46,7 +46,7 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, origina
                 ],
                 deletedAt: null,
             },
-        }
+        },
     }
 }
 
