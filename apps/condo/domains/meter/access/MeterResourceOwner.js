@@ -3,8 +3,8 @@
  */
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { find } = require('@open-condo/keystone/schema')
 
+const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 async function canReadMeterResourceOwners ({ authentication: { item: user } }) {
@@ -14,19 +14,19 @@ async function canReadMeterResourceOwners ({ authentication: { item: user } }) {
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type !== RESIDENT) {
-        return true
+        return {
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
+                ],
+            },
+        }
     }
 
-    const residents = await find('Resident', { user: { id: user.id } })
-    if (residents.length > 0) {
-        //
-    }
-
-    // TODO(codegen): write canReadMeterResourceOwners logic for user! It should allow user with any type to read it's data by related organization
     return false
 }
 
-// TODO: allow only admin to create and admin and support to update
 async function canManageMeterResourceOwners ({ authentication: { item: user }, originalInput, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
