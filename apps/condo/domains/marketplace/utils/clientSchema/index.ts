@@ -8,4 +8,5 @@ export * as MarketCategory from './MarketCategory'
 export * as MarketItem from './MarketItem'
 export * as Invoice from './Invoice'
 export * as MarketItemFile from './MarketItemFile'
+export * as MarketItemPrice from './MarketItemPrice'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */

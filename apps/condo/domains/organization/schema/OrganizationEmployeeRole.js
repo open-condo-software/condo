@@ -127,6 +127,8 @@ const OrganizationEmployeeRole = new GQLListSchema('OrganizationEmployeeRole', {
         canReadExternalReports: { type: Checkbox, defaultValue: true },
         canReadServices: { type: Checkbox, defaultValue: true },
         canReadCallRecords: { type: Checkbox, defaultValue: true },
+        canReadMarketItemPrices: { type: Checkbox, defaultValue: false },
+        canManageMarketItemPrices: { type: Checkbox, defaultValue: false },
     },
     plugins: [uuided(), versioned(), tracked(), dvAndSender(), historical()],
     access: {

@@ -11,7 +11,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const INVOICE_CONTEXT_FIELDS = `{ organization { id } recipient { bic bankAccount tin } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent ${COMMON_FIELDS} }`
 const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
 
-const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings parentCategory { id } ${COMMON_FIELDS} }`
+const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
 
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id } sku description organization { id } ${COMMON_FIELDS} }`
@@ -23,6 +23,9 @@ const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
 const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIELDS)
 
+const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent } marketItem { id } ${COMMON_FIELDS} }`
+const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -31,5 +34,6 @@ module.exports = {
     MarketItem,
     Invoice,
     MarketItemFile,
+    MarketItemPrice,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -84,6 +84,8 @@ const DEFAULT_ROLES = {
         'canReadSettings': true,
         'canReadExternalReports': true,
         'canReadServices': true,
+        'canReadMarketItemPrices': true,
+        'canManageMarketItemPrices': true,
     },
     'Dispatcher': {
         'name': 'employee.role.Dispatcher.name',
@@ -133,6 +135,10 @@ const DEFAULT_ROLES = {
         'canReadSettings': true,
         'canReadExternalReports': true,
         'canReadServices': true,
+        'canReadMarketItems': true,
+        'canManageMarketItems': true,
+        'canReadMarketItemPrices': true,
+        'canManageMarketItemPrices': true,
     },
     'Manager': {
         'name': 'employee.role.Manager.name',
@@ -187,6 +193,8 @@ const DEFAULT_ROLES = {
         'canReadSettings': true,
         'canReadExternalReports': true,
         'canReadServices': true,
+        'canReadMarketItemPrices': true,
+        'canManageMarketItemPrices': true,
     },
     'Foreman': {
         'name': 'employee.role.Foreman.name',

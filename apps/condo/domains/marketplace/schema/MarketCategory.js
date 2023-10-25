@@ -3,21 +3,17 @@
  */
 
 const { Relationship, File } = require('@keystonejs/fields')
-const Ajv = require('ajv')
-const addFormats = require('ajv-formats')
 
 const { GQLError } = require('@open-condo/keystone/errors')
 const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { LocalizedText } = require('@open-condo/keystone/fields')
-const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
-const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
 const access = require('@condo/domains/marketplace/access/MarketCategory')
-const { ERROR_INVALID_MOBILE_SETTINGS } = require('@condo/domains/marketplace/constants')
+const { MOBILE_SETTINGS_FIELD } = require('@condo/domains/marketplace/schema/fields/mobileSettings')
 
 const ERRORS = {
     MAXIMUM_DEPTH_REACHED: {
@@ -36,26 +32,6 @@ const ERRORS = {
 
 const MARKET_CATEGORY_FILE_ADAPTER = new FileAdapter('market_category')
 const imageMetaAfterChange = getFileMetaAfterChange(MARKET_CATEGORY_FILE_ADAPTER, 'image')
-
-const ajv = new Ajv()
-addFormats(ajv)
-
-const settingsFieldSchema = {
-    type: 'object',
-    additionalProperties: false,
-    required: ['bgColor', 'titleColor'],
-    properties: {
-        bgColor: {
-            type: 'string',
-            pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$',
-        },
-        titleColor: {
-            type: 'string',
-            pattern: '^#(?:[0-9a-fA-F]{3}){1,2}$',
-        },
-    },
-}
-const validateSettingsField = getGQLErrorValidator(ajv.compile(settingsFieldSchema), ERROR_INVALID_MOBILE_SETTINGS)
 
 const MarketCategory = new GQLListSchema('MarketCategory', {
     schemaDoc: 'An entity that allows you to define a category tree in the marketplace',
@@ -76,14 +52,7 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
             adapter: MARKET_CATEGORY_FILE_ADAPTER,
         },
 
-        mobileSettings: {
-            schemaDoc: 'Settings for mobile ui',
-            type: Json,
-            isRequired: true,
-            hooks: {
-                validateInput: validateSettingsField,
-            },
-        },
+        mobileSettings: MOBILE_SETTINGS_FIELD,
 
         parentCategory: {
             schemaDoc: 'Which category does this subcategory belong to',
