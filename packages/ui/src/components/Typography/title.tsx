@@ -2,14 +2,13 @@ import Base from 'antd/lib/typography/Base'
 import classNames from 'classnames'
 import React from 'react'
 
-import { TYPOGRAPHY_CLASS_PREFIX } from './constants'
+import { TYPOGRAPHY_CLASS_PREFIX, TEXT_TYPES } from './constants'
 
 import type { TitleProps as DefaultTitleProps } from 'antd/lib/typography/Title'
 
 declare const TITLE_LEVELS: [1, 2, 3, 4, 5, 6]
-declare const TITLE_TYPES: ['primary', 'inverted', 'secondary', 'danger', 'warning', 'info', 'success']
 export type TypographyTitleProps = Pick<DefaultTitleProps, 'ellipsis' | 'onClick' | 'title' | 'children' | 'id'> & {
-    type?: typeof TITLE_TYPES[number]
+    type?: typeof TEXT_TYPES[number]
     level?: typeof TITLE_LEVELS[number]
 }
 
