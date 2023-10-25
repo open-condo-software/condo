@@ -1,5 +1,3 @@
-import { Dropdown } from 'antd'
-import { setCookie } from 'cookies-next'
 import { Montserrat } from 'next/font/google'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -7,15 +5,13 @@ import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
-import { Globe } from '@open-condo/icons'
-import { Space } from '@open-condo/ui'
-import { Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/colors'
-
-import { LOCALES } from '@/domains/common/constants/locales'
+import { Space, Typography } from '@open-condo/ui'
+import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { AuthHeaderAction } from './auth/AuthAction'
 import styles from './Header.module.css'
+import { LanguageSwitcher } from './LanguageSwitcher'
+import { MobileMenu } from './MobileMenu'
 
 const logoFont = Montserrat({
     subsets: ['latin', 'cyrillic'],
@@ -26,11 +22,14 @@ const logoFont = Montserrat({
 export const Header: React.FC = () => {
     const intl = useIntl()
     const ServiceShortTitle = intl.formatMessage({ id: 'global.service.name.short' })
+    const DocsSectionTitle = intl.formatMessage({ id: 'global.navBar.documentation.title' })
+    const AppsSectionTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
     const router = useRouter()
+    const breakpoints = useBreakpoints()
+    const isLargeLayout = Boolean(breakpoints.DESKTOP_SMALL)
 
-    const handleLocaleChange = useCallback(({ key }: { key: string }) => {
-        setCookie('NEXT_LOCALE', key, { path: '/' })
-        router.push(router.asPath,  router.asPath, { locale: key })
+    const handleDocsClick = useCallback(() => {
+        router.push('/docs/index', '/docs/index', { locale: router.locale })
     }, [router])
 
     return (
@@ -46,29 +45,25 @@ export const Header: React.FC = () => {
                         {ServiceShortTitle}
                     </span>
                 </Link>
-                <Space direction='horizontal' size={20}>
-                    <Typography.Title level={4} type='secondary'>Документация</Typography.Title>
-                    <Typography.Title level={4} type='secondary'>Мои приложения</Typography.Title>
-                </Space>
+                {isLargeLayout && (
+                    <Space direction='horizontal' size={20} className={styles.navbarItemsContainer}>
+                        <Typography.Title level={4} type='inherit' onClick={handleDocsClick}>
+                            {DocsSectionTitle}
+                        </Typography.Title>
+                        <Typography.Title level={4} type='inherit'>{AppsSectionTitle}</Typography.Title>
+                    </Space>
+                )}
             </Space>
             <Space direction='horizontal' align='center' size={20}>
-                <Dropdown
-                    menu={{
-                        items: LOCALES.map(locale => ({
-                            key: locale,
-                            label: intl.formatMessage({ id: `global.lang.${locale}` }),
-                        })),
-                        onSelect: handleLocaleChange,
-                        selectable: true,
-                        defaultSelectedKeys: [intl.locale],
-                    }}
-                    placement='bottom'
-                >
-                    <span className={styles.dropoutWrapper}>
-                        <Globe size='large' color={colors.gray['7']}/>
-                    </span>
-                </Dropdown>
-                <AuthHeaderAction/>
+                {isLargeLayout ? (
+                    <>
+                        <LanguageSwitcher dropdownPlacement='bottom'/>
+                        <AuthHeaderAction/>
+                    </>
+                ) : (
+                    <MobileMenu/>
+                )}
+
             </Space>
         </header>
     )

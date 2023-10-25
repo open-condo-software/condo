@@ -20,11 +20,6 @@
   line-height: 24px;
 }
 
-.dropout-wrapper {
-  height: var(--condo-global-spacing-24);
-  cursor: pointer;
-}
-
 .logo {
   object-fit: contain;
   object-position: left;
@@ -35,7 +30,7 @@
   top: 0;
   right: 0;
   left: 0;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -46,4 +41,14 @@
   line-height: inherit;
   background-color: var(--condo-global-color-white);
   border-bottom: 1px solid var(--condo-global-color-gray-3);
+}
+
+.navbar-items-container :global(.condo-typography-inherit) {
+  color: var(--condo-global-color-gray-7);
+  cursor: pointer;
+  transition: color var(--condo-global-transition-duration-default) ease-in-out;
+}
+
+.navbar-items-container :global(.condo-typography-inherit):hover {
+  color: var(--condo-global-color-black);
 }
