@@ -5531,6 +5531,8 @@ type OrganizationEmployeeRoleHistoryRecord {
   canReadCallRecords: Boolean
   canReadMarketItemPrices: Boolean
   canManageMarketItemPrices: Boolean
+  canReadMarketPriceScopes: Boolean
+  canManageMarketPriceScopes: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -5717,6 +5719,10 @@ input OrganizationEmployeeRoleHistoryRecordWhereInput {
   canReadMarketItemPrices_not: Boolean
   canManageMarketItemPrices: Boolean
   canManageMarketItemPrices_not: Boolean
+  canReadMarketPriceScopes: Boolean
+  canReadMarketPriceScopes_not: Boolean
+  canManageMarketPriceScopes: Boolean
+  canManageMarketPriceScopes_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -5902,6 +5908,10 @@ enum SortOrganizationEmployeeRoleHistoryRecordsBy {
   canReadMarketItemPrices_DESC
   canManageMarketItemPrices_ASC
   canManageMarketItemPrices_DESC
+  canReadMarketPriceScopes_ASC
+  canReadMarketPriceScopes_DESC
+  canManageMarketPriceScopes_ASC
+  canManageMarketPriceScopes_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -5978,6 +5988,8 @@ input OrganizationEmployeeRoleHistoryRecordUpdateInput {
   canReadCallRecords: Boolean
   canReadMarketItemPrices: Boolean
   canManageMarketItemPrices: Boolean
+  canReadMarketPriceScopes: Boolean
+  canManageMarketPriceScopes: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6055,6 +6067,8 @@ input OrganizationEmployeeRoleHistoryRecordCreateInput {
   canReadCallRecords: Boolean
   canReadMarketItemPrices: Boolean
   canManageMarketItemPrices: Boolean
+  canReadMarketPriceScopes: Boolean
+  canManageMarketPriceScopes: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6161,6 +6175,8 @@ type OrganizationEmployeeRole {
   canReadCallRecords: Boolean
   canReadMarketItemPrices: Boolean
   canManageMarketItemPrices: Boolean
+  canReadMarketPriceScopes: Boolean
+  canManageMarketPriceScopes: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -6335,6 +6351,10 @@ input OrganizationEmployeeRoleWhereInput {
   canReadMarketItemPrices_not: Boolean
   canManageMarketItemPrices: Boolean
   canManageMarketItemPrices_not: Boolean
+  canReadMarketPriceScopes: Boolean
+  canReadMarketPriceScopes_not: Boolean
+  canManageMarketPriceScopes: Boolean
+  canManageMarketPriceScopes_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -6502,6 +6522,10 @@ enum SortOrganizationEmployeeRolesBy {
   canReadMarketItemPrices_DESC
   canManageMarketItemPrices_ASC
   canManageMarketItemPrices_DESC
+  canReadMarketPriceScopes_ASC
+  canReadMarketPriceScopes_DESC
+  canManageMarketPriceScopes_ASC
+  canManageMarketPriceScopes_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -6577,6 +6601,8 @@ input OrganizationEmployeeRoleUpdateInput {
   canReadCallRecords: Boolean
   canReadMarketItemPrices: Boolean
   canManageMarketItemPrices: Boolean
+  canReadMarketPriceScopes: Boolean
+  canManageMarketPriceScopes: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -6650,6 +6676,8 @@ input OrganizationEmployeeRoleCreateInput {
   canReadCallRecords: Boolean
   canReadMarketItemPrices: Boolean
   canManageMarketItemPrices: Boolean
+  canReadMarketPriceScopes: Boolean
+  canManageMarketPriceScopes: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -67496,6 +67524,369 @@ input MarketItemPricesCreateInput {
   data: MarketItemPriceCreateInput
 }
 
+enum MarketPriceScopeHistoryRecordHistoryActionType {
+  c
+  u
+  d
+}
+
+""" A keystone list """
+type MarketPriceScopeHistoryRecord {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MarketPriceScopeHistoryRecord List config, or
+   2. As an alias to the field set on 'labelField' in the MarketPriceScopeHistoryRecord List config, or
+   3. As an alias to a 'name' field on the MarketPriceScopeHistoryRecord List (if one exists), or
+   4. As an alias to the 'id' field on the MarketPriceScopeHistoryRecord List.
+  """
+  _label_: String
+  marketItemPrice: String
+  property: String
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MarketPriceScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MarketPriceScopeHistoryRecordWhereInput {
+  AND: [MarketPriceScopeHistoryRecordWhereInput]
+  OR: [MarketPriceScopeHistoryRecordWhereInput]
+  marketItemPrice: String
+  marketItemPrice_not: String
+  marketItemPrice_in: [String]
+  marketItemPrice_not_in: [String]
+  property: String
+  property_not: String
+  property_in: [String]
+  property_not_in: [String]
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: String
+  createdBy_not: String
+  createdBy_in: [String]
+  createdBy_not_in: [String]
+  updatedBy: String
+  updatedBy_not: String
+  updatedBy_in: [String]
+  updatedBy_not_in: [String]
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: JSON
+  newId_not: JSON
+  newId_in: [JSON]
+  newId_not_in: [JSON]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: JSON
+  sender_not: JSON
+  sender_in: [JSON]
+  sender_not_in: [JSON]
+  history_date: String
+  history_date_not: String
+  history_date_lt: String
+  history_date_lte: String
+  history_date_gt: String
+  history_date_gte: String
+  history_date_in: [String]
+  history_date_not_in: [String]
+  history_action: MarketPriceScopeHistoryRecordHistoryActionType
+  history_action_not: MarketPriceScopeHistoryRecordHistoryActionType
+  history_action_in: [MarketPriceScopeHistoryRecordHistoryActionType]
+  history_action_not_in: [MarketPriceScopeHistoryRecordHistoryActionType]
+  history_id: String
+  history_id_not: String
+  history_id_in: [String]
+  history_id_not_in: [String]
+}
+
+input MarketPriceScopeHistoryRecordWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMarketPriceScopeHistoryRecordsBy {
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+  history_date_ASC
+  history_date_DESC
+  history_action_ASC
+  history_action_DESC
+}
+
+input MarketPriceScopeHistoryRecordUpdateInput {
+  marketItemPrice: String
+  property: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MarketPriceScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MarketPriceScopeHistoryRecordsUpdateInput {
+  id: ID!
+  data: MarketPriceScopeHistoryRecordUpdateInput
+}
+
+input MarketPriceScopeHistoryRecordCreateInput {
+  marketItemPrice: String
+  property: String
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: String
+  updatedBy: String
+  deletedAt: String
+  newId: JSON
+  dv: Int
+  sender: JSON
+  history_date: String
+  history_action: MarketPriceScopeHistoryRecordHistoryActionType
+  history_id: String
+}
+
+input MarketPriceScopeHistoryRecordsCreateInput {
+  data: MarketPriceScopeHistoryRecordCreateInput
+}
+
+input MarketItemPriceRelateToOneInput {
+  create: MarketItemPriceCreateInput
+  connect: MarketItemPriceWhereUniqueInput
+  disconnect: MarketItemPriceWhereUniqueInput
+  disconnectAll: Boolean
+}
+
+""" Which residents can see the particular market item price instance """
+type MarketPriceScope {
+  """
+  This virtual field will be resolved in one of the following ways (in this order):
+   1. Execution of 'labelResolver' set on the MarketPriceScope List config, or
+   2. As an alias to the field set on 'labelField' in the MarketPriceScope List config, or
+   3. As an alias to a 'name' field on the MarketPriceScope List (if one exists), or
+   4. As an alias to the 'id' field on the MarketPriceScope List.
+  """
+  _label_: String
+
+  """ Link to market item price """
+  marketItemPrice: MarketItemPrice
+
+  """ Link to property """
+  property: Property
+  id: ID!
+  v: Int
+  createdAt: String
+  updatedAt: String
+
+  """ Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  createdBy: User
+
+  """ Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic. 
+  """
+  updatedBy: User
+  deletedAt: String
+  newId: String
+
+  """ Data structure Version """
+  dv: Int
+
+  """ Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system 
+  """
+  sender: SenderField
+}
+
+input MarketPriceScopeWhereInput {
+  AND: [MarketPriceScopeWhereInput]
+  OR: [MarketPriceScopeWhereInput]
+  marketItemPrice: MarketItemPriceWhereInput
+  marketItemPrice_is_null: Boolean
+  property: PropertyWhereInput
+  property_is_null: Boolean
+  id: ID
+  id_not: ID
+  id_in: [ID]
+  id_not_in: [ID]
+  v: Int
+  v_not: Int
+  v_lt: Int
+  v_lte: Int
+  v_gt: Int
+  v_gte: Int
+  v_in: [Int]
+  v_not_in: [Int]
+  createdAt: String
+  createdAt_not: String
+  createdAt_lt: String
+  createdAt_lte: String
+  createdAt_gt: String
+  createdAt_gte: String
+  createdAt_in: [String]
+  createdAt_not_in: [String]
+  updatedAt: String
+  updatedAt_not: String
+  updatedAt_lt: String
+  updatedAt_lte: String
+  updatedAt_gt: String
+  updatedAt_gte: String
+  updatedAt_in: [String]
+  updatedAt_not_in: [String]
+  createdBy: UserWhereInput
+  createdBy_is_null: Boolean
+  updatedBy: UserWhereInput
+  updatedBy_is_null: Boolean
+  deletedAt: String
+  deletedAt_not: String
+  deletedAt_lt: String
+  deletedAt_lte: String
+  deletedAt_gt: String
+  deletedAt_gte: String
+  deletedAt_in: [String]
+  deletedAt_not_in: [String]
+  newId: String
+  newId_not: String
+  newId_in: [String]
+  newId_not_in: [String]
+  dv: Int
+  dv_not: Int
+  dv_lt: Int
+  dv_lte: Int
+  dv_gt: Int
+  dv_gte: Int
+  dv_in: [Int]
+  dv_not_in: [Int]
+  sender: SenderFieldInput
+  sender_not: SenderFieldInput
+  sender_in: [SenderFieldInput]
+  sender_not_in: [SenderFieldInput]
+}
+
+input MarketPriceScopeWhereUniqueInput {
+  id: ID!
+}
+
+enum SortMarketPriceScopesBy {
+  marketItemPrice_ASC
+  marketItemPrice_DESC
+  property_ASC
+  property_DESC
+  id_ASC
+  id_DESC
+  v_ASC
+  v_DESC
+  createdAt_ASC
+  createdAt_DESC
+  updatedAt_ASC
+  updatedAt_DESC
+  createdBy_ASC
+  createdBy_DESC
+  updatedBy_ASC
+  updatedBy_DESC
+  deletedAt_ASC
+  deletedAt_DESC
+  dv_ASC
+  dv_DESC
+}
+
+input MarketPriceScopeUpdateInput {
+  marketItemPrice: MarketItemPriceRelateToOneInput
+  property: PropertyRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MarketPriceScopesUpdateInput {
+  id: ID!
+  data: MarketPriceScopeUpdateInput
+}
+
+input MarketPriceScopeCreateInput {
+  marketItemPrice: MarketItemPriceRelateToOneInput
+  property: PropertyRelateToOneInput
+  v: Int
+  createdAt: String
+  updatedAt: String
+  createdBy: UserRelateToOneInput
+  updatedBy: UserRelateToOneInput
+  deletedAt: String
+  newId: String
+  dv: Int
+  sender: SenderFieldInput
+}
+
+input MarketPriceScopesCreateInput {
+  data: MarketPriceScopeCreateInput
+}
+
 enum WebhookHistoryRecordHistoryActionType {
   c
   u
@@ -73359,6 +73750,34 @@ type Query {
   """ Retrieve the meta-data for the MarketItemPrice list. """
   _MarketItemPricesMeta: _ListMeta
 
+  """ Search for all MarketPriceScopeHistoryRecord items which match the where clause. 
+  """
+  allMarketPriceScopeHistoryRecords(where: MarketPriceScopeHistoryRecordWhereInput, search: String, sortBy: [SortMarketPriceScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [MarketPriceScopeHistoryRecord]
+
+  """ Search for the MarketPriceScopeHistoryRecord item with the matching ID. 
+  """
+  MarketPriceScopeHistoryRecord(where: MarketPriceScopeHistoryRecordWhereUniqueInput!): MarketPriceScopeHistoryRecord
+
+  """ Perform a meta-query on all MarketPriceScopeHistoryRecord items which match the where clause. 
+  """
+  _allMarketPriceScopeHistoryRecordsMeta(where: MarketPriceScopeHistoryRecordWhereInput, search: String, sortBy: [SortMarketPriceScopeHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MarketPriceScopeHistoryRecord list. """
+  _MarketPriceScopeHistoryRecordsMeta: _ListMeta
+
+  """ Search for all MarketPriceScope items which match the where clause. """
+  allMarketPriceScopes(where: MarketPriceScopeWhereInput, search: String, sortBy: [SortMarketPriceScopesBy!], orderBy: String, first: Int, skip: Int): [MarketPriceScope]
+
+  """ Search for the MarketPriceScope item with the matching ID. """
+  MarketPriceScope(where: MarketPriceScopeWhereUniqueInput!): MarketPriceScope
+
+  """ Perform a meta-query on all MarketPriceScope items which match the where clause. 
+  """
+  _allMarketPriceScopesMeta(where: MarketPriceScopeWhereInput, search: String, sortBy: [SortMarketPriceScopesBy!], orderBy: String, first: Int, skip: Int): _QueryMeta
+
+  """ Retrieve the meta-data for the MarketPriceScope list. """
+  _MarketPriceScopesMeta: _ListMeta
+
   """ Search for all WebhookHistoryRecord items which match the where clause. 
   """
   allWebhookHistoryRecords(where: WebhookHistoryRecordWhereInput, search: String, sortBy: [SortWebhookHistoryRecordsBy!], orderBy: String, first: Int, skip: Int): [WebhookHistoryRecord]
@@ -77886,6 +78305,42 @@ type Mutation {
 
   """ Delete multiple MarketItemPrice items by ID. """
   deleteMarketItemPrices(ids: [ID!]): [MarketItemPrice]
+
+  """ Create a single MarketPriceScopeHistoryRecord item. """
+  createMarketPriceScopeHistoryRecord(data: MarketPriceScopeHistoryRecordCreateInput): MarketPriceScopeHistoryRecord
+
+  """ Create multiple MarketPriceScopeHistoryRecord items. """
+  createMarketPriceScopeHistoryRecords(data: [MarketPriceScopeHistoryRecordsCreateInput]): [MarketPriceScopeHistoryRecord]
+
+  """ Update a single MarketPriceScopeHistoryRecord item by ID. """
+  updateMarketPriceScopeHistoryRecord(id: ID!, data: MarketPriceScopeHistoryRecordUpdateInput): MarketPriceScopeHistoryRecord
+
+  """ Update multiple MarketPriceScopeHistoryRecord items by ID. """
+  updateMarketPriceScopeHistoryRecords(data: [MarketPriceScopeHistoryRecordsUpdateInput]): [MarketPriceScopeHistoryRecord]
+
+  """ Delete a single MarketPriceScopeHistoryRecord item by ID. """
+  deleteMarketPriceScopeHistoryRecord(id: ID!): MarketPriceScopeHistoryRecord
+
+  """ Delete multiple MarketPriceScopeHistoryRecord items by ID. """
+  deleteMarketPriceScopeHistoryRecords(ids: [ID!]): [MarketPriceScopeHistoryRecord]
+
+  """ Create a single MarketPriceScope item. """
+  createMarketPriceScope(data: MarketPriceScopeCreateInput): MarketPriceScope
+
+  """ Create multiple MarketPriceScope items. """
+  createMarketPriceScopes(data: [MarketPriceScopesCreateInput]): [MarketPriceScope]
+
+  """ Update a single MarketPriceScope item by ID. """
+  updateMarketPriceScope(id: ID!, data: MarketPriceScopeUpdateInput): MarketPriceScope
+
+  """ Update multiple MarketPriceScope items by ID. """
+  updateMarketPriceScopes(data: [MarketPriceScopesUpdateInput]): [MarketPriceScope]
+
+  """ Delete a single MarketPriceScope item by ID. """
+  deleteMarketPriceScope(id: ID!): MarketPriceScope
+
+  """ Delete multiple MarketPriceScope items by ID. """
+  deleteMarketPriceScopes(ids: [ID!]): [MarketPriceScope]
 
   """ Create a single WebhookHistoryRecord item. """
   createWebhookHistoryRecord(data: WebhookHistoryRecordCreateInput): WebhookHistoryRecord

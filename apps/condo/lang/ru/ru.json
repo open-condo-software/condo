@@ -2315,5 +2315,6 @@
   "api.marketplace.invoice.error.rows.toPay": "Цена не может быть меньше 0. Проверьте строку {rowNumber}.",
   "api.marketplace.MarketItemPrice.error.INVALID_SALES_TAX_PERCENT": "Налог с продажи должен быть положительным, но не больше 100. Проверьте строку {rowNumber}.",
   "api.marketplace.MarketItemPrice.error.INVALID_PRICE": "Цена не может быть меньше 0. Проверьте строку {rowNumber}.",
-  "api.marketplace.MarketItemPrice.error.EMPTY_PRICE": "Цена не может быть пустой."
+  "api.marketplace.MarketItemPrice.error.EMPTY_PRICE": "Цена не может быть пустой.",
+  "api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED": "Невозможно создать область видимости списка услуг с домом из одной организации и услугой из другой организации."
 }

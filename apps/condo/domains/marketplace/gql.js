@@ -14,7 +14,7 @@ const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIEL
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
 
-const MARKET_ITEM_FIELDS = `{ name marketCategory { id } sku description organization { id } ${COMMON_FIELDS} }`
+const MARKET_ITEM_FIELDS = `{ name marketCategory { id parentCategory { id } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
 const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vat salesTax sku } ticket { id } contact { id name phone email unitType unitName } client { id name } status ${COMMON_FIELDS} }`
@@ -26,6 +26,9 @@ const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIE
 const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent } marketItem { id } ${COMMON_FIELDS} }`
 const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
 
+const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id organization { id } marketCategory { id parentCategory { id } } } } property { id } ${COMMON_FIELDS} }`
+const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -35,5 +38,6 @@ module.exports = {
     Invoice,
     MarketItemFile,
     MarketItemPrice,
+    MarketPriceScope,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
