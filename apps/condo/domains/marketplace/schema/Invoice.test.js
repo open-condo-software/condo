@@ -18,12 +18,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const {
-    PAYMENT_WITHDRAWN_STATUS,
-    PAYMENT_PROCESSING_STATUS,
-    PAYMENT_DONE_STATUS,
-} = require('@condo/domains/acquiring/constants/payment')
-const { addAcquiringIntegrationAndContext, createTestPayment } = require('@condo/domains/acquiring/utils/testSchema')
+const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     addBillingIntegrationAndContext, createTestBillingProperty,
     createRegisterBillingReceiptsPayload,
@@ -33,6 +28,8 @@ const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_PAID,
+    INVOICE_PAYMENT_TYPE_CASH,
+    INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
 const {
     Invoice,
@@ -75,6 +72,7 @@ describe('Invoice', () => {
                 const [obj, attrs] = await createTestInvoice(adminClient, dummyInvoiceContext)
                 expectValuesOfCommonFields(obj, attrs, adminClient)
                 expect(obj.status).toBe(INVOICE_STATUS_DRAFT)
+                expect(obj.paymentType).toBe(INVOICE_PAYMENT_TYPE_ONLINE)
             })
 
             test('support can', async () => {
@@ -333,7 +331,7 @@ describe('Invoice', () => {
     })
 
     describe('resident side', () => {
-        test('resident can\'t see drafts', async () => {
+        test('resident can\'t see drafts and canceled invoices', async () => {
             const client = await makeClientWithProperty()
 
             const unitType = FLAT_UNIT_TYPE
@@ -345,6 +343,13 @@ describe('Invoice', () => {
                 unitType,
                 unitName,
                 // status=draft by default
+            })
+
+            await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_CANCELED,
             })
 
             const residentClient = await makeClientWithResidentUser()
@@ -362,7 +367,7 @@ describe('Invoice', () => {
             expect(invoices).toHaveLength(0)
         })
 
-        test('resident can\'t see paid invoices', async () => {
+        test('resident can see paid invoices', async () => {
             const client = await makeClientWithProperty()
 
             const unitType = FLAT_UNIT_TYPE
@@ -388,7 +393,7 @@ describe('Invoice', () => {
 
             const invoices = await Invoice.getAll(residentClient, {})
 
-            expect(invoices).toHaveLength(0)
+            expect(invoices).toHaveLength(1)
         })
 
         test('resident can see invoices by address, resident from neighbor flat not', async () => {
@@ -630,37 +635,45 @@ describe('Invoice', () => {
             })
         })
 
-        describe('can\'t change online-paid invoice', () => {
-            const paymentStatuses = [
-                PAYMENT_PROCESSING_STATUS,
-                PAYMENT_DONE_STATUS,
-                PAYMENT_WITHDRAWN_STATUS,
-            ]
+        test('can\'t change online-paid invoice', async () => {
+            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                paymentType: INVOICE_PAYMENT_TYPE_ONLINE,
+                status: INVOICE_STATUS_PAID,
+            })
 
-            test.each(paymentStatuses)('payment status: %s', async (paymentStatus) => {
-                const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PAID })
-
-                await createTestPayment(adminClient, dummyO10n, null, null, {
-                    invoice: obj,
-                    status: paymentStatus,
-                })
-
-                await expectToThrowGQLError(async () => {
-                    await updateTestInvoice(adminClient, obj.id)
-                }, {
-                    code: 'BAD_USER_INPUT',
-                    type: 'INVOICE_ALREADY_PAID',
-                    message: 'Changing of paid invoice is forbidden',
-                    messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
-                })
+            await expectToThrowGQLError(async () => {
+                await updateTestInvoice(adminClient, obj.id)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVOICE_ALREADY_PAID',
+                message: 'Changing of paid invoice is forbidden',
+                messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
             })
         })
 
         test('can change cash-paid invoice', async () => {
-            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PAID })
+            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                paymentType: INVOICE_PAYMENT_TYPE_CASH,
+                status: INVOICE_STATUS_PAID,
+            })
             const [updatedObj, updatedAttrs] = await updateTestInvoice(adminClient, obj.id, { status: INVOICE_STATUS_PUBLISHED })
 
             expect(updatedObj.sender).toEqual(updatedAttrs.sender)
+        })
+
+        test('can\'t change canceled invoice', async () => {
+            const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                status: INVOICE_STATUS_CANCELED,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestInvoice(adminClient, obj.id)
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'INVOICE_ALREADY_CANCELED',
+                message: 'Changing of canceled invoice is forbidden',
+                messageForUser: 'api.marketplace.invoice.error.alreadyCanceled',
+            })
         })
 
         test('can\'t publish invoice without rows', async () => {

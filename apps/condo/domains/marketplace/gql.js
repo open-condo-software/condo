@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const { gql } = require('graphql-tag')
 
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
@@ -17,7 +18,7 @@ const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIEL
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id parentCategory { id } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
-const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vat salesTax sku } ticket { id } contact { id name phone email unitType unitName } client { id name } status ${COMMON_FIELDS} }`
+const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku } ticket { id } contact { id name phone email unitType unitName } client { id name } status paymentType ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`

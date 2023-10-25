@@ -7,24 +7,22 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const {
-    PAYMENT_PROCESSING_STATUS,
-    PAYMENT_DONE_STATUS,
-    PAYMENT_WITHDRAWN_STATUS,
-} = require('@condo/domains/acquiring/constants/payment')
-const { Payment } = require('@condo/domains/acquiring/utils/serverSchema')
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
     ERROR_NO_INVOICE_RECEIVERS,
     ERROR_INVOICE_ALREADY_PAID,
+    ERROR_INVOICE_ALREADY_CANCELED,
     INVOICE_STATUSES,
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_PUBLISHED,
+    INVOICE_STATUS_CANCELED,
     ERROR_INVOICE_EMPTY_ROWS,
     ERROR_INVOICE_ROW_WRONG_COUNT,
     ERROR_INVOICE_ROW_WRONG_PRICE,
+    INVOICE_PAYMENT_TYPES,
+    INVOICE_PAYMENT_TYPE_ONLINE,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 
@@ -40,6 +38,12 @@ const ERRORS = {
         type: ERROR_INVOICE_ALREADY_PAID,
         message: 'Changing of paid invoice is forbidden',
         messageForUser: 'api.marketplace.invoice.error.alreadyPaid',
+    },
+    ALREADY_CANCELED: {
+        code: BAD_USER_INPUT,
+        type: ERROR_INVOICE_ALREADY_CANCELED,
+        message: 'Changing of canceled invoice is forbidden',
+        messageForUser: 'api.marketplace.invoice.error.alreadyCanceled',
     },
     EMPTY_ROWS: {
         code: BAD_USER_INPUT,
@@ -129,12 +133,21 @@ const Invoice = new GQLListSchema('Invoice', {
         },
 
         status: {
-            schemaDoc: 'The regime of counting taxes for company',
+            schemaDoc: 'Invoice status affects which invoices can be read by residents and which invoices can be managed',
             isRequired: true,
             type: 'Select',
             dataType: 'string',
             options: INVOICE_STATUSES,
             defaultValue: INVOICE_STATUS_DRAFT,
+        },
+
+        paymentType: {
+            schemaDoc: 'Shows which payment type chosen: online or cash or something else',
+            isRequired: true,
+            type: 'Select',
+            dataType: 'string',
+            options: INVOICE_PAYMENT_TYPES,
+            defaultValue: INVOICE_PAYMENT_TYPE_ONLINE,
         },
 
     },
@@ -145,23 +158,19 @@ const Invoice = new GQLListSchema('Invoice', {
                 throw new GQLError(ERRORS.NO_RECEIVERS, context)
             }
 
-            if (operation === 'update' && existingItem.status === INVOICE_STATUS_PAID) {
-                // Prevent updating only for paid online invoices (with Payment model)
-                // In the case of cash it's may be needed to uncheck the "paid" status
-                const paymentsCount = await Payment.count(
-                    context,
-                    {
-                        deletedAt: null,
-                        invoice: { id: existingItem.id },
-                        status_in: [
-                            PAYMENT_PROCESSING_STATUS,
-                            PAYMENT_DONE_STATUS,
-                            PAYMENT_WITHDRAWN_STATUS,
-                        ],
-                    })
-                if (paymentsCount > 0) {
-                    throw new GQLError(ERRORS.ALREADY_PAID, context)
-                }
+            if (
+                operation === 'update'
+                && existingItem.status === INVOICE_STATUS_PAID
+                && existingItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE
+            ) {
+                throw new GQLError(ERRORS.ALREADY_PAID, context)
+            }
+
+            if (
+                operation === 'update'
+                && existingItem.status === INVOICE_STATUS_CANCELED
+            ) {
+                throw new GQLError(ERRORS.ALREADY_CANCELED, context)
             }
 
             if (get(resolvedData, 'status') === INVOICE_STATUS_PUBLISHED && get(nextData, 'rows', []).length === 0) {

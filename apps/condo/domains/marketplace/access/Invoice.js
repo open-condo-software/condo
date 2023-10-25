@@ -8,7 +8,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getById, find } = require('@open-condo/keystone/schema')
 
-const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
@@ -54,7 +54,7 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
 
         return {
             deletedAt: null,
-            status: INVOICE_STATUS_PUBLISHED,
+            status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID],
             OR: [
                 ...residents.map((resident) => ({ AND: [{ property: { addressKey: resident.addressKey } }, { unitType: resident.unitType }, { unitName: resident.unitName }] })),
                 ...serviceConsumers.map((serviceConsumer) => ({ AND: [{ context: { organization: { id: serviceConsumer.organization } } }, { accountNumber: serviceConsumer.accountNumber }] })),
