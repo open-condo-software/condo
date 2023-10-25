@@ -14,7 +14,6 @@ import { MenuItem } from '@condo/domains/common/components/MenuItem'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { useSearchByPhoneModal } from '@condo/domains/common/hooks/useSearchByPhoneModal'
 import { searchByPhone } from '@condo/domains/contact/utils/clientCard'
-import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { useTicketVisibility } from '@condo/domains/ticket/contexts/TicketVisibilityContext'
 
 export const StyledMenu = styled(Menu)`
