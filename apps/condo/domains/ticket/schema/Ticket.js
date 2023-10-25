@@ -982,8 +982,9 @@ const Ticket = new GQLListSchema('Ticket', {
             /* NOTE: this sends different kinds of notifications on ticket create/update */
             await sendTicketNotifications(requestData)
 
-            const { operation, updatedItem } = args
+            const { operation, updatedItem } = requestData
             if (operation === 'create') {
+                console.log('create ticket sendTicketCreatedNotifications')
                 await sendTicketCreatedNotifications.delay(updatedItem.id)
             }
         },

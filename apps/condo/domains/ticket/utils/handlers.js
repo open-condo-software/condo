@@ -12,7 +12,7 @@ const { md5 } = require('@condo/domains/common/utils/crypto')
 const {
     TICKET_ASSIGNEE_CONNECTED_TYPE, TICKET_EXECUTOR_CONNECTED_TYPE, TICKET_STATUS_OPENED_TYPE,
     TICKET_STATUS_IN_PROGRESS_TYPE, TICKET_STATUS_COMPLETED_TYPE, TICKET_STATUS_RETURNED_TYPE,
-    TICKET_STATUS_DECLINED_TYPE, TRACK_TICKET_IN_DOMA_APP_TYPE, TICKET_CREATED_TYPE,
+    TICKET_STATUS_DECLINED_TYPE, TRACK_TICKET_IN_DOMA_APP_TYPE,
 } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
@@ -26,7 +26,7 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { Ticket, TicketCommentsTime } = require('./serverSchema')
 
-const TICKET_CREATED_EVENT_TYPE = 'TICKET_CREATED'
+
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
 const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
@@ -58,8 +58,6 @@ const detectTicketEventTypes = ({ operation, existingItem, updatedItem }) => {
     const isResidentTicket = get(updatedItem, 'isResidentTicket')
     const canReadByResident = get(updatedItem, 'canReadByResident')
     const result = {}
-
-    result[TICKET_CREATED_EVENT_TYPE] = isCreateOperation
 
     /**
      * assignee connected within create ticket operation or
@@ -124,16 +122,6 @@ const sendTicketNotifications = async (requestData) => {
         id: updatedItem.organization,
         deletedAt: null,
     })
-    const organizationEmployees = await find('OrganizationEmployee', {
-        organization: { id: organization.id },
-        deletedAt: null,
-        isRejected: false,
-        isAccepted: true,
-        isBlocked: false,
-        role: { canReadTickets: true },
-    })
-    const employeeUsers = organizationEmployees.map(employee => employee.user)
-
     /**
      * Detect message language
      * Use DEFAULT_LOCALE if organization.country is unknown
@@ -141,8 +129,6 @@ const sendTicketNotifications = async (requestData) => {
      */
     const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
     const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
-
-    console.log('eventTypes[TICKET_CREATED_EVENT_TYPE]', eventTypes[TICKET_CREATED_EVENT_TYPE])
 
     if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
         const userId = nextAssigneeId || prevAssigneeId
