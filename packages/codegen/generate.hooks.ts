@@ -49,17 +49,23 @@ type IUseCountReturnType<GQLObject, QueryVariables> = IBasicUseQueryResult<GQLOb
     count: number
 }
 export type IUseCreateActionType<GQLObject, GQLCreateInput> = (values: Partial<GQLCreateInput>) => Promise<GQLObject>
+export type IUseCreateManyActionType<GQLObject, GQLCreateInput> = (values: Array<Partial<GQLCreateInput>>) => Promise<Array<GQLObject>>
 export type IUseUpdateActionType<GQLObject, GQLUpdateInput> = (values: Partial<GQLUpdateInput>, obj: IUUIDObject) => Promise<GQLObject>
+export type IUseUpdateManyActionType<GQLObject, GQLUpdateInput> = (values: Array<{ data: Partial<GQLUpdateInput> } & IUUIDObject>) => Promise<Array<GQLObject>>
 export type IUseSoftDeleteActionType<GQLObject> = (obj: IUUIDObject) => Promise<GQLObject>
+export type IUseSoftDeleteManyActionType<GQLObject> = (objs: Array<IUUIDObject>) => Promise<Array<GQLObject>>
 
 
 export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput, QueryVariables> {
     useCreate: (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<GQLObject>)
     => IUseCreateActionType<GQLObject, GQLCreateInput>
+    useCreateMany: (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<Array<GQLObject>>) => IUseCreateManyActionType<GQLObject, GQLCreateInput>
     useUpdate: (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<GQLObject>)
     => IUseUpdateActionType<GQLObject, GQLUpdateInput>
+    useUpdateMany: (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<Array<GQLObject>>) => IUseUpdateManyActionType<GQLObject, GQLUpdateInput>
     useSoftDelete: (onComplete?: IOnCompleteType<GQLObject>)
     => IUseSoftDeleteActionType<GQLObject>
+    useSoftDeleteMany: (onComplete?: IOnCompleteType<Array<GQLObject>>) => IUseSoftDeleteManyActionType<GQLObject>
     useObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
     => IUseObjectsReturnType<GQLObject, QueryVariables>
     useAllObjects: (variables: QueryVariables, options?: QueryHookOptions<IUseObjectsQueryReturnType<GQLObject>, QueryVariables>)
@@ -72,7 +78,9 @@ export interface IGenerateHooksResult<GQLObject, GQLCreateInput, GQLUpdateInput,
 
 type IGQLType = {
     CREATE_OBJ_MUTATION: DocumentNode
+    CREATE_OBJS_MUTATION: DocumentNode
     UPDATE_OBJ_MUTATION: DocumentNode
+    UPDATE_OBJS_MUTATION: DocumentNode
     GET_ALL_OBJS_WITH_COUNT_QUERY: DocumentNode
     GET_COUNT_OBJS_QUERY: DocumentNode
 }
@@ -116,6 +124,41 @@ export function generateReactHooks<
         }, [rowAction, initialValues, onComplete])
     }
 
+    function useCreateMany (initialValues: Partial<GQLCreateInput>, onComplete?: IOnCompleteType<Array<GQLObject>>) {
+        const [rowAction] = useMutation(gql.CREATE_OBJS_MUTATION)
+
+        return useCallback(async (values: Array<Partial<GQLCreateInput>>) => {
+            const sender = getClientSideSenderInfo()
+            const variables = {
+                data: values.map(item => ({
+                    data: {
+                        dv: 1,
+                        sender,
+                        ...initialValues,
+                        ...item,
+                    },
+                })),
+            }
+
+            const { data, errors } = await rowAction({ variables })
+
+            if (data && data.objs) {
+                if (isFunction(onComplete)) {
+                    onComplete(data.objs)
+                }
+
+                return data.objs
+            }
+
+            if (errors) {
+                console.warn(errors)
+                throw errors
+            }
+
+            throw new Error('Unknown useCreateMany action result!')
+        }, [initialValues, onComplete, rowAction])
+    }
+
     function useUpdate (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<GQLObject>) {
         const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
 
@@ -150,6 +193,43 @@ export function generateReactHooks<
         }, [rowAction, initialValues, onComplete])
     }
 
+    function useUpdateMany (initialValues: Partial<GQLUpdateInput>, onComplete?: IOnCompleteType<Array<GQLObject>>) {
+        const [rowAction] = useMutation(gql.UPDATE_OBJS_MUTATION)
+
+        return useCallback(async (values: Array<{ data: Partial<GQLUpdateInput> } & IUUIDObject>) => {
+            const sender = getClientSideSenderInfo()
+            const variables = {
+                data: values.map(item => ({
+                    id: item.id,
+                    data: {
+                        dv: 1,
+                        sender,
+                        ...initialValues,
+                        ...item.data,
+                    },
+                })),
+            }
+
+            const { data, errors } = await rowAction({ variables })
+
+            if (data && data.objs) {
+                if (isFunction(onComplete)) {
+                    onComplete(data.objs)
+                }
+
+                return data.objs
+            }
+
+            if (errors) {
+                console.warn(errors)
+                throw errors
+            }
+
+            throw new Error('Unknown useUpdateMany action result!')
+
+        }, [rowAction, initialValues, onComplete])
+    }
+
     function useSoftDelete (onComplete?: IOnCompleteType<GQLObject>) {
         const [rowAction] = useMutation(gql.UPDATE_OBJ_MUTATION)
 
@@ -180,6 +260,41 @@ export function generateReactHooks<
             }
 
             throw new Error('Unknown useSoftDelete action result!')
+        }, [rowAction, onComplete])
+    }
+
+    function useSoftDeleteMany (onComplete?: IOnCompleteType<Array<GQLObject>>) {
+        const [rowAction] = useMutation(gql.UPDATE_OBJS_MUTATION)
+
+        return useCallback(async (objs: Array<IUUIDObject>) => {
+            const sender = getClientSideSenderInfo()
+            const variables = {
+                data: objs.map(item => ({
+                    id: item.id,
+                    data: {
+                        dv: 1,
+                        sender,
+                        deletedAt: dayjs().toISOString(),
+                    },
+                })),
+            }
+
+            const { data, errors } = await rowAction({ variables })
+
+            if (data && data.objs) {
+                if (isFunction(onComplete)) {
+                    onComplete(data.objs)
+                }
+
+                return data.objs
+            }
+
+            if (errors) {
+                console.warn(errors)
+                throw errors
+            }
+
+            throw new Error('Unknown useSoftDeleteMany action result!')
         }, [rowAction, onComplete])
     }
 
@@ -317,8 +432,11 @@ export function generateReactHooks<
         useObject,
         useObjects,
         useCreate,
+        useCreateMany,
         useUpdate,
+        useUpdateMany,
         useSoftDelete,
+        useSoftDeleteMany,
         useCount,
         useAllObjects,
     }
