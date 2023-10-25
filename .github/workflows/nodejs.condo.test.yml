@@ -16,6 +16,9 @@ jobs:
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
     steps:
+      - name: install deps
+        run: |
+          apt install git
       - name: checkout code
         uses: actions/checkout@v3
         with:
