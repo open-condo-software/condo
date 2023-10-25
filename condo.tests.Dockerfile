@@ -1,3 +1,4 @@
+# base
 FROM buildpack-deps:buster AS base
 COPY --from=python:3.8-slim-buster /usr/local/ /usr/local/
 COPY --from=node:16-buster-slim /usr/local/ /usr/local/
@@ -16,6 +17,7 @@ RUN set -ex \
 	&& python3 -m pip install 'psycopg2-binary==2.9.4' && python3 -m pip install 'Django==4.1.2' \
     && echo "OK"
 
+# build
 FROM base AS build
 WORKDIR /app
 RUN echo "# Build time .env config!" >> /app/.env && \
@@ -31,6 +33,7 @@ RUN set -ex \
     && rm -rf /app/.env  \
     && rm -rf /app/.config /app/.cache /app/.docker
 
+# runtime
 FROM base
 USER app:app
 WORKDIR /app
