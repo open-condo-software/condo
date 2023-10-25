@@ -45,23 +45,19 @@ jobs:
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
 
-      - name: cache yarn packages
-        uses: actions/cache@v3
-        with:
-          path: yarn-cache
-          key: yarn-packages-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            yarn-packages-${{ runner.os }}-
+      # - name: cache yarn packages
+      #   uses: actions/cache@v3
+      #   with:
+      #     path: yarn-cache
+      #     key: yarn-packages-${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+      #     restore-keys: |
+      #       yarn-packages-${{ runner.os }}-
 
-      - name: inject yarn cache into docker
-        uses: reproducible-containers/buildkit-cache-dance@v2.1.2
-        with:
-          cache-source: yarn-cache
-          cache-target: /root/.yarn/cache
-      
-      - name: check host
-        run: |
-          ls -lahtr
+      # - name: inject yarn cache into docker
+      #   uses: reproducible-containers/buildkit-cache-dance@v2.1.2
+      #   with:
+      #     cache-source: yarn-cache
+      #     cache-target: /root/.yarn/cache
 
       - name: build condo image for tests and push
         uses: docker/build-push-action@v5
@@ -73,10 +69,6 @@ jobs:
           provenance: false
           cache-from: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache
           cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=max,image-manifest=true
-
-      - name: check host after
-        run: |
-          ls -lahtr
 
   domains-tests-job:
     needs: build-image
