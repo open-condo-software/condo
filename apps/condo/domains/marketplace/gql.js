@@ -20,6 +20,9 @@ const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vat salesTax sku } ticket { id } contact { id name phone email unitType unitName } client { id name } status ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
+const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
+const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -27,5 +30,6 @@ module.exports = {
     MarketCategory,
     MarketItem,
     Invoice,
+    MarketItemFile,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
