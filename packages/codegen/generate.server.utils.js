@@ -268,6 +268,17 @@ function generateServerUtils (gql) {
         return await update(context, id, attrs)
     }
 
+    async function softDeleteMany (context, ids, extraAttrs = {}) {
+        const data = ids.map(id => ({
+            id,
+            data: {
+                deletedAt: 'true',
+                ...extraAttrs,
+            },
+        }))
+        return await updateMany(context, data)
+    }
+
     /**
      * Tries to receive existing item, and updates it on success or creates new one. Updated/created value is returned.
      * Attention! Be careful with where. Because of getOne, this helper will throw exception, if it gets 1+ items.
@@ -301,6 +312,7 @@ function generateServerUtils (gql) {
         updateOrCreate,
         delete: delete_,
         softDelete,
+        softDeleteMany,
     }
 }
 
