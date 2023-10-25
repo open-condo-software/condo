@@ -18,7 +18,7 @@ jobs:
     steps:
       - name: install deps
         run: |
-          sudo apt install git
+          sudo apt update && sudo apt install git
 
       - name: checkout code
         uses: actions/checkout@v3
