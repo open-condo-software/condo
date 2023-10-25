@@ -23,7 +23,7 @@ const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
 const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIELDS)
 
-const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent } marketItem { id } organization { id } ${COMMON_FIELDS} }`
+const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent } marketItem { id } ${COMMON_FIELDS} }`
 const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
 
 /* AUTOGENERATE MARKER <CONST> */
