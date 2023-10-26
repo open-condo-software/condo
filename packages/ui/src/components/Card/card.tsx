@@ -16,9 +16,16 @@ Pick<DefaultCardProps, 'hoverable' | 'title'> & {
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>((props, ref) => {
-    const { width, bodyPadding = 24, titlePadding = 24, active = false, ...rest } = props
+    const {
+        width,
+        bodyPadding = 24,
+        titlePadding = 24,
+        active = false,
+        className: propsClassName,
+        ...rest
+    } = props
 
-    const className = classNames({
+    const className = classNames(propsClassName, {
         [`${CARD_CLASS_PREFIX}-active`]: active,
     })
     
