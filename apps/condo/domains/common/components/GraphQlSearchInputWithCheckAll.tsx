@@ -25,7 +25,20 @@ export type InputWithCheckAllProps = {
     checkBoxEventName?: string
     disabled?: boolean
     onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
-    prepareSetFieldsValue?: (form: FormInstance, formItemName: FormItemProps['name'], checkAllFieldName: FormItemProps['name']) => any
+    /**
+     * When your form has a complex structure, for example when fields change dynamically,
+     * you need to mutation the form yourself after the checkbox has been checked.
+     * Namely, reset the select field to empty array and set checkbox to true
+     *
+     * @example Default implementation
+     * function (form, formItemName, checkAllFieldName) {
+     *     return {
+     *         [formItemName]: [],
+     *         [checkAllFieldName]: true,
+     *     }
+     * }
+     */
+    mutationOfFormAfterCheckAll?: (form: FormInstance, formItemName: FormItemProps['name'], checkAllFieldName: FormItemProps['name']) => Record<string, any>
 }
 
 const CheckAllCheckboxFormItem = styled(Form.Item)`
@@ -47,7 +60,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         checkBoxEventName,
         disabled,
         onDataLoaded,
-        prepareSetFieldsValue,
+        mutationOfFormAfterCheckAll,
     }
 ) => {
     const intl = useIntl()
@@ -92,12 +105,12 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
     const formItemName = String(selectFormItemProps.name)
     const checkAllFieldNameInString = String(checkAllFieldName)
     useEffect(() => {
-        if ((isArray(selectFormItemProps.name) || isArray(checkAllFieldName)) && !isFunction(prepareSetFieldsValue)) {
-            console.error('You should set "prepareSetFieldsValue" for "GraphQlSearchInputWithCheckAll". Form item name or field name is array type.')
+        if ((isArray(selectFormItemProps.name) || isArray(checkAllFieldName)) && !isFunction(mutationOfFormAfterCheckAll)) {
+            console.error('You should set "mutationOfFormAfterCheckAll" for "GraphQlSearchInputWithCheckAll". Form item name or field name is array type.')
         }
         if (isAllChecked) {
-            if (isFunction(prepareSetFieldsValue)) {
-                form.setFieldsValue(prepareSetFieldsValue(form, selectFormItemProps.name, checkAllFieldName))
+            if (isFunction(mutationOfFormAfterCheckAll)) {
+                form.setFieldsValue(mutationOfFormAfterCheckAll(form, selectFormItemProps.name, checkAllFieldName))
             } else {
                 form.setFieldsValue({ [formItemName]: [], [checkAllFieldNameInString]: true })
             }
