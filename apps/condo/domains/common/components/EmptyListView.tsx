@@ -16,6 +16,7 @@ export interface IEmptyListProps {
     createLabel?: string
     containerStyle?: CSSProperties
     accessCheck?: boolean
+    image?: string
 }
 
 export interface IBasicEmptyListProps extends EmptyProps {
@@ -62,12 +63,12 @@ export const BasicEmptyListView: React.FC<IBasicEmptyListProps> = ({
 }
 
 export const EmptyListView: React.FC<IEmptyListProps> = (props) => {
-    const { label, message, button, createRoute, createLabel, containerStyle, accessCheck } = props
+    const { label, message, button, createRoute, createLabel, containerStyle, accessCheck, image } = props
     const router = useRouter()
 
     return (
         <BasicEmptyListView
-            image='dino/searching@2x.png'
+            image={image ? image : 'dino/searching@2x.png'}
             spaceSize={16}
             imageStyle={{ height: 200 }}
             containerStyle={containerStyle}
