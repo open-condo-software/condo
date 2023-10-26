@@ -568,4 +568,39 @@ describe('BillingPropertyResolver tests', () => {
             ).not.toBeTruthy()
         })
     })
+
+    describe('BillingPropertyResolver.getSearchSummary tests', () => {
+        it('regular case', async () => {
+            const tin = '12345789'
+            const resolver = new BillingPropertyResolver()
+            const address = faker.address.streetAddress(true)
+            const normalizedAddress = faker.address.streetAddress(true)
+            const addressKey = faker.datatype.uuid()
+            const fias = faker.datatype.uuid()
+            resolver.tin = tin
+            resolver.addressCache = {
+                [resolver.getCacheKey(address)]: { address: normalizedAddress, addressKey, addressMeta: { data: { house_fias_id: fias } } },
+            }
+
+            // properties mock
+            const propertyId = faker.datatype.uuid()
+            resolver.organizationProperties = [
+                { id: propertyId },
+                { id: faker.datatype.uuid() },
+                { id: faker.datatype.uuid() },
+            ]
+            const billingProperty = { property: { id: propertyId } }
+            resolver.searchBillingProperty = async () => (billingProperty)
+
+            const result = await resolver.getSearchSummary({ address })
+            expect(result).toMatchObject({
+                address,
+                addressKey,
+                normalizedAddress,
+                fias,
+                billingProperty,
+                registeredInOrg: true,
+            })
+        })
+    })
 })
