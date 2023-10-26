@@ -113,11 +113,13 @@ const MESSAGE_META = {
     [TICKET_CREATED_TYPE]: {
         dv: { defaultValue: '', required: true },
         data: {
-            // ticketId: { defaultValue: '', required: true },
+            ticketId: { defaultValue: '', required: true },
             ticketNumber: { defaultValue: '', required: true },
-            // userId: { defaultValue: '', required: true },
-            // url: { defaultValue: '', required: true },
-            // organizationId: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
+            organizationName: { defaultValue: '', required: true },
+            details: { defaultValue: '', required: true },
         },
     },
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {

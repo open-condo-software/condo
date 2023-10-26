@@ -126,11 +126,13 @@ const sendTicketCreatedNotifications = async (ticketId) => {
             meta: {
                 dv: 1,
                 data: {
-                    // ticketId: updatedItem.id,
+                    ticketId,
                     ticketNumber: createdTicket.number,
-                    // userId,
-                    // url: `${conf.SERVER_URL}/ticket/${updatedItem.id}`,
-                    // organizationId: organization.id,
+                    userId: employeeUserId,
+                    url: `${conf.SERVER_URL}/ticket/${ticketId}`,
+                    organizationId: organization.id,
+                    organizationName: organization.name,
+                    details: createdTicket.details,
                 },
             },
             sender: createdTicket.sender,

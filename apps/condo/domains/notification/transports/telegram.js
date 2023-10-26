@@ -13,17 +13,15 @@ async function prepareMessageToSend (message) {
 
     if (!userId) throw new Error('no userId to send telegram notification')
 
-    const { text } = await renderTemplate(TELEGRAM_TRANSPORT, message)
+    const { text, html } = await renderTemplate(TELEGRAM_TRANSPORT, message)
 
-    console.log('prepareMessageToSend', text)
-
-    return { userId, message: text }
+    return { userId, message: text, html }
 }
 
 /**
  * Send a Telegram notification to chat with user
  */
-async function send ({ userId, message } = {}) {
+async function send ({ userId, message, html } = {}) {
     const telegramUserChat = await getByCondition('TelegramUserChat', {
         user: { id: userId },
         deletedAt: null,
@@ -33,7 +31,8 @@ async function send ({ userId, message } = {}) {
 
     const result = await axios.post(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
         chat_id: telegramUserChat.telegramChatId,
-        text: message,
+        text: html,
+        parse_mode: 'HTML',
     })
 
     return [true, result.data]

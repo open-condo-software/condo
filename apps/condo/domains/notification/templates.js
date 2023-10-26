@@ -93,6 +93,35 @@ function getEmailTemplate (locale, messageType) {
     throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${EMAIL_TRANSPORT}"`)
 }
 
+function getTelegramTemplate (locale, messageType) {
+    // this is template reading method and files are distributed as part of source codes
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const emailTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+    const emailHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+
+    let templatePathText = null
+    let templatePathHtml = null
+
+    if (fs.existsSync(emailTextTemplatePath)) {
+        templatePathText = emailTextTemplatePath
+    }
+
+    if (fs.existsSync(emailHtmlTemplatePath)) {
+        templatePathHtml = emailHtmlTemplatePath
+    }
+
+    if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
+        templatePathText = defaultTemplatePath
+    }
+
+    if (templatePathText || templatePathHtml) return { templatePathText, templatePathHtml }
+
+    throw new Error(`There is no "${locale}" template for "${messageType}" to send by "${TELEGRAM_TRANSPORT}"`)
+}
+
 /**
  * @param {string} messageType
  * @returns {string}
@@ -150,12 +179,23 @@ function translateObjectItems (obj, locale) {
  * Renders message template for Telegram
  */
 function telegramRenderer ({ message, env }) {
-    const { lang: locale } = message
+    const { lang: locale, type } = message
+    const { templatePathText, templatePathHtml } = getTelegramTemplate(locale, type)
     const messageTranslated = substituteTranslations(message, locale)
+    const ret = {}
 
-    return {
-        text: normalizeSMSText(nunjucks.render(getTemplate(message.lang, message.type, TELEGRAM_TRANSPORT), { message: messageTranslated, env })),
+    if (templatePathText) {
+        // For text emails we unescape email message to prevent HTML entities in email body
+        // See https://lodash.com/docs/4.17.15#unescape
+        // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
+        ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
     }
+
+    if (templatePathHtml) {
+        ret.html = nunjucks.render(templatePathHtml, { message: messageTranslated, env })
+    }
+
+    return ret
 }
 
 /**
