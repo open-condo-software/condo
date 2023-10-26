@@ -40,4 +40,4 @@
 	url = git@github.com:open-condo-software/condo-documents-next.git
 [submodule "apps/telegram-employee-bot"]
     path = apps/telegram-employee-bot
-    url = ../telegram-employee-bot.git
+    url = git@github.com:open-condo-software/condo-telegram-employee-bot.git

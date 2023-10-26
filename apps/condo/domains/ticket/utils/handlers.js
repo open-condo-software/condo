@@ -26,7 +26,6 @@ const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { Ticket, TicketCommentsTime } = require('./serverSchema')
 
-
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
 const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
@@ -122,6 +121,7 @@ const sendTicketNotifications = async (requestData) => {
         id: updatedItem.organization,
         deletedAt: null,
     })
+
     /**
      * Detect message language
      * Use DEFAULT_LOCALE if organization.country is unknown

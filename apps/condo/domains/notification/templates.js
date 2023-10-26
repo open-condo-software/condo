@@ -94,23 +94,22 @@ function getEmailTemplate (locale, messageType) {
 }
 
 function getTelegramTemplate (locale, messageType) {
-    // this is template reading method and files are distributed as part of source codes
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
     const defaultTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${DEFAULT_TEMPLATE_FILE_NAME}`)
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const emailTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const telegramTextTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
     // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-    const emailHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
+    const telegramHtmlTemplatePath = path.resolve(__dirname, `${LANG_DIR_RELATED}/${locale}/messages/${messageType}/${TELEGRAM_TRANSPORT}.html.${DEFAULT_TEMPLATE_FILE_EXTENSION}`)
 
     let templatePathText = null
     let templatePathHtml = null
 
-    if (fs.existsSync(emailTextTemplatePath)) {
-        templatePathText = emailTextTemplatePath
+    if (fs.existsSync(telegramTextTemplatePath)) {
+        templatePathText = telegramTextTemplatePath
     }
 
-    if (fs.existsSync(emailHtmlTemplatePath)) {
-        templatePathHtml = emailHtmlTemplatePath
+    if (fs.existsSync(telegramHtmlTemplatePath)) {
+        templatePathHtml = telegramHtmlTemplatePath
     }
 
     if (!templatePathText && !templatePathHtml && fs.existsSync(defaultTemplatePath)) {
@@ -185,9 +184,6 @@ function telegramRenderer ({ message, env }) {
     const ret = {}
 
     if (templatePathText) {
-        // For text emails we unescape email message to prevent HTML entities in email body
-        // See https://lodash.com/docs/4.17.15#unescape
-        // &amp;, &lt;, &gt;, &quot;, and &#39; will be replaced to corresponding characters
         ret.text = unescape(nunjucks.render(templatePathText, { message: messageTranslated, env }))
     }
 

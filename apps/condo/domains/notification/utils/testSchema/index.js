@@ -325,8 +325,6 @@ async function createTestTelegramUserChat (client, user, extraAttrs = {}) {
     if (!user || !user.id) throw new Error('no user.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestTelegramUserChat logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -341,8 +339,6 @@ async function updateTestTelegramUserChat (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestTelegramUserChat logic for generate fields
 
     const attrs = {
         dv: 1,
@@ -366,6 +362,6 @@ module.exports = {
     updateTestMessageOrganizationBlackList,
     MessageBatch, createTestMessageBatch, updateTestMessageBatch,
     NotificationUserSetting, createTestNotificationUserSetting, updateTestNotificationUserSetting,
-        TelegramUserChat, createTestTelegramUserChat, updateTestTelegramUserChat,
+    TelegramUserChat, createTestTelegramUserChat, updateTestTelegramUserChat,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

@@ -48,6 +48,7 @@ const { QUALITY_CONTROL_VALUES } = require('@condo/domains/ticket/constants/qual
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
 const { QUALITY_CONTROL_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/QualityControlAdditionalOptions')
 const { FEEDBACK_ADDITIONAL_OPTIONS_FIELD } = require('@condo/domains/ticket/schema/fields/TicketFeedbackAdditionalOptions')
+const { sendTicketCreatedNotifications } = require('@condo/domains/ticket/tasks/sendTicketCreatedNorifications')
 const { sendTicketNotifications } = require('@condo/domains/ticket/utils/handlers')
 const { TicketStatus } = require('@condo/domains/ticket/utils/serverSchema')
 const {
@@ -67,8 +68,6 @@ const {
 } = require('@condo/domains/ticket/utils/serverSchema/TicketChange')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 const { RedisGuard } = require('@condo/domains/user/utils/serverSchema/guards')
-
-const { sendTicketCreatedNotifications } = require('../tasks/sendTicketCreatedNorifications')
 
 
 const usersWithoutTicketLimits = Object.keys(conf.USERS_WITHOUT_TICKET_LIMITS ? JSON.parse(conf.USERS_WITHOUT_TICKET_LIMITS) : {})

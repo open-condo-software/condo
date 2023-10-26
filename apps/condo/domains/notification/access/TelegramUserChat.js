@@ -26,7 +26,7 @@ async function canManageTelegramUserChats ({ authentication: { item: user }, ori
     } else if (operation === 'update') {
         const existedItem = await getById('TelegramUserChat', itemId)
 
-        return existedItem.user === user.id && originalInput.deletedAt !== undefined
+        return existedItem.user === user.id
     }
 
     return false

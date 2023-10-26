@@ -6,10 +6,10 @@ const { getByCondition, getSchemaCtx, getById, find } = require('@open-condo/key
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
+const { TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PROPERTY_AND_SPECIALIZATION_VISIBILITY, PROPERTY_TICKET_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 
-const { TICKET_CREATED_TYPE } = require('../../notification/constants/constants')
 
 const _getPropertyAndSpecializationsEmployeesAccessedToTicket = async (propertyAndSpecDependsEmployeeInScope, ticketCategoryClassifier) => {
     const availableToReadTicketUsers = []

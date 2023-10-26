@@ -4,8 +4,8 @@ const { get } = require('lodash')
 const conf = require('@open-condo/config')
 const { getByCondition } = require('@open-condo/keystone/schema')
 
-const { TELEGRAM_TRANSPORT } = require('../constants/constants')
-const { renderTemplate } = require('../templates')
+const { TELEGRAM_TRANSPORT } = require('@condo/domains/notification/constants/constants')
+const { renderTemplate } = require('@condo/domains/notification/templates')
 
 
 async function prepareMessageToSend (message) {
