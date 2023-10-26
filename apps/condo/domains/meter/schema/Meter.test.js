@@ -4,7 +4,7 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeClient, UUID_RE, makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+const { makeClient, UUID_RE, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowValidationFailureError,
     expectToThrowAccessDeniedErrorToObj,
@@ -21,7 +21,13 @@ const {
 const { sleep } = require('@condo/domains/common/utils/sleep')
 const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const { AUTOMATIC_METER_NO_MASTER_APP, B2C_APP_NOT_AVAILABLE, B2B_APP_NOT_CONNECTED } = require('@condo/domains/meter/constants/errors')
-const { MeterResource, Meter, createTestMeter, updateTestMeter } = require('@condo/domains/meter/utils/testSchema')
+const {
+    MeterResource,
+    Meter,
+    createTestMeter,
+    updateTestMeter,
+    MeterResourceOwner,
+} = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
     createTestB2BAppContext,
@@ -1074,6 +1080,27 @@ describe('Meter', () => {
 
                     expect(updatedMeter.accountNumber).toEqual(String(updatedAttrs.accountNumber).trim())
                 })
+            })
+        })
+
+        test('should create MeterResourceOwner after new meter creation', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({
+                canManageMeters: true,
+            })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+
+            await waitFor(async () => {
+                const meterResourceOwner = await MeterResourceOwner.getOne(client, {
+                    address: meter.property.address,
+                    organization: { id: client.organization.id },
+                    resource: { id: meter.resource.id },
+                })
+
+                expect(meterResourceOwner).toHaveProperty(['organization', 'id'], client.organization.id)
+                expect(meterResourceOwner).toHaveProperty(['resource', 'id'], meter.resource.id)
+                expect(meterResourceOwner).toHaveProperty('address', meter.property.address)
+                expect(meterResourceOwner).toHaveProperty(['sender', 'fingerprint'], meter.sender.fingerprint)
             })
         })
     })

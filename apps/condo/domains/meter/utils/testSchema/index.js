@@ -347,8 +347,6 @@ async function createTestMeterResourceOwner (client, organization, resource, ext
     if (!resource || !resource.id) throw new Error('no resource.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestMeterResourceOwner logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
@@ -364,8 +362,6 @@ async function updateTestMeterResourceOwner (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestMeterResourceOwner logic for generate fields
 
     const attrs = {
         dv: 1,
