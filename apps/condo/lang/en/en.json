@@ -2317,7 +2317,8 @@
   "api.marketplace.MarketItemPrice.error.INVALID_SALES_TAX_PERCENT": "Sales tax must be positive, but not more than 100. Check line {rowNumber}.",
   "api.marketplace.MarketItemPrice.error.INVALID_PRICE": "The price cannot be less than 0. Check line {rowNumber}.",
   "api.marketplace.MarketItemPrice.error.EMPTY_PRICE": "Price cannot be empty.",
-  "api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED": "Cannot create scope with property from one organization and market item from another organization."
-  "api.marketplace.invoice.error.rows.toPay": "Price can't be less than 0. Check line {rowNumber}.",
+  "api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED": "Cannot create scope with property from one organization and market item from another organization.",
+  "api.marketplace.registerInvoice.error.noInvoiceContext":"The organization hasn't set up the marketplace",
+  "api.marketplace.registerInvoice.error.itemFromOtherOrganization": "Item from other organization. Check line {rowNumber}",
   "marketplace.invoice.newTicket.details": "The paid service ordered"
 }

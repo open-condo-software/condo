@@ -9,7 +9,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const INVOICE_CONTEXT_FIELDS = `{ organization { id } recipient { bic bankAccount tin } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent ${COMMON_FIELDS} }`
+const INVOICE_CONTEXT_FIELDS = `{ organization { id } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent currencyCode ${COMMON_FIELDS} }`
 const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
 
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`
@@ -27,8 +27,14 @@ const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIE
 const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent } marketItem { id } ${COMMON_FIELDS} }`
 const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
 
-const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id organization { id } marketCategory { id parentCategory { id } } } } property { id } ${COMMON_FIELDS} }`
+const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id parentCategory { id } } } price { type group name price isMin vatPercent salesTaxPercent } } property { id } ${COMMON_FIELDS} }`
 const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
+
+const REGISTER_INVOICE_MUTATION = gql`
+    mutation registerInvoice ($data: RegisterInvoiceInput!) {
+        result: registerInvoice(data: $data) { invoice ${INVOICE_FIELDS} }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
@@ -40,5 +46,6 @@ module.exports = {
     MarketItemFile,
     MarketItemPrice,
     MarketPriceScope,
+    REGISTER_INVOICE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

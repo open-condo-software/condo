@@ -66635,6 +66635,7 @@ type InvoiceHistoryRecord {
   contact: String
   client: String
   status: String
+  paymentType: String
   id: ID!
   v: Int
   createdAt: String
@@ -66761,6 +66762,24 @@ input InvoiceHistoryRecordWhereInput {
   status_not_ends_with_i: String
   status_in: [String]
   status_not_in: [String]
+  paymentType: String
+  paymentType_not: String
+  paymentType_contains: String
+  paymentType_not_contains: String
+  paymentType_starts_with: String
+  paymentType_not_starts_with: String
+  paymentType_ends_with: String
+  paymentType_not_ends_with: String
+  paymentType_i: String
+  paymentType_not_i: String
+  paymentType_contains_i: String
+  paymentType_not_contains_i: String
+  paymentType_starts_with_i: String
+  paymentType_not_starts_with_i: String
+  paymentType_ends_with_i: String
+  paymentType_not_ends_with_i: String
+  paymentType_in: [String]
+  paymentType_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -66854,6 +66873,8 @@ enum SortInvoiceHistoryRecordsBy {
   toPay_DESC
   status_ASC
   status_DESC
+  paymentType_ASC
+  paymentType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -66885,6 +66906,7 @@ input InvoiceHistoryRecordUpdateInput {
   contact: String
   client: String
   status: String
+  paymentType: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -66917,6 +66939,7 @@ input InvoiceHistoryRecordCreateInput {
   contact: String
   client: String
   status: String
+  paymentType: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -66947,8 +66970,8 @@ type InvoiceRowSchemaField {
   toPay: String!
   count: Int!
   currencyCode: String!
-  vat: String
-  salesTax: String
+  vatPercent: String
+  salesTaxPercent: String
   sku: String
 }
 
@@ -66957,8 +66980,8 @@ input InvoiceRowSchemaFieldInput {
   toPay: String!
   count: Int!
   currencyCode: String!
-  vat: String
-  salesTax: String
+  vatPercent: String
+  salesTaxPercent: String
   sku: String
 }
 
@@ -67008,8 +67031,12 @@ type Invoice {
   """
   client: User
 
-  """ The regime of counting taxes for company """
+  """ Invoice status affects which invoices can be read by residents and which invoices can be managed 
+  """
   status: String
+
+  """ Shows which payment type chosen: online or cash or something else """
+  paymentType: String
   id: ID!
   v: Int
   createdAt: String
@@ -67110,6 +67137,10 @@ input InvoiceWhereInput {
   status_not: String
   status_in: [String]
   status_not_in: [String]
+  paymentType: String
+  paymentType_not: String
+  paymentType_in: [String]
+  paymentType_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67195,6 +67226,8 @@ enum SortInvoicesBy {
   client_DESC
   status_ASC
   status_DESC
+  paymentType_ASC
+  paymentType_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67226,6 +67259,7 @@ input InvoiceUpdateInput {
   contact: ContactRelateToOneInput
   client: UserRelateToOneInput
   status: String
+  paymentType: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67255,6 +67289,7 @@ input InvoiceCreateInput {
   contact: ContactRelateToOneInput
   client: UserRelateToOneInput
   status: String
+  paymentType: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -70813,6 +70848,22 @@ input SendB2CAppPushMessageInput {
 type SendB2CAppPushMessageOutput {
   id: String!
   status: String!
+}
+
+input InvoiceRowsInput {
+  priceScope: MarketPriceScopeWhereUniqueInput!
+  count: Int!
+}
+
+input RegisterInvoiceInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  resident: ResidentWhereUniqueInput!
+  invoiceRows: [InvoiceRowsInput!]!
+}
+
+type RegisterInvoiceOutput {
+  invoice: Invoice!
 }
 
 type unauthenticateUserOutput {
@@ -81325,6 +81376,7 @@ type Mutation {
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
+  registerInvoice(data: RegisterInvoiceInput!): RegisterInvoiceOutput
 
   """ Authenticate and generate a token for a User with the Password Authentication Strategy. 
   """

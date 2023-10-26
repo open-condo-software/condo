@@ -17,6 +17,7 @@ const { VAT_OPTIONS, TAX_REGIME_GENEGAL } = require('@condo/domains/marketplace/
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
+const { REGISTER_INVOICE_MUTATION } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
@@ -27,6 +28,7 @@ const Invoice = generateGQLTestUtils(InvoiceGQL)
 const MarketItemFile = generateGQLTestUtils(MarketItemFileGQL)
 const MarketItemPrice = generateGQLTestUtils(MarketItemPriceGQL)
 const MarketPriceScope = generateGQLTestUtils(MarketPriceScopeGQL)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
@@ -131,18 +133,49 @@ function generateInvoiceRow (attrs = {}) {
         toPay: String(faker.commerce.price()),
         count: faker.datatype.number({ min: 1, max: 3 }),
         currencyCode: 'RUB',
-        vat: String(VAT_OPTIONS[0]),
-        salesTax: String(faker.datatype.number({ min: 1, max: 7 })),
+        vatPercent: String(VAT_OPTIONS[0]),
+        salesTaxPercent: String(faker.datatype.number({ min: 0, max: 7 })),
         sku: faker.random.word(),
         ...attrs,
     }
 }
 
-function generateInvoiceRows () {
-    const count = faker.datatype.number({ min: 1, max: 5 })
+/**
+ * @param {Number} rowsCount
+ * @returns {*[]}
+ */
+function generateInvoiceRows (rowsCount) {
+    const count = rowsCount || faker.datatype.number({ min: 1, max: 5 })
     const rows = []
     for (let i = 0; i < count; i++) {
         rows.push(generateInvoiceRow())
+    }
+
+    return rows
+}
+
+function generatePriceRow (attrs = {}) {
+    return {
+        type: 'variant',
+        group: faker.word.noun(),
+        name: faker.commerce.productName(),
+        price: String(faker.commerce.price()),
+        isMin: false,
+        vatPercent: String(VAT_OPTIONS[0]),
+        salesTaxPercent: String(faker.datatype.number({ min: 0, max: 3 })),
+        ...attrs,
+    }
+}
+
+/**
+ * @param {Number} rowsCount
+ * @returns {*[]}
+ */
+function generatePriceRows (rowsCount) {
+    const count = rowsCount || faker.datatype.number({ min: 1, max: 5 })
+    const rows = []
+    for (let i = 0; i < count; i++) {
+        rows.push(generatePriceRow())
     }
 
     return rows
@@ -219,7 +252,7 @@ async function createTestMarketItemPrice (client, marketItem, extraAttrs = {}) {
         dv: 1,
         sender,
         marketItem: { connect: { id: marketItem.id } },
-        price: [{ type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' }],
+        price: generatePriceRows(1),
         ...extraAttrs,
     }
     const obj = await MarketItemPrice.create(client, attrs)
@@ -272,6 +305,24 @@ async function updateTestMarketPriceScope (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function registerInvoiceByTestClient (client, resident, invoiceRows, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!resident || !resident.id) throw new Error('no resident.id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        resident,
+        invoiceRows,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(REGISTER_INVOICE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -279,9 +330,11 @@ module.exports = {
     MarketCategory, createTestMarketCategory, updateTestMarketCategory,
     MarketItem, createTestMarketItem, updateTestMarketItem,
     Invoice, createTestInvoice, updateTestInvoice,
-    generateInvoiceRow,
+    generateInvoiceRow, generateInvoiceRows,
+    generatePriceRow, generatePriceRows,
     MarketItemFile, createTestMarketItemFile, updateTestMarketItemFile,
     MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice,
     MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope,
-/* AUTOGENERATE MARKER <EXPORTS> */
+    registerInvoiceByTestClient,
+    /* AUTOGENERATE MARKER <EXPORTS> */
 }
