@@ -68,14 +68,14 @@ describe('B2BAppNewsSharingConfig', () => {
                 [createdB2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin)
             })
             test('admin can', async () => {
-                const [obj, attrs] = await updateTestB2BAppNewsSharingConfig(admin, createdB2BAppNewsSharingConfig.id, updatePayload)
+                const [obj] = await updateTestB2BAppNewsSharingConfig(admin, createdB2BAppNewsSharingConfig.id, updatePayload)
 
                 expect(obj.v).toEqual(2)
                 expect(obj).toEqual(expect.objectContaining(updatePayload))
             })
 
             test('support can', async () => {
-                const [obj, attrs] = await updateTestB2BAppNewsSharingConfig(support, createdB2BAppNewsSharingConfig.id, updatePayload)
+                const [obj] = await updateTestB2BAppNewsSharingConfig(support, createdB2BAppNewsSharingConfig.id, updatePayload)
 
                 expect(obj.v).toEqual(2)
                 expect(obj).toEqual(expect.objectContaining(updatePayload))
