@@ -8,10 +8,10 @@ import {
     B2BAppNewsSharingConfigUpdateInput,
     QueryAllB2BAppNewsSharingConfigsArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
-import { B2BAppNewsSharingConfig as B2BAppNewsSharingConfigGQL } from '@condo/domains/miniapp/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
+import { B2BAppNewsSharingConfig as B2BAppNewsSharingConfigGQL } from '@condo/domains/miniapp/gql'
 
 const {
     useObject,
