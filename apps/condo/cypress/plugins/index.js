@@ -1,3 +1,27 @@
+/**
+ * @type {Cypress.PluginConfig}
+ */
+const isEmpty = require('lodash/isEmpty')
+
+const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
+
+const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
+const { buildingMapJson } = require('@condo/domains/property/constants/property')
+const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
+const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
+const {
+    createTestUser,
+    createTestForgotPasswordAction,
+    ConfirmPhoneAction,
+    makeLoggedInClient,
+    makeClientWithSupportUser, updateTestUser,
+} = require('@condo/domains/user/utils/testSchema')
+
+let userObject = {}
+let supportObject = {}
+
+module.exports = async (on, config) => {
 
     const supportClient = await makeLoggedInClient({ email: supportEmail, password: supportPassword })
 
@@ -7,9 +31,11 @@
         async 'keystone:createUser' () {
             return await createTestUser(supportClient)
         },
+
         async 'keystone:createForgotPasswordAction' (user) {
             return await createTestForgotPasswordAction(supportClient, user)
         },
+
         async 'keystone:getConfirmPhoneAction' (phone) {
             return await ConfirmPhoneAction.getAll(supportClient, { phone })
         },
@@ -83,6 +109,7 @@
             return supportObject
 
         },
+
         async 'keystone:createTickets' (ticketAttrs) {
             const client = await makeLoggedInClient(ticketAttrs.userAttrs)
             const support = await makeClientWithSupportUser()
@@ -99,5 +126,4 @@
     })
 
     return config
-
 }
