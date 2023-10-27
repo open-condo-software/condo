@@ -31,6 +31,7 @@ const { MessageAppBlackList: MessageAppBlackListGQL } = require('@condo/domains/
 const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
+const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -61,6 +62,7 @@ const MessageAppBlackList = generateGQLTestUtils(MessageAppBlackListGQL)
 const B2BAppPermission = generateGQLTestUtils(B2BAppPermissionGQL)
 const B2BAppRole = generateGQLTestUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateGQLTestUtils(B2BAppAccessRightSetGQL)
+const B2BAppNewsSharingConfig = generateGQLTestUtils(B2BAppNewsSharingConfigGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 
@@ -496,6 +498,37 @@ async function updateTestB2BAppAccessRightSet (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+async function createTestB2BAppNewsSharingConfig (client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): write createTestB2BAppNewsSharingConfig logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppNewsSharingConfig.create(client, attrs)
+    return [obj, attrs]
+}
+
+async function updateTestB2BAppNewsSharingConfig (client, id, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    if (!id) throw new Error('no id')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    // TODO(codegen): check the updateTestB2BAppNewsSharingConfig logic for generate fields
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const obj = await B2BAppNewsSharingConfig.update(client, id, attrs)
+    return [obj, attrs]
+}
+
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
     const { address, addressMeta } = buildFakeAddressAndMeta(false)
@@ -533,6 +566,7 @@ module.exports = {
     MessageAppBlackList, createTestMessageAppBlackList, updateTestMessageAppBlackList,
     B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
+    B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }

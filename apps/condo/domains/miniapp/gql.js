@@ -68,6 +68,9 @@ const MessageAppBlackList = generateGqlQueries('MessageAppBlackList', MESSAGE_AP
 const B2B_APP_ACCESS_RIGHT_SET_FIELDS = `{ app { id } ${B2B_ACCESSES_FIELDS} ${COMMON_FIELDS} }`
 const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_ACCESS_RIGHT_SET_FIELDS)
 
+const B2_BAPP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl getRecipientsUrl ${COMMON_FIELDS} }`
+const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2_BAPP_NEWS_SHARING_CONFIG_FIELDS)
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -85,5 +88,6 @@ module.exports = {
     B2CAppBuild,
     B2CAppProperty,
     MessageAppBlackList,
+    B2BAppNewsSharingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

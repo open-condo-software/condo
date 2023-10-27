@@ -15,4 +15,5 @@ export * as B2CAppBuild from './B2CAppBuild'
 export * as B2CAppProperty from './B2CAppProperty'
 export * as MessageAppBlackList from './MessageAppBlackList'
 export * as B2BAppAccessRightSet from './B2BAppAccessRightSet'
+export * as B2BAppNewsSharingConfig from './B2BAppNewsSharingConfig'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
