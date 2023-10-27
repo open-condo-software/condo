@@ -502,11 +502,12 @@ async function createTestB2BAppNewsSharingConfig (client, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestB2BAppNewsSharingConfig logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,
+        publishUrl: faker.internet.url(),
+        previewUrl: faker.internet.url(),
+        getRecipientsUrl: faker.internet.url(),
         ...extraAttrs,
     }
     const obj = await B2BAppNewsSharingConfig.create(client, attrs)
@@ -517,8 +518,6 @@ async function updateTestB2BAppNewsSharingConfig (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestB2BAppNewsSharingConfig logic for generate fields
 
     const attrs = {
         dv: 1,
