@@ -8,10 +8,10 @@ import {
     MeterResourceOwnerUpdateInput,
     QueryAllMeterResourceOwnersArgs,
 } from '@app/condo/schema'
-import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
-import { MeterResourceOwner as MeterResourceOwnerGQL } from '@condo/domains/meter/gql'
 
-// TODO(codegen): write utils like convertToFormState and formValuesProcessor if needed, otherwise delete this TODO
+import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
+
+import { MeterResourceOwner as MeterResourceOwnerGQL } from '@condo/domains/meter/gql'
 
 const {
     useObject,
