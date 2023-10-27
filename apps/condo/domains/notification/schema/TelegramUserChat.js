@@ -25,8 +25,17 @@ const TelegramUserChat = new GQLListSchema('TelegramUserChat', {
             schemaDoc: 'Id of user\'s telegram chat with bot',
             type: Text,
             isRequired: true,
-            isUnique: true,
         },
+    },
+    kmigratorOptions: {
+        constraints: [
+            {
+                type: 'models.UniqueConstraint',
+                fields: ['telegramChatId'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'TelegramUserChat_unique_telegramChatId',
+            },
+        ],
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {

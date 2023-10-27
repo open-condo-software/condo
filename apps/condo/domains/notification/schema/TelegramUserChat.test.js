@@ -178,7 +178,7 @@ describe('TelegramUserChat', () => {
             await catchErrorFrom(async () => {
                 await createTestTelegramUserChat(admin, secondUser.user, { telegramChatId })
             }, (caught) => {
-                expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "TelegramUserChat_telegramChatId_key"')
+                expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "TelegramUserChat_unique_telegramChatId"')
             })
         })
     })
