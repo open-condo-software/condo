@@ -1,12 +1,14 @@
 const { get, isNil, isEmpty } = require('lodash')
 
+
 const {
     createInstance: createAddressServiceClientInstance,
 } = require('@open-condo/clients/address-service-client')
 
 
 const { AddressTransform, AddressParser } = require('@condo/domains/billing/schema/helpers/addressTransform')
-const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
+const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const { findPropertyByOrganizationAndAddress } = require('./propertyFinder')
@@ -54,7 +56,7 @@ class BillingPropertyResolver {
      * @param mockedItem - address service mocked item (for test purposes only)
      * @returns {Promise<{errorMessage: (string|undefined), error: (string|null)}>}
      */
-    async init (context, tin, organizationId, billingIntegrationOrganizationContextId, addressTransformRules, mockedItem) {
+    async init (context, tin, organizationId, billingIntegrationOrganizationContextId, addressTransformRules, mockedItem = null) {
         this.context = context
         this.tin = tin
         this.organizationId = organizationId
@@ -63,9 +65,11 @@ class BillingPropertyResolver {
         this.addressTransformer = new AddressTransform()
         this.parser = new AddressParser()
         this.addressCache = {}
-        this.organizationProperties = await Property.getAll(context, {
-            organization: { id: organizationId },
-            deletedAt: null,
+        this.organizationProperties = await loadListByChunks({
+            context,
+            list: Property,
+            where: { organization: { id: organizationId }, deletedAt: null },
+            chunkSize: 50,
         })
 
         return this.addressTransformer.init(addressTransformRules)
@@ -80,7 +84,7 @@ class BillingPropertyResolver {
         if (isNil(address) || isEmpty(address.trim())) {
             return { parsed: false }
         }
-        const transformedAddress = this.transformer.apply(address)
+        const transformedAddress = this.addressTransformer.apply(address)
         return {
             parsed: true,
             ...this.parser.parse(transformedAddress),
@@ -118,33 +122,28 @@ class BillingPropertyResolver {
      * @throws ResolveError<{code: string}>
      */
     chooseUnitParts (parsedFias, parsedAddress, providedUnitType, providedUnitName) {
-        let unitType, unitName = null
+        let unitType = providedUnitType, unitName = providedUnitName
 
         // firstly try to get unit data from parsedFias
-        if (parsedFias.parsed) {
-            unitType = parsedFias.unitType
-            unitName = parsedFias.unitName
+        if (parsedFias.parsed ) {
+            if (isEmpty(unitType) && !isEmpty(parsedFias.unitType)) {
+                unitType = parsedFias.unitType
+            }
+            if (isEmpty(unitName) && !isEmpty(parsedFias.unitName)) {
+                unitName = parsedFias.unitName
+            }
         }
 
         // in case if we have address information parsed
         if (parsedAddress.parsed) {
             // in order if fias data is empty or unitType is standard one
-            if (isNil(unitType) || isEmpty(unitType) || unitType === 'flat') {
+            if (!isEmpty(parsedAddress.unitType) && (isEmpty(unitType) || unitType === 'flat')) {
                 unitType = parsedAddress.unitType
             }
 
-            if (isNil(unitName) || isEmpty(unitName)) {
+            if (!isEmpty(parsedAddress.unitName) && isEmpty(unitName)) {
                 unitName = parsedAddress.unitName
             }
-        }
-
-        // in case if parsed data doesn't provide either unitType or unitName
-        // then try to get it from provided data
-        if (isEmpty(unitType)) {
-            unitType = providedUnitType
-        }
-        if (isEmpty(unitName)) {
-            unitName = providedUnitName
         }
 
         // in case if data is still missing - return an error
@@ -219,9 +218,9 @@ class BillingPropertyResolver {
             addressKey = get(searchResult, 'addressKey')
             normalizedAddress = get(searchResult, 'address')
             fias = get(searchResult, ['addressMeta', 'data', 'house_fias_id'])
-        } else if (!parsedAddress.isFias) {
+        } else if (parsedAddress.parsed && !parsedAddress.isFias) {
             address = parsedAddress.address
-        } else if (parsedAddress.isFias) {
+        } else if (parsedAddress.parsed && parsedAddress.isFias) {
             fias = parsedAddress.address.replace('fiasId:', '')
         }
 
@@ -250,10 +249,11 @@ class BillingPropertyResolver {
         if (!isEmpty(fias)) {
             conditions.push({ globalId: fias })
         }
+
         const where = {
             AND: [{ OR: conditions }, {
                 deletedAt: null,
-                context: { id: this.billingIntegrationOrganizationContextId },
+                context: { organization: { id: this.organizationId } },
             }],
         }
         const result = await BillingProperty.getAll(this.context, where, { first: 1 })
@@ -410,7 +410,7 @@ class BillingPropertyResolver {
                 return { billingProperty: addressSummary.billingProperty, unitType, unitName }
             }
 
-            // case: try to search them in organization pxroperties
+            // case: try to search them in organization properties
             let foundProperty = await this.getOrganizationBillingPropertySuggestion(addressSummary.normalizedAddress)
                 || await this.getOrganizationBillingPropertySuggestion(addressSummary.address)
             if (!isNil(foundProperty)) {

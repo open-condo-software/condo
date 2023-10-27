@@ -1,22 +1,89 @@
-// const index = require('@app/condo/index')
+const index = require('@app/condo/index')
 const { faker } = require('@faker-js/faker')
 
 const {
-    catchErrorFrom,
+    catchErrorFrom, setFakeClientMode,
 } = require('@open-condo/keystone/test.utils')
 
 const { AddressTransform, AddressParser } = require('@condo/domains/billing/schema/helpers/addressTransform')
-
+const {
+    makeContextWithOrganizationAndIntegrationAsAdmin,
+    createTestBillingProperty,
+    createTestBillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestProperty,
+} = require('@condo/domains/property/utils/testSchema')
+const { buildFakeAddressAndMeta } = require('@condo/domains/property/utils/testSchema/factories')
 
 const { BillingPropertyResolver } = require('./billingPropertyResolver')
-//
-// const { keystone } = index
-//
-// setFakeClientMode(index)
+
+const { keystone } = index
+
+setFakeClientMode(index)
+
+const createTestPropertyPair = async (admin, billingContext, organization) => {
+    const { address, addressMeta } = buildFakeAddressAndMeta()
+    const globalId = addressMeta.data.house_fias_id
+    const [property] = await createTestProperty(admin, organization, { address, addressMeta })
+    const [billingProperty] = await createTestBillingProperty(admin, billingContext, { address, addressMeta, globalId })
+
+    return {
+        billingProperty,
+        property,
+    }
+}
 
 describe('BillingPropertyResolver tests', () => {
+
+    let adminContext,
+        admin,
+        billingIntegrationContext,
+        anotherBillingIntegrationContextForSameOrganization,
+        organization,
+        resolver,
+        tin,
+        properties,
+        noPairProperty
+
+    beforeAll(async () => {
+        tin = '12345789'
+        adminContext = keystone.createContext({ skipAccessControl: true })
+        const {
+            admin: adminClient,
+            context: billingContext,
+            integration,
+            organization: org,
+        } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        admin = adminClient
+        billingIntegrationContext = billingContext
+        organization = org
+        const [secondContext] = await createTestBillingIntegrationOrganizationContext(
+            admin,
+            organization, integration, {}
+        )
+        anotherBillingIntegrationContextForSameOrganization = secondContext
+        properties = [
+            await createTestPropertyPair(admin, billingIntegrationContext, organization),
+            await createTestPropertyPair(admin, anotherBillingIntegrationContextForSameOrganization, organization),
+        ]
+
+        const [property] = await createTestProperty(admin, organization)
+        noPairProperty = property
+
+        // init resolver at the end since it cache data at init stage
+        resolver = new BillingPropertyResolver()
+        await resolver.init(
+            adminContext,
+            tin,
+            organization.id,
+            billingContext.id,
+            {},
+        )
+
+    })
+
     describe('BillingPropertyResolver.getBillingPropertyKey tests', () => {
-        const resolver = new BillingPropertyResolver()
         const address = faker.address.streetAddress(true)
         const normalizedAddress = faker.address.streetAddress(true)
 
@@ -52,21 +119,57 @@ describe('BillingPropertyResolver tests', () => {
 
     })
 
+    describe('BillingPropertyResolver.init tests', () => {
+        it('regular case', async () => {
+            const resolver = new BillingPropertyResolver()
+            const {
+                admin,
+                context,
+                organization,
+            } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+            // constant
+            const tin = '12345789'
+            const organizationId = organization.id
+            const billingIntegrationOrganizationContextId = context.id
+            const addressTransformRules = { one: 'rule' }
+            const properties = [
+                await createTestPropertyPair(admin, billingIntegrationContext, organization),
+            ]
+
+            await resolver.init(
+                adminContext,
+                tin,
+                organizationId,
+                billingIntegrationOrganizationContextId,
+                addressTransformRules,
+            )
+
+            expect(resolver).toMatchObject({
+                tin, organizationId, billingIntegrationOrganizationContextId,
+            })
+
+            expect(resolver).toHaveProperty('context')
+            expect(resolver).toHaveProperty('addressService')
+            expect(resolver).toHaveProperty('addressTransformer')
+            expect(resolver.addressTransformer.replaces).toMatchObject(addressTransformRules)
+            expect(resolver).toHaveProperty('parser')
+            expect(resolver).toHaveProperty('addressCache')
+            expect(resolver).toHaveProperty('organizationProperties')
+            expect(resolver.organizationProperties).toHaveLength(properties.length)
+            expect(resolver.organizationProperties.map(prop => prop.id))
+                .toMatchObject(properties.map(pair => pair.property.id))
+        })
+    })
+
     describe('BillingPropertyResolver.parseAddress tests', () => {
         it('returns parsed: false', async () => {
-            const resolver = new BillingPropertyResolver()
-
             expect(resolver.parseAddress()).toMatchObject({ parsed: false })
             expect(resolver.parseAddress(null)).toMatchObject({ parsed: false })
             expect(resolver.parseAddress('')).toMatchObject({ parsed: false })
         })
 
         it('returns parsed: true no transformation rules', async () => {
-            const resolver = new BillingPropertyResolver()
-            resolver.parser = new AddressParser()
-            resolver.transformer = new AddressTransform()
-            resolver.transformer.init({})
-
             expect(resolver.parseAddress('пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)'))
                 .toMatchObject({
                     parsed: true,
@@ -86,8 +189,8 @@ describe('BillingPropertyResolver tests', () => {
         it('returns parsed: true with transformation rules', async () => {
             const resolver = new BillingPropertyResolver()
             resolver.parser = new AddressParser()
-            resolver.transformer = new AddressTransform()
-            resolver.transformer.init({
+            resolver.addressTransformer = new AddressTransform()
+            resolver.addressTransformer.init({
                 'ул.Революции 1905 года': 'г. Новороссийск, ул.Революции 1905 года',
             })
 
@@ -103,19 +206,12 @@ describe('BillingPropertyResolver tests', () => {
 
     describe('BillingPropertyResolver.parseFias tests', () => {
         it('returns parsed: false', async () => {
-            const resolver = new BillingPropertyResolver()
-
             expect(resolver.parseFias()).toMatchObject({ parsed: false, isFias: true })
             expect(resolver.parseFias(null)).toMatchObject({ parsed: false, isFias: true })
             expect(resolver.parseFias('')).toMatchObject({ parsed: false, isFias: true })
         })
 
         it('returns parsed: true no transformation rules', async () => {
-            const resolver = new BillingPropertyResolver()
-            resolver.parser = new AddressParser()
-            resolver.transformer = new AddressTransform()
-            resolver.transformer.init({})
-
             expect(resolver.parseFias('b746e6bd-e02b-4987-bb1c-bb9dd808f909'))
                 .toMatchObject({
                     parsed: true,
@@ -154,7 +250,6 @@ describe('BillingPropertyResolver tests', () => {
         const getNotParsed = (params = {}) => ({ parsed: false, ...params })
 
         it('fias cases', async () => {
-            const resolver = new BillingPropertyResolver()
             const chosenByFias = { unitType: 'warehouse', unitName: '1' }
 
             // address parsed & not provided unitType/unitName
@@ -163,32 +258,14 @@ describe('BillingPropertyResolver tests', () => {
                 getParsedAddress()
             )).toMatchObject(chosenByFias)
 
-            // address parsed and provide unitType/unitName
-            expect(resolver.chooseUnitParts(
-                getParsedFias(),
-                getParsedAddress(),
-                'flat',
-                '6'
-            )).toMatchObject(chosenByFias)
-
-
             // address not parsed & not provided unitType/unitName
             expect(resolver.chooseUnitParts(
                 getParsedFias(),
                 getNotParsed()
             )).toMatchObject(chosenByFias)
-
-            // address not parsed and provide unitType/unitName
-            expect(resolver.chooseUnitParts(
-                getParsedFias(),
-                getNotParsed(),
-                'flat',
-                '6'
-            )).toMatchObject(chosenByFias)
         })
 
         it('address cases', async () => {
-            const resolver = new BillingPropertyResolver()
             const chosenByAddress = { unitType: 'parking', unitName: '5' }
 
             // fias parsed, but unit type is flat & not provided unitType/unitName
@@ -214,18 +291,9 @@ describe('BillingPropertyResolver tests', () => {
                 getNotParsed(),
                 getParsedAddress()
             )).toMatchObject(chosenByAddress)
-
-            // fias not parsed and provided unitType/unitName
-            expect(resolver.chooseUnitParts(
-                getNotParsed(),
-                getParsedAddress(),
-                'flat',
-                '6'
-            )).toMatchObject(chosenByAddress)
         })
 
         it('provided unit parts cases', async () => {
-            const resolver = new BillingPropertyResolver()
             const chosenByAddress = { unitType: 'flat', unitName: '6' }
 
             // fias and address not parsed, but unitType is empty for all
@@ -234,7 +302,7 @@ describe('BillingPropertyResolver tests', () => {
                 getParsedAddress({ unitType: '', unitName: '5' }),
                 'flat',
                 '6'
-            )).toMatchObject({ unitType: 'flat', unitName: '5' })
+            )).toMatchObject(chosenByAddress)
 
             // fias and address not parsed, but unitName is empty for all
             expect(resolver.chooseUnitParts(
@@ -242,9 +310,9 @@ describe('BillingPropertyResolver tests', () => {
                 getParsedAddress({ unitType: '', unitName: '' }),
                 'flat',
                 '6'
-            )).toMatchObject({ unitType: 'flat', unitName: '6' })
+            )).toMatchObject(chosenByAddress)
 
-            // fias and address not parsed
+            // fias and address parsed
             expect(resolver.chooseUnitParts(
                 getNotParsed(),
                 getNotParsed(),
@@ -254,7 +322,6 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('can not extract unit parts cases', async () => {
-            const resolver = new BillingPropertyResolver()
             // fias and address parsed, but empty & unit name is not provided
             await catchErrorFrom(async () => {
                 resolver.chooseUnitParts(
@@ -343,10 +410,7 @@ describe('BillingPropertyResolver tests', () => {
 
     describe('BillingPropertyResolver.getCacheKey tests', () => {
         it('returns cache key', async () => {
-            const tin = '12345789'
-            const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
-            resolver.tin = tin
 
             expect(resolver.getCacheKey(address)).toEqual(`${tin}_${address}`)
             expect(resolver.getCacheKey(null)).toBeNull()
@@ -357,7 +421,6 @@ describe('BillingPropertyResolver tests', () => {
 
     describe('BillingPropertyResolver.propagateAddressToCache tests', () => {
         it('empty propagate cases', async () => {
-            const tin = '12345789'
             const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
             resolver.tin = tin
@@ -417,7 +480,7 @@ describe('BillingPropertyResolver tests', () => {
             const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
             const address2 = faker.address.streetAddress(true)
-            const addressServiceSearchResult = { address, addressSources: [ address, address2 ] }
+            const addressServiceSearchResult = { address, addressSources: [address, address2] }
             resolver.tin = tin
             let addressServiceCallCount = 0
             resolver.addressService = {
@@ -447,11 +510,15 @@ describe('BillingPropertyResolver tests', () => {
             const fias = faker.datatype.uuid()
             resolver.tin = tin
             resolver.addressCache = {
-                [resolver.getCacheKey(address)]: { address: normalizedAddress, addressKey, addressMeta: { data: { house_fias_id: fias } } },
+                [resolver.getCacheKey(address)]: {
+                    address: normalizedAddress,
+                    addressKey,
+                    addressMeta: { data: { house_fias_id: fias } },
+                },
             }
 
             // act & assert
-            expect(resolver.getAddressConditionValues({ address })).toMatchObject({
+            expect(resolver.getAddressConditionValues({ parsed: true, address })).toMatchObject({
                 address,
                 addressKey,
                 normalizedAddress,
@@ -469,11 +536,15 @@ describe('BillingPropertyResolver tests', () => {
             const fiasAddress = 'fiasId:' + fias
             resolver.tin = tin
             resolver.addressCache = {
-                [resolver.getCacheKey(fiasAddress)]: { address: normalizedAddress, addressKey, addressMeta: { data: { house_fias_id: fias } } },
+                [resolver.getCacheKey(fiasAddress)]: {
+                    address: normalizedAddress,
+                    addressKey,
+                    addressMeta: { data: { house_fias_id: fias } },
+                },
             }
 
             // act & assert
-            expect(resolver.getAddressConditionValues({ isFias: true, address: fiasAddress })).toMatchObject({
+            expect(resolver.getAddressConditionValues({ parsed: true, isFias: true, address: fiasAddress })).toMatchObject({
                 address: null,
                 addressKey,
                 normalizedAddress,
@@ -489,7 +560,7 @@ describe('BillingPropertyResolver tests', () => {
             const addressKey = faker.datatype.uuid()
             resolver.tin = tin
             resolver.addressCache = {
-                [resolver.getCacheKey(address)]: { address: normalizedAddress, addressKey, addressMeta: { data: { } } },
+                [resolver.getCacheKey(address)]: { address: normalizedAddress, addressKey, addressMeta: { data: {} } },
             }
 
             // act & assert
@@ -508,7 +579,7 @@ describe('BillingPropertyResolver tests', () => {
             resolver.addressCache = {}
 
             // act & assert
-            expect(resolver.getAddressConditionValues({ isFias: true, address: `fiasId:${fias}` })).toMatchObject({
+            expect(resolver.getAddressConditionValues({ parsed: true, isFias: true, address: `fiasId:${fias}` })).toMatchObject({
                 fias,
             })
         })
@@ -521,9 +592,203 @@ describe('BillingPropertyResolver tests', () => {
             const address = faker.address.streetAddress(true)
 
             // act & assert
-            expect(resolver.getAddressConditionValues({ address })).toMatchObject({
+            expect(resolver.getAddressConditionValues({ parsed: true, address })).toMatchObject({
                 address,
             })
+        })
+    })
+
+    describe('BillingPropertyResolver.searchBillingProperty tests', () => {
+
+        it('Address with all meta', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+            const normalizedAddress = property.address
+            const addressKey = property.addressKey
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                address,
+                addressKey,
+                normalizedAddress,
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Address with all meta except normalizedAddress', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+            const addressKey = property.addressKey
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                address,
+                addressKey,
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Address with all meta except address', async () => {
+            const { property, billingProperty } = properties[0]
+            const normalizedAddress = property.address
+            const addressKey = property.addressKey
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                normalizedAddress,
+                addressKey,
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Address with all meta except addresses', async () => {
+            const { property, billingProperty } = properties[0]
+            const addressKey = property.addressKey
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                addressKey,
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Address with all meta except addressKey', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+            const normalizedAddress = property.address
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                address,
+                normalizedAddress,
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Address with all meta except addressKey, address', async () => {
+            const { property, billingProperty } = properties[0]
+            const normalizedAddress = property.address
+            const fias = billingProperty.globalId
+
+            const conditions = {
+                normalizedAddress,
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Address with all meta except addressKey, normalizedAddress', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                address,
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Only addresses', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+            const normalizedAddress = property.address
+
+            const conditions = {
+                address,
+                normalizedAddress,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Only address', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+
+            const conditions = {
+                address,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Only normalizedAddress', async () => {
+            const { property, billingProperty } = properties[0]
+            const normalizedAddress = property.address
+
+            const conditions = {
+                normalizedAddress,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Only fias', async () => {
+            const { property, billingProperty } = properties[0]
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Another billing context case', async () => {
+            const { property, billingProperty } = properties[1]
+            const fias = property.addressMeta.data.house_fias_id
+
+            const conditions = {
+                fias,
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Not found', async () => {
+            const conditions = {
+                fias: faker.datatype.uuid(),
+            }
+
+            const foundProperty = await resolver.searchBillingProperty(conditions)
+            expect(foundProperty).toBeNull()
         })
     })
 
@@ -540,6 +805,12 @@ describe('BillingPropertyResolver tests', () => {
             expect(
                 await resolver.isPropertyRegistrationInOrganization({ property: { id: propertyId } })
             ).toBeTruthy()
+        })
+
+        it('registered: another billing context case', async () => {
+            const { billingProperty } = properties[1]
+            const registered = await resolver.isPropertyRegistrationInOrganization(billingProperty)
+            expect(registered).toBeTruthy()
         })
 
         it('not registered cases', async () => {
@@ -579,7 +850,11 @@ describe('BillingPropertyResolver tests', () => {
             const fias = faker.datatype.uuid()
             resolver.tin = tin
             resolver.addressCache = {
-                [resolver.getCacheKey(address)]: { address: normalizedAddress, addressKey, addressMeta: { data: { house_fias_id: fias } } },
+                [resolver.getCacheKey(address)]: {
+                    address: normalizedAddress,
+                    addressKey,
+                    addressMeta: { data: { house_fias_id: fias } },
+                },
             }
 
             // properties mock
@@ -600,6 +875,193 @@ describe('BillingPropertyResolver tests', () => {
                 fias,
                 billingProperty,
                 registeredInOrg: true,
+            })
+        })
+    })
+
+    describe('BillingPropertyResolver.getOrganizationBillingPropertySuggestion tests', () => {
+        it('Null cases', async () => {
+            expect(await resolver.getOrganizationBillingPropertySuggestion('')).toBeNull()
+            expect(await resolver.getOrganizationBillingPropertySuggestion(null)).toBeNull()
+            expect(await resolver.getOrganizationBillingPropertySuggestion(undefined)).toBeNull()
+            expect(await resolver.getOrganizationBillingPropertySuggestion()).toBeNull()
+        })
+
+        it('Address has a little difference', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address + ' a'
+
+            const foundProperty = await resolver.getOrganizationBillingPropertySuggestion(address)
+            expect(foundProperty).toBeDefined()
+            expect(foundProperty).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('Address has to much difference', async () => {
+            const { property } = properties[0]
+            const address = property.address + property.address
+
+            const foundProperty = await resolver.getOrganizationBillingPropertySuggestion(address)
+            expect(foundProperty).not.toBeDefined()
+        })
+
+        it('Organization property exists but billing property are missing', async () => {
+            const address = noPairProperty.address
+
+            expect(
+                resolver.organizationProperties.find(prop => prop.id === noPairProperty.id)
+            ).toBeDefined()
+
+            const foundProperty = await resolver.getOrganizationBillingPropertySuggestion(address)
+            expect(foundProperty).not.toBeDefined()
+        })
+    })
+
+    describe('BillingPropertyResolver.createBillingProperty tests', () => {
+        it('Regular case', async () => {
+            const address = faker.address.streetAddress(true)
+            const normalizedAddress = faker.address.streetAddress(true)
+            const fias = faker.datatype.uuid()
+
+            const fiasSummary = { fias }
+            const addressSummary = { normalizedAddress, address }
+            const integrationMeta = { fias, integrationSpecificKey: faker.datatype.uuid() }
+
+            const newProperty = await resolver.createBillingProperty(fiasSummary, addressSummary, integrationMeta)
+
+            expect(newProperty).toBeDefined()
+            expect(newProperty).toMatchObject({
+                globalId: fias,
+                address: normalizedAddress,
+                importId: normalizedAddress,
+                meta: { dv: 1, ...integrationMeta },
+                context: { id: billingIntegrationContext.id },
+            })
+        })
+
+        it('No normalizedAddress case', async () => {
+            const address = faker.address.streetAddress(true)
+            const fias = faker.datatype.uuid()
+
+            const fiasSummary = { fias }
+            const addressSummary = { address }
+            const integrationMeta = { fias, integrationSpecificKey: faker.datatype.uuid() }
+
+            const newProperty = await resolver.createBillingProperty(fiasSummary, addressSummary, integrationMeta)
+
+            expect(newProperty).toBeDefined()
+            expect(newProperty).toMatchObject({
+                globalId: fias,
+                address,
+                importId: address,
+                meta: { dv: 1, ...integrationMeta },
+                context: { id: billingIntegrationContext.id },
+            })
+        })
+
+        it('No address case', async () => {
+            const normalizedAddress = faker.address.streetAddress(true)
+            const fias = faker.datatype.uuid()
+
+            const fiasSummary = { fias }
+            const addressSummary = { normalizedAddress }
+            const integrationMeta = { fias, integrationSpecificKey: faker.datatype.uuid() }
+
+            const newProperty = await resolver.createBillingProperty(fiasSummary, addressSummary, integrationMeta)
+
+            expect(newProperty).toBeDefined()
+            expect(newProperty).toMatchObject({
+                globalId: fias,
+                address: normalizedAddress,
+                importId: normalizedAddress,
+                meta: { dv: 1, ...integrationMeta },
+                context: { id: billingIntegrationContext.id },
+            })
+        })
+    })
+
+    describe('BillingPropertyResolver.resolve tests', () => {
+        let getResolver
+
+        beforeAll(async () => {
+            getResolver = async (rules = {}, addressServiceSearchMock = async () => null) => {
+                // init resolver at the end since it cache data at init stage
+                resolver = new BillingPropertyResolver()
+                await resolver.init(
+                    adminContext,
+                    tin,
+                    organization.id,
+                    billingIntegrationContext.id,
+                    rules,
+                )
+
+                resolver.addressService.search = addressServiceSearchMock
+                return resolver
+            }
+        })
+
+        describe('No transform rules, addressService returns nothing', () => {
+            let resolver
+
+            beforeAll(async () => {
+                resolver = await getResolver()
+            })
+
+            it('Resolve by fias case', async () => {
+                const { property, billingProperty } = properties[0]
+                const address = faker.address.streetAddress(true)
+                const fias = property.addressMeta.data.house_fias_id
+                const unitType = 'flat'
+                const unitName = '1'
+
+                const resolved = await resolver.resolve(address, { fias }, unitType, unitName)
+                expect(resolved).toBeDefined()
+                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
+            })
+
+            it('Resolve by address case', async () => {
+                const { property, billingProperty } = properties[0]
+                const address = property.address
+                const unitType = 'flat'
+                const unitName = '1'
+
+                const resolved = await resolver.resolve(address, {}, unitType, unitName)
+                expect(resolved).toBeDefined()
+                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
+            })
+
+            it('Resolve by fias in another org case', async () => {
+                const {
+                    admin,
+                    context: billingIntegrationContext,
+                    organization,
+                } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+                const { property, billingProperty } = await createTestPropertyPair(admin, billingIntegrationContext, organization)
+                const address = faker.address.streetAddress(true)
+                const fias = property.addressMeta.data.house_fias_id
+                const unitType = 'flat'
+                const unitName = '1'
+
+                const resolved = await resolver.resolve(address, { fias }, unitType, unitName)
+                expect(resolved).toBeDefined()
+                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
+            })
+
+            it('Resolve by address in another org case', async () => {
+                const {
+                    admin,
+                    context: billingIntegrationContext,
+                    organization,
+                } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+                const { property, billingProperty } = await createTestPropertyPair(admin, billingIntegrationContext, organization)
+                const address = property.address
+                const unitType = 'flat'
+                const unitName = '1'
+
+                const resolved = await resolver.resolve(address, {}, unitType, unitName)
+                expect(resolved).toBeDefined()
+                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
             })
         })
     })
