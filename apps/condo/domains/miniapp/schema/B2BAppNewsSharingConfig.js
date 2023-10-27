@@ -3,44 +3,53 @@
  */
 
 const { Text, Relationship, Integer, Select, Checkbox, DateTimeUtc, CalendarDay, Decimal, Password, File, Url } = require('@keystonejs/fields')
-const { Json } = require('@open-condo/keystone/fields')
-const { GQLListSchema } = require('@open-condo/keystone/schema')
+
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
+const { GQLListSchema } = require('@open-condo/keystone/schema')
+
+const access = require('@condo/domains/miniapp/access/B2BApp')
 
 
+/**
+ * News Sharing B2BApp
+ * 
+ * News Sharing B2BApp allow b2b users to share their NewsItem to external source like Telegram or Whatsapp from /news page
+ *
+ *                         [ whatsapp-sharing-miniapp ] -> [ whatsapp ]
+ * [ condo /news page ] ->              ...                    ...
+ *                         [ telegram-sharing-miniapp ] -> [ telegram ]
+ *
+ * To create miniapp that can be embedded to /news page developer should provide API and information defined here
+ * 
+ * @type {GQLListSchema}
+ */
 const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
-    // TODO(codegen): write doc for the B2BAppNewsSharingConfig domain model!
-    schemaDoc: 'TODO DOC!',
-    fields: {
 
+    schemaDoc: 'News Sharing B2BApp allow b2b users to share their NewsItem to external source like Telegram or Whatsapp from /news page',
+    fields: {
         publishUrl: {
-            // TODO(codegen): write doc for B2BAppNewsSharingConfig.publishUrl field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
+            schemaDoc: 'URL that implements publishing NewsItem method',
+            type: Url,
             isRequired: true,
         },
 
         previewUrl: {
-            // TODO(codegen): write doc for B2BAppNewsSharingConfig.previewUrl field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
+            schemaDoc: 'URL that returns HTML preview NewsItem',
+            type: Url,
             isRequired: true,
         },
 
         getRecipientsUrl: {
-            // TODO(codegen): write doc for B2BAppNewsSharingConfig.getRecipientsUrl field!
-            schemaDoc: 'TODO DOC!',
-            type: Text,
+            schemaDoc: 'URL that implements getRecipients function',
+            type: Url,
             isRequired: true,
         },
-
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
-        read: access.canReadB2BAppNewsSharingConfigs,
-        create: access.canManageB2BAppNewsSharingConfigs,
-        update: access.canManageB2BAppNewsSharingConfigs,
+        read: access.canReadB2BApps,
+        create: access.canManageB2BApps,
+        update: access.canManageB2BApps,
         delete: false,
         auth: true,
     },
