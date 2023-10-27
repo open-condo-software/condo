@@ -3,8 +3,6 @@
  */
 const isEmpty = require('lodash/isEmpty')
 
-const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
-
 const { OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithRegisteredOrganization } = require('@condo/domains/organization/utils/testSchema/Organization')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
