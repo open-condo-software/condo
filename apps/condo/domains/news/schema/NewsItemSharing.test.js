@@ -8,7 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing, createTestNewsItemSharingProvider} = require('@condo/domains/news/utils/testSchema')
+const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createTestB2BApp, createTestB2BAppContext } = require('../../miniapp/utils/testSchema')
