@@ -292,9 +292,10 @@ async function updateTestNewsItemRecipientsExportTask (client, id, extraAttrs = 
     return [obj, attrs]
 }
 
-async function createTestNewsItemSharing (client, newsItem, extraAttrs = {}) {
+async function createTestNewsItemSharing (client, b2bAppContext, newsItem, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!newsItem || !newsItem.id) throw new Error('no newsItem.id')
+    if (!b2bAppContext || !b2bAppContext.id) throw new Error('no b2bAppContext.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     // TODO(codegen): write createTestNewsItemSharing logic for generate fields
@@ -303,6 +304,7 @@ async function createTestNewsItemSharing (client, newsItem, extraAttrs = {}) {
         dv: 1,
         sender,
         newsItem: { connect: { id: newsItem.id } },
+        b2bAppContext: { connect: { id: b2bAppContext.id } },
         ...extraAttrs,
     }
     const obj = await NewsItemSharing.create(client, attrs)

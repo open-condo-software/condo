@@ -23,6 +23,15 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
     schemaDoc: 'Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API.',
     fields: {
 
+        b2bAppContext: {
+            schemaDoc: 'Connection to the miniapp that is responsible for publishing this news item',
+            type: Relationship,
+            ref: 'B2BAppContext',
+            isRequired: true,
+            knexOptions: { isNotNullable: true }, // Required relationship only!
+            kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+        },
+
         newsItem: {
             schemaDoc: 'Connection to the published news item',
             type: Relationship,

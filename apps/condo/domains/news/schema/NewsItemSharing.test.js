@@ -8,6 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { createTestB2BAppNewsSharingConfig, createTestB2BApp, createTestB2BAppContext} = require('@condo/domains/miniapp/utils/testSchema')
 const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
@@ -15,34 +16,39 @@ const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } 
 const { createTestOrganization } = require('../../organization/utils/testSchema')
 const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('../utils/testSchema')
 
-let adminClient, supportClient, anonymousClient, dummyO10n
+let admin, support, anonymous, user, dummyO10n, dummyB2BContext, dummyB2BApp
 
 describe('NewsItemSharing', () => {
 
     beforeAll(async () => {
-        adminClient = await makeLoggedInAdminClient()
-        supportClient = await makeClientWithSupportUser()
-        anonymousClient = await makeClient()
-        const [o10n] = await createTestOrganization(adminClient)
+        admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        anonymous = await makeClient()
+        const [o10n] = await createTestOrganization(admin)
         dummyO10n = o10n
     })
 
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
+                // 0) prepare B2BApp
+                const [b2bAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin)
+                const [b2bApp] = await createTestB2BApp(admin, { newsSharingFeatureConfig: { connect: { id: b2bAppNewsSharingConfig.id } } })
+                const [b2bAppContext] = await createTestB2BAppContext(admin, b2bApp, dummyO10n)
+                
                 // 1) prepare published news item
-                const [newsItem] = await createTestNewsItem(adminClient, dummyO10n, {
+                const [newsItem] = await createTestNewsItem(admin, dummyO10n, {
                     title: '🚧 Planned Water Outage Notification 🚧',
                     body: 'We are conducting a planned water outage on September 25 2023 The outage will last approximately 4 hours',
                 })
-                await createTestNewsItemScope(adminClient, newsItem)
-                await publishTestNewsItem(adminClient, newsItem.id)
+                await createTestNewsItemScope(admin, newsItem)
+                await publishTestNewsItem(admin, newsItem.id)
 
                 // 2) action
-                const [obj, attrs] = await createTestNewsItemSharing(adminClient, newsItem)
+                const [obj, attrs] = await createTestNewsItemSharing(admin, b2bAppContext, newsItem)
 
                 // 3) check
-                expectValuesOfCommonFields(obj, attrs, adminClient)
+                expectValuesOfCommonFields(obj, attrs, admin)
                 // TODO(codegen): write others fields here! provide as match fields as you can here!
             })
 
