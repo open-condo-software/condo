@@ -39,7 +39,7 @@ describe('NewsItemSharing', () => {
                 await publishTestNewsItem(adminClient, newsItem.id)
 
                 // 2) action
-                const [obj, attrs] = await createTestNewsItemSharing(adminClient newsItem)
+                const [obj, attrs] = await createTestNewsItemSharing(adminClient, newsItem)
 
                 // 3) check
                 expectValuesOfCommonFields(obj, attrs, adminClient)
