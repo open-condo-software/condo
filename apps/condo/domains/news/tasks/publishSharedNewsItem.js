@@ -1,15 +1,15 @@
-const dayjs = require('dayjs')
-const get = require('lodash/get')
+// const dayjs = require('dayjs')
+// const get = require('lodash/get')
 const fetch = require('node-fetch')
 
-const conf = require('@open-condo/config')
+// const conf = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
 //const { NEWS_ITEM_SHARING_STATUSES } = require('@condo/domains/news/schema/NewsItemSharing')
 
-const { NewsItemSharing, NewsItem } = require('@condo/domains/news/utils/serverSchema')
+const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
 
 const logger = getLogger('publishSharedNewsItem')
 
