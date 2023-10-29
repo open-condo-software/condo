@@ -20,8 +20,6 @@ const {
 const { NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { NewsItemSharing: NewsItemSharingGQL } = require('@condo/domains/news/gql')
-const { NewsItemSharingApp: NewsItemSharingAppGQL } = require('@condo/domains/news/gql')
-const { NewsItemSharingContext: NewsItemSharingContextGQL } = require('@condo/domains/news/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const NewsItem = generateGQLTestUtils(NewsItemGQL)
@@ -31,8 +29,6 @@ const NewsItemUserRead = generateGQLTestUtils(NewsItemUserReadGQL)
 const NewsItemRecipientsExportTask = generateGQLTestUtils(NewsItemRecipientsExportTaskGQL)
 
 const NewsItemSharing = generateGQLTestUtils(NewsItemSharingGQL)
-const NewsItemSharingApp = generateGQLTestUtils(NewsItemSharingAppGQL)
-const NewsItemSharingContext = generateGQLTestUtils(NewsItemSharingContextGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const getPropertyMap = (floors, unitsOnFloor) => ({
@@ -331,74 +327,6 @@ async function updateTestNewsItemSharing (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestNewsItemSharingApp (client, b2bApp, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!b2bApp || !b2bApp.id) throw new Error('no b2bApp.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestNewsItemSharingProvider logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        b2bApp: { connect: { id: b2bApp.id } },
-        ...extraAttrs,
-    }
-    const obj = await NewsItemSharingApp.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestNewsItemSharingApp (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestNewsItemSharingProvider logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await NewsItemSharingApp.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function createTestNewsItemSharingContext (client, b2bAppContext, newsItemSharingApp, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!b2bAppContext || !b2bAppContext.id) throw new Error('no b2bAppContext.id')
-    if (!newsItemSharingApp || !newsItemSharingApp.id) throw new Error('no newsItemSharingApp.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): write createTestNewsItemSharingContext logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        b2bAppContext: { connect: { id: b2bAppContext.id } },
-        newsItemSharingApp: { connect: { id: newsItemSharingApp.id } },
-        ...extraAttrs,
-    }
-    const obj = await NewsItemSharingContext.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestNewsItemSharingContext (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    // TODO(codegen): check the updateTestNewsItemSharingContext logic for generate fields
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await NewsItemSharingContext.update(client, id, attrs)
-    return [obj, attrs]
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -411,8 +339,6 @@ module.exports = {
     exportNewsRecipientsByTestClient,
     getNewsItemsRecipientsCountersByTestClient,
     NewsItemRecipientsExportTask, createTestNewsItemRecipientsExportTask, updateTestNewsItemRecipientsExportTask,
-        NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing,
-    NewsItemSharingApp, createTestNewsItemSharingApp, updateTestNewsItemSharingApp,
-    NewsItemSharingContext, createTestNewsItemSharingContext, updateTestNewsItemSharingContext,
+    NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

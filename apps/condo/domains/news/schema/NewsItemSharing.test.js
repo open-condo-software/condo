@@ -8,7 +8,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
+const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing, createTestNewsItemSharingProvider} = require('@condo/domains/news/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createTestB2BApp, createTestB2BAppContext } = require('../../miniapp/utils/testSchema')
@@ -38,16 +38,8 @@ describe('NewsItemSharing', () => {
                 await createTestNewsItemScope(adminClient, newsItem)
                 await publishTestNewsItem(adminClient, newsItem.id)
 
-                const [newNewsSharingApp] = await createTestB2BApp(adminClient)
-                const [newNewsSharingAppContext] = await createTestB2BAppContext(adminClient, newNewsSharingApp, dummyO10n, {
-                    settings: {
-                        'postUrl': 'http://localhost:3003/post',
-                        'chatId': '-1001729369016',
-                    },
-                })
-
                 // 2) action
-                const [obj, attrs] = await createTestNewsItemSharing(adminClient, newNewsSharingAppContext, newsItem)
+                const [obj, attrs] = await createTestNewsItemSharing(adminClient newsItem)
 
                 // 3) check
                 expectValuesOfCommonFields(obj, attrs, adminClient)

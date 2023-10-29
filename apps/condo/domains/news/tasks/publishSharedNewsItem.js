@@ -24,14 +24,17 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
 
     const { title, body } = newsItem
 
-    const b2bAppContextId = get( newsItemSharing, ['b2bAppContext'])
-    const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
+    // const b2bAppContextId = get( newsItemSharing, 'b2bAppContext')
+    // const b2bAppContext = await getById('B2BAppContext', b2bAppContextId)
+    //
+    // const newsItemSharingProviderId = get(newsItemSharing, 'newsItemSharingProvider')
+    // const newsItemSharingProvider = await getById('NewsItemSharingProvider', newsItemSharingProviderId)
 
-    const postUrl = get(b2bAppContext, ['settings', 'postUrl'])
-    const chatId = get(b2bAppContext, ['settings', 'chatId'])
+    // const postUrl = get(newsItemSharingProvider, 'newsItemPostUrl')
+    // const chatId = get(b2bAppContext, ['settings', 'chatId'])
 
     try {
-        const response = await fetch(postUrl, {
+        const response = await fetch('not implemented', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -39,7 +42,7 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
             body: JSON.stringify({
                 title,
                 body,
-                chatId,
+                chatId: 'not implemented',
             }),
         })
 
