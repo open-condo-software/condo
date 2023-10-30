@@ -35,5 +35,6 @@
   "docs.editPage": "Edit this page on Github",
   "docs.nextArticle": "Next: {title}",
   "docs.prevArticle": "Back: {title}",
-  "docs.menu.title": "Navigation"
+  "docs.menu.title": "Navigation",
+  "miniapp.card.edit.message": "Edit"
 }

@@ -27,9 +27,11 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ menuElement, anchorEleme
         <>
             <Header/>
             <main className={layoutClassName}>
-                <section className='menu-container'>
-                    {menuElement}
-                </section>
+                {menuElement && (
+                    <section className='menu-container'>
+                        {menuElement}
+                    </section>
+                )}
                 <section className='main-content'>{children}</section>
                 {breakpoints.DESKTOP_LARGE && anchorElement && (
                     <section className='anchor-column'>{anchorElement}</section>

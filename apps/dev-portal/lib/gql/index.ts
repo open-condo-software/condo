@@ -3479,6 +3479,13 @@ export type UnauthenticateUserOutput = {
     success?: Maybe<Scalars['Boolean']['output']>;
 }
 
+export type AllAppsQueryVariables = Exact<{
+    creator: UserWhereInput;
+}>
+
+
+export type AllAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null } | null> | null }
+
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
 
@@ -3519,6 +3526,43 @@ export type RegisterNewUserMutationVariables = Exact<{
 export type RegisterNewUserMutation = { __typename?: 'Mutation', registerNewUser?: { __typename?: 'User', id: string } | null }
 
 
+export const AllAppsDocument = gql`
+    query allApps($creator: UserWhereInput!) {
+  b2c: allB2CApps(sortBy: createdAt_DESC, where: {createdBy: $creator}) {
+    id
+    name
+    createdAt
+  }
+}
+    `
+
+/**
+ * __useAllAppsQuery__
+ *
+ * To run a query within a React component, call `useAllAppsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllAppsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllAppsQuery({
+ *   variables: {
+ *      creator: // value for 'creator'
+ *   },
+ * });
+ */
+export function useAllAppsQuery (baseOptions: Apollo.QueryHookOptions<AllAppsQuery, AllAppsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<AllAppsQuery, AllAppsQueryVariables>(AllAppsDocument, options)
+}
+export function useAllAppsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<AllAppsQuery, AllAppsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<AllAppsQuery, AllAppsQueryVariables>(AllAppsDocument, options)
+}
+export type AllAppsQueryHookResult = ReturnType<typeof useAllAppsQuery>
+export type AllAppsLazyQueryHookResult = ReturnType<typeof useAllAppsLazyQuery>
+export type AllAppsQueryResult = Apollo.QueryResult<AllAppsQuery, AllAppsQueryVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

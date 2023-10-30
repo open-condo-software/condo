@@ -35,5 +35,6 @@
   "docs.editPage": "Редактировать эту страницу на Github",
   "docs.nextArticle": "Далее: {title}",
   "docs.prevArticle": "Назад: {title}",
-  "docs.menu.title": "Навигация"
+  "docs.menu.title": "Навигация",
+  "miniapp.card.edit.message": "Редактировать"
 }

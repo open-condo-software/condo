@@ -1,0 +1,11 @@
+.app-card-content-container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.edit-message-container {
+  padding-left: 8px;
+  white-space: nowrap;
+}

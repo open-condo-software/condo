@@ -46,6 +46,7 @@ export const MobileMenu: React.FC = () => {
     const AppsSectionTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
     const [isOpen, setIsOpen] = useState(false)
     const router = useRouter()
+    const { isAuthenticated, startSignIn, isLoading } = useAuth()
 
     const Icon = isOpen ? Close : Menu
 
@@ -59,6 +60,17 @@ export const MobileMenu: React.FC = () => {
         })
     }, [router])
 
+    const handleAppsClick = useCallback(() => {
+        if (isLoading) {
+            return
+        }
+        if (isAuthenticated) {
+            router.push('/apps', '/apps', { locale: router.locale })
+        } else {
+            startSignIn()
+        }
+    }, [isAuthenticated, isLoading, startSignIn, router])
+
     return (
         <>
             <Icon size='large' className={styles.menuActionIcon} onClick={handleMenuChange}/>
@@ -66,7 +78,7 @@ export const MobileMenu: React.FC = () => {
                 <div className={styles.menuContainer}>
                     <Space size={16} direction='vertical' className={styles.mobileMenuContainer}>
                         <Typography.Title level={4} type='inherit' onClick={handleDocsClick}>{DocsSectionTitle}</Typography.Title>
-                        <Typography.Title level={4} type='inherit'>{AppsSectionTitle}</Typography.Title>
+                        <Typography.Title level={4} type='inherit' onClick={handleAppsClick}>{AppsSectionTitle}</Typography.Title>
                     </Space>
                     <MobileAuthPanel/>
                     <MobileMenuAction/>

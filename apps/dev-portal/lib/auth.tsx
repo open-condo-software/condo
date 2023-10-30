@@ -150,11 +150,12 @@ export function extractAuthHeadersFromRequest (req: { cookies: Partial<Record<st
  * @param {ApolloClient<NormalizedCacheObject>} client - apollo client
  * @param {{ headers?: HeadersType }} opts - additional options, like headers and etc
  */
-export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>, opts: { headers?: HeadersType } = {}): Promise<void> {
-    await client.query({
+export async function prefetchAuth (client: ApolloClient<NormalizedCacheObject>, opts: { headers?: HeadersType } = {}): Promise<AuthenticatedUserType> {
+    const response = await client.query<AuthenticatedUserQuery>({
         query: AuthenticatedUserDocument,
         context: {
             headers: opts.headers,
         },
     })
+    return response.data.authenticatedUser
 }
