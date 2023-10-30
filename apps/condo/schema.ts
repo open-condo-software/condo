@@ -24721,7 +24721,7 @@ export type Invoice = {
   rows: Array<InvoiceRowSchemaField>;
   /**  The ticket related to this invoice  */
   ticket?: Maybe<Ticket>;
-  /**  The contact the invoice created for. Fill if invoice was created or connected via the ticket form  */
+  /**  The contact the invoice created for. Fill by organization  */
   contact?: Maybe<Contact>;
   /**  The user who sees the invoice. Must filled with the user of corresponding resident.  */
   client?: Maybe<User>;
