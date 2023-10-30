@@ -23,10 +23,4 @@ jobs:
     steps:
       # Fetch project source with GitHub Actions Checkout.
       - uses: actions/checkout@v3
-      - run: ./bin/run-semgrep.sh -a -s
-
-      - name: Upload SARIF file for GitHub Advanced Security Dashboard
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: ./semgrep_results
-        if: always()
+      - run: ./bin/run-semgrep.sh -a

@@ -1,11 +1,10 @@
 export SEMGREP_RULES="p/default p/expressjs p/react p/nextjs p/sql-injection p/jwt p/cwe-top-25 p/owasp-top-ten p/r2c-security-audit p/command-injection p/insecure-transport p/secrets p/xss p/gitleaks p/security-code-scan"
 
-while getopts "ad:vs" flag
+while getopts "ad:v" flag
 do
    case "${flag}" in
       a) scan_all=true ;;
       d) specified_directory="${OPTARG}" ;;
-      s) use_sarif=true ;;
    esac
 done
 
@@ -15,15 +14,7 @@ runScan () {
   echo ""
   echo "SEMGREP ANALYSIS FOR: $1"
 
-  # add ext_flags variable in case if use_sarif=true
-  if [[ $use_sarif == *true* ]]
-  then
-    echo "USE SARIF OUTPUT FORMAT"
-    mkdir -p semgrep_results
-    semgrep $1 --error --sarif > semgrep_results/${1//\//_}.sarif
-  else
-    semgrep $1 --error
-  fi
+  semgrep $1 --error
 }
 
 # run a scan cases
