@@ -36,5 +36,6 @@
   "docs.nextArticle": "Далее: {title}",
   "docs.prevArticle": "Назад: {title}",
   "docs.menu.title": "Навигация",
-  "miniapp.card.edit.message": "Редактировать"
+  "apps.empty.title": "У вас еще нет приложений",
+  "apps.empty.description": "Создадим первое прямо сейчас?"
 }

@@ -13,6 +13,8 @@ import styles from './Header.module.css'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { MobileMenu } from './MobileMenu'
 
+import { useAuth } from '@/lib/auth'
+
 const logoFont = Montserrat({
     subsets: ['latin', 'cyrillic'],
     style: ['normal'],
@@ -27,10 +29,19 @@ export const Header: React.FC = () => {
     const router = useRouter()
     const breakpoints = useBreakpoints()
     const isLargeLayout = Boolean(breakpoints.DESKTOP_SMALL)
+    const { isAuthenticated, startSignIn } = useAuth()
 
     const handleDocsClick = useCallback(() => {
         router.push('/docs/index', '/docs/index', { locale: router.locale })
     }, [router])
+    const handleAppsClick = useCallback(() => {
+        if (isAuthenticated) {
+            router.push('/apps', '/apps', { locale: router.locale })
+        } else {
+            startSignIn()
+        }
+
+    }, [router, startSignIn, isAuthenticated])
 
     return (
         <header className={styles.header}>
@@ -50,7 +61,9 @@ export const Header: React.FC = () => {
                         <Typography.Title level={4} type='inherit' onClick={handleDocsClick}>
                             {DocsSectionTitle}
                         </Typography.Title>
-                        <Typography.Title level={4} type='inherit'>{AppsSectionTitle}</Typography.Title>
+                        <Typography.Title level={4} type='inherit' onClick={handleAppsClick}>
+                            {AppsSectionTitle}
+                        </Typography.Title>
                     </Space>
                 )}
             </Space>

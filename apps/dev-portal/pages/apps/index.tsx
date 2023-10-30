@@ -8,6 +8,7 @@ import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEf
 import { Typography } from '@open-condo/ui'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
+import { EmptyView } from '@/domains/common/components/EmptyView'
 import { InlineAppCard } from '@/domains/miniapp/components/InlineAppCard'
 
 import type { RowProps } from 'antd'
@@ -30,6 +31,10 @@ type AppInfo = {
 const MyAppsPage: React.FC = () => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
+    const NoAppsTitle = intl.formatMessage({ id: 'apps.empty.title' })
+    const NoAppsDescription = intl.formatMessage({ id: 'apps.empty.description' })
+    const CreateAppLabel = intl.formatMessage({ id: 'global.action.createApp' })
+
     const { user } = useAuth()
     const [apps, setApps] = useState<Array<AppInfo>>([])
 
@@ -62,24 +67,29 @@ const MyAppsPage: React.FC = () => {
                 <title>{PageTitle}</title>
             </Head>
             <BaseLayout>
-                <Row gutter={TITLE_GUTTER}>
-                    <Col span={FULL_COL_SPAN}>
-                        <Typography.Title>{PageTitle}</Typography.Title>
-                    </Col>
-                    <Col span={FULL_COL_SPAN}>
-                        {apps.length ? (
+                {apps.length ? (
+                    <Row gutter={TITLE_GUTTER}>
+                        <Col span={FULL_COL_SPAN}>
+                            <Typography.Title>{PageTitle}</Typography.Title>
+                        </Col>
+                        <Col span={FULL_COL_SPAN}>
                             <Row gutter={APP_CARD_GUTTER}>
                                 {apps.map(app => (
                                     <Col span={FULL_COL_SPAN} key={`${app.type}:${app.id}`}>
-                                        <InlineAppCard name={app.name} type={app.type}/>
+                                        <InlineAppCard name={app.name} type={app.type} id={app.id}/>
                                     </Col>
                                 ))}
                             </Row>
-                        ) : (
-                            '123123'
-                        )}
-                    </Col>
-                </Row>
+                        </Col>
+                    </Row>
+                ) : (
+                    <EmptyView
+                        title={NoAppsTitle}
+                        description={NoAppsDescription}
+                        actionLabel={CreateAppLabel}
+                        onAction={() => null}
+                    />
+                )}
             </BaseLayout>
         </>
     )

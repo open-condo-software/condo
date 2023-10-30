@@ -10,7 +10,7 @@ const LAYOUT_CLASS_PREFIX = 'main-layout'
 
 type BaseLayoutProps = {
     menuElement?: React.ReactElement
-    children?: React.ReactElement
+    children?: React.ReactNode
     anchorElement?: false | React.ReactElement
 }
 

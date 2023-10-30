@@ -36,5 +36,6 @@
   "docs.nextArticle": "Next: {title}",
   "docs.prevArticle": "Back: {title}",
   "docs.menu.title": "Navigation",
-  "miniapp.card.edit.message": "Edit"
+  "apps.empty.title": "You don't have any apps yet",
+  "apps.empty.description": "Want to create the first one right now?"
 }

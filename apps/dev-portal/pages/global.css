@@ -61,6 +61,7 @@ body {
 
 .main-layout-lg .main-content:first-child {
   grid-column: 2;
+  min-width: 0;
 }
 
 .main-layout-md .main-content:first-child {
