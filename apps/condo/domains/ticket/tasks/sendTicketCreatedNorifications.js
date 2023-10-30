@@ -6,7 +6,7 @@ const { getByCondition, getSchemaCtx, getById, find } = require('@open-condo/key
 const { createTask } = require('@open-condo/keystone/tasks')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
-const { TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
+const { TICKET_CREATED_TYPE, TICKET_COMMENT_ADDED_TYPE, TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
 const { PROPERTY_AND_SPECIALIZATION_VISIBILITY, PROPERTY_TICKET_VISIBILITY, ORGANIZATION_TICKET_VISIBILITY } = require('@condo/domains/organization/constants/common')
 
@@ -29,10 +29,24 @@ const _getPropertyAndSpecializationsEmployeesAccessedToTicket = async (propertyA
     return availableToReadTicketUsers
 }
 
-const getAvailableToReadTicketUsers = async (employees, roles, ticket) => {
+const getAvailableToReadTicketUsers = async (ticket) => {
+    const ticketOrganizationId = get(ticket, 'organization')
+    const roles = await find('OrganizationEmployeeRole', {
+        organization: { id: ticketOrganizationId },
+        canReadTickets: true,
+    })
+    const organizationEmployees = await find('OrganizationEmployee', {
+        organization: { id: ticketOrganizationId },
+        deletedAt: null,
+        isRejected: false,
+        isAccepted: true,
+        isBlocked: false,
+    })
+    const employees = organizationEmployees.filter(
+        employee => roles.map(role => role.id).includes(employee.role)
+    )
     const availableToReadTicketUsers = [ticket.executor, ticket.assignee]
     const ticketPropertyId = get(ticket, 'property')
-    const ticketOrganizationId = get(ticket, 'organization')
     const ticketCategoryClassifier = get(ticket, 'categoryClassifier')
 
     const employeesWithRoles = employees.map(employee => {
@@ -102,21 +116,8 @@ const sendTicketCreatedNotifications = async (ticketId) => {
         deletedAt: null,
     })
     const lang = get(COUNTRIES, [organization.country, 'locale'], conf.DEFAULT_LOCALE)
-    const employeeRoles = await find('OrganizationEmployeeRole', {
-        organization: { id: ticketOrganizationId },
-        canReadTickets: true,
-    })
-    const organizationEmployees = await find('OrganizationEmployee', {
-        organization: { id: ticketOrganizationId },
-        deletedAt: null,
-        isRejected: false,
-        isAccepted: true,
-        isBlocked: false,
-    })
-    const employeesToSendNotifications = organizationEmployees.filter(
-        employee => employeeRoles.map(role => role.id).includes(employee.role)
-    )
-    const users = await getAvailableToReadTicketUsers(employeesToSendNotifications, employeeRoles, createdTicket)
+
+    const users = await getAvailableToReadTicketUsers(createdTicket)
 
     for (const employeeUserId of users) {
         await sendMessage(context, {
@@ -141,6 +142,53 @@ const sendTicketCreatedNotifications = async (ticketId) => {
     }
 }
 
+/**
+ * Sends notifications after ticket comment created
+ */
+const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
+    const { keystone: context } = await getSchemaCtx('Ticket')
+    const createdComment = await getById('TicketComment', commentId)
+    const user = await getById('User', createdComment.user)
+    const userName = user.name
+    const ticket = await getById('Ticket', ticketId)
+    const ticketOrganizationId = get(ticket, 'organization')
+
+    const organization = await getByCondition('Organization', {
+        id: ticketOrganizationId,
+        deletedAt: null,
+    })
+    const lang = get(COUNTRIES, [organization.country, 'locale'], conf.DEFAULT_LOCALE)
+
+    const users = await getAvailableToReadTicketUsers(ticket)
+    const usersWithoutSender = users.filter(userId => userId !== createdComment.user)
+
+    for (const employeeUserId of usersWithoutSender) {
+        await sendMessage(context, {
+            lang,
+            to: { user: { id: employeeUserId } },
+            type: TICKET_COMMENT_CREATED_TYPE,
+            meta: {
+                dv: 1,
+                data: {
+                    ticketId,
+                    ticketNumber: ticket.number,
+                    userId: employeeUserId,
+                    url: `${conf.SERVER_URL}/ticket/${ticketId}`,
+                    organizationId: organization.id,
+                    organizationName: organization.name,
+                    commentId,
+                    userName,
+                    content: createdComment.content,
+                    commentType: createdComment.type,
+                },
+            },
+            sender: createdComment.sender,
+            organization: { id: organization.id },
+        })
+    }
+}
+
 module.exports = {
     sendTicketCreatedNotifications: createTask('sendTicketCreatedNotifications', sendTicketCreatedNotifications),
+    sendTicketCommentCreatedNotifications: createTask('sendTicketCommentCreatedNotifications', sendTicketCommentCreatedNotifications),
 }

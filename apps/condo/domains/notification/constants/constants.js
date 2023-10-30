@@ -19,6 +19,7 @@ const FAKE_SUCCESS_MESSAGE_PREFIX = 'fake-success-message'
 const FAKE_ERROR_MESSAGE_PREFIX = 'fake-error-message'
 
 const TICKET_CREATED_TYPE = 'TICKET_CREATED'
+const TICKET_COMMENT_CREATED_TYPE = 'TICKET_COMMENT_CREATED'
 const INVITE_NEW_EMPLOYEE_MESSAGE_TYPE = 'INVITE_NEW_EMPLOYEE'
 const SHARE_TICKET_MESSAGE_TYPE = 'SHARE_TICKET'
 const DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE = 'DIRTY_INVITE_NEW_EMPLOYEE_SMS'
@@ -120,6 +121,21 @@ const MESSAGE_META = {
             organizationId: { defaultValue: '', required: true },
             organizationName: { defaultValue: '', required: true },
             details: { defaultValue: '', required: true },
+        },
+    },
+    [TICKET_COMMENT_CREATED_TYPE]: {
+        dv: { defaultValue: '', required: true },
+        data: {
+            ticketId: { defaultValue: '', required: true },
+            ticketNumber: { defaultValue: '', required: true },
+            userId: { defaultValue: '', required: true },
+            commentId: { defaultValue: '', required: true },
+            url: { defaultValue: '', required: true },
+            organizationId: { defaultValue: '', required: true },
+            organizationName: { defaultValue: '', required: true },
+            userName: { defaultValue: '', required: true },
+            content: { defaultValue: '', required: true },
+            commentType: { required: true },
         },
     },
     [INVITE_NEW_EMPLOYEE_MESSAGE_TYPE]: {
@@ -631,6 +647,13 @@ const MESSAGE_DELIVERY_OPTIONS = {
         defaultTransports: [TELEGRAM_TRANSPORT],
         isAllowedToChangeDefaultTransport: false,
     },
+    [TICKET_COMMENT_CREATED_TYPE]: {
+        ...DEFAULT_MESSAGE_DELIVERY_OPTIONS,
+        strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
+        allowedTransports: [TELEGRAM_TRANSPORT],
+        defaultTransports: [TELEGRAM_TRANSPORT],
+        isAllowedToChangeDefaultTransport: false,
+    },
     [REGISTER_NEW_USER_MESSAGE_TYPE]: {
         priority: MESSAGE_DELIVERY_FAST_PRIORITY,
         strategy: MESSAGE_DELIVERY_STRATEGY_ALL_TRANSPORTS,
@@ -888,6 +911,7 @@ module.exports = {
     PUSH_TRANSPORT,
     MESSAGE_TRANSPORTS,
     TICKET_CREATED_TYPE,
+    TICKET_COMMENT_CREATED_TYPE,
     REGISTER_NEW_USER_MESSAGE_TYPE,
     SMS_VERIFY_CODE_MESSAGE_TYPE,
     INVITE_NEW_EMPLOYEE_MESSAGE_TYPE,
