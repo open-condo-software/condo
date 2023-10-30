@@ -5,8 +5,7 @@
 const { get } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getLogger } = require('@open-condo/keystone/logging')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
 const {
     INVOICE_STATUS_PUBLISHED,
@@ -20,10 +19,6 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-const RESIDENTS_COUNT_WARNING_THRESHOLD = 50
-
-const logger = getLogger('invoiceAccess')
-
 async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -31,21 +26,6 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { deletedAt: null, user: { id: user.id } })
-
-        if (residents.length === 0) {
-            return false
-        }
-
-        if (residents.length > RESIDENTS_COUNT_WARNING_THRESHOLD) {
-            logger.warn({
-                msg: `user has ${RESIDENTS_COUNT_WARNING_THRESHOLD}+ residents`,
-                reqId: context.req.id,
-                userId: user.id,
-                residentsCount: residents.length,
-            })
-        }
-
         return {
             deletedAt: null,
             client: { id: user.id },
