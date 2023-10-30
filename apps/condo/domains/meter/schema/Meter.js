@@ -217,21 +217,26 @@ const Meter = new GQLListSchema('Meter', {
             if (operation === 'create') {
                 const property = await Property.getOne(context, {
                     id: updatedItem.property,
-                })
-                const hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {
-                    address: property.address,
-                    organization: { id: updatedItem.organization },
-                    resource: { id: updatedItem.resource },
+                    deletedAt: null,
                 })
 
-                if (!hasMeterResourceOwnership) {
-                    await MeterResourceOwner.create(context, {
-                        dv: 1,
-                        sender: originalInput.sender,
+                if (property) {
+                    const hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {
                         address: property.address,
-                        organization: { connect: { id: updatedItem.organization } },
-                        resource: { connect: { id: updatedItem.resource } },
+                        organization: { id: updatedItem.organization },
+                        resource: { id: updatedItem.resource },
+                        deletedAt: null,
                     })
+
+                    if (!hasMeterResourceOwnership) {
+                        await MeterResourceOwner.create(context, {
+                            dv: 1,
+                            sender: originalInput.sender,
+                            address: property.address,
+                            organization: { connect: { id: updatedItem.organization } },
+                            resource: { connect: { id: updatedItem.resource } },
+                        })
+                    }
                 }
             } else if (operation === 'update') {
                 const deletedMeterAt = get(originalInput, 'deletedAt')

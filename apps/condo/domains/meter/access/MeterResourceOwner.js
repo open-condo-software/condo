@@ -7,7 +7,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor, queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { STAFF } = require('@condo/domains/user/constants/common')
 
 async function canReadMeterResourceOwners ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
@@ -15,7 +15,7 @@ async function canReadMeterResourceOwners ({ authentication: { item: user } }) {
 
     if (user.isAdmin || user.isSupport) return {}
 
-    if (user.type !== RESIDENT) {
+    if (user.type === STAFF) {
         return {
             organization: {
                 OR: [
@@ -34,15 +34,11 @@ async function canManageMeterResourceOwners ({ authentication: { item: user }, o
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
-    if (operation === 'create' && user.type !== RESIDENT) {
+    if (operation === 'create' && user.type === STAFF) {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
         if (!organizationId) return false
 
         return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMeters')
-    }
-
-    if (operation === 'update') {
-        return user.isAdmin || user.isSupport
     }
 
     return false
