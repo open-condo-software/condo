@@ -161,6 +161,8 @@ export const UpdateNewsForm: React.FC<IUpdateNewsForm> = ({ id }) => {
             afterAction={afterAction}
             initialValues={initialValues}
             newsItem={newsItem}
+            // TODO!
+            newsSharingB2BAppContexts={[]}
             templates={templates}
             OnCompletedMsg={null}
             allNews={allNews}

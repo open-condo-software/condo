@@ -140,6 +140,8 @@ export const ResendNewsForm: React.FC<IResendNewsForm> = ({ id }) => {
             initialValues={initialValues}
             newsItem={newsItem}
             templates={templates}
+            // TODO!
+            newsSharingB2BAppContexts={[]}
             OnCompletedMsg={OnCompletedMsg}
             allNews={allNews}
             actionName='create'
