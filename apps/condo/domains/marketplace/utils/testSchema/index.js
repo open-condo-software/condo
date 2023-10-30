@@ -144,7 +144,7 @@ function generateInvoiceRow (attrs = {}) {
  * @param {Number} rowsCount
  * @returns {*[]}
  */
-function generateInvoiceRows (rowsCount) {
+function generateInvoiceRows (rowsCount = null) {
     const count = rowsCount || faker.datatype.number({ min: 1, max: 5 })
     const rows = []
     for (let i = 0; i < count; i++) {

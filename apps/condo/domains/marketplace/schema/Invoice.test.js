@@ -3,7 +3,6 @@
  */
 
 const { faker } = require('@faker-js/faker')
-const dayjs = require('dayjs')
 const { omit } = require('lodash')
 
 const {
@@ -17,19 +16,15 @@ const {
     expectToThrowGraphQLRequestError,
 } = require('@open-condo/keystone/test.utils')
 
-const { CONTEXT_FINISHED_STATUS } = require('@condo/domains/acquiring/constants/context')
-const { addAcquiringIntegrationAndContext } = require('@condo/domains/acquiring/utils/testSchema')
-const {
-    addBillingIntegrationAndContext, createTestBillingProperty,
-    createRegisterBillingReceiptsPayload,
-    registerBillingReceiptsByTestClient,
-} = require('@condo/domains/billing/utils/testSchema')
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_PAID,
+    INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_PAYMENT_TYPE_CASH,
-    INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_CANCELED,
+    INVOICE_PAYMENT_TYPE_ONLINE,
+    INVOICE_STATUS_CANCELED,
 } = require('@condo/domains/marketplace/constants')
 const {
     Invoice,
@@ -51,6 +46,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
     makeClientWithResidentUser,
+    makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
 let adminClient, supportClient, anonymousClient
@@ -373,14 +369,6 @@ describe('Invoice', () => {
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
 
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization)
-            await createTestInvoice(client, invoiceContext, {
-                property: { connect: { id: client.property.id } },
-                unitType,
-                unitName,
-                status: INVOICE_STATUS_PAID,
-            })
-
             const residentClient = await makeClientWithResidentUser()
             await registerResidentByTestClient(
                 residentClient,
@@ -391,27 +379,25 @@ describe('Invoice', () => {
                     unitName,
                 })
 
+            const [invoiceContext] = await createTestInvoiceContext(client, client.organization)
+            await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_PAID,
+                client: { connect: { id: residentClient.user.id } },
+            })
+
             const invoices = await Invoice.getAll(residentClient, {})
 
             expect(invoices).toHaveLength(1)
         })
 
-        test('resident can see invoices by address, resident from neighbor flat not', async () => {
+        test('two residents in one flat: only one can see the invoice by phone', async () => {
             const client = await makeClientWithProperty()
 
             const unitType = FLAT_UNIT_TYPE
-            const unitName1 = faker.lorem.word()
-            const unitName2 = faker.lorem.word()
-
-            // client.user has the Administrator role by default after he had registered an organization
-
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization)
-            const [invoice] = await createTestInvoice(client, invoiceContext, {
-                property: { connect: { id: client.property.id } },
-                unitType,
-                unitName: unitName1,
-                status: INVOICE_STATUS_PUBLISHED,
-            })
+            const unitName = faker.lorem.word()
 
             const residentClient1 = await makeClientWithResidentUser()
             await registerResidentByTestClient(
@@ -420,7 +406,7 @@ describe('Invoice', () => {
                     address: client.property.address,
                     addressMeta: client.property.addressMeta,
                     unitType,
-                    unitName: unitName1,
+                    unitName,
                 })
 
             const residentClient2 = await makeClientWithResidentUser()
@@ -430,8 +416,17 @@ describe('Invoice', () => {
                     address: client.property.address,
                     addressMeta: client.property.addressMeta,
                     unitType,
-                    unitName: unitName2,
+                    unitName,
                 })
+
+            const [invoiceContext] = await createTestInvoiceContext(client, client.organization)
+            const [invoice] = await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName: unitName,
+                status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: residentClient1.user.id } },
+            })
 
             const invoices1 = await Invoice.getAll(residentClient1, {})
             const invoices2 = await Invoice.getAll(residentClient2, {})
@@ -440,146 +435,14 @@ describe('Invoice', () => {
             expect(invoices2).toHaveLength(0)
         })
 
-        test('resident can see invoices by accountNumber', async () => {
-            const client = await makeClientWithProperty()
-
-            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, client.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-            await addAcquiringIntegrationAndContext(adminClient, client.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-
-            const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: client.property.address })
-
-            const unitType = FLAT_UNIT_TYPE
-            const unitName = faker.lorem.word()
-            const accountNumber = faker.random.alphaNumeric(13)
-
-            const now = dayjs()
-            const receiptsPayload1 = {
-                context: { id: billingIntegrationContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: billingProperty.address,
-                        unitType,
-                        unitName,
-                        accountNumber,
-                        year: Number(now.format('YYYY')),
-                        month: Number(now.format('MM')),
-                    }),
-                ],
-            }
-            await registerBillingReceiptsByTestClient(adminClient, receiptsPayload1)
-
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization)
-            const [invoice] = await createTestInvoice(client, invoiceContext, {
-                accountNumber,
-                status: INVOICE_STATUS_PUBLISHED,
-            })
-
-            const residentClient = await makeClientWithResidentUser()
-            await registerResidentByTestClient(
-                residentClient,
-                {
-                    address: client.property.address,
-                    addressMeta: client.property.addressMeta,
-                    unitType,
-                    unitName,
-                })
-
-            const invoices = await Invoice.getAll(residentClient, {})
-
-            expect(invoices).toEqual([expect.objectContaining({ id: invoice.id })])
-        })
-
-        test('resident can see both invoices: by address and by account number', async () => {
-            const client = await makeClientWithProperty()
-
-            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, client.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-            await addAcquiringIntegrationAndContext(adminClient, client.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-
-            const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: client.property.address })
-
-            const unitType = FLAT_UNIT_TYPE
-            const unitName = faker.lorem.word()
-            const accountNumber = faker.random.alphaNumeric(13)
-
-            const now = dayjs()
-            const receiptsPayload1 = {
-                context: { id: billingIntegrationContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: billingProperty.address,
-                        unitType,
-                        unitName,
-                        accountNumber,
-                        year: Number(now.format('YYYY')),
-                        month: Number(now.format('MM')),
-                    }),
-                ],
-            }
-            await registerBillingReceiptsByTestClient(adminClient, receiptsPayload1)
-
-            const residentClient = await makeClientWithResidentUser()
-            await registerResidentByTestClient(
-                residentClient,
-                {
-                    address: client.property.address,
-                    addressMeta: client.property.addressMeta,
-                    unitType,
-                    unitName,
-                })
-
-            const [invoiceContext] = await createTestInvoiceContext(client, client.organization)
-            // add invoice by account number
-            const [invoice1] = await createTestInvoice(client, invoiceContext, {
-                accountNumber,
-                status: INVOICE_STATUS_PUBLISHED,
-            })
-            // add invoice by address
-            const [invoice2] = await createTestInvoice(client, invoiceContext, {
-                property: { connect: { id: client.property.id } },
-                unitType,
-                unitName,
-                status: INVOICE_STATUS_PUBLISHED,
-            })
-
-            const invoices = await Invoice.getAll(residentClient, {})
-
-            expect(invoices).toHaveLength(2)
-            expect(invoices).toEqual(expect.arrayContaining([
-                expect.objectContaining({ id: invoice1.id }),
-                expect.objectContaining({ id: invoice2.id }),
-            ]))
-        })
-
         test('resident can see invoices from two organizations', async () => {
             const client1 = await makeClientWithProperty()
             const client2 = await makeClientWithRegisteredOrganization()
 
             ;[client2.property] = await createTestProperty(client2, client2.organization, { address: client1.property.address }, false, client1.property.addressMeta)
 
-            const { billingIntegrationContext } = await addBillingIntegrationAndContext(adminClient, client1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-            await addAcquiringIntegrationAndContext(adminClient, client1.organization, {}, { status: CONTEXT_FINISHED_STATUS })
-
-            const [billingProperty] = await createTestBillingProperty(adminClient, billingIntegrationContext, { address: client1.property.address })
-
             const unitType = FLAT_UNIT_TYPE
             const unitName = faker.lorem.word()
-            const accountNumber = faker.random.alphaNumeric(13)
-
-            const now = dayjs()
-            const receiptsPayload = {
-                context: { id: billingIntegrationContext.id },
-                receipts: [
-                    createRegisterBillingReceiptsPayload({
-                        address: billingProperty.address,
-                        unitType,
-                        unitName,
-                        accountNumber,
-                        year: Number(now.format('YYYY')),
-                        month: Number(now.format('MM')),
-                    }),
-                ],
-            }
-            await registerBillingReceiptsByTestClient(adminClient, receiptsPayload)
 
             const residentClient = await makeClientWithResidentUser()
             await registerResidentByTestClient(
@@ -594,18 +457,22 @@ describe('Invoice', () => {
             const [invoiceContext1] = await createTestInvoiceContext(client1, client1.organization)
             const [invoiceContext2] = await createTestInvoiceContext(client2, client2.organization)
 
-            // add invoice by account number from 1st organization
+            // add invoice from 1st organization
             const [invoice1] = await createTestInvoice(client1, invoiceContext1, {
-                accountNumber,
+                property: { connect: { id: client1.property.id } },
+                unitType,
+                unitName,
                 status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: residentClient.user.id } },
             })
 
-            // add invoice by address from 2nd organization
+            // add invoice from 2nd organization
             const [invoice2] = await createTestInvoice(client2, invoiceContext2, {
                 property: { connect: { id: client2.property.id } },
                 unitType,
                 unitName,
                 status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: residentClient.user.id } },
             })
 
             const invoices = await Invoice.getAll(residentClient, {})
@@ -615,6 +482,56 @@ describe('Invoice', () => {
                 expect.objectContaining({ id: invoice1.id }),
                 expect.objectContaining({ id: invoice2.id }),
             ]))
+        })
+
+        test('resident can see the invoice created by staff', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const staffClient = await makeClientWithStaffUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+                canManageInvoices: true,
+                canManageContacts: true,
+                canReadInvoiceContexts: true,
+            })
+            await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+
+            const [contact] = await createTestContact(staffClient, o10n, property, {
+                phone: residentClient.userAttrs.phone,
+                unitType,
+                unitName,
+            })
+
+            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+                property: { connect: { id: property.id } },
+                unitType,
+                unitName,
+                contact: { connect: { id: contact.id } },
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+
+            const invoices = await Invoice.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(invoices).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                }),
+            ])
         })
     })
 

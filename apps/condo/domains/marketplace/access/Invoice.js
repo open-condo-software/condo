@@ -20,6 +20,8 @@ const {
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
+const RESIDENTS_COUNT_WARNING_THRESHOLD = 50
+
 const logger = getLogger('invoiceAccess')
 
 async function canReadInvoices ({ authentication: { item: user }, context }) {
@@ -35,53 +37,28 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
             return false
         }
 
-        if (residents.length > 50) {
+        if (residents.length > RESIDENTS_COUNT_WARNING_THRESHOLD) {
             logger.warn({
-                msg: `user ${user.id} has ${residents.length} residents`,
+                msg: `user has ${RESIDENTS_COUNT_WARNING_THRESHOLD}+ residents`,
                 reqId: context.req.id,
                 userId: user.id,
-            })
-        }
-
-        const residentsIds = residents.map(({ id }) => id)
-
-        const serviceConsumers = await find('ServiceConsumer', {
-            deletedAt: null,
-            resident: { id_in: residentsIds },
-        })
-
-        if (serviceConsumers.length > 50) {
-            logger.warn({
-                msg: `user ${user.id} has ${serviceConsumers.length} service consumers`,
-                reqId: context.req.id,
-                userId: user.id,
+                residentsCount: residents.length,
             })
         }
 
         return {
             deletedAt: null,
+            client: { id: user.id },
             OR: [
-                {
-                    AND: [
-                        { status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID] },
-                        { client_is_null: true },
-                        {
-                            OR: [
-                                ...residents.map((resident) => ({ AND: [{ property: { addressKey: resident.addressKey } }, { unitType: resident.unitType }, { unitName: resident.unitName }] })),
-                                ...serviceConsumers.map((serviceConsumer) => ({ AND: [{ context: { organization: { id: serviceConsumer.organization } } }, { accountNumber: serviceConsumer.accountNumber }] })),
-                            ],
-                        },
-                    ],
-                },
+                { status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID] },
                 {
                     AND: [
                         { status: INVOICE_STATUS_DRAFT },
-                        { client: { id: user.id } },
+                        { createdBy: { type: RESIDENT } },
                     ],
                 },
             ],
         }
-
     }
 
     return {
