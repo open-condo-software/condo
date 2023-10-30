@@ -10,7 +10,6 @@ const { GQLListSchema, getById, getByCondition } = require('@open-condo/keystone
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
-    ERROR_NO_INVOICE_RECEIVERS,
     ERROR_INVOICE_ALREADY_PAID,
     ERROR_INVOICE_ALREADY_CANCELED,
     INVOICE_STATUSES,
@@ -28,12 +27,6 @@ const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const ERRORS = {
-    NO_RECEIVERS: {
-        code: BAD_USER_INPUT,
-        type: ERROR_NO_INVOICE_RECEIVERS,
-        message: 'Nobody sees this invoice. You must set property+unitType+unitName or accountNumber',
-        messageForUser: 'api.marketplace.invoice.error.noReceivers',
-    },
     ALREADY_PAID: {
         code: BAD_USER_INPUT,
         type: ERROR_INVOICE_ALREADY_PAID,
@@ -157,10 +150,6 @@ const Invoice = new GQLListSchema('Invoice', {
             const nextData = { ...existingItem, ...resolvedData }
 
             const isUpdate = operation === 'update'
-
-            if (!((!!nextData.property && !!nextData.unitType && !!nextData.unitName) || !!nextData.accountNumber)) {
-                throw new GQLError(ERRORS.NO_RECEIVERS, context)
-            }
 
             if (
                 isUpdate

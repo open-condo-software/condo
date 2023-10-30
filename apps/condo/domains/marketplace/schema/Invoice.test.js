@@ -536,21 +536,6 @@ describe('Invoice', () => {
     })
 
     describe('validation', () => {
-        test('invoice must contain address or account number', async () => {
-            await expectToThrowGQLError(async () => {
-                await createTestInvoice(adminClient, dummyInvoiceContext, {
-                    accountNumber: null,
-                    property: null,
-                    unitType: null,
-                    unitName: null,
-                })
-            }, {
-                code: 'BAD_USER_INPUT',
-                type: 'NO_INVOICE_RECEIVERS',
-                message: 'Nobody sees this invoice. You must set property+unitType+unitName or accountNumber',
-                messageForUser: 'api.marketplace.invoice.error.noReceivers',
-            })
-        })
 
         test('can\'t change online-paid invoice', async () => {
             const [obj] = await createTestInvoice(adminClient, dummyInvoiceContext, {
