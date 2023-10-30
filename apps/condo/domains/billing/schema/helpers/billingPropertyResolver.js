@@ -1,6 +1,5 @@
 const { get, isNil, isEmpty } = require('lodash')
 
-
 const {
     createInstance: createAddressServiceClientInstance,
 } = require('@open-condo/clients/address-service-client')
