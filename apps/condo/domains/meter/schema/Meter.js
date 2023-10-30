@@ -20,9 +20,10 @@ const {
     METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE,
 } = require('@condo/domains/meter/constants/errors')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
-const { Meter: MeterApi } = require('@condo/domains/meter/utils/serverSchema')
+const { Meter: MeterApi, MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema')
 const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
+const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const { numberOfTariffs, installationDate, commissioningDate, verificationDate, nextVerificationDate, controlReadingsDate, sealingDate, isAutomatic, resource, b2bApp } = require('./fields')
 
@@ -59,7 +60,7 @@ const Meter = new GQLListSchema('Meter', {
         isAutomatic,
         resource,
         b2bApp,
-        
+
         property: {
             schemaDoc: 'Link to property which contains unit with this meter',
             type: Relationship,
@@ -212,8 +213,32 @@ const Meter = new GQLListSchema('Meter', {
                 }
             }
         },
-        afterChange: async ({ operation, originalInput, updatedItem }) => {
-            if (operation === 'update') {
+        afterChange: async ({ context, operation, originalInput, updatedItem }) => {
+            if (operation === 'create') {
+                const property = await Property.getOne(context, {
+                    id: updatedItem.property,
+                    deletedAt: null,
+                })
+
+                if (property) {
+                    const hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {
+                        address: property.address,
+                        organization: { id: updatedItem.organization },
+                        resource: { id: updatedItem.resource },
+                        deletedAt: null,
+                    })
+
+                    if (!hasMeterResourceOwnership) {
+                        await MeterResourceOwner.create(context, {
+                            dv: 1,
+                            sender: originalInput.sender,
+                            address: property.address,
+                            organization: { connect: { id: updatedItem.organization } },
+                            resource: { connect: { id: updatedItem.resource } },
+                        })
+                    }
+                }
+            } else if (operation === 'update') {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {

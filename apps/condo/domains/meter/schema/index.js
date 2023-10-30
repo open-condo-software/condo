@@ -11,6 +11,7 @@ const { MeterReadingFilterTemplate } = require('./MeterReadingFilterTemplate')
 const { MeterReadingSource } = require('./MeterReadingSource')
 const { MeterReportingPeriod } = require('./MeterReportingPeriod')
 const { MeterResource } = require('./MeterResource')
+const { MeterResourceOwner } = require('./MeterResourceOwner')
 const { PropertyMeter } = require('./PropertyMeter')
 const { PropertyMeterReading } = require('./PropertyMeterReading')
 /* AUTOGENERATE MARKER <REQUIRE> */
@@ -26,5 +27,6 @@ module.exports = {
     PropertyMeterReading,
     MeterReportingPeriod,
     _internalDeleteMeterAndMeterReadingsService,
+    MeterResourceOwner,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

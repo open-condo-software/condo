@@ -18,6 +18,7 @@ const { MeterReadingFilterTemplate: MeterReadingFilterTemplateGQL } = require('@
 const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
 const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
+const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateServerUtils(MeterResourceGQL)
@@ -28,6 +29,7 @@ const MeterReadingFilterTemplate = generateServerUtils(MeterReadingFilterTemplat
 const PropertyMeter = generateServerUtils(PropertyMeterGQL)
 const PropertyMeterReading = generateServerUtils(PropertyMeterReadingGQL)
 const MeterReportingPeriod = generateServerUtils(MeterReportingPeriodGQL)
+const MeterResourceOwner = generateServerUtils(MeterResourceOwnerGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 /**
@@ -169,5 +171,6 @@ module.exports = {
     PropertyMeter,
     PropertyMeterReading,
     MeterReportingPeriod,
+    MeterResourceOwner,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

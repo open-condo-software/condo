@@ -32367,6 +32367,429 @@ export type MeterResourceHistoryRecordsUpdateInput = {
   data?: Maybe<MeterResourceHistoryRecordUpdateInput>;
 };
 
+/**  Determines whether the meter belongs to the organization for a specific apartment  */
+export type MeterResourceOwner = {
+  __typename?: 'MeterResourceOwner';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterResourceOwner List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterResourceOwner List config, or
+   *  3. As an alias to a 'name' field on the MeterResourceOwner List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterResourceOwner List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Ref to the organization. The object will be deleted if the organization ceases to exist  */
+  organization?: Maybe<Organization>;
+  /**  Meter resource that organization is owned by  */
+  resource?: Maybe<MeterResource>;
+  id: Scalars['ID'];
+  /**  Normalized address  */
+  address?: Maybe<Scalars['String']>;
+  /**  The unique key of the address  */
+  addressKey?: Maybe<Scalars['String']>;
+  /**  Property address components  */
+  addressMeta?: Maybe<AddressMetaField>;
+  /**  The origins of the address (some strings which may looks like real address or some id)  */
+  addressSources?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type MeterResourceOwnerCreateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  resource?: Maybe<MeterResourceRelateToOneInput>;
+  address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type MeterResourceOwnerHistoryRecord = {
+  __typename?: 'MeterResourceOwnerHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the MeterResourceOwnerHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the MeterResourceOwnerHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the MeterResourceOwnerHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the MeterResourceOwnerHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  organization?: Maybe<Scalars['String']>;
+  resource?: Maybe<Scalars['String']>;
+  id: Scalars['ID'];
+  address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterResourceOwnerHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterResourceOwnerHistoryRecordCreateInput = {
+  organization?: Maybe<Scalars['String']>;
+  resource?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterResourceOwnerHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum MeterResourceOwnerHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type MeterResourceOwnerHistoryRecordUpdateInput = {
+  organization?: Maybe<Scalars['String']>;
+  resource?: Maybe<Scalars['String']>;
+  address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<MeterResourceOwnerHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type MeterResourceOwnerHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecordWhereInput>>>;
+  organization?: Maybe<Scalars['String']>;
+  organization_not?: Maybe<Scalars['String']>;
+  organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resource?: Maybe<Scalars['String']>;
+  resource_not?: Maybe<Scalars['String']>;
+  resource_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  resource_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  address?: Maybe<Scalars['String']>;
+  address_not?: Maybe<Scalars['String']>;
+  address_contains?: Maybe<Scalars['String']>;
+  address_not_contains?: Maybe<Scalars['String']>;
+  address_starts_with?: Maybe<Scalars['String']>;
+  address_not_starts_with?: Maybe<Scalars['String']>;
+  address_ends_with?: Maybe<Scalars['String']>;
+  address_not_ends_with?: Maybe<Scalars['String']>;
+  address_i?: Maybe<Scalars['String']>;
+  address_not_i?: Maybe<Scalars['String']>;
+  address_contains_i?: Maybe<Scalars['String']>;
+  address_not_contains_i?: Maybe<Scalars['String']>;
+  address_starts_with_i?: Maybe<Scalars['String']>;
+  address_not_starts_with_i?: Maybe<Scalars['String']>;
+  address_ends_with_i?: Maybe<Scalars['String']>;
+  address_not_ends_with_i?: Maybe<Scalars['String']>;
+  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<MeterResourceOwnerHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<MeterResourceOwnerHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type MeterResourceOwnerHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterResourceOwnerHistoryRecordsCreateInput = {
+  data?: Maybe<MeterResourceOwnerHistoryRecordCreateInput>;
+};
+
+export type MeterResourceOwnerHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceOwnerHistoryRecordUpdateInput>;
+};
+
+export type MeterResourceOwnerUpdateInput = {
+  organization?: Maybe<OrganizationRelateToOneInput>;
+  resource?: Maybe<MeterResourceRelateToOneInput>;
+  address?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type MeterResourceOwnerWhereInput = {
+  AND?: Maybe<Array<Maybe<MeterResourceOwnerWhereInput>>>;
+  OR?: Maybe<Array<Maybe<MeterResourceOwnerWhereInput>>>;
+  organization?: Maybe<OrganizationWhereInput>;
+  organization_is_null?: Maybe<Scalars['Boolean']>;
+  resource?: Maybe<MeterResourceWhereInput>;
+  resource_is_null?: Maybe<Scalars['Boolean']>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  address?: Maybe<Scalars['String']>;
+  address_not?: Maybe<Scalars['String']>;
+  address_contains?: Maybe<Scalars['String']>;
+  address_not_contains?: Maybe<Scalars['String']>;
+  address_starts_with?: Maybe<Scalars['String']>;
+  address_not_starts_with?: Maybe<Scalars['String']>;
+  address_ends_with?: Maybe<Scalars['String']>;
+  address_not_ends_with?: Maybe<Scalars['String']>;
+  address_i?: Maybe<Scalars['String']>;
+  address_not_i?: Maybe<Scalars['String']>;
+  address_contains_i?: Maybe<Scalars['String']>;
+  address_not_contains_i?: Maybe<Scalars['String']>;
+  address_starts_with_i?: Maybe<Scalars['String']>;
+  address_not_starts_with_i?: Maybe<Scalars['String']>;
+  address_ends_with_i?: Maybe<Scalars['String']>;
+  address_not_ends_with_i?: Maybe<Scalars['String']>;
+  address_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  address_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey?: Maybe<Scalars['String']>;
+  addressKey_not?: Maybe<Scalars['String']>;
+  addressKey_contains?: Maybe<Scalars['String']>;
+  addressKey_not_contains?: Maybe<Scalars['String']>;
+  addressKey_starts_with?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with?: Maybe<Scalars['String']>;
+  addressKey_ends_with?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with?: Maybe<Scalars['String']>;
+  addressKey_i?: Maybe<Scalars['String']>;
+  addressKey_not_i?: Maybe<Scalars['String']>;
+  addressKey_contains_i?: Maybe<Scalars['String']>;
+  addressKey_not_contains_i?: Maybe<Scalars['String']>;
+  addressKey_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_starts_with_i?: Maybe<Scalars['String']>;
+  addressKey_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_not_ends_with_i?: Maybe<Scalars['String']>;
+  addressKey_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressKey_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  addressMeta?: Maybe<Scalars['JSON']>;
+  addressMeta_not?: Maybe<Scalars['JSON']>;
+  addressMeta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressMeta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources?: Maybe<Scalars['JSON']>;
+  addressSources_not?: Maybe<Scalars['JSON']>;
+  addressSources_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  addressSources_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type MeterResourceOwnerWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type MeterResourceOwnersCreateInput = {
+  data?: Maybe<MeterResourceOwnerCreateInput>;
+};
+
+export type MeterResourceOwnersUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceOwnerUpdateInput>;
+};
+
 export type MeterResourceRelateToOneInput = {
   create?: Maybe<MeterResourceCreateInput>;
   connect?: Maybe<MeterResourceWhereUniqueInput>;
@@ -35921,6 +36344,30 @@ export type Mutation = {
   deleteMeterReportingPeriod?: Maybe<MeterReportingPeriod>;
   /**  Delete multiple MeterReportingPeriod items by ID.  */
   deleteMeterReportingPeriods?: Maybe<Array<Maybe<MeterReportingPeriod>>>;
+  /**  Create a single MeterResourceOwnerHistoryRecord item.  */
+  createMeterResourceOwnerHistoryRecord?: Maybe<MeterResourceOwnerHistoryRecord>;
+  /**  Create multiple MeterResourceOwnerHistoryRecord items.  */
+  createMeterResourceOwnerHistoryRecords?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecord>>>;
+  /**  Update a single MeterResourceOwnerHistoryRecord item by ID.  */
+  updateMeterResourceOwnerHistoryRecord?: Maybe<MeterResourceOwnerHistoryRecord>;
+  /**  Update multiple MeterResourceOwnerHistoryRecord items by ID.  */
+  updateMeterResourceOwnerHistoryRecords?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecord>>>;
+  /**  Delete a single MeterResourceOwnerHistoryRecord item by ID.  */
+  deleteMeterResourceOwnerHistoryRecord?: Maybe<MeterResourceOwnerHistoryRecord>;
+  /**  Delete multiple MeterResourceOwnerHistoryRecord items by ID.  */
+  deleteMeterResourceOwnerHistoryRecords?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecord>>>;
+  /**  Create a single MeterResourceOwner item.  */
+  createMeterResourceOwner?: Maybe<MeterResourceOwner>;
+  /**  Create multiple MeterResourceOwner items.  */
+  createMeterResourceOwners?: Maybe<Array<Maybe<MeterResourceOwner>>>;
+  /**  Update a single MeterResourceOwner item by ID.  */
+  updateMeterResourceOwner?: Maybe<MeterResourceOwner>;
+  /**  Update multiple MeterResourceOwner items by ID.  */
+  updateMeterResourceOwners?: Maybe<Array<Maybe<MeterResourceOwner>>>;
+  /**  Delete a single MeterResourceOwner item by ID.  */
+  deleteMeterResourceOwner?: Maybe<MeterResourceOwner>;
+  /**  Delete multiple MeterResourceOwner items by ID.  */
+  deleteMeterResourceOwners?: Maybe<Array<Maybe<MeterResourceOwner>>>;
   /**  Create a single ServiceSubscriptionHistoryRecord item.  */
   createServiceSubscriptionHistoryRecord?: Maybe<ServiceSubscriptionHistoryRecord>;
   /**  Create multiple ServiceSubscriptionHistoryRecord items.  */
@@ -44303,6 +44750,68 @@ export type MutationDeleteMeterReportingPeriodArgs = {
 
 
 export type MutationDeleteMeterReportingPeriodsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterResourceOwnerHistoryRecordArgs = {
+  data?: Maybe<MeterResourceOwnerHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateMeterResourceOwnerHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterResourceOwnerHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceOwnerHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateMeterResourceOwnerHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterResourceOwnerHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterResourceOwnerHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateMeterResourceOwnerArgs = {
+  data?: Maybe<MeterResourceOwnerCreateInput>;
+};
+
+
+export type MutationCreateMeterResourceOwnersArgs = {
+  data?: Maybe<Array<Maybe<MeterResourceOwnersCreateInput>>>;
+};
+
+
+export type MutationUpdateMeterResourceOwnerArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<MeterResourceOwnerUpdateInput>;
+};
+
+
+export type MutationUpdateMeterResourceOwnersArgs = {
+  data?: Maybe<Array<Maybe<MeterResourceOwnersUpdateInput>>>;
+};
+
+
+export type MutationDeleteMeterResourceOwnerArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteMeterResourceOwnersArgs = {
   ids?: Maybe<Array<Scalars['ID']>>;
 };
 
@@ -59149,6 +59658,22 @@ export type Query = {
   _allMeterReportingPeriodsMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the MeterReportingPeriod list.  */
   _MeterReportingPeriodsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterResourceOwnerHistoryRecord items which match the where clause.  */
+  allMeterResourceOwnerHistoryRecords?: Maybe<Array<Maybe<MeterResourceOwnerHistoryRecord>>>;
+  /**  Search for the MeterResourceOwnerHistoryRecord item with the matching ID.  */
+  MeterResourceOwnerHistoryRecord?: Maybe<MeterResourceOwnerHistoryRecord>;
+  /**  Perform a meta-query on all MeterResourceOwnerHistoryRecord items which match the where clause.  */
+  _allMeterResourceOwnerHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterResourceOwnerHistoryRecord list.  */
+  _MeterResourceOwnerHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all MeterResourceOwner items which match the where clause.  */
+  allMeterResourceOwners?: Maybe<Array<Maybe<MeterResourceOwner>>>;
+  /**  Search for the MeterResourceOwner item with the matching ID.  */
+  MeterResourceOwner?: Maybe<MeterResourceOwner>;
+  /**  Perform a meta-query on all MeterResourceOwner items which match the where clause.  */
+  _allMeterResourceOwnersMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the MeterResourceOwner list.  */
+  _MeterResourceOwnersMeta?: Maybe<_ListMeta>;
   /**  Search for all ServiceSubscriptionHistoryRecord items which match the where clause.  */
   allServiceSubscriptionHistoryRecords?: Maybe<Array<Maybe<ServiceSubscriptionHistoryRecord>>>;
   /**  Search for the ServiceSubscriptionHistoryRecord item with the matching ID.  */
@@ -63994,6 +64519,56 @@ export type Query_AllMeterReportingPeriodsMetaArgs = {
   where?: Maybe<MeterReportingPeriodWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortMeterReportingPeriodsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterResourceOwnerHistoryRecordsArgs = {
+  where?: Maybe<MeterResourceOwnerHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourceOwnerHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterResourceOwnerHistoryRecordArgs = {
+  where: MeterResourceOwnerHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllMeterResourceOwnerHistoryRecordsMetaArgs = {
+  where?: Maybe<MeterResourceOwnerHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourceOwnerHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllMeterResourceOwnersArgs = {
+  where?: Maybe<MeterResourceOwnerWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourceOwnersBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryMeterResourceOwnerArgs = {
+  where: MeterResourceOwnerWhereUniqueInput;
+};
+
+
+export type Query_AllMeterResourceOwnersMetaArgs = {
+  where?: Maybe<MeterResourceOwnerWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortMeterResourceOwnersBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -73683,6 +74258,56 @@ export enum SortMeterResourceHistoryRecordsBy {
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
   HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMeterResourceOwnerHistoryRecordsBy {
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortMeterResourceOwnersBy {
+  OrganizationAsc = 'organization_ASC',
+  OrganizationDesc = 'organization_DESC',
+  ResourceAsc = 'resource_ASC',
+  ResourceDesc = 'resource_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  AddressAsc = 'address_ASC',
+  AddressDesc = 'address_DESC',
+  AddressKeyAsc = 'addressKey_ASC',
+  AddressKeyDesc = 'addressKey_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
 }
 
 export enum SortMeterResourcesBy {
