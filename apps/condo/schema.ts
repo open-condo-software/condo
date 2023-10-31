@@ -2789,10 +2789,8 @@ export type B2BAppContext = {
   app?: Maybe<B2BApp>;
   /**  Organization  */
   organization?: Maybe<Organization>;
-  /**  Settings that are required for specified app to work with specified organization. Filled by app's service account / support and can have any JSON structure  */
-  settings?: Maybe<Scalars['JSON']>;
-  /**  State of B2B working progress with specified organization. Filled by app's service account and can have any JSON structure  */
-  state?: Maybe<Scalars['JSON']>;
+  /**  Data that is required for specified app to work with specified organization. Filled by app's service account / support and can have any JSON structure  */
+  meta?: Maybe<Scalars['JSON']>;
   /**  Status of B2BApp connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related B2BApp model  */
   status?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -2814,8 +2812,7 @@ export type B2BAppContext = {
 export type B2BAppContextCreateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
-  settings?: Maybe<Scalars['JSON']>;
-  state?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2841,8 +2838,7 @@ export type B2BAppContextHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   app?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  settings?: Maybe<Scalars['JSON']>;
-  state?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
@@ -2862,8 +2858,7 @@ export type B2BAppContextHistoryRecord = {
 export type B2BAppContextHistoryRecordCreateInput = {
   app?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  settings?: Maybe<Scalars['JSON']>;
-  state?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2888,8 +2883,7 @@ export enum B2BAppContextHistoryRecordHistoryActionType {
 export type B2BAppContextHistoryRecordUpdateInput = {
   app?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
-  settings?: Maybe<Scalars['JSON']>;
-  state?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -2916,14 +2910,10 @@ export type B2BAppContextHistoryRecordWhereInput = {
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  settings?: Maybe<Scalars['JSON']>;
-  settings_not?: Maybe<Scalars['JSON']>;
-  settings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  settings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  state?: Maybe<Scalars['JSON']>;
-  state_not?: Maybe<Scalars['JSON']>;
-  state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   status?: Maybe<Scalars['String']>;
   status_not?: Maybe<Scalars['String']>;
   status_contains?: Maybe<Scalars['String']>;
@@ -3036,8 +3026,7 @@ export type B2BAppContextHistoryRecordsUpdateInput = {
 export type B2BAppContextUpdateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
-  settings?: Maybe<Scalars['JSON']>;
-  state?: Maybe<Scalars['JSON']>;
+  meta?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3057,14 +3046,10 @@ export type B2BAppContextWhereInput = {
   app_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
-  settings?: Maybe<Scalars['JSON']>;
-  settings_not?: Maybe<Scalars['JSON']>;
-  settings_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  settings_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  state?: Maybe<Scalars['JSON']>;
-  state_not?: Maybe<Scalars['JSON']>;
-  state_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  state_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta?: Maybe<Scalars['JSON']>;
+  meta_not?: Maybe<Scalars['JSON']>;
+  meta_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  meta_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   status?: Maybe<Scalars['String']>;
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;

@@ -59776,8 +59776,7 @@ type B2BAppContextHistoryRecord {
   _label_: String
   app: String
   organization: String
-  settings: JSON
-  state: JSON
+  meta: JSON
   status: String
   id: ID!
   v: Int
@@ -59805,14 +59804,10 @@ input B2BAppContextHistoryRecordWhereInput {
   organization_not: String
   organization_in: [String]
   organization_not_in: [String]
-  settings: JSON
-  settings_not: JSON
-  settings_in: [JSON]
-  settings_not_in: [JSON]
-  state: JSON
-  state_not: JSON
-  state_in: [JSON]
-  state_not_in: [JSON]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   status: String
   status_not: String
   status_contains: String
@@ -59937,8 +59932,7 @@ enum SortB2BAppContextHistoryRecordsBy {
 input B2BAppContextHistoryRecordUpdateInput {
   app: String
   organization: String
-  settings: JSON
-  state: JSON
+  meta: JSON
   status: String
   v: Int
   createdAt: String
@@ -59962,8 +59956,7 @@ input B2BAppContextHistoryRecordsUpdateInput {
 input B2BAppContextHistoryRecordCreateInput {
   app: String
   organization: String
-  settings: JSON
-  state: JSON
+  meta: JSON
   status: String
   v: Int
   createdAt: String
@@ -60001,13 +59994,9 @@ type B2BAppContext {
   """ Organization """
   organization: Organization
 
-  """ Settings that are required for specified app to work with specified organization. Filled by app's service account / support and can have any JSON structure 
+  """ Data that is required for specified app to work with specified organization. Filled by app's service account / support and can have any JSON structure 
   """
-  settings: JSON
-
-  """ State of B2B working progress with specified organization. Filled by app's service account and can have any JSON structure 
-  """
-  state: JSON
+  meta: JSON
 
   """ Status of B2BApp connection, Can be one of the following: ["InProgress", "Error", "Finished"]. If not specified explicitly on creation, uses default value from related B2BApp model 
   """
@@ -60042,14 +60031,10 @@ input B2BAppContextWhereInput {
   app_is_null: Boolean
   organization: OrganizationWhereInput
   organization_is_null: Boolean
-  settings: JSON
-  settings_not: JSON
-  settings_in: [JSON]
-  settings_not_in: [JSON]
-  state: JSON
-  state_not: JSON
-  state_in: [JSON]
-  state_not_in: [JSON]
+  meta: JSON
+  meta_not: JSON
+  meta_in: [JSON]
+  meta_not_in: [JSON]
   status: String
   status_not: String
   status_in: [String]
@@ -60144,8 +60129,7 @@ enum SortB2BAppContextsBy {
 input B2BAppContextUpdateInput {
   app: B2BAppRelateToOneInput
   organization: OrganizationRelateToOneInput
-  settings: JSON
-  state: JSON
+  meta: JSON
   status: String
   v: Int
   createdAt: String
@@ -60166,8 +60150,7 @@ input B2BAppContextsUpdateInput {
 input B2BAppContextCreateInput {
   app: B2BAppRelateToOneInput
   organization: OrganizationRelateToOneInput
-  settings: JSON
-  state: JSON
+  meta: JSON
   status: String
   v: Int
   createdAt: String
