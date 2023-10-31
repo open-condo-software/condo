@@ -188,9 +188,7 @@ const sendSubmitMeterReadingsPushNotifications = async () => {
 
             const isTodayStartOrEndOfPeriod = checkIsDateStartOrEndOfPeriod(state.startTime, state.startTime, notifyStartDay, notifyEndDay)
             const isEndPeriodNotification = dayjs(state.startTime).format('YYYY-MM-DD') === dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')
-            const startPeriodKey = dayjs(state.startTime).set('date', notifyStartDay).format('YYYY-MM-DD')
-            const endPeriodKey = dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')
-            const periodKey = isEndPeriodNotification ? endPeriodKey : startPeriodKey
+            const periodKey = `${dayjs(state.startTime).set('date', notifyStartDay).format('YYYY-MM-DD')}-${dayjs(state.startTime).set('date', notifyEndDay).format('YYYY-MM-DD')}`
 
             if (isTodayStartOrEndOfPeriod && isEmpty(readingsOfCurrentMeter)) metersWithoutReadings.push({ meter, periodKey, isEndPeriodNotification })
         }

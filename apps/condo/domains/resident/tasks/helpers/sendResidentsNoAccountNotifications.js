@@ -112,12 +112,13 @@ const sendResidentsNoAccountNotificationsForContext = async (billingContext, rec
         )
 
         const serviceConsumersWhere = {
+            billingIntegrationContext: { id: billingContext.id, deletedAt: null },
             organization: { id: billingContext.organization.id, deletedAt: null },
             accountNumber_in: accountNumbers,
             deletedAt: null,
             resident: { deletedAt: null },
         }
-        const serviceConsumers = await loadListByChunks({ context, chunkSize: 50, list: ServiceConsumer, where: serviceConsumersWhere })
+        const serviceConsumers = await loadListByChunks({ context, list: ServiceConsumer, where: serviceConsumersWhere })
         const scResidentIds = uniq(serviceConsumers.map(sc => get(sc, 'resident.id')).filter(Boolean))
 
         const residentsWhere = {
