@@ -30,7 +30,7 @@ export type GraphQlSearchInputOption = {
     data?: any
 }
 
-export type RenderOptionFunc = (option: GraphQlSearchInputOption) => JSX.Element
+export type RenderOptionFunc = (option: GraphQlSearchInputOption, index?: number | string) => JSX.Element
 
 export enum SearchComponentType {
     Select,
@@ -140,7 +140,7 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
     },
     [NotFoundMessage, isInitialLoading, isLoadingMore, isSearchLoading, propsNotFoundContent])
 
-    const renderOption = useCallback((option, index?) => {
+    const renderOption: RenderOptionFunc = useCallback((option, index) => {
         let optionLabel = option.text
 
         if (formatLabel) {
