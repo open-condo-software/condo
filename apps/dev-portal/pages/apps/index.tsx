@@ -21,7 +21,7 @@ import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables }
 
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
-const APP_CARD_GUTTER: RowProps['gutter'] = [24, 24]
+const APP_CARD_GUTTER: RowProps['gutter'] = [20, 20]
 const FULL_COL_SPAN = 24
 const MAX_APPS_TO_SHOW = 100
 
@@ -60,7 +60,7 @@ const MyAppsPage: React.FC = () => {
                             <Row gutter={APP_CARD_GUTTER}>
                                 {apps.map(app => (
                                     <Col span={FULL_COL_SPAN} key={`${app.type}:${app.id}`}>
-                                        <InlineAppCard name={app.name} type={app.type} id={app.id}/>
+                                        <InlineAppCard {...app}/>
                                     </Col>
                                 ))}
                             </Row>

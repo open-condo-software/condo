@@ -2,11 +2,13 @@ import { Montserrat } from 'next/font/google'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 import { useIntl } from 'react-intl'
 
 import { Space, Typography } from '@open-condo/ui'
 import { useBreakpoints } from '@open-condo/ui/dist/hooks'
+
+import { RecentAppsPopover } from '@/domains/miniapp/components/RecentAppsPopover'
 
 import { AuthHeaderAction } from './auth/AuthAction'
 import styles from './Header.module.css'
@@ -43,6 +45,8 @@ export const Header: React.FC = () => {
 
     }, [router, startSignIn, isAuthenticated])
 
+    const MyAppsWrapper = useMemo(() => (isAuthenticated ? RecentAppsPopover : React.Fragment), [isAuthenticated])
+
     return (
         <header className={styles.header}>
             <Space direction='horizontal' size={40}>
@@ -61,9 +65,11 @@ export const Header: React.FC = () => {
                         <Typography.Title level={4} type='inherit' onClick={handleDocsClick}>
                             {DocsSectionTitle}
                         </Typography.Title>
-                        <Typography.Title level={4} type='inherit' onClick={handleAppsClick}>
-                            {AppsSectionTitle}
-                        </Typography.Title>
+                        <MyAppsWrapper>
+                            <Typography.Title level={4} type='inherit' onClick={handleAppsClick}>
+                                {AppsSectionTitle}
+                            </Typography.Title>
+                        </MyAppsWrapper>
                     </Space>
                 )}
             </Space>

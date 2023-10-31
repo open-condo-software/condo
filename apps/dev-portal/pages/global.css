@@ -28,7 +28,7 @@ body {
 .main-layout {
   display: grid;
   grid-gap: 40px;
-  max-width: 1600px;
+  max-width: 1580px;
   margin: 72px auto auto;
   padding: 40px 32px 60px;
 }
@@ -52,6 +52,11 @@ body {
   height: min-content;
   max-height: calc(100vh - 72px - 40px - 28px);
   overflow-y: scroll;
+}
+
+.main-content {
+  max-width: 900px;
+  margin: auto;
 }
 
 .main-layout-sm .main-content {

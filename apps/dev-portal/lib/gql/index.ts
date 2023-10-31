@@ -3485,7 +3485,7 @@ export type AllAppsQueryVariables = Exact<{
 }>
 
 
-export type AllAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null } | null> | null }
+export type AllAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null }
 
 export type CreateB2CAppMutationVariables = Exact<{
     data: B2CAppCreateInput;
@@ -3544,6 +3544,9 @@ export const AllAppsDocument = gql`
     id
     name
     createdAt
+    logo {
+      publicUrl
+    }
   }
 }
     `

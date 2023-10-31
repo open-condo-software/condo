@@ -6,6 +6,7 @@
   "global.action.signIn": "Sign in",
   "global.action.signOut": "Sign out",
   "global.action.signUp": "Sign up",
+  "global.recentApps.title": "Recently created",
   "global.newAppForm.title": "New mini-app",
   "global.newAppForm.b2bApp.label": "B2B app for managing companies",
   "global.newAppForm.b2cApp.label": "B2C app for residents",

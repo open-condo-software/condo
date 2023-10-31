@@ -28,6 +28,18 @@ const nextConfig = {
         serverUrl: SERVER_URL,
         serviceUrl: SERVICE_URL,
     },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'http',
+                hostname: '**',
+            },
+            {
+                protocol: 'https',
+                hostname: '**',
+            },
+        ],
+    },
     async redirects () {
         return [
             {

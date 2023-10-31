@@ -1,33 +1,19 @@
 .app-card-content-container {
   display: grid;
   grid-column-gap: 12px;
-  grid-template-columns: 40px 1fr 16px;
-}
-
-.app-card-logo-col-container {
-  display: flex;
-  flex-direction: column;
+  grid-template-columns: 60px 1fr;
   align-items: center;
 }
 
 .app-card-logo-container {
-  width: 40px;
-  height: 40px;
+  position: relative;
+  width: 60px;
+  height: 60px;
+  padding: 8px;
   background: var(--condo-global-color-gray-3);
   border-radius: 8px;
 }
 
-.app-card-icons-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.app-card-icon > svg {
-  color: var(--condo-global-color-black);
-  transition: color var(--condo-global-transition-duration-default) ease-in-out;
-}
-
-.app-card-icon > svg:hover {
-  color: var(--condo-global-color-green-5);
+.app-logo {
+  object-fit: contain;
 }

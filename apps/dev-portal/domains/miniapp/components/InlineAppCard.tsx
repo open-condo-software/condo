@@ -1,22 +1,19 @@
+import Image from 'next/image'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
 
-import { Settings } from '@open-condo/icons'
 import { Card, Typography } from '@open-condo/ui'
 
 import styles from './InlineAppCard.module.css'
 
+import type { AppInfo } from '@/domains/miniapp/utils/merge'
+
+const IMG_SIZE = 44
 const TITLE_ELLIPSIS = {
     rows: 2,
 }
 
-type InlineAppCardProps =  {
-    id: string
-    name: string
-    type: string
-}
-
-export const InlineAppCard: React.FC<InlineAppCardProps> = ({ name, type, id }) => {
+export const InlineAppCard: React.FC<AppInfo> = ({ name, type, id, logo }) => {
     const router = useRouter()
     const handleCardClick = useCallback(() => {
         const url = `/apps/${type}/${id}`
@@ -26,20 +23,14 @@ export const InlineAppCard: React.FC<InlineAppCardProps> = ({ name, type, id }) 
     return (
         <Card bodyPadding={12} hoverable onClick={handleCardClick}>
             <div className={styles.appCardContentContainer}>
-                <div className={styles.appCardLogoColContainer}>
-                    <div className={styles.appCardLogoContainer}>
-                        {/*  TODO: ICON FILL  */}
-                    </div>
-                    <Typography.Text size='small' type='secondary'>{type.toUpperCase()}</Typography.Text>
+                <div className={styles.appCardLogoContainer}>
+                    {logo && (
+                        <Image src={logo} alt='application logo' width={IMG_SIZE} height={IMG_SIZE} className={styles.appLogo}/>
+                    )}
                 </div>
-                <div>
-                    <Typography.Paragraph ellipsis={TITLE_ELLIPSIS}>
-                        {name}
-                    </Typography.Paragraph>
-                </div>
-                <div className={styles.appCardIconsContainer}>
-                    <Settings size='small' className={styles.appCardIcon}/>
-                </div>
+                <Typography.Paragraph ellipsis={TITLE_ELLIPSIS}>
+                    {name}
+                </Typography.Paragraph>
             </div>
         </Card>
     )

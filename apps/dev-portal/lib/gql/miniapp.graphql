@@ -3,6 +3,9 @@ query allApps($creator: UserWhereInput!, $first: Int!) {
         id
         name
         createdAt
+        logo {
+            publicUrl
+        }
     }
 }
 
