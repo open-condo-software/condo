@@ -5,18 +5,19 @@
 const { get } = require('lodash')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getLogger } = require('@open-condo/keystone/logging')
-const { getById, find } = require('@open-condo/keystone/schema')
+const { getById } = require('@open-condo/keystone/schema')
 
-const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const {
+    INVOICE_STATUS_PUBLISHED,
+    INVOICE_STATUS_PAID,
+    INVOICE_STATUS_DRAFT,
+} = require('@condo/domains/marketplace/constants')
 const {
     queryOrganizationEmployeeFor,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-
-const logger = getLogger('invoiceAccess')
 
 async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (!user) return throwAuthenticationError()
@@ -25,42 +26,19 @@ async function canReadInvoices ({ authentication: { item: user }, context }) {
     if (user.isAdmin || user.isSupport) return {}
 
     if (user.type === RESIDENT) {
-        const residents = await find('Resident', { deletedAt: null, user: { id: user.id } })
-
-        if (residents.length === 0) {
-            return false
-        }
-
-        if (residents.length > 50) {
-            logger.warn({
-                msg: `user ${user.id} has ${residents.length} residents`,
-                reqId: context.req.id,
-                userId: user.id,
-            })
-        }
-
-        const serviceConsumers = await find('ServiceConsumer', {
-            deletedAt: null,
-            resident: { id_in: residents.map(({ id }) => id) },
-        })
-
-        if (serviceConsumers.length > 50) {
-            logger.warn({
-                msg: `user ${user.id} has ${serviceConsumers.length} service consumers`,
-                reqId: context.req.id,
-                userId: user.id,
-            })
-        }
-
         return {
             deletedAt: null,
-            status: INVOICE_STATUS_PUBLISHED,
+            client: { id: user.id },
             OR: [
-                ...residents.map((resident) => ({ AND: [{ property: { addressKey: resident.addressKey } }, { unitType: resident.unitType }, { unitName: resident.unitName }] })),
-                ...serviceConsumers.map((serviceConsumer) => ({ AND: [{ context: { organization: { id: serviceConsumer.organization } } }, { accountNumber: serviceConsumer.accountNumber }] })),
+                { status_in: [INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID] },
+                {
+                    AND: [
+                        { status: INVOICE_STATUS_DRAFT },
+                        { createdBy: { type: RESIDENT } },
+                    ],
+                },
             ],
         }
-
     }
 
     return {

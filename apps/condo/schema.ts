@@ -24721,12 +24721,14 @@ export type Invoice = {
   rows: Array<InvoiceRowSchemaField>;
   /**  The ticket related to this invoice  */
   ticket?: Maybe<Ticket>;
-  /**  The contact the invoice created for. Fill if invoice was created or connected via the ticket form  */
+  /**  The contact the invoice created for. Fill by organization  */
   contact?: Maybe<Contact>;
   /**  The user who sees the invoice. Must filled with the user of corresponding resident.  */
   client?: Maybe<User>;
-  /**  The regime of counting taxes for company  */
+  /**  Invoice status affects which invoices can be read by residents and which invoices can be managed  */
   status?: Maybe<Scalars['String']>;
+  /**  Shows which payment type chosen: online or cash or something else  */
+  paymentType?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25249,6 +25251,7 @@ export type InvoiceCreateInput = {
   contact?: Maybe<ContactRelateToOneInput>;
   client?: Maybe<UserRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
+  paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25283,6 +25286,7 @@ export type InvoiceHistoryRecord = {
   contact?: Maybe<Scalars['String']>;
   client?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  paymentType?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25311,6 +25315,7 @@ export type InvoiceHistoryRecordCreateInput = {
   contact?: Maybe<Scalars['String']>;
   client?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25344,6 +25349,7 @@ export type InvoiceHistoryRecordUpdateInput = {
   contact?: Maybe<Scalars['String']>;
   client?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
+  paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25469,6 +25475,24 @@ export type InvoiceHistoryRecordWhereInput = {
   status_not_ends_with_i?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentType?: Maybe<Scalars['String']>;
+  paymentType_not?: Maybe<Scalars['String']>;
+  paymentType_contains?: Maybe<Scalars['String']>;
+  paymentType_not_contains?: Maybe<Scalars['String']>;
+  paymentType_starts_with?: Maybe<Scalars['String']>;
+  paymentType_not_starts_with?: Maybe<Scalars['String']>;
+  paymentType_ends_with?: Maybe<Scalars['String']>;
+  paymentType_not_ends_with?: Maybe<Scalars['String']>;
+  paymentType_i?: Maybe<Scalars['String']>;
+  paymentType_not_i?: Maybe<Scalars['String']>;
+  paymentType_contains_i?: Maybe<Scalars['String']>;
+  paymentType_not_contains_i?: Maybe<Scalars['String']>;
+  paymentType_starts_with_i?: Maybe<Scalars['String']>;
+  paymentType_not_starts_with_i?: Maybe<Scalars['String']>;
+  paymentType_ends_with_i?: Maybe<Scalars['String']>;
+  paymentType_not_ends_with_i?: Maybe<Scalars['String']>;
+  paymentType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -25573,8 +25597,8 @@ export type InvoiceRowSchemaField = {
   toPay: Scalars['String'];
   count: Scalars['Int'];
   currencyCode: Scalars['String'];
-  vat?: Maybe<Scalars['String']>;
-  salesTax?: Maybe<Scalars['String']>;
+  vatPercent?: Maybe<Scalars['String']>;
+  salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
 };
 
@@ -25583,9 +25607,14 @@ export type InvoiceRowSchemaFieldInput = {
   toPay: Scalars['String'];
   count: Scalars['Int'];
   currencyCode: Scalars['String'];
-  vat?: Maybe<Scalars['String']>;
-  salesTax?: Maybe<Scalars['String']>;
+  vatPercent?: Maybe<Scalars['String']>;
+  salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
+};
+
+export type InvoiceRowsInput = {
+  priceScope: MarketPriceScopeWhereUniqueInput;
+  count: Scalars['Int'];
 };
 
 export type InvoiceUpdateInput = {
@@ -25601,6 +25630,7 @@ export type InvoiceUpdateInput = {
   contact?: Maybe<ContactRelateToOneInput>;
   client?: Maybe<UserRelateToOneInput>;
   status?: Maybe<Scalars['String']>;
+  paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25689,6 +25719,10 @@ export type InvoiceWhereInput = {
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentType?: Maybe<Scalars['String']>;
+  paymentType_not?: Maybe<Scalars['String']>;
+  paymentType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paymentType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -39694,6 +39728,7 @@ export type Mutation = {
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   createPaymentByLink?: Maybe<CreatePaymentByLinkOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
+  registerInvoice?: Maybe<RegisterInvoiceOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
   authenticateUserWithPassword?: Maybe<AuthenticateUserOutput>;
   unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -47572,6 +47607,11 @@ export type MutationCreatePaymentByLinkArgs = {
 
 export type MutationSendB2CAppPushMessageArgs = {
   data: SendB2CAppPushMessageInput;
+};
+
+
+export type MutationRegisterInvoiceArgs = {
+  data: RegisterInvoiceInput;
 };
 
 
@@ -67605,6 +67645,18 @@ export type RegisterBillingReceiptsInput = {
   receipts: Array<RegisterBillingReceiptInput>;
 };
 
+export type RegisterInvoiceInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  resident: ResidentWhereUniqueInput;
+  invoiceRows: Array<InvoiceRowsInput>;
+};
+
+export type RegisterInvoiceOutput = {
+  __typename?: 'RegisterInvoiceOutput';
+  invoice: Invoice;
+};
+
 export type RegisterMultiPaymentForOneReceiptInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
@@ -73399,6 +73451,8 @@ export enum SortInvoiceHistoryRecordsBy {
   ToPayDesc = 'toPay_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  PaymentTypeAsc = 'paymentType_ASC',
+  PaymentTypeDesc = 'paymentType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -73440,6 +73494,8 @@ export enum SortInvoicesBy {
   ClientDesc = 'client_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
+  PaymentTypeAsc = 'paymentType_ASC',
+  PaymentTypeDesc = 'paymentType_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

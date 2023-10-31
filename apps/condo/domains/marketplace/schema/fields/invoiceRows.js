@@ -10,8 +10,8 @@ const invoiceRowSchemaFields = {
     toPay: 'String!',
     count: 'Int!',
     currencyCode: 'String!',
-    vat: 'String',
-    salesTax: 'String',
+    vatPercent: 'String',
+    salesTaxPercent: 'String',
     sku: 'String',
 }
 
@@ -36,8 +36,8 @@ const rowsFieldSchema = {
             toPay: { type: 'string' },
             count: { type: 'integer' },
             currencyCode: { type: 'string' },
-            vat: { type: 'string' },
-            salesTax: { type: 'string' },
+            vatPercent: { type: 'string' },
+            salesTaxPercent: { type: 'string' },
             sku: { type: 'string' },
         },
         required: ['name', 'toPay', 'count', 'currencyCode'],
