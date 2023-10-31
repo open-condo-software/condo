@@ -15,6 +15,7 @@ const {
     INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
+    ERROR_INVOICE_EMPTY_ROWS,
 } = require('@condo/domains/marketplace/constants')
 const { ERROR_NO_INVOICE_CONTEXT, ERROR_ITEM_FROM_OTHER_ORGANIZATION } = require('@condo/domains/marketplace/constants')
 const { Invoice, MarketPriceScope } = require('@condo/domains/marketplace/utils/serverSchema')
@@ -34,6 +35,12 @@ const ERRORS = {
         messageForUser: 'api.marketplace.registerInvoice.error.itemFromOtherOrganization',
         messageInterpolation: { rowNumber },
     }),
+    EMPTY_ROWS: {
+        code: BAD_USER_INPUT,
+        type: ERROR_INVOICE_EMPTY_ROWS,
+        message: 'The invoice contains no rows',
+        messageForUser: 'api.marketplace.invoice.error.emptyRows',
+    },
 }
 
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3'
@@ -105,7 +112,26 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     sku: get(priceScope, ['marketItemPrice', 'marketItem', 'sku']),
                 }))
 
-                const ticketPayload = {
+                if (rows.length === 0) {
+                    throw new GQLError(ERRORS.EMPTY_ROWS, context)
+                }
+
+                // To be sure that we do not create ticket without invoice, we create invoice first
+                // Then we create the ticket and connect the invoice
+                const invoice = await Invoice.create(context, {
+                    dv,
+                    sender,
+                    context: { connect: { id: invoiceContext.id } },
+                    property: { connect: { id: resident.property } },
+                    unitType: resident.unitType,
+                    unitName: resident.unitName,
+                    toPay: rows.reduce((result, row) => Big(result).plus(row.toPay).toString(), 0),
+                    rows,
+                    status: hasMinPrice ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PUBLISHED,
+                    client: { connect: { id: userId } },
+                })
+
+                const ticket = await Ticket.create(context, {
                     dv,
                     sender,
                     organization: { connect: { id: resident.organization } },
@@ -118,25 +144,9 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     unitType: resident.unitType,
                     unitName: resident.unitName,
                     source: { connect: { id: MOBILE_APP_RESIDENT_TICKET_SOURCE_ID } },
-                }
+                })
 
-                const ticket = await Ticket.create(context, ticketPayload)
-
-                const invoicePayload = {
-                    dv,
-                    sender,
-                    context: { connect: { id: invoiceContext.id } },
-                    property: { connect: { id: resident.property } },
-                    unitType: resident.unitType,
-                    unitName: resident.unitName,
-                    toPay: rows.reduce((result, row) => Big(result).plus(row.toPay).toString(), 0),
-                    rows,
-                    ticket: { connect: { id: ticket.id } },
-                    status: hasMinPrice ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PUBLISHED,
-                    client: { connect: { id: userId } },
-                }
-
-                const invoice = await Invoice.create(context, invoicePayload)
+                await Invoice.update(context, invoice.id, { dv, sender, ticket: { connect: { id: ticket.id } } })
 
                 return { invoice: await getById('Invoice', invoice.id) }
             },

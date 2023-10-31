@@ -292,5 +292,49 @@ describe('RegisterInvoiceService', () => {
             expect(invoices[0].client.id).toBe(residentClient.user.id)
             expect(invoices[0].status).toBe(INVOICE_STATUS_DRAFT)
         })
+
+        test('can\'t create invoice with no rows', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            await createTestInvoiceContext(adminClient, o10n, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            await expectToThrowGQLError(async () => await registerInvoiceByTestClient(
+                residentClient,
+                pick(resident, 'id'),
+                [],
+            ), {
+                code: 'BAD_USER_INPUT',
+                type: 'EMPTY_ROWS',
+                message: 'The invoice contains no rows',
+                messageForUser: 'api.marketplace.invoice.error.emptyRows',
+            }, 'result')
+
+            await expectToThrowGQLError(async () => await registerInvoiceByTestClient(
+                residentClient,
+                pick(resident, 'id'),
+                [{
+                    priceScope: { id: faker.datatype.uuid() }, // try to pass some non-existing uuid
+                    count: 1,
+                }],
+            ), {
+                code: 'BAD_USER_INPUT',
+                type: 'EMPTY_ROWS',
+                message: 'The invoice contains no rows',
+                messageForUser: 'api.marketplace.invoice.error.emptyRows',
+            }, 'result')
+        })
     })
 })
