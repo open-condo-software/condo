@@ -888,6 +888,16 @@ describe('NewsItems', () => {
             )
         })
 
+        test('should create news if exceptions of profanity are detected within title or body (case insensitive)', async () => {
+            const [newsItem, attrs] = await createTestNewsItem(adminClient, dummyO10n, {
+                title: 'Сдача ИПУ!',
+                body: 'Необходимо сдать ипу',
+            })
+
+            expect(newsItem.title).toEqual(attrs.title)
+            expect(newsItem.body).toEqual(attrs.body)
+        })
+
         test('must throw an error if send date points to the past', async () => {
             await expectToThrowGQLError(
                 async () => await createTestNewsItem(adminClient, dummyO10n, {

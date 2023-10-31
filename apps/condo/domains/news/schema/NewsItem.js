@@ -28,6 +28,7 @@ const {
 const { NEWS_TYPES, NEWS_TYPE_EMERGENCY, NEWS_TYPE_COMMON } = require('@condo/domains/news/constants/newsTypes')
 const { notifyResidentsAboutNewsItem } = require('@condo/domains/news/tasks')
 const { NewsItemScope } = require('@condo/domains/news/utils/serverSchema')
+const { checkBadWordsExclusions } = require('@condo/domains/news/utils/serverSchema/badWords')
 
 const badWords = new BadWordsNext()
 badWords.add(badWordsRu)
@@ -238,6 +239,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             const nextTitle = get(resolvedData, 'title')
             if (nextTitle) {
                 badWords.filter(nextTitle, (badWord) => {
+                    if (checkBadWordsExclusions(badWord)) return
                     titleBadWords.push(badWord)
                 })
             }
@@ -246,6 +248,7 @@ const NewsItem = new GQLListSchema('NewsItem', {
             const nextBody = get(resolvedData, 'body')
             if (nextBody) {
                 badWords.filter(nextBody, (badWord) => {
+                    if (checkBadWordsExclusions(badWord)) return
                     bodyBadWords.push(badWord)
                 })
             }
