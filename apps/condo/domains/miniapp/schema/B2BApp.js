@@ -88,7 +88,7 @@ const B2BApp = new GQLListSchema('B2BApp', {
         label: LABEL_FIELD,
         gallery: GALLERY_FIELD,
         price: PRICE_FIELD,
-        newsSharingFeatureConfig: {
+        newsSharingConfig: {
             schemaDoc: 'Configuration for News Sharing feature. If specified, then this B2BApp is embeddable to the /news page and supports News Sharing API',
             type: Relationship,
             ref: 'B2BAppNewsSharingConfig',
