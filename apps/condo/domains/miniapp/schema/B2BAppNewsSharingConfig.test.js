@@ -40,7 +40,7 @@ describe('B2BAppNewsSharingConfig', () => {
                 expect(obj).toEqual(expect.objectContaining(createPayload))
             })
 
-            test('support can\'t', async () => {
+            test('support can', async () => {
                 const [obj, attrs] = await createTestB2BAppNewsSharingConfig(support, createPayload)
 
                 expectValuesOfCommonFields(obj, attrs, support)
