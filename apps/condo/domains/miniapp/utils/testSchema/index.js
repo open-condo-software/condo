@@ -505,6 +505,7 @@ async function createTestB2BAppNewsSharingConfig (client, extraAttrs = {}) {
     const attrs = {
         dv: 1,
         sender,
+        name: 'telegram',
         publishUrl: faker.internet.url(),
         previewUrl: faker.internet.url(),
         getRecipientsUrl: faker.internet.url(),

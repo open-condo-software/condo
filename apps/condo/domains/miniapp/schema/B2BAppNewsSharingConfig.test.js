@@ -28,6 +28,7 @@ describe('B2BAppNewsSharingConfig', () => {
         })
         describe('create', () => {
             const createPayload = {
+                name: 'telegram',
                 publishUrl: faker.internet.url(),
                 previewUrl: faker.internet.url(),
                 getRecipientsUrl: faker.internet.url(),
