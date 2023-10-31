@@ -5,6 +5,8 @@ import { useIntl } from 'react-intl'
 import { Menu, Close } from '@open-condo/icons'
 import { Button, Space, Typography } from '@open-condo/ui'
 
+import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
+
 import { UserBadge } from './auth/AuthAction'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import styles from './MobileMenu.module.css'
@@ -16,11 +18,12 @@ const MobileMenuAction: React.FC = () => {
     const { isAuthenticated, startSignIn } = useAuth()
     const SignInMessage = intl.formatMessage({ id: 'global.action.signIn' })
     const CreateAppMessage = intl.formatMessage({ id: 'global.action.createApp' })
+    const { createApp } = useCreateAppContext()
 
     return (
         <div className={styles.mobileActionContainer}>
             {isAuthenticated ? (
-                <Button type='secondary' block disabled>{CreateAppMessage}</Button>
+                <Button type='secondary' block onClick={createApp}>{CreateAppMessage}</Button>
             ) : (
                 <Button type='primary' block onClick={startSignIn}>{SignInMessage}</Button>
             )}

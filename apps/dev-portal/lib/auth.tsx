@@ -1,5 +1,6 @@
 import { ApolloClient, NormalizedCacheObject } from '@apollo/client'
 import get from 'lodash/get'
+import { useRouter } from 'next/router'
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react'
 
 import { Modal } from '@open-condo/ui'
@@ -45,6 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
     const { data: auth, loading: userLoading, refetch } = useAuthenticatedUserQuery()
 
     const [user, setUser] = useState<AuthenticatedUserType>(get(auth, 'authenticatedUser', null))
+    const router = useRouter()
 
     const refetchAuth = useCallback(async () => {
         await apolloClient.clearStore()
@@ -57,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactElement }> = ({ child
             if (success) {
                 setUser(null)
             }
-            await refetchAuth()
+            await refetchAuth().then(() => router.push('/', '/', { locale: router.locale }))
         },
         onError: (error) => {
             console.error(error)

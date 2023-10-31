@@ -7,6 +7,7 @@ import { Noto_Sans_Mono }  from 'next/font/google'
 import localFont from 'next/font/local'
 import { IntlProvider } from 'react-intl'
 
+import { CreateAppContextProvider } from '@/domains/common/components/CreateAppContext'
 import { theme } from '@/domains/common/constants/antd'
 import { LOCALES, DEFAULT_LOCALE } from '@/domains/common/constants/locales'
 
@@ -62,7 +63,9 @@ function DevPortalApp ({ Component, pageProps, router }: AppProps): ReactNode {
                 <AuthProvider>
                     <ConfigProvider theme={theme}>
                         <main className={`${mainFont.variable} ${monoFont.variable}`}>
-                            <Component {...pageProps}/>
+                            <CreateAppContextProvider>
+                                <Component {...pageProps}/>
+                            </CreateAppContextProvider>
                         </main>
                     </ConfigProvider>
                 </AuthProvider>

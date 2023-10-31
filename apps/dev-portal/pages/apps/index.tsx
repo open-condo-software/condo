@@ -6,8 +6,10 @@ import { useIntl } from 'react-intl'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Typography } from '@open-condo/ui'
+import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
+import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
 import { EmptyView } from '@/domains/common/components/EmptyView'
 import { InlineAppCard } from '@/domains/miniapp/components/InlineAppCard'
 
@@ -34,6 +36,9 @@ const MyAppsPage: React.FC = () => {
     const NoAppsTitle = intl.formatMessage({ id: 'apps.empty.title' })
     const NoAppsDescription = intl.formatMessage({ id: 'apps.empty.description' })
     const CreateAppLabel = intl.formatMessage({ id: 'global.action.createApp' })
+    const { createApp } = useCreateAppContext()
+    const bp = useBreakpoints()
+    console.log(bp)
 
     const { user } = useAuth()
     const [apps, setApps] = useState<Array<AppInfo>>([])
@@ -87,7 +92,7 @@ const MyAppsPage: React.FC = () => {
                         title={NoAppsTitle}
                         description={NoAppsDescription}
                         actionLabel={CreateAppLabel}
-                        onAction={() => null}
+                        onAction={createApp}
                     />
                 )}
             </BaseLayout>

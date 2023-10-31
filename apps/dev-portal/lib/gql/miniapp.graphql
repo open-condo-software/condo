@@ -5,3 +5,10 @@ query allApps($creator: UserWhereInput!) {
         createdAt
     }
 }
+
+mutation createB2CApp($data: B2CAppCreateInput!) {
+    createB2CApp(data: $data) {
+        id
+        name
+    }
+}
