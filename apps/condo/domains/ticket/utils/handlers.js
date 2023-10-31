@@ -18,10 +18,11 @@ const { sendMessage } = require('@condo/domains/notification/utils/serverSchema'
 const { ORGANIZATION_NAME_PREFIX_AND_QUOTES_REGEXP } = require('@condo/domains/organization/constants/common')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { sendTicketCreatedNotifications } = require('@condo/domains/ticket/tasks')
+const { sendTicketCommentCreatedNotifications } = require('@condo/domains/ticket/tasks')
 const {
     sendTicketCommentNotifications: sendTicketCommentNotificationsTask,
 } = require('@condo/domains/ticket/tasks/sendTicketCommentNotifications')
-const { sendTicketCreatedNotifications } = require('@condo/domains/ticket/tasks/sendTicketCreatedNorifications')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -279,6 +280,12 @@ const sendTicketNotifications = async (requestData) => {
 
 const sendTicketCommentNotifications = async (requestData) => {
     const { operation, updatedItem } = requestData
+
+    if (operation === 'create') {
+        const ticketId = get(updatedItem, 'ticket')
+
+        await sendTicketCommentCreatedNotifications.delay(updatedItem.id, ticketId)
+    }
 
     await sendTicketCommentNotificationsTask.delay({
         operation,

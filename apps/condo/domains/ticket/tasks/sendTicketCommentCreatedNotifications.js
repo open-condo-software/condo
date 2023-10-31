@@ -2,12 +2,11 @@ const { get } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { getByCondition, getSchemaCtx, getById } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
-const { getUsersAvailableToReadTicketByPropertyScope } = require('apps/condo/domains/ticket/utils/serverSchema/propertyScope')
+const { getUsersAvailableToReadTicketByPropertyScope } = require('@condo/domains/ticket/utils/serverSchema/propertyScope')
 
 
 /**
@@ -16,8 +15,8 @@ const { getUsersAvailableToReadTicketByPropertyScope } = require('apps/condo/dom
 const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
     const { keystone: context } = await getSchemaCtx('Ticket')
     const createdComment = await getById('TicketComment', commentId)
-    const user = await getById('User', createdComment.user)
-    const userName = user.name
+    const commentAuthor = await getById('User', createdComment.user)
+    const commentAuthorName = commentAuthor.name
     const ticket = await getById('Ticket', ticketId)
     const ticketOrganizationId = get(ticket, 'organization')
 
@@ -51,17 +50,17 @@ const sendTicketCommentCreatedNotifications = async (commentId, ticketId) => {
                     organizationId: organization.id,
                     organizationName: organization.name,
                     commentId,
-                    userName,
+                    userName: commentAuthorName,
                     content: createdComment.content,
                     commentType: createdComment.type,
                 },
             },
-            sender: createdComment.sender,
+            sender: { dv: 1, fingerprint: 'send-notifications' },
             organization: { id: organization.id },
         })
     }
 }
 
 module.exports = {
-    sendTicketCommentCreatedNotifications: createTask('sendTicketCommentCreatedNotifications', sendTicketCommentCreatedNotifications),
+    sendTicketCommentCreatedNotifications,
 }

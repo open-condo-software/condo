@@ -83,6 +83,7 @@ describe('propertyScope ticket helpers', () => {
 
         const specializationsToDelete = await OrganizationEmployeeSpecialization.getAll(admin, {
             employee: { id: employeeWithPropertyAndSpecializationTicketVisibility.id },
+            deletedAt: null,
         })
 
         for (const spec of specializationsToDelete) {

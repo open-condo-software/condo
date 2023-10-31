@@ -1,6 +1,5 @@
 const conf = require('@open-condo/config')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
-const { createTask } = require('@open-condo/keystone/tasks')
 
 const { TICKET_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { sendMessage } = require('@condo/domains/notification/utils/serverSchema')
@@ -39,12 +38,12 @@ const sendTicketCreatedNotifications = async (ticketId, lang, organizationId, or
                     details: createdTicket.details,
                 },
             },
-            sender: createdTicket.sender,
+            sender: { dv: 1, fingerprint: 'send-notifications' },
             organization: { id: organizationId },
         })
     }
 }
 
 module.exports = {
-    sendTicketCreatedNotifications: createTask('sendTicketCreatedNotifications', sendTicketCreatedNotifications),
+    sendTicketCreatedNotifications,
 }
