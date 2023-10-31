@@ -7,7 +7,7 @@ const { faker } = require('@faker-js/faker')
 
 const { setFakeClientMode, makeLoggedInAdminClient, waitFor } = require('@open-condo/keystone/test.utils')
 
-const { TICKET_CREATED_TYPE, TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
+const { TICKET_COMMENT_CREATED_TYPE } = require('@condo/domains/notification/constants/constants')
 const { NO_TELEGRAM_CHAT_FOR_USER } = require('@condo/domains/notification/constants/errors')
 const { Message, createTestTelegramUserChat, TelegramUserChat } = require('@condo/domains/notification/utils/testSchema')
 const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
@@ -100,7 +100,7 @@ describe('sendTicketCommentCreatedNotifications', ()  => {
 
         await waitFor(async () => {
             const messages = await Message.getAll(admin, {
-                type: TICKET_CREATED_TYPE,
+                type: TICKET_COMMENT_CREATED_TYPE,
                 user: { id: employeeClient.user.id },
                 deletedAt: null,
             }, { sortBy: 'createdAt_DESC' })
