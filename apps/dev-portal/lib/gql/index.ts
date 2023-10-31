@@ -3481,6 +3481,7 @@ export type UnauthenticateUserOutput = {
 
 export type AllAppsQueryVariables = Exact<{
     creator: UserWhereInput;
+    first: Scalars['Int']['input'];
 }>
 
 
@@ -3534,8 +3535,12 @@ export type RegisterNewUserMutation = { __typename?: 'Mutation', registerNewUser
 
 
 export const AllAppsDocument = gql`
-    query allApps($creator: UserWhereInput!) {
-  b2c: allB2CApps(sortBy: createdAt_DESC, where: {createdBy: $creator}) {
+    query allApps($creator: UserWhereInput!, $first: Int!) {
+  b2c: allB2CApps(
+    sortBy: createdAt_DESC
+    where: {createdBy: $creator}
+    first: $first
+  ) {
     id
     name
     createdAt
@@ -3556,6 +3561,7 @@ export const AllAppsDocument = gql`
  * const { data, loading, error } = useAllAppsQuery({
  *   variables: {
  *      creator: // value for 'creator'
+ *      first: // value for 'first'
  *   },
  * });
  */

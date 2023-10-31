@@ -12,7 +12,6 @@ import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 
 import type { RowProps } from 'antd'
 
-import { useAuth } from '@/lib/auth'
 import { useCreateB2CAppMutation, CreateB2CAppMutation, AllAppsDocument } from '@/lib/gql'
 
 type CreateAppContextType = {
@@ -47,7 +46,6 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const { trimValidator } = useValidations()
 
     const router = useRouter()
-    const { user } = useAuth()
 
     const onError = useMutationErrorHandler()
     const onB2CCompleted = useCallback((data: CreateB2CAppMutation) => {
@@ -61,7 +59,7 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const [createB2CAppMutation] = useCreateB2CAppMutation({
         onError,
         onCompleted: onB2CCompleted,
-        refetchQueries: [{ query: AllAppsDocument, variables: { creator: { id: user?.id } } }],
+        refetchQueries: [AllAppsDocument],
     })
 
     const handleModalOpen = useCallback(() => {

@@ -1,21 +1,21 @@
 import { Row, Col } from 'antd'
 import { GetServerSideProps } from 'next'
 import Head from 'next/head'
-import React, { useState } from 'react'
+import React from 'react'
 import { useIntl } from 'react-intl'
 
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Typography } from '@open-condo/ui'
-import { useBreakpoints } from '@open-condo/ui/dist/hooks'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { useCreateAppContext } from '@/domains/common/components/CreateAppContext'
 import { EmptyView } from '@/domains/common/components/EmptyView'
 import { InlineAppCard } from '@/domains/miniapp/components/InlineAppCard'
+import { mergeApps } from '@/domains/miniapp/utils/merge'
 
+import type { AppInfo } from '@/domains/miniapp/utils/merge'
 import type { RowProps } from 'antd'
 
-import { initializeApollo } from '@/lib/apollo'
+import { extractApolloState, initializeApollo } from '@/lib/apollo'
 import { extractAuthHeadersFromRequest, prefetchAuth, useAuth } from '@/lib/auth'
 import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables } from '@/lib/gql'
 
@@ -23,12 +23,7 @@ import { useAllAppsQuery, AllAppsDocument, AllAppsQuery, AllAppsQueryVariables }
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const APP_CARD_GUTTER: RowProps['gutter'] = [24, 24]
 const FULL_COL_SPAN = 24
-
-type AppInfo = {
-    id: string
-    name: string
-    type: 'b2c' | 'b2b'
-}
+const MAX_APPS_TO_SHOW = 100
 
 const MyAppsPage: React.FC = () => {
     const intl = useIntl()
@@ -37,33 +32,17 @@ const MyAppsPage: React.FC = () => {
     const NoAppsDescription = intl.formatMessage({ id: 'apps.empty.description' })
     const CreateAppLabel = intl.formatMessage({ id: 'global.action.createApp' })
     const { createApp } = useCreateAppContext()
-    const bp = useBreakpoints()
-    console.log(bp)
 
     const { user } = useAuth()
-    const [apps, setApps] = useState<Array<AppInfo>>([])
 
     const { data } = useAllAppsQuery({
         variables: {
             creator: { id: user?.id },
+            first: MAX_APPS_TO_SHOW,
         },
     })
 
-    useDeepCompareEffect(() => {
-        if (data) {
-            const b2cApps = data.b2c || []
-            const allApps: Array<AppInfo> = []
-            b2cApps.reduce((acc, app) => {
-                if (app && app.name && app.createdAt) {
-                    acc.push({ type: 'b2c', name: app.name, id: app.id })
-                }
-                return acc
-            }, allApps)
-            setApps(allApps)
-        } else {
-            setApps([])
-        }
-    }, [data])
+    const apps: Array<AppInfo> = mergeApps(data)
 
 
     return (
@@ -120,13 +99,14 @@ export const getServerSideProps: GetServerSideProps = async ({ req }) => {
         query: AllAppsDocument,
         variables: {
             creator: { id: authedUser.id },
+            first: MAX_APPS_TO_SHOW,
         },
         context: { headers },
     })
 
-    return {
+    return extractApolloState(client, {
         props: {},
-    }
+    })
 }
 
 
