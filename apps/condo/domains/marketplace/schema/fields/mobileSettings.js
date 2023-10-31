@@ -41,6 +41,7 @@ const validateSettingsField = getGQLErrorValidator(ajv.compile(SETTINGS_FIELD_SC
 
 const MOBILE_SETTINGS_FIELD = {
     schemaDoc: 'Settings for mobile ui',
+    adminDoc: 'mobileSettings = {"bgColor":"#rrggbb", "titleColor":"#rrggbb"}',
     type: 'Json',
     isRequired: true,
     hooks: {

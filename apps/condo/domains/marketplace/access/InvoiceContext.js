@@ -12,12 +12,18 @@ const {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
+const { canDirectlyManageSchemaObjects, canDirectlyReadSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
-async function canReadInvoiceContexts ({ authentication: { item: user } }) {
+
+async function canReadInvoiceContexts ({ authentication: { item: user }, listKey }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return {}
+
+    if (user.type === SERVICE) {
+        return await canDirectlyReadSchemaObjects(user, listKey)
+    }
 
     return {
         organization: {
@@ -30,11 +36,15 @@ async function canReadInvoiceContexts ({ authentication: { item: user } }) {
     }
 }
 
-async function canManageInvoiceContexts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageInvoiceContexts ({ authentication: { item: user }, originalInput, listKey, operation, itemId }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
     if (user.type === RESIDENT) return false
+
+    if (user.type === SERVICE) {
+        return await canDirectlyManageSchemaObjects(user, listKey, originalInput, operation)
+    }
 
     let organizationId
 

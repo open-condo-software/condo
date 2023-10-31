@@ -77800,6 +77800,10 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
   CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
   CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadInvoiceContextsAsc = 'canReadInvoiceContexts_ASC',
+  CanReadInvoiceContextsDesc = 'canReadInvoiceContexts_DESC',
+  CanManageInvoiceContextsAsc = 'canManageInvoiceContexts_ASC',
+  CanManageInvoiceContextsDesc = 'canManageInvoiceContexts_DESC',
   CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
   CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
@@ -77875,6 +77879,10 @@ export enum SortUserRightsSetsBy {
   CanReadB2CAppPropertiesDesc = 'canReadB2CAppProperties_DESC',
   CanManageB2CAppPropertiesAsc = 'canManageB2CAppProperties_ASC',
   CanManageB2CAppPropertiesDesc = 'canManageB2CAppProperties_DESC',
+  CanReadInvoiceContextsAsc = 'canReadInvoiceContexts_ASC',
+  CanReadInvoiceContextsDesc = 'canReadInvoiceContexts_DESC',
+  CanManageInvoiceContextsAsc = 'canManageInvoiceContexts_ASC',
+  CanManageInvoiceContextsDesc = 'canManageInvoiceContexts_DESC',
   CanReadOrganizationsAsc = 'canReadOrganizations_ASC',
   CanReadOrganizationsDesc = 'canReadOrganizations_DESC',
   CanManageOrganizationsAsc = 'canManageOrganizations_ASC',
@@ -88263,6 +88271,10 @@ export type UserRightsSet = {
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2CAppProperty" similar to support users  */
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "InvoiceContext" as support / admin users do  */
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "InvoiceContext" similar to support users  */
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do  */
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "Organization" similar to support users  */
@@ -88315,6 +88327,8 @@ export type UserRightsSetCreateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
@@ -88365,6 +88379,8 @@ export type UserRightsSetHistoryRecord = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
@@ -88409,6 +88425,8 @@ export type UserRightsSetHistoryRecordCreateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
@@ -88458,6 +88476,8 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
@@ -88540,6 +88560,10 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
@@ -88674,6 +88698,8 @@ export type UserRightsSetUpdateInput = {
   canManageB2CAppBuilds?: Maybe<Scalars['Boolean']>;
   canReadB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']>;
   canReadTickets?: Maybe<Scalars['Boolean']>;
@@ -88753,6 +88779,10 @@ export type UserRightsSetWhereInput = {
   canReadB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties?: Maybe<Scalars['Boolean']>;
   canManageB2CAppProperties_not?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canReadInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts?: Maybe<Scalars['Boolean']>;
+  canManageInvoiceContexts_not?: Maybe<Scalars['Boolean']>;
   canReadOrganizations?: Maybe<Scalars['Boolean']>;
   canReadOrganizations_not?: Maybe<Scalars['Boolean']>;
   canManageOrganizations?: Maybe<Scalars['Boolean']>;

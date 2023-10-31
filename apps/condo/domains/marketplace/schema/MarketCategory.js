@@ -35,7 +35,6 @@ const imageMetaAfterChange = getFileMetaAfterChange(MARKET_CATEGORY_FILE_ADAPTER
 
 const MarketCategory = new GQLListSchema('MarketCategory', {
     schemaDoc: 'An entity that allows you to define a category tree in the marketplace',
-    adminDoc: 'mobileSettings = {"bgColor":"#rrggbb", "titleColor":"#rrggbb"}',
     fields: {
 
         name: {
