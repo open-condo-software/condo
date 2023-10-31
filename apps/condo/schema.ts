@@ -1996,7 +1996,7 @@ export type B2BApp = {
   /**  String representing a base price of app. Usually it's something like "Free", "Individual", "$50 / year"  */
   price?: Maybe<Scalars['String']>;
   /**  Configuration for News Sharing feature. If specified, then this B2BApp is embeddable to the /news page and supports News Sharing API  */
-  newsSharingFeatureConfig?: Maybe<B2BAppNewsSharingConfig>;
+  newsSharingConfig?: Maybe<B2BAppNewsSharingConfig>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3161,7 +3161,7 @@ export type B2BAppCreateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Array<Scalars['String']>>;
   price?: Maybe<Scalars['String']>;
-  newsSharingFeatureConfig?: Maybe<B2BAppNewsSharingConfigRelateToOneInput>;
+  newsSharingConfig?: Maybe<B2BAppNewsSharingConfigRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3208,7 +3208,7 @@ export type B2BAppHistoryRecord = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
-  newsSharingFeatureConfig?: Maybe<Scalars['String']>;
+  newsSharingConfig?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -3244,7 +3244,7 @@ export type B2BAppHistoryRecordCreateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
-  newsSharingFeatureConfig?: Maybe<Scalars['String']>;
+  newsSharingConfig?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3285,7 +3285,7 @@ export type B2BAppHistoryRecordUpdateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Scalars['JSON']>;
   price?: Maybe<Scalars['String']>;
-  newsSharingFeatureConfig?: Maybe<Scalars['String']>;
+  newsSharingConfig?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -3531,10 +3531,10 @@ export type B2BAppHistoryRecordWhereInput = {
   price_not_ends_with_i?: Maybe<Scalars['String']>;
   price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newsSharingFeatureConfig?: Maybe<Scalars['String']>;
-  newsSharingFeatureConfig_not?: Maybe<Scalars['String']>;
-  newsSharingFeatureConfig_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newsSharingFeatureConfig_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newsSharingConfig?: Maybe<Scalars['String']>;
+  newsSharingConfig_not?: Maybe<Scalars['String']>;
+  newsSharingConfig_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newsSharingConfig_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -3626,7 +3626,7 @@ export type B2BAppHistoryRecordsUpdateInput = {
   data?: Maybe<B2BAppHistoryRecordUpdateInput>;
 };
 
-/**  News Sharing B2BApp allow b2b users to share their NewsItem to external source like Telegram or Whatsapp from /news page  */
+/**  News Sharing B2BApp allow b2b users to share their NewsItem to external source (like Telegram) from /news page  */
 export type B2BAppNewsSharingConfig = {
   __typename?: 'B2BAppNewsSharingConfig';
   /**
@@ -3637,6 +3637,8 @@ export type B2BAppNewsSharingConfig = {
    *  4. As an alias to the 'id' field on the B2BAppNewsSharingConfig List.
    */
   _label_?: Maybe<Scalars['String']>;
+  /**  Short and simple name of the external source. For example: Telegram  */
+  name?: Maybe<Scalars['String']>;
   /**  URL that implements publishing NewsItem method  */
   publishUrl?: Maybe<Scalars['String']>;
   /**  URL that returns HTML preview NewsItem  */
@@ -3660,6 +3662,7 @@ export type B2BAppNewsSharingConfig = {
 };
 
 export type B2BAppNewsSharingConfigCreateInput = {
+  name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
@@ -3685,6 +3688,7 @@ export type B2BAppNewsSharingConfigHistoryRecord = {
    *  4. As an alias to the 'id' field on the B2BAppNewsSharingConfigHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
+  name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
@@ -3704,6 +3708,7 @@ export type B2BAppNewsSharingConfigHistoryRecord = {
 };
 
 export type B2BAppNewsSharingConfigHistoryRecordCreateInput = {
+  name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
@@ -3728,6 +3733,7 @@ export enum B2BAppNewsSharingConfigHistoryRecordHistoryActionType {
 }
 
 export type B2BAppNewsSharingConfigHistoryRecordUpdateInput = {
+  name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
@@ -3748,6 +3754,24 @@ export type B2BAppNewsSharingConfigHistoryRecordUpdateInput = {
 export type B2BAppNewsSharingConfigHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<B2BAppNewsSharingConfigHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<B2BAppNewsSharingConfigHistoryRecordWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   publishUrl?: Maybe<Scalars['String']>;
   publishUrl_not?: Maybe<Scalars['String']>;
   publishUrl_contains?: Maybe<Scalars['String']>;
@@ -3901,6 +3925,7 @@ export type B2BAppNewsSharingConfigRelateToOneInput = {
 };
 
 export type B2BAppNewsSharingConfigUpdateInput = {
+  name?: Maybe<Scalars['String']>;
   publishUrl?: Maybe<Scalars['String']>;
   previewUrl?: Maybe<Scalars['String']>;
   getRecipientsUrl?: Maybe<Scalars['String']>;
@@ -3918,6 +3943,24 @@ export type B2BAppNewsSharingConfigUpdateInput = {
 export type B2BAppNewsSharingConfigWhereInput = {
   AND?: Maybe<Array<Maybe<B2BAppNewsSharingConfigWhereInput>>>;
   OR?: Maybe<Array<Maybe<B2BAppNewsSharingConfigWhereInput>>>;
+  name?: Maybe<Scalars['String']>;
+  name_not?: Maybe<Scalars['String']>;
+  name_contains?: Maybe<Scalars['String']>;
+  name_not_contains?: Maybe<Scalars['String']>;
+  name_starts_with?: Maybe<Scalars['String']>;
+  name_not_starts_with?: Maybe<Scalars['String']>;
+  name_ends_with?: Maybe<Scalars['String']>;
+  name_not_ends_with?: Maybe<Scalars['String']>;
+  name_i?: Maybe<Scalars['String']>;
+  name_not_i?: Maybe<Scalars['String']>;
+  name_contains_i?: Maybe<Scalars['String']>;
+  name_not_contains_i?: Maybe<Scalars['String']>;
+  name_starts_with_i?: Maybe<Scalars['String']>;
+  name_not_starts_with_i?: Maybe<Scalars['String']>;
+  name_ends_with_i?: Maybe<Scalars['String']>;
+  name_not_ends_with_i?: Maybe<Scalars['String']>;
+  name_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  name_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   publishUrl?: Maybe<Scalars['String']>;
   publishUrl_not?: Maybe<Scalars['String']>;
   publishUrl_contains?: Maybe<Scalars['String']>;
@@ -5309,7 +5352,7 @@ export type B2BAppUpdateInput = {
   label?: Maybe<Scalars['String']>;
   gallery?: Maybe<Array<Scalars['String']>>;
   price?: Maybe<Scalars['String']>;
-  newsSharingFeatureConfig?: Maybe<B2BAppNewsSharingConfigRelateToOneInput>;
+  newsSharingConfig?: Maybe<B2BAppNewsSharingConfigRelateToOneInput>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -5502,8 +5545,8 @@ export type B2BAppWhereInput = {
   price_not_ends_with_i?: Maybe<Scalars['String']>;
   price_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   price_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  newsSharingFeatureConfig?: Maybe<B2BAppNewsSharingConfigWhereInput>;
-  newsSharingFeatureConfig_is_null?: Maybe<Scalars['Boolean']>;
+  newsSharingConfig?: Maybe<B2BAppNewsSharingConfigWhereInput>;
+  newsSharingConfig_is_null?: Maybe<Scalars['Boolean']>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -71394,6 +71437,8 @@ export enum SortB2BAppHistoryRecordsBy {
 }
 
 export enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   PublishUrlAsc = 'publishUrl_ASC',
   PublishUrlDesc = 'publishUrl_DESC',
   PreviewUrlAsc = 'previewUrl_ASC',
@@ -71419,6 +71464,8 @@ export enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
 }
 
 export enum SortB2BAppNewsSharingConfigsBy {
+  NameAsc = 'name_ASC',
+  NameDesc = 'name_DESC',
   PublishUrlAsc = 'publishUrl_ASC',
   PublishUrlDesc = 'publishUrl_DESC',
   PreviewUrlAsc = 'previewUrl_ASC',
@@ -71634,8 +71681,8 @@ export enum SortB2BAppsBy {
   LabelDesc = 'label_DESC',
   PriceAsc = 'price_ASC',
   PriceDesc = 'price_DESC',
-  NewsSharingFeatureConfigAsc = 'newsSharingFeatureConfig_ASC',
-  NewsSharingFeatureConfigDesc = 'newsSharingFeatureConfig_DESC',
+  NewsSharingConfigAsc = 'newsSharingConfig_ASC',
+  NewsSharingConfigDesc = 'newsSharingConfig_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

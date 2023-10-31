@@ -58785,7 +58785,7 @@ type B2BAppHistoryRecord {
   label: String
   gallery: JSON
   price: String
-  newsSharingFeatureConfig: String
+  newsSharingConfig: String
   id: ID!
   v: Int
   createdAt: String
@@ -59032,10 +59032,10 @@ input B2BAppHistoryRecordWhereInput {
   price_not_ends_with_i: String
   price_in: [String]
   price_not_in: [String]
-  newsSharingFeatureConfig: String
-  newsSharingFeatureConfig_not: String
-  newsSharingFeatureConfig_in: [String]
-  newsSharingFeatureConfig_not_in: [String]
+  newsSharingConfig: String
+  newsSharingConfig_not: String
+  newsSharingConfig_in: [String]
+  newsSharingConfig_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59187,7 +59187,7 @@ input B2BAppHistoryRecordUpdateInput {
   label: String
   gallery: JSON
   price: String
-  newsSharingFeatureConfig: String
+  newsSharingConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -59227,7 +59227,7 @@ input B2BAppHistoryRecordCreateInput {
   label: String
   gallery: JSON
   price: String
-  newsSharingFeatureConfig: String
+  newsSharingConfig: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -59356,7 +59356,7 @@ type B2BApp {
 
   """ Configuration for News Sharing feature. If specified, then this B2BApp is embeddable to the /news page and supports News Sharing API 
   """
-  newsSharingFeatureConfig: B2BAppNewsSharingConfig
+  newsSharingConfig: B2BAppNewsSharingConfig
   id: ID!
   v: Int
   createdAt: String
@@ -59564,8 +59564,8 @@ input B2BAppWhereInput {
   price_not_ends_with_i: String
   price_in: [String]
   price_not_in: [String]
-  newsSharingFeatureConfig: B2BAppNewsSharingConfigWhereInput
-  newsSharingFeatureConfig_is_null: Boolean
+  newsSharingConfig: B2BAppNewsSharingConfigWhereInput
+  newsSharingConfig_is_null: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59663,8 +59663,8 @@ enum SortB2BAppsBy {
   label_DESC
   price_ASC
   price_DESC
-  newsSharingFeatureConfig_ASC
-  newsSharingFeatureConfig_DESC
+  newsSharingConfig_ASC
+  newsSharingConfig_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59704,7 +59704,7 @@ input B2BAppUpdateInput {
   label: String
   gallery: [String!]
   price: String
-  newsSharingFeatureConfig: B2BAppNewsSharingConfigRelateToOneInput
+  newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -59742,7 +59742,7 @@ input B2BAppCreateInput {
   label: String
   gallery: [String!]
   price: String
-  newsSharingFeatureConfig: B2BAppNewsSharingConfigRelateToOneInput
+  newsSharingConfig: B2BAppNewsSharingConfigRelateToOneInput
   v: Int
   createdAt: String
   updatedAt: String
@@ -64737,6 +64737,7 @@ type B2BAppNewsSharingConfigHistoryRecord {
    4. As an alias to the 'id' field on the B2BAppNewsSharingConfigHistoryRecord List.
   """
   _label_: String
+  name: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -64758,6 +64759,24 @@ type B2BAppNewsSharingConfigHistoryRecord {
 input B2BAppNewsSharingConfigHistoryRecordWhereInput {
   AND: [B2BAppNewsSharingConfigHistoryRecordWhereInput]
   OR: [B2BAppNewsSharingConfigHistoryRecordWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -64895,6 +64914,8 @@ input B2BAppNewsSharingConfigHistoryRecordWhereUniqueInput {
 }
 
 enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
+  name_ASC
+  name_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -64920,6 +64941,7 @@ enum SortB2BAppNewsSharingConfigHistoryRecordsBy {
 }
 
 input B2BAppNewsSharingConfigHistoryRecordUpdateInput {
+  name: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -64943,6 +64965,7 @@ input B2BAppNewsSharingConfigHistoryRecordsUpdateInput {
 }
 
 input B2BAppNewsSharingConfigHistoryRecordCreateInput {
+  name: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -64964,7 +64987,7 @@ input B2BAppNewsSharingConfigHistoryRecordsCreateInput {
   data: B2BAppNewsSharingConfigHistoryRecordCreateInput
 }
 
-""" News Sharing B2BApp allow b2b users to share their NewsItem to external source like Telegram or Whatsapp from /news page 
+""" News Sharing B2BApp allow b2b users to share their NewsItem to external source (like Telegram) from /news page 
 """
 type B2BAppNewsSharingConfig {
   """
@@ -64975,6 +64998,9 @@ type B2BAppNewsSharingConfig {
    4. As an alias to the 'id' field on the B2BAppNewsSharingConfig List.
   """
   _label_: String
+
+  """ Short and simple name of the external source. For example: Telegram """
+  name: String
 
   """ URL that implements publishing NewsItem method """
   publishUrl: String
@@ -65010,6 +65036,24 @@ type B2BAppNewsSharingConfig {
 input B2BAppNewsSharingConfigWhereInput {
   AND: [B2BAppNewsSharingConfigWhereInput]
   OR: [B2BAppNewsSharingConfigWhereInput]
+  name: String
+  name_not: String
+  name_contains: String
+  name_not_contains: String
+  name_starts_with: String
+  name_not_starts_with: String
+  name_ends_with: String
+  name_not_ends_with: String
+  name_i: String
+  name_not_i: String
+  name_contains_i: String
+  name_not_contains_i: String
+  name_starts_with_i: String
+  name_not_starts_with_i: String
+  name_ends_with_i: String
+  name_not_ends_with_i: String
+  name_in: [String]
+  name_not_in: [String]
   publishUrl: String
   publishUrl_not: String
   publishUrl_contains: String
@@ -65127,6 +65171,8 @@ input B2BAppNewsSharingConfigWhereUniqueInput {
 }
 
 enum SortB2BAppNewsSharingConfigsBy {
+  name_ASC
+  name_DESC
   publishUrl_ASC
   publishUrl_DESC
   previewUrl_ASC
@@ -65152,6 +65198,7 @@ enum SortB2BAppNewsSharingConfigsBy {
 }
 
 input B2BAppNewsSharingConfigUpdateInput {
+  name: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
@@ -65172,6 +65219,7 @@ input B2BAppNewsSharingConfigsUpdateInput {
 }
 
 input B2BAppNewsSharingConfigCreateInput {
+  name: String
   publishUrl: String
   previewUrl: String
   getRecipientsUrl: String
