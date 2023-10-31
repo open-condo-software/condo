@@ -25,8 +25,14 @@ const access = require('@condo/domains/miniapp/access/B2BApp')
  */
 const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
 
-    schemaDoc: 'News Sharing B2BApp allow b2b users to share their NewsItem to external source like Telegram or Whatsapp from /news page',
+    schemaDoc: 'News Sharing B2BApp allow b2b users to share their NewsItem to external source (like Telegram) from /news page',
     fields: {
+        name: {
+            schemaDoc: 'Short and simple name of the external source. For example: Telegram',
+            type: Text,
+            isRequired: true,
+        },
+
         publishUrl: {
             schemaDoc: 'URL that implements publishing NewsItem method',
             type: Url,
