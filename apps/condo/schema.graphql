@@ -3141,6 +3141,8 @@ type UserRightsSetHistoryRecord {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadInvoiceContexts: Boolean
+  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3224,6 +3226,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadInvoiceContexts: Boolean
+  canReadInvoiceContexts_not: Boolean
+  canManageInvoiceContexts: Boolean
+  canManageInvoiceContexts_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -3363,6 +3369,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadInvoiceContexts_ASC
+  canReadInvoiceContexts_DESC
+  canManageInvoiceContexts_ASC
+  canManageInvoiceContexts_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -3417,6 +3427,8 @@ input UserRightsSetHistoryRecordUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadInvoiceContexts: Boolean
+  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3465,6 +3477,8 @@ input UserRightsSetHistoryRecordCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadInvoiceContexts: Boolean
+  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3586,6 +3600,14 @@ type UserRightsSet {
   """
   canManageB2CAppProperties: Boolean
 
+  """ Enables a user with the given UserRightsSet to view all entities of model "InvoiceContext" as support / admin users do 
+  """
+  canReadInvoiceContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "InvoiceContext" similar to support users 
+  """
+  canManageInvoiceContexts: Boolean
+
   """ Enables a user with the given UserRightsSet to view all entities of model "Organization" as support / admin users do 
   """
   canReadOrganizations: Boolean
@@ -3697,6 +3719,10 @@ input UserRightsSetWhereInput {
   canReadB2CAppProperties_not: Boolean
   canManageB2CAppProperties: Boolean
   canManageB2CAppProperties_not: Boolean
+  canReadInvoiceContexts: Boolean
+  canReadInvoiceContexts_not: Boolean
+  canManageInvoiceContexts: Boolean
+  canManageInvoiceContexts_not: Boolean
   canReadOrganizations: Boolean
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
@@ -3816,6 +3842,10 @@ enum SortUserRightsSetsBy {
   canReadB2CAppProperties_DESC
   canManageB2CAppProperties_ASC
   canManageB2CAppProperties_DESC
+  canReadInvoiceContexts_ASC
+  canReadInvoiceContexts_DESC
+  canManageInvoiceContexts_ASC
+  canManageInvoiceContexts_DESC
   canReadOrganizations_ASC
   canReadOrganizations_DESC
   canManageOrganizations_ASC
@@ -3870,6 +3900,8 @@ input UserRightsSetUpdateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadInvoiceContexts: Boolean
+  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
@@ -3915,6 +3947,8 @@ input UserRightsSetCreateInput {
   canManageB2CAppBuilds: Boolean
   canReadB2CAppProperties: Boolean
   canManageB2CAppProperties: Boolean
+  canReadInvoiceContexts: Boolean
+  canManageInvoiceContexts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
   canReadTickets: Boolean
