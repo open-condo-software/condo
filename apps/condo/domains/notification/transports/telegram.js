@@ -21,7 +21,7 @@ async function prepareMessageToSend (message) {
 /**
  * Send a Telegram notification to chat with user
  */
-async function send ({ userId, message, html } = {}) {
+async function send ({ userId, html } = {}) {
     const telegramUserChat = await getByCondition('TelegramUserChat', {
         user: { id: userId },
         deletedAt: null,

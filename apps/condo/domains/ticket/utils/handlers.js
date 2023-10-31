@@ -21,11 +21,14 @@ const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransition
 const {
     sendTicketCommentNotifications: sendTicketCommentNotificationsTask,
 } = require('@condo/domains/ticket/tasks/sendTicketCommentNotifications')
+const { sendTicketCreatedNotifications } = require('@condo/domains/ticket/tasks/sendTicketCreatedNorifications')
 const { UserTicketCommentReadTime } = require('@condo/domains/ticket/utils/serverSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 const { Ticket, TicketCommentsTime } = require('./serverSchema')
 
+
+const TICKET_CREATED = 'TICKET_CREATED'
 const ASSIGNEE_CONNECTED_EVENT_TYPE = 'ASSIGNEE_CONNECTED'
 const EXECUTOR_CONNECTED_EVENT_TYPE = 'EXECUTOR_CONNECTED'
 const STATUS_CHANGED_EVENT_TYPE = 'STATUS_CHANGED'
@@ -57,6 +60,11 @@ const detectTicketEventTypes = ({ operation, existingItem, updatedItem }) => {
     const isResidentTicket = get(updatedItem, 'isResidentTicket')
     const canReadByResident = get(updatedItem, 'canReadByResident')
     const result = {}
+
+    /**
+     * ticket created
+     */
+    result[TICKET_CREATED] = isCreateOperation
 
     /**
      * assignee connected within create ticket operation or
@@ -129,6 +137,10 @@ const sendTicketNotifications = async (requestData) => {
      */
     const organizationCountry = get(organization, 'country', conf.DEFAULT_LOCALE)
     const lang = get(COUNTRIES, [organizationCountry, 'locale'], conf.DEFAULT_LOCALE)
+
+    if (eventTypes[TICKET_CREATED]) {
+        await sendTicketCreatedNotifications.delay(updatedItem.id, lang, organization.id, organization.name)
+    }
 
     if (eventTypes[ASSIGNEE_CONNECTED_EVENT_TYPE]) {
         const userId = nextAssigneeId || prevAssigneeId
@@ -264,6 +276,7 @@ const sendTicketNotifications = async (requestData) => {
         }
     }
 }
+
 const sendTicketCommentNotifications = async (requestData) => {
     const { operation, updatedItem } = requestData
 
