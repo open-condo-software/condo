@@ -2,7 +2,7 @@ const KEYWORDS = {
     parking: ['автоместо', 'парковка', 'паркинг', 'машиноместо', 'гараж', 'м/м', 'мм', 'место', 'м/место', 'а/м', 'бокс', 'парк'],
     apartment: ['аппарт', 'апарт', 'ап'],
     commercial: ['офис', 'оф'],
-    warehouse: ['помещение', 'подвал', 'помещ', 'пом', 'кл'],
+    warehouse: ['помещение', 'подвал', 'помещ', 'пом', 'кл', 'кладовка', 'кладовая', 'нп'],
     flat: ['квартира', 'кв', 'комн'],
 }
 
@@ -15,7 +15,7 @@ class AddressFromStringParser {
 
     constructor () {
         const keywordsRegex = this.keywordsToRegexp(Object.values(KEYWORDS).flat())
-        this.splitRegexp = new RegExp(`(.*?[${HOUSE_IDENTIFIERS}].*?)\\s(${keywordsRegex}[.\\s].*?)`, 'i')
+        this.splitRegexp = new RegExp(`(.*?[${HOUSE_IDENTIFIERS}].*?)\\s(${keywordsRegex})[.\\s,].*?`, 'i')
     }
 
     /**
