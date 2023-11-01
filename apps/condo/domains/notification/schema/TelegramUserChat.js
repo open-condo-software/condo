@@ -28,6 +28,12 @@ const TelegramUserChat = new GQLListSchema('TelegramUserChat', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
+                fields: ['user'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'TelegramUserChat_unique_user',
+            },
+            {
+                type: 'models.UniqueConstraint',
                 fields: ['telegramChatId'],
                 condition: 'Q(deletedAt__isnull=True)',
                 name: 'TelegramUserChat_unique_telegramChatId',

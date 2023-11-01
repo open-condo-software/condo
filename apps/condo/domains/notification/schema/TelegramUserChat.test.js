@@ -19,13 +19,12 @@ describe('TelegramUserChat', () => {
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
         support = await makeClientWithSupportUser()
-        firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
-        secondUser = await makeClientWithNewRegisteredAndLoggedInUser()
         anonymous = await makeClient()
     })
 
     describe('Create', () => {
         it('Admin can create TelegramUserChat for any user', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(admin, firstUser.user, { telegramChatId })
 
@@ -35,6 +34,8 @@ describe('TelegramUserChat', () => {
         })
 
         it('User can create TelegramUserChat only for himself', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const secondUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
 
@@ -48,6 +49,7 @@ describe('TelegramUserChat', () => {
         })
 
         it('Anonymous can not create TelegramUserChat', async () => {
+            const secondUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
 
             await expectToThrowAuthenticationErrorToObj(
@@ -58,6 +60,7 @@ describe('TelegramUserChat', () => {
 
     describe('Update', () => {
         it('Admin can update TelegramUserChat for any user', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(admin, firstUser.user, { telegramChatId })
             const newTelegramChatId = faker.random.alphaNumeric(8)
@@ -68,6 +71,8 @@ describe('TelegramUserChat', () => {
         })
 
         it('User can update only TelegramUserChat with same user', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const secondUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
             const newTelegramChatId = faker.random.alphaNumeric(8)
@@ -83,6 +88,7 @@ describe('TelegramUserChat', () => {
         })
 
         it('Anonymous can not update TelegramUserChat', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
             const otherTelegramChatId = faker.random.alphaNumeric(8)
@@ -95,6 +101,7 @@ describe('TelegramUserChat', () => {
 
     describe('Soft delete', () => {
         it('Admin can soft delete TelegramUserChat for any user', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(admin, firstUser.user, { telegramChatId })
             const [deletedUserChat] = await updateTestTelegramUserChat(admin, telegramUserChat.id, { deletedAt: 'true' })
@@ -104,6 +111,8 @@ describe('TelegramUserChat', () => {
         })
 
         it('User can soft delete only TelegramUserChat with same user', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const secondUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
             const [deletedUserChat] = await updateTestTelegramUserChat(firstUser, telegramUserChat.id, { deletedAt: 'true' })
@@ -119,6 +128,7 @@ describe('TelegramUserChat', () => {
         })
 
         it('Anonymous can not soft delete TelegramUserChat', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
 
@@ -130,6 +140,7 @@ describe('TelegramUserChat', () => {
 
     describe('Read', () => {
         it('Admin can read all TelegramUserChats', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
 
@@ -139,6 +150,7 @@ describe('TelegramUserChat', () => {
         })
 
         it('Support can read all TelegramUserChats', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
 
@@ -148,6 +160,8 @@ describe('TelegramUserChat', () => {
         })
 
         it('User can read only TelegramUserChats with same user', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const secondUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
             const otherTelegramChatId = faker.random.alphaNumeric(8)
@@ -161,6 +175,7 @@ describe('TelegramUserChat', () => {
         })
 
         it('Anonymous can not read TelegramUserChats', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             const [telegramUserChat] = await createTestTelegramUserChat(firstUser, firstUser.user, { telegramChatId })
 
@@ -172,6 +187,8 @@ describe('TelegramUserChat', () => {
 
     describe('Constraints', () => {
         it('Unique telegramChatId field', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const secondUser = await makeClientWithNewRegisteredAndLoggedInUser()
             const telegramChatId = faker.random.alphaNumeric(8)
             await createTestTelegramUserChat(admin, firstUser.user, { telegramChatId })
 
@@ -179,6 +196,19 @@ describe('TelegramUserChat', () => {
                 await createTestTelegramUserChat(admin, secondUser.user, { telegramChatId })
             }, (caught) => {
                 expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "TelegramUserChat_unique_telegramChatId"')
+            })
+        })
+
+        it('Unique user field', async () => {
+            const firstUser = await makeClientWithNewRegisteredAndLoggedInUser()
+            const telegramChatId1 = faker.random.alphaNumeric(8)
+            const telegramChatId2 = faker.random.alphaNumeric(8)
+            await createTestTelegramUserChat(admin, firstUser.user, { telegramChatId: telegramChatId1 })
+
+            await catchErrorFrom(async () => {
+                await createTestTelegramUserChat(admin, firstUser.user, { telegramChatId: telegramChatId2 })
+            }, (caught) => {
+                expect(caught.errors[0].message).toContain('duplicate key value violates unique constraint "TelegramUserChat_unique_user"')
             })
         })
     })

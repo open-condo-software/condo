@@ -24,17 +24,18 @@ async function prepareMessageToSend (message) {
 
     const { text, html } = await renderTemplate(TELEGRAM_TRANSPORT, message)
 
-    return { userId, message: text, html, telegramChatId }
+    return { userId, text, html, telegramChatId }
 }
 
 /**
  * Send a Telegram notification to chat with user
  */
-async function send ({ telegramChatId, html } = {}) {
+async function send ({ telegramChatId, text, html } = {}) {
+    const messageData = html ? { text: html, parse_mode: 'HTML' } : { text }
+
     const result = await axios.post(`https://api.telegram.org/bot${conf.TELEGRAM_EMPLOYEE_BOT_TOKEN}/sendMessage`, {
         chat_id: telegramChatId,
-        text: html,
-        parse_mode: 'HTML',
+        ...messageData,
     })
 
     return [true, result.data]

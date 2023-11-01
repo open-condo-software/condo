@@ -12,7 +12,7 @@ const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOr
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { PropertyScope } = require('@condo/domains/scope/utils/testSchema')
 const { createTestPropertyScope, createTestPropertyScopeOrganizationEmployee, createTestPropertyScopeProperty } = require('@condo/domains/scope/utils/testSchema')
-const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/testSchema')
+const { createTestTicket, createTestTicketClassifier } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 
 const { getUsersAvailableToReadTicketByPropertyScope } = require('./propertyScope')
