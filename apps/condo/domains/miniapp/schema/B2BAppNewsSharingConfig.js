@@ -5,7 +5,7 @@
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
-const access = require('@condo/domains/miniapp/access/B2BApp')
+const access = require('@condo/domains/miniapp/access/B2BAppNewsSharingConfig')
 
 
 /**
@@ -51,9 +51,9 @@ const B2BAppNewsSharingConfig = new GQLListSchema('B2BAppNewsSharingConfig', {
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
     access: {
-        read: access.canReadB2BApps,
-        create: access.canManageB2BApps,
-        update: access.canManageB2BApps,
+        read: access.canReadB2BAppNewsSharingConfigs,
+        create: access.canManageB2BAppNewsSharingConfigs,
+        update: access.canManageB2BAppNewsSharingConfigs,
         delete: false,
         auth: true,
     },
