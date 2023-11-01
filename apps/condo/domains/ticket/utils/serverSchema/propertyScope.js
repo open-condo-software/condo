@@ -60,8 +60,9 @@ const getUsersAvailableToReadTicketByPropertyScope = async ({
         isAccepted: true,
         isBlocked: false,
     })
+    const roleIds = roles.map(role => role.id)
     const employees = organizationEmployees.filter(
-        employee => roles.map(role => role.id).includes(employee.role)
+        employee => roleIds.includes(employee.role)
     )
     const availableToReadTicketUsers = [ticketExecutorId, ticketAssigneeId]
 
