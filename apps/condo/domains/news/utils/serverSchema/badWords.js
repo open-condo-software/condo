@@ -1,4 +1,4 @@
-const BAD_WORDS_EXCLUSIONS = ['ипу', 'хуй', 'пизда', 'жыгурда']
+const BAD_WORDS_EXCLUSIONS = ['ипу']
 
 const SPECIAL_CHARS = /\d|[!@#$%^&*()[\];:'",.?\-_=+~`|]|a|(?:the)|(?:el)|(?:la)/
 
