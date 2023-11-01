@@ -20,6 +20,7 @@ const {
 } = require('@condo/domains/acquiring/constants/recurrentPayment')
 const {
     RecurrentPaymentContext,
+    RecurrentPaymentContextLite,
     createTestRecurrentPaymentContext,
     updateTestRecurrentPaymentContext,
     RecurrentPayment,
@@ -236,6 +237,39 @@ describe('RecurrentPaymentContext', () => {
                 const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await RecurrentPaymentContext.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                })
+            })
+        })
+
+        describe('soft delete', () => {
+            test('admin can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
+                await RecurrentPaymentContextLite.softDelete(admin, objCreated.id)
+
+                const recurrentPaymentContext = await RecurrentPaymentContextLite.getOne(admin, { id: objCreated.id })
+                expect(recurrentPaymentContext).not.toBeDefined()
+            })
+
+            test('support can', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const request = await getContextRequest()
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, request)
+
+                const client = await makeClientWithSupportUser()
+                await RecurrentPaymentContextLite.softDelete(client, objCreated.id)
+
+                const recurrentPaymentContext = await RecurrentPaymentContextLite.getOne(client, { id: objCreated.id })
+                expect(recurrentPaymentContext).not.toBeDefined()
+            })
+
+            test('anonymous can\'t', async () => {
+                const admin = await makeLoggedInAdminClient()
+                const [objCreated] = await createTestRecurrentPaymentContext(admin, await getContextRequest())
+
+                const client = await makeClient()
+                await expectToThrowAuthenticationErrorToObj(async () => {
+                    await RecurrentPaymentContextLite.softDelete(client, objCreated.id)
                 })
             })
         })

@@ -17,6 +17,7 @@ const {
 const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 
+const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 const { MULTIPAYMENT_INIT_STATUS } = require('@condo/domains/acquiring/constants/payment')
 const { makeLoggedInAdminClient } = require('@open-condo/keystone/test.utils')
@@ -61,6 +62,9 @@ const PaymentsFilterTemplate = generateGQLTestUtils(PaymentsFilterTemplateGQL)
 const RecurrentPaymentContext = generateGQLTestUtils(RecurrentPaymentContextGQL)
 const RecurrentPayment = generateGQLTestUtils(RecurrentPaymentGQL)
 /* AUTOGENERATE MARKER <CONST> */
+
+const RecurrentPaymentContextLiteGQL = generateGqlQueries('RecurrentPaymentContext', '{ id }')
+const RecurrentPaymentContextLite = generateGQLTestUtils(RecurrentPaymentContextLiteGQL)
 
 function getRandomHiddenCard() {
     const prefix = Math.floor(Math.random() * 9000 + 1000)
@@ -740,7 +744,7 @@ module.exports = {
     registerMultiPaymentForVirtualReceiptByTestClient,
     generatePaymentLinkByTestClient,
     sumPaymentsByTestClient,
-    RecurrentPaymentContext, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
+    RecurrentPaymentContext, RecurrentPaymentContextLite, createTestRecurrentPaymentContext, updateTestRecurrentPaymentContext,
     RecurrentPayment, createTestRecurrentPayment, updateTestRecurrentPayment,
     createPaymentByLinkByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
