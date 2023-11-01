@@ -1,9 +1,11 @@
 import { Form } from 'antd'
 import { isEmpty } from 'lodash'
+import get from 'lodash/get'
 import React from 'react'
 
 import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar } from '@open-condo/ui'
 
 import { ButtonWithDisabledTooltip } from '@condo/domains/common/components/ButtonWithDisabledTooltip'
@@ -27,6 +29,9 @@ export const CreateMeterReadingsActionBar = ({
     const ErrorsContainerTitle = intl.formatMessage({ id: 'errorsContainer.requiredErrors' })
     const AddressLabel = intl.formatMessage({ id: 'field.Address' })
     const UnitMessage = intl.formatMessage({ id: 'field.UnitName' })
+
+    const { link } = useOrganization()
+    const canManageMeters = get(link, 'role.canManageMeters', false)
 
     return (
         <Form.Item
@@ -76,16 +81,18 @@ export const CreateMeterReadingsActionBar = ({
                                 >
                                     {SendMetersReadingMessage}
                                 </ButtonWithDisabledTooltip>,
-                                <ButtonWithDisabledTooltip
-                                    key='addMeter'
-                                    title={requiredErrorMessage}
-                                    onClick={handleAddMeterButtonClick}
-                                    type='secondary'
-                                    disabled={isCreateMeterButtonDisabled}
-                                    icon={<PlusCircle size='medium'/>}
-                                >
-                                    {AddMeterMessage}
-                                </ButtonWithDisabledTooltip>,
+                                canManageMeters && (
+                                    <ButtonWithDisabledTooltip
+                                        key='addMeter'
+                                        title={requiredErrorMessage}
+                                        onClick={handleAddMeterButtonClick}
+                                        type='secondary'
+                                        disabled={isCreateMeterButtonDisabled}
+                                        icon={<PlusCircle size='medium'/>}
+                                    >
+                                        {AddMeterMessage}
+                                    </ButtonWithDisabledTooltip>
+                                ),
                             ]}
                         />
                     )

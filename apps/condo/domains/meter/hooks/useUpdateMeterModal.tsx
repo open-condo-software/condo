@@ -5,6 +5,8 @@ import pick from 'lodash/pick'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
+import { ButtonProps } from '@open-condo/ui'
 
 import {
     DeleteButtonWithConfirmModal,
@@ -36,6 +38,9 @@ export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_P
     const isAutomatic = get(selectedMeter, 'isAutomatic', false)
     const masterAppName = get(selectedMeter, ['b2bApp', 'name'], DeletedMessage)
     const organizationId = get(selectedMeter, ['organization', 'id'])
+
+    const { link } = useOrganization()
+    const canManageMeters = get(link, 'role.canManageMeters', false)
 
     const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
     const MeterIdentity = !isPropertyMeter ? Meter : PropertyMeter
@@ -73,10 +78,11 @@ export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_P
                     action={handleDeleteButtonClick}
                     buttonContent={DeleteMessage}
                     showCancelButton
+                    disabled={!canManageMeters}
                 />,
             ]
 
-    }, [ConfirmDeleteMessage, ConfirmDeleteTitle, DeleteMessage, handleDeleteButtonClick, isAutomatic])
+    }, [ConfirmDeleteMessage, ConfirmDeleteTitle, DeleteMessage, canManageMeters, handleDeleteButtonClick, isAutomatic])
 
     const modalTitle = `${MeterNumberMessage} ${meterNumber}`
 
