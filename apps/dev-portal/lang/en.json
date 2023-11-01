@@ -6,6 +6,7 @@
   "global.action.signIn": "Sign in",
   "global.action.signOut": "Sign out",
   "global.action.signUp": "Sign up",
+  "global.action.save": "Save",
   "global.recentApps.title": "Recently created",
   "global.newAppForm.title": "New mini-app",
   "global.newAppForm.b2bApp.label": "B2B app for managing companies",
@@ -43,5 +44,11 @@
   "docs.prevArticle": "Back: {title}",
   "docs.menu.title": "Navigation",
   "apps.empty.title": "You don't have any apps yet",
-  "apps.empty.description": "Want to create the first one right now?"
+  "apps.empty.description": "Want to create the first one right now?",
+  "apps.id.menu.title": "App settings",
+  "apps.id.successSave.title": "Changes have been saved",
+  "apps.id.successSave.description": "Don't forget to publish the changes to the corresponding stand for them to take effect",
+  "apps.b2c.sections.info.title": "Info",
+  "apps.b2c.sections.info.commonInfo.subtitle": "Common info",
+  "apps.b2c.sections.info.icons.subtitle": "App icons"
 }

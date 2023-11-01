@@ -27,6 +27,7 @@ const MAX_APPS_TO_SHOW = 100
 
 const MyAppsPage: React.FC = () => {
     const intl = useIntl()
+    const ServiceTitleMessage = intl.formatMessage({ id: 'global.service.name' })
     const PageTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
     const NoAppsTitle = intl.formatMessage({ id: 'apps.empty.title' })
     const NoAppsDescription = intl.formatMessage({ id: 'apps.empty.description' })
@@ -48,7 +49,7 @@ const MyAppsPage: React.FC = () => {
     return (
         <>
             <Head>
-                <title>{PageTitle}</title>
+                <title>{`${PageTitle} | ${ServiceTitleMessage}`}</title>
             </Head>
             <BaseLayout>
                 {apps.length ? (

@@ -3487,12 +3487,28 @@ export type AllAppsQueryVariables = Exact<{
 
 export type AllAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, createdAt?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null }
 
+export type GetB2CAppQueryVariables = Exact<{
+    id: Scalars['ID']['input'];
+    creator: UserWhereInput;
+}>
+
+
+export type GetB2CAppQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null }
+
 export type CreateB2CAppMutationVariables = Exact<{
     data: B2CAppCreateInput;
 }>
 
 
 export type CreateB2CAppMutation = { __typename?: 'Mutation', createB2CApp?: { __typename?: 'B2CApp', id: string, name?: string | null } | null }
+
+export type UpdateB2CAppMutationVariables = Exact<{
+    id: Scalars['ID']['input'];
+    data: B2CAppUpdateInput;
+}>
+
+
+export type UpdateB2CAppMutation = { __typename?: 'Mutation', obj?: { __typename?: 'B2CApp', id: string } | null }
 
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
@@ -3579,6 +3595,46 @@ export function useAllAppsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<A
 export type AllAppsQueryHookResult = ReturnType<typeof useAllAppsQuery>
 export type AllAppsLazyQueryHookResult = ReturnType<typeof useAllAppsLazyQuery>
 export type AllAppsQueryResult = Apollo.QueryResult<AllAppsQuery, AllAppsQueryVariables>
+export const GetB2CAppDocument = gql`
+    query getB2CApp($id: ID!, $creator: UserWhereInput!) {
+  objs: allB2CApps(first: 1, where: {id: $id, createdBy: $creator}) {
+    id
+    name
+    logo {
+      publicUrl
+    }
+  }
+}
+    `
+
+/**
+ * __useGetB2CAppQuery__
+ *
+ * To run a query within a React component, call `useGetB2CAppQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetB2CAppQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetB2CAppQuery({
+ *   variables: {
+ *      id: // value for 'id'
+ *      creator: // value for 'creator'
+ *   },
+ * });
+ */
+export function useGetB2CAppQuery (baseOptions: Apollo.QueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<GetB2CAppQuery, GetB2CAppQueryVariables>(GetB2CAppDocument, options)
+}
+export function useGetB2CAppLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<GetB2CAppQuery, GetB2CAppQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<GetB2CAppQuery, GetB2CAppQueryVariables>(GetB2CAppDocument, options)
+}
+export type GetB2CAppQueryHookResult = ReturnType<typeof useGetB2CAppQuery>
+export type GetB2CAppLazyQueryHookResult = ReturnType<typeof useGetB2CAppLazyQuery>
+export type GetB2CAppQueryResult = Apollo.QueryResult<GetB2CAppQuery, GetB2CAppQueryVariables>
 export const CreateB2CAppDocument = gql`
     mutation createB2CApp($data: B2CAppCreateInput!) {
   createB2CApp(data: $data) {
@@ -3613,6 +3669,40 @@ export function useCreateB2CAppMutation (baseOptions?: Apollo.MutationHookOption
 export type CreateB2CAppMutationHookResult = ReturnType<typeof useCreateB2CAppMutation>
 export type CreateB2CAppMutationResult = Apollo.MutationResult<CreateB2CAppMutation>
 export type CreateB2CAppMutationOptions = Apollo.BaseMutationOptions<CreateB2CAppMutation, CreateB2CAppMutationVariables>
+export const UpdateB2CAppDocument = gql`
+    mutation updateB2CApp($id: ID!, $data: B2CAppUpdateInput!) {
+  obj: updateB2CApp(id: $id, data: $data) {
+    id
+  }
+}
+    `
+export type UpdateB2CAppMutationFn = Apollo.MutationFunction<UpdateB2CAppMutation, UpdateB2CAppMutationVariables>
+
+/**
+ * __useUpdateB2CAppMutation__
+ *
+ * To run a mutation, you first call `useUpdateB2CAppMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateB2CAppMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateB2CAppMutation, { data, loading, error }] = useUpdateB2CAppMutation({
+ *   variables: {
+ *      id: // value for 'id'
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useUpdateB2CAppMutation (baseOptions?: Apollo.MutationHookOptions<UpdateB2CAppMutation, UpdateB2CAppMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<UpdateB2CAppMutation, UpdateB2CAppMutationVariables>(UpdateB2CAppDocument, options)
+}
+export type UpdateB2CAppMutationHookResult = ReturnType<typeof useUpdateB2CAppMutation>
+export type UpdateB2CAppMutationResult = Apollo.MutationResult<UpdateB2CAppMutation>
+export type UpdateB2CAppMutationOptions = Apollo.BaseMutationOptions<UpdateB2CAppMutation, UpdateB2CAppMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

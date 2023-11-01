@@ -21,5 +21,9 @@ export const theme: ThemeConfig = {
             colorItemTextHover: colors.gray['7'],
             colorActiveBarBorderSize: 0,
         },
+        Divider: {
+            margin: 0,
+            colorSplit: colors.gray['3'],
+        },
     },
 }

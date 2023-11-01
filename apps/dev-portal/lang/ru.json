@@ -6,6 +6,7 @@
   "global.action.signIn": "Войти",
   "global.action.signOut": "Выйти",
   "global.action.signUp": "Зарегистрироваться",
+  "global.action.save": "Сохранить",
   "global.recentApps.title": "Недавно созданные",
   "global.newAppForm.title": "Новое мини-приложение",
   "global.newAppForm.b2bApp.label": "B2B приложение для УК",
@@ -43,5 +44,11 @@
   "docs.prevArticle": "Назад: {title}",
   "docs.menu.title": "Навигация",
   "apps.empty.title": "У вас еще нет приложений",
-  "apps.empty.description": "Создадим первое прямо сейчас?"
+  "apps.empty.description": "Создадим первое прямо сейчас?",
+  "apps.id.menu.title": "Настройки приложения",
+  "apps.id.successSave.title": "Изменения сохранены",
+  "apps.id.successSave.description": "Не забудьте опубликовать изменения на соответсвующий стенд, чтобы они вступили в силу",
+  "apps.b2c.sections.info.title": "Информация",
+  "apps.b2c.sections.info.commonInfo.subtitle": "Общая информация",
+  "apps.b2c.sections.info.icons.subtitle": "Иконки приложения"
 }
