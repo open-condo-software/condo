@@ -35,9 +35,9 @@ const TicketPropertyHintProperty = new GQLListSchema('TicketPropertyHintProperty
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['ticketPropertyHint', 'property'],
+                fields: ['property'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'unique_ticketPropertyHint_and_property',
+                name: 'TicketPropertyHintProperty_unique_property',
             },
         ],
     },

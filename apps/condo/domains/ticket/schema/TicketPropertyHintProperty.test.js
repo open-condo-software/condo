@@ -267,8 +267,10 @@ describe('TicketPropertyHintProperty', () => {
             await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
 
             await expectToThrowInternalError(async () => {
-                await createTestTicketPropertyHintProperty(admin, ticketPropertyHint, property)
-            }, `${UNIQUE_CONSTRAINT_ERROR} "unique_ticketPropertyHint_and_property"`)
+                const [ticketPropertyHint1] = await createTestTicketPropertyHint(admin, organization)
+
+                await createTestTicketPropertyHintProperty(admin, ticketPropertyHint1, property)
+            }, `${UNIQUE_CONSTRAINT_ERROR} "TicketPropertyHintProperty_unique_property"`)
         })
     })
 
