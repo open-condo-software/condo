@@ -12,9 +12,9 @@ const SPECIAL_CHARS = /\d|[!@#$%^&*()[\];:'",.?\-_=+~`|]|a|(?:the)|(?:el)|(?:la)
 const getRegexWithSpecChars = (expr) => {
     // "bad-words-next" may be return bad words with special chars
     const specialChars = SPECIAL_CHARS.toString().slice(1, -1)
-    return new RegExp(
-        `(?:^|\\b|\\s)(?:${specialChars})*(?:${expr})(?:${specialChars})*(?:$|\\b|\\s)`, 'i'
-    )
+    // not an user input. No ReDoS regexp expected
+    // nosemreg: javascript.lang.security.audit.detect-non-literal-regexp.detect-non-literal-regexp
+    return new RegExp(`(?:^|\\b|\\s)(?:${specialChars})*(?:${expr})(?:${specialChars})*(?:$|\\b|\\s)`, 'i')
 }
 
 const BAD_WORDS_EXCLUSIONS_RE = getRegexWithSpecChars(BAD_WORDS_EXCLUSIONS.reduce((prev, cur) => prev + (prev ? `|${cur}` : cur), ''))
