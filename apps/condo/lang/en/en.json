@@ -1819,6 +1819,8 @@
   "errors.import.ValidationError": "Failed to complete data validation, try uploading again",
   "errors.import.CreationError": "Failed to save data, try uploading again",
   "errors.import.AlreadyCreatedContact": "Such a contact already exists in this unit",
+  "errors.import.IncorrectPhoneNumbersFormat": "The phone numbers has an invalid format: {phones}",
+  "errors.import.CannotCreateContactsWithPhones": "Failed to create contacts with the specified phone numbers: {phones}",
   "errors.import.IncorrectContactRole": "Incorrect contact role. Please use one of the following list: {rolesList}",
   "errors.import.IncorrectIsResidentTicketFormat": "The field «Is resident ticket» is filled incorrectly",
   "errors.import.IncorrectIsVerifiedFormat": "The field «Is verified» is filled incorrectly",
