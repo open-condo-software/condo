@@ -17,7 +17,6 @@ WHERE EXISTS (
   WHERE t1.property = t2.property
   AND t1."deletedAt" IS NULL
   AND t2."deletedAt" IS NULL
-  AND t1.id > t2.id
 );
 
 --

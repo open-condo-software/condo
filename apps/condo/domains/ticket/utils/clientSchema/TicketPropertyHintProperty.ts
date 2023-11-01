@@ -16,6 +16,7 @@ import { TicketPropertyHintProperty as TicketPropertyHintPropertyGQL } from '@co
 const {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
     useSoftDelete,
@@ -24,6 +25,7 @@ const {
 export {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
     useSoftDelete,

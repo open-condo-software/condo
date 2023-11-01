@@ -257,7 +257,7 @@ describe('TicketPropertyHintProperty', () => {
     })
 
     describe('Validation tests', () => {
-        it('uniq ticketPropertyHint and property constraint', async () => {
+        it('uniq property constraint', async () => {
             const admin = await makeLoggedInAdminClient()
 
             const [organization] = await createTestOrganization(admin)

@@ -31,7 +31,7 @@ export function useTicketPropertyHintTableColumns <T> (filterMetas: Array<Filter
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
     const ticketPropertyHintIds = useMemo(() => map(ticketPropertyHints, 'id'), [ticketPropertyHints])
-    const { objs: ticketPropertyHintsProperties } = TicketPropertyHintProperty.useObjects({
+    const { objs: ticketPropertyHintsProperties } = TicketPropertyHintProperty.useAllObjects({
         where: {
             ticketPropertyHint: {
                 id_in: ticketPropertyHintIds,
