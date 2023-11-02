@@ -25,6 +25,7 @@ const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
     lists: [
         // Miniapps domain
         'B2BApp',
+        'B2BAppNewsSharingConfig',
         'B2BAppAccessRight',
         'B2BAppAccessRightSet',
         'B2BAppContext',
