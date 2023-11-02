@@ -165,7 +165,7 @@ export const RequisitesSetup = () => {
                                     labelAlign='left'
                                     rules={numberValidator}
                                 >
-                                    {!bankAccountsLoading && !bankAccountsError && bankAccounts ? (
+                                    {!bankAccountsLoading && !bankAccountsError && bankAccounts.length > 1 ? (
                                         <Select
                                             options={bankAccountOptions}
                                         />
@@ -195,7 +195,7 @@ export const RequisitesSetup = () => {
                                     rules={routingNumberValidator}
                                 >
                                     <Col lg={12}>
-                                        {!bankAccountsLoading && !bankAccountsError && bankAccounts ? (
+                                        {!bankAccountsLoading && !bankAccountsError && bankAccounts.length > 1 ? (
                                             <Select
                                                 placeholder={bicOptions[0].label}
                                                 options={bicOptions}
