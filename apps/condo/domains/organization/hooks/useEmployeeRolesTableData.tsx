@@ -182,8 +182,11 @@ export const useEmployeeRolesTableData = (connectedB2BApps: B2BApp[], b2BAppPerm
                 },
                 {
                     key: 'canManageMeters',
-                    relatedCheckPermissions: ['canReadMeters', 'canManageMeterReadings'],
-                    relatedUncheckPermissions: ['canManageMeterReadings'],
+                    relatedCheckPermissions: ['canReadMeters'],
+                },
+                {
+                    key: 'canManageMeterReadings',
+                    relatedCheckPermissions: ['canReadMeters'],
                 },
             ],
         },

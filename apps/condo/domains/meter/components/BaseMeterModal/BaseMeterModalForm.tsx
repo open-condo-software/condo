@@ -6,6 +6,7 @@ import get from 'lodash/get'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
@@ -118,6 +119,11 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
 
     const initialMeterNumber = get<InitialMeterFormValuesType['number']>(initialValues, ['number'], null)
 
+    const { link } = useOrganization()
+    const canManageMeters = get(link, 'role.canManageMeters', false)
+
+    const disabledFields = useMemo(() => disabled || !canManageMeters, [canManageMeters, disabled])
+
     const { requiredValidator, trimValidator } = useValidations()
     const {
         meterWithSameNumberValidator,
@@ -176,7 +182,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                 validateTrigger={METER_MODAL_VALIDATE_TRIGGER}
                 handleSubmit={handleSubmit}
                 submitButtonProps={{
-                    disabled: disabled,
+                    disabled: disabledFields,
                 }}
                 ErrorToFormFieldMsgMapping={ErrorToFormFieldMsgMapping}
                 {...otherProps}
@@ -191,7 +197,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             <BaseMeterModalAccountNumberField
                                                 initialValues={initialValues}
                                                 rules={validations.accountNumber}
-                                                disabled={disabled}
+                                                disabled={disabledFields}
                                                 validateFirst
                                             />
                                         </Col>
@@ -207,7 +213,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             <GraphQlSearchInput
                                                 onChange={resource => handleResourceChange(form, resource)}
                                                 search={searchMeterResources}
-                                                disabled={disabled}
+                                                disabled={disabledFields}
                                             />
                                         </BaseMeterModalFormItem>
                                     </Col>
@@ -219,7 +225,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             initialValue={initialValues.number}
                                             validateFirst
                                         >
-                                            <Input disabled={disabled}/>
+                                            <Input disabled={disabledFields}/>
                                         </BaseMeterModalFormItem>
                                     </Col>
                                     {!isPropertyMeter && <Col span={METER_MODAL_FORM_ITEM_SPAN}>
@@ -228,7 +234,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                             name='place'
                                             initialValue={initialValues.place}
                                         >
-                                            <Input disabled={disabled}/>
+                                            <Input disabled={disabledFields}/>
                                         </BaseMeterModalFormItem>
                                     </Col>}
                                     {
@@ -241,7 +247,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     initialValue={initialValues.numberOfTariffs}
                                                     validateFirst
                                                 >
-                                                    <Select disabled={disabled}>
+                                                    <Select disabled={disabledFields}>
                                                         {tariffOptions}
                                                     </Select>
                                                 </BaseMeterModalFormItem>
@@ -256,7 +262,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     name='installationDate'
                                                     onChange={handleInstallationDateChange}
                                                     initialValue={initialValues.installationDate}
-                                                    disabled={disabled}
+                                                    disabled={disabledFields}
                                                 />
                                                 <MeterModalDatePicker
                                                     label={CommissioningDateMessage}
@@ -264,7 +270,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     rules={validations.commissioningDate}
                                                     dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
                                                     initialValue={initialValues.commissioningDate}
-                                                    disabled={disabled}
+                                                    disabled={disabledFields}
                                                     validateFirst
                                                 />
                                                 <MeterModalDatePicker
@@ -273,7 +279,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     rules={validations.sealingDate}
                                                     dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
                                                     initialValue={initialValues.sealingDate}
-                                                    disabled={disabled}
+                                                    disabled={disabledFields}
                                                     validateFirst
                                                 />
                                                 <MeterModalDatePicker
@@ -281,7 +287,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     name='verificationDate'
                                                     onChange={value => setVerificationDate(value)}
                                                     initialValue={initialValues.verificationDate}
-                                                    disabled={disabled}
+                                                    disabled={disabledFields}
                                                 />
                                                 <MeterModalDatePicker
                                                     label={NextVerificationDateMessage}
@@ -289,7 +295,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     rules={validations.nextVerificationDate}
                                                     dependencies={NEXT_VERIFICATION_DATE_FIELD_DEPENDENCIES}
                                                     initialValue={initialValues.nextVerificationDate}
-                                                    disabled={disabled}
+                                                    disabled={disabledFields}
                                                     validateFirst
                                                 />
                                                 <MeterModalDatePicker
@@ -298,7 +304,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                                     rules={validations.controlReadingsDate}
                                                     dependencies={DATE_FIELD_INSTALLATION_DATE_DEPENDENCY}
                                                     initialValue={initialValues.controlReadingsDate}
-                                                    disabled={disabled}
+                                                    disabled={disabledFields}
                                                     validateFirst
                                                 />
                                             </>
