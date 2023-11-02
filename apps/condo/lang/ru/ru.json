@@ -1215,6 +1215,7 @@
   "pages.condo.marketplace.settings.requisites.radio.tax.common": "ОСН (общая система налогооблажения)",
   "pages.condo.marketplace.settings.requisites.radio.tax.simple": "УСН (упрощённая система налогооблажения)",
   "pages.condo.marketplace.settings.requisites.error": "Введенные реквизиты содержат ошибку",
+  "pages.condo.marketplace.settings.requisites.error.text": "Комбинация БИК и номер расчетного счета не прошли проверку. ({number}, {routingNumber})",
   "pages.condo.marketplace.settings.requisites.noTax": "Без НДС",
   "pages.condo.marketplace.settings.offer.title": "Акцепт оферты",
   "pages.condo.marketplace.settings.offer.subtitle": "Комиссия — 5 %",

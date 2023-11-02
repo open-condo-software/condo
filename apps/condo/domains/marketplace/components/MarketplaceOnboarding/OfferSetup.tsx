@@ -1,4 +1,4 @@
-import { Col, Form, notification, Row } from 'antd'
+import { Col, Form, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
@@ -16,14 +16,14 @@ import {
     MARKETPLACE_RULES_LINK,
     MARKETPLACE_OFFER_LINK,
 } from '@condo/domains/marketplace/constants'
-import { AcquiringIntegrationContext } from '@condorb/domains/condo/utils/clientSchema'
+import { Organization } from '@condorb/domains/condo/utils/clientSchema'
 import { SCOPE_TYPES } from '@condorb/domains/condorb/constants/marketplace'
-import { Accept, getOrganizationInfo } from '@condorb/domains/condorb/utils/clientSchema'
+import { Accept } from '@condorb/domains/condorb/utils/clientSchema'
 
 import type { RowProps } from 'antd'
 
 
-const { publicRuntimeConfig: { condoUrl, integrationConfig } } = getConfig()
+const { publicRuntimeConfig: { condoUrl } } = getConfig()
 
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const VERTICAL_TEXT_GUTTER: RowProps['gutter'] = [0, 12]
@@ -63,16 +63,12 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const organizationId = get(launchContext, 'condoContextEntityId', null)
     const userId = get(launchContext, 'condoUserId', null)
     const createAcceptAction = Accept.useCreate({})
-    const integrationId = get(integrationConfig, 'id')
-    //TODO: can't get context -- rights?
     const {
-        obj: context,
-        loading: contextIsLoading,
-        refetch: refetchContext,
-    } = AcquiringIntegrationContext.useObject(
-        { where: { organization: { id: organizationId }, integration: { id: integrationId } } }
+        obj: organization,
+        loading: organizationIsLoading,
+    } = Organization.useObject(
+        { where: { id: organizationId } }
     )
-    const updateContextAction = AcquiringIntegrationContext.useUpdate({}, () => refetchContext)
 
     const [rulesAreAccepted, setRulesAreAccepted] = useState<boolean>(false)
     const [loading, setIsLoading] = useState<boolean>(false)
@@ -83,31 +79,17 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
         return //TODO: download offer pdf
     }, [])
 
-    const handleSignOffer = useCallback(async (context) => {
+    const handleSignOffer = useCallback(async () => {
         setIsLoading(true)
-        const tin = get(context, ['organization', 'tin'])
-        const { psrn, organizationName } = await getOrganizationInfo(tin)
-        if (!psrn) {
-            notification.error({
-                message: OrganizationNotFoundErrorTitle,
-                description: OrganizationNotFoundErrorMessage,
-            })
-            setIsLoading(false)
-            console.error('context', context)
-            throw new Error('Organization not found')
-        }
-        const accept = await createAcceptAction({
+        const tin = get(organization, 'tin')
+        await createAcceptAction({
             userId: userId,
-            organizationId: get(context, ['organization', 'id']),
+            organizationId: organizationId,
             email: usersEmails,
-            psrn, organizationName, tin,
+            tin,
             scope: SCOPE_TYPES['marketplace'],
             signDate: dayjs().format('YYYY-MM-DD'),
         })
-        await updateContextAction({
-            email: usersEmails,
-            reason: accept.name,
-        }, context)
         setIsLoading(false)
         window.parent.postMessage({ success: true }, condoUrl)
         setIsLoading(false)
@@ -122,7 +104,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     }, [setRulesAreAccepted])
 
 
-    if (contextIsLoading) {
+    if (organizationIsLoading) {
         return <Loader fill size='large' />
     }
 
@@ -154,7 +136,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
                             {InfoBlockText}
                         </Typography.Paragraph>
                         <FormWithAction
-                            action={() => handleSignOffer(context)}
+                            action={() => handleSignOffer()}
                             validateTrigger={['onBlur', 'onSubmit']}
                             OnCompletedMsg={null}
                             children={({ handleSave }) => (
