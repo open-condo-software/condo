@@ -22,10 +22,10 @@ export function useBankAccountValidation ({ country }: useBankAccountValidationI
     const intl = useIntl()
     const { requiredValidator } = useValidations()
 
-    const TransitBankAccountErrorMessage = intl.formatMessage({ id: 'pages.registry.setup.transitBankAccountErrorMessage' })
-    const BankAccountErrorMessage = intl.formatMessage({ id: 'pages.registry.setup.bankAccountErrorMessage' })
-    const TinValidationErrorMessage = intl.formatMessage({ id: 'pages.registry.setup.tinValidationErrorMessage' })
-    const RoutingNumberValidationErrorMessage = intl.formatMessage({ id: 'pages.registry.setup.routingNumberValidationErrorMessage' })
+    const TransitBankAccountErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.transitBankAccountErrorMessage' })
+    const BankAccountErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.bankAccountErrorMessage' })
+    const TinValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.tinValidationErrorMessage' })
+    const RoutingNumberValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.routingNumberValidationErrorMessage' })
 
     const validators = useMemo(() => {
         return {
