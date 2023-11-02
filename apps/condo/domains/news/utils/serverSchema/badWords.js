@@ -25,12 +25,7 @@ const BAD_WORDS_EXCLUSIONS_RE = getRegexWithSpecChars(BAD_WORDS_EXCLUSIONS.reduc
  * @param {string} word
  * @return {boolean}
  */
-const checkBadWordsExclusions = (word) => {
-    console.log({
-        BAD_WORDS_EXCLUSIONS_RE,
-    })
-    return BAD_WORDS_EXCLUSIONS_RE.test(word)
-}
+const checkBadWordsExclusions = (word) => BAD_WORDS_EXCLUSIONS_RE.test(word)
 
 module.exports = {
     checkBadWordsExclusions,
