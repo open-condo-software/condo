@@ -139,7 +139,12 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
     hooks: {
         resolveInput: async ({ operation, resolvedData, context }) => {
             if (operation === 'create') {
-                const { recipient: { tin, bic } } = resolvedData
+                const { recipient } = resolvedData
+                if (!recipient) {
+                    return resolvedData
+                }
+
+                const { tin, bic } = recipient
                 if (!tin || !bic) {
                     throw new Error('No tin or bic passed')
                 }
