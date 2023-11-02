@@ -1,6 +1,6 @@
 import { Alert, Col } from 'antd'
 import get from 'lodash/get'
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useAuth } from '@open-condo/next/auth'
@@ -32,6 +32,8 @@ export const AutoAssigner = ({
     const AutoAssignAlertMessage = intl.formatMessage({ id: 'pages.condo.ticket.autoAssignAlert.message' })
 
     const { user } = useAuth()
+    const currentUserId = user.id
+    const currentUserCanBeAssignee = useMemo(() => employees.some(employee => get(employee, 'user.id') === currentUserId), [currentUserId, employees])
 
     const [autoAssigneePropertyScopeName, setAutoAssigneePropertyScopeName] = useState<string>()
 
@@ -65,10 +67,8 @@ export const AutoAssigner = ({
                 const propertyScopeName = getPropertyScopeNameByEmployee(firstEmployee, propertyScopes, propertyScopeEmployees)
                 setAutoAssigneePropertyScopeName(propertyScopeName)
             } else {
-                const currentUserId = user.id
-
                 form.setFieldsValue({
-                    assignee: currentUserId,
+                    assignee: currentUserCanBeAssignee ? currentUserId : null,
                     executor: null,
                 })
 
@@ -77,7 +77,7 @@ export const AutoAssigner = ({
         }
     }, [
         allDataLoaded, categoryClassifierId, employees, form, organizationEmployeeSpecializations,
-        propertyScopeEmployees, propertyScopes, user.id,
+        propertyScopeEmployees, propertyScopes, currentUserId, currentUserCanBeAssignee,
     ])
 
     return autoAssigneePropertyScopeName ? (
