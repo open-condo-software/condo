@@ -1815,6 +1815,8 @@
   "errors.import.IncorrectEmailFormat": "Неверный формат эл. почты",
   "errors.import.IncorrectPhonesFormat": "Ни один из телефонов не соответствует правильному формату",
   "errors.import.IncorrectPhoneNumberFormat": "Телефон не соответствует правильному формату",
+  "errors.import.IncorrectPhoneNumbersFormat": "Телефоны не соответствуют правильному формату: {phones}",
+  "errors.import.CannotCreateContactsWithPhones": "Не удалось создать контакты с указанными номерами телефонов: {phones}",
   "errors.import.InvalidColumnTypes": "Обязательные колонки не были заполнены, или типы данных не соответствуют указанным",
   "errors.import.NormalizationError": "Не удалось завершить нормализацию данных, попробуйте загрузить еще раз",
   "errors.import.ValidationError": "Не удалось завершить валидацию данных, попробуйте загрузить еще раз",

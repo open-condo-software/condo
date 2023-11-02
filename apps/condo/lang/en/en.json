@@ -1815,6 +1815,8 @@
   "errors.import.IncorrectEmailFormat": "Wrong email format",
   "errors.import.IncorrectPhonesFormat": "None of the phones are in a valid format",
   "errors.import.IncorrectPhoneNumberFormat": "The phone number has an invalid format",
+  "errors.import.IncorrectPhoneNumbersFormat": "The phone numbers has an invalid format: {phones}",
+  "errors.import.CannotCreateContactsWithPhones": "Failed to create contacts with the specified phone numbers: {phones}",
   "errors.import.InvalidColumnTypes": "Required columns were empty or column's data types did not match required",
   "errors.import.NormalizationError": "Failed to complete data normalization, try uploading again",
   "errors.import.ValidationError": "Failed to complete data validation, try uploading again",

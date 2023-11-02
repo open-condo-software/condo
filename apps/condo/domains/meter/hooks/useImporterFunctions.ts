@@ -181,7 +181,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     const meterReadingNormalizer: RowNormalizer = async (row) => {
-        if (row.length !== columns.length) return Promise.resolve({ row })
+        if (row.length !== columns.length) return { row }
         const [
             address,
             unitName,

@@ -9,6 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { useAddressApi } from '@condo/domains/common/components/AddressApi'
 import { Columns, ObjectCreator, RowNormalizer, RowValidator } from '@condo/domains/common/utils/importer'
+import { sleep } from '@condo/domains/common/utils/sleep'
 import { Contact, ContactRole } from '@condo/domains/contact/utils/clientSchema'
 import {
     APARTMENT_UNIT_TYPE,
@@ -124,7 +125,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     }
 
     const contactNormalizer: RowNormalizer = async (row) => {
-        if (row.length !== columns.length) return Promise.resolve({ row })
+        if (row.length !== columns.length) return { row }
         const addons = {
             address: null,
             property: null,
@@ -219,14 +220,15 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
         return true
     }
 
-    const contactCreator: ObjectCreator = (row) => {
-        if (!row) return Promise.resolve()
+    const contactCreator: ObjectCreator = async (row) => {
+        if (!row) return
         const unitName = String(get(row.row, ['1', 'value'])).trim()
-        const contactPool = []
         const splitPhones = String(row.row[3].value).split(SPLIT_PATTERN)
         const inValidPhones = []
+        const phonesWithErrorCreations = []
 
-        for (let i = 0; i < row.addons.phones.length; i++) {
+        const phoneCount = row.addons.phones.length
+        for (let i = 0; i < phoneCount; i++) {
             const phone: string = row.addons.phones[i]
             if (!phone && i < splitPhones.length) {
                 inValidPhones.push(splitPhones[i])
@@ -253,14 +255,33 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
                 }
             }
 
-            contactPool.push(contactCreateAction(contactData))
-        }
-        return Promise.all(contactPool).then(() => {
-            if (inValidPhones.length > 0) {
-                row.row[3].value = inValidPhones.join('; ')
-                row.shouldBeReported = true
+            try {
+                await contactCreateAction(contactData)
+            } catch (error) {
+                phonesWithErrorCreations.push(phone)
+            } finally {
+                if (i < phoneCount - 1) {
+                    // only 1 insert request per 1 second
+                    await sleep(1000)
+                }
             }
-        })
+        }
+
+        if (inValidPhones.length > 0 || phonesWithErrorCreations.length > 0) {
+            // return in report only phones which was not created
+            const returnedPhones = [...phonesWithErrorCreations, ...inValidPhones].join('; ')
+            const errors = []
+            if (inValidPhones.length > 0) {
+                errors.push(intl.formatMessage({ id: 'errors.import.IncorrectPhoneNumbersFormat' }, { phones: inValidPhones.join('; ') }))
+            }
+            if (phonesWithErrorCreations.length > 0) {
+                errors.push(intl.formatMessage({ id: 'errors.import.CannotCreateContactsWithPhones' }, { phones: phonesWithErrorCreations.join('; ') }))
+            }
+            row.row[3].value = returnedPhones
+            row.originalRow[3].value = returnedPhones
+            row.errors = errors
+            row.shouldBeReported = true
+        }
     }
 
     return [columns, contactNormalizer, contactValidator, contactCreator]

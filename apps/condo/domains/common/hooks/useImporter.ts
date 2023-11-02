@@ -12,7 +12,7 @@ import {
     ImporterErrorMessages, MutationErrorsToMessagesType,
 } from '@condo/domains/common/utils/importer'
 
-const SLEEP_INTERVAL_BEFORE_QUERIES = 300
+const SLEEP_INTERVAL_BEFORE_QUERIES = 1000
 
 interface IUseImporterProps {
     columns: Columns,
