@@ -22,7 +22,7 @@ import { B2CAppCard } from './B2CAppCard'
 import styles from './IconsSubsection.module.css'
 
 import type { RowProps } from 'antd'
-import type { UploadChangeParam } from 'antd/lib/upload/interface'
+import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 
 import { useAuth } from '@/lib/auth'
 import { AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/lib/gql'
@@ -30,6 +30,10 @@ import { AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppM
 const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
 const FORM_BUTTON_ROW_GUTTER: RowProps['gutter'] = [32, 32]
 const FULL_COL_SPAN = 24
+
+function getFormFile (e: UploadChangeParam) {
+    return e.fileList
+}
 
 const UploadImageText: React.FC = () => {
     const intl = useIntl()
@@ -46,7 +50,7 @@ const UploadImageText: React.FC = () => {
 }
 
 type IconsFormValues = {
-    mainIcon: UploadChangeParam
+    mainIcon: Array<UploadFile>
 }
 
 export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
@@ -96,11 +100,11 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     })
 
     const handleIconSave = useCallback((values: IconsFormValues) => {
-        if (values.mainIcon.fileList.length) {
+        if (values.mainIcon.length) {
             const data = {
                 dv: 1,
                 sender: getClientSideSenderInfo(),
-                logo: values.mainIcon.fileList[0].originFileObj,
+                logo: values.mainIcon[0].originFileObj,
             }
 
             updateB2CAppMutation({
@@ -128,7 +132,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
                             <Typography.Paragraph size='medium'>{MainIconDescription}</Typography.Paragraph>
                         </Col>
                         <Col span={FULL_COL_SPAN}>
-                            <Form.Item name='mainIcon' className=''>
+                            <Form.Item name='mainIcon' valuePropName='fileList' getValueFromEvent={getFormFile}>
                                 <Upload
                                     listType='picture'
                                     beforeUpload={beforeUpload}
