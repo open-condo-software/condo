@@ -3,6 +3,7 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const Big = require('big.js')
 const { faker } = require('@faker-js/faker')
 const path = require('path')
 const conf = require('@open-condo/config')
@@ -186,12 +187,15 @@ async function createTestInvoice (client, invoiceContext, extraAttrs = {}) {
     if (!invoiceContext || !invoiceContext.id) throw new Error('no invoiceContext.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
+    const rows = generateInvoiceRows()
+    const toPay = rows.reduce((result, row) => result.plus(Big(row.toPay).times(Big(row.count))), Big('0.0'))
+
     const attrs = {
         dv: 1,
         sender,
         context: { connect: { id: invoiceContext.id } },
-        toPay: String(faker.datatype.float()),
-        rows: generateInvoiceRows(),
+        rows,
+        toPay,
         accountNumber: faker.random.alphaNumeric(13),
         ...extraAttrs,
     }
