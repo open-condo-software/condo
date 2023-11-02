@@ -65481,7 +65481,7 @@ type InvoiceContext {
   taxRegime: String
 
   """ The percentage of VAT """
-  vatPercent: Int
+  vatPercent: String
 
   """ The percent value """
   salesTaxPercent: String
@@ -65540,10 +65540,10 @@ input InvoiceContextWhereInput {
   taxRegime_not: String
   taxRegime_in: [String]
   taxRegime_not_in: [String]
-  vatPercent: Int
-  vatPercent_not: Int
-  vatPercent_in: [Int]
-  vatPercent_not_in: [Int]
+  vatPercent: String
+  vatPercent_not: String
+  vatPercent_in: [String]
+  vatPercent_not_in: [String]
   salesTaxPercent: String
   salesTaxPercent_not: String
   salesTaxPercent_lt: String
@@ -65658,7 +65658,7 @@ input InvoiceContextUpdateInput {
   status: String
   implicitFeePercent: String
   taxRegime: String
-  vatPercent: Int
+  vatPercent: String
   salesTaxPercent: String
   currencyCode: String
   v: Int
@@ -65684,7 +65684,7 @@ input InvoiceContextCreateInput {
   status: String
   implicitFeePercent: String
   taxRegime: String
-  vatPercent: Int
+  vatPercent: String
   salesTaxPercent: String
   currencyCode: String
   v: Int
