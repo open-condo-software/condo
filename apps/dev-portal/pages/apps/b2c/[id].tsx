@@ -10,7 +10,7 @@ import { Typography } from '@open-condo/ui'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
-import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/InfoSection'
+import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
 import { useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
 
 import type { SectionType } from '@/domains/miniapp/hooks/useB2CMenuItems'

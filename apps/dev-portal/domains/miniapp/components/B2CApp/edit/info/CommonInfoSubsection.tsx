@@ -22,13 +22,14 @@ type CommonInfoFormValues = {
     name: string
 }
 
-export const CommonInfoForm: React.FC<{ id: string }> = ({ id }) => {
+export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const AppNameLabel = intl.formatMessage({ id: 'global.newAppForm.appName.label' })
     const SaveLabel = intl.formatMessage({ id: 'global.action.save' })
 
-    const { user } = useAuth()
     const [form] = Form.useForm()
+
+    const { user } = useAuth()
     const variables = { id, creator: { id: user?.id } }
 
     const { data } = useGetB2CAppQuery({ variables })

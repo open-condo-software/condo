@@ -1019,6 +1019,7 @@ __metadata:
     "@types/react-dom": 18.0.10
     "@types/title": 3.4.1
     antd: 5.1.7
+    apollo-upload-client: ^17
     classnames: ^2.3.2
     cookies-next: 2.1.1
     dayjs: ^1.11.10
@@ -17714,7 +17715,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"apollo-upload-client@npm:17.0.0":
+"apollo-upload-client@npm:17.0.0, apollo-upload-client@npm:^17":
   version: 17.0.0
   resolution: "apollo-upload-client@npm:17.0.0"
   dependencies:

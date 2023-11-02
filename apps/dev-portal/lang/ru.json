@@ -7,6 +7,8 @@
   "global.action.signOut": "Выйти",
   "global.action.signUp": "Зарегистрироваться",
   "global.action.save": "Сохранить",
+  "global.units.kb": "Кб",
+  "global.units.mb": "Мб",
   "global.recentApps.title": "Недавно созданные",
   "global.newAppForm.title": "Новое мини-приложение",
   "global.newAppForm.b2bApp.label": "B2B приложение для УК",
@@ -39,6 +41,11 @@
   "global.forms.validations.phoneFormat.message": "Неверный номер телефона",
   "global.forms.validations.passwordTooEasy.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
   "global.errors.serverError.title": "Ошибка сервера",
+  "global.errors.imageUpload.title": "Ошибка загрузки файла",
+  "global.errors.imageUpload.wrongType.description": "Изображение имеет неверный формат",
+  "global.errors.imageUpload.tooSmall.description": "Изображение меньше {minSize} пикселей",
+  "global.errors.imageUpload.tooBig.description": "Изображение больше {maxSize} пикселей",
+  "global.errors.imageUpload.tooLarge.description": "Изображение превышает максимальный лимит в {size}{units}",
   "docs.editPage": "Редактировать эту страницу на Github",
   "docs.nextArticle": "Далее: {title}",
   "docs.prevArticle": "Назад: {title}",
@@ -50,5 +57,8 @@
   "apps.id.successSave.description": "Не забудьте опубликовать изменения на соответсвующий стенд, чтобы они вступили в силу",
   "apps.b2c.sections.info.title": "Информация",
   "apps.b2c.sections.info.commonInfo.subtitle": "Общая информация",
-  "apps.b2c.sections.info.icons.subtitle": "Иконки приложения"
+  "apps.b2c.sections.info.icons.subtitle": "Иконки приложения",
+  "apps.b2c.sections.info.icons.action.uploadImage": "Загрузить изображение",
+  "apps.b2c.sections.info.icons.main.title": "Главная иконка приложения",
+  "apps.b2c.sections.info.icons.main.description": "Используется в для отображения на главном экране мобильного приложения жителя. Должна быть в формате {format} и быть размером от {minSize} до {maxSize} пикселей"
 }

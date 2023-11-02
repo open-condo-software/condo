@@ -1,3 +1,5 @@
+import { DEFAULT_B2C_LOGO_URL } from '@/domains/miniapp/constants/common'
+
 import type { AllAppsQuery } from '@/lib/gql'
 
 export type AppInfo = {
@@ -18,7 +20,7 @@ export function mergeApps (data?: AllAppsQuery): Array<AppInfo> {
 
     b2cApps.reduce((all, current) => {
         if (current && current.name) {
-            all.push({ type: 'b2c', id: current.id, name: current.name, logo: current.logo?.publicUrl })
+            all.push({ type: 'b2c', id: current.id, name: current.name, logo: current.logo?.publicUrl || DEFAULT_B2C_LOGO_URL })
         }
         return all
     }, apps)

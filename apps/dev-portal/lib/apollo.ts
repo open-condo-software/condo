@@ -1,4 +1,5 @@
-import { ApolloClient, HttpLink, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
+import { ApolloClient, InMemoryCache, NormalizedCacheObject } from '@apollo/client'
+import { createUploadLink } from 'apollo-upload-client'
 import merge from 'deepmerge'
 import isEqual from 'lodash/isEqual'
 import getConfig from 'next/config'
@@ -24,7 +25,7 @@ let apolloClient: ApolloClient<NormalizedCacheObject> | undefined
 function createApolloClient (): ApolloClient<NormalizedCacheObject> {
     return new ApolloClient({
         ssrMode: typeof window === 'undefined',
-        link: new HttpLink({
+        link: createUploadLink({
             uri: `${serviceUrl}/api/graphql`,
             credentials: 'include',
             fetchOptions: {

@@ -25,7 +25,7 @@ export const InlineAppCard: React.FC<AppInfo> = ({ name, type, id, logo }) => {
             <div className={styles.appCardContentContainer}>
                 <div className={styles.appCardLogoContainer}>
                     {logo && (
-                        <Image src={logo} alt='application logo' width={IMG_SIZE} height={IMG_SIZE} className={styles.appLogo}/>
+                        <Image src={logo} alt='application logo' width={IMG_SIZE} height={IMG_SIZE} className={styles.appLogo} draggable={false}/>
                     )}
                 </div>
                 <Typography.Paragraph ellipsis={TITLE_ELLIPSIS}>

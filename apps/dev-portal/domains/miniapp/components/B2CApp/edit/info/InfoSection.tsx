@@ -3,7 +3,8 @@ import { useIntl } from 'react-intl'
 
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
 
-import { CommonInfoForm } from './CommonInfoForm'
+import { CommonInfoSubsection } from './CommonInfoSubsection'
+import { IconsSubsection } from './IconsSubsection'
 
 export const InfoSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
@@ -13,10 +14,10 @@ export const InfoSection: React.FC<{ id: string }> = ({ id }) => {
     return (
         <Section>
             <SubSection title={CommonInfoSubtitle}>
-                <CommonInfoForm id={id}/>
+                <CommonInfoSubsection id={id}/>
             </SubSection>
             <SubSection title={AppIconsSubtitle}>
-                123123123123
+                <IconsSubsection id={id}/>
             </SubSection>
         </Section>
     )
