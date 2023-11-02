@@ -12,12 +12,10 @@ const FULL_COL_SPAN = 24
 export const Section: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     return (
         <Row gutter={SECTION_ROW_GUTTER}>
-            {React.Children.map(children, (child, idx) => (
-                <>
-                    <Col span={FULL_COL_SPAN} key={idx}>
-                        {child}
-                    </Col>
-                </>
+            {React.Children.map(children, (child) => (
+                <Col span={FULL_COL_SPAN}>
+                    {child}
+                </Col>
             ))}
         </Row>
     )

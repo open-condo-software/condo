@@ -40,7 +40,7 @@ const RecentAppCard: React.FC<AppInfo & WithOnClose> = ({ name, type, id, onClos
         <Col span={FULL_COL_SPAN} className={styles.recentAppCard} onClick={handleAppSelect}>
             <div className={styles.appLogoContainer}>
                 {logo && (
-                    <Image src={logo} alt='application logo' width={IMG_SIZE} height={IMG_SIZE} className={styles.appLogo}/>
+                    <Image src={logo} alt='application logo' width={IMG_SIZE} height={IMG_SIZE} className={styles.appLogo} draggable={false}/>
                 )}
             </div>
             <Typography.Paragraph ellipsis>{name}</Typography.Paragraph>

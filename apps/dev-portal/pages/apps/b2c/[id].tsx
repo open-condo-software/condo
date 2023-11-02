@@ -80,7 +80,7 @@ const AppSettingsPage: React.FC = () => {
                         <Typography.Title>{appName}</Typography.Title>
                     </Col>
                     <Col span={FULL_COL_SPAN}>
-                        <Section id={id}/>
+                        <Section id={id} key={id}/>
                     </Col>
                 </Row>
             </BaseLayout>
