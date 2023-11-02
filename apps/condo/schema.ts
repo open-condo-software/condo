@@ -25229,7 +25229,7 @@ export type InvoiceContext = {
   /**  The regime of counting taxes for company  */
   taxRegime?: Maybe<Scalars['String']>;
   /**  The percentage of VAT  */
-  vatPercent?: Maybe<Scalars['Int']>;
+  vatPercent?: Maybe<Scalars['String']>;
   /**  The percent value  */
   salesTaxPercent?: Maybe<Scalars['String']>;
   /**  Code of currency in ISO-4217 format  */
@@ -25258,7 +25258,7 @@ export type InvoiceContextCreateInput = {
   status?: Maybe<Scalars['String']>;
   implicitFeePercent?: Maybe<Scalars['String']>;
   taxRegime?: Maybe<Scalars['String']>;
-  vatPercent?: Maybe<Scalars['Int']>;
+  vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -25577,7 +25577,7 @@ export type InvoiceContextUpdateInput = {
   status?: Maybe<Scalars['String']>;
   implicitFeePercent?: Maybe<Scalars['String']>;
   taxRegime?: Maybe<Scalars['String']>;
-  vatPercent?: Maybe<Scalars['Int']>;
+  vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
   currencyCode?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -25622,10 +25622,10 @@ export type InvoiceContextWhereInput = {
   taxRegime_not?: Maybe<Scalars['String']>;
   taxRegime_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   taxRegime_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  vatPercent?: Maybe<Scalars['Int']>;
-  vatPercent_not?: Maybe<Scalars['Int']>;
-  vatPercent_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  vatPercent_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  vatPercent?: Maybe<Scalars['String']>;
+  vatPercent_not?: Maybe<Scalars['String']>;
+  vatPercent_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  vatPercent_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   salesTaxPercent?: Maybe<Scalars['String']>;
   salesTaxPercent_not?: Maybe<Scalars['String']>;
   salesTaxPercent_lt?: Maybe<Scalars['String']>;

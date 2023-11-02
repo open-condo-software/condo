@@ -7,6 +7,7 @@ const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 const { get } = require('lodash')
 
+const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
 const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -125,8 +126,8 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
         vatPercent: {
             schemaDoc: 'The percentage of VAT',
             type: Select,
-            dataType: 'integer',
-            options: VAT_OPTIONS.map((v) => ({ label: v, value: v })),
+            dataType: 'string',
+            options: VAT_OPTIONS.map((v) => ({ label: String(v), value: String(v) })),
             isRequired: false,
         },
 
@@ -136,6 +137,32 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
 
     },
     hooks: {
+        resolveInput: async ({ operation, resolvedData, context }) => {
+            if (operation === 'create') {
+                const { recipient: { tin, bic } } = resolvedData
+                if (!tin || !bic) {
+                    throw new Error('No tin or bic passed')
+                }
+
+                const { error: orgError, result: orgResult } = await getOrganizationInfo(tin)
+                if (orgError) {
+                    throw new Error('Organization not found')
+                }
+
+                const { error: bankError, result: bankResult } = await getBankInfo(bic)
+                if (bankError) {
+                    throw new Error('Bank not found')
+                }
+
+                resolvedData.recipient.territoryCode = orgResult.territoryCode
+                resolvedData.recipient.iec = orgResult.iec
+                resolvedData.recipient.name = orgResult.name
+                resolvedData.recipient.bankName = bankResult.bankName
+                resolvedData.recipient.offsettingAccount = bankResult.offsettingAccount
+            }
+
+            return resolvedData
+        },
         validateInput: ({ resolvedData, existingItem, context }) => {
             /*
              vatPercent constraints:
