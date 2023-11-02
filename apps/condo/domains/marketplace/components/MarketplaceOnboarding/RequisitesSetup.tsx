@@ -3,7 +3,6 @@ import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useState } from 'react'
 
-import { getOrganizationInfo, getBankInfo } from '@open-condo/clients/finance-info-client'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Radio, RadioGroup, Select, SelectProps, Space } from '@open-condo/ui'
@@ -37,14 +36,6 @@ export const RequisitesSetup = () => {
     const NoTax = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.noTax' })
     const RecipientErrorTitle = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.error' })
 
-    // TODO: can't import finance-info-client (no loader to process this file)
-    const validateRecipient = async (routingNumber, tin)=> {
-        const { error: getBankError, result: routingNumberMeta  } = await getBankInfo(routingNumber)
-        const { error: getOrganizationError, result: tinMeta } = await getOrganizationInfo(tin)
-
-        return { routingNumberMeta, tinMeta, getBankError, getOrganizationError }
-    }
-
     const [error, setError] = useState<string | null>(null)
     const [loading, setIsLoading] = useState<boolean>(false)
 
@@ -54,7 +45,7 @@ export const RequisitesSetup = () => {
     const [form] = Form.useForm()
     const router = useRouter()
 
-    const { obj: invoiceContext, loading: invoiceContextLoading, error: invoiceContextError, refetch: refetchInvoiceContext } = InvoiceContext.useObject({
+    const { obj: invoiceContext, loading: invoiceContextLoading, error: invoiceContextError } = InvoiceContext.useObject({
         where: {
             organization: { id: orgId },
         },
@@ -106,7 +97,7 @@ export const RequisitesSetup = () => {
         }
     }, [bankAccounts, bankAccountsError, bankAccountsLoading])
 
-    // NOTE: If already connected invoice context with status inProgress = skip to final step
+    // NOTE: If invoice context is already connected with status inProgress = skip to final step
     useEffect(() => {
         if (!invoiceContextLoading && !invoiceContextError && invoiceContextId) {
             router.replace({ query: { ...router.query, step: 1 } })
@@ -117,40 +108,17 @@ export const RequisitesSetup = () => {
     const handleFormSubmit = useCallback(async (values) => {
         setError(null)
         setIsLoading(true)
-        // TODO: fix import of module
-        const { routingNumberMeta, tinMeta, getBankError, getOrganizationError } = await validateRecipient(values.bic, get(organization, 'tin'))
-        if ( getBankError || getOrganizationError) {
-            const BankAccountValidationErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.settings.requisites.error.text' }, {
-                number: values.number,
-                routingNumber: values.bic,
-            })
-            setError(BankAccountValidationErrorMessage)
-            setIsLoading(false)
-            return
-        }
-        const bankName = get(routingNumberMeta, 'bankName', null)
-        const offsettingAccount = get(routingNumberMeta, 'offsettingAccount', null)
-        const name = get(tinMeta, 'name', null)
-        const iec = get(tinMeta, 'iec', null)
-        const bic = get(routingNumberMeta, 'routingNumber', null)
-        const territoryCode = get(tinMeta, 'territoryCode', null)
         createAction({
             status: INVOICE_CONTEXT_STATUS_INPROGRESS,
             organization: { connect: { id: orgId } },
             recipient: {
-                name,
-                bankName,
-                territoryCode,
-                offsettingAccount,
                 tin: get(organization, 'tin'),
-                iec,
-                bic,
+                bic: values.bic,
                 bankAccount: values.account,
             },
             taxRegime: values.taxType,
-            // vatPercent: parseInt(values.taxPercent), TODO: can't create history record
+            vatPercent: String(values.taxPercent),
             currencyCode: 'RUB',
-
         }).then(()=>{
             router.replace({ query: { step: 1 } })
         })
