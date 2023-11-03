@@ -6,7 +6,7 @@ const {
 
 
 const { AddressTransform, AddressParser } = require('@condo/domains/billing/schema/helpers/addressTransform')
-const { BillingProperty } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingProperty, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
 const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
@@ -364,6 +364,41 @@ class BillingPropertyResolver {
     }
 
     /**
+     * Enrich resolved billingProperty with unitName/unitType
+     * @param billingProperty - resolved billing property
+     * @param parsedFias - parsed fias address
+     * @param parsedAddress - parsed address
+     * @param providedUnitType - provided unit type
+     * @param providedUnitName - provided unit name
+     * @returns {Promise<{ billingProperty: (BillingProperty), unitType: string, unitName: string}>}
+     */
+    async packToResult (billingProperty, parsedFias, parsedAddress, providedUnitType, providedUnitName) {
+        /**
+         * We are expecting here the following cases:
+         * 1. For resolved billingProperty has paired billingAccount with unitType/unitName
+         * 2. For resolved billingProperty has no paired billingAccount - let's choose unitType/unitName by exists data
+         */
+        const billingAccounts = await BillingAccount.getAll(this.context, {
+            property: { id: billingProperty.id },
+            deletedAt: null,
+        }, { first: 1 })
+
+        // has paired billingAccount
+        if (!isNil(billingAccounts) && billingAccounts.length > 0) {
+            const { unitType, unitName } = billingAccounts[0]
+            return { billingProperty, unitType, unitName }
+        }
+
+        // choose unitName, unitType
+        const {
+            unitType,
+            unitName,
+        } = this.chooseUnitParts(parsedFias, parsedAddress, providedUnitType, providedUnitName)
+
+        return { billingProperty, unitType, unitName }
+    }
+
+    /**
      * Resolve BillingProperty model by provided address. Either retrieve exists one property or create new one
      * @param address - address string
      * @param addressMeta - an optional object, can hold fias field (housing fias)
@@ -377,12 +412,6 @@ class BillingPropertyResolver {
             const parsedFias = this.parseFias(get(addressMeta, 'fias'))
             const parsedAddress = this.parseAddress(address)
 
-            // choose unitName, unitType
-            const {
-                unitType,
-                unitName,
-            } = this.chooseUnitParts(parsedFias, parsedAddress, providedUnitType, providedUnitName)
-
             // propagate addresses into cache
             await this.propagateAddressToCache(parsedFias)
             await this.propagateAddressToCache(parsedAddress)
@@ -391,34 +420,53 @@ class BillingPropertyResolver {
             // retrieve summary and respond if it is good enough
             const fiasSummary = await this.getSearchSummary(parsedFias)
             if (fiasSummary.registeredInOrg) {
-                return { billingProperty: fiasSummary.billingProperty, unitType, unitName }
+                return await this.packToResult(
+                    fiasSummary.billingProperty, parsedFias, parsedAddress,
+                    providedUnitType, providedUnitName,
+                )
             }
 
             const addressSummary = await this.getSearchSummary(parsedAddress)
             if (addressSummary.registeredInOrg) {
-                return { billingProperty: addressSummary.billingProperty, unitType, unitName }
+                return await this.packToResult(
+                    addressSummary.billingProperty, parsedFias, parsedAddress,
+                    providedUnitType, providedUnitName,
+                )
             }
 
             // case: found only billing properties not in the organization
             if (!isNil(fiasSummary.billingProperty)) {
                 await this.createBillingProblem(fiasSummary)
-                return { billingProperty: fiasSummary.billingProperty, unitType, unitName }
+                return await this.packToResult(
+                    fiasSummary.billingProperty, parsedFias, parsedAddress,
+                    providedUnitType, providedUnitName,
+                )
             }
             if (!isNil(addressSummary.billingProperty)) {
                 await this.createBillingProblem(addressSummary)
-                return { billingProperty: addressSummary.billingProperty, unitType, unitName }
+                return await this.packToResult(
+                    addressSummary.billingProperty, parsedFias, parsedAddress,
+                    providedUnitType, providedUnitName,
+                )
             }
 
             // case: try to search them in organization properties
             let foundProperty = await this.getOrganizationBillingPropertySuggestion(addressSummary.normalizedAddress)
                 || await this.getOrganizationBillingPropertySuggestion(addressSummary.address)
             if (!isNil(foundProperty)) {
-                return { billingProperty: foundProperty, unitType, unitName }
+                return await this.packToResult(
+                    foundProperty, parsedFias, parsedAddress,
+                    providedUnitType, providedUnitName,
+                )
             }
 
             // case: no property can be found - let's create one
             const billingProperty = await this.createBillingProperty(fiasSummary, addressSummary, addressMeta)
-            return { billingProperty, unitType, unitName }
+
+            return await this.packToResult(
+                billingProperty, parsedFias, parsedAddress,
+                providedUnitType, providedUnitName,
+            )
         } catch (e) {
             const error = e.code || 'ADDRESS_NOT_RECOGNIZED_VALUE'
             const errorMessage = e.message
