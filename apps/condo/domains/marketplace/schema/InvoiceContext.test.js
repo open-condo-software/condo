@@ -376,7 +376,7 @@ describe('InvoiceContext', () => {
             await expectToThrowGQLError(async () => {
                 await createTestInvoiceContext(adminClient, o10n, integration, {
                     taxRegime: TAX_REGIME_SIMPLE,
-                    vatPercent: 0,
+                    vatPercent: '0',
                 })
             }, {
                 code: 'BAD_USER_INPUT',
