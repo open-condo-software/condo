@@ -737,7 +737,7 @@ __metadata:
     isomorphic-fetch: ^3.0.0
     jest: ^29.7.0
     jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.4.0
+    jest-jasmine2: ^29.7.0
     jest-watch-typeahead: 0.6.5
     jose: 2.0.5
     js-cookie: ^2.2.1
@@ -12285,7 +12285,7 @@ __metadata:
     graphql-tag: ^2.12.6
     jest: ^29.7.0
     jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.4.0
+    jest-jasmine2: ^29.7.0
     lodash: ^4.17.21
     node-fetch: ^2.6.7
     pluralize: ^8
@@ -31640,6 +31640,31 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jest-jasmine2@npm:^29.7.0":
+  version: 29.7.0
+  resolution: "jest-jasmine2@npm:29.7.0"
+  dependencies:
+    "@jest/environment": ^29.7.0
+    "@jest/expect": ^29.7.0
+    "@jest/source-map": ^29.6.3
+    "@jest/test-result": ^29.7.0
+    "@jest/types": ^29.6.3
+    "@types/node": "*"
+    chalk: ^4.0.0
+    co: ^4.6.0
+    is-generator-fn: ^2.0.0
+    jest-each: ^29.7.0
+    jest-matcher-utils: ^29.7.0
+    jest-message-util: ^29.7.0
+    jest-runtime: ^29.7.0
+    jest-snapshot: ^29.7.0
+    jest-util: ^29.7.0
+    p-limit: ^3.1.0
+    pretty-format: ^29.7.0
+  checksum: 41070ff8c02bfc6abb2acfad543f80e8501a5a613214715e4d3df10a2c30cf03c3db7d62f13979acf9b8f2d756e7ed0e604275ddbfe276a499da9edfc831b96b
+  languageName: node
+  linkType: hard
+
 "jest-leak-detector@npm:^29.5.0":
   version: 29.5.0
   resolution: "jest-leak-detector@npm:29.5.0"
@@ -44031,7 +44056,7 @@ __metadata:
     jest: ^29.7.0
     jest-diff: ^29.7.0
     jest-environment-jsdom: ^29.7.0
-    jest-jasmine2: ^29.4.0
+    jest-jasmine2: ^29.7.0
     mono-pub: ^1.0.1
     postcss-less: ^6.0.0
     stylelint: ^14.11.0
