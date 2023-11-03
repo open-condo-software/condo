@@ -133,7 +133,7 @@
     "next-transpile-modules": "^7.0.0",
     "node-fetch": "^2.6.7",
     "numeral": "2.0.6",
-    "nunjucks": "^3.2.2",
+    "nunjucks": "^3.2.4",
     "oidc-provider": "7.14.3",
     "openid-client": "4.7.4",
     "pdf-lib": "^1.17.1",
