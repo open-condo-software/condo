@@ -1,3 +1,5 @@
+const { omit } = require('lodash')
+
 const { getById } = require('@open-condo/keystone/schema')
 
 // TODO(savelevMatthew): Replace with single request from serverSchema after gql refactoring
@@ -8,7 +10,6 @@ const { getById } = require('@open-condo/keystone/schema')
  *
  * @param {Object} flatReceipt BillingReceipt received by "find" from "@open-condo/keystone/schema"
  */
-
 async function freezeBillingReceipt (flatReceipt) {
     const account = await getById('BillingAccount', flatReceipt.account)
     const property = await getById('BillingProperty', flatReceipt.property)
@@ -30,6 +31,26 @@ async function freezeBillingReceipt (flatReceipt) {
     }
 }
 
+async function freezeInvoice (flatInvoice) {
+    const property = flatInvoice.property ? await getById('Property', flatInvoice.property) : null
+    const context = await getById('InvoiceContext', flatInvoice.context)
+    const organization = await getById('Organization', context.organization)
+    const ticket = flatInvoice.ticket ? await getById('Ticket', flatInvoice.ticket) : null
+
+    return {
+        dv: 1,
+        data: {
+            ...flatInvoice,
+            property,
+            organization,
+            // The invoice context without sensitive data (such as settings.emails)
+            context: omit(context, ['settings', 'status']),
+            ticket,
+        },
+    }
+}
+
 module.exports = {
     freezeBillingReceipt,
+    freezeInvoice,
 }

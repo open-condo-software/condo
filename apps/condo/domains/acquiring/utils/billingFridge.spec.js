@@ -7,7 +7,7 @@ const { prepareKeystoneExpressApp, setFakeClientMode } = require('@open-condo/ke
 
 const { makePayer } = require('@condo/domains/acquiring/utils/testSchema')
 
-const { freezeBillingReceipt } = require('./freezeBillingReceipt')
+const { freezeBillingReceipt } = require('./billingFridge')
 
 
 describe('freezeBillingReceipt', () => {
@@ -48,13 +48,13 @@ describe('freezeBillingReceipt', () => {
         const { property } = data
         expect(property).toHaveProperty('id')
         expect(property).toHaveProperty('address')
-        
+
         expect(data).toHaveProperty('account')
         const { account } = data
         expect(account).toHaveProperty('id')
         expect(account).toHaveProperty('number')
         expect(account).toHaveProperty('unitName')
-        
+
         expect(data).toHaveProperty('organization')
         const { organization } = data
         expect(organization).toHaveProperty('id')

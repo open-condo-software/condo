@@ -16,7 +16,7 @@ const {
     ANONYMOUS_PAYMENT_PATH,
 } = require('@condo/domains/acquiring/constants/links')
 const { DEFAULT_MULTIPAYMENT_SERVICE_CATEGORY } = require('@condo/domains/acquiring/constants/payment')
-const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/freezeBillingReceipt')
+const { freezeBillingReceipt } = require('@condo/domains/acquiring/utils/billingFridge')
 const { Payment, MultiPayment, AcquiringIntegration } = require('@condo/domains/acquiring/utils/serverSchema')
 const {
     getAcquiringIntegrationContextFormula,

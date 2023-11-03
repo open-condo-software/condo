@@ -5,10 +5,12 @@
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
+const { pick } = require('lodash')
 
 const {
     makeClient,
     makeLoggedInAdminClient,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -22,7 +24,9 @@ const {
     DIRECT_PAYMENT_PATH,
     GET_CARD_TOKENS_PATH,
 } = require('@condo/domains/acquiring/constants/links')
-const { PAYMENT_WITHDRAWN_STATUS, MULTIPAYMENT_WITHDRAWN_STATUS,
+const {
+    PAYMENT_WITHDRAWN_STATUS,
+    MULTIPAYMENT_WITHDRAWN_STATUS,
     PAYMENT_PROCESSING_STATUS,
     MULTIPAYMENT_PROCESSING_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
@@ -53,15 +57,29 @@ const {
     createTestBillingAccount,
     createTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
+const { INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED,
+    INVOICE_CONTEXT_STATUS_INPROGRESS,
+} = require('@condo/domains/marketplace/constants')
+const { createTestInvoiceContext, createTestInvoice, updateTestInvoice, updateTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
+const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const {
     updateTestServiceConsumer,
     createTestResident,
     createTestServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
+let adminClient
+let dummyAcquiringIntegration
 
 describe('RegisterMultiPaymentService', () => {
+    beforeAll(async () => {
+        adminClient = await makeLoggedInAdminClient()
+        ;[dummyAcquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
+            canGroupReceipts: true,
+        })
+    })
+
     describe('Execute', () => {
         describe('Resident', () => {
             const cases = [[1, 1], [1, 2], [2, 1], [2, 2]]
@@ -114,7 +132,7 @@ describe('RegisterMultiPaymentService', () => {
             // create RecurrentPaymentContext
             const [billingCategory] = await createTestBillingCategory(
                 admin,
-                { name: `Category ${new Date()}` }
+                { name: `Category ${new Date()}` },
             )
             const [recurrentContext] = await createTestRecurrentPaymentContext(
                 commonData.client,
@@ -126,7 +144,7 @@ describe('RegisterMultiPaymentService', () => {
                     settings: { cardId: faker.datatype.uuid() },
                     serviceConsumer: { connect: { id: serviceConsumerId } },
                     billingCategory: { connect: { id: billingCategory.id } },
-                }
+                },
             )
 
             const payload = [{
@@ -219,42 +237,26 @@ describe('RegisterMultiPaymentService', () => {
             test('Should check emptiness of input arrays', async () => {
                 const { serviceConsumer, client } = await makePayer()
                 let payload = []
-                await catchErrorFrom(async () => {
-                    await registerMultiPaymentByTestClient(client, payload)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: 'Missing required value for "groupedReceipts" field',
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPayment',
-                            variable: ['data', 'groupedReceipts'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'REQUIRED',
-                            message: 'Missing required value for "groupedReceipts" field',
-                        },
-                    }])
-                })
+                await expectToThrowGQLError(async () => await registerMultiPaymentByTestClient(client, payload), {
+                    mutation: 'registerMultiPayment',
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED',
+                    message: 'Missing required value for "groupedReceipts" field and/or for "invoices" field',
+                }, 'result')
+
                 payload = [
                     {
                         serviceConsumer: { id: serviceConsumer.id },
                         receipts: [],
                     },
                 ]
-                await catchErrorFrom(async () => {
-                    await registerMultiPaymentByTestClient(client, payload)
-                }, ({ errors }) => {
-                    expect(errors).toMatchObject([{
-                        message: 'Each group of receipts should contain at least 1 receipt',
-                        path: ['result'],
-                        extensions: {
-                            mutation: 'registerMultiPayment',
-                            variable: ['data', 'groupedReceipts', '[]', 'receipts'],
-                            code: 'BAD_USER_INPUT',
-                            type: 'REQUIRED',
-                            message: 'Each group of receipts should contain at least 1 receipt',
-                        },
-                    }])
-                })
+                await expectToThrowGQLError(async () => await registerMultiPaymentByTestClient(client, payload), {
+                    mutation: 'registerMultiPayment',
+                    variable: ['data', 'groupedReceipts', '[]', 'receipts'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'REQUIRED',
+                    message: 'Each group of receipts should contain at least 1 receipt',
+                }, 'result')
             })
         })
         describe('Duplicates checks', () => {
@@ -310,7 +312,26 @@ describe('RegisterMultiPaymentService', () => {
                     }])
                 })
             })
+
+            test('Should contain unique invoices', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoice] = await createTestInvoice(adminClient, invoiceContext)
+
+                await expectToThrowGQLError(async () => {
+                    await registerMultiPaymentByTestClient(adminClient, null, {
+                        invoices: [pick(invoice, 'id'), pick(invoice, 'id')],
+                    })
+                }, {
+                    mutation: 'registerMultiPayment',
+                    variable: ['data', 'invoices'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'NOT_UNIQUE',
+                    message: 'Found duplicated invoices.',
+                }, 'result')
+            })
         })
+
         describe('ServiceConsumers checks', () => {
             test('Input should contain existing ServiceConsumers id', async () => {
                 const { billingReceipts, client } = await makePayer(2)
@@ -383,8 +404,14 @@ describe('RegisterMultiPaymentService', () => {
                     })
 
                     const payload = [
-                        { serviceConsumer: { id: batches[0].serviceConsumer.id }, receipts: batches[0].billingReceipts.map(receipt => ({ id: receipt.id })) },
-                        { serviceConsumer: { id: secondConsumer.id }, receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })) },
+                        {
+                            serviceConsumer: { id: batches[0].serviceConsumer.id },
+                            receipts: batches[0].billingReceipts.map(receipt => ({ id: receipt.id })),
+                        },
+                        {
+                            serviceConsumer: { id: secondConsumer.id },
+                            receipts: batches[1].billingReceipts.map(receipt => ({ id: receipt.id })),
+                        },
                     ]
 
                     await catchErrorFrom(async () => {
@@ -620,6 +647,110 @@ describe('RegisterMultiPaymentService', () => {
                 })
             })
         })
+
+        describe('Invoices check', () => {
+            test('Should not be able to pay for invoices not in "status" status', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoice] = await createTestInvoice(adminClient, invoiceContext, { status: INVOICE_STATUS_DRAFT })
+
+                await expectToThrowGQLError(
+                    async () => await registerMultiPaymentByTestClient(
+                        adminClient,
+                        null,
+                        { invoices: [pick(invoice, 'id')] },
+                    ),
+                    {
+                        mutation: 'registerMultiPayment',
+                        variable: ['data', 'invoices'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVOICES_ARE_NOT_PUBLISHED',
+                        message: 'Found invoices with not "published" status',
+                    },
+                    'result',
+                )
+            })
+
+            test('Should not be able to pay for 3rd user\'s', async () => {
+                const residentClient = await makeClientWithResidentUser()
+                const [o10n] = await createTestOrganization(adminClient)
+                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+
+                const [invoice] = await createTestInvoice(adminClient, invoiceContext, {
+                    status: INVOICE_STATUS_PUBLISHED,
+                    client: { connect: { id: residentClient.user.id } },
+                })
+
+                await expectToThrowGQLError(
+                    async () => await registerMultiPaymentByTestClient(
+                        adminClient,
+                        null,
+                        { invoices: [pick(invoice, 'id')] },
+                    ),
+                    {
+                        mutation: 'registerMultiPayment',
+                        variable: ['data', 'invoices'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVOICES_FOR_THIRD_USER',
+                        message: 'Found invoices not related to the current user',
+                    },
+                    'result',
+                )
+            })
+
+            test('All invoices contexts must be finished', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoice] = await createTestInvoice(adminClient, invoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+
+                await updateTestInvoiceContext(adminClient, invoiceContext.id, { status: INVOICE_CONTEXT_STATUS_INPROGRESS })
+
+                await expectToThrowGQLError(
+                    async () => await registerMultiPaymentByTestClient(
+                        adminClient,
+                        null,
+                        { invoices: [pick(invoice, 'id')] },
+                    ),
+                    {
+                        mutation: 'registerMultiPayment',
+                        variable: ['data', 'invoices'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVOICE_CONTEXT_NOT_FINISHED',
+                        message: 'Invoice context is not finished',
+                    },
+                    'result',
+                )
+            })
+
+            test('All invoices contexts must be related to the same acquiring integration', async () => {
+                const [o10n1] = await createTestOrganization(adminClient)
+                const [o10n2] = await createTestOrganization(adminClient)
+                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
+                    canGroupReceipts: true,
+                })
+                const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoice1] = await createTestInvoice(adminClient, invoiceContext1, { status: INVOICE_STATUS_PUBLISHED })
+                const [invoiceContext2] = await createTestInvoiceContext(adminClient, o10n2, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoice2] = await createTestInvoice(adminClient, invoiceContext2, { status: INVOICE_STATUS_PUBLISHED })
+
+                await expectToThrowGQLError(
+                    async () => await registerMultiPaymentByTestClient(
+                        adminClient,
+                        null,
+                        { invoices: [pick(invoice1, 'id'), pick(invoice2, 'id')] },
+                    ),
+                    {
+                        mutation: 'registerMultiPayment',
+                        variable: ['data', 'invoices'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'INVOICES_CONTEXTS_HAS_DIFFERENT_INTEGRATIONS',
+                        message: 'Invoices contexts has different acquiring integrations',
+                    },
+                    'result',
+                )
+            })
+        })
+
         describe('deletedAt check', () => {
             test('Should not be able to pay for deleted receipts', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(1, 2)
@@ -673,6 +804,32 @@ describe('RegisterMultiPaymentService', () => {
                     }])
                 })
             })
+
+            test('Should not be able to pay for deleted invoices', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoice] = await createTestInvoice(adminClient, invoiceContext)
+
+                await updateTestInvoice(adminClient, invoice.id, { deletedAt: dayjs().toISOString() })
+
+                await expectToThrowGQLError(
+                    async () => await registerMultiPaymentByTestClient(
+                        adminClient,
+                        null,
+                        { invoices: [pick(invoice, 'id')] },
+                    ),
+                    {
+                        mutation: 'registerMultiPayment',
+                        variable: ['data', 'invoices'],
+                        code: 'BAD_USER_INPUT',
+                        type: 'NOT_FOUND',
+                        message: 'Some of specified invoices with ids {ids} were deleted, so you cannot pay for them anymore',
+                        messageInterpolation: { ids: invoice.id },
+                    },
+                    'result',
+                )
+            })
+
             test('Should not be able to pay for consumer with deleted acquiring context', async () => {
                 const { commonData, batches } = await makePayerWithMultipleConsumers(2, 1)
                 const payload = batches.map(batch => ({
@@ -800,7 +957,7 @@ describe('RegisterMultiPaymentService', () => {
                 // create RecurrentPaymentContext
                 const [billingCategory] = await createTestBillingCategory(
                     admin,
-                    { name: `Category ${new Date()}` }
+                    { name: `Category ${new Date()}` },
                 )
                 const [recurrentContext] = await createTestRecurrentPaymentContext(
                     commonData.client,
@@ -812,14 +969,14 @@ describe('RegisterMultiPaymentService', () => {
                         settings: { cardId: faker.datatype.uuid() },
                         serviceConsumer: { connect: { id: serviceConsumerId } },
                         billingCategory: { connect: { id: billingCategory.id } },
-                    }
+                    },
                 )
 
                 // soft delete recurrentPaymentContext
                 await updateTestRecurrentPaymentContext(
                     commonData.client,
                     recurrentContext.id,
-                    { deletedAt: dayjs().toISOString() }
+                    { deletedAt: dayjs().toISOString() },
                 )
 
                 const payload = [{
@@ -926,7 +1083,7 @@ describe('RegisterMultiPaymentService', () => {
             const payload = [
                 {
                     serviceConsumer: { id: serviceConsumer.id },
-                    receipts: [ { id: newReceipt.id } ],
+                    receipts: [{ id: newReceipt.id }],
                 },
             ]
 
