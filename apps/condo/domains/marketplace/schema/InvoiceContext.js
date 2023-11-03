@@ -174,7 +174,7 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             const nextVat = get(nextData, 'vatPercent')
             const nextTaxRegime = get(nextData, 'taxRegime')
 
-            if (nextTaxRegime === TAX_REGIME_SIMPLE && nextVat === 0) {
+            if (nextTaxRegime === TAX_REGIME_SIMPLE && nextVat === '0') {
                 throw new GQLError(ERRORS.TAX_REGIME_AND_VAT_NOT_MATCHED, context)
             }
         },

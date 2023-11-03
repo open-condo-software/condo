@@ -369,7 +369,7 @@ describe('InvoiceContext', () => {
             const [o10n] = await createTestOrganization(adminClient)
 
             await expectToThrowGQLError(async () => {
-                await createTestInvoiceContext(adminClient, o10n, { taxRegime: TAX_REGIME_SIMPLE, vatPercent: 0 })
+                await createTestInvoiceContext(adminClient, o10n, { taxRegime: TAX_REGIME_SIMPLE, vatPercent: '0' })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'TAX_REGIME_AND_VAT_NOT_MATCHED',
