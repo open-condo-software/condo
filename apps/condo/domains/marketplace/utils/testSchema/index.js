@@ -32,14 +32,16 @@ const MarketPriceScope = generateGQLTestUtils(MarketPriceScopeGQL)
 
 /* AUTOGENERATE MARKER <CONST> */
 
-async function createTestInvoiceContext (client, organization, extraAttrs = {}) {
+async function createTestInvoiceContext (client, organization, integration, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!organization || !organization.id) throw new Error('no organization.id')
+    if (!integration || !integration.id) throw new Error('no integration.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
+        integration: { connect: { id: integration.id } },
         organization: { connect: { id: organization.id } },
         taxRegime: TAX_REGIME_GENEGAL,
         currencyCode: 'RUB',

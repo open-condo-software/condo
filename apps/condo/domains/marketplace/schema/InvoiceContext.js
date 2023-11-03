@@ -13,6 +13,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const { RECIPIENT_FIELD } = require('@condo/domains/acquiring/schema/fields/Recipient')
+const { ACQUIRING_INTEGRATION_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { CURRENCY_CODE_FIELD, PERCENT_FIELD } = require('@condo/domains/common/schema/fields')
 const { getGQLErrorValidator } = require('@condo/domains/common/schema/json.utils')
 const access = require('@condo/domains/marketplace/access/InvoiceContext')
@@ -57,6 +58,15 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
     schemaDoc: 'Model contains the settings for processing invoices for organization',
     fields: {
 
+        integration: {
+            ...ACQUIRING_INTEGRATION_FIELD,
+            access: {
+                create: true,
+                read: true,
+                update: false,
+            },
+        },
+
         organization: {
             schemaDoc: 'The organization who created this context',
             type: 'Relationship',
@@ -68,7 +78,6 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
 
         recipient: {
             ...RECIPIENT_FIELD,
-            schemaDoc: 'Requisites from agreement. Are used for invoicing in case of not confirmed billing recipient in receipt',
             isRequired: false,
         },
 

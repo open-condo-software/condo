@@ -14,6 +14,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
+const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { TAX_REGIME_SIMPLE, DEFAULT_IMPLICIT_FEE_PERCENT } = require('@condo/domains/marketplace/constants')
 const {
@@ -32,26 +33,28 @@ const {
 } = require('@condo/domains/user/utils/testSchema')
 
 let adminClient, supportClient, anonymousClient
+let integration
 
 describe('InvoiceContext', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
         anonymousClient = await makeClient()
+        ;[integration] = await createTestAcquiringIntegration(supportClient)
     })
 
     describe('CRUD tests', () => {
         describe('create', () => {
             test('admin can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [obj, attrs] = await createTestInvoiceContext(adminClient, o10n)
+                const [obj, attrs] = await createTestInvoiceContext(adminClient, o10n, integration)
                 expectValuesOfCommonFields(obj, attrs, adminClient)
                 expect(Number(obj.implicitFeePercent)).toEqual(Number(DEFAULT_IMPLICIT_FEE_PERCENT))
             })
 
             test('support can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [obj, attrs] = await createTestInvoiceContext(supportClient, o10n)
+                const [obj, attrs] = await createTestInvoiceContext(supportClient, o10n, integration)
                 expectValuesOfCommonFields(obj, attrs, supportClient)
             })
 
@@ -62,7 +65,7 @@ describe('InvoiceContext', () => {
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageInvoiceContexts: true })
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
-                const [obj, attrs] = await createTestInvoiceContext(client, o10n)
+                const [obj, attrs] = await createTestInvoiceContext(client, o10n, integration)
 
                 expectValuesOfCommonFields(obj, attrs, client)
             })
@@ -74,22 +77,22 @@ describe('InvoiceContext', () => {
                 await createTestOrganizationEmployee(adminClient, o10n, client.user, role)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestInvoiceContext(client, o10n)
+                    await createTestInvoiceContext(client, o10n, integration)
                 })
             })
 
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestInvoiceContext(anonymousClient, { id: 'does-not-matter' })
+                    await createTestInvoiceContext(anonymousClient, { id: 'does-not-matter' }, { id: 'does-not-matter' })
                 })
             })
 
             test('only one context per organization may be created', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                await createTestInvoiceContext(adminClient, o10n)
+                await createTestInvoiceContext(adminClient, o10n, integration)
 
                 await expectToThrowUniqueConstraintViolationError(async () => {
-                    await createTestInvoiceContext(adminClient, o10n)
+                    await createTestInvoiceContext(adminClient, o10n, integration)
                 }, 'invoiceContext_unique_organization')
             })
         })
@@ -97,7 +100,7 @@ describe('InvoiceContext', () => {
         describe('update', () => {
             test('admin can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
                 const [obj, attrs] = await updateTestInvoiceContext(adminClient, objCreated.id)
 
                 expect(obj.dv).toEqual(1)
@@ -108,7 +111,7 @@ describe('InvoiceContext', () => {
 
             test('support can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const [obj, attrs] = await updateTestInvoiceContext(supportClient, objCreated.id)
 
@@ -120,7 +123,7 @@ describe('InvoiceContext', () => {
 
             test('staff with permission can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageInvoiceContexts: true })
@@ -136,7 +139,7 @@ describe('InvoiceContext', () => {
 
             test('staff without permission can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canManageInvoiceContexts: false })
@@ -149,7 +152,7 @@ describe('InvoiceContext', () => {
 
             test('anonymous can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 await expectToThrowAuthenticationErrorToObj(async () => {
                     await updateTestInvoiceContext(anonymousClient, objCreated.id)
@@ -160,7 +163,7 @@ describe('InvoiceContext', () => {
         describe('hard delete', () => {
             test('admin can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await InvoiceContext.delete(adminClient, objCreated.id)
@@ -169,7 +172,7 @@ describe('InvoiceContext', () => {
 
             test('user can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -179,7 +182,7 @@ describe('InvoiceContext', () => {
 
             test('anonymous can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const client = await makeClient()
                 await expectToThrowAccessDeniedErrorToObj(async () => {
@@ -191,7 +194,7 @@ describe('InvoiceContext', () => {
         describe('read', () => {
             test('admin can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [obj] = await createTestInvoiceContext(adminClient, o10n)
+                const [obj] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const objs = await InvoiceContext.getAll(adminClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -205,7 +208,7 @@ describe('InvoiceContext', () => {
 
             test('support can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [obj] = await createTestInvoiceContext(adminClient, o10n)
+                const [obj] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const objs = await InvoiceContext.getAll(supportClient, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -219,7 +222,7 @@ describe('InvoiceContext', () => {
 
             test('staff with permission can', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [objCreated] = await createTestInvoiceContext(adminClient, o10n)
+                const [objCreated] = await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadInvoiceContexts: true })
@@ -237,7 +240,7 @@ describe('InvoiceContext', () => {
 
             test('staff without permission can\'t', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                await createTestInvoiceContext(adminClient, o10n)
+                await createTestInvoiceContext(adminClient, o10n, integration)
 
                 const client = await makeClientWithNewRegisteredAndLoggedInUser()
                 const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, { canReadInvoiceContexts: false })
@@ -252,8 +255,8 @@ describe('InvoiceContext', () => {
                 const [o10n1] = await createTestOrganization(adminClient)
                 const [o10n2] = await createTestOrganization(adminClient)
 
-                const [objCreated1] = await createTestInvoiceContext(adminClient, o10n1)
-                const [objCreated2] = await createTestInvoiceContext(adminClient, o10n2)
+                const [objCreated1] = await createTestInvoiceContext(adminClient, o10n1, integration)
+                const [objCreated2] = await createTestInvoiceContext(adminClient, o10n2, integration)
 
                 const client1 = await makeClientWithNewRegisteredAndLoggedInUser()
                 const client2 = await makeClientWithNewRegisteredAndLoggedInUser()
@@ -287,7 +290,7 @@ describe('InvoiceContext', () => {
         beforeAll(async () => {
             const [o10n] = await createTestOrganization(adminClient)
             fee_o10n = o10n
-            const [obj] = await createTestInvoiceContext(adminClient, o10n)
+            const [obj] = await createTestInvoiceContext(adminClient, o10n, integration)
             fee_invoiceContext = obj
         })
 
@@ -322,7 +325,7 @@ describe('InvoiceContext', () => {
         test('Should have correct dv field (=== 1)', async () => {
             const [o10n] = await createTestOrganization(adminClient)
             await expectToThrowGQLError(
-                async () => await createTestInvoiceContext(adminClient, o10n, {
+                async () => await createTestInvoiceContext(adminClient, o10n, integration, {
                     dv: 42,
                 }),
                 {
@@ -339,7 +342,7 @@ describe('InvoiceContext', () => {
             const [o10n] = await createTestOrganization(adminClient)
 
             await expectToThrowGQLError(async () => {
-                await createTestInvoiceContext(adminClient, o10n, {
+                await createTestInvoiceContext(adminClient, o10n, integration, {
                     settings: {
                         emails: ['SomeWrongString', 'normal@email.yes'],
                     },
@@ -354,7 +357,7 @@ describe('InvoiceContext', () => {
             const [o10n] = await createTestOrganization(adminClient)
 
             await expectToThrowGQLError(async () => {
-                await createTestInvoiceContext(adminClient, o10n, {
+                await createTestInvoiceContext(adminClient, o10n, integration, {
                     settings: {
                         emails: ['normal@email.yes', 'normal@email.yes'],
                     },
@@ -369,7 +372,10 @@ describe('InvoiceContext', () => {
             const [o10n] = await createTestOrganization(adminClient)
 
             await expectToThrowGQLError(async () => {
-                await createTestInvoiceContext(adminClient, o10n, { taxRegime: TAX_REGIME_SIMPLE, vatPercent: 0 })
+                await createTestInvoiceContext(adminClient, o10n, integration, {
+                    taxRegime: TAX_REGIME_SIMPLE,
+                    vatPercent: 0,
+                })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'TAX_REGIME_AND_VAT_NOT_MATCHED',
@@ -381,8 +387,8 @@ describe('InvoiceContext', () => {
             const [o10n1] = await createTestOrganization(adminClient)
             const [o10n2] = await createTestOrganization(adminClient)
 
-            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n1, { salesTaxPercent: '-2' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
-            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n2, { salesTaxPercent: '200' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
+            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n1, integration, { salesTaxPercent: '-2' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
+            await expectToThrowGQLError(async () => await createTestInvoiceContext(adminClient, o10n2, integration, { salesTaxPercent: '200' }), COMMON_ERRORS.INVALID_PERCENT_VALUE)
         })
     })
 })
