@@ -15,7 +15,7 @@ import {
     B2C_LOGO_ALLOWED_MIMETYPES,
     B2C_LOGO_MAX_FILE_SIZE_IN_BYTES,
 } from '@/domains/miniapp/constants/common'
-import { useImageValidator } from '@/domains/miniapp/hooks/useImageValidator'
+import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 
 import { B2CAppCard } from './B2CAppCard'
@@ -90,7 +90,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
         onCompleted,
     })
 
-    const beforeUpload = useImageValidator({
+    const beforeUpload = useFileValidator({
         restrictMimeTypes: B2C_LOGO_ALLOWED_MIMETYPES,
         sizeLimit: B2C_LOGO_MAX_FILE_SIZE_IN_BYTES,
         dimensionsLimit: {

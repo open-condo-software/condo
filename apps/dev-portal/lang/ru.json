@@ -41,11 +41,11 @@
   "global.forms.validations.phoneFormat.message": "Неверный номер телефона",
   "global.forms.validations.passwordTooEasy.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
   "global.errors.serverError.title": "Ошибка сервера",
-  "global.errors.imageUpload.title": "Ошибка загрузки файла",
-  "global.errors.imageUpload.wrongType.description": "Изображение имеет неверный формат",
+  "global.errors.fileUpload.title": "Ошибка загрузки файла",
+  "global.errors.fileUpload.wrongType.description": "Файл имеет неверный формат",
+  "global.errors.fileUpload.tooLarge.description": "Размер файла превышает максимальный лимит в {size}{units}",
   "global.errors.imageUpload.tooSmall.description": "Изображение меньше {minSize} пикселей",
   "global.errors.imageUpload.tooBig.description": "Изображение больше {maxSize} пикселей",
-  "global.errors.imageUpload.tooLarge.description": "Изображение превышает максимальный лимит в {size}{units}",
   "docs.editPage": "Редактировать эту страницу на Github",
   "docs.nextArticle": "Далее: {title}",
   "docs.prevArticle": "Назад: {title}",
@@ -60,5 +60,9 @@
   "apps.b2c.sections.info.icons.subtitle": "Иконки приложения",
   "apps.b2c.sections.info.icons.action.uploadImage": "Загрузить изображение",
   "apps.b2c.sections.info.icons.main.title": "Главная иконка приложения",
-  "apps.b2c.sections.info.icons.main.description": "Используется в для отображения на главном экране мобильного приложения жителя. Должна быть в формате {format} и быть размером от {minSize} до {maxSize} пикселей"
+  "apps.b2c.sections.info.icons.main.description": "Используется в для отображения на главном экране мобильного приложения жителя. Должна быть в формате {format} и быть размером от {minSize} до {maxSize} пикселей",
+  "apps.b2c.sections.builds.title": "Сборки приложения",
+  "apps.b2c.sections.builds.columns.version.title": "Версия сборки",
+  "apps.b2c.sections.builds.columns.size.title": "Размер",
+  "apps.b2c.sections.builds.action.addBuild": "Добавить сборку"
 }

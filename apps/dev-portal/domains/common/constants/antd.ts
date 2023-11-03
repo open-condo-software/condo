@@ -25,5 +25,17 @@ export const theme: ThemeConfig = {
             margin: 0,
             colorSplit: colors.gray['3'],
         },
+        Table: {
+            colorBorderSecondary: colors.gray['3'],
+            colorFillAlter: colors.white,
+            colorTextHeading: colors.gray['7'],
+            fontFamily: 'var(--condo-global-font-family-default)',
+            padding: 16,
+            borderRadiusLG: 12,
+        },
+        Pagination: {
+            colorBgTextHover: colors.gray['1'],
+            colorTextDisabled: colors.gray['5'],
+        },
     },
 }

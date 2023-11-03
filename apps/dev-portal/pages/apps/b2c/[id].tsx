@@ -10,6 +10,7 @@ import { Typography } from '@open-condo/ui'
 
 import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
+import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/BuildsSection'
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
 import { useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
 
@@ -25,6 +26,7 @@ const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24
 const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
     'info': InfoSection,
+    'builds': BuildsSection,
 }
 
 const AppSettingsPage: React.FC = () => {

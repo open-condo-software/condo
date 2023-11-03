@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl'
 import type { RcFile } from 'antd/lib/upload/interface'
 
 type ValidatorType = (file: RcFile) => Promise<boolean | string>
-type ImageValidatorOpts = {
+type FileValidatorOpts = {
     restrictMimeTypes?: Array<string>
     sizeLimit?: number
     dimensionsLimit?: {
@@ -14,14 +14,14 @@ type ImageValidatorOpts = {
     }
 }
 
-export function useImageValidator (opts: ImageValidatorOpts): ValidatorType {
+export function useFileValidator (opts: FileValidatorOpts): ValidatorType {
     const intl = useIntl()
-    const ErrorTitle = intl.formatMessage({ id: 'global.errors.imageUpload.title' })
+    const ErrorTitle = intl.formatMessage({ id: 'global.errors.fileUpload.title' })
 
     return useCallback((file: RcFile) => {
         return new Promise((resolve) => {
             if (opts.restrictMimeTypes && !opts.restrictMimeTypes.includes(file.type)) {
-                const ErrorDescription = intl.formatMessage({ id: 'global.errors.imageUpload.wrongType.description' })
+                const ErrorDescription = intl.formatMessage({ id: 'global.errors.fileUpload.wrongType.description' })
                 notification.error({ message: ErrorTitle, description: ErrorDescription })
                 return resolve(Upload.LIST_IGNORE)
             }
@@ -29,7 +29,7 @@ export function useImageValidator (opts: ImageValidatorOpts): ValidatorType {
                 const isLimitInMb = opts.sizeLimit >= 1024 * 1024
                 const ceilLimit = Math.ceil(isLimitInMb ? opts.sizeLimit / 1024 / 1024 : opts.sizeLimit / 1024)
                 const UnitsLabel = intl.formatMessage({ id: isLimitInMb ? 'global.units.mb' : 'global.units.kb' })
-                const ErrorDescription = intl.formatMessage({ id: 'global.errors.imageUpload.tooLarge.description' }, {
+                const ErrorDescription = intl.formatMessage({ id: 'global.errors.fileUpload.tooLarge.description' }, {
                     size: ceilLimit,
                     units: UnitsLabel,
                 })

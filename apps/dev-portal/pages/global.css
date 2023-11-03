@@ -79,3 +79,11 @@ body {
   position: sticky;
   top: calc(72px + 40px);
 }
+
+.ant-table.ant-table-bordered .ant-table-cell:not(:last-child) {
+  border-inline-end: none !important;
+}
+
+.ant-pagination {
+  margin: 24px 0 0 !important;
+}
