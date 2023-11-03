@@ -10,6 +10,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
+const { BillingPropertyResolver } = require('@condo/domains/billing/schema/helpers/billingPropertyResolver')
 const { CategoryResolver } = require('@condo/domains/billing/schema/helpers/categoryResolver')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -78,36 +79,12 @@ const ERRORS = {
     },
 }
 
-const getBillingPropertyKey = ({ address }) => address
+const getBillingPropertyKey = ({ address, addressKey }) => addressKey || address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
 const getBillingReceiptKey = ({ category: { id: categoryId }, period, property, account }) => [categoryId, period, getBillingPropertyKey(property), getBillingAccountKey(account) ].join('_')
 
-const syncBillingProperties = async (context, properties, { billingContextId }) => {
-    const propertiesQuery = { address_in: properties.map(p => p.address), context: { id: billingContextId }, deletedAt: null }
-
-    const existingProperties = await find('BillingProperty', propertiesQuery)
-    const existingPropertiesIndex = Object.fromEntries(existingProperties.map((property) => ([getBillingPropertyKey(property), property.id])))
-
-    const propertiesToAdd = properties.filter(((property) => !Reflect.has(existingPropertiesIndex, getBillingPropertyKey(property))))
-
-    const createdProperties = []
-    for (const property of propertiesToAdd) {
-
-        const propertyToCreate = {
-            ...property,
-            context: { connect: { id: get(property, ['context', 'id']) } },
-        }
-
-        const newProperty = await BillingProperty.create(context, propertyToCreate)
-        createdProperties.push(newProperty)
-    }
-
-    return [...createdProperties, ...existingProperties]
-}
-
-const syncBillingAccounts = async (context, accounts, { properties, billingContextId }) => {
-
-    const propertiesIndex = Object.fromEntries(properties.map((item) => ([getBillingPropertyKey(item), item])))
+const syncBillingAccounts = async (context, accounts, { propertyIndex, billingContextId }) => {
+    const properties = Object.keys(propertyIndex).map(key => propertyIndex[key])
     const propertiesIndexById = Object.fromEntries(properties.map((item) => ([item.id, item])))
 
     const existingAccountQuery = {
@@ -117,7 +94,7 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
                     { number: item.number },
                     { unitName: item.unitName },
                     { unitType: item.unitType },
-                    { property: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } },
+                    { property: { id: get(item, ['property', 'id'] ) } },
                     { deletedAt: null },
                 ],
             }
@@ -138,7 +115,7 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
         const accountGQLInput = {
             ...account,
             context: { connect: { id: get(account, ['context', 'id']) } },
-            property: { connect: { id: get(propertiesIndex[getBillingPropertyKey(account.property)], 'id' ) } },
+            property: { connect: { id: get(account, [ 'property', 'id'] ) } },
         }
 
         const newAccount = await BillingAccount.create(context, accountGQLInput)
@@ -285,11 +262,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'importId: String! ' +
 
                     'address: String! ' +
-                    'normalizedAddress: String ' +
+                    'addressMeta: JSON ' +
 
                     'accountNumber: String! ' +
-                    'unitName: String! ' + // Is going to be made optional in future
-                    'unitType: String! ' + // Is going to be made optional in future
+                    'unitName: String ' + // Is going to be made optional in future
+                    'unitType: String ' + // Is going to be made optional in future
                     'fullName: String ' +
 
                     'toPay: String! ' +
@@ -313,7 +290,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
         },
         {
             access: true,
-            type: 'input RegisterBillingReceiptsInput { dv: Int!, sender: SenderFieldInput!, context: BillingIntegrationOrganizationContextWhereUniqueInput, receipts: [RegisterBillingReceiptInput!]! }',
+            type: 'input RegisterBillingReceiptsInput { dv: Int!, sender: SenderFieldInput!, context: BillingIntegrationOrganizationContextWhereUniqueInput, addressTransformRules: JSON, receipts: [RegisterBillingReceiptInput!]! }',
         },
     ],
 
@@ -322,7 +299,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             access: access.canRegisterBillingReceipts,
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context = {}) => {
-                const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
+                const { data: {
+                    context: billingContextInput,
+                    receipts: receiptsInput, dv, sender,
+                    addressTransformRules,
+                } } = args
                 const partialErrors = []
 
                 // Step 0:
@@ -339,8 +320,14 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 1:
                 // Parse properties, accounts and receipts from input
+                // init resolvers
                 const categoryResolver = new CategoryResolver()
                 await categoryResolver.loadCategories(context)
+                const billingPropertyResolver = new BillingPropertyResolver()
+                await billingPropertyResolver.init(
+                    context, billingContext.organization.tin, billingContext.organization.id,
+                    billingContext.id, addressTransformRules || {}
+                )
 
                 const propertyIndex = {}
                 const accountIndex = {}
@@ -348,11 +335,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 for (let i = 0; i < receiptsInput.length; ++i) {
 
-                    const { importId, address, accountNumber, unitName, unitType, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
+                    const { importId, address, addressMeta, accountNumber, unitName: providedUnitName, unitType: providedUnitType, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
                     const { tin, tinMeta, routingNumber, bankAccount } = receiptsInput[i]
-
-                    // Todo: (DOMA-2225) migrate it to address service
-                    let { normalizedAddress } = receiptsInput[i]
 
                     // Todo: (DOMA-3252) migrate it to new recipients
                     const iec = get(tinMeta, 'iec')
@@ -376,38 +360,18 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         continue
                     }
 
-                    if (!normalizedAddress) {
-                        const [findedOrganizationProperties, score] = await findPropertyByOrganizationAndAddress(context, billingContext.organization.id, address)
-
-                        if (score > PROPERTY_SCORE_TO_PASS && findedOrganizationProperties.length === 1) {
-                            normalizedAddress = findedOrganizationProperties[0].address
-                        }
-                    }
-
-                    if (!normalizedAddress) {
-                        const normalizedAddressFromSuggestions = get(await getAddressSuggestions(address, 1), ['0', 'value'])
-                        if (!normalizedAddressFromSuggestions) {
-                            partialErrors.push(new GQLError({ ...ERRORS.ADDRESS_NOT_RECOGNIZED_VALUE, inputIndex: i }, context))
-                            continue
-                        }
-                        normalizedAddress = normalizedAddressFromSuggestions
-                    }
-
-                    // TODO (DOMA-4077) When address service is here -> use normalized address to compare properties
-                    const property = { address }
+                    const {
+                        billingProperty: property,
+                        unitType,
+                        unitName,
+                        error, // TODO handle this
+                        errorMessage,
+                    } = await billingPropertyResolver.resolve(
+                        address, addressMeta, providedUnitType, providedUnitName
+                    )
                     const propertyKey = getBillingPropertyKey(property)
                     if (!propertyIndex[propertyKey]) {
-                        propertyIndex[propertyKey] = {
-                            dv: dv,
-                            sender: sender,
-                            globalId: propertyKey,
-                            address,
-                            normalizedAddress,
-                            raw: { dv: 1 },
-                            importId: propertyKey,
-                            context: { id: billingContext.id },
-                            meta: { dv: 1 },
-                        }
+                        propertyIndex[propertyKey] = property
                     }
 
                     const account = { unitName, unitType, number: accountNumber, property }
@@ -422,7 +386,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             globalId: accountKey,
                             unitName,
                             unitType,
-                            property: propertyIndex[propertyKey],
+                            property,
                             raw: { dv: 1 },
                             meta: { dv: 1 },
                         }
@@ -449,7 +413,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             sender: sender,
                             context: { id: billingContextId },
                             account: accountIndex[accountKey],
-                            property: propertyIndex[propertyKey],
+                            property,
                             period: period,
                             importId: importId,
                             category: { id: category.id },
@@ -467,8 +431,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 2:
                 // Sync billing properties and billing accounts
-                const syncedProperties = await syncBillingProperties(context, Object.values(propertyIndex), { billingContextId })
-                const syncedAccounts = await syncBillingAccounts(context, Object.values(accountIndex), { properties: syncedProperties, billingContextId })
+                const syncedAccounts = await syncBillingAccounts(context, Object.values(accountIndex), { propertyIndex, billingContextId })
 
                 // Step 3:
                 // Sync billing receipts
