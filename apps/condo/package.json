@@ -194,7 +194,7 @@
     "form-data": "^4.0.0",
     "identity-obj-proxy": "^3.0.0",
     "ignore-loader": "0.1.2",
-    "jest": "^29.4.0",
+    "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.4.0",
     "jest-jasmine2": "^29.4.0",
     "jest-watch-typeahead": "0.6.5",
