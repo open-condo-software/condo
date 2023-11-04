@@ -1,5 +1,8 @@
 import { gql } from 'graphql-tag'
+import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
+
+import type { MeterResourceOwner } from '@app/condo/schema'
 
 const GET_METER_QUERY = gql`
     query getMeter (
@@ -55,31 +58,42 @@ export async function searchMeter (client, where, orderBy, first = 10, skip = 0)
     return []
 }
 
-// TODO(MrFoxPro) Refactor search!
-export async function searchMeterResource (client, where, orderBy, first = 10, skip = 0) {
-    const { data = [], error } = await _search(client, GET_METER_RESOURCE_QUERY, { where, orderBy, first, skip })
-    if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.address, value: x.id }))
-    return []
-}
-
 const GET_ALL_METER_RESOURCES_BY_VALUE_QUERY = gql`
-    query selectMeterResources ($where: MeterResourceWhereInput, $orderBy: String, $first: Int, $skip: Int) {
-        objs: allMeterResources(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
+    query selectMeterResources ($where: MeterResourceWhereInput, $orderBy: String, $first: Int, $skip: Int, $addressKey: String) {
+        meterResources: allMeterResources(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
             id
             name
+        }
+        meterResourceOwners: allMeterResourceOwners (where: { addressKey: $addressKey }) {
+            organization {
+                id
+            }
+            resource {
+                id
+            }
         }
     }
 `
 
-export async function searchMeterResources (client, searchText, query = {}, first = 10, skip = 0) {
+export const searchMeterResources = (organizationId: string, addressKey: string) => async (client, searchText, query = {}, first = 10, skip = 0) => {
     const where = {
         ...!isEmpty(searchText) ? { name_contains_i: searchText } : {},
         ...query,
     }
     const orderBy = 'name_ASC'
-    const { data = [], error } = await _search(client, GET_ALL_METER_RESOURCES_BY_VALUE_QUERY, { where, orderBy, first, skip })
+    const { data = [], error } = await _search(client, GET_ALL_METER_RESOURCES_BY_VALUE_QUERY, {
+        where, orderBy, first, skip, addressKey,
+    })
     if (error) console.warn(error)
 
-    return data.objs.map(({ name, id }) => ({ text: name, value: id }))
+    return data.meterResources.map(({ name, id }) => {
+        const meterResourceOwner = data.meterResourceOwners
+            .find((meterResourceOwner: MeterResourceOwner) => meterResourceOwner.resource.id === id)
+
+        return {
+            text: name,
+            value: id,
+            disabled: get(meterResourceOwner, 'organization.id', organizationId) !== organizationId,
+        }
+    })
 }

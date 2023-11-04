@@ -37,7 +37,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
         propertyId,
         unitName: isPropertyMeter ? undefined : unitName,
         unitType: isPropertyMeter ? undefined : unitType,
-    }), [propertyId, unitName, unitType, meterType])
+    }), [propertyId, unitName, unitType, isPropertyMeter])
 
     const handleCancelModal = useCallback(() => setIsCreateMeterModalVisible(false),
         [setIsCreateMeterModalVisible])
@@ -46,6 +46,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
         return (
             <BaseMeterModalForm
                 propertyId={propertyId}
+                addressKey={addressKey}
                 unitName={unitName}
                 unitType={unitType}
                 initialValues={initialValues}
@@ -59,7 +60,8 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
                 centered
             />
         )
-    }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible])
+    }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible,
+        propertyId, unitName, unitType, meterType, organizationId])
 
     return useMemo(() => ({ CreateMeterModal, setIsCreateMeterModalVisible }), [CreateMeterModal])
 }

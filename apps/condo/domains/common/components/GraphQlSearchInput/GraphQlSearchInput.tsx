@@ -147,11 +147,19 @@ export const GraphQlSearchInput: React.FC<ISearchInputProps> = (props) => {
             optionLabel = formatLabel(option)
         }
         const value = ['string', 'number'].includes(typeof option.value) ? option.value : JSON.stringify(option)
+        const disabledOption = option.disabled || false
         const key = keyField === 'value' ? value : option[keyField]
 
         return (
-            <Select.Option id={index} key={option.key || key} value={value} title={option.title || option.text} data-cy='search-input--option'>
-                <Typography.Text title={option.title || option.text} disabled={disabled}>
+            <Select.Option
+                id={index}
+                key={option.key || key}
+                value={value}
+                title={option.title || option.text}
+                disabled={disabledOption}
+                data-cy='search-input--option'
+            >
+                <Typography.Text title={option.title || option.text} disabled={disabled || disabledOption}>
                     {optionLabel}
                 </Typography.Text>
             </Select.Option>

@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     catchErrorFrom,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -1083,6 +1084,24 @@ describe('Meter', () => {
             })
         })
 
+        test('should restrict creation of the meter with same resource, owned by another organization', async () => {
+            const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const client2 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true, canManageProperties: true })
+            const [property] = await createTestProperty(client2, client2.organization, { address: client1.property.address })
+            const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(client1, client1.organization, client1.property, resource, {})
+
+            expect(property).toHaveProperty('address', client1.property.address)
+            expect(property).toHaveProperty('addressKey', client1.property.addressKey)
+            expect(meter).toHaveProperty(['organization', 'id'], client1.organization.id)
+            expect(meter).toHaveProperty(['property', 'id'], client1.property.id)
+            expect(meter).toHaveProperty(['resource', 'id'], resource.id)
+
+            await expectToThrowGQLError(async () => {
+                await createTestMeter(client2, client2.organization, property, resource, {})
+            }, METER_ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION)
+        })
+
         test('should create MeterResourceOwner after new meter creation', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,
@@ -1102,6 +1121,46 @@ describe('Meter', () => {
                 expect(meterResourceOwner).toHaveProperty('address', meter.property.address)
                 expect(meterResourceOwner).toHaveProperty(['sender', 'fingerprint'], meter.sender.fingerprint)
             })
+        })
+
+        test('should create MeterResourceOwner after meter resource field update', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const [meter] = await createTestMeter(client, client.organization, client.property, { id: COLD_WATER_METER_RESOURCE_ID }, {})
+
+            await waitFor(async () => {
+                const meterResourceOwner = await MeterResourceOwner.getOne(client, {
+                    addressKey: client.property.addressKey,
+                    resource: { id: COLD_WATER_METER_RESOURCE_ID },
+                })
+
+                expect(meterResourceOwner).toHaveProperty(['organization', 'id'], client.organization.id)
+                expect(meterResourceOwner).toHaveProperty(['resource', 'id'], COLD_WATER_METER_RESOURCE_ID)
+                expect(meterResourceOwner).toHaveProperty('addressKey', client.property.addressKey)
+            })
+
+            const [updatedMeter] = await updateTestMeter(client, meter.id, { resource: { connect: { id: HOT_WATER_METER_RESOURCE_ID } } })
+
+            expect(updatedMeter).toHaveProperty(['resource', 'id'], HOT_WATER_METER_RESOURCE_ID)
+            await waitFor(async () => {
+                const meterResourceOwners = await MeterResourceOwner.getAll(client, {
+                    addressKey: client.property.addressKey,
+                })
+
+                expect(meterResourceOwners).toHaveLength(2)
+                expect(meterResourceOwners).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        organization: { id: client.organization.id },
+                        resource: { id: COLD_WATER_METER_RESOURCE_ID },
+                        addressKey: client.property.addressKey,
+                    }),
+                    expect.objectContaining({
+                        organization: { id: client.organization.id },
+                        resource: { id: HOT_WATER_METER_RESOURCE_ID },
+                        addressKey: client.property.addressKey,
+                    }),
+                ]))
+            })
+
         })
     })
 })

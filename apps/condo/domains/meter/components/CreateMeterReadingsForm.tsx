@@ -34,6 +34,7 @@ import {
     MeterReading,
     PropertyMeterReading,
     PropertyMeter,
+    MeterResourceOwner,
     METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
@@ -99,6 +100,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
 export const MetersForm = ({
     handleSave,
     selectedPropertyId,
+    addressKey,
     selectedUnitName,
     selectedUnitType,
     organizationId,
@@ -134,7 +136,7 @@ export const MetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.meter, selectedUnitName, selectedUnitType, refetch)
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.meter, selectedUnitName, selectedUnitType, refetch, addressKey)
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -204,12 +206,15 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
     const MeterReadingsFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.MeterReadingsFromResident' })
 
+    const router = useRouter()
     const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
+
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
         setSelectedUnitName(null)
@@ -239,6 +244,9 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const { obj: property, loading: propertyLoading } = Property.useObject({
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
+    const { objs: meterResourceOwners } = MeterResourceOwner.useObjects({
+        where: { addressKey: get(property, 'addressKey') },
+    }, { skip: get(property, 'addressKey', null) === null })
 
     const router = useRouter()
 
@@ -362,6 +370,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             </Col>
                             <MetersForm
                                 selectedPropertyId={selectedPropertyId}
+                                addressKey={get(property, 'addressKey', null)}
                                 selectedUnitName={selectedUnitName}
                                 selectedUnitType={selectedUnitType}
                                 handleSave={handleSave}
@@ -391,6 +400,8 @@ export const PropertyMetersForm = ({
     const { breakpoints } = useLayoutContext()
     const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
 
+    const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } })
+
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = PropertyMeter.useObjects({
         where: {
             property: { id: selectedPropertyId },
@@ -410,8 +421,8 @@ export const PropertyMetersForm = ({
         refetchMeterReadings()
     }, [refetchMeterReadings, refetchMeters])
 
-    const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.propertyMeter, null, null, refetch)
+    const loading = metersLoading || meterReadingsLoading || propertyLoading
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.propertyMeter, null, null, refetch, get(property, 'addressKey', null))
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {

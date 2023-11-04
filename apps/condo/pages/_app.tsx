@@ -252,7 +252,7 @@ const MenuItems: React.FC = () => {
                     path: 'meter',
                     icon: AllIcons['Meters'],
                     label: 'global.section.meters',
-                    access: hasAccessToMeters && isManagingCompany,
+                    access: hasAccessToMeters,
                 },
             ].filter(checkItemAccess),
         },

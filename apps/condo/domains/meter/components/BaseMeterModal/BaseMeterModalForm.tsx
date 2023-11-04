@@ -1,4 +1,3 @@
-import { MeterResource } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -27,6 +26,8 @@ import { searchMeterResources } from '@condo/domains/meter/utils/clientSchema/se
 import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberField'
 import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
+
+import type { MeterResource } from '@app/condo/schema'
 
 type InitialMeterFormValuesType = {
     propertyId?: string
@@ -80,6 +81,7 @@ const getInitialDateValue = (initialValues, path) => {
 
 export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     propertyId,
+    addressKey,
     unitName,
     handleSubmit,
     initialValues,
@@ -212,7 +214,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                         >
                                             <GraphQlSearchInput
                                                 onChange={resource => handleResourceChange(form, resource)}
-                                                search={searchMeterResources}
+                                                search={searchMeterResources(organizationId, addressKey)}
                                                 disabled={disabledFields}
                                             />
                                         </BaseMeterModalFormItem>
