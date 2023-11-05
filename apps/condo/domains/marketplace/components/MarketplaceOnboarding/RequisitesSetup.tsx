@@ -21,6 +21,23 @@ import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
+const LABEL_COL = { lg: 10 }
+
+const TAX_PERCENT_OPTIONS: SelectProps['options'] = VAT_OPTIONS.map((option) => ({
+    label: `${option} %`,
+    key: option,
+    value: option,
+}))
+
+const getOptions = (items, fieldName) => (items.map((item) => {
+    const field = get(item, fieldName, null)
+    return {
+        label: field,
+        key: field,
+        value: field,
+    }
+}))
+
 export const RequisitesSetup = () => {
     const intl = useIntl()
     const { numberValidator, routingNumberValidator } = useBankAccountValidation({ country: RUSSIA_COUNTRY })
@@ -67,20 +84,6 @@ export const RequisitesSetup = () => {
     }, [])
 
     const [noTaxOption]: SelectProps['options'] = [{ label: NoTax, key: NoTax, value: null }]
-    const taxPercentOptions: SelectProps['options'] = VAT_OPTIONS.map((option) => ({
-        label: `${option} %`,
-        key: option,
-        value: option,
-    }))
-
-    const getOptions = (items, fieldName) => (items.map((item) => {
-        const field = get(item, fieldName, null)
-        return {
-            label: field,
-            key: field,
-            value: field,
-        }
-    }))
 
     const bankAccountOptions: SelectProps['options'] = getOptions(bankAccounts, 'number')
     const bicOptions: SelectProps['options'] = getOptions(bankAccounts, 'routingNumber')
@@ -124,7 +127,7 @@ export const RequisitesSetup = () => {
         })
 
         setIsLoading(false)
-    }, [intl])
+    }, [createAction, orgId, organization, router])
 
 
     return (
@@ -161,7 +164,7 @@ export const RequisitesSetup = () => {
                                     label={AccountLabel}
                                     name='account'
                                     required
-                                    labelCol={{ lg: 10 }}
+                                    labelCol={LABEL_COL}
                                     labelAlign='left'
                                     rules={numberValidator}
                                 >
@@ -177,7 +180,7 @@ export const RequisitesSetup = () => {
                                     label={TINLabel}
                                     name='tin'
                                     required
-                                    labelCol={{ lg: 10 }}
+                                    labelCol={LABEL_COL}
                                     labelAlign='left'
                                 >
                                     <Col lg={12}>
@@ -190,7 +193,7 @@ export const RequisitesSetup = () => {
                                     label={BICLabel}
                                     name='bic'
                                     required
-                                    labelCol={{ lg: 10 }}
+                                    labelCol={LABEL_COL}
                                     labelAlign='left'
                                     rules={routingNumberValidator}
                                 >
@@ -209,7 +212,7 @@ export const RequisitesSetup = () => {
                                     label={TaxTypeLabel}
                                     name='taxType'
                                     required
-                                    labelCol={{ lg: 10 }}
+                                    labelCol={LABEL_COL}
                                     labelAlign='left'
                                 >
                                     <RadioGroup onChange={handleTypeChange(form)}>
@@ -229,12 +232,12 @@ export const RequisitesSetup = () => {
                                     label={TaxPercentLabel}
                                     name='taxPercent'
                                     required
-                                    labelCol={{ lg: 10 }}
+                                    labelCol={LABEL_COL}
                                     labelAlign='left'
                                 >
                                     <Select
-                                        placeholder={selectedTaxType === TAX_REGIME_GENEGAL ? taxPercentOptions[taxPercentOptions.length - 1].label : noTaxOption.label}
-                                        options={selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...taxPercentOptions] : [noTaxOption, ...taxPercentOptions.slice(1)]}
+                                        placeholder={selectedTaxType === TAX_REGIME_GENEGAL ? TAX_PERCENT_OPTIONS[TAX_PERCENT_OPTIONS.length - 1].label : noTaxOption.label}
+                                        options={selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)]}
                                     />
                                 </Form.Item>
                             </Col>
