@@ -39,7 +39,7 @@ const MarketplacePage: PageType = () => {
     }
 
     return (
-        <InvoiceContextProvider.Provider value={{ invoiceContext: invoiceContext, refetchInvoice }}>
+        <InvoiceContextProvider.Provider value={{ invoiceContext: invoiceContext, refetchInvoiceContext: refetchInvoice }}>
             <MarketplacePageContent />
         </InvoiceContextProvider.Provider>
     )
