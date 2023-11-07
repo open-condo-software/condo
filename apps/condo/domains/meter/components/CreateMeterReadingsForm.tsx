@@ -34,7 +34,6 @@ import {
     MeterReading,
     PropertyMeterReading,
     PropertyMeter,
-    MeterResourceOwner,
     METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
@@ -136,7 +135,15 @@ export const MetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.meter, selectedUnitName, selectedUnitType, refetch, addressKey)
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal({
+        organizationId,
+        addressKey,
+        meterType: METER_PAGE_TYPES.meter,
+        unitName: selectedUnitName,
+        unitType: selectedUnitType,
+        refetch,
+        propertyId: selectedPropertyId,
+    })
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -244,11 +251,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const { obj: property, loading: propertyLoading } = Property.useObject({
         where: { id: selectedPropertyId ? selectedPropertyId : null },
     })
-    const { objs: meterResourceOwners } = MeterResourceOwner.useObjects({
-        where: { addressKey: get(property, 'addressKey') },
-    }, { skip: get(property, 'addressKey', null) === null })
-
-    const router = useRouter()
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
@@ -422,7 +424,15 @@ export const PropertyMetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading || propertyLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.propertyMeter, null, null, refetch, get(property, 'addressKey', null))
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal({
+        organizationId,
+        propertyId: selectedPropertyId,
+        refetch,
+        addressKey: get(property, 'addressKey', null),
+        unitType: null,
+        unitName: null,
+        meterType: METER_PAGE_TYPES.propertyMeter,
+    })
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {

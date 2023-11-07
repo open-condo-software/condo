@@ -1990,6 +1990,7 @@
   "api.meter.exportMeterReadings.NOTHING_TO_EXPORT": "No meter readings to export for specified organization",
   "api.meter.METER_NUMBER_HAVE_INVALID_VALUE": "Meter number field value cannot be empty",
   "api.meter.METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE": "Account number field value cannot be empty",
+  "api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION": "This resource is owned by another organization. Please contact tech support if you want to resolve this problem",
   "api.meter.MeterReportingPeriod.INVALID_FINISH": "The \"finish\" field can take values in the range from 1 to 31",
   "api.meter.MeterReportingPeriod.INVALID_START": "The \"start\" field can take values in the range from 1 to 31",
   "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Organization is required for create meter reading reporting period",
