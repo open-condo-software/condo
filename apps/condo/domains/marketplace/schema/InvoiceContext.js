@@ -22,6 +22,9 @@ const {
     INVOICE_CONTEXT_STATUSES,
     ERROR_INVALID_INVOICE_CONTEXT_SETTINGS,
     ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED,
+    ERROR_NO_TIN_OR_BIC_PASSED,
+    ERROR_BANK_NOT_FOUND,
+    ERROR_ORGANIZATION_NOT_FOUND,
     VAT_OPTIONS,
     TAX_REGIMES,
     TAX_REGIME_SIMPLE,
@@ -33,6 +36,21 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED,
         message: 'Tax regime and vat values are not matched',
+    },
+    NO_TIN_OR_BIC_PASSED: {
+        code: BAD_USER_INPUT,
+        type: ERROR_NO_TIN_OR_BIC_PASSED,
+        message: 'No tin or bic passed',
+    },
+    ORGANIZATION_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ERROR_ORGANIZATION_NOT_FOUND,
+        message: 'Organization not found',
+    },
+    BANK_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ERROR_BANK_NOT_FOUND,
+        message: 'Bank not found',
     },
 }
 
@@ -146,17 +164,17 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
 
                 const { tin, bic } = recipient
                 if (!tin || !bic) {
-                    throw new Error('No tin or bic passed')
+                    throw new GQLError(ERRORS.NO_TIN_OR_BIC_PASSED, context)
                 }
 
                 const { error: orgError, result: orgResult } = await getOrganizationInfo(tin)
                 if (orgError) {
-                    throw new Error('Organization not found')
+                    throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
                 }
 
                 const { error: bankError, result: bankResult } = await getBankInfo(bic)
                 if (bankError) {
-                    throw new Error('Bank not found')
+                    throw new GQLError(ERRORS.BANK_NOT_FOUND, context)
                 }
 
                 resolvedData.recipient.territoryCode = orgResult.territoryCode

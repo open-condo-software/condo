@@ -4,14 +4,14 @@ import type { InvoiceContext as InvoiceContextSchema } from '@app/condo/schema'
 
 type IInvoiceContext = {
     invoiceContext: InvoiceContextSchema
-    refetchInvoice: () => void
+    refetchInvoiceContext: () => void
 }
 
 export const InvoiceContext = createContext<IInvoiceContext>({
     invoiceContext: null,
-    refetchInvoice: () => ({}),
+    refetchInvoiceContext: () => ({}),
 })
 
-export function useBillingAndAcquiringContexts (): IInvoiceContext {
+export function useInvoiceContext (): IInvoiceContext {
     return useContext(InvoiceContext)
 }

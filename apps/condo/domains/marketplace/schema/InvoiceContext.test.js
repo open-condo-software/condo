@@ -385,6 +385,30 @@ describe('InvoiceContext', () => {
             })
         })
 
+        test('no organization was found by passed tin', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, { recipient: { tin: '00000000', bic: '00000000', bankAccount: '0' } })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'ORGANIZATION_NOT_FOUND',
+                message: 'Organization not found',
+            })
+        })
+
+        test('no bank was found by passed bic', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+
+            await expectToThrowGQLError(async () => {
+                await createTestInvoiceContext(adminClient, o10n, { recipient: { bic: '00000000', tin: '7744001497', bankAccount: '0' } })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'BANK_NOT_FOUND',
+                message: 'Bank not found',
+            })
+        })
+
         test('salesTaxPercent must be between 0 and 100', async () => {
             const [o10n1] = await createTestOrganization(adminClient)
             const [o10n2] = await createTestOrganization(adminClient)
