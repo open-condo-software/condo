@@ -19,6 +19,7 @@ const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplac
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
 const { REGISTER_INVOICE_MUTATION } = require('@condo/domains/marketplace/gql')
+const { GET_INVOICE_BY_USER_QUERY } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateGQLTestUtils(InvoiceContextGQL)
@@ -329,6 +330,20 @@ async function registerInvoiceByTestClient (client, resident, invoiceRows, extra
     return [data.result, attrs]
 }
 
+
+async function getInvoiceByUserByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_INVOICE_BY_USER_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.obj, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -342,5 +357,6 @@ module.exports = {
     MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice,
     MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope,
     registerInvoiceByTestClient,
-    /* AUTOGENERATE MARKER <EXPORTS> */
+        getInvoiceByUserByTestClient,
+/* AUTOGENERATE MARKER <EXPORTS> */
 }

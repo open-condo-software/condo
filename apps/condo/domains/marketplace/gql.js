@@ -15,7 +15,7 @@ const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIEL
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
 
-const MARKET_ITEM_FIELDS = `{ name marketCategory { id parentCategory { id } } sku description organization { id } ${COMMON_FIELDS} }`
+const MARKET_ITEM_FIELDS = `{ name marketCategory { id parentCategory { id } image { publicUrl } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
 const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku } ticket { id } contact { id name phone email unitType unitName } client { id name } status paymentType ${COMMON_FIELDS} }`
@@ -36,6 +36,15 @@ const REGISTER_INVOICE_MUTATION = gql`
     }
 `
 
+const GET_INVOICE_BY_USER_QUERY = gql`
+    query getGetInvoiceByUser ($data: GetInvoiceByUserInput!) {
+        obj: executeGetInvoiceByUser(data: $data) { 
+            invoices ${INVOICE_FIELDS}
+            skuInfo { sku imageUrl }
+        }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -47,5 +56,6 @@ module.exports = {
     MarketItemPrice,
     MarketPriceScope,
     REGISTER_INVOICE_MUTATION,
+    GET_INVOICE_BY_USER_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
