@@ -5,8 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const get = require('lodash/get')
-const omit = require('lodash/omit')
+const { get, omit } = require('lodash')
 
 const {
     expectToThrowAccessDeniedErrorToObj,
@@ -67,6 +66,8 @@ const {
     makePayer,
     makePayerWithMultipleConsumers,
 } = require('@condo/domains/acquiring/utils/testSchema')
+const { INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const { createTestInvoice, createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
 
 describe('MultiPayment', () => {
@@ -336,6 +337,26 @@ describe('MultiPayment', () => {
                     await expectToThrowValidationFailureError(async () => {
                         await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration)
                     }, MULTIPAYMENT_NOT_UNIQUE_RECEIPTS)
+                })
+                test('Unique invoices', async () => {
+                    const { admin, organization, acquiringContext, client, acquiringIntegration } = await makePayer()
+
+                    const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                    const [invoice] = await createTestInvoice(admin, invoiceContext, {
+                        status: INVOICE_STATUS_PUBLISHED,
+                        client: { connect: { id: client.user.id } },
+                    })
+
+                    const [firstPayment] = await createTestPayment(admin, organization, null, acquiringContext, { invoice })
+                    const [secondPayment] = await createTestPayment(admin, organization, null, acquiringContext, { invoice })
+
+                    await expectToThrowGQLError(async () => {
+                        await createTestMultiPayment(admin, [firstPayment, secondPayment], client.user, acquiringIntegration)
+                    }, {
+                        code: 'BAD_USER_INPUT',
+                        type: 'MULTIPAYMENT_NOT_UNIQUE_INVOICES',
+                        message: 'Not unique invoices',
+                    })
                 })
                 test('Matching amount', async () => {
                     const { admin, organization, billingReceipts, acquiringContext, client, acquiringIntegration } = await makePayer(2)
