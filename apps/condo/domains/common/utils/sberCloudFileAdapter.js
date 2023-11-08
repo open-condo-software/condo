@@ -85,9 +85,11 @@ class SberCloudFileAdapter {
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
+        const iconv = require('iconv-lite')
+        filename = iconv.decode(Buffer.from(filename, 'binary'), 'utf-8')
         const fileData = {
             id,
-            originalFilename: Buffer.from(filename, 'latin1').toString('utf8'),
+            originalFilename: filename,
             filename: this.saveFileName ? filename : this.getFilename({ id, originalFilename: filename }),
             mimetype,
             encoding,
