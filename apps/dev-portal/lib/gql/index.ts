@@ -3489,18 +3489,17 @@ export type AllAppsQuery = { __typename?: 'Query', b2c?: Array<{ __typename?: 'B
 
 export type GetB2CAppQueryVariables = Exact<{
     id: Scalars['ID']['input'];
-    creator: UserWhereInput;
 }>
 
 
-export type GetB2CAppQuery = { __typename?: 'Query', objs?: Array<{ __typename?: 'B2CApp', id: string, name?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null> | null }
+export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
 
 export type CreateB2CAppMutationVariables = Exact<{
     data: B2CAppCreateInput;
 }>
 
 
-export type CreateB2CAppMutation = { __typename?: 'Mutation', createB2CApp?: { __typename?: 'B2CApp', id: string, name?: string | null } | null }
+export type CreateB2CAppMutation = { __typename?: 'Mutation', app?: { __typename?: 'B2CApp', id: string, name?: string | null } | null }
 
 export type UpdateB2CAppMutationVariables = Exact<{
     id: Scalars['ID']['input'];
@@ -3508,7 +3507,14 @@ export type UpdateB2CAppMutationVariables = Exact<{
 }>
 
 
-export type UpdateB2CAppMutation = { __typename?: 'Mutation', obj?: { __typename?: 'B2CApp', id: string } | null }
+export type UpdateB2CAppMutation = { __typename?: 'Mutation', app?: { __typename?: 'B2CApp', id: string } | null }
+
+export type CreateB2CAppBuildMutationVariables = Exact<{
+    data: B2CAppBuildCreateInput;
+}>
+
+
+export type CreateB2CAppBuildMutation = { __typename?: 'Mutation', build?: { __typename?: 'B2CAppBuild', id: string, version?: string | null } | null }
 
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
@@ -3596,8 +3602,8 @@ export type AllAppsQueryHookResult = ReturnType<typeof useAllAppsQuery>
 export type AllAppsLazyQueryHookResult = ReturnType<typeof useAllAppsLazyQuery>
 export type AllAppsQueryResult = Apollo.QueryResult<AllAppsQuery, AllAppsQueryVariables>
 export const GetB2CAppDocument = gql`
-    query getB2CApp($id: ID!, $creator: UserWhereInput!) {
-  objs: allB2CApps(first: 1, where: {id: $id, createdBy: $creator}) {
+    query getB2CApp($id: ID!) {
+  app: B2CApp(where: {id: $id}) {
     id
     name
     logo {
@@ -3620,7 +3626,6 @@ export const GetB2CAppDocument = gql`
  * const { data, loading, error } = useGetB2CAppQuery({
  *   variables: {
  *      id: // value for 'id'
- *      creator: // value for 'creator'
  *   },
  * });
  */
@@ -3637,7 +3642,7 @@ export type GetB2CAppLazyQueryHookResult = ReturnType<typeof useGetB2CAppLazyQue
 export type GetB2CAppQueryResult = Apollo.QueryResult<GetB2CAppQuery, GetB2CAppQueryVariables>
 export const CreateB2CAppDocument = gql`
     mutation createB2CApp($data: B2CAppCreateInput!) {
-  createB2CApp(data: $data) {
+  app: createB2CApp(data: $data) {
     id
     name
   }
@@ -3671,7 +3676,7 @@ export type CreateB2CAppMutationResult = Apollo.MutationResult<CreateB2CAppMutat
 export type CreateB2CAppMutationOptions = Apollo.BaseMutationOptions<CreateB2CAppMutation, CreateB2CAppMutationVariables>
 export const UpdateB2CAppDocument = gql`
     mutation updateB2CApp($id: ID!, $data: B2CAppUpdateInput!) {
-  obj: updateB2CApp(id: $id, data: $data) {
+  app: updateB2CApp(id: $id, data: $data) {
     id
   }
 }
@@ -3703,6 +3708,40 @@ export function useUpdateB2CAppMutation (baseOptions?: Apollo.MutationHookOption
 export type UpdateB2CAppMutationHookResult = ReturnType<typeof useUpdateB2CAppMutation>
 export type UpdateB2CAppMutationResult = Apollo.MutationResult<UpdateB2CAppMutation>
 export type UpdateB2CAppMutationOptions = Apollo.BaseMutationOptions<UpdateB2CAppMutation, UpdateB2CAppMutationVariables>
+export const CreateB2CAppBuildDocument = gql`
+    mutation createB2CAppBuild($data: B2CAppBuildCreateInput!) {
+  build: createB2CAppBuild(data: $data) {
+    id
+    version
+  }
+}
+    `
+export type CreateB2CAppBuildMutationFn = Apollo.MutationFunction<CreateB2CAppBuildMutation, CreateB2CAppBuildMutationVariables>
+
+/**
+ * __useCreateB2CAppBuildMutation__
+ *
+ * To run a mutation, you first call `useCreateB2CAppBuildMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateB2CAppBuildMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createB2CAppBuildMutation, { data, loading, error }] = useCreateB2CAppBuildMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateB2CAppBuildMutation (baseOptions?: Apollo.MutationHookOptions<CreateB2CAppBuildMutation, CreateB2CAppBuildMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<CreateB2CAppBuildMutation, CreateB2CAppBuildMutationVariables>(CreateB2CAppBuildDocument, options)
+}
+export type CreateB2CAppBuildMutationHookResult = ReturnType<typeof useCreateB2CAppBuildMutation>
+export type CreateB2CAppBuildMutationResult = Apollo.MutationResult<CreateB2CAppBuildMutation>
+export type CreateB2CAppBuildMutationOptions = Apollo.BaseMutationOptions<CreateB2CAppBuildMutation, CreateB2CAppBuildMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {

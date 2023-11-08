@@ -1,23 +1,130 @@
-import { Table, Row, Col, RowProps } from 'antd'
-import React from 'react'
+import { Table, Row, Col, RowProps, Form, Upload } from 'antd'
+import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
 import { PlusCircle } from '@open-condo/icons'
-import { Button } from '@open-condo/ui'
+import { Button, Modal, Input, Alert, Typography } from '@open-condo/ui'
 
+import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
+import { useValidations } from '@/domains/common/hooks/useValidations'
+import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
+import { UploadText } from '@/domains/miniapp/components/UploadText'
+import {
+    B2C_BUILD_ALLOWED_MIMETYPES,
+    B2C_BUILD_MAX_FILE_SIZE_IN_BYTES,
+    B2C_BUILD_VERSION_REGEXP,
+    B2C_BUILD_UNIQUE_VERSION_CONSTRAINT,
+} from '@/domains/miniapp/constants/common'
+import { useFileSizeFormatter } from '@/domains/miniapp/hooks/useFileSizeFormatter'
+import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
+import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
 
-const BUTTON_ROW_GUTTER: RowProps['gutter'] = [60, 60]
+import styles from './BuildsSection.module.css'
+
+import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
+
+import { useCreateB2CAppBuildMutation } from '@/lib/gql'
+
+
+const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]
+const ROW_FORM_GUTTER: RowProps['gutter'] = [0, 0]
 const FULL_COL_SPAN = 24
 const PAGE_SIZE = 20
 const PAGINATION_POSITION = ['bottomLeft' as const]
+const BUILD_FORM_ERROR_TO_FIELD_MAPPING = {
+    [B2C_BUILD_UNIQUE_VERSION_CONSTRAINT]: 'version',
+}
+const SEMVER_RULES_LINK = 'https://semver.org'
 
-export const BuildsSection: React.FC<{ id: string }> = () => {
+function getFormFile (e: UploadChangeParam) {
+    return e.fileList
+}
+
+type BuildFormValues = {
+    version: string
+    data: Array<UploadFile>
+}
+
+export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
+    const formatFileSize = useFileSizeFormatter()
     const intl = useIntl()
     const BuildsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.title' })
-    const VersionColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.columns.version.title' })
-    const SizeColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.columns.size.title' })
-    const AddBuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.action.addBuild' })
+    const VersionColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.version.title' })
+    const SizeColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.size.title' })
+    const AddBuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.actions.addBuild' })
+    const NewBuildModalTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.title' })
+    const VersionFormLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.label' })
+    const UploadBuildMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.uploadBuild.label' })
+    const UploadActionLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.actions.upload' })
+    const NonSemanticVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonSemantic.message' })
+    const NonUniqueVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonUnique.message' })
+    const BuildLimitationsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.title' })
+    const SemVerFragment = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment' })
+    const VersionLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.message' }, {
+        semVerCorrect: (
+            <Typography.Link target='_blank' href={SEMVER_RULES_LINK}>
+                {SemVerFragment}
+            </Typography.Link>
+        ),
+    })
+    const FormatLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.format.message' }, {
+        format: '.zip',
+    })
+    const SizeLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.size.message' }, {
+        limit: formatFileSize(B2C_BUILD_MAX_FILE_SIZE_IN_BYTES),
+    })
+
+    const [uploadModalOpen, setUploadModalOpen] = useState(false)
+
+    const [form] = Form.useForm()
+
+    const handleOpenModal = useCallback(() => {
+        setUploadModalOpen(true)
+    }, [])
+
+    const handleCloseModal = useCallback(() => {
+        setUploadModalOpen(false)
+        form.resetFields()
+    }, [form])
+
+    const onError = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: BUILD_FORM_ERROR_TO_FIELD_MAPPING,
+        constraintToMessageMapping: {
+            [B2C_BUILD_UNIQUE_VERSION_CONSTRAINT]: NonUniqueVersionErrorMessage,
+        },
+    })
+    const onCompletedInform = useMutationCompletedHandler()
+    const onCompleted = useCallback(() => {
+        onCompletedInform()
+        handleCloseModal()
+    }, [handleCloseModal, onCompletedInform])
+    const [createB2CAppBuildMutation] = useCreateB2CAppBuildMutation({
+        onError,
+        onCompleted,
+    })
+
+    const handleUploadBuild = useCallback((values: BuildFormValues) => {
+        createB2CAppBuildMutation({
+            variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    version: values.version,
+                    data: values.data[0].originFileObj,
+                    app: { connect: { id } },
+                },
+            },
+        })
+    }, [createB2CAppBuildMutation, id])
+
+    const beforeUpload = useFileValidator({
+        restrictMimeTypes: B2C_BUILD_ALLOWED_MIMETYPES,
+        sizeLimit: B2C_BUILD_MAX_FILE_SIZE_IN_BYTES,
+    })
+
+    const { trimValidator, requiredFileValidator } = useValidations()
 
     const columns = [
         {
@@ -37,7 +144,7 @@ export const BuildsSection: React.FC<{ id: string }> = () => {
     return (
         <Section>
             <SubSection title={BuildsTitle}>
-                <Row gutter={BUTTON_ROW_GUTTER}>
+                <Row gutter={ROW_BUTTON_GUTTER}>
                     <Col span={FULL_COL_SPAN}>
                         <Table
                             columns={columns}
@@ -53,12 +160,62 @@ export const BuildsSection: React.FC<{ id: string }> = () => {
                                 total: 200,
                                 simple: true,
                             }}
+                            rowKey='version'
                         />
                     </Col>
                     <Col span={FULL_COL_SPAN}>
-                        <Button type='primary' icon={<PlusCircle size='medium'/>}>{AddBuildLabel}</Button>
+                        <Button type='primary' icon={<PlusCircle size='medium'/>} onClick={handleOpenModal}>
+                            {AddBuildLabel}
+                        </Button>
                     </Col>
                 </Row>
+                {uploadModalOpen && (
+                    <Modal
+                        open={uploadModalOpen}
+                        title={NewBuildModalTitle}
+                        onCancel={handleCloseModal}
+                        footer={<Button type='primary' onClick={form.submit}>{UploadActionLabel}</Button>}
+                    >
+                        <Form
+                            name='create-app-build'
+                            layout='vertical'
+                            form={form}
+                            onFinish={handleUploadBuild}
+                        >
+                            <Row gutter={ROW_FORM_GUTTER}>
+                                <Col span={FULL_COL_SPAN}>
+                                    <Form.Item name='version' label={VersionFormLabel} rules={[trimValidator, {
+                                        pattern: B2C_BUILD_VERSION_REGEXP,
+                                        message: NonSemanticVersionErrorMessage,
+                                    }]}>
+                                        <Input placeholder='1.0.0-development'/>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={FULL_COL_SPAN}>
+                                    <Form.Item name='data' valuePropName='fileList' getValueFromEvent={getFormFile} rules={[requiredFileValidator]}>
+                                        <Upload
+                                            maxCount={1}
+                                            listType='picture'
+                                            beforeUpload={beforeUpload}
+                                            multiple={false}
+                                        >
+                                            <UploadText>{UploadBuildMessage}</UploadText>
+                                        </Upload>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={FULL_COL_SPAN}>
+                                    <Alert type='info' message={BuildLimitationsTitle} description={
+                                        <ul className={styles.limitationsList}>
+                                            <li><Typography.Paragraph size='medium'>{VersionLimitationsMessage}</Typography.Paragraph></li>
+                                            <li><Typography.Paragraph size='medium'>{FormatLimitationsMessage}</Typography.Paragraph></li>
+                                            <li><Typography.Paragraph size='medium'>{SizeLimitationsMessage}</Typography.Paragraph></li>
+                                        </ul>
+                                    }/>
+                                </Col>
+                            </Row>
+                        </Form>
+                    </Modal>
+                )}
             </SubSection>
         </Section>
     )

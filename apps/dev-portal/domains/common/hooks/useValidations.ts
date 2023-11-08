@@ -8,7 +8,8 @@ import type { Rule } from 'rc-field-form/lib/interface'
 
 
 type Validators = {
-    requiredValidator: Rule
+    requiredFieldValidator: Rule
+    requiredFileValidator: Rule
     phoneFormatValidator: Rule
     passwordValidator: Rule
     trimValidator: Rule
@@ -16,14 +17,20 @@ type Validators = {
 
 export function useValidations (): Validators {
     const intl = useIntl()
-    const FieldIsRequiredMessage = intl.formatMessage({ id: 'global.forms.validations.required.message' })
+    const FieldIsRequiredMessage = intl.formatMessage({ id: 'global.forms.validations.fieldRequired.message' })
+    const FileIsRequiredMessage = intl.formatMessage({ id: 'global.forms.validations.fileRequired.message' })
     const InvalidPhoneMessage = intl.formatMessage({ id: 'global.forms.validations.phoneFormat.message' })
     const PasswordIsTooEasyMessage = intl.formatMessage({ id: 'global.forms.validations.passwordTooEasy.message' })
 
-    const requiredValidator: Rule = useMemo(() => ({
+    const requiredFieldValidator: Rule = useMemo(() => ({
         required: true,
         message: FieldIsRequiredMessage,
     }), [FieldIsRequiredMessage])
+
+    const requiredFileValidator: Rule = useMemo(() => ({
+        required: true,
+        message: FileIsRequiredMessage,
+    }), [FileIsRequiredMessage])
 
     const trimValidator: Rule = useMemo(() => ({
         validator: (_, value) => {
@@ -50,7 +57,8 @@ export function useValidations (): Validators {
 
 
     return {
-        requiredValidator,
+        requiredFieldValidator,
+        requiredFileValidator,
         phoneFormatValidator,
         passwordValidator,
         trimValidator,

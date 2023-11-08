@@ -67,11 +67,11 @@ const DocPage: React.FC<DocPageProps> = ({
 }) => {
     const intl = useIntl()
     const MenuTitle = intl.formatMessage({ id: 'docs.menu.title' })
-    const EditPageMessage = intl.formatMessage({ id: 'docs.editPage' })
-    const NextPageMessage = intl.formatMessage({ id: 'docs.nextArticle' }, {
+    const EditPageMessage = intl.formatMessage({ id: 'docs.actions.editArticle' })
+    const NextPageMessage = intl.formatMessage({ id: 'docs.actions.nextArticle' }, {
         title: nextPage ? nextPage.label : '',
     })
-    const PrevPageMessage = intl.formatMessage({ id: 'docs.prevArticle' }, {
+    const PrevPageMessage = intl.formatMessage({ id: 'docs.actions.prevArticle' }, {
         title: prevPage ? prevPage.label : '',
     })
     const ServiceTitleMessage = intl.formatMessage({ id: 'global.service.name' })

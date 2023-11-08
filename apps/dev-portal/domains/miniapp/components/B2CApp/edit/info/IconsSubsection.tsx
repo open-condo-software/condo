@@ -3,11 +3,11 @@ import get from 'lodash/get'
 import React, { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
-import { Download } from '@open-condo/icons'
-import { Button, Space, Typography } from '@open-condo/ui'
+import { Button, Typography } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
+import { UploadText } from '@/domains/miniapp/components/UploadText'
 import {
     DEFAULT_B2C_LOGO_URL,
     B2C_LOGO_MIN_SIZE,
@@ -24,7 +24,6 @@ import styles from './IconsSubsection.module.css'
 import type { RowProps } from 'antd'
 import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 
-import { useAuth } from '@/lib/auth'
 import { AllAppsDocument, GetB2CAppDocument, useGetB2CAppQuery, useUpdateB2CAppMutation } from '@/lib/gql'
 
 const ROW_ICONS_CONTENT_GUTTER: RowProps['gutter'] = [12, 12]
@@ -35,40 +34,25 @@ function getFormFile (e: UploadChangeParam) {
     return e.fileList
 }
 
-const UploadImageText: React.FC = () => {
-    const intl = useIntl()
-    const UploadImageMessage = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.action.uploadImage' })
-
-    return (
-        <Typography.Link size='medium'>
-            <Space size={8} direction='horizontal'>
-                <Download size='medium'/>
-                {UploadImageMessage}
-            </Space>
-        </Typography.Link>
-    )
-}
-
 type IconsFormValues = {
     mainIcon: Array<UploadFile>
 }
 
 export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const SaveButtonLabel = intl.formatMessage({ id: 'global.action.save' })
-    const MainIconTitle = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.main.title' })
-    const MainIconDescription = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.main.description' }, {
+    const SaveButtonLabel = intl.formatMessage({ id: 'global.actions.save' })
+    const MainIconTitle = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.title' })
+    const MainIconDescription = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.items.main.description' }, {
         format: 'png',
         minSize: B2C_LOGO_MIN_SIZE,
         maxSize: B2C_LOGO_MAX_SIZE,
     })
+    const UploadImageMessage = intl.formatMessage({ id: 'apps.b2c.sections.info.icons.actions.uploadImage' })
 
-    const { user } = useAuth()
-    const variables = { id, creator: { id: user?.id } }
-    const { data } = useGetB2CAppQuery({ variables })
+    const { data } = useGetB2CAppQuery({ variables: { id } })
 
-    const name = get(data, ['objs', '0', 'name'], '')
-    const logo = get(data, ['objs', '0', 'logo', 'publicUrl'], DEFAULT_B2C_LOGO_URL)
+    const name = get(data, ['app', 'name'], '')
+    const logo = get(data, ['app', 'logo', 'publicUrl'], DEFAULT_B2C_LOGO_URL)
 
     const [form] = Form.useForm()
 
@@ -83,7 +67,7 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
             AllAppsDocument,
             {
                 query: GetB2CAppDocument,
-                variables,
+                variables: { id },
             },
         ],
         onError,
@@ -101,16 +85,14 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const handleIconSave = useCallback((values: IconsFormValues) => {
         if (values.mainIcon.length) {
-            const data = {
-                dv: 1,
-                sender: getClientSideSenderInfo(),
-                logo: values.mainIcon[0].originFileObj,
-            }
-
             updateB2CAppMutation({
                 variables: {
-                    data,
                     id,
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        logo: values.mainIcon[0].originFileObj,
+                    },
                 },
             })
         }
@@ -137,8 +119,9 @@ export const IconsSubsection: React.FC<{ id: string }> = ({ id }) => {
                                     listType='picture'
                                     beforeUpload={beforeUpload}
                                     maxCount={1}
+                                    multiple={false}
                                 >
-                                    <UploadImageText/>
+                                    <UploadText>{UploadImageMessage}</UploadText>
                                 </Upload>
                             </Form.Item>
                         </Col>

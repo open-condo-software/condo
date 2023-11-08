@@ -26,8 +26,8 @@ const logoFont = Montserrat({
 export const Header: React.FC = () => {
     const intl = useIntl()
     const ServiceShortTitle = intl.formatMessage({ id: 'global.service.name.short' })
-    const DocsSectionTitle = intl.formatMessage({ id: 'global.navBar.documentation.title' })
-    const AppsSectionTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
+    const DocsSectionTitle = intl.formatMessage({ id: 'global.service.sections.docs' })
+    const AppsSectionTitle = intl.formatMessage({ id: 'global.service.sections.apps' })
     const router = useRouter()
     const breakpoints = useBreakpoints()
     const isLargeLayout = Boolean(breakpoints.DESKTOP_SMALL)

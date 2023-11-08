@@ -24,8 +24,8 @@ type CommonInfoFormValues = {
 
 export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
-    const AppNameLabel = intl.formatMessage({ id: 'global.newAppForm.appName.label' })
-    const SaveLabel = intl.formatMessage({ id: 'global.action.save' })
+    const AppNameLabel = intl.formatMessage({ id: 'global.newAppForm.items.name.label' })
+    const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
 
     const [form] = Form.useForm()
 
@@ -50,18 +50,17 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
 
     const { trimValidator } = useValidations()
 
-    const appName = get(data, ['objs', '0', 'name'])
+    const appName = get(data, ['app', 'name'])
 
     const handleSubmit = useCallback((values: CommonInfoFormValues) => {
-        const data = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-            ...values,
-        }
         updateB2CAppMutation({
             variables: {
                 id,
-                data,
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    ...values,
+                },
             },
         })
     }, [id, updateB2CAppMutation])

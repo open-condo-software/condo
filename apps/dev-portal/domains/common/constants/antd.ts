@@ -10,6 +10,7 @@ export const theme: ThemeConfig = {
         colorBgContainer: colors.white,
         colorFillTertiary: colors.gray['1'],
         colorError: colors.red['5'],
+        fontFamily: 'var(--condo-global-font-family-default)',
     },
     components: {
         Menu: {

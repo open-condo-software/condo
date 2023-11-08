@@ -28,10 +28,10 @@ const MAX_APPS_TO_SHOW = 100
 const MyAppsPage: React.FC = () => {
     const intl = useIntl()
     const ServiceTitleMessage = intl.formatMessage({ id: 'global.service.name' })
-    const PageTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
-    const NoAppsTitle = intl.formatMessage({ id: 'apps.empty.title' })
-    const NoAppsDescription = intl.formatMessage({ id: 'apps.empty.description' })
-    const CreateAppLabel = intl.formatMessage({ id: 'global.action.createApp' })
+    const PageTitle = intl.formatMessage({ id: 'global.service.sections.apps' })
+    const NoAppsTitle = intl.formatMessage({ id: 'apps.emptyView.title' })
+    const NoAppsDescription = intl.formatMessage({ id: 'apps.emptyView.description' })
+    const CreateAppLabel = intl.formatMessage({ id: 'global.actions.createApp' })
     const { createApp } = useCreateAppContext()
 
     const { user } = useAuth()

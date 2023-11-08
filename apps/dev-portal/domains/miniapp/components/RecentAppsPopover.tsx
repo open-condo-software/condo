@@ -50,8 +50,8 @@ const RecentAppCard: React.FC<AppInfo & WithOnClose> = ({ name, type, id, onClos
 
 const RecentAppsPopoverContent: React.FC<WithOnClose> = ({ onClose }) => {
     const intl = useIntl()
-    const CreateAppLabel = intl.formatMessage({ id: 'global.action.createApp' })
-    const RecentlyCreatedTitle = intl.formatMessage({ id: 'global.recentApps.title' })
+    const CreateAppLabel = intl.formatMessage({ id: 'global.actions.createApp' })
+    const RecentlyCreatedTitle = intl.formatMessage({ id: 'global.recentAppsPopover.recentApps.title' })
 
     const { createApp } = useCreateAppContext()
     const { user } = useAuth()

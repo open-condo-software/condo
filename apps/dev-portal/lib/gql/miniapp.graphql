@@ -9,8 +9,8 @@ query allApps($creator: UserWhereInput!, $first: Int!) {
     }
 }
 
-query getB2CApp($id: ID!, $creator: UserWhereInput!) {
-    objs: allB2CApps(first: 1, where: { id: $id, createdBy: $creator }) {
+query getB2CApp($id: ID!) {
+    app: B2CApp(where: { id: $id }) {
         id
         name
         logo {
@@ -20,14 +20,21 @@ query getB2CApp($id: ID!, $creator: UserWhereInput!) {
 }
 
 mutation createB2CApp($data: B2CAppCreateInput!) {
-    createB2CApp(data: $data) {
+    app: createB2CApp(data: $data) {
         id
         name
     }
 }
 
 mutation updateB2CApp($id: ID!, $data: B2CAppUpdateInput!) {
-    obj: updateB2CApp(id: $id, data: $data) {
+    app: updateB2CApp(id: $id, data: $data) {
         id
+    }
+}
+
+mutation createB2CAppBuild($data: B2CAppBuildCreateInput!) {
+    build: createB2CAppBuild(data: $data) {
+        id
+        version
     }
 }

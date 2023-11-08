@@ -32,7 +32,7 @@ export const LanguageSwitcher: React.FC<LanguageSwitcherProps> = ({ dropdownPlac
             menu={{
                 items: LOCALES.map(locale => ({
                     key: locale,
-                    label: intl.formatMessage({ id: `global.lang.${locale}` }),
+                    label: intl.formatMessage({ id: `global.service.languages.${locale}` }),
                 })),
                 onSelect: handleLocaleChange,
                 selectable: true,

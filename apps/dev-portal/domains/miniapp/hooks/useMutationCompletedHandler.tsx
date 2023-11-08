@@ -6,8 +6,8 @@ type OnCompletedType = () => void
 
 export function useMutationCompletedHandler (): OnCompletedType {
     const intl = useIntl()
-    const SuccessMessageTitle = intl.formatMessage({ id: 'apps.id.successSave.title' })
-    const SuccessMessageDescription = intl.formatMessage({ id: 'apps.id.successSave.description' })
+    const SuccessMessageTitle = intl.formatMessage({ id: 'apps.id.notifications.successSave.title' })
+    const SuccessMessageDescription = intl.formatMessage({ id: 'apps.id.notifications.successSave.description' })
 
     return useCallback(() => {
         notification.success({ message: SuccessMessageTitle, description: SuccessMessageDescription })

@@ -36,10 +36,10 @@ type CreateAppFormValues = {
 export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }> = ({ children }) => {
     const intl = useIntl()
     const NewAppTitle = intl.formatMessage({ id: 'global.newAppForm.title' })
-    const B2BAppLabel = intl.formatMessage({ id: 'global.newAppForm.b2bApp.label' })
-    const B2CAppLabel = intl.formatMessage({ id: 'global.newAppForm.b2cApp.label' })
-    const AppNameLabel = intl.formatMessage({ id: 'global.newAppForm.appName.label' })
-    const CreateLabel = intl.formatMessage({ id: 'global.newAppForm.submit.label' })
+    const B2BAppLabel = intl.formatMessage({ id: 'global.newAppForm.items.type.b2bApp.label' })
+    const B2CAppLabel = intl.formatMessage({ id: 'global.newAppForm.items.type.b2сApp.label' })
+    const AppNameLabel = intl.formatMessage({ id: 'global.newAppForm.items.name.label' })
+    const CreateLabel = intl.formatMessage({ id: 'global.newAppForm.actions.create' })
 
     const [openModal, setOpenModal] = useState(false)
     const [form] = Form.useForm()
@@ -50,7 +50,7 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const onError = useMutationErrorHandler()
     const onB2CCompleted = useCallback((data: CreateB2CAppMutation) => {
         setOpenModal(false)
-        const id = data.createB2CApp?.id
+        const id = data.app?.id
         if (id) {
             const url = `/apps/${B2C_APP_VALUE}/${id}`
             router.push(url, url, { locale: router.locale })
@@ -75,13 +75,14 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     }, [form])
 
     const handleFormSubmit = useCallback((values: CreateAppFormValues) => {
-        const data = {
-            dv: 1,
-            sender: getClientSideSenderInfo(),
-            name: values.name,
-        }
         if (values.type === B2C_APP_VALUE) {
-            createB2CAppMutation({ variables: { data } })
+            createB2CAppMutation({ variables: {
+                data: {
+                    dv: 1,
+                    sender: getClientSideSenderInfo(),
+                    name: values.name,
+                },
+            } })
         }
     }, [createB2CAppMutation])
 

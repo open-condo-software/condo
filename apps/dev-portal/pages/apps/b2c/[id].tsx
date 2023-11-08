@@ -19,7 +19,7 @@ import type { RowProps, MenuProps } from 'antd'
 import type { GetServerSideProps } from 'next'
 
 import { extractApolloState, initializeApollo } from '@/lib/apollo'
-import { extractAuthHeadersFromRequest, prefetchAuth, useAuth } from '@/lib/auth'
+import { extractAuthHeadersFromRequest, prefetchAuth } from '@/lib/auth'
 import { GetB2CAppDocument, GetB2CAppQuery, GetB2CAppQueryVariables, useGetB2CAppQuery } from '@/lib/gql'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
@@ -32,17 +32,15 @@ const SECTIONS: { [key in SectionType]: React.FC<{ id: string }> } = {
 const AppSettingsPage: React.FC = () => {
     const intl = useIntl()
     const ServiceTitleMessage = intl.formatMessage({ id: 'global.service.name' })
-    const MyAppsTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
+    const MyAppsTitle = intl.formatMessage({ id: 'global.service.sections.apps' })
     const MenuTitle = intl.formatMessage({ id: 'apps.id.menu.title' })
 
     const router = useRouter()
     const { id } = router.query
-    const { user } = useAuth()
     const [section, menuItems] = useB2CMenuItems()
 
     const { data } = useGetB2CAppQuery({
         variables: {
-            creator: { id: user?.id },
             id: id && !Array.isArray(id) ? id : '',
         },
     })
@@ -59,7 +57,7 @@ const AppSettingsPage: React.FC = () => {
         return <Error statusCode={404}/>
     }
 
-    const appName = get(data, ['objs', '0', 'name'], id)
+    const appName = get(data, ['app', 'name'], id)
     const PageTitle = [appName, MyAppsTitle, ServiceTitleMessage].join(' | ')
 
     return (
@@ -117,7 +115,6 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
     await client.query<GetB2CAppQuery, GetB2CAppQueryVariables>({
         query: GetB2CAppDocument,
         variables: {
-            creator: { id: authedUser.id },
             id,
         },
         context: { headers },

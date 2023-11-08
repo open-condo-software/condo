@@ -25,7 +25,7 @@ type UserBadgeProps = {
 
 export const UserBadge: React.FC<UserBadgeProps> = ({ dropdownPlacement }) => {
     const intl = useIntl()
-    const SignOutMessage = intl.formatMessage({ id: 'global.action.signOut' })
+    const SignOutMessage = intl.formatMessage({ id: 'global.actions.signOut' })
     const { user, signOut } = useAuth()
 
     const menu: DropdownProps['menu'] = useMemo(() => ({
@@ -52,7 +52,7 @@ export const UserBadge: React.FC<UserBadgeProps> = ({ dropdownPlacement }) => {
 
 export const AuthHeaderAction: React.FC = () => {
     const intl = useIntl()
-    const SignInMessage = intl.formatMessage({ id: 'global.action.signIn' })
+    const SignInMessage = intl.formatMessage({ id: 'global.actions.signIn' })
     const { isAuthenticated, startSignIn } = useAuth()
 
     return (

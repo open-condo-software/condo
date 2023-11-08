@@ -2,6 +2,8 @@ import { notification, Upload } from 'antd'
 import { useCallback } from 'react'
 import { useIntl } from 'react-intl'
 
+import { useFileSizeFormatter } from '@/domains/miniapp/hooks/useFileSizeFormatter'
+
 import type { RcFile } from 'antd/lib/upload/interface'
 
 type ValidatorType = (file: RcFile) => Promise<boolean | string>
@@ -17,6 +19,7 @@ type FileValidatorOpts = {
 export function useFileValidator (opts: FileValidatorOpts): ValidatorType {
     const intl = useIntl()
     const ErrorTitle = intl.formatMessage({ id: 'global.errors.fileUpload.title' })
+    const fileSizeFormatter = useFileSizeFormatter()
 
     return useCallback((file: RcFile) => {
         return new Promise((resolve) => {
@@ -26,12 +29,9 @@ export function useFileValidator (opts: FileValidatorOpts): ValidatorType {
                 return resolve(Upload.LIST_IGNORE)
             }
             if (opts.sizeLimit && file.size > opts.sizeLimit) {
-                const isLimitInMb = opts.sizeLimit >= 1024 * 1024
-                const ceilLimit = Math.ceil(isLimitInMb ? opts.sizeLimit / 1024 / 1024 : opts.sizeLimit / 1024)
-                const UnitsLabel = intl.formatMessage({ id: isLimitInMb ? 'global.units.mb' : 'global.units.kb' })
+                const formattedLimit = fileSizeFormatter(opts.sizeLimit)
                 const ErrorDescription = intl.formatMessage({ id: 'global.errors.fileUpload.tooLarge.description' }, {
-                    size: ceilLimit,
-                    units: UnitsLabel,
+                    limit: formattedLimit,
                 })
                 notification.error({ message: ErrorTitle, description: ErrorDescription })
                 return resolve(Upload.LIST_IGNORE)
@@ -66,5 +66,5 @@ export function useFileValidator (opts: FileValidatorOpts): ValidatorType {
                 resolve(false)
             }
         })
-    }, [ErrorTitle, opts, intl])
+    }, [ErrorTitle, opts, intl, fileSizeFormatter])
 }

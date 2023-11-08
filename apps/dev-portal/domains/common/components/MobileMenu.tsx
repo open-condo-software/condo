@@ -16,8 +16,8 @@ import { useAuth } from '@/lib/auth'
 const MobileMenuAction: React.FC = () => {
     const intl = useIntl()
     const { isAuthenticated, startSignIn } = useAuth()
-    const SignInMessage = intl.formatMessage({ id: 'global.action.signIn' })
-    const CreateAppMessage = intl.formatMessage({ id: 'global.action.createApp' })
+    const SignInMessage = intl.formatMessage({ id: 'global.actions.signIn' })
+    const CreateAppMessage = intl.formatMessage({ id: 'global.actions.createApp' })
     const { createApp } = useCreateAppContext()
 
     return (
@@ -45,8 +45,8 @@ const MobileAuthPanel: React.FC = () => {
 
 export const MobileMenu: React.FC = () => {
     const intl = useIntl()
-    const DocsSectionTitle = intl.formatMessage({ id: 'global.navBar.documentation.title' })
-    const AppsSectionTitle = intl.formatMessage({ id: 'global.navBar.apps.title' })
+    const DocsSectionTitle = intl.formatMessage({ id: 'global.service.sections.docs' })
+    const AppsSectionTitle = intl.formatMessage({ id: 'global.service.sections.apps' })
     const [isOpen, setIsOpen] = useState(false)
     const router = useRouter()
     const { isAuthenticated, startSignIn, isLoading } = useAuth()

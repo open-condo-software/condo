@@ -15,15 +15,16 @@
   "global.units.kb": "Кб",
   "global.units.mb": "Мб",
 
-  "global.forms.validations.required.message": "Необходимо заполнить",
+  "global.forms.validations.fieldRequired.message": "Необходимо заполнить",
   "global.forms.validations.phoneFormat.message": "Неверный номер телефона",
   "global.forms.validations.passwordTooEasy.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
-  "global.forms.validations.fileIsRequired.message": "Файл не выбран",
+  "global.forms.validations.fileRequired.message": "Файл не выбран",
 
   "global.errors.serverError.title": "Ошибка сервера",
+  "global.errors.constraintError.default.description": "Такой объект уже существует",
   "global.errors.fileUpload.title": "Ошибка загрузки файла",
   "global.errors.fileUpload.wrongType.description": "Файл имеет неверный формат",
-  "global.errors.fileUpload.tooLarge.description": "Размер файла превышает максимальный лимит в {size}{units}",
+  "global.errors.fileUpload.tooLarge.description": "Размер файла превышает максимальный лимит в {limit}",
   "global.errors.imageUpload.tooSmall.description": "Изображение меньше {minSize} пикселей",
   "global.errors.imageUpload.tooBig.description": "Изображение больше {maxSize} пикселей",
 
@@ -81,6 +82,12 @@
   "apps.b2c.sections.builds.newBuildModal.title": "Загрузка новой сборки",
   "apps.b2c.sections.builds.newBuildModal.form.items.version.label": "Версия приложения",
   "apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonSemantic.message": "Указанная версия не соответствует правилу семантического версионирования",
+  "apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonUnique.message": "Сборка с указанной версией уже существует",
   "apps.b2c.sections.builds.newBuildModal.form.items.uploadBuild.label": "Выбрать файл",
-  "apps.b2c.sections.builds.newBuildModal.form.actions.upload": "Загрузить"
+  "apps.b2c.sections.builds.newBuildModal.form.actions.upload": "Загрузить",
+  "apps.b2c.sections.builds.newBuildModal.form.info.limitations.title": "Каждая сборка должна:",
+  "apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.message": "Иметь уникальную и {semVerCorrect} версию",
+  "apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment": "семантически правильную",
+  "apps.b2c.sections.builds.newBuildModal.form.info.limitations.format.message": "Быть загруженной в формате {format}",
+  "apps.b2c.sections.builds.newBuildModal.form.info.limitations.size.message": "Иметь размер не более {limit}"
 }
