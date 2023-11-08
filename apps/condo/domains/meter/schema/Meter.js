@@ -9,7 +9,7 @@ const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, find, getByCondition, getById } = require('@open-condo/keystone/schema')
 
-const { UNIQUE_ALREADY_EXISTS_ERROR, ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
+const { UNIQUE_ALREADY_EXISTS_ERROR } = require('@condo/domains/common/constants/errors')
 const { UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
 const access = require('@condo/domains/meter/access/Meter')
 const {
@@ -18,6 +18,7 @@ const {
     B2C_APP_NOT_AVAILABLE,
     METER_NUMBER_HAVE_INVALID_VALUE,
     METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE,
+    METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } = require('@condo/domains/meter/constants/errors')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { Meter: MeterApi, MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema')
@@ -45,7 +46,7 @@ const ERRORS = {
     },
     METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION: {
         code: BAD_USER_INPUT,
-        type: ALREADY_EXISTS_ERROR,
+        type: METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
         message: 'Provided meter resource belongs to another organization',
         messageForUser: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION',
         variable: ['data', 'resource'],

@@ -49,7 +49,11 @@ import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
-import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
+import {
+    EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT,
+    EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION,
+    METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
+} from '@condo/domains/meter/constants/errors'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunctions'
@@ -92,6 +96,7 @@ export const MetersPageContent = ({
     const MeterReadingImportObjectsName = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many' })
     const MeterReadingImportObjectsNameManyGenitive = intl.formatMessage({ id: 'meter.import.MeterReading.objectsName.many.genitive' })
     const MeterAccountNumberExistInOtherUnitMessage = intl.formatMessage({ id: 'meter.import.error.MeterAccountNumberExistInOtherUnit' })
+    const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
     const MeterNumberExistInOrganizationMessage = intl.formatMessage({ id: 'meter.import.error.MeterNumberExistInOrganization' })
     const ImportButtonMessage = intl.formatMessage({ id: 'containers.FormTableExcelImport.ClickOrDragImportFileHint' })
 
@@ -152,7 +157,8 @@ export const MetersPageContent = ({
     const mutationErrorsToMessages = useMemo(() => ({
         [EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT]: MeterAccountNumberExistInOtherUnitMessage,
         [EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION]: MeterNumberExistInOrganizationMessage,
-    }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage])
+        [METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION]: MeterResourceOwnedByAnotherOrganizationMessage,
+    }), [MeterAccountNumberExistInOtherUnitMessage, MeterNumberExistInOrganizationMessage, MeterResourceOwnedByAnotherOrganizationMessage])
 
     const exampleTemplateLink = useMemo(() => `/meter-import-example-${intl.locale}.xlsx`, [intl.locale])
 
@@ -442,9 +448,9 @@ export const MeterReportingPeriodPageContent = ({
     }, {
         fetchPolicy: 'network-only',
     })
-    
+
     const defaultPeriod = useRef<MeterReportingPeriodType>()
-    
+
     const reportingPeriodsProcessedForTable = useMemo(() => {
         return compact(reportingPeriods.map(period => {
             if (period.organization !== null) return period

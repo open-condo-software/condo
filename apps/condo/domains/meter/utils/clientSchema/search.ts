@@ -21,28 +21,6 @@ const GET_METER_QUERY = gql`
     }
 `
 
-const GET_METER_RESOURCE_QUERY = gql`
-    query getMeterResource (
-        $id: ID,
-        $organizationId: ID,
-        $propertyId: ID,
-        $unitName: String
-    ) {
-        objs: allMeterResources(
-            where: {
-                id: $id
-            }
-        ) {
-            id
-            number
-            unitName
-            organization {
-                id
-            }
-        }
-    }
-`
-
 async function _search (client, query, variables) {
     return await client.query({
         query: query,
@@ -96,4 +74,20 @@ export const searchMeterResources = (organizationId: string, addressKey: string)
             disabled: get(meterResourceOwner, 'organization.id', organizationId) !== organizationId,
         }
     })
+}
+
+const GET_ALL_METER_RESOURCE_OWNERS = gql`
+    query getAllMeterResourceOwnersByAddressKey ($address: String, $meterResourceId: ID) {
+        objs: allMeterResourceOwners (where: { address_i: $address, resource: { id: $meterResourceId } }) {
+            organization { id }
+            resource { id }
+        }
+    }
+`
+
+export const searchMeterResourceOwners = async (client, address, meterResourceId) => {
+    const { data = [], error } = await _search(client, GET_ALL_METER_RESOURCE_OWNERS, { address, meterResourceId })
+    if (error) console.warn(error)
+
+    return data.objs
 }
