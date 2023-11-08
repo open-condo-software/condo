@@ -30,9 +30,9 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         globalId: {
             schemaDoc: 'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. Example: for Russia, the FIAS ID is used',
             type: Text,
-            isRequired: true,
+            isRequired: false,
             kmigratorOptions: {
-                null: false,
+                null: true,
             },
         },
 

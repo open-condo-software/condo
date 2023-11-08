@@ -736,14 +736,16 @@ describe('RegisterBillingReceiptsService', () => {
             const [integration] = await createTestBillingIntegration(admin)
             const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
 
-            const EXISTING_ADDRESS = 'Washington st, 4'
-            const NEW_ADDRESS = 'Washington st, 5'
+            const EXISTING_ADDRESS = 'Washington st, 4, кв '
+            const NEW_ADDRESS = 'Washington st, 5, кв '
 
             const payload1 = {
                 context: { id: billingContext.id },
                 receipts: [],
             }
-            for (let i = 0; i < 20; ++i) { payload1.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
+            for (let i = 0; i < 20; ++i) {
+                payload1.receipts.push(createRegisterBillingReceiptsPayload({ address: `${EXISTING_ADDRESS} ${i}` }))
+            }
 
             const [data1] = await registerBillingReceiptsByTestClient(admin, payload1)
 
@@ -751,7 +753,9 @@ describe('RegisterBillingReceiptsService', () => {
                 context: { id: billingContext.id },
                 receipts: [],
             }
-            for (let i = 0; i < 20; ++i) { payload2.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
+            for (let i = 0; i < 20; ++i) {
+                payload2.receipts.push(createRegisterBillingReceiptsPayload({ address: `${NEW_ADDRESS} ${i}` }))
+            }
 
             const [data2] = await registerBillingReceiptsByTestClient(admin, payload2)
 
@@ -759,8 +763,12 @@ describe('RegisterBillingReceiptsService', () => {
                 context: { id: billingContext.id },
                 receipts: [],
             }
-            for (let i = 0; i < 5; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: EXISTING_ADDRESS })) }
-            for (let i = 5; i < 10; ++i) { payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: NEW_ADDRESS })) }
+            for (let i = 0; i < 5; ++i) {
+                payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: `${EXISTING_ADDRESS} ${i}` }))
+            }
+            for (let i = 5; i < 10; ++i) {
+                payload3.receipts.push(createRegisterBillingReceiptsPayload({ address: `${NEW_ADDRESS} ${i}` }))
+            }
 
             const [data3] = await registerBillingReceiptsByTestClient(admin, payload3)
 

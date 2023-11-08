@@ -124,17 +124,23 @@ describe('BillingPropertyResolver tests', () => {
     describe('BillingPropertyResolver.init tests', () => {
         it('regular case', async () => {
             const resolver = new BillingPropertyResolver()
+            const contextAddressTransform = { 'fl.': 'flat' }
             const {
                 admin,
                 context,
                 organization,
-            } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {}, {}, {
+                    settings: { dv: 1, addressTransform: contextAddressTransform },
+                }
+            )
 
             // constant
             const tin = '12345789'
             const organizationId = organization.id
             const billingIntegrationOrganizationContextId = context.id
             const addressTransformRules = { one: 'rule' }
+            const rules = { ...addressTransformRules, ...contextAddressTransform }
             const properties = [
                 await createTestPropertyPair(admin, billingIntegrationContext, organization),
             ]
@@ -154,13 +160,10 @@ describe('BillingPropertyResolver tests', () => {
             expect(resolver).toHaveProperty('context')
             expect(resolver).toHaveProperty('addressService')
             expect(resolver).toHaveProperty('addressTransformer')
-            expect(resolver.addressTransformer.replaces).toMatchObject(addressTransformRules)
+            expect(resolver.addressTransformer.replaces).toMatchObject(rules)
             expect(resolver).toHaveProperty('parser')
             expect(resolver).toHaveProperty('addressCache')
-            expect(resolver).toHaveProperty('organizationProperties')
-            expect(resolver.organizationProperties).toHaveLength(properties.length)
-            expect(resolver.organizationProperties.map(prop => prop.id))
-                .toMatchObject(properties.map(pair => pair.property.id))
+            expect(resolver).toHaveProperty('billingIntegrationOrganizationContext')
         })
     })
 
@@ -178,6 +181,7 @@ describe('BillingPropertyResolver tests', () => {
                     address: 'пер.Малый Козихинский, д.7',
                     unitType: 'parking',
                     unitName: '3,4 (1 ур.)',
+                    originalInput: 'пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)',
                 })
             expect(resolver.parseAddress('ул.Щорса,103,212'))
                 .toMatchObject({
@@ -185,6 +189,7 @@ describe('BillingPropertyResolver tests', () => {
                     address: 'ул.Щорса, 103',
                     unitType: 'flat',
                     unitName: '212',
+                    originalInput: 'ул.Щорса,103,212',
                 })
         })
 
@@ -202,6 +207,7 @@ describe('BillingPropertyResolver tests', () => {
                     address: 'г. Новороссийск, ул.Революции 1905 года, д.37',
                     unitType: 'flat',
                     unitName: '1001',
+                    originalInput: 'г. Новороссийск, ул.Революции 1905 года, д.37, кв.1001',
                 })
         })
     })
@@ -436,21 +442,20 @@ describe('BillingPropertyResolver tests', () => {
             resolver.addressCache = {}
 
             // not even call address service
-            await resolver.propagateAddressToCache({})
-            await resolver.propagateAddressToCache({ address: null })
-            await resolver.propagateAddressToCache({ address: '' })
-            await resolver.propagateAddressToCache({ parsed: false, address })
+            await resolver.propagateAddressToCache()
+            await resolver.propagateAddressToCache(null)
+            await resolver.propagateAddressToCache('')
             expect(Object.keys(resolver.addressCache)).toHaveLength(0)
             expect(addressServiceCallCount).toEqual(0)
 
             // address service returns empty value for a key
-            await resolver.propagateAddressToCache({ parsed: true, address })
+            await resolver.propagateAddressToCache(address)
             expect(Object.keys(resolver.addressCache)).toHaveLength(1)
             expect(resolver.addressCache[resolver.getCacheKey(address)]).toBeNull()
             expect(addressServiceCallCount).toEqual(1)
 
             // prevent to address service search for the same address twice
-            await resolver.propagateAddressToCache({ parsed: true, address })
+            await resolver.propagateAddressToCache(address)
             expect(Object.keys(resolver.addressCache)).toHaveLength(1)
             expect(resolver.addressCache[resolver.getCacheKey(address)]).toBeNull()
             expect(addressServiceCallCount).toEqual(1)
@@ -471,7 +476,7 @@ describe('BillingPropertyResolver tests', () => {
             resolver.addressCache = {}
 
             // address service returns value for a key
-            await resolver.propagateAddressToCache({ parsed: true, address })
+            await resolver.propagateAddressToCache(address)
             expect(Object.keys(resolver.addressCache)).toHaveLength(1)
             expect(resolver.addressCache[resolver.getCacheKey(address)]).toMatchObject({ address })
             expect(addressServiceCallCount).toEqual(1)
@@ -494,7 +499,7 @@ describe('BillingPropertyResolver tests', () => {
             resolver.addressCache = {}
 
             // address service returns value for a key
-            await resolver.propagateAddressToCache({ parsed: true, address })
+            await resolver.propagateAddressToCache(address)
             expect(Object.keys(resolver.addressCache)).toHaveLength(2)
             expect(resolver.addressCache[resolver.getCacheKey(address)]).toMatchObject(addressServiceSearchResult)
             expect(resolver.addressCache[resolver.getCacheKey(address2)]).toMatchObject(addressServiceSearchResult)
@@ -521,7 +526,7 @@ describe('BillingPropertyResolver tests', () => {
 
             // act & assert
             expect(resolver.getAddressConditionValues({ parsed: true, address })).toMatchObject({
-                address,
+                address: normalizedAddress,
                 addressKey,
                 normalizedAddress,
                 fias,
@@ -571,9 +576,32 @@ describe('BillingPropertyResolver tests', () => {
 
             // act & assert
             expect(resolver.getAddressConditionValues({ address })).toMatchObject({
-                address,
+                address: normalizedAddress,
                 addressKey,
                 normalizedAddress,
+            })
+        })
+
+        it('Cached original input', async () => {
+            const tin = '12345789'
+            const resolver = new BillingPropertyResolver()
+            const address = faker.address.streetAddress(true)
+            const originalInput = faker.address.streetAddress(true)
+            const normalizedAddress = faker.address.streetAddress(true)
+            const addressKey = faker.datatype.uuid()
+            resolver.tin = tin
+            resolver.addressCache = {
+                [resolver.getCacheKey(originalInput)]: { address: originalInput, addressKey, addressMeta: { data: {} } },
+            }
+
+            // act & assert
+            expect(resolver.getAddressConditionValues({
+                address, originalInput,
+            })).toMatchObject({
+                address: originalInput,
+                addressKey,
+                normalizedAddress: originalInput,
+                originalInput,
             })
         })
 
@@ -779,19 +807,6 @@ describe('BillingPropertyResolver tests', () => {
             expect(foundProperty).toHaveProperty('id', billingProperty.id)
         })
 
-        it('Another billing context case', async () => {
-            const { property, billingProperty } = properties[1]
-            const fias = property.addressMeta.data.house_fias_id
-
-            const conditions = {
-                fias,
-            }
-
-            const foundProperty = await resolver.searchBillingProperty(conditions)
-            expect(foundProperty).toBeDefined()
-            expect(foundProperty).toHaveProperty('id', billingProperty.id)
-        })
-
         it('Not found', async () => {
             const conditions = {
                 fias: faker.datatype.uuid(),
@@ -804,16 +819,8 @@ describe('BillingPropertyResolver tests', () => {
 
     describe('BillingPropertyResolver.isPropertyRegistrationInOrganization tests', () => {
         it('registered case', async () => {
-            const resolver = new BillingPropertyResolver()
-            const propertyId = faker.datatype.uuid()
-            resolver.organizationProperties = [
-                { id: propertyId },
-                { id: faker.datatype.uuid() },
-                { id: faker.datatype.uuid() },
-            ]
-
             expect(
-                await resolver.isPropertyRegistrationInOrganization({ property: { id: propertyId } })
+                await resolver.isPropertyRegistrationInOrganization(properties[0].billingProperty)
             ).toBeTruthy()
         })
 
@@ -824,14 +831,6 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('not registered cases', async () => {
-            const resolver = new BillingPropertyResolver()
-            const propertyId = faker.datatype.uuid()
-            resolver.organizationProperties = [
-                { id: propertyId },
-                { id: faker.datatype.uuid() },
-                { id: faker.datatype.uuid() },
-            ]
-
             expect(
                 await resolver.isPropertyRegistrationInOrganization({ property: { id: faker.datatype.uuid() } })
             ).not.toBeTruthy()
@@ -854,11 +853,19 @@ describe('BillingPropertyResolver tests', () => {
         it('regular case', async () => {
             const tin = '12345789'
             const resolver = new BillingPropertyResolver()
-            const address = faker.address.streetAddress(true)
-            const normalizedAddress = faker.address.streetAddress(true)
-            const addressKey = faker.datatype.uuid()
-            const fias = faker.datatype.uuid()
-            resolver.tin = tin
+
+            // properties mock
+            const { billingProperty, property } = properties[0]
+            resolver.searchBillingProperty = async () => (billingProperty)
+
+            const { address, normalizedAddress, addressKey, globalId: fias } = billingProperty
+            await resolver.init(
+                adminContext,
+                tin,
+                organization.id,
+                billingIntegrationContext.id,
+                {},
+            )
             resolver.addressCache = {
                 [resolver.getCacheKey(address)]: {
                     address: normalizedAddress,
@@ -866,16 +873,6 @@ describe('BillingPropertyResolver tests', () => {
                     addressMeta: { data: { house_fias_id: fias } },
                 },
             }
-
-            // properties mock
-            const propertyId = faker.datatype.uuid()
-            resolver.organizationProperties = [
-                { id: propertyId },
-                { id: faker.datatype.uuid() },
-                { id: faker.datatype.uuid() },
-            ]
-            const billingProperty = { property: { id: propertyId } }
-            resolver.searchBillingProperty = async () => (billingProperty)
 
             const result = await resolver.getSearchSummary({ address })
             expect(result).toMatchObject({
@@ -901,28 +898,26 @@ describe('BillingPropertyResolver tests', () => {
             const { property, billingProperty } = properties[0]
             const address = property.address + ' a'
 
-            const foundProperty = await resolver.getOrganizationBillingPropertySuggestion(address)
+            const { property: foundProperty, score } = await resolver.getOrganizationBillingPropertySuggestion(address)
             expect(foundProperty).toBeDefined()
             expect(foundProperty).toHaveProperty('id', billingProperty.id)
+            expect(score).toBeDefined()
         })
 
-        it('Address has to much difference', async () => {
+        it('Address has too much difference', async () => {
             const { property } = properties[0]
             const address = property.address + property.address
 
-            const foundProperty = await resolver.getOrganizationBillingPropertySuggestion(address)
-            expect(foundProperty).not.toBeDefined()
+            const result = await resolver.getOrganizationBillingPropertySuggestion(address)
+            expect(result).not.toBeDefined()
         })
 
         it('Organization property exists but billing property are missing', async () => {
             const address = noPairProperty.address
 
-            expect(
-                resolver.organizationProperties.find(prop => prop.id === noPairProperty.id)
-            ).toBeDefined()
-
-            const foundProperty = await resolver.getOrganizationBillingPropertySuggestion(address)
+            const { property: foundProperty, score } = await resolver.getOrganizationBillingPropertySuggestion(address)
             expect(foundProperty).not.toBeDefined()
+            expect(score).toBeDefined()
         })
     })
 
@@ -986,6 +981,119 @@ describe('BillingPropertyResolver tests', () => {
                 meta: { dv: 1, ...integrationMeta },
                 context: { id: billingIntegrationContext.id },
             })
+        })
+    })
+
+    describe('BillingPropertyResolver.getResolveFlowParams tests', () => {
+        it('Regular case', async () => {
+            const params = await resolver.getResolveFlowParams()
+
+            expect(params).toBeDefined()
+            expect(params).toMatchObject({
+                resolveOnlyByOrganizationProperties: false,
+            })
+        })
+
+        it('Has configured extra settings for property resolve flow', async () => {
+            const resolver = new BillingPropertyResolver()
+            const {
+                context,
+                organization,
+            } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                {}, {}, {
+                    settings: { dv: 1, billingPropertyResolver: { resolveOnlyByOrganizationProperties: true } },
+                }
+            )
+
+            // constant
+            const tin = '12345789'
+            const organizationId = organization.id
+            const billingIntegrationOrganizationContextId = context.id
+
+            await resolver.init(
+                adminContext,
+                tin,
+                organizationId,
+                billingIntegrationOrganizationContextId,
+                {},
+            )
+
+            const params = await resolver.getResolveFlowParams()
+
+            expect(params).toBeDefined()
+            expect(params).toMatchObject({
+                resolveOnlyByOrganizationProperties: true,
+            })
+        })
+    })
+
+    describe('BillingPropertyResolver.resolveByOrganizationProperties tests', () => {
+        it('Address is null case', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = null
+            const normalizedAddress = property.address
+            const originalInput = property.address + ' кв. 1'
+
+            const result = await resolver.resolveByOrganizationProperties({
+                address, normalizedAddress, originalInput,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('NormalizedAddress is null case', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+            const normalizedAddress = null
+            const originalInput = property.address + ' кв. 1'
+
+            const result = await resolver.resolveByOrganizationProperties({
+                address, normalizedAddress, originalInput,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('OriginalInput is null case', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = property.address
+            const normalizedAddress = property.address
+            const originalInput = null
+
+            const result = await resolver.resolveByOrganizationProperties({
+                address, normalizedAddress, originalInput,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('id', billingProperty.id)
+        })
+
+        it('All address is null case', async () => {
+            const address = null
+            const normalizedAddress = null
+            const originalInput = null
+
+            await catchErrorFrom(async () => {
+                await resolver.resolveByOrganizationProperties({
+                    address, normalizedAddress, originalInput,
+                })
+            }, (caught) => {
+                expect(caught).toMatchObject({
+                    code: 'ADDRESS_NOT_RECOGNIZED_VALUE',
+                })
+            })
+        })
+
+        it('OriginalInput without unit parts', async () => {
+            const { property, billingProperty } = properties[0]
+            const address = faker.address.streetAddress(false)
+            const normalizedAddress = faker.address.streetAddress(false)
+            const originalInput = property.address
+
+            const result = await resolver.resolveByOrganizationProperties({
+                address, normalizedAddress, originalInput,
+            })
+            expect(result).toBeDefined()
+            expect(result).toHaveProperty('id', billingProperty.id)
         })
     })
 
@@ -1074,6 +1182,17 @@ describe('BillingPropertyResolver tests', () => {
                 expect(resolved).toHaveProperty('unitName', unitName)
             })
 
+            it('Resolve by original input case', async () => {
+                const { property, billingProperty } = properties[0]
+                const { unitType, unitName } = generateFullAddress(property.address)
+
+                const resolved = await resolver.resolve(property.address, {}, unitType, unitName)
+                expect(resolved).toBeDefined()
+                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
+                expect(resolved).toHaveProperty('unitType', unitType)
+                expect(resolved).toHaveProperty('unitName', unitName)
+            })
+
             it('Resolve by fias in another org case', async () => {
                 const {
                     admin,
@@ -1124,20 +1243,6 @@ describe('BillingPropertyResolver tests', () => {
                 expect(resolved).toHaveProperty('unitName', unitName)
             })
 
-            it('Resolve by organization properties case', async () => {
-                const { property, billingProperty } = properties[0]
-                const { unitType, unitName } = generateFullAddress()
-
-                // search address a little different that an original address
-                const address = property.address + ' d'
-
-                const resolved = await resolver.resolve(address, {}, unitType, unitName)
-                expect(resolved).toBeDefined()
-                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
-                expect(resolved).toHaveProperty('unitType', unitType)
-                expect(resolved).toHaveProperty('unitName', unitName)
-            })
-
             it('Not found case', async () => {
                 const { unitType, unitName, address } = generateFullAddress()
                 const fias = faker.datatype.uuid()
@@ -1162,6 +1267,71 @@ describe('BillingPropertyResolver tests', () => {
                 expect(resolved).toHaveProperty('unitType', billingAccount.unitType)
                 expect(resolved).toHaveProperty('unitName', billingAccount.unitName)
             })
+
+            it('Resolve by params: resolveOnlyByOrganizationProperties', async () => {
+                const {
+                    context: billingIntegrationContext,
+                    organization,
+                } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                    {}, {}, {
+                        settings: { dv: 1, billingPropertyResolver: { resolveOnlyByOrganizationProperties: true } },
+                    }
+                )
+
+                const resolver = await getResolver(
+                    {}, async () => null, organization, billingIntegrationContext,
+                )
+
+                // create properties
+                const properties = [
+                    await createTestPropertyPair(admin, billingIntegrationContext, organization),
+                    await createTestPropertyPair(admin, billingIntegrationContext, organization),
+                    await createTestPropertyPair(admin, billingIntegrationContext, organization),
+                ]
+
+                const { property, billingProperty } = properties[2]
+                const { unitType, unitName, address: fullAddress } = generateFullAddress(property.address)
+
+                // search address a little different that an original address
+                const address = fullAddress + ' a big difference in stored address and provided one'
+
+                const resolved = await resolver.resolve(address, {}, unitType, unitName)
+                expect(resolved).toBeDefined()
+                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
+                expect(resolved).toHaveProperty('unitType', unitType)
+                expect(resolved).toHaveProperty('unitName', unitName)
+            })
+
+            it('Resolve by params: resolveOnlyByOrganizationProperties and original input has no unit parts', async () => {
+                const {
+                    context: billingIntegrationContext,
+                    organization,
+                } = await makeContextWithOrganizationAndIntegrationAsAdmin(
+                    {}, {}, {
+                        settings: { dv: 1, billingPropertyResolver: { resolveOnlyByOrganizationProperties: true } },
+                    }
+                )
+
+                const resolver = await getResolver(
+                    {}, async () => null, organization, billingIntegrationContext,
+                )
+
+                // create properties
+                const properties = [
+                    await createTestPropertyPair(admin, billingIntegrationContext, organization),
+                    await createTestPropertyPair(admin, billingIntegrationContext, organization),
+                    await createTestPropertyPair(admin, billingIntegrationContext, organization),
+                ]
+
+                const { property, billingProperty } = properties[2]
+                const { unitType, unitName } = generateFullAddress(property.address)
+
+                const resolved = await resolver.resolve(property.address, {}, unitType, unitName)
+                expect(resolved).toBeDefined()
+                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
+                expect(resolved).toHaveProperty('unitType', unitType)
+                expect(resolved).toHaveProperty('unitName', unitName)
+            })
         })
 
         describe('Replace transform rules, addressService returns nothing', () => {
@@ -1184,19 +1354,6 @@ describe('BillingPropertyResolver tests', () => {
                 expect(resolved).toHaveProperty('unitType', unitType)
                 expect(resolved).toHaveProperty('unitName', unitName)
             })
-
-            it('Resolve by organization properties case', async () => {
-                const { property, billingProperty } = properties[0]
-                const { unitType, unitName } = generateFullAddress()
-
-                // search address a little different that an original address
-                const inputAddress = prefix + property.address + ' d'
-                const resolved = await resolver.resolve(inputAddress, {}, unitType, unitName)
-                expect(resolved).toBeDefined()
-                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
-                expect(resolved).toHaveProperty('unitType', unitType)
-                expect(resolved).toHaveProperty('unitName', unitName)
-            })
         })
 
         describe('RegExp transform rules, addressService returns nothing', () => {
@@ -1213,19 +1370,6 @@ describe('BillingPropertyResolver tests', () => {
                 const { unitType, unitName, address } = generateFullAddress(property.address)
 
                 const inputAddress = prefix + address
-                const resolved = await resolver.resolve(inputAddress, {}, unitType, unitName)
-                expect(resolved).toBeDefined()
-                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
-                expect(resolved).toHaveProperty('unitType', unitType)
-                expect(resolved).toHaveProperty('unitName', unitName)
-            })
-
-            it('Resolve by organization properties case', async () => {
-                const { property, billingProperty } = properties[0]
-                const { unitType, unitName } = generateFullAddress()
-
-                // search address a little different that an original address
-                const inputAddress = prefix + property.address + ' d'
                 const resolved = await resolver.resolve(inputAddress, {}, unitType, unitName)
                 expect(resolved).toBeDefined()
                 expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)

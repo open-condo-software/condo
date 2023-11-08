@@ -70656,10 +70656,10 @@ type ResidentBillingReceiptOutput {
 input RegisterBillingReceiptInput {
   importId: String!
   address: String!
-  normalizedAddress: String
+  addressMeta: JSON
   accountNumber: String!
-  unitName: String!
-  unitType: String!
+  unitName: String
+  unitType: String
   fullName: String
   toPay: String!
   toPayDetails: BillingReceiptServiceToPayDetailsFieldInput
@@ -70679,6 +70679,7 @@ input RegisterBillingReceiptsInput {
   dv: Int!
   sender: SenderFieldInput!
   context: BillingIntegrationOrganizationContextWhereUniqueInput
+  addressTransformRules: JSON
   receipts: [RegisterBillingReceiptInput!]!
 }
 

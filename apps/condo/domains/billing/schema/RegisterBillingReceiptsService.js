@@ -12,16 +12,10 @@ const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema'
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
 const { BillingPropertyResolver } = require('@condo/domains/billing/schema/helpers/billingPropertyResolver')
 const { CategoryResolver } = require('@condo/domains/billing/schema/helpers/categoryResolver')
-const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingAccount, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
-const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
-
-const { findPropertyByOrganizationAndAddress } = require('./helpers/propertyFinder')
 
 const RECEIPTS_LIMIT = 50
-
-// This is a percent of matched tokens while searching through the organization's properties
-const PROPERTY_SCORE_TO_PASS = 95
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -69,6 +63,20 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'Address is not recognized for some receipts. We tried to recognize address, but failed. You can either double check address field or manually provide a normalizedAddress',
+    },
+    ADDRESS_NOT_RESOLVED_UNIT_NAME: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'address'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Address unit name is not recognized for some receipts. You can either double check address field or manually provide a unitName',
+    },
+    ADDRESS_NOT_RESOLVED_UNIT_TYPE: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'address'],
+        code: BAD_USER_INPUT,
+        type: WRONG_VALUE,
+        message: 'Address unit type is not recognized for some receipts. You can either double check address field or manually provide a unitType',
     },
     RECEIPTS_LIMIT_HIT: {
         mutation: 'registerBillingReceipts',
@@ -134,7 +142,7 @@ const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) =
     item.category = { connect: { id: get(item, ['category', 'id']) } }
     item.context = { connect: { id: get(item, ['context', 'id']) } }
 
-    item.property = { connect: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
+    item.property = { connect: { id: get(item, ['property', 'id']) } }
     item.account = { connect: { id: get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
 
     item.recipient = {
@@ -147,9 +155,8 @@ const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) =
     return omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
 }
 
-const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
-
-    const propertiesIndex = Object.fromEntries(properties.map((item) => ([getBillingPropertyKey(item), item])))
+const syncBillingReceipts = async (context, receipts, { accounts, propertyIndex, billingContextId } ) => {
+    const properties = Object.keys(propertyIndex).map(key => propertyIndex[key])
     const propertiesIndexById = Object.fromEntries(properties.map((item) => ([item.id, item])))
 
     const accountsIndex = Object.fromEntries(accounts.map((item) => ([getBillingAccountKey(item), item])))
@@ -161,7 +168,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
                 AND: [
                     { period: item.period },
                     { category: { id: get(item, ['category', 'id']) } },
-                    { property: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } },
+                    { property: { id: get(item.property, 'id') } },
                     { account: { id: get(accountsIndex[getBillingAccountKey(item.account)], 'id') } },
                     { deletedAt: null },
                 ],
@@ -236,7 +243,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
-        const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
+        const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertyIndex, accountsIndex)
         const newReceipt = await BillingReceipt.create(context, billingReceiptGQLInput)
         newReceipts.push(newReceipt)
     }
@@ -244,7 +251,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     const updatedReceipts = []
     for (const item of receiptsToUpdate) {
         const itemId = item.id
-        const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
+        const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertyIndex, accountsIndex)
         const updatableItem = omit(billingReceiptGQLInput, ['context', 'id', 'receiver'])
         const updatedReceipt = await BillingReceipt.update(context, itemId, updatableItem)
         updatedReceipts.push(updatedReceipt)
@@ -364,11 +371,16 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         billingProperty: property,
                         unitType,
                         unitName,
-                        error, // TODO handle this
-                        errorMessage,
+                        error,
                     } = await billingPropertyResolver.resolve(
                         address, addressMeta, providedUnitType, providedUnitName
                     )
+                    // resolve property detection errors
+                    if (isString(error)) {
+                        partialErrors.push(new GQLError({ ...ERRORS[error], inputIndex: i }, context))
+                        continue
+                    }
+
                     const propertyKey = getBillingPropertyKey(property)
                     if (!propertyIndex[propertyKey]) {
                         propertyIndex[propertyKey] = property
@@ -435,7 +447,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 3:
                 // Sync billing receipts
-                const { createdReceipts, updatedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, properties: syncedProperties, billingContextId })
+                const { createdReceipts, updatedReceipts } = await syncBillingReceipts(context, Object.values(receiptIndex), { accounts: syncedAccounts, propertyIndex, billingContextId })
 
                 // Step 4:
                 // Forming result

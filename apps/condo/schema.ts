@@ -68242,10 +68242,10 @@ export type RecurrentPaymentsUpdateInput = {
 export type RegisterBillingReceiptInput = {
   importId: Scalars['String'];
   address: Scalars['String'];
-  normalizedAddress?: Maybe<Scalars['String']>;
+  addressMeta?: Maybe<Scalars['JSON']>;
   accountNumber: Scalars['String'];
-  unitName: Scalars['String'];
-  unitType: Scalars['String'];
+  unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
   toPay: Scalars['String'];
   toPayDetails?: Maybe<BillingReceiptServiceToPayDetailsFieldInput>;
@@ -68265,6 +68265,7 @@ export type RegisterBillingReceiptsInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
   context?: Maybe<BillingIntegrationOrganizationContextWhereUniqueInput>;
+  addressTransformRules?: Maybe<Scalars['JSON']>;
   receipts: Array<RegisterBillingReceiptInput>;
 };
 

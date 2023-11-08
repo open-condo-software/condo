@@ -6,8 +6,11 @@ const {
 
 
 const { AddressTransform, AddressParser } = require('@condo/domains/billing/schema/helpers/addressTransform')
-const { BillingProperty, BillingAccount } = require('@condo/domains/billing/utils/serverSchema')
-const { loadListByChunks } = require('@condo/domains/common/utils/serverSchema')
+const {
+    BillingProperty,
+    BillingAccount,
+    BillingIntegrationOrganizationContext,
+} = require('@condo/domains/billing/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
 
 const { findPropertyByOrganizationAndAddress } = require('./propertyFinder')
@@ -64,20 +67,23 @@ class BillingPropertyResolver {
         this.addressTransformer = new AddressTransform()
         this.parser = new AddressParser()
         this.addressCache = {}
-        this.organizationProperties = await loadListByChunks({
+        this.billingIntegrationOrganizationContext = await BillingIntegrationOrganizationContext.getOne(
             context,
-            list: Property,
-            where: { organization: { id: organizationId }, deletedAt: null },
-            chunkSize: 50,
-        })
+            { id: billingIntegrationOrganizationContextId }
+        )
 
-        return this.addressTransformer.init(addressTransformRules)
+        // address transformRules from both input/context
+        const inputRules = addressTransformRules || {}
+        const contextRules = get(this.billingIntegrationOrganizationContext, 'settings.addressTransform', {})
+        const rules = { ...contextRules, ...inputRules }
+
+        return this.addressTransformer.init(rules)
     }
 
     /**
      * Do address transformations and parse
      * @param address
-     * @returns {{parsed: boolean, address: (string|undefined), unitName: (string|undefined), unitType: (string|undefined)}}
+     * @returns {{parsed: boolean, address: (string|undefined), unitName: (string|undefined), unitType: (string|undefined), originalInput: (string|null)}}
      */
     parseAddress (address) {
         if (isNil(address) || isEmpty(address.trim())) {
@@ -86,6 +92,7 @@ class BillingPropertyResolver {
         const transformedAddress = this.addressTransformer.apply(address)
         return {
             parsed: true,
+            originalInput: transformedAddress,
             ...this.parser.parse(transformedAddress),
         }
     }
@@ -105,6 +112,7 @@ class BillingPropertyResolver {
         return {
             parsed: true,
             isFias: true,
+            originalInput: fias,
             unitName,
             unitType,
             address,
@@ -168,15 +176,15 @@ class BillingPropertyResolver {
 
     /**
      * Propagate addresses in any omit in address cache
-     * @param parsedAddress - parsed address
+     * @param address - address to normalize
      */
-    async propagateAddressToCache (parsedAddress) {
-        const key = this.getCacheKey(parsedAddress.address)
+    async propagateAddressToCache (address) {
+        const key = this.getCacheKey(address)
 
         // check if address wasn't populated for a key before
-        if (!isNil(key) && parsedAddress.parsed && !(Object.keys(this.addressCache).indexOf(key) > -1)) {
+        if (!isNil(key) && !isEmpty(address) && !(Object.keys(this.addressCache).indexOf(key) > -1)) {
             // address is parsed and not exists in the cache
-            const searchResults = await this.addressService.search(parsedAddress.address, { 'helpers.tin': this.tin })
+            const searchResults = await this.addressService.search(address, { 'helpers.tin': this.tin })
 
             if (!isNil(searchResults)) {
                 this.addressCache[key] = searchResults
@@ -204,16 +212,17 @@ class BillingPropertyResolver {
      */
     getAddressConditionValues (parsedAddress) {
         // 3 cases expected here:
-        //      1. address are cached (no matter if this is a fias or not)
-        //      2. address not normalized (not a fias case)
-        //      3. address not normalized (fias case)
-        const key = this.getCacheKey(parsedAddress.address)
-        const searchResult = this.addressCache[key]
+        //      1. address are cached (no matter if this is a fias, parsed address or original input)
+        //      2. original input address are cached
+        //      3. address not normalized (not a fias case)
+        //      4. address not normalized (fias case)
+        const searchResult = this.addressCache[this.getCacheKey(parsedAddress.address)]
+            || this.addressCache[this.getCacheKey(parsedAddress.originalInput)]
 
         let address = null, addressKey = null, normalizedAddress = null, fias = null
 
         if (!isNil(searchResult)) {
-            address = parsedAddress.isFias ? null : parsedAddress.address
+            address = parsedAddress.isFias ? null : get(searchResult, 'address') || parsedAddress.address
             addressKey = get(searchResult, 'addressKey')
             normalizedAddress = get(searchResult, 'address')
             fias = get(searchResult, ['addressMeta', 'data', 'house_fias_id'])
@@ -223,7 +232,7 @@ class BillingPropertyResolver {
             fias = parsedAddress.address.replace('fiasId:', '')
         }
 
-        return { address, addressKey, normalizedAddress, fias }
+        return { address, addressKey, normalizedAddress, fias, originalInput: parsedAddress.originalInput }
     }
 
     /**
@@ -232,16 +241,23 @@ class BillingPropertyResolver {
      * @returns {Promise<BillingProperty|null>}
      */
     async searchBillingProperty (conditionValues) {
-        const { address, addressKey, normalizedAddress, fias } = conditionValues
+        const { address, addressKey, normalizedAddress, fias, originalInput } = conditionValues
 
         // let's assemble a query to BillingProperty
         const conditions = []
         if (!isEmpty(addressKey)) {
             conditions.push({ addressKey })
         }
+
+        if (!isEmpty(originalInput)) {
+            conditions.push({ address: originalInput })
+        }
+
         if (!isEmpty(normalizedAddress)) {
             conditions.push({ address: normalizedAddress })
-        } else if (!isEmpty(address)) {
+        }
+
+        if (!isEmpty(address)) {
             conditions.push({ address })
         }
 
@@ -252,7 +268,7 @@ class BillingPropertyResolver {
         const where = {
             AND: [{ OR: conditions }, {
                 deletedAt: null,
-                context: { organization: { id: this.organizationId } },
+                context: { id: this.billingIntegrationOrganizationContextId },
             }],
         }
         const result = await BillingProperty.getAll(this.context, where, { first: 1 })
@@ -271,13 +287,17 @@ class BillingPropertyResolver {
             return false
         }
 
-        return this.organizationProperties.filter(property => property.id === relatedPropertyId).length > 0
+        const count = await Property.count(this.context, {
+            id: relatedPropertyId,
+            organization: { id: this.organizationId }, deletedAt: null }
+        )
+        return count > 0
     }
 
     /**
      * Get all property clearing data together
      * @param parsedAddress
-     * @returns {Promise<{address: (string|null), addressKey: (string|null), normalizedAddress: (string|null), registeredInOrg: boolean, fias: (string|null), billingProperty: (BillingProperty|null)}>}
+     * @returns {Promise<{address: (string|null), addressKey: (string|null), normalizedAddress: (string|null), originalInput: (string|null), registeredInOrg: boolean, fias: (string|null), billingProperty: (BillingProperty|null)}>}
      */
     async getSearchSummary (parsedAddress) {
         const conditionValues = this.getAddressConditionValues(parsedAddress)
@@ -286,6 +306,7 @@ class BillingPropertyResolver {
 
         return {
             ...conditionValues,
+            originalInput: parsedAddress.originalInput,
             billingProperty,
             registeredInOrg,
         }
@@ -303,9 +324,10 @@ class BillingPropertyResolver {
     /**
      * Get billing property by search of organizations properties
      * @param address - address
-     * @returns {Promise<BillingProperty|null|undefined>}
+     * @param scoreToPass - minimal score to accept a result
+     * @returns {Promise<{property: BillingProperty|null|undefined, score: number}>}
      */
-    async getOrganizationBillingPropertySuggestion (address) {
+    async getOrganizationBillingPropertySuggestion (address, scoreToPass = PROPERTY_SCORE_TO_PASS) {
         if (isEmpty(address)) {
             return null
         }
@@ -314,7 +336,7 @@ class BillingPropertyResolver {
             this.context, this.organizationId, address,
         )
 
-        if (score > PROPERTY_SCORE_TO_PASS && foundOrganizationProperties.length === 1) {
+        if (score > scoreToPass && foundOrganizationProperties.length === 1) {
             // we can not search by billingProperty.property since it is a virtual field
             // only way is to take addressKey/address from foundProperty
             // and try to find a billingProperty by those values
@@ -337,7 +359,7 @@ class BillingPropertyResolver {
                 },
             })
 
-            return foundBillingProperty
+            return { property: foundBillingProperty, score }
         }
     }
 
@@ -349,10 +371,13 @@ class BillingPropertyResolver {
      * @returns {Promise<BillingProperty>}
      */
     async createBillingProperty (fiasSummary, addressSummary, addressMeta) {
+        const address = get(addressSummary, 'normalizedAddress')
+            || get(addressSummary, 'address')
+            || get(addressSummary, 'originalInput')
         const billingPropertyParams = {
             ...dvAndSender,
             globalId: get(fiasSummary, 'fias'),
-            address: get(addressSummary, 'normalizedAddress') || get(addressSummary, 'address'),
+            address,
             normalizedAddress: get(addressSummary, 'normalizedAddress'),
             raw: { dv: 1 },
             importId: this.getBillingPropertyKey(addressSummary),
@@ -399,8 +424,49 @@ class BillingPropertyResolver {
     }
 
     /**
+     * Get params for properties resolve flow
+     * @returns {Promise<{resolveOnlyByOrganizationProperties: boolean}>}
+     */
+    async getResolveFlowParams () {
+        const resolveOnlyByOrganizationProperties = get(
+            this.billingIntegrationOrganizationContext,
+            'settings.billingPropertyResolver.resolveOnlyByOrganizationProperties',
+            false
+        )
+
+        return {
+            resolveOnlyByOrganizationProperties,
+        }
+    }
+
+    async resolveByOrganizationProperties ({ originalInput, address, normalizedAddress }) {
+        const originalInputResult = await this.getOrganizationBillingPropertySuggestion(originalInput, 0)
+        const addressResult = await this.getOrganizationBillingPropertySuggestion(address, 0)
+        const normalizedAddressResult = await this.getOrganizationBillingPropertySuggestion(normalizedAddress, 1)
+
+        if (isNil(addressResult) && isNil(normalizedAddressResult) && isNil(originalInputResult)) {
+            throw new ResolveError('ADDRESS_NOT_RECOGNIZED_VALUE', 'Can not resolve property by organization registered properties')
+        }
+
+        let property = null
+        let maxScore = 0
+
+        const results = [originalInputResult, addressResult, normalizedAddressResult]
+
+        results.filter(result => !isNil(result)).forEach(result => {
+            const score = get(result, 'score', 0)
+            if (score >= maxScore) {
+                property = result.property
+                maxScore = score
+            }
+        })
+
+        return property
+    }
+
+    /**
      * Resolve BillingProperty model by provided address. Either retrieve exists one property or create new one
-     * @param address - address string
+     * @param address - address string. Can include unitType/unitName or not
      * @param addressMeta - an optional object, can hold fias field (housing fias)
      * @param providedUnitType - provided unit type
      * @param providedUnitName - provided unit name
@@ -408,13 +474,25 @@ class BillingPropertyResolver {
      */
     async resolve (address, addressMeta, providedUnitType, providedUnitName) {
         try {
+            const flowParams = await this.getResolveFlowParams()
+
             // parse data
             const parsedFias = this.parseFias(get(addressMeta, 'fias'))
             const parsedAddress = this.parseAddress(address)
 
             // propagate addresses into cache
-            await this.propagateAddressToCache(parsedFias)
-            await this.propagateAddressToCache(parsedAddress)
+            await this.propagateAddressToCache(address)
+            await this.propagateAddressToCache(parsedFias.address)
+            await this.propagateAddressToCache(parsedAddress.address)
+
+            // case: billing integration organization context has flat to resolve by created properties
+            if (flowParams.resolveOnlyByOrganizationProperties) {
+                const addressConditionValues = this.getAddressConditionValues(parsedAddress)
+                return await this.packToResult(
+                    await this.resolveByOrganizationProperties(addressConditionValues), parsedFias, parsedAddress,
+                    providedUnitType, providedUnitName,
+                )
+            }
 
             // case: one of found billing property is good enough
             // retrieve summary and respond if it is good enough
@@ -446,16 +524,6 @@ class BillingPropertyResolver {
                 await this.createBillingProblem(addressSummary)
                 return await this.packToResult(
                     addressSummary.billingProperty, parsedFias, parsedAddress,
-                    providedUnitType, providedUnitName,
-                )
-            }
-
-            // case: try to search them in organization properties
-            let foundProperty = await this.getOrganizationBillingPropertySuggestion(addressSummary.normalizedAddress)
-                || await this.getOrganizationBillingPropertySuggestion(addressSummary.address)
-            if (!isNil(foundProperty)) {
-                return await this.packToResult(
-                    foundProperty, parsedFias, parsedAddress,
                     providedUnitType, providedUnitName,
                 )
             }
