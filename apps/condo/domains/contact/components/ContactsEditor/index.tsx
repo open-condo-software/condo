@@ -58,7 +58,7 @@ export interface IContactEditorProps {
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
     fields: FieldsType,
     value?: ContactValue,
-    onChange: (contact: ContactFields, isNew: boolean) => void,
+    onChange?: (contact: ContactFields, isNew: boolean) => void,
 
     // Composite scope of organization, property and unitName, used to
     // fetch contacts for autocomplete fields.
@@ -70,9 +70,11 @@ export interface IContactEditorProps {
     clientPhone?: string,
     allowLandLine?: boolean,
     disabled?: boolean
-    initialQuery
+    initialQuery?
     hasNotResidentTab?: boolean
     residentTitle?: string
+    hideFocusContainer?: boolean
+    hideTabBar?: boolean
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -120,6 +122,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         hasNotResidentTab = true,
         initialQuery,
         residentTitle,
+        hideFocusContainer,
+        hideTabBar,
     } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -328,6 +332,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         !isEmptyInitialNotResidentValue,
     [displayEditableContactFields, initialValue.id, initialValueIsPresentedInFetchedContacts, isEmptyInitialNotResidentValue])
 
+    const Container = useCallback((props) =>
+        hideFocusContainer ? <div {...props} /> : <ContactsInfoFocusContainer {...props} />,
+    [hideFocusContainer])
+
+    const tabBarStyle = useMemo(() =>
+        hideTabBar ? { display: 'none' } : {},
+    [hideTabBar])
+
     if (error) {
         console.warn(error)
         throw error
@@ -335,12 +347,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     return (
         <Col span={24}>
-            <ContactsInfoFocusContainer className={className}>
+            <Container className={className}>
                 <Tabs
                     defaultActiveKey={activeTab}
                     activeKey={activeTab}
                     style={TABS_STYLE}
                     onChange={handleTabChange}
+                    tabBarStyle={tabBarStyle}
                 >
                     {
                         (canReadContacts || canManageContacts) && (
@@ -434,7 +447,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         )
                     }
                 </Tabs>
-            </ContactsInfoFocusContainer>
+            </Container>
             {/*
                     This is a place for items of external form, this component is embedded into.
                     Why not to use them in place of actual inputs?

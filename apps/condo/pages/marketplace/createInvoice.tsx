@@ -5,8 +5,8 @@ import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-import { CreateInvoiceForm } from '../../domains/marketplace/components/createInvoiceForm'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import { CreateInvoiceForm } from '@condo/domains/marketplace/components/createInvoiceForm'
 
 
 interface ICreateMeterPage extends React.FC {

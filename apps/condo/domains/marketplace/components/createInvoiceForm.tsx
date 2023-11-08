@@ -1,35 +1,48 @@
 
-import { Col, Form, Input, Row, RowProps, Typography } from 'antd'
+import styled from '@emotion/styled'
+import { Col, Form, Row, RowProps, Input, InputNumber } from 'antd'
+import { gql } from 'graphql-tag'
+import { isEmpty } from 'lodash'
+import get from 'lodash/get'
+import isFunction from 'lodash/isFunction'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Radio, RadioGroup, Select, Space } from '@open-condo/ui'
+import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button, Radio, RadioGroup, Select, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors/'
 
 import { Button as ButtonOld } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { INVOICE_STATUSES } from '@condo/domains/marketplace/constants'
+import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import {
+    INVOICE_STATUS_DRAFT,
+    INVOICE_STATUS_PUBLISHED,
+    INVOICE_STATUS_PAID,
+    INVOICE_STATUS_CANCELED,
+    INVOICE_PAYMENT_TYPE_ONLINE,
+    INVOICE_PAYMENT_TYPE_CASH,
+} from '@condo/domains/marketplace/constants'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 
-import { Invoice } from '../utils/clientSchema'
+import { BuildingUnitSubType } from '../../../schema'
+import { PropertyAddressSearchInput } from '../../property/components/PropertyAddressSearchInput'
+import { UnitInfoMode } from '../../property/components/UnitInfo'
+import { Property } from '../../property/utils/clientSchema'
+import { UnitNameInput, UnitNameInputOption } from '../../user/components/UnitNameInput'
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
-const PAYMENT_MODE_ONLINE = 'online'
-const PAYMENT_MODE_CASH = 'cash'
-const [ INVOICE_STATUS_DRAFT,
-    INVOICE_STATUS_PUBLISHED,
-    INVOICE_STATUS_PAID,
-    INVOICE_STATUS_CANCELLED] = INVOICE_STATUSES
 
 const SCROLL_TO_FIRST_ERROR_CONFIG = { behavior: 'smooth', block: 'center' }
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
-const ADD_BUTTON_STYLES = { display:'flex', alignItems:'center', gap: '4px', fontWeight: 600, fontSize: '16px', cursor: 'pointer', width: 'fit-content' }
-
 
 export const LAYOUT = {
     labelCol: { span: 8 },
@@ -65,6 +78,239 @@ const SubTotalInfo = ({ label, total, size = 'medium' }) => {
     )
 }
 
+const ContactsInfoFocusContainer = styled(FocusContainer)`
+  position: relative;
+  left: ${({ padding }) => padding ? padding : '24px'};
+  box-sizing: border-box;
+  width: 100%;
+`
+
+async function _search (client, query, variables) {
+    return await client.query({
+        query: query,
+        variables: variables,
+        fetchPolicy: 'network-only',
+    })
+}
+
+const GET_ALL_MARKET_ITEMS_QUERY = gql`
+    query selectMarketItems ($where: MarketItemWhereInput, $orderBy: String, $first: Int, $skip: Int) {
+        objs: allMarketItems(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
+            id
+            name
+        }
+    }
+`
+
+function searchMarketItems (organizationId) {
+    if (!organizationId) return
+
+    return async function (client, value, query = {}, first, skip) {
+        const where = {
+            organization: { id: organizationId },
+            name_contains_i: value,
+            ...query,
+        }
+        const { data, error } = await _search(client, GET_ALL_MARKET_ITEMS_QUERY, { where, first, skip })
+
+        const marketItems = data.objs
+
+        if (error) console.warn(error)
+
+        return marketItems
+            .map(marketItem => ({
+                value: marketItem.name,
+                text: marketItem.name,
+            }))
+    }
+}
+
+const PropertyFormField = ({ organization, form }) => {
+    const intl = useIntl()
+    const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
+    const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
+    const AddressLabel = intl.formatMessage({ id: 'field.Address' })
+    
+    const handlePropertySelectChange = useCallback(async (_, option) => {
+        const newPropertyId = isEmpty(option) ? null : option.key
+        const map = isEmpty(option) ? null : option.map
+
+        form.setFieldsValue({
+            unitName: null,
+            unitType: null,
+            propertyId: newPropertyId,
+            map,
+        })
+    }, [form])
+    
+    return (
+        <Form.Item
+            label={AddressLabel}
+            labelCol={{ span: 24 }}
+            required
+            name='propertyId'
+        >
+            <PropertyAddressSearchInput
+                organization={organization}
+                autoFocus
+                onChange={handlePropertySelectChange}
+                placeholder={AddressPlaceholder}
+                notFoundContent={AddressNotFoundContent}
+                includeMapInOptions
+            />
+        </Form.Item>
+    )
+}
+
+const UnitNameFormField = ({ form }) => {
+    const intl = useIntl()
+    const UnitNameLabel = intl.formatMessage({ id: 'field.FlatNumber' })
+
+    const onChange = useCallback((_, option: UnitNameInputOption) => {
+        if (isEmpty(option)) {
+            return form.setFieldsValue({
+                unitName: null,
+                unitType: null,
+            })
+        }
+
+        const unitType = get(option, 'data-unitType', BuildingUnitSubType.Flat)
+        const unitName = get(option, 'data-unitName')
+
+        form.setFieldsValue({
+            unitName,
+            unitType,
+        })
+    }, [form])
+
+    return (
+        <>
+            <Form.Item
+                label={UnitNameLabel}
+                required
+                labelCol={{ span: 24 }}
+                dependencies={['propertyId']}
+            >
+                {
+                    ({ getFieldValue }) => {
+                        const propertyMap = getFieldValue('map')
+
+                        return (
+                            <UnitNameInput
+                                property={{ map: propertyMap }}
+                                allowClear
+                                mode={UnitInfoMode.All}
+                                onChange={onChange}
+                            />
+                        )
+                    }
+                }
+            </Form.Item>
+            <Form.Item
+                name='unitName'
+                hidden
+            />
+            <Form.Item
+                name='unitType'
+                hidden
+            />
+        </>
+    )
+}
+
+const ContactFormField = ({ role, organizationId, form }) => {
+    const { ContactsEditorComponent } = useContactsEditorHook({
+        role,
+        initialQuery: { organization: { id: organizationId } },
+    })
+
+    return (
+        <Form.Item
+            dependencies={['propertyId', 'unitName', 'unitType']}
+        >
+            {
+                ({ getFieldValue }) => {
+                    const property = getFieldValue('propertyId')
+                    const unitName = getFieldValue('unitName')
+                    const unitType = getFieldValue('unitType')
+
+                    return (
+                        <ContactsEditorComponent
+                            form={form}
+                            fields={{
+                                id: 'contact',
+                                phone: 'clientPhone',
+                                name: 'clientName',
+                            }}
+                            value={{
+                                id: null, phone: null, name: null,
+                            }}
+                            hasNotResidentTab={false}
+                            hideFocusContainer
+                            hideTabBar
+                            property={property}
+                            unitName={unitName}
+                            unitType={unitType}
+                        />
+                    )
+                }
+            }
+        </Form.Item>
+    )
+}
+
+const ClientDataFields = ({ organization, form, role }) => {
+    // const [selectedProperty, setSelectedProperty] = useState<string>()
+    // const { obj: property, loading, refetch } = Property.useObject({}, {
+    //     skip: true,
+    // })
+    //
+    // useEffect(() => {
+    //     if (!refetch || !selectedPropertyId) return
+    //
+    //     refetch({
+    //         where: { id: selectedPropertyId },
+    //     })
+    // }, [refetch, selectedPropertyId])
+    //
+    // console.log(loading, property)
+    //
+    // const onPropertyChange = useCallback(async (propertyId) => {
+    //     if (!propertyId) {
+    //         setSelectedPropertyId()
+    //     }
+    // }, [])
+
+    return (
+        <ContactsInfoFocusContainer>
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <Row gutter={[50, 0]}>
+                        <Col span={20}>
+                            <PropertyFormField
+                                organization={organization}
+                                form={form}
+                            />
+                        </Col>
+                        <Col span={4}>
+                            <UnitNameFormField
+                                form={form}
+                            />
+                        </Col>
+                    </Row>
+                </Col>
+                <Col span={24}>
+                </Col>
+            </Row>
+            <ContactFormField
+                role={role}
+                organizationId={organization.id}
+                form={form}
+            />
+        </ContactsInfoFocusContainer>
+    )
+}
+
 
 export const CreateInvoiceForm = () => {
     const intl = useIntl()
@@ -83,29 +329,15 @@ export const CreateInvoiceForm = () => {
     const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.ready' })
     const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.paid' })
     const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.cancelled' })
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const emptyService = { service: '', quantity: 1, price: 0, totalPrice: 0 }
-    const [services, setServices] = useState<Array<ServiceType>>([emptyService])
-    const [paymentMode, setPaymentMode] = useState(PAYMENT_MODE_ONLINE)
-    const [invoiceStatus, setInvoiceStatus] = useState(INVOICE_STATUS_DRAFT)
-
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
-    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
-    const selectPropertyIdRef = useRef(selectedPropertyId)
-
-    const handleAddService = () => {
-        setServices([...services, emptyService])
-    }
-
-    useEffect(() => {
-        selectPropertyIdRef.current = selectedPropertyId
-    }, [selectedPropertyId])
+    const { organization, link } = useOrganization()
 
     const { requiredValidator } = useValidations()
     const { addressValidator } = usePropertyValidations()
-    const validations = {
-        property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
-    }
+    // const validations = {
+    //     property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
+    // }
 
     const router = useRouter()
 
@@ -116,33 +348,17 @@ export const CreateInvoiceForm = () => {
     })
 
     const handleSubmit = useCallback(async (values) => {
-        return 
+        console.log('values', values)
+        return
     }, [])
 
-    const getHandleSelectPropertyAddress = useCallback((form) => (_, option) => {
-        setSelectedPropertyId(String(option.key))
-    }, [])
-
-    const handleRemoveService = (index) => {
-        const updatedServices = [...services]
-        updatedServices.splice(index, 1)
-        setServices(updatedServices)
-    }
-
-    const handlePaymentTypeChange = useCallback((form) => (e) => {
-        setPaymentMode(e.target.value)
-    }, [])
-
-    const handleStatusChange = useCallback((form) => (e) => {
-        setPaymentMode(e.target.value)
-    }, [])
-
+    const initialFormValues = useMemo(() =>
+        ({ paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, rows: [{ name: '', count: 1, price: 0 }] }),
+    [])
 
     return (
-
         <FormWithAction
-            initialValues={{ services: [{ service: '', quantity: 1, price: 0, totalPrice: 0 }] }}
-            // form={form}
+            initialValues={initialFormValues}
             action={handleSubmit}
             layout='horizontal'
             // onValuesChange={handleValuesChange}
@@ -155,111 +371,159 @@ export const CreateInvoiceForm = () => {
                 <Row gutter={VERTICAL_GUTTER}>
                     <Col md={20}>
                         <Row gutter={SMALL_VERTICAL_GUTTER}>
-                            {services.map((service, index) => {
-                                return <>
-                                    <Col md={6} xs={24}>
-                                        <Form.Item
-                                            label={ServiceLabel}
-                                            name={[index, 'service']}
-                                            required
-                                            labelCol={{ span: 24 }}
-                                            labelAlign='left'
-                                            // rules={numberValidator}
-                                        >
-                                            <Input/>
-
-                                        </Form.Item>
-
-                                    </Col>
-                                    <Col md={{ span: 2, offset: 1 }} xs={24}>
-                                        <Form.Item
-                                            label={QuntityLabel}
-                                            name={[index, 'quantity']}
-                                            required
-                                            labelCol={{ span: 24 }}
-                                            labelAlign='left'>
-                                            <Select options={[...Array(50).keys() ].map( i => ({
-                                                label: `${i + 1}`,
-                                                key: i + 1,
-                                                value: i + 1,
-                                            }))}/>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col md={{ span: 4, offset: 1 }} xs={24}>
-                                        <Form.Item
-                                            label={PriceLabel}
-                                            required
-                                            labelCol={{ span: 24 }}
-                                            name={[index, 'price']}
-                                        >
-                                            <Input addonAfter='₽' type='number' />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col md={{ span: 4, offset: 1 }} xs={24}>
-                                        <Form.Item
-                                            label={TotalPriceLabel}
-                                            required
-                                            labelCol={{ span: 24 }}
-                                            name={[index, 'totalPrice']}
-                                            initialValue={service.quantity * service.price}
-                                        >
-                                            <Input type='total' addonAfter='₽' disabled />
-                                        </Form.Item>
-                                    </Col>
-                                    {services.length > 1 && index !== 0 &&  (
-                                        <Col md={{ span: 3, offset: 1 }} xs={24}>
-                                            <Form.Item label=' '>
-                                                <ButtonOld type='text' icon={<Trash />} onClick={()=>handleRemoveService(index)} />
-                                            </Form.Item>
-
-                                        </Col>
-                                    )}
-                                </>
-                            })}
                             <Col span={24}>
-                                <Typography.Text style={ADD_BUTTON_STYLES} onClick={()=>handleAddService()}>
-                                    <PlusCircle size='medium'/>  {AddServiceLabel}
-                                </Typography.Text>
-                            </Col>
-                        </Row>
-                    </Col>
-                    <Col md={20}>
-                        <Row gutter={[0, 12]}>
-                            <Col md={19}>
-                                <SubTotalInfo label={ServicesChosenLabel} total={services.length}/>
-                            </Col>
-                            <Col md={19}>
-                                <SubTotalInfo
-                                    label={TotalToPayLabel}
-                                    size='large'
-                                    total={`${services.reduce((a, b) => a + b.totalPrice, 0)} ₽`}/>
+                                <Form.List name='rows'>
+                                    {(marketItemForms, operation) =>
+                                        <Row gutter={[0, 24]}>
+                                            {
+                                                marketItemForms.map(marketItemForm => (
+                                                    <Col span={24} key={marketItemForm.name}>
+                                                        <Row gutter={[50, 12]} align='bottom'>
+                                                            <Col xs={24} lg={8}>
+                                                                <Form.Item
+                                                                    label={ServiceLabel}
+                                                                    name={[marketItemForm.name, 'name']}
+                                                                    required
+                                                                    labelAlign='left'
+                                                                    labelCol={{ span: 24 }}
+                                                                >
+                                                                    <GraphQlSearchInput
+                                                                        search={searchMarketItems(organization.id)}
+                                                                        SearchInputComponentType={SearchComponentType.AutoComplete}
+                                                                        placeholder='Введите или выберите'
+                                                                    />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col xs={24} lg={4}>
+                                                                <Form.Item
+                                                                    label={QuntityLabel}
+                                                                    name={[marketItemForm.name, 'count']}
+                                                                    required
+                                                                    labelAlign='left'
+                                                                    labelCol={{ span: 24 }}
+                                                                >
+                                                                    <Select options={[...Array(50).keys() ].map( i => ({
+                                                                        label: `${i + 1}`,
+                                                                        key: i + 1,
+                                                                        value: i + 1,
+                                                                    }))}/>
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col xs={24} lg={5}>
+                                                                <Form.Item
+                                                                    label={PriceLabel}
+                                                                    required
+                                                                    name={[marketItemForm.name, 'price']}
+                                                                    labelCol={{ span: 24 }}
+                                                                >
+                                                                    <Input addonAfter='₽' />
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col xs={24} lg={5}>
+                                                                <Form.Item
+                                                                    label={TotalPriceLabel}
+                                                                    required
+                                                                    // name={[marketItemForm.name, 'totalPrice']}
+                                                                    labelCol={{ span: 24 }}
+                                                                    shouldUpdate
+                                                                >
+                                                                    {
+                                                                        ({ getFieldValue }) => {
+                                                                            let value
+                                                                            const count = getFieldValue(['rows', marketItemForm.name, 'count'])
+                                                                            const rawPrice = getFieldValue(['rows', marketItemForm.name, 'price'])
+
+                                                                            if (count && rawPrice) {
+                                                                                const price = rawPrice.startsWith('от') ? rawPrice.split(' ')[1] : rawPrice
+
+                                                                                value = count * +price
+                                                                            }
+
+                                                                            return <Input type='total' addonAfter='₽' disabled value={value} />
+                                                                        }
+                                                                    }
+                                                                </Form.Item>
+                                                            </Col>
+                                                            <Col xs={24} md={2}>
+                                                                <Typography.Text onClick={() => operation.remove(marketItemForm.name)}>
+                                                                    <div style={{ paddingBottom: '10px' }}>
+                                                                        <Trash size='large' />
+                                                                    </div>
+                                                                </Typography.Text>
+                                                            </Col>
+                                                        </Row>
+                                                    </Col>
+                                                ))
+                                            }
+                                            <Col span={24}>
+                                                <Typography.Text strong onClick={() => operation.add()}>
+                                                    <Space size={4}>
+                                                        <PlusCircle size='large'/>
+                                                        {AddServiceLabel}
+                                                    </Space>
+                                                </Typography.Text>
+                                            </Col>
+                                        </Row>
+                                    }
+                                </Form.List>
                             </Col>
                         </Row>
                     </Col>
                     <Col md={20}>
                         <Form.Item
-                            label={PaymentModeLabel}
-                            name='paymentMode'
+                            shouldUpdate
                         >
-                            <RadioGroup onChange={handlePaymentTypeChange(form)}>
+                            {
+                                ({ getFieldValue }) => {
+                                    const rows = getFieldValue('rows').filter(Boolean)
+
+                                    const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
+                                    const totalPrice = rows.reduce((acc, row) => acc + row.price * row.count, 0)
+
+                                    return (
+                                        <Row gutter={[0, 12]}>
+                                            <Col md={19}>
+                                                <SubTotalInfo
+                                                    label={ServicesChosenLabel}
+                                                    total={totalCount}
+                                                />
+                                            </Col>
+                                            <Col md={19}>
+                                                <SubTotalInfo
+                                                    label={TotalToPayLabel}
+                                                    size='large'
+                                                    total={`${totalPrice} ₽`}
+                                                />
+                                            </Col>
+                                        </Row>
+                                    )
+                                }
+                            }
+                        </Form.Item>
+                    </Col>
+                    <Col md={20}>
+                        <Form.Item
+                            label={PaymentModeLabel}
+                            name='paymentType'
+                        >
+                            <RadioGroup>
                                 <Space size={8} wrap direction='horizontal'>
-                                    <Radio value={PAYMENT_MODE_ONLINE}>
+                                    <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
                                         {PaymentOnlineLabel}
                                     </Radio>
-                                    <Radio value={PAYMENT_MODE_CASH}>
+                                    <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
                                         {PaymentCashLabel}
                                     </Radio>
                                 </Space>
                             </RadioGroup>
                         </Form.Item>
                     </Col>
-
                     <Col md={20}>
                         <Form.Item
                             label={InvoiceStatusLabel}
                             name='status'
                         >
-                            <RadioGroup onChange={handlePaymentTypeChange(form)}>
+                            <RadioGroup>
                                 <Space size={8} wrap direction='horizontal'>
                                     <Radio value={INVOICE_STATUS_DRAFT}>
                                         {InvoiceStatusDraftLabel}
@@ -270,12 +534,52 @@ export const CreateInvoiceForm = () => {
                                     <Radio value={INVOICE_STATUS_PAID}>
                                         {InvoiceStatusPaidLabel}
                                     </Radio>
-                                    <Radio value={INVOICE_STATUS_CANCELLED}>
+                                    <Radio value={INVOICE_STATUS_CANCELED}>
                                         {InvoiceStatusCancelledLabel}
                                     </Radio>
                                 </Space>
                             </RadioGroup>
                         </Form.Item>
+                    </Col>
+                    <Col md={20}>
+                        <Form.Item
+                            name='payerData'
+                        >
+                            <RadioGroup
+                                optionType='button'
+                            >
+                                <Radio
+                                    key='1'
+                                    value={true}
+                                    label='Есть данные о плательщике'
+                                />
+                                <Radio
+                                    key='2'
+                                    value={false}
+                                    label='Нет данных'
+                                />
+                            </RadioGroup>
+                        </Form.Item>
+                    </Col>
+                    <Col md={20}>
+                        <ClientDataFields
+                            organization={organization}
+                            form={form}
+                            role={link}
+                        />
+                    </Col>
+                    <Col span={24}>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='primary'
+                                >
+                                    {SaveLabel}
+                                </Button>,
+                            ]}
+                        />
                     </Col>
                 </Row>
             )}/>

@@ -13,17 +13,22 @@ import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInpu
 import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
 import { TextHighlighter } from '@condo/domains/common/components/TextHighlighter'
 import { QUERY_SPLIT_REGEX } from '@condo/domains/common/constants/regexps'
-import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
+import {
+    searchProperty,
+    searchPropertyWithMap,
+    searchSingleProperty,
+} from '@condo/domains/ticket/utils/clientSchema/search'
 
 type IAddressSearchInput = SelectProps<string> & {
     organization: Organization
     setIsMatchSelectedProperty?: Dispatch<SetStateAction<boolean>>
+    includeMapInOptions?: boolean
 }
 
 const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }
 
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
-    const { organization } = props
+    const { organization, includeMapInOptions } = props
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
     const initialValueGetter = useCallback(
@@ -50,9 +55,11 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                 organization: { id: organizationId },
                 AND: userInputWords,
             }
-            return searchProperty(client, where, 'address_ASC', 10, skip)
+            const searchFn = includeMapInOptions ? searchPropertyWithMap : searchProperty
+
+            return searchFn(client, where, 'address_ASC', 10, skip)
         },
-        [client, organizationId],
+        [client, includeMapInOptions, organizationId],
     )
 
     const renderOption = useCallback(
@@ -63,6 +70,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
                     key={dataItem.value}
                     value={dataItem.text}
                     title={dataItem.text}
+                    map={dataItem.map}
                     data-cy='ticket__property-address-search-option'
                 >
                     {
