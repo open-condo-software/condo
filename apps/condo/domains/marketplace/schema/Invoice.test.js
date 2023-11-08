@@ -601,6 +601,7 @@ describe('Invoice', () => {
                 ['toPay', 'String!'],
                 ['count', 'Int!'],
                 ['currencyCode', 'String!'],
+                ['isMin', 'Boolean!'],
             ]
 
             test.each(necessaryFields)('%s', async (fieldToOmit, omittedFieldType) => {

@@ -26085,6 +26085,7 @@ export type InvoiceRowSchemaField = {
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
+  isMin: Scalars['Boolean'];
 };
 
 export type InvoiceRowSchemaFieldInput = {
@@ -26095,6 +26096,7 @@ export type InvoiceRowSchemaFieldInput = {
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
   sku?: Maybe<Scalars['String']>;
+  isMin: Scalars['Boolean'];
 };
 
 export type InvoiceRowsInput = {

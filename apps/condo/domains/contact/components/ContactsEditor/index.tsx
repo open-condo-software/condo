@@ -1,7 +1,7 @@
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, Row, Tabs } from 'antd'
+import { Col, Form, FormInstance, FormItemProps, Row, Tabs } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import debounce from 'lodash/debounce'
 import find from 'lodash/find'
@@ -75,6 +75,8 @@ export interface IContactEditorProps {
     residentTitle?: string
     hideFocusContainer?: boolean
     hideTabBar?: boolean
+    contactFormItemProps?: FormItemProps
+    newContactFormItemProps?: FormItemProps
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -124,6 +126,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         residentTitle,
         hideFocusContainer,
         hideTabBar,
+        contactFormItemProps,
+        newContactFormItemProps,
     } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -313,9 +317,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 contact={contact}
                 onSelect={handleSelectContact}
                 selected={isContactSelected(contact)}
+                contactFormItemProps={contactFormItemProps}
             />
         </Col>
-    )), [handleSelectContact, initialContacts, isContactSelected])
+    )), [contactFormItemProps, handleSelectContact, initialContacts, isContactSelected])
 
     const handleTabChange = useCallback((tab) => {
         triggerOnChange(null, false)
@@ -368,6 +373,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             contactsLoading={contactsLoading}
                                             unitName={unitName}
                                             initialValueWithoutContact={initialValueWithoutContact}
+                                            newContactFormItemProps={newContactFormItemProps}
                                         />
                                     ) : (
                                         <>
@@ -390,6 +396,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                                         contactsLoading={contactsLoading}
                                                                         unitName={unitName}
                                                                         initialValueWithoutContact={initialValueWithoutContact}
+                                                                        newContactFormItemProps={newContactFormItemProps}
                                                                     />
                                                                     {
                                                                         !breakpoints.TABLET_LARGE && (

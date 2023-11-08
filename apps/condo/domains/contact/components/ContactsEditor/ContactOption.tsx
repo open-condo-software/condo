@@ -1,4 +1,4 @@
-import { Col, Row, Form, RowProps } from 'antd'
+import { Col, Row, Form, RowProps, FormItemProps } from 'antd'
 import React, { CSSProperties, useCallback } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -13,6 +13,7 @@ interface IContactFieldsDisplayProps {
     contact: TContact,
     onSelect: (contact: TContact) => void,
     selected: boolean,
+    contactFormItemProps?: FormItemProps
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }
@@ -20,7 +21,7 @@ const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]
 const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '62px' }
 const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px' }
 
-export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected }) => {
+export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected, contactFormItemProps }) => {
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
@@ -43,6 +44,7 @@ export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, o
                         <Form.Item
                             wrapperCol={FIELD_WRAPPER_COL}
                             label={PhoneLabel}
+                            {...contactFormItemProps}
                         >
                             <PhoneInput
                                 disabled
@@ -55,6 +57,7 @@ export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, o
                         <Form.Item
                             wrapperCol={FIELD_WRAPPER_COL}
                             label={FullNameLabel}
+                            {...contactFormItemProps}
                         >
                             <Input
                                 disabled

@@ -13,6 +13,7 @@ const invoiceRowSchemaFields = {
     vatPercent: 'String',
     salesTaxPercent: 'String',
     sku: 'String',
+    isMin: 'Boolean!',
 }
 
 const rowsGqlSchemaTypes = `
@@ -39,8 +40,9 @@ const rowsFieldSchema = {
             vatPercent: { type: 'string' },
             salesTaxPercent: { type: 'string' },
             sku: { type: 'string' },
+            isMin: { type: 'boolean' },
         },
-        required: ['name', 'toPay', 'count', 'currencyCode'],
+        required: ['name', 'toPay', 'count', 'currencyCode', 'isMin'],
         additionalProperties: false,
     },
 }

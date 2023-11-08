@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { AutoComplete, Col, Form, InputProps, Row, RowProps } from 'antd'
+import { AutoComplete, Col, Form, FormItemProps, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -32,6 +32,7 @@ interface INewContactFieldsFieldsProps {
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
     unitName?: string
+    newContactFormItemProps?: FormItemProps
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }
@@ -59,6 +60,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     contactsLoading,
     unitName,
     initialValueWithoutContact,
+    newContactFormItemProps,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
@@ -145,6 +147,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                                 initialValue={get(value, 'phone')}
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={PhoneLabel}
+                                {...newContactFormItemProps}
                             >
                                 <AutoComplete
                                     allowClear
@@ -165,6 +168,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                             <Form.Item
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={FullNameLabel}
+                                {...newContactFormItemProps}
                             >
                                 <AutoComplete
                                     style={AUTO_COMPLETE_STYLE}

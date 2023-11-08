@@ -67581,6 +67581,7 @@ type InvoiceRowSchemaField {
   vatPercent: String
   salesTaxPercent: String
   sku: String
+  isMin: Boolean!
 }
 
 input InvoiceRowSchemaFieldInput {
@@ -67591,6 +67592,7 @@ input InvoiceRowSchemaFieldInput {
   vatPercent: String
   salesTaxPercent: String
   sku: String
+  isMin: Boolean!
 }
 
 """ Invoice model contains information about paid items and payer """

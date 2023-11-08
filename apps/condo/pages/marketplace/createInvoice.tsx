@@ -14,7 +14,7 @@ interface ICreateMeterPage extends React.FC {
     requiredAccess?: React.FC
 }
 
-const CREATE_METER_PAGE_GUTTER: [Gutter, Gutter] = [12, 40]
+const CREATE_METER_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
 const CreateMeterPage: ICreateMeterPage = () => {
     const intl = useIntl()

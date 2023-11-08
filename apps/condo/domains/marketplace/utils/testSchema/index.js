@@ -140,6 +140,7 @@ function generateInvoiceRow (attrs = {}) {
         vatPercent: String(VAT_OPTIONS[0]),
         salesTaxPercent: String(faker.datatype.number({ min: 0, max: 7 })),
         sku: faker.random.word(),
+        isMin: false,
         ...attrs,
     }
 }
