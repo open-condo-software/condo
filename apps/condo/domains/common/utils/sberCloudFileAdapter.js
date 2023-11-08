@@ -9,6 +9,7 @@ const { SERVER_URL, SBERCLOUD_OBS_CONFIG } = require('@open-condo/config')
 const { getLogger } = require('@open-condo/keystone/logging')
 
 const { UUID_REGEXP } = require('@condo/domains/common/constants/regexps')
+const { getFixedFileNameEncoding } = require('@condo/domains/common/utils/fixFileNameEncoding')
 
 
 const logger = getLogger('sberCloudFileAdapter')
@@ -85,8 +86,7 @@ class SberCloudFileAdapter {
     }
 
     save ({ stream, filename, id, mimetype, encoding, meta = {} }) {
-        const iconv = require('iconv-lite')
-        filename = iconv.decode(Buffer.from(filename, 'binary'), 'utf-8')
+        filename = getFixedFileNameEncoding(filename)
         const fileData = {
             id,
             originalFilename: filename,
