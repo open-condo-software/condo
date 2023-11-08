@@ -78430,10 +78430,6 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadB2BAppsDesc = 'canReadB2BApps_DESC',
   CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
-  CanReadB2BAppNewsSharingConfigsAsc = 'canReadB2BAppNewsSharingConfigs_ASC',
-  CanReadB2BAppNewsSharingConfigsDesc = 'canReadB2BAppNewsSharingConfigs_DESC',
-  CanManageB2BAppNewsSharingConfigsAsc = 'canManageB2BAppNewsSharingConfigs_ASC',
-  CanManageB2BAppNewsSharingConfigsDesc = 'canManageB2BAppNewsSharingConfigs_DESC',
   CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
   CanReadB2BAppAccessRightsDesc = 'canReadB2BAppAccessRights_DESC',
   CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
@@ -78446,6 +78442,10 @@ export enum SortUserRightsSetHistoryRecordsBy {
   CanReadB2BAppContextsDesc = 'canReadB2BAppContexts_DESC',
   CanManageB2BAppContextsAsc = 'canManageB2BAppContexts_ASC',
   CanManageB2BAppContextsDesc = 'canManageB2BAppContexts_DESC',
+  CanReadB2BAppNewsSharingConfigsAsc = 'canReadB2BAppNewsSharingConfigs_ASC',
+  CanReadB2BAppNewsSharingConfigsDesc = 'canReadB2BAppNewsSharingConfigs_DESC',
+  CanManageB2BAppNewsSharingConfigsAsc = 'canManageB2BAppNewsSharingConfigs_ASC',
+  CanManageB2BAppNewsSharingConfigsDesc = 'canManageB2BAppNewsSharingConfigs_DESC',
   CanReadB2BAppPermissionsAsc = 'canReadB2BAppPermissions_ASC',
   CanReadB2BAppPermissionsDesc = 'canReadB2BAppPermissions_DESC',
   CanManageB2BAppPermissionsAsc = 'canManageB2BAppPermissions_ASC',
@@ -78513,10 +78513,6 @@ export enum SortUserRightsSetsBy {
   CanReadB2BAppsDesc = 'canReadB2BApps_DESC',
   CanManageB2BAppsAsc = 'canManageB2BApps_ASC',
   CanManageB2BAppsDesc = 'canManageB2BApps_DESC',
-  CanReadB2BAppNewsSharingConfigsAsc = 'canReadB2BAppNewsSharingConfigs_ASC',
-  CanReadB2BAppNewsSharingConfigsDesc = 'canReadB2BAppNewsSharingConfigs_DESC',
-  CanManageB2BAppNewsSharingConfigsAsc = 'canManageB2BAppNewsSharingConfigs_ASC',
-  CanManageB2BAppNewsSharingConfigsDesc = 'canManageB2BAppNewsSharingConfigs_DESC',
   CanReadB2BAppAccessRightsAsc = 'canReadB2BAppAccessRights_ASC',
   CanReadB2BAppAccessRightsDesc = 'canReadB2BAppAccessRights_DESC',
   CanManageB2BAppAccessRightsAsc = 'canManageB2BAppAccessRights_ASC',
@@ -78529,6 +78525,10 @@ export enum SortUserRightsSetsBy {
   CanReadB2BAppContextsDesc = 'canReadB2BAppContexts_DESC',
   CanManageB2BAppContextsAsc = 'canManageB2BAppContexts_ASC',
   CanManageB2BAppContextsDesc = 'canManageB2BAppContexts_DESC',
+  CanReadB2BAppNewsSharingConfigsAsc = 'canReadB2BAppNewsSharingConfigs_ASC',
+  CanReadB2BAppNewsSharingConfigsDesc = 'canReadB2BAppNewsSharingConfigs_DESC',
+  CanManageB2BAppNewsSharingConfigsAsc = 'canManageB2BAppNewsSharingConfigs_ASC',
+  CanManageB2BAppNewsSharingConfigsDesc = 'canManageB2BAppNewsSharingConfigs_DESC',
   CanReadB2BAppPermissionsAsc = 'canReadB2BAppPermissions_ASC',
   CanReadB2BAppPermissionsDesc = 'canReadB2BAppPermissions_DESC',
   CanManageB2BAppPermissionsAsc = 'canManageB2BAppPermissions_ASC',
@@ -88909,10 +88909,6 @@ export type UserRightsSet = {
   canReadB2BApps?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BApp" similar to support users  */
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
-  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppNewsSharingConfig" as support / admin users do  */
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppNewsSharingConfig" similar to support users  */
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do  */
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppAccessRight" similar to support users  */
@@ -88925,6 +88921,10 @@ export type UserRightsSet = {
   canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppContext" similar to support users  */
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppNewsSharingConfig" as support / admin users do  */
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppNewsSharingConfig" similar to support users  */
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to view all entities of model "B2BAppPermission" as support / admin users do  */
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   /**  Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppPermission" similar to support users  */
@@ -88987,14 +88987,14 @@ export type UserRightsSetCreateInput = {
   name?: Maybe<Scalars['String']>;
   canReadB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
@@ -89041,14 +89041,14 @@ export type UserRightsSetHistoryRecord = {
   name?: Maybe<Scalars['String']>;
   canReadB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
@@ -89089,14 +89089,14 @@ export type UserRightsSetHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   canReadB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
@@ -89142,14 +89142,14 @@ export type UserRightsSetHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   canReadB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
@@ -89210,10 +89210,6 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadB2BApps_not?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
@@ -89226,6 +89222,10 @@ export type UserRightsSetHistoryRecordWhereInput = {
   canReadB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
   canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
@@ -89370,14 +89370,14 @@ export type UserRightsSetUpdateInput = {
   name?: Maybe<Scalars['String']>;
   canReadB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRightSets?: Maybe<Scalars['Boolean']>;
   canReadB2BAppContexts?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPromoBlocks?: Maybe<Scalars['Boolean']>;
@@ -89435,10 +89435,6 @@ export type UserRightsSetWhereInput = {
   canReadB2BApps_not?: Maybe<Scalars['Boolean']>;
   canManageB2BApps?: Maybe<Scalars['Boolean']>;
   canManageB2BApps_not?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canReadB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
-  canManageB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
   canReadB2BAppAccessRights_not?: Maybe<Scalars['Boolean']>;
   canManageB2BAppAccessRights?: Maybe<Scalars['Boolean']>;
@@ -89451,6 +89447,10 @@ export type UserRightsSetWhereInput = {
   canReadB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts?: Maybe<Scalars['Boolean']>;
   canManageB2BAppContexts_not?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canReadB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs?: Maybe<Scalars['Boolean']>;
+  canManageB2BAppNewsSharingConfigs_not?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions?: Maybe<Scalars['Boolean']>;
   canReadB2BAppPermissions_not?: Maybe<Scalars['Boolean']>;
   canManageB2BAppPermissions?: Maybe<Scalars['Boolean']>;

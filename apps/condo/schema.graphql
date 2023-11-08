@@ -3123,14 +3123,14 @@ type UserRightsSetHistoryRecord {
   name: String
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
-  canReadB2BAppNewsSharingConfigs: Boolean
-  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppAccessRights: Boolean
   canManageB2BAppAccessRights: Boolean
   canReadB2BAppAccessRightSets: Boolean
   canManageB2BAppAccessRightSets: Boolean
   canReadB2BAppContexts: Boolean
   canManageB2BAppContexts: Boolean
+  canReadB2BAppNewsSharingConfigs: Boolean
+  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppPermissions: Boolean
   canManageB2BAppPermissions: Boolean
   canReadB2BAppPromoBlocks: Boolean
@@ -3192,10 +3192,6 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadB2BApps_not: Boolean
   canManageB2BApps: Boolean
   canManageB2BApps_not: Boolean
-  canReadB2BAppNewsSharingConfigs: Boolean
-  canReadB2BAppNewsSharingConfigs_not: Boolean
-  canManageB2BAppNewsSharingConfigs: Boolean
-  canManageB2BAppNewsSharingConfigs_not: Boolean
   canReadB2BAppAccessRights: Boolean
   canReadB2BAppAccessRights_not: Boolean
   canManageB2BAppAccessRights: Boolean
@@ -3208,6 +3204,10 @@ input UserRightsSetHistoryRecordWhereInput {
   canReadB2BAppContexts_not: Boolean
   canManageB2BAppContexts: Boolean
   canManageB2BAppContexts_not: Boolean
+  canReadB2BAppNewsSharingConfigs: Boolean
+  canReadB2BAppNewsSharingConfigs_not: Boolean
+  canManageB2BAppNewsSharingConfigs: Boolean
+  canManageB2BAppNewsSharingConfigs_not: Boolean
   canReadB2BAppPermissions: Boolean
   canReadB2BAppPermissions_not: Boolean
   canManageB2BAppPermissions: Boolean
@@ -3339,10 +3339,6 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadB2BApps_DESC
   canManageB2BApps_ASC
   canManageB2BApps_DESC
-  canReadB2BAppNewsSharingConfigs_ASC
-  canReadB2BAppNewsSharingConfigs_DESC
-  canManageB2BAppNewsSharingConfigs_ASC
-  canManageB2BAppNewsSharingConfigs_DESC
   canReadB2BAppAccessRights_ASC
   canReadB2BAppAccessRights_DESC
   canManageB2BAppAccessRights_ASC
@@ -3355,6 +3351,10 @@ enum SortUserRightsSetHistoryRecordsBy {
   canReadB2BAppContexts_DESC
   canManageB2BAppContexts_ASC
   canManageB2BAppContexts_DESC
+  canReadB2BAppNewsSharingConfigs_ASC
+  canReadB2BAppNewsSharingConfigs_DESC
+  canManageB2BAppNewsSharingConfigs_ASC
+  canManageB2BAppNewsSharingConfigs_DESC
   canReadB2BAppPermissions_ASC
   canReadB2BAppPermissions_DESC
   canManageB2BAppPermissions_ASC
@@ -3419,14 +3419,14 @@ input UserRightsSetHistoryRecordUpdateInput {
   name: String
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
-  canReadB2BAppNewsSharingConfigs: Boolean
-  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppAccessRights: Boolean
   canManageB2BAppAccessRights: Boolean
   canReadB2BAppAccessRightSets: Boolean
   canManageB2BAppAccessRightSets: Boolean
   canReadB2BAppContexts: Boolean
   canManageB2BAppContexts: Boolean
+  canReadB2BAppNewsSharingConfigs: Boolean
+  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppPermissions: Boolean
   canManageB2BAppPermissions: Boolean
   canReadB2BAppPromoBlocks: Boolean
@@ -3471,14 +3471,14 @@ input UserRightsSetHistoryRecordCreateInput {
   name: String
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
-  canReadB2BAppNewsSharingConfigs: Boolean
-  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppAccessRights: Boolean
   canManageB2BAppAccessRights: Boolean
   canReadB2BAppAccessRightSets: Boolean
   canManageB2BAppAccessRightSets: Boolean
   canReadB2BAppContexts: Boolean
   canManageB2BAppContexts: Boolean
+  canReadB2BAppNewsSharingConfigs: Boolean
+  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppPermissions: Boolean
   canManageB2BAppPermissions: Boolean
   canReadB2BAppPromoBlocks: Boolean
@@ -3542,14 +3542,6 @@ type UserRightsSet {
   """
   canManageB2BApps: Boolean
 
-  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppNewsSharingConfig" as support / admin users do 
-  """
-  canReadB2BAppNewsSharingConfigs: Boolean
-
-  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppNewsSharingConfig" similar to support users 
-  """
-  canManageB2BAppNewsSharingConfigs: Boolean
-
   """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppAccessRight" as support / admin users do 
   """
   canReadB2BAppAccessRights: Boolean
@@ -3573,6 +3565,14 @@ type UserRightsSet {
   """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppContext" similar to support users 
   """
   canManageB2BAppContexts: Boolean
+
+  """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppNewsSharingConfig" as support / admin users do 
+  """
+  canReadB2BAppNewsSharingConfigs: Boolean
+
+  """ Enables a user with the given UserRightsSet to create, update or soft-delete entities of model "B2BAppNewsSharingConfig" similar to support users 
+  """
+  canManageB2BAppNewsSharingConfigs: Boolean
 
   """ Enables a user with the given UserRightsSet to view all entities of model "B2BAppPermission" as support / admin users do 
   """
@@ -3705,10 +3705,6 @@ input UserRightsSetWhereInput {
   canReadB2BApps_not: Boolean
   canManageB2BApps: Boolean
   canManageB2BApps_not: Boolean
-  canReadB2BAppNewsSharingConfigs: Boolean
-  canReadB2BAppNewsSharingConfigs_not: Boolean
-  canManageB2BAppNewsSharingConfigs: Boolean
-  canManageB2BAppNewsSharingConfigs_not: Boolean
   canReadB2BAppAccessRights: Boolean
   canReadB2BAppAccessRights_not: Boolean
   canManageB2BAppAccessRights: Boolean
@@ -3721,6 +3717,10 @@ input UserRightsSetWhereInput {
   canReadB2BAppContexts_not: Boolean
   canManageB2BAppContexts: Boolean
   canManageB2BAppContexts_not: Boolean
+  canReadB2BAppNewsSharingConfigs: Boolean
+  canReadB2BAppNewsSharingConfigs_not: Boolean
+  canManageB2BAppNewsSharingConfigs: Boolean
+  canManageB2BAppNewsSharingConfigs_not: Boolean
   canReadB2BAppPermissions: Boolean
   canReadB2BAppPermissions_not: Boolean
   canManageB2BAppPermissions: Boolean
@@ -3832,10 +3832,6 @@ enum SortUserRightsSetsBy {
   canReadB2BApps_DESC
   canManageB2BApps_ASC
   canManageB2BApps_DESC
-  canReadB2BAppNewsSharingConfigs_ASC
-  canReadB2BAppNewsSharingConfigs_DESC
-  canManageB2BAppNewsSharingConfigs_ASC
-  canManageB2BAppNewsSharingConfigs_DESC
   canReadB2BAppAccessRights_ASC
   canReadB2BAppAccessRights_DESC
   canManageB2BAppAccessRights_ASC
@@ -3848,6 +3844,10 @@ enum SortUserRightsSetsBy {
   canReadB2BAppContexts_DESC
   canManageB2BAppContexts_ASC
   canManageB2BAppContexts_DESC
+  canReadB2BAppNewsSharingConfigs_ASC
+  canReadB2BAppNewsSharingConfigs_DESC
+  canManageB2BAppNewsSharingConfigs_ASC
+  canManageB2BAppNewsSharingConfigs_DESC
   canReadB2BAppPermissions_ASC
   canReadB2BAppPermissions_DESC
   canManageB2BAppPermissions_ASC
@@ -3912,14 +3912,14 @@ input UserRightsSetUpdateInput {
   name: String
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
-  canReadB2BAppNewsSharingConfigs: Boolean
-  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppAccessRights: Boolean
   canManageB2BAppAccessRights: Boolean
   canReadB2BAppAccessRightSets: Boolean
   canManageB2BAppAccessRightSets: Boolean
   canReadB2BAppContexts: Boolean
   canManageB2BAppContexts: Boolean
+  canReadB2BAppNewsSharingConfigs: Boolean
+  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppPermissions: Boolean
   canManageB2BAppPermissions: Boolean
   canReadB2BAppPromoBlocks: Boolean
@@ -3961,14 +3961,14 @@ input UserRightsSetCreateInput {
   name: String
   canReadB2BApps: Boolean
   canManageB2BApps: Boolean
-  canReadB2BAppNewsSharingConfigs: Boolean
-  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppAccessRights: Boolean
   canManageB2BAppAccessRights: Boolean
   canReadB2BAppAccessRightSets: Boolean
   canManageB2BAppAccessRightSets: Boolean
   canReadB2BAppContexts: Boolean
   canManageB2BAppContexts: Boolean
+  canReadB2BAppNewsSharingConfigs: Boolean
+  canManageB2BAppNewsSharingConfigs: Boolean
   canReadB2BAppPermissions: Boolean
   canManageB2BAppPermissions: Boolean
   canReadB2BAppPromoBlocks: Boolean

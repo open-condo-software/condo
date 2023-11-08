@@ -584,7 +584,7 @@ describe('UserRightsSet', () => {
                         canReadB2BAppAccessRights: true,
                         canReadB2BAppAccessRightSets: true,
                         canReadB2BAppPermissions: true,
-                        //canReadB2BAppNewsSharingConfigs: true,
+                        canReadB2BAppNewsSharingConfigs: true,
                         canReadB2CApps: true,
                         canReadB2CAppAccessRights: true,
                         canReadB2CAppBuilds: true,
@@ -594,7 +594,7 @@ describe('UserRightsSet', () => {
                         canManageB2BAppAccessRights: true,
                         canManageB2BAppAccessRightSets: true,
                         canManageB2BAppPermissions: true,
-                        //canManageB2BAppNewsSharingConfigs: true,
+                        canManageB2BAppNewsSharingConfigs: true,
                         canManageB2CApps: true,
                         canManageB2CAppAccessRights: true,
                         canManageB2CAppBuilds: true,
@@ -617,13 +617,13 @@ describe('UserRightsSet', () => {
                     })
                     expect(updatedB2BApp).toHaveProperty('name', b2bAppName)
 
-                    // const [b2bAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(portalClient)
-                    // expect(b2bAppNewsSharingConfig).toHaveProperty('id')
-                    // const b2bAppNewsSharingConfigName = faker.commerce.productName()
-                    // const [updatedB2BAppNewsSharingConfig] = await updateTestB2BAppNewsSharingConfig(portalClient, b2bAppNewsSharingConfig.id, {
-                    //     name: b2bAppNewsSharingConfigName,
-                    // })
-                    // expect(updatedB2BAppNewsSharingConfig).toHaveProperty('name', b2bAppNewsSharingConfigName)
+                    const [b2bAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(portalClient)
+                    expect(b2bAppNewsSharingConfig).toHaveProperty('id')
+                    const b2bAppNewsSharingConfigName = faker.commerce.productName()
+                    const [updatedB2BAppNewsSharingConfig] = await updateTestB2BAppNewsSharingConfig(portalClient, b2bAppNewsSharingConfig.id, {
+                        name: b2bAppNewsSharingConfigName,
+                    })
+                    expect(updatedB2BAppNewsSharingConfig).toHaveProperty('name', b2bAppNewsSharingConfigName)
 
                     const [serviceUser] = await registerNewServiceUserByTestClient(portalClient)
                     expect(serviceUser).toHaveProperty('id')
@@ -674,8 +674,8 @@ describe('UserRightsSet', () => {
                     // Read section
                     const readB2BApp = await B2BApp.getOne(portalClient, { id: b2bApp.id })
                     expect(readB2BApp).toHaveProperty('id')
-                    // const readB2BAppNewsSharingConfig = await B2BAppNewsSharingConfig.getOne(portalClient, { id: b2bAppNewsSharingConfig.id })
-                    // expect(readB2BAppNewsSharingConfig).toHaveProperty('id')
+                    const readB2BAppNewsSharingConfig = await B2BAppNewsSharingConfig.getOne(portalClient, { id: b2bAppNewsSharingConfig.id })
+                    expect(readB2BAppNewsSharingConfig).toHaveProperty('id')
                     const readB2BAccessRight = await B2BAppAccessRight.getOne(portalClient, { id: b2bAccessRight.id })
                     expect(readB2BAccessRight).toHaveProperty('id')
                     const readRightSet = await B2BAppAccessRightSet.getOne(portalClient, { id: accessRightSet.id })
