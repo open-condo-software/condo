@@ -10,6 +10,7 @@ const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keys
 const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
+const { BillingRecipientResolver } = require('@condo/domains/billing/schema/helpers/billingRecipientResolver')
 const { CategoryResolver } = require('@condo/domains/billing/schema/helpers/categoryResolver')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
@@ -209,7 +210,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     const receiptsToAdd = []
     const notChangedReceipts = []
 
-    receipts.forEach((item) => {
+    for (const item of receipts) {
         const receiptKey = getBillingReceiptKey(
             {
                 ...item,
@@ -237,6 +238,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
             const newToPayDetails = item.toPayDetails ? item.toPayDetails : null
             const toPayDetailsIsEqual = isEqual(existingToPayDetails, newToPayDetails)
 
+            //TODO: DOMA-7656 delete when all parts of unified mutation are finished
             const existingRecipient = existingReceiptByKey.recipient
             const newRecipient = {
                 tin: item.tin,
@@ -244,6 +246,11 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
                 iec: item.iec,
                 bankAccount: item.bankAccount,
             }
+
+            const existingBillingRecipient = await getById('BillingRecipient', existingReceiptByKey.receiver)
+            const newBillingRecipient = await getById('BillingRecipient', item.receiver.id)
+
+            //TODO: DOMA-7656 use BillingRecipients
             const recipientIsEqual = isEqual(existingRecipient, newRecipient)
 
             const shouldUpdateReceipt = !toPayIsEqual || !servicesIsEqual || !toPayDetailsIsEqual || !recipientIsEqual
@@ -255,7 +262,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
                 notChangedReceipts.push(item)
             }
         }
-    })
+    }
 
     const newReceipts = []
     for (const item of receiptsToAdd) {
@@ -491,6 +498,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 // Sync billing properties and billing accounts
                 const syncedProperties = await syncBillingProperties(context, Object.values(propertyIndex), { billingContextId })
                 const syncedAccounts = await syncBillingAccounts(context, Object.values(accountIndex), { properties: syncedProperties, billingContextId })
+
+                // sync billing recipients (new flow)
+                const billingRecipientResolver = new BillingRecipientResolver()
+                await billingRecipientResolver.init(billingContext)
+                const receiptsWithRecipients = await billingRecipientResolver.processReceipts(Object.values(receiptIndex))
 
                 // Step 3:
                 // Sync billing receipts
