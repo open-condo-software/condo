@@ -64,7 +64,7 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
             schema: 'createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput',
             resolver: async (parent, args, context) => {
                 // TODO(DOMA-7078) Must be modified within 7078
-                return null
+                return null // NOSONAR hide not finished code
 
                 const { data: { dv, sender, qrCode } } = args
 
