@@ -10,7 +10,7 @@ const { pick } = require('lodash')
 const {
     makeClient,
     makeLoggedInAdminClient,
-    expectToThrowGQLError,
+    expectToThrowGQLError, UUID_RE,
 } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationError,
@@ -44,7 +44,7 @@ const {
     getRandomHiddenCard,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBillingCategory, updateTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
+const { createTestBillingCategory, updateTestBillingAccount, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
 const {
     updateTestBillingReceipt,
     updateTestBillingIntegration,
@@ -57,17 +57,37 @@ const {
     createTestBillingAccount,
     createTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED,
+const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
+const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
+const {
+    INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED,
     INVOICE_CONTEXT_STATUS_INPROGRESS,
 } = require('@condo/domains/marketplace/constants')
-const { createTestInvoiceContext, createTestInvoice, updateTestInvoice, updateTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
+const {
+    createTestInvoiceContext,
+    createTestInvoice,
+    updateTestInvoice,
+    updateTestInvoiceContext,
+} = require('@condo/domains/marketplace/utils/testSchema')
+const { Invoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
+const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
+const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const {
     updateTestServiceConsumer,
     createTestResident,
     createTestServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithResidentUser,
+} = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithStaffUser } = require('@condo/domains/user/utils/testSchema')
 
 let adminClient
 let dummyAcquiringIntegration
@@ -722,15 +742,19 @@ describe('RegisterMultiPaymentService', () => {
                 )
             })
 
-            test('All invoices contexts must be related to the same acquiring integration', async () => {
+            test('All invoices contexts must have the same currency', async () => {
                 const [o10n1] = await createTestOrganization(adminClient)
                 const [o10n2] = await createTestOrganization(adminClient)
-                const [acquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
-                    canGroupReceipts: true,
+
+                const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, dummyAcquiringIntegration, {
+                    status: INVOICE_CONTEXT_STATUS_FINISHED,
+                    currencyCode: ISO_CODES[0],
                 })
-                const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
                 const [invoice1] = await createTestInvoice(adminClient, invoiceContext1, { status: INVOICE_STATUS_PUBLISHED })
-                const [invoiceContext2] = await createTestInvoiceContext(adminClient, o10n2, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoiceContext2] = await createTestInvoiceContext(adminClient, o10n2, dummyAcquiringIntegration, {
+                    status: INVOICE_CONTEXT_STATUS_FINISHED,
+                    currencyCode: ISO_CODES[1],
+                })
                 const [invoice2] = await createTestInvoice(adminClient, invoiceContext2, { status: INVOICE_STATUS_PUBLISHED })
 
                 await expectToThrowGQLError(
@@ -743,12 +767,45 @@ describe('RegisterMultiPaymentService', () => {
                         mutation: 'registerMultiPayment',
                         variable: ['data', 'invoices'],
                         code: 'BAD_USER_INPUT',
-                        type: 'INVOICES_CONTEXTS_HAS_DIFFERENT_INTEGRATIONS',
-                        message: 'Invoices contexts has different acquiring integrations',
+                        type: 'INVOICES_HAS_MULTIPLE_CURRENCIES',
+                        message: 'Invoices has multiple currencies',
                     },
                     'result',
                 )
             })
+        })
+
+        test('receipts and invoices must have the same currency', async () => {
+            const [o10n1] = await createTestOrganization(adminClient)
+            const { batches, commonData: { acquiringIntegration } } = await makePayerWithMultipleConsumers(2, 1)
+
+            const [invoiceContext1] = await createTestInvoiceContext(adminClient, o10n1, acquiringIntegration, {
+                status: INVOICE_CONTEXT_STATUS_FINISHED,
+                currencyCode: ISO_CODES[0],
+                recipient: createTestRecipient(),
+            })
+            const [invoice1] = await createTestInvoice(adminClient, invoiceContext1, { status: INVOICE_STATUS_PUBLISHED })
+
+            const payload = batches.map(batch => ({
+                serviceConsumer: { id: batch.serviceConsumer.id },
+                receipts: batch.billingReceipts.map(receipt => ({ id: receipt.id })),
+            }))
+
+            await expectToThrowGQLError(
+                async () => await registerMultiPaymentByTestClient(
+                    adminClient,
+                    payload,
+                    { invoices: [pick(invoice1, 'id')] },
+                ),
+                {
+                    mutation: 'registerMultiPayment',
+                    variable: ['data'],
+                    code: 'BAD_USER_INPUT',
+                    type: 'DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES',
+                    message: 'Receipts and invoices has different currency codes',
+                },
+                'result',
+            )
         })
 
         describe('deletedAt check', () => {
@@ -807,10 +864,16 @@ describe('RegisterMultiPaymentService', () => {
 
             test('Should not be able to pay for deleted invoices', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
-                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+                const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, {
+                    status: INVOICE_CONTEXT_STATUS_FINISHED,
+                    recipient: createTestRecipient(),
+                })
                 const [invoice] = await createTestInvoice(adminClient, invoiceContext)
 
-                await updateTestInvoice(adminClient, invoice.id, { deletedAt: dayjs().toISOString() })
+                await updateTestInvoice(adminClient, invoice.id, {
+                    deletedAt: dayjs().toISOString(),
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
 
                 await expectToThrowGQLError(
                     async () => await registerMultiPaymentByTestClient(
@@ -1149,6 +1212,82 @@ describe('RegisterMultiPaymentService', () => {
             const multiPaymentSum = multiPayment.amountWithoutExplicitFee
 
             expect(multiPaymentSum).toEqual(delta)
+        })
+
+        test('Should correctly calculate commissions for invoices', async () => {
+            const [o10n] = await createTestOrganization(adminClient)
+            const [property] = await createTestProperty(adminClient, o10n)
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const staffClient = await makeClientWithStaffUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+                canManageInvoices: true,
+                canManageContacts: true,
+                canReadInvoiceContexts: true,
+            })
+            await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+
+            const [contact] = await createTestContact(staffClient, o10n, property, {
+                phone: residentClient.userAttrs.phone,
+                unitType,
+                unitName,
+            })
+
+            const [invoiceContext, invoiceContextAttrs] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, {
+                status: INVOICE_CONTEXT_STATUS_FINISHED,
+                implicitFeePercent: '5',
+                recipient: createTestRecipient(),
+            })
+            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+                property: { connect: { id: property.id } },
+                unitType,
+                unitName,
+                contact: { connect: { id: contact.id } },
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+            const invoiceSum = invoice.rows.reduce((sum, { toPay, count }) => sum.plus(Big(toPay).mul(count)), Big(0))
+
+            const invoices = await Invoice.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+            expect(invoices).toEqual([
+                expect.objectContaining({
+                    id: invoice.id,
+                    client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                }),
+            ])
+
+            const [result] = await registerMultiPaymentByTestClient(residentClient, null, {
+                invoices: invoices.map(({ id }) => ({ id })),
+            })
+
+            expect(result).toMatchObject({
+                dv: 1,
+                multiPaymentId: expect.stringMatching(UUID_RE),
+                webViewUrl: `${dummyAcquiringIntegration.hostUrl}/pay/${result.multiPaymentId}`,
+                feeCalculationUrl: `${dummyAcquiringIntegration.hostUrl}/api/fee/${result.multiPaymentId}`,
+                directPaymentUrl: `${dummyAcquiringIntegration.hostUrl}/api/pay/${result.multiPaymentId}`,
+                getCardTokensUrl: `${dummyAcquiringIntegration.hostUrl}/api/clients/${residentClient.user.id}/card-tokens`,
+            })
+
+            const multipayment = await MultiPayment.getOne(adminClient, { id: result.multiPaymentId })
+            expect(multipayment).toMatchObject({
+                currencyCode: invoiceContext.currencyCode,
+                integration: { id: dummyAcquiringIntegration.id },
+                amount: invoiceSum.toString(),
+                implicitFee: Big(invoiceSum).mul(invoiceContextAttrs.implicitFeePercent).div(100).toFixed(8),
+            })
         })
     })
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring

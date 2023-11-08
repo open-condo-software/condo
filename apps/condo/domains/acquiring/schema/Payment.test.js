@@ -52,13 +52,13 @@ const {
 const {
     createTestBillingIntegration,
 } = require('@condo/domains/billing/utils/testSchema')
+const { INVOICE_CONTEXT_STATUS_FINISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoiceContext, createTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganizationEmployee, createTestOrganizationEmployeeRole } = require('@condo/domains/organization/utils/testSchema')
 const {
     createTestOrganization,
 } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithSupportUser, makeClientWithNewRegisteredAndLoggedInUser, makeClientWithServiceUser } = require('@condo/domains/user/utils/testSchema')
-
 
 describe('Payment', () => {
     describe('CRUD tests', () => {
@@ -412,7 +412,8 @@ describe('Payment', () => {
 
             test('Invoice and frozen invoice should be updated at the same time', async () => {
                 const { admin, organization } = await makePayer()
-                const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+                const [acquiringIntegration] = await createTestAcquiringIntegration(admin)
+                const [invoiceContext] = await createTestInvoiceContext(admin, organization, acquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
                 const [invoice] = await createTestInvoice(admin, invoiceContext)
 
                 await expectToThrowGQLError(async () => {
@@ -455,6 +456,20 @@ describe('Payment', () => {
                     await createTestPayment(admin, organization, null, null, payload)
                 }, PAYMENT_TOO_BIG_IMPLICIT_FEE)
             })
+
+            test('Receipt without accountNumber is forbidden', async () => {
+                const { admin, organization, billingReceipts } = await makePayer()
+                await expectToThrowGQLError(async () => {
+                    await createTestPayment(admin, organization, billingReceipts[0], null, {
+                        accountNumber: null,
+                    })
+                }, {
+                    code: 'BAD_USER_INPUT',
+                    type: 'RECEIPT_WITHOUT_ACCOUNT_NUMBER',
+                    message: 'Input is containing "receipt", but "accountNumber" is not specified',
+                })
+            })
+
             describe('Explicit fee and explicit service charge', () => {
                 test('Only 1 of them can be greater than zero', async () => {
                     const { admin, billingReceipts, acquiringContext, organization, client, acquiringIntegration } = await makePayer()

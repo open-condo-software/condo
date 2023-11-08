@@ -4,8 +4,9 @@
 
 const { Text, DateTimeUtc, Select, Relationship, Virtual } = require('@keystonejs/fields')
 const Big = require('big.js')
-const get = require('lodash/get')
+const { compact, get, uniq } = require('lodash')
 
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { Json } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { getById, find } = require('@open-condo/keystone/schema')
@@ -34,6 +35,7 @@ const {
     MULTIPAYMENT_NON_INIT_PAYMENTS,
     MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
+    MULTIPAYMENT_NOT_UNIQUE_INVOICES,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     AVAILABLE_PAYMENT_METHODS,
@@ -56,8 +58,13 @@ const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const { ACQUIRING_INTEGRATION_FIELD } = require('./fields/relations')
 
-
-
+const ERRORS = {
+    NOT_UNIQUE_INVOICES: {
+        code: BAD_USER_INPUT,
+        type: MULTIPAYMENT_NOT_UNIQUE_INVOICES,
+        message: 'Not unique invoices',
+    },
+}
 
 const MultiPayment = new GQLListSchema('MultiPayment', {
     schemaDoc: 'Information about resident\'s payment for single or multiple services/receipts',
@@ -232,7 +239,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
         },
     },
     hooks: {
-        validateInput: async ({ resolvedData, addValidationError, operation, existingItem }) => {
+        validateInput: async ({ context, resolvedData, addValidationError, operation, existingItem }) => {
             if (operation === 'create') {
                 const paymentsIds = get(resolvedData, 'payments', [])
                 const payments = await find('Payment', {
@@ -250,27 +257,47 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 if (alreadyWithMPPayments.length) {
                     addValidationError(`${MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP} Failed ids: ${alreadyWithMPPayments.join(', ')}`)
                 }
+
+                const receiptPayments = payments.filter(({ receipt }) => !!receipt)
+                const invoicePayments = payments.filter(({ invoice }) => !!invoice)
+
                 const currencyCode = resolvedData['currencyCode']
-                const anotherCurrencyPayments = payments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
+                const anotherCurrencyPayments = receiptPayments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
                 if (anotherCurrencyPayments.length) {
                     return addValidationError(`${MULTIPAYMENT_MULTIPLE_CURRENCIES} [${anotherCurrencyPayments.join(', ')}]`)
                 }
-                const receiptsIds = new Set(payments.map(payment => payment.receipt))
-                if (receiptsIds.size !== payments.length) {
+                const receiptsIds = compact(receiptPayments.map(payment => payment.receipt))
+                if (receiptsIds.length > 0 && receiptsIds.length !== uniq(receiptsIds).length) {
                     return addValidationError(MULTIPAYMENT_NOT_UNIQUE_RECEIPTS)
                 }
+
+                const invoicesIds = compact(invoicePayments.map(payment => payment.invoice))
+                if (invoicesIds.length > 0 && invoicesIds.length !== uniq(invoicesIds).length) {
+                    throw new GQLError(ERRORS.NOT_UNIQUE_INVOICES, context)
+                }
+
                 const totalAmount = payments.reduce((acc, cur) => acc.plus(cur.amount), new Big(0))
                 if (!totalAmount.eq(resolvedData['amountWithoutExplicitFee'])) {
                     return addValidationError(MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH)
                 }
-                const contexts = await find('AcquiringIntegrationContext', {
-                    id_in: payments.map(payment => payment.context),
+                const acquiringContexts = await find('AcquiringIntegrationContext', {
+                    id_in: compact(receiptPayments.map(payment => payment.context)),
                 })
-                const integrations = new Set(contexts.map(context => context.integration))
+
+                const invoices = await find('Invoice', { deletedAt: null, id_in: invoicePayments.map(({ invoice }) => invoice) })
+                const invoiceContexts = await find('InvoiceContext', {
+                    deletedAt: null,
+                    id_in: uniq(invoices.map(({ context }) => context)),
+                })
+
+                const integrations = new Set([
+                    ...acquiringContexts.map(context => context.integration),
+                    ...invoiceContexts.map(context => context.integration),
+                ])
                 if (integrations.size !== 1) {
                     return addValidationError(MULTIPAYMENT_MULTIPLE_ACQUIRING_INTEGRATIONS)
                 }
-                const integrationId = contexts[0].integration
+                const integrationId = integrations.values().next().value
                 if (resolvedData['integration'] !== integrationId) {
                     return addValidationError(MULTIPAYMENT_ACQUIRING_INTEGRATIONS_MISMATCH)
                 }

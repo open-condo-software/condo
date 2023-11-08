@@ -13,6 +13,8 @@ const RECEIPTS_ARE_DELETED = 'RECEIPTS_ARE_DELETED'
 const BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED = 'BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED'
 const RECEIPT_HAS_DELETED_BILLING_INTEGRATION = 'RECEIPT_HAS_DELETED_BILLING_INTEGRATION'
 const RECEIPTS_HAS_MULTIPLE_CURRENCIES = 'RECEIPTS_HAS_MULTIPLE_CURRENCIES'
+const INVOICES_HAS_MULTIPLE_CURRENCIES = 'INVOICES_HAS_MULTIPLE_CURRENCIES'
+const DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES = 'DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES'
 const BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER = 'BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER'
 const RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE = 'RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE'
 const RECEIPT_HAVE_INVALID_TO_PAY_VALUE = 'RECEIPT_HAVE_INVALID_TO_PAY_VALUE'
@@ -23,7 +25,6 @@ const RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE = 'RECEIPT_HAVE_INVALID_PAYMENT_YE
 const INVOICES_ARE_NOT_PUBLISHED = 'INVOICES_ARE_NOT_PUBLISHED'
 const INVOICES_FOR_THIRD_USER = 'INVOICES_FOR_THIRD_USER'
 const INVOICE_CONTEXT_NOT_FINISHED = 'INVOICE_CONTEXT_NOT_FINISHED'
-const INVOICES_CONTEXTS_HAS_DIFFERENT_INTEGRATIONS = 'INVOICES_CONTEXTS_HAS_DIFFERENT_INTEGRATIONS'
 
 const SUPPORTED_BILLING_INTEGRATION_GROUP_DOESNT_EXIST_ERROR = '[acquiringIntegration:supportedBillingIntegrationsGroupDoesNotExist] BillingIntegration with specified group does not exist'
 const CONTEXT_ALREADY_HAVE_ACTIVE_CONTEXT = '[acquiringIntegrationContext:alreadyCreated] Specified organization already have active acquiring context'
@@ -41,6 +42,7 @@ const PAYMENT_NO_SUPPORTED_CONTEXT = '[payment:context:integration:supportedBill
 const PAYMENT_RECIPIENT_MISMATCH = '[payment:recipient:mismatch] Payment\'s recipient fields values does not match with receipt recipient fields'
 const PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME = '[payment:explicitFee:explicitServiceCharge:bothGTZero] Both explicitFee and explicitServiceCharge were specified and set greater than 0, which is not allowed. You should set either explicitFee or explicitServiceCharge to any value greater than zero, and set other explicitly to "0"'
 const PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT = '[payment:explicitFee:explicitServiceCharge:bothGTZero] You\'re trying to update explicitFee/explicitServiceCharge property while other property of this pair was greater than zero, but only one of them allowed to be greater than zero at the same time. You need to explicitly pass "0" to one of them'
+const PAYMENT_RECEIPT_WITHOUT_ACCOUNT_NUMBER = 'RECEIPT_WITHOUT_ACCOUNT_NUMBER'
 const MULTIPAYMENT_EMPTY_PAYMENTS = '[multiPayment:payments:empty] Cannot create multipayment without payments'
 const MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE = '[multiPayment:implicitFee:tooBig] Implicit fee cannot be greater than amount (without explicit fee)'
 const MULTIPAYMENT_MULTIPLE_CURRENCIES = '[multiPayment:payments:currencyCode:mismatch] Some of listed payments have currency code which is not equal to multiPayment\'s one.'
@@ -62,6 +64,8 @@ const MULTIPAYMENT_INCONSISTENT_IMPLICIT_FEE = '[multiPayment:payments:implicitF
 const MULTIPAYMENT_INCONSISTENT_SERVICE_FEE = '[multiPayment:payments:serviceFee:inconsistentBehaviour] Service fee must be indicated either for all payments, or for none of them, but was partially indicated'
 const MULTIPAYMENT_NON_INIT_PAYMENTS = `[multiPayment:payments:status:not:initial] MultiPayment cannot be created if any of payments has status not equal to "${PAYMENT_INIT_STATUS}".`
 const MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP = '[multiPayment:payments:multiPayment:not:null] Some of payments are already linked to multipayments.'
+const MULTIPAYMENT_NOT_UNIQUE_INVOICES = 'MULTIPAYMENT_NOT_UNIQUE_INVOICES'
+const MULTIPAYMENT_MULTIPLE_INTEGRATIONS = 'MULTIPAYMENT_MULTIPLE_INTEGRATIONS'
 
 const FEE_DISTRIBUTION_UNSUPPORTED_FORMULA = '[feeDistribution:wrong:formula'
 const FEE_DISTRIBUTION_INCOMPLETE_FORMULA = '[feeDistribution:missing:recipient'
@@ -99,6 +103,8 @@ module.exports = {
     CANNOT_FIND_ALL_BILLING_RECEIPTS,
     RECEIPTS_ARE_DELETED,
     RECEIPTS_HAS_MULTIPLE_CURRENCIES,
+    INVOICES_HAS_MULTIPLE_CURRENCIES,
+    DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
     BILLING_RECEIPT_DOES_NOT_HAVE_COMMON_BILLING_ACCOUNT_WITH_SERVICE_CONSUMER,
     ACQUIRING_INTEGRATION_IS_DELETED,
     BILLING_INTEGRATION_ORGANIZATION_CONTEXT_IS_DELETED,
@@ -126,6 +132,7 @@ module.exports = {
     PAYMENT_RECIPIENT_MISMATCH,
     PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
     PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
+    PAYMENT_RECEIPT_WITHOUT_ACCOUNT_NUMBER,
     MULTIPAYMENT_EMPTY_PAYMENTS,
     MULTIPAYMENT_TOO_BIG_IMPLICIT_FEE,
     MULTIPAYMENT_MULTIPLE_CURRENCIES,
@@ -147,6 +154,7 @@ module.exports = {
     MULTIPAYMENT_INCONSISTENT_SERVICE_FEE,
     MULTIPAYMENT_SERVICE_FEE_MISMATCH,
     MULTIPAYMENT_EXPLICIT_SERVICE_CHARGE_MISMATCH,
+    MULTIPAYMENT_MULTIPLE_INTEGRATIONS,
     FEE_DISTRIBUTION_UNSUPPORTED_FORMULA,
     FEE_DISTRIBUTION_INCOMPLETE_FORMULA,
     FEE_TOTAL_SUM_CHECK_FAILED,
@@ -158,5 +166,5 @@ module.exports = {
     INVOICES_ARE_NOT_PUBLISHED,
     INVOICES_FOR_THIRD_USER,
     INVOICE_CONTEXT_NOT_FINISHED,
-    INVOICES_CONTEXTS_HAS_DIFFERENT_INTEGRATIONS,
+    MULTIPAYMENT_NOT_UNIQUE_INVOICES,
 }

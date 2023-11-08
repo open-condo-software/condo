@@ -65711,6 +65711,7 @@ type InvoiceContextHistoryRecord {
    4. As an alias to the 'id' field on the InvoiceContextHistoryRecord List.
   """
   _label_: String
+  integration: String
   organization: String
   recipient: JSON
   settings: JSON
@@ -65738,6 +65739,10 @@ type InvoiceContextHistoryRecord {
 input InvoiceContextHistoryRecordWhereInput {
   AND: [InvoiceContextHistoryRecordWhereInput]
   OR: [InvoiceContextHistoryRecordWhereInput]
+  integration: String
+  integration_not: String
+  integration_in: [String]
+  integration_not_in: [String]
   organization: String
   organization_not: String
   organization_in: [String]
@@ -65952,6 +65957,7 @@ enum SortInvoiceContextHistoryRecordsBy {
 }
 
 input InvoiceContextHistoryRecordUpdateInput {
+  integration: String
   organization: String
   recipient: JSON
   settings: JSON
@@ -65981,6 +65987,7 @@ input InvoiceContextHistoryRecordsUpdateInput {
 }
 
 input InvoiceContextHistoryRecordCreateInput {
+  integration: String
   organization: String
   recipient: JSON
   settings: JSON
@@ -66019,10 +66026,13 @@ type InvoiceContext {
   """
   _label_: String
 
+  """ Acquiring integration. Determines way of user's payment """
+  integration: AcquiringIntegration
+
   """ The organization who created this context """
   organization: Organization
 
-  """ Requisites from agreement. Are used for invoicing in case of not confirmed billing recipient in receipt 
+  """ Recipient. Should contain all meta information to identify the organization 
   """
   recipient: RecipientField
 
@@ -66072,6 +66082,8 @@ type InvoiceContext {
 input InvoiceContextWhereInput {
   AND: [InvoiceContextWhereInput]
   OR: [InvoiceContextWhereInput]
+  integration: AcquiringIntegrationWhereInput
+  integration_is_null: Boolean
   organization: OrganizationWhereInput
   organization_is_null: Boolean
   recipient: RecipientFieldInput
@@ -66177,6 +66189,8 @@ input InvoiceContextWhereUniqueInput {
 }
 
 enum SortInvoiceContextsBy {
+  integration_ASC
+  integration_DESC
   organization_ASC
   organization_DESC
   status_ASC
@@ -66210,6 +66224,7 @@ enum SortInvoiceContextsBy {
 }
 
 input InvoiceContextUpdateInput {
+  integration: AcquiringIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   recipient: RecipientFieldInput
   settings: JSON
@@ -66236,6 +66251,7 @@ input InvoiceContextsUpdateInput {
 }
 
 input InvoiceContextCreateInput {
+  integration: AcquiringIntegrationRelateToOneInput
   organization: OrganizationRelateToOneInput
   recipient: RecipientFieldInput
   settings: JSON
@@ -71024,8 +71040,9 @@ input RegisterMultiPaymentServiceConsumerInput {
 input RegisterMultiPaymentInput {
   dv: Int!
   sender: SenderFieldInput!
-  groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]!
+  groupedReceipts: [RegisterMultiPaymentServiceConsumerInput!]
   recurrentPaymentContext: RecurrentPaymentContextWhereUniqueInput
+  invoices: [InvoiceWhereUniqueInput!]
 }
 
 type RegisterMultiPaymentOutput {
