@@ -178,6 +178,213 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(billingReceipts).toHaveLength(2)
                 expect(data).toHaveLength(2)
             })
+            test('BillingProperties address transformation rules', async () => {
+                /**
+                 * Address transform rules from both sources: context settings and service input
+                 * Existing properties = {p1, p2}
+                 * Properties from args = {p1, p3}
+                 * Result: {p1, p2, p3}
+                 */
+
+                const CITY_PREFIX = 'г. Екатеринбург'
+                const INTEGRATION_PREFIX = faker.datatype.uuid()
+                const INTEGRATION_CONTEXT_PREFIX = faker.datatype.uuid()
+                const EXISTING_TEST_ADDRESS_P1 = ', Тургенева 4'
+                const EXISTING_TEST_ADDRESS_P2 = ', Проспект Ленина, 44'
+                const NON_EXISTING_TEST_ADDRESS_P3 = ', Проспект Космонавтов 11б'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+                    settings: { dv: 1, addressTransform: { [INTEGRATION_CONTEXT_PREFIX]: '' } },
+                })
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: CITY_PREFIX + EXISTING_TEST_ADDRESS_P1,
+                })
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: CITY_PREFIX + EXISTING_TEST_ADDRESS_P2,
+                })
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    addressTransformRules: { [INTEGRATION_PREFIX]: CITY_PREFIX },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: INTEGRATION_PREFIX + EXISTING_TEST_ADDRESS_P1 + INTEGRATION_CONTEXT_PREFIX,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: INTEGRATION_PREFIX + NON_EXISTING_TEST_ADDRESS_P3 + INTEGRATION_CONTEXT_PREFIX,
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(3)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(2)
+                expect(data).toHaveLength(2)
+            })
+            test('BillingProperties fias id', async () => {
+                /**
+                 * Existing properties = {p1, p2}
+                 * Properties from args = {p1, p3}
+                 * Result: {p1, p2, p3}
+                 */
+
+                const fias1 = faker.datatype.uuid()
+                const fias2 = faker.datatype.uuid()
+                const fias3 = faker.datatype.uuid()
+                const EXISTING_TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+                const EXISTING_TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Ленина, 44'
+                const NON_EXISTING_TEST_ADDRESS_P3 = 'г. Екатеринбург, Проспект Космонавтов 11б'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P1,
+                    globalId: fias1,
+                })
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P2,
+                    globalId: fias2,
+                })
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS_P1 + faker.datatype.uuid(),
+                            addressMeta: { fias: fias1 },
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: NON_EXISTING_TEST_ADDRESS_P3,
+                            addressMeta: { fias: fias3 },
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(3)
+                expect(billingProperties.filter(item => item.globalId === fias1)).toHaveLength(1)
+                expect(billingProperties.filter(item => item.globalId === fias2)).toHaveLength(1)
+                expect(billingProperties.filter(item => item.globalId === fias3)).toHaveLength(1)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(2)
+                expect(data).toHaveLength(2)
+            })
+            test('BillingProperties fias id with provided unit parts', async () => {
+                /**
+                 * Existing properties = {p1, p2}
+                 * Properties from args = {p1, p3}
+                 * Result: {p1, p2, p3}
+                 */
+
+                const fias1 = faker.datatype.uuid()
+                const fias2 = faker.datatype.uuid()
+                const fias3 = faker.datatype.uuid()
+                const EXISTING_TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4'
+                const EXISTING_TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Ленина, 44'
+                const NON_EXISTING_TEST_ADDRESS_P3 = 'г. Екатеринбург, Проспект Космонавтов 11б'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P1,
+                    globalId: fias1,
+                })
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P2,
+                    globalId: fias2,
+                })
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS_P1 + faker.datatype.uuid(),
+                            addressMeta: { fias: fias1 },
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: NON_EXISTING_TEST_ADDRESS_P3,
+                            addressMeta: { fias: fias3 + ', мм 5' },
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(3)
+                expect(billingProperties.filter(item => item.globalId === fias1)).toHaveLength(1)
+                expect(billingProperties.filter(item => item.globalId === fias2)).toHaveLength(1)
+                expect(billingProperties.filter(item => item.globalId === fias3)).toHaveLength(1)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(2)
+                expect(data).toHaveLength(2)
+            })
+            test('BillingProperties empty unitType and unitName for full address input', async () => {
+                /**
+                 * Existing properties = {p1, p2}
+                 * Properties from args = {p1, p3}
+                 * Result: {p1, p2, p3}
+                 */
+
+                const EXISTING_TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4, кв. 123'
+                const EXISTING_TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Ленина, 44, кв. 12'
+                const NON_EXISTING_TEST_ADDRESS_P3 = 'г. Екатеринбург, Проспект Космонавтов 11б, мм 15'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration)
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P1,
+                })
+
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P2,
+                })
+
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS_P1,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: NON_EXISTING_TEST_ADDRESS_P3,
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(3)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(2)
+                expect(data).toHaveLength(2)
+            })
         })
 
         describe('BillingAccounts', () => {

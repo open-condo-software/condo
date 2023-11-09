@@ -272,8 +272,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     'addressMeta: JSON ' +
 
                     'accountNumber: String! ' +
-                    'unitName: String ' + // Is going to be made optional in future
-                    'unitType: String ' + // Is going to be made optional in future
+                    'unitName: String ' +
+                    'unitType: String ' +
                     'fullName: String ' +
 
                     'toPay: String! ' +

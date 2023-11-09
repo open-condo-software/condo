@@ -225,7 +225,9 @@ class BillingPropertyResolver {
             address = parsedAddress.isFias ? null : get(searchResult, 'address') || parsedAddress.address
             addressKey = get(searchResult, 'addressKey')
             normalizedAddress = get(searchResult, 'address')
-            fias = get(searchResult, ['addressMeta', 'data', 'house_fias_id'])
+            fias = parsedAddress.parsed && parsedAddress.isFias
+                ? parsedAddress.address.replace('fiasId:', '')
+                : get(searchResult, ['addressMeta', 'data', 'house_fias_id'])
         } else if (parsedAddress.parsed && !parsedAddress.isFias) {
             address = parsedAddress.address
         } else if (parsedAddress.parsed && parsedAddress.isFias) {
@@ -379,7 +381,7 @@ class BillingPropertyResolver {
             globalId: get(fiasSummary, 'fias'),
             address,
             normalizedAddress: get(addressSummary, 'normalizedAddress'),
-            raw: { dv: 1 },
+            raw: { dv: 1, address: addressSummary.originalInput },
             importId: this.getBillingPropertyKey(addressSummary),
             meta: { dv: 1, ...addressMeta },
             context: { connect: { id: this.billingIntegrationOrganizationContextId } },
@@ -440,8 +442,8 @@ class BillingPropertyResolver {
     }
 
     async resolveByOrganizationProperties ({ originalInput, address, normalizedAddress }) {
-        const originalInputResult = await this.getOrganizationBillingPropertySuggestion(originalInput, 0)
-        const addressResult = await this.getOrganizationBillingPropertySuggestion(address, 0)
+        const originalInputResult = await this.getOrganizationBillingPropertySuggestion(originalInput, 1)
+        const addressResult = await this.getOrganizationBillingPropertySuggestion(address, 1)
         const normalizedAddressResult = await this.getOrganizationBillingPropertySuggestion(normalizedAddress, 1)
 
         if (isNil(addressResult) && isNil(normalizedAddressResult) && isNil(originalInputResult)) {
