@@ -27,7 +27,7 @@ async function canReadBillingReceipts ({ authentication: { item: user } }) {
 
         return {
             OR: serviceConsumers.map(
-                s => ({ AND: [{ account: { number: s.accountNumber, deletedAt: null }, deletedAt: null, context: { id: s.billingIntegrationContext, deletedAt: null } }] } )
+                serviceConsumer => ({ AND: [{ account: { number: serviceConsumer.accountNumber, deletedAt: null }, deletedAt: null, context: { organization: { id: serviceConsumer.organization, deletedAt: null }, deletedAt: null } }] } )
             ),
         }
     } else {
