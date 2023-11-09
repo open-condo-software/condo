@@ -568,14 +568,17 @@ const PropertyReportPage = (): React.ReactElement => {
     const intl = useIntl()
     const PageTitle = intl.formatMessage({ id: 'pages.condo.property.report.pageImportTitle' })
     const ServerErrorTitle = intl.formatMessage({ id: 'ServerError' })
+    const PropertyNotFoundTitle = intl.formatMessage({ id: 'pages.condo.property.id.NotFound.PageTitle' })
+    const PropertyNotFoundMessage = intl.formatMessage({ id: 'pages.condo.property.id.NotFound.Message' })
 
     const { query: { id }, push, asPath } = useRouter()
+    const { organization } = useOrganization()
 
     const { useFlag } = useFeatureFlags()
     const reportPageEnabled = useFlag(PROPERTY_BANK_ACCOUNT)
 
     const { loading, obj: property, error } = Property.useObject(
-        { where: { id: id as string } },
+        { where: { id: id as string, organization: { id: organization.id } } },
         { fetchPolicy: 'cache-first' }
     )
 
@@ -592,6 +595,14 @@ const PropertyReportPage = (): React.ReactElement => {
             title={PageTitle}
             loading={loading}
             error={error ? ServerErrorTitle : null}
+        />
+    }
+
+    if (!property) {
+        return <LoadingOrErrorPage
+            title={PropertyNotFoundTitle}
+            loading={false}
+            error={PropertyNotFoundMessage}
         />
     }
 
