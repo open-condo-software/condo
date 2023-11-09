@@ -73,18 +73,6 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             isRequired: false,
         },
 
-        lastGetStatusRequest: {
-            schemaDoc: 'The outcome from the most recent invocation of the lastGetStatusRequest',
-            type: Json,
-            isRequired: false,
-        },
-
-        publicationViewsCount: {
-            schemaDoc: 'How many users have seen this shared news item',
-            type: Integer,
-            isRequired: true,
-            defaultValue: 0,
-        },
     },
 
     hooks: {

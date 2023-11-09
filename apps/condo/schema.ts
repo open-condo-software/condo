@@ -3023,6 +3023,13 @@ export type B2BAppContextHistoryRecordsUpdateInput = {
   data?: Maybe<B2BAppContextHistoryRecordUpdateInput>;
 };
 
+export type B2BAppContextRelateToOneInput = {
+  create?: Maybe<B2BAppContextCreateInput>;
+  connect?: Maybe<B2BAppContextWhereUniqueInput>;
+  disconnect?: Maybe<B2BAppContextWhereUniqueInput>;
+  disconnectAll?: Maybe<Scalars['Boolean']>;
+};
+
 export type B2BAppContextUpdateInput = {
   app?: Maybe<B2BAppRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
@@ -37732,6 +37739,30 @@ export type Mutation = {
   deleteNewsItemRecipientsExportTask?: Maybe<NewsItemRecipientsExportTask>;
   /**  Delete multiple NewsItemRecipientsExportTask items by ID.  */
   deleteNewsItemRecipientsExportTasks?: Maybe<Array<Maybe<NewsItemRecipientsExportTask>>>;
+  /**  Create a single NewsItemSharingHistoryRecord item.  */
+  createNewsItemSharingHistoryRecord?: Maybe<NewsItemSharingHistoryRecord>;
+  /**  Create multiple NewsItemSharingHistoryRecord items.  */
+  createNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
+  /**  Update a single NewsItemSharingHistoryRecord item by ID.  */
+  updateNewsItemSharingHistoryRecord?: Maybe<NewsItemSharingHistoryRecord>;
+  /**  Update multiple NewsItemSharingHistoryRecord items by ID.  */
+  updateNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
+  /**  Delete a single NewsItemSharingHistoryRecord item by ID.  */
+  deleteNewsItemSharingHistoryRecord?: Maybe<NewsItemSharingHistoryRecord>;
+  /**  Delete multiple NewsItemSharingHistoryRecord items by ID.  */
+  deleteNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
+  /**  Create a single NewsItemSharing item.  */
+  createNewsItemSharing?: Maybe<NewsItemSharing>;
+  /**  Create multiple NewsItemSharing items.  */
+  createNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
+  /**  Update a single NewsItemSharing item by ID.  */
+  updateNewsItemSharing?: Maybe<NewsItemSharing>;
+  /**  Update multiple NewsItemSharing items by ID.  */
+  updateNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
+  /**  Delete a single NewsItemSharing item by ID.  */
+  deleteNewsItemSharing?: Maybe<NewsItemSharing>;
+  /**  Delete multiple NewsItemSharing items by ID.  */
+  deleteNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
   /**  Create a single B2BAppHistoryRecord item.  */
   createB2BAppHistoryRecord?: Maybe<B2BAppHistoryRecord>;
   /**  Create multiple B2BAppHistoryRecord items.  */
@@ -46972,6 +47003,68 @@ export type MutationDeleteNewsItemRecipientsExportTasksArgs = {
 };
 
 
+export type MutationCreateNewsItemSharingHistoryRecordArgs = {
+  data?: Maybe<NewsItemSharingHistoryRecordCreateInput>;
+};
+
+
+export type MutationCreateNewsItemSharingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NewsItemSharingHistoryRecordsCreateInput>>>;
+};
+
+
+export type MutationUpdateNewsItemSharingHistoryRecordArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemSharingHistoryRecordUpdateInput>;
+};
+
+
+export type MutationUpdateNewsItemSharingHistoryRecordsArgs = {
+  data?: Maybe<Array<Maybe<NewsItemSharingHistoryRecordsUpdateInput>>>;
+};
+
+
+export type MutationDeleteNewsItemSharingHistoryRecordArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNewsItemSharingHistoryRecordsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
+export type MutationCreateNewsItemSharingArgs = {
+  data?: Maybe<NewsItemSharingCreateInput>;
+};
+
+
+export type MutationCreateNewsItemSharingsArgs = {
+  data?: Maybe<Array<Maybe<NewsItemSharingsCreateInput>>>;
+};
+
+
+export type MutationUpdateNewsItemSharingArgs = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemSharingUpdateInput>;
+};
+
+
+export type MutationUpdateNewsItemSharingsArgs = {
+  data?: Maybe<Array<Maybe<NewsItemSharingsUpdateInput>>>;
+};
+
+
+export type MutationDeleteNewsItemSharingArgs = {
+  id: Scalars['ID'];
+};
+
+
+export type MutationDeleteNewsItemSharingsArgs = {
+  ids?: Maybe<Array<Scalars['ID']>>;
+};
+
+
 export type MutationCreateB2BAppHistoryRecordArgs = {
   data?: Maybe<B2BAppHistoryRecordCreateInput>;
 };
@@ -49820,6 +49913,475 @@ export type NewsItemScopesCreateInput = {
 export type NewsItemScopesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<NewsItemScopeUpdateInput>;
+};
+
+/**  Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API.  */
+export type NewsItemSharing = {
+  __typename?: 'NewsItemSharing';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NewsItemSharing List config, or
+   *  2. As an alias to the field set on 'labelField' in the NewsItemSharing List config, or
+   *  3. As an alias to a 'name' field on the NewsItemSharing List (if one exists), or
+   *  4. As an alias to the 'id' field on the NewsItemSharing List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  /**  Connection to the miniapp that is responsible for publishing this news item  */
+  b2bAppContext?: Maybe<B2BAppContext>;
+  /**  Connection to the published news item  */
+  newsItem?: Maybe<NewsItem>;
+  /**  Sending parameters specific to a particular mini-app  */
+  sharingParams?: Maybe<Scalars['JSON']>;
+  /**  Publication status of the news: updated automatically  */
+  status?: Maybe<NewsItemSharingStatusType>;
+  /**  Explanations regarding the publication status. For example, the reason for rejection by moderators, details of a system error on the mini-app side  */
+  statusMessage?: Maybe<Scalars['String']>;
+  /**  The outcome from the most recent invocation of the lastGetRecipientsRequest  */
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  /**  The outcome from the most recent invocation of the lastPostRequest  */
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  /**  The outcome from the most recent invocation of the lastGetStatusRequest  */
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  /**  How many users have seen this shared news item  */
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  createdBy?: Maybe<User>;
+  /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  /**  Data structure Version  */
+  dv?: Maybe<Scalars['Int']>;
+  /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+  sender?: Maybe<SenderField>;
+};
+
+export type NewsItemSharingCreateInput = {
+  b2bAppContext?: Maybe<B2BAppContextRelateToOneInput>;
+  newsItem?: Maybe<NewsItemRelateToOneInput>;
+  sharingParams?: Maybe<Scalars['JSON']>;
+  status?: Maybe<NewsItemSharingStatusType>;
+  statusMessage?: Maybe<Scalars['String']>;
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+/**  A keystone list  */
+export type NewsItemSharingHistoryRecord = {
+  __typename?: 'NewsItemSharingHistoryRecord';
+  /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the NewsItemSharingHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the NewsItemSharingHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the NewsItemSharingHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the NewsItemSharingHistoryRecord List.
+   */
+  _label_?: Maybe<Scalars['String']>;
+  b2bAppContext?: Maybe<Scalars['String']>;
+  newsItem?: Maybe<Scalars['String']>;
+  sharingParams?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
+  statusMessage?: Maybe<Scalars['String']>;
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  id: Scalars['ID'];
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NewsItemSharingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NewsItemSharingHistoryRecordCreateInput = {
+  b2bAppContext?: Maybe<Scalars['String']>;
+  newsItem?: Maybe<Scalars['String']>;
+  sharingParams?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
+  statusMessage?: Maybe<Scalars['String']>;
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NewsItemSharingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export enum NewsItemSharingHistoryRecordHistoryActionType {
+  C = 'c',
+  U = 'u',
+  D = 'd'
+}
+
+export type NewsItemSharingHistoryRecordUpdateInput = {
+  b2bAppContext?: Maybe<Scalars['String']>;
+  newsItem?: Maybe<Scalars['String']>;
+  sharingParams?: Maybe<Scalars['JSON']>;
+  status?: Maybe<Scalars['String']>;
+  statusMessage?: Maybe<Scalars['String']>;
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<Scalars['String']>;
+  updatedBy?: Maybe<Scalars['String']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['JSON']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<Scalars['JSON']>;
+  history_date?: Maybe<Scalars['String']>;
+  history_action?: Maybe<NewsItemSharingHistoryRecordHistoryActionType>;
+  history_id?: Maybe<Scalars['String']>;
+};
+
+export type NewsItemSharingHistoryRecordWhereInput = {
+  AND?: Maybe<Array<Maybe<NewsItemSharingHistoryRecordWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NewsItemSharingHistoryRecordWhereInput>>>;
+  b2bAppContext?: Maybe<Scalars['String']>;
+  b2bAppContext_not?: Maybe<Scalars['String']>;
+  b2bAppContext_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  b2bAppContext_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newsItem?: Maybe<Scalars['String']>;
+  newsItem_not?: Maybe<Scalars['String']>;
+  newsItem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newsItem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  sharingParams?: Maybe<Scalars['JSON']>;
+  sharingParams_not?: Maybe<Scalars['JSON']>;
+  sharingParams_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sharingParams_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  status?: Maybe<Scalars['String']>;
+  status_not?: Maybe<Scalars['String']>;
+  status_contains?: Maybe<Scalars['String']>;
+  status_not_contains?: Maybe<Scalars['String']>;
+  status_starts_with?: Maybe<Scalars['String']>;
+  status_not_starts_with?: Maybe<Scalars['String']>;
+  status_ends_with?: Maybe<Scalars['String']>;
+  status_not_ends_with?: Maybe<Scalars['String']>;
+  status_i?: Maybe<Scalars['String']>;
+  status_not_i?: Maybe<Scalars['String']>;
+  status_contains_i?: Maybe<Scalars['String']>;
+  status_not_contains_i?: Maybe<Scalars['String']>;
+  status_starts_with_i?: Maybe<Scalars['String']>;
+  status_not_starts_with_i?: Maybe<Scalars['String']>;
+  status_ends_with_i?: Maybe<Scalars['String']>;
+  status_not_ends_with_i?: Maybe<Scalars['String']>;
+  status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  status_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  statusMessage?: Maybe<Scalars['String']>;
+  statusMessage_not?: Maybe<Scalars['String']>;
+  statusMessage_contains?: Maybe<Scalars['String']>;
+  statusMessage_not_contains?: Maybe<Scalars['String']>;
+  statusMessage_starts_with?: Maybe<Scalars['String']>;
+  statusMessage_not_starts_with?: Maybe<Scalars['String']>;
+  statusMessage_ends_with?: Maybe<Scalars['String']>;
+  statusMessage_not_ends_with?: Maybe<Scalars['String']>;
+  statusMessage_i?: Maybe<Scalars['String']>;
+  statusMessage_not_i?: Maybe<Scalars['String']>;
+  statusMessage_contains_i?: Maybe<Scalars['String']>;
+  statusMessage_not_contains_i?: Maybe<Scalars['String']>;
+  statusMessage_starts_with_i?: Maybe<Scalars['String']>;
+  statusMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  statusMessage_ends_with_i?: Maybe<Scalars['String']>;
+  statusMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  statusMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  statusMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  lastGetRecipientsRequest_not?: Maybe<Scalars['JSON']>;
+  lastGetRecipientsRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastGetRecipientsRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  lastPostRequest_not?: Maybe<Scalars['JSON']>;
+  lastPostRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastPostRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest_not?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastGetStatusRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  publicationViewsCount_not?: Maybe<Scalars['Int']>;
+  publicationViewsCount_lt?: Maybe<Scalars['Int']>;
+  publicationViewsCount_lte?: Maybe<Scalars['Int']>;
+  publicationViewsCount_gt?: Maybe<Scalars['Int']>;
+  publicationViewsCount_gte?: Maybe<Scalars['Int']>;
+  publicationViewsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  publicationViewsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<Scalars['String']>;
+  createdBy_not?: Maybe<Scalars['String']>;
+  createdBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy?: Maybe<Scalars['String']>;
+  updatedBy_not?: Maybe<Scalars['String']>;
+  updatedBy_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedBy_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['JSON']>;
+  newId_not?: Maybe<Scalars['JSON']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<Scalars['JSON']>;
+  sender_not?: Maybe<Scalars['JSON']>;
+  sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  history_date?: Maybe<Scalars['String']>;
+  history_date_not?: Maybe<Scalars['String']>;
+  history_date_lt?: Maybe<Scalars['String']>;
+  history_date_lte?: Maybe<Scalars['String']>;
+  history_date_gt?: Maybe<Scalars['String']>;
+  history_date_gte?: Maybe<Scalars['String']>;
+  history_date_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_date_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_action?: Maybe<NewsItemSharingHistoryRecordHistoryActionType>;
+  history_action_not?: Maybe<NewsItemSharingHistoryRecordHistoryActionType>;
+  history_action_in?: Maybe<Array<Maybe<NewsItemSharingHistoryRecordHistoryActionType>>>;
+  history_action_not_in?: Maybe<Array<Maybe<NewsItemSharingHistoryRecordHistoryActionType>>>;
+  history_id?: Maybe<Scalars['String']>;
+  history_id_not?: Maybe<Scalars['String']>;
+  history_id_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  history_id_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+};
+
+export type NewsItemSharingHistoryRecordWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NewsItemSharingHistoryRecordsCreateInput = {
+  data?: Maybe<NewsItemSharingHistoryRecordCreateInput>;
+};
+
+export type NewsItemSharingHistoryRecordsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemSharingHistoryRecordUpdateInput>;
+};
+
+export enum NewsItemSharingStatusType {
+  Scheduled = 'scheduled',
+  Processing = 'processing',
+  Published = 'published',
+  Declined = 'declined'
+}
+
+export type NewsItemSharingUpdateInput = {
+  b2bAppContext?: Maybe<B2BAppContextRelateToOneInput>;
+  newsItem?: Maybe<NewsItemRelateToOneInput>;
+  sharingParams?: Maybe<Scalars['JSON']>;
+  status?: Maybe<NewsItemSharingStatusType>;
+  statusMessage?: Maybe<Scalars['String']>;
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  v?: Maybe<Scalars['Int']>;
+  createdAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdBy?: Maybe<UserRelateToOneInput>;
+  updatedBy?: Maybe<UserRelateToOneInput>;
+  deletedAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
+  dv?: Maybe<Scalars['Int']>;
+  sender?: Maybe<SenderFieldInput>;
+};
+
+export type NewsItemSharingWhereInput = {
+  AND?: Maybe<Array<Maybe<NewsItemSharingWhereInput>>>;
+  OR?: Maybe<Array<Maybe<NewsItemSharingWhereInput>>>;
+  b2bAppContext?: Maybe<B2BAppContextWhereInput>;
+  b2bAppContext_is_null?: Maybe<Scalars['Boolean']>;
+  newsItem?: Maybe<NewsItemWhereInput>;
+  newsItem_is_null?: Maybe<Scalars['Boolean']>;
+  sharingParams?: Maybe<Scalars['JSON']>;
+  sharingParams_not?: Maybe<Scalars['JSON']>;
+  sharingParams_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  sharingParams_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  status?: Maybe<NewsItemSharingStatusType>;
+  status_not?: Maybe<NewsItemSharingStatusType>;
+  status_in?: Maybe<Array<Maybe<NewsItemSharingStatusType>>>;
+  status_not_in?: Maybe<Array<Maybe<NewsItemSharingStatusType>>>;
+  statusMessage?: Maybe<Scalars['String']>;
+  statusMessage_not?: Maybe<Scalars['String']>;
+  statusMessage_contains?: Maybe<Scalars['String']>;
+  statusMessage_not_contains?: Maybe<Scalars['String']>;
+  statusMessage_starts_with?: Maybe<Scalars['String']>;
+  statusMessage_not_starts_with?: Maybe<Scalars['String']>;
+  statusMessage_ends_with?: Maybe<Scalars['String']>;
+  statusMessage_not_ends_with?: Maybe<Scalars['String']>;
+  statusMessage_i?: Maybe<Scalars['String']>;
+  statusMessage_not_i?: Maybe<Scalars['String']>;
+  statusMessage_contains_i?: Maybe<Scalars['String']>;
+  statusMessage_not_contains_i?: Maybe<Scalars['String']>;
+  statusMessage_starts_with_i?: Maybe<Scalars['String']>;
+  statusMessage_not_starts_with_i?: Maybe<Scalars['String']>;
+  statusMessage_ends_with_i?: Maybe<Scalars['String']>;
+  statusMessage_not_ends_with_i?: Maybe<Scalars['String']>;
+  statusMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  statusMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
+  lastGetRecipientsRequest_not?: Maybe<Scalars['JSON']>;
+  lastGetRecipientsRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastGetRecipientsRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastPostRequest?: Maybe<Scalars['JSON']>;
+  lastPostRequest_not?: Maybe<Scalars['JSON']>;
+  lastPostRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastPostRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest_not?: Maybe<Scalars['JSON']>;
+  lastGetStatusRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  lastGetStatusRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  publicationViewsCount?: Maybe<Scalars['Int']>;
+  publicationViewsCount_not?: Maybe<Scalars['Int']>;
+  publicationViewsCount_lt?: Maybe<Scalars['Int']>;
+  publicationViewsCount_lte?: Maybe<Scalars['Int']>;
+  publicationViewsCount_gt?: Maybe<Scalars['Int']>;
+  publicationViewsCount_gte?: Maybe<Scalars['Int']>;
+  publicationViewsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  publicationViewsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  id?: Maybe<Scalars['ID']>;
+  id_not?: Maybe<Scalars['ID']>;
+  id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  id_not_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
+  v?: Maybe<Scalars['Int']>;
+  v_not?: Maybe<Scalars['Int']>;
+  v_lt?: Maybe<Scalars['Int']>;
+  v_lte?: Maybe<Scalars['Int']>;
+  v_gt?: Maybe<Scalars['Int']>;
+  v_gte?: Maybe<Scalars['Int']>;
+  v_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  v_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  createdAt?: Maybe<Scalars['String']>;
+  createdAt_not?: Maybe<Scalars['String']>;
+  createdAt_lt?: Maybe<Scalars['String']>;
+  createdAt_lte?: Maybe<Scalars['String']>;
+  createdAt_gt?: Maybe<Scalars['String']>;
+  createdAt_gte?: Maybe<Scalars['String']>;
+  createdAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt?: Maybe<Scalars['String']>;
+  updatedAt_not?: Maybe<Scalars['String']>;
+  updatedAt_lt?: Maybe<Scalars['String']>;
+  updatedAt_lte?: Maybe<Scalars['String']>;
+  updatedAt_gt?: Maybe<Scalars['String']>;
+  updatedAt_gte?: Maybe<Scalars['String']>;
+  updatedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  updatedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  createdBy?: Maybe<UserWhereInput>;
+  createdBy_is_null?: Maybe<Scalars['Boolean']>;
+  updatedBy?: Maybe<UserWhereInput>;
+  updatedBy_is_null?: Maybe<Scalars['Boolean']>;
+  deletedAt?: Maybe<Scalars['String']>;
+  deletedAt_not?: Maybe<Scalars['String']>;
+  deletedAt_lt?: Maybe<Scalars['String']>;
+  deletedAt_lte?: Maybe<Scalars['String']>;
+  deletedAt_gt?: Maybe<Scalars['String']>;
+  deletedAt_gte?: Maybe<Scalars['String']>;
+  deletedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  deletedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId?: Maybe<Scalars['String']>;
+  newId_not?: Maybe<Scalars['String']>;
+  newId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  newId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  dv?: Maybe<Scalars['Int']>;
+  dv_not?: Maybe<Scalars['Int']>;
+  dv_lt?: Maybe<Scalars['Int']>;
+  dv_lte?: Maybe<Scalars['Int']>;
+  dv_gt?: Maybe<Scalars['Int']>;
+  dv_gte?: Maybe<Scalars['Int']>;
+  dv_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  dv_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  sender?: Maybe<SenderFieldInput>;
+  sender_not?: Maybe<SenderFieldInput>;
+  sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+};
+
+export type NewsItemSharingWhereUniqueInput = {
+  id: Scalars['ID'];
+};
+
+export type NewsItemSharingsCreateInput = {
+  data?: Maybe<NewsItemSharingCreateInput>;
+};
+
+export type NewsItemSharingsUpdateInput = {
+  id: Scalars['ID'];
+  data?: Maybe<NewsItemSharingUpdateInput>;
 };
 
 /**  The news item template for quick composing a news item  */
@@ -61030,6 +61592,22 @@ export type Query = {
   _allNewsItemRecipientsExportTasksMeta?: Maybe<_QueryMeta>;
   /**  Retrieve the meta-data for the NewsItemRecipientsExportTask list.  */
   _NewsItemRecipientsExportTasksMeta?: Maybe<_ListMeta>;
+  /**  Search for all NewsItemSharingHistoryRecord items which match the where clause.  */
+  allNewsItemSharingHistoryRecords?: Maybe<Array<Maybe<NewsItemSharingHistoryRecord>>>;
+  /**  Search for the NewsItemSharingHistoryRecord item with the matching ID.  */
+  NewsItemSharingHistoryRecord?: Maybe<NewsItemSharingHistoryRecord>;
+  /**  Perform a meta-query on all NewsItemSharingHistoryRecord items which match the where clause.  */
+  _allNewsItemSharingHistoryRecordsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NewsItemSharingHistoryRecord list.  */
+  _NewsItemSharingHistoryRecordsMeta?: Maybe<_ListMeta>;
+  /**  Search for all NewsItemSharing items which match the where clause.  */
+  allNewsItemSharings?: Maybe<Array<Maybe<NewsItemSharing>>>;
+  /**  Search for the NewsItemSharing item with the matching ID.  */
+  NewsItemSharing?: Maybe<NewsItemSharing>;
+  /**  Perform a meta-query on all NewsItemSharing items which match the where clause.  */
+  _allNewsItemSharingsMeta?: Maybe<_QueryMeta>;
+  /**  Retrieve the meta-data for the NewsItemSharing list.  */
+  _NewsItemSharingsMeta?: Maybe<_ListMeta>;
   /**  Search for all B2BAppHistoryRecord items which match the where clause.  */
   allB2BAppHistoryRecords?: Maybe<Array<Maybe<B2BAppHistoryRecord>>>;
   /**  Search for the B2BAppHistoryRecord item with the matching ID.  */
@@ -66589,6 +67167,56 @@ export type Query_AllNewsItemRecipientsExportTasksMetaArgs = {
   where?: Maybe<NewsItemRecipientsExportTaskWhereInput>;
   search?: Maybe<Scalars['String']>;
   sortBy?: Maybe<Array<SortNewsItemRecipientsExportTasksBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNewsItemSharingHistoryRecordsArgs = {
+  where?: Maybe<NewsItemSharingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemSharingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNewsItemSharingHistoryRecordArgs = {
+  where: NewsItemSharingHistoryRecordWhereUniqueInput;
+};
+
+
+export type Query_AllNewsItemSharingHistoryRecordsMetaArgs = {
+  where?: Maybe<NewsItemSharingHistoryRecordWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemSharingHistoryRecordsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryAllNewsItemSharingsArgs = {
+  where?: Maybe<NewsItemSharingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemSharingsBy>>;
+  orderBy?: Maybe<Scalars['String']>;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
+export type QueryNewsItemSharingArgs = {
+  where: NewsItemSharingWhereUniqueInput;
+};
+
+
+export type Query_AllNewsItemSharingsMetaArgs = {
+  where?: Maybe<NewsItemSharingWhereInput>;
+  search?: Maybe<Scalars['String']>;
+  sortBy?: Maybe<Array<SortNewsItemSharingsBy>>;
   orderBy?: Maybe<Scalars['String']>;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
@@ -75940,6 +76568,60 @@ export enum SortNewsItemScopesBy {
   UnitTypeDesc = 'unitType_DESC',
   UnitNameAsc = 'unitName_ASC',
   UnitNameDesc = 'unitName_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  CreatedByAsc = 'createdBy_ASC',
+  CreatedByDesc = 'createdBy_DESC',
+  UpdatedByAsc = 'updatedBy_ASC',
+  UpdatedByDesc = 'updatedBy_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC'
+}
+
+export enum SortNewsItemSharingHistoryRecordsBy {
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  StatusMessageAsc = 'statusMessage_ASC',
+  StatusMessageDesc = 'statusMessage_DESC',
+  PublicationViewsCountAsc = 'publicationViewsCount_ASC',
+  PublicationViewsCountDesc = 'publicationViewsCount_DESC',
+  IdAsc = 'id_ASC',
+  IdDesc = 'id_DESC',
+  VAsc = 'v_ASC',
+  VDesc = 'v_DESC',
+  CreatedAtAsc = 'createdAt_ASC',
+  CreatedAtDesc = 'createdAt_DESC',
+  UpdatedAtAsc = 'updatedAt_ASC',
+  UpdatedAtDesc = 'updatedAt_DESC',
+  DeletedAtAsc = 'deletedAt_ASC',
+  DeletedAtDesc = 'deletedAt_DESC',
+  DvAsc = 'dv_ASC',
+  DvDesc = 'dv_DESC',
+  HistoryDateAsc = 'history_date_ASC',
+  HistoryDateDesc = 'history_date_DESC',
+  HistoryActionAsc = 'history_action_ASC',
+  HistoryActionDesc = 'history_action_DESC'
+}
+
+export enum SortNewsItemSharingsBy {
+  B2bAppContextAsc = 'b2bAppContext_ASC',
+  B2bAppContextDesc = 'b2bAppContext_DESC',
+  NewsItemAsc = 'newsItem_ASC',
+  NewsItemDesc = 'newsItem_DESC',
+  StatusAsc = 'status_ASC',
+  StatusDesc = 'status_DESC',
+  StatusMessageAsc = 'statusMessage_ASC',
+  StatusMessageDesc = 'statusMessage_DESC',
+  PublicationViewsCountAsc = 'publicationViewsCount_ASC',
+  PublicationViewsCountDesc = 'publicationViewsCount_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
