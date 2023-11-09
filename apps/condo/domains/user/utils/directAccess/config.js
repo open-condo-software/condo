@@ -22,12 +22,14 @@
  * @type {DirectAccessConfig}
  */
 const DIRECT_ACCESS_AVAILABLE_SCHEMAS = {
+    // Note: This list should be alphabetical when possible
     lists: [
         // Miniapps domain
         'B2BApp',
         'B2BAppAccessRight',
         'B2BAppAccessRightSet',
         'B2BAppContext',
+        'B2BAppNewsSharingConfig',
         'B2BAppPermission',
         'B2BAppPromoBlock',
         'B2CApp',

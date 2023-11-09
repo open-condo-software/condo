@@ -8,6 +8,7 @@ const { B2BApp } = require('./B2BApp')
 const { B2BAppAccessRight } = require('./B2BAppAccessRight')
 const { B2BAppAccessRightSet } = require('./B2BAppAccessRightSet')
 const { B2BAppContext } = require('./B2BAppContext')
+const { B2BAppNewsSharingConfig } = require('./B2BAppNewsSharingConfig')
 const { B2BAppPermission } = require('./B2BAppPermission')
 const { B2BAppPromoBlock } = require('./B2BAppPromoBlock')
 const { B2BAppRole } = require('./B2BAppRole')
@@ -34,5 +35,6 @@ module.exports = {
     B2BAppPermission,
     B2BAppRole,
     B2BAppAccessRightSet,
+    B2BAppNewsSharingConfig,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

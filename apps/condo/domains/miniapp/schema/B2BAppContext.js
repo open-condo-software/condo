@@ -89,17 +89,8 @@ const B2BAppContext = new GQLListSchema('B2BAppContext', {
                 update: false,
             },
         },
-        settings: {
-            schemaDoc: 'Settings that are required for specified app to work with specified organization. Filled by app\'s service account / support and can have any JSON structure',
-            type: Json,
-            isRequired: false,
-            access: {
-                create: access.canReadAndManageSensitiveContextData,
-                read: access.canReadAndManageSensitiveContextData,
-            },
-        },
-        state: {
-            schemaDoc: 'State of B2B working progress with specified organization. Filled by app\'s service account and can have any JSON structure',
+        meta: {
+            schemaDoc: 'Data that is required for specified app to work with specified organization. Filled by app\'s service account / support and can have any JSON structure',
             type: Json,
             isRequired: false,
             access: {
