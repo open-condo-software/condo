@@ -1,6 +1,6 @@
 
 import styled from '@emotion/styled'
-import { Col, Form, Row, RowProps, Input, InputNumber, AutoComplete } from 'antd'
+import { Col, Form, Row, RowProps, Input, InputNumber, AutoComplete, InputProps } from 'antd'
 import { gql } from 'graphql-tag'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
@@ -12,7 +12,7 @@ import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button, Radio, RadioGroup, Select, Space, Typography } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors/'
+import { colors } from '@open-condo/ui/dist/colors'
 
 import { Button as ButtonOld } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
@@ -28,10 +28,11 @@ import {
     INVOICE_PAYMENT_TYPE_ONLINE,
     INVOICE_PAYMENT_TYPE_CASH,
 } from '@condo/domains/marketplace/constants'
-import { Invoice, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
+import { Invoice, InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
 
 import { BuildingUnitSubType } from '../../../schema'
+import { EmptyTableCell } from '../../common/components/Table/EmptyTableCell'
 import { PropertyAddressSearchInput } from '../../property/components/PropertyAddressSearchInput'
 import { UnitInfoMode } from '../../property/components/UnitInfo'
 import { Property } from '../../property/utils/clientSchema'
@@ -45,19 +46,7 @@ const OUTER_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const GROUP_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 
-export const LAYOUT = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
-}
-
-type ServiceType = {
-    service: string
-    quantity: number
-    price: number
-    totalPrice: number
-}
-
-const SubTotalInfo = ({ label, total, large = false }) => {
+const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     return (
         <Row align='bottom' justify='space-between' gutter={[8, 0]}>
             <Col>
@@ -70,9 +59,9 @@ const SubTotalInfo = ({ label, total, large = false }) => {
             <Col style={{ borderBottom: `1px solid ${colors.gray[3]}`, flex: '1' }} />
             <Col>
                 {large ? (
-                    <Typography.Title level={4}>{total}</Typography.Title>
+                    <Typography.Title level={4} type={totalTextType}>{total}</Typography.Title>
                 ) : (
-                    <Typography.Text size='medium'>{total}</Typography.Text>
+                    <Typography.Text size='medium' type={totalTextType}>{total}</Typography.Text>
                 )}
             </Col>
         </Row>
@@ -86,47 +75,7 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
   width: 100%;
 `
 
-async function _search (client, query, variables) {
-    return await client.query({
-        query: query,
-        variables: variables,
-        fetchPolicy: 'network-only',
-    })
-}
-
-const GET_ALL_MARKET_ITEMS_QUERY = gql`
-    query selectMarketItems ($where: MarketItemWhereInput, $orderBy: String, $first: Int, $skip: Int) {
-        objs: allMarketItems(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
-            id
-            name
-        }
-    }
-`
-
-function searchMarketItems (organizationId) {
-    if (!organizationId) return
-
-    return async function (client, value, query = {}, first, skip) {
-        const where = {
-            organization: { id: organizationId },
-            name_contains_i: value,
-            ...query,
-        }
-        const { data, error } = await _search(client, GET_ALL_MARKET_ITEMS_QUERY, { where, first, skip })
-
-        const marketItems = data.objs
-
-        if (error) console.warn(error)
-
-        return marketItems
-            .map(marketItem => ({
-                value: marketItem.name,
-                text: marketItem.name,
-            }))
-    }
-}
-
-const PropertyFormField = ({ organization, form }) => {
+const PropertyFormField = ({ organization, form, disabled }) => {
     const intl = useIntl()
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
@@ -153,17 +102,17 @@ const PropertyFormField = ({ organization, form }) => {
         >
             <PropertyAddressSearchInput
                 organization={organization}
-                autoFocus
                 onChange={handlePropertySelectChange}
                 placeholder={AddressPlaceholder}
                 notFoundContent={AddressNotFoundContent}
                 includeMapInOptions
+                disabled={disabled}
             />
         </Form.Item>
     )
 }
 
-const UnitNameFormField = ({ form }) => {
+const UnitNameFormField = ({ form, disabled }) => {
     const intl = useIntl()
     const UnitNameLabel = intl.formatMessage({ id: 'field.FlatNumber' })
 
@@ -202,6 +151,7 @@ const UnitNameFormField = ({ form }) => {
                                 allowClear
                                 mode={UnitInfoMode.All}
                                 onChange={onChange}
+                                disabled={disabled}
                             />
                         )
                     }
@@ -219,7 +169,7 @@ const UnitNameFormField = ({ form }) => {
     )
 }
 
-const ContactFormField = ({ role, organizationId, form }) => {
+const ContactFormField = ({ role, organizationId, form, disabled }) => {
     const { ContactsEditorComponent } = useContactsEditorHook({
         role,
         initialQuery: { organization: { id: organizationId } },
@@ -254,6 +204,7 @@ const ContactFormField = ({ role, organizationId, form }) => {
                             unitType={unitType}
                             contactFormItemProps={{ required: true, labelCol: { span: 24 } }}
                             newContactFormItemProps={{ labelCol: { span: 24 } }}
+                            disabled={disabled}
                         />
                     )
                 }
@@ -262,50 +213,144 @@ const ContactFormField = ({ role, organizationId, form }) => {
     )
 }
 
-const ClientDataFields = ({ organization, form, role }) => {
+const PayerDataFields = ({ organization, form, role, disabled, initialFormValues }) => {
+    const [hasPayerData, setHasPayerData] = useState<boolean>(initialFormValues.payerData)
+
     return (
-        <ContactsInfoFocusContainer>
-            <Row gutter={[0, 40]}>
-                <Col span={24}>
-                    <Row gutter={[50, 0]}>
-                        <Col span={20}>
-                            <PropertyFormField
-                                organization={organization}
+        <Row gutter={GROUP_VERTICAL_GUTTER}>
+            <Col span={24}>
+                <Form.Item
+                    name='payerData'
+                >
+                    <RadioGroup
+                        optionType='button'
+                        disabled={disabled}
+                        onChange={(event) => {
+                            const value = event.target.value
+                            setHasPayerData(value)
+
+                            if (!value) {
+                                form.setFieldsValue({
+                                    propertyId: null,
+                                    unitName: null,
+                                    unitType: null,
+                                    contact: null,
+                                    clientName: null,
+                                    clientPhone: null,
+                                })
+                            }
+                        }}
+                    >
+                        <Radio
+                            key='1'
+                            value={true}
+                            label='Есть данные о плательщике'
+                        />
+                        <Radio
+                            key='2'
+                            value={false}
+                            label='Нет данных'
+                        />
+                    </RadioGroup>
+                </Form.Item>
+            </Col>
+            {
+                hasPayerData && (
+                    <Col span={24}>
+                        <ContactsInfoFocusContainer>
+                            <Row gutter={[0, 40]}>
+                                <Col span={24}>
+                                    <Row gutter={[50, 0]}>
+                                        <Col span={20}>
+                                            <PropertyFormField
+                                                organization={organization}
+                                                form={form}
+                                                disabled={disabled}
+                                            />
+                                        </Col>
+                                        <Col span={4}>
+                                            <UnitNameFormField
+                                                form={form}
+                                                disabled={disabled}
+                                            />
+                                        </Col>
+                                    </Row>
+                                </Col>
+                                <Col span={24}>
+                                </Col>
+                            </Row>
+                            <ContactFormField
+                                role={role}
+                                organizationId={organization.id}
                                 form={form}
+                                disabled={disabled}
                             />
-                        </Col>
-                        <Col span={4}>
-                            <UnitNameFormField
-                                form={form}
-                            />
-                        </Col>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                </Col>
-            </Row>
-            <ContactFormField
-                role={role}
-                organizationId={organization.id}
-                form={form}
-            />
-        </ContactsInfoFocusContainer>
+                        </ContactsInfoFocusContainer>
+                    </Col>
+                )
+            }
+        </Row>
     )
 }
 
-const ServicesList = ({ organizationId, propertyId, form }) => {
+const getMoneyRender = (intl, currencyCode?: string) => {
+    return function render (text: string, isMin: boolean) {
+        const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
+        const formattedValue = formattedParts.map((part) => {
+            return part.value
+        }).join('')
+
+        return isMin ? `от ${formattedValue}` : formattedValue
+    }
+}
+
+const prepareTotalPriceFromInput = (count, rawPrice) => {
+    if (!isNaN(+rawPrice)) {
+        return { total: +rawPrice * count }
+    }
+
+    const splittedRawPrice = rawPrice.split(' ')
+
+    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === 'от' && !isNaN(+splittedRawPrice[1])) {
+        return { isMin: true, total: +splittedRawPrice[1] * count }
+    }
+
+    return { error: true }
+}
+
+const StyledFormItem = styled(Form.Item)`
+    .ant-input-status-warning {
+      &:focus {
+        box-shadow: 0 0 0 1px ${colors.red[5]} !important;
+      }
+      
+      border-color: ${colors.red[5]} !important;;
+    }
+
+    .ant-input-group-wrapper-status-warning .ant-input-group-addon {
+      color: ${colors.red[5]};
+      border-color: ${colors.red[5]};
+    }
+  
+    .ant-form-item-explain-warning {
+      color: ${colors.red[5]};
+    }
+`
+
+const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
     const intl = useIntl()
     const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.service' })
     const QuntityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.quantity' })
-    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.price' })
     const TotalPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.totalPrice' })
     const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.addService' })
+    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.price' })
 
     const filterByProperty = useMemo(() => {
         const baseFilterByProperty = { property_is_null: true }
 
         return propertyId ? { OR: [{ property: { id: propertyId } }, baseFilterByProperty] } : baseFilterByProperty
     }, [propertyId])
+
     const { objs: marketPriceScopes, loading } = MarketPriceScope.useAllObjects({
         where: {
             AND: [
@@ -323,8 +368,6 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
         const pricesArray = get(scope, 'marketItemPrice.price')
         const priceObj = get(pricesArray, '0')
         const price = get(priceObj, 'price')
-        const salesTaxPercent = get(priceObj, 'salesTaxPercent')
-        const vatPercent = get(priceObj, 'vatPercent')
         const isMin = get(priceObj, 'isMin')
 
 
@@ -332,9 +375,10 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
             label: name,
             value: name,
             price, isMin, sku,
-            salesTaxPercent, vatPercent,
         }
     })
+
+    const moneyRender = getMoneyRender(intl)
 
     return (
         <Form.List name='rows'>
@@ -343,7 +387,7 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
                     {
                         marketItemForms.map((marketItemForm, index) => (
                             <Col span={24} key={marketItemForm.name}>
-                                <Row gutter={[50, 12]} align='bottom'>
+                                <Row gutter={[50, 12]} align='top'>
                                     <Col xs={24} lg={8}>
                                         <Form.Item
                                             label={ServiceLabel}
@@ -351,6 +395,7 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
                                             required
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
+                                            rules={[{ required: true, message: 'Пожалуйста, введите число' }]}
                                         >
                                             <AutoComplete
                                                 allowClear
@@ -360,11 +405,15 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
                                                         rows: {
                                                             ...form.getFieldValue('rows'),
                                                             [marketItemForm.name]: {
-                                                                ...form.getFieldValue(['rows', [marketItemForm.name]]),
-                                                                price: marketItem.price,
+                                                                ...form.getFieldValue(['rows', marketItemForm.name]),
+                                                                price: marketItem.isMin ? `от ${marketItem.price}` : marketItem.price,
+                                                                isMin: marketItem.isMin,
+                                                                sku: marketItem.sku,
                                                             },
                                                         },
                                                     })
+
+                                                    form.validateFields([['rows', marketItemForm.name, 'price']])
                                                 }}
                                             />
                                         </Form.Item>
@@ -376,6 +425,8 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
                                             required
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
+                                            rules={[{ required: true, message: 'Пожалуйста, введите число' }]}
+                                            initialValue={1}
                                         >
                                             <Select options={[...Array(50).keys() ].map( i => ({
                                                 label: `${i + 1}`,
@@ -385,36 +436,59 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
                                         </Form.Item>
                                     </Col>
                                     <Col xs={24} lg={5}>
-                                        <Form.Item
+                                        <StyledFormItem
                                             label={PriceLabel}
                                             required
                                             name={[marketItemForm.name, 'price']}
                                             labelCol={{ span: 24 }}
+                                            rules={[
+                                                { required: true, message: 'Пожалуйста, введите число' },
+                                                {
+                                                    warningOnly: true,
+                                                    validator: (_, value) => {
+                                                        if (/^от (\d+|\d+,\d+)$/.test(value)) {
+                                                            form.setFieldsValue({
+                                                                disableCheckboxes: true,
+                                                                status: INVOICE_STATUS_DRAFT,
+                                                            })
+
+                                                            return Promise.reject('Неточная цена может быть только у счёта в статусе «Черновик»')
+                                                        }
+
+                                                        form.setFieldsValue({
+                                                            disableCheckboxes: false,
+                                                        })
+
+                                                        return Promise.resolve()
+                                                    },
+                                                },
+                                                {
+                                                    pattern: /^(от |)(\d+|\d+,\d+)$/,
+                                                    message: 'Введите корректное число',
+                                                },
+                                            ]}
                                         >
-                                            <Input addonAfter='₽' />
-                                        </Form.Item>
+                                            <Input
+                                                placeholder="Введите число или 'от <число>'"
+                                                addonAfter={currencySymbol}
+                                            />
+                                        </StyledFormItem>
                                     </Col>
                                     <Col xs={24} lg={5}>
                                         <Form.Item
                                             label={TotalPriceLabel}
                                             required
-                                            // name={[marketItemForm.name, 'totalPrice']}
                                             labelCol={{ span: 24 }}
                                             shouldUpdate
                                         >
                                             {
                                                 ({ getFieldValue }) => {
-                                                    let value
                                                     const count = getFieldValue(['rows', marketItemForm.name, 'count'])
                                                     const rawPrice = getFieldValue(['rows', marketItemForm.name, 'price'])
+                                                    const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice)
+                                                    const value = error ? '' : moneyRender(String(total), isMin)
 
-                                                    if (count && rawPrice) {
-                                                        const price = rawPrice.startsWith('от') ? rawPrice.split(' ')[1] : rawPrice
-
-                                                        value = count * +price
-                                                    }
-
-                                                    return <Input type='total' addonAfter='₽' disabled value={value} />
+                                                    return <Input type='total' addonAfter={currencySymbol} disabled value={value} />
                                                 }
                                             }
                                         </Form.Item>
@@ -423,7 +497,7 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
                                         index !== 0 && (
                                             <Col xs={24} md={2}>
                                                 <Typography.Text onClick={() => operation.remove(marketItemForm.name)}>
-                                                    <div style={{ paddingBottom: '10px' }}>
+                                                    <div style={{ paddingTop: '62px' }}>
                                                         <Trash size='large' />
                                                     </div>
                                                 </Typography.Text>
@@ -446,6 +520,19 @@ const ServicesList = ({ organizationId, propertyId, form }) => {
             }
         </Form.List>
     )
+}
+
+const PaymentAlert = ({ payerData }) => {
+    if (payerData) {
+        // return Алерт, в котором проверяем, есть ли резидент по переданным данным клиента (написать мутацию)
+    }
+
+    return <Alert
+        type='info'
+        message='Ссылка на оплату будет готова после сохранения счёта'
+        description='Её можно будет передать жителю любым удобным вам способом '
+        showIcon
+    />
 }
 
 
@@ -479,24 +566,64 @@ export const CreateInvoiceForm = () => {
         //
     })
 
+    const { obj: invoiceContext } = InvoiceContext.useObject({
+        where: {
+            organization: { id: organization.id },
+        },
+    })
+
+    const currencyCode = get(invoiceContext, 'currencyCode')
+    const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
+    const currencySymbolObj = parts.find(part => part.type === 'currency')
+    const currencySymbol = get(currencySymbolObj, 'value')
+    // const moneyRender = getMoneyRender(intl, currencyCode)
+
     const handleSubmit = useCallback(async (values) => {
-        console.log('values', values)
-        return
-    }, [])
+        console.log('handle submit', values)
+        let newInvoiceData = {}
+
+        const contact = get(values, 'contact')
+        if (contact) {
+            newInvoiceData = { ...newInvoiceData, contact: { connect: { id: contact } } }
+        }
+        const property = get(values, 'propertyId')
+        if (property) {
+            newInvoiceData = { ...newInvoiceData, property: { connect: { id: property } } }
+        }
+
+        const rawRows = get(values, 'rows', [])
+        const vatPercent = invoiceContext.vatPercent
+        const salesTaxPercent = invoiceContext.salesTaxPercent
+
+        const rows = rawRows.map(row => ({
+            name: row.name, toPay: row.price, count: row.count, sku: row.sku, isMin: row.isMin,
+            currencyCode, vatPercent, salesTaxPercent,
+        }))
+
+        newInvoiceData = {
+            ...newInvoiceData,
+            context: { connect: { id: invoiceContext.id } },
+            status: get(values, 'status'),
+            paymentType: get(values, 'paymentType'),
+            unitName: get(values, 'unitName'),
+            unitType: get(values, 'unitType'),
+            rows,
+        }
+
+        return await createInvoiceAction(newInvoiceData)
+    }, [currencyCode, invoiceContext])
 
     const initialFormValues = useMemo(() =>
         ({ rows: [{ name: '', count: 1, price: 0 }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),
     [])
 
-    const [hasPayerData, setHasPayerData] = useState<boolean>(initialFormValues.payerData)
+    const moneyRender = getMoneyRender(intl, currencyCode)
 
     return (
         <FormWithAction
             initialValues={initialFormValues}
             action={handleSubmit}
             layout='horizontal'
-            // onValuesChange={handleValuesChange}
-            // onChange={handleValuesChange}
             colon={false}
             OnCompletedMsg={null}
             scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
@@ -507,50 +634,24 @@ export const CreateInvoiceForm = () => {
                         <Row gutter={GROUP_VERTICAL_GUTTER}>
                             <Col span={24}>
                                 <Form.Item
-                                    name='payerData'
+                                    dependencies={['status']}
                                 >
-                                    <RadioGroup
-                                        optionType='button'
-                                        onChange={(event) => {
-                                            const value = event.target.value
-                                            setHasPayerData(value)
+                                    {
+                                        ({ getFieldValue }) => {
+                                            const status = getFieldValue('status')
+                                            const isClientDataDisabled = status !== INVOICE_STATUS_DRAFT
 
-                                            if (!value) {
-                                                form.setFieldsValue({
-                                                    propertyId: null,
-                                                    unitName: null,
-                                                    unitType: null,
-                                                    contact: null,
-                                                    clientName: null,
-                                                    clientPhone: null,
-                                                })
-                                            }
-                                        }}
-                                    >
-                                        <Radio
-                                            key='1'
-                                            value={true}
-                                            label='Есть данные о плательщике'
-                                        />
-                                        <Radio
-                                            key='2'
-                                            value={false}
-                                            label='Нет данных'
-                                        />
-                                    </RadioGroup>
+                                            return <PayerDataFields
+                                                organization={organization}
+                                                form={form}
+                                                role={link}
+                                                disabled={isClientDataDisabled}
+                                                initialFormValues={initialFormValues}
+                                            />
+                                        }
+                                    }
                                 </Form.Item>
                             </Col>
-                            {
-                                hasPayerData && (
-                                    <Col span={24}>
-                                        <ClientDataFields
-                                            organization={organization}
-                                            form={form}
-                                            role={link}
-                                        />
-                                    </Col>
-                                )
-                            }
                         </Row>
                     </Col>
                     <Col md={20}>
@@ -570,6 +671,7 @@ export const CreateInvoiceForm = () => {
                                                 organizationId={organization.id}
                                                 propertyId={propertyId}
                                                 form={form}
+                                                currencySymbol={currencySymbol}
                                             />
                                         }
                                     }
@@ -586,7 +688,22 @@ export const CreateInvoiceForm = () => {
                                     const rows = getFieldValue('rows').filter(Boolean)
 
                                     const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
-                                    const totalPrice = rows.reduce((acc, row) => acc + row.price * row.count, 0)
+
+                                    let hasMinPrice
+                                    let hasError
+                                    const totalPrice = rows.reduce((acc, row) => {
+                                        const rawPrice = row.price
+                                        const count = row.count
+                                        const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice)
+                                        if (!hasError && error) {
+                                            hasError = true
+                                        }
+                                        if (!hasMinPrice && isMin) {
+                                            hasMinPrice = true
+                                        }
+
+                                        return acc + total
+                                    }, 0)
 
                                     return (
                                         <Row gutter={[0, 12]}>
@@ -594,13 +711,15 @@ export const CreateInvoiceForm = () => {
                                                 <SubTotalInfo
                                                     label={ServicesChosenLabel}
                                                     total={totalCount}
+                                                    totalTextType='primary'
                                                 />
                                             </Col>
                                             <Col md={19}>
                                                 <SubTotalInfo
                                                     label={TotalToPayLabel}
-                                                    total={`${totalPrice} ₽`}
+                                                    total={moneyRender(totalPrice, hasMinPrice)}
                                                     large
+                                                    totalTextType={hasMinPrice ? 'danger' : 'primary'}
                                                 />
                                             </Col>
                                         </Row>
@@ -628,13 +747,17 @@ export const CreateInvoiceForm = () => {
                     </Col>
                     <Col md={20}>
                         <Form.Item
-                            dependencies={['paymentType', 'status']}
+                            dependencies={['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'disableCheckboxes']}
                         >
                             {
-                                ({ getFieldValue }) => {
-                                    const paymentType = getFieldValue('paymentType')
-                                    const disabledTerminalStatuses = paymentType === INVOICE_PAYMENT_TYPE_ONLINE
-                                    const status = getFieldValue('status')
+                                ({ getFieldsValue }) => {
+                                    const {
+                                        paymentType, status, payerData, propertyId, unitName, unitType, clientName, clientPhone, disableCheckboxes,
+                                    } = getFieldsValue(['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'disableCheckboxes'])
+
+                                    const isNoPayerData = payerData && (!propertyId || !unitName || !unitType || !clientName || !clientPhone)
+
+                                    const disabled = disableCheckboxes || isNoPayerData
 
                                     return (
                                         <Form.Item
@@ -646,14 +769,16 @@ export const CreateInvoiceForm = () => {
                                                     <Radio value={INVOICE_STATUS_DRAFT}>
                                                         <Typography.Text strong>{InvoiceStatusDraftLabel}</Typography.Text>
                                                     </Radio>
-                                                    <Radio value={INVOICE_STATUS_PUBLISHED}>
-                                                        <Typography.Text type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'} strong>{InvoiceStatusReadyLabel}</Typography.Text>
+                                                    <Radio value={INVOICE_STATUS_PUBLISHED} disabled={disabled}>
+                                                        <Typography.Text type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'} disabled={disabled} strong>{InvoiceStatusReadyLabel}</Typography.Text>
                                                     </Radio>
-                                                    <Radio value={INVOICE_STATUS_PAID} disabled={disabledTerminalStatuses}>
-                                                        <Typography.Text strong disabled={disabledTerminalStatuses}>{InvoiceStatusPaidLabel}</Typography.Text>
+                                                    <Radio value={INVOICE_STATUS_PAID} disabled={disabled}>
+                                                        <Typography.Text type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'} disabled={disabled} strong>{InvoiceStatusPaidLabel}</Typography.Text>
                                                     </Radio>
-                                                    <Radio value={INVOICE_STATUS_CANCELED} disabled={disabledTerminalStatuses}>
-                                                        <Typography.Text strong disabled={disabledTerminalStatuses}>{InvoiceStatusCancelledLabel}</Typography.Text>
+                                                    <Radio value={INVOICE_STATUS_CANCELED} disabled={disabled}>
+                                                        <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
+                                                            <Typography.Text type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'} disabled={disabled} strong>{InvoiceStatusCancelledLabel}</Typography.Text>
+                                                        </div>
                                                     </Radio>
                                                 </Space>
                                             </RadioGroup>
@@ -663,6 +788,28 @@ export const CreateInvoiceForm = () => {
                             }
                         </Form.Item>
                     </Col>
+                    <Form.Item
+                        dependencies={['paymentType', 'status', 'payerData']}
+                        noStyle
+                    >
+                        {
+                            ({ getFieldValue }) => {
+                                const status = getFieldValue('status')
+                                const paymentType = getFieldValue('paymentType')
+                                const payerData = getFieldValue('payerData')
+
+                                if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE) {
+                                    return
+                                }
+
+                                return (
+                                    <Col md={20}>
+                                        <PaymentAlert payerData={payerData} />
+                                    </Col>
+                                )
+                            }
+                        }
+                    </Form.Item>
                     <Col span={24}>
                         <ActionBar
                             actions={[

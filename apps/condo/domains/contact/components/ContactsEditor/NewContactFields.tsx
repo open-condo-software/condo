@@ -33,6 +33,7 @@ interface INewContactFieldsFieldsProps {
     contactsLoading?: boolean
     unitName?: string
     newContactFormItemProps?: FormItemProps
+    disabled?: boolean
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }
@@ -61,6 +62,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     unitName,
     initialValueWithoutContact,
     newContactFormItemProps,
+    disabled,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
@@ -122,8 +124,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [phoneValidator, contactExistValidator] : [],
     }), [activeTab, contactExistValidator, phoneValidator])
 
-    const isPhoneDisabled = !unitName
-    const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
+    const isPhoneDisabled = disabled || !unitName
+    const isNameDisabled = disabled || (!isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked))
 
     const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
 
@@ -188,9 +190,10 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                             <Radio
                                 onChange={handleChecked}
                                 checked={checked}
+                                disabled={disabled}
                             />
                         )}
-                        {displayMinusButton && breakpoints.TABLET_LARGE && (
+                        {displayMinusButton && !disabled && breakpoints.TABLET_LARGE && (
                             <MinusCircle
                                 onClick={onClickMinusButton}
                             />

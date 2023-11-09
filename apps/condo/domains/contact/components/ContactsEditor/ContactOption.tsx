@@ -14,6 +14,7 @@ interface IContactFieldsDisplayProps {
     onSelect: (contact: TContact) => void,
     selected: boolean,
     contactFormItemProps?: FormItemProps
+    disabled?: boolean
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }
@@ -21,7 +22,7 @@ const FIELD_ROW_GUTTER: RowProps['gutter'] = [16, 0]
 const RADIO_COL_SMALL_SCREENS_STYLE: CSSProperties = { position: 'relative', top: '62px' }
 const RADIO_COL_LARGE_SCREENS_STYLE: CSSProperties = { height: '48px' }
 
-export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected, contactFormItemProps }) => {
+export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, onSelect, selected, contactFormItemProps, disabled }) => {
     const intl = useIntl()
     const FullNameLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name' })
     const PhoneLabel = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Phone' })
@@ -72,6 +73,7 @@ export const ContactOption: React.FC<IContactFieldsDisplayProps> = ({ contact, o
                     <Radio
                         onChange={handleSelect}
                         checked={selected}
+                        disabled={disabled}
                     />
                 </Space>
             </Col>

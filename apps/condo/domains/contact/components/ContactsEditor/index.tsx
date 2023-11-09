@@ -128,6 +128,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         hideTabBar,
         contactFormItemProps,
         newContactFormItemProps,
+        disabled,
     } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -318,9 +319,10 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 onSelect={handleSelectContact}
                 selected={isContactSelected(contact)}
                 contactFormItemProps={contactFormItemProps}
+                disabled={disabled}
             />
         </Col>
-    )), [contactFormItemProps, handleSelectContact, initialContacts, isContactSelected])
+    )), [contactFormItemProps, disabled, handleSelectContact, initialContacts, isContactSelected])
 
     const handleTabChange = useCallback((tab) => {
         triggerOnChange(null, false)
@@ -374,6 +376,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             unitName={unitName}
                                             initialValueWithoutContact={initialValueWithoutContact}
                                             newContactFormItemProps={newContactFormItemProps}
+                                            disabled={disabled}
                                         />
                                     ) : (
                                         <>
@@ -397,6 +400,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                                         unitName={unitName}
                                                                         initialValueWithoutContact={initialValueWithoutContact}
                                                                         newContactFormItemProps={newContactFormItemProps}
+                                                                        disabled={disabled}
                                                                     />
                                                                     {
                                                                         !breakpoints.TABLET_LARGE && (
@@ -420,6 +424,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                                         style={BUTTON_STYLE}
                                                                         onClick={handleClickOnPlusButton}
                                                                         icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
+                                                                        disabled={disabled}
                                                                     >
                                                                         {AddNewContactLabel}
                                                                     </Button>
