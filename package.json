@@ -31,7 +31,7 @@
     "@mono-pub/npm": "^1.0.1",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
-    "babel-eslint": "^10.1.0",
+    "@babel/eslint-parser": "^7.11.0",
     "commander": "^9.4.0",
     "eslint": "^7.13.0",
     "eslint-plugin-import": "^2.27.5",
