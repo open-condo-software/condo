@@ -14,6 +14,8 @@ import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
 
+import type { MeterResourceOwner } from '@app/condo/schema'
+
 const inputNumberCSS = css`
   & .ant-input-number-handler-wrap {
     visibility: hidden;
@@ -47,7 +49,7 @@ const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     color: colors.sberGrey[6],
 }
 
-const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) => {
+const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings, disabled = false }) => {
     const intl = useIntl()
     const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
 
@@ -82,6 +84,7 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
                 formatter={inputMeterReadingFormatter}
                 parser={inputMeterReadingParser}
                 min={0}
+                disabled={disabled}
             />
             <div style={METER_READING_INPUT_ADDON_STYLE}>
                 {meterResourceMeasure}
@@ -90,7 +93,7 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) =>
     )
 }
 
-export const useMeterTableColumns = (meterType: MeterPageTypes) => {
+export const useMeterTableColumns = (meterType: MeterPageTypes, meterResourceOwners: Array<MeterResourceOwner>) => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
@@ -123,13 +126,25 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
 
         return meterResource
     }, [tariffNumberMessages])
-    const meterReadingRenderer = useCallback((record) => (
-        <MeterReadingInput
-            record={record}
-            newMeterReadings={newMeterReadings}
-            setNewMeterReadings={setNewMeterReadings}
-        />
-    ), [newMeterReadings])
+
+    const meterReadingRenderer = useCallback((record) => {
+        let isDisabled = false
+
+        const meterResourceOwner = meterResourceOwners
+            .find(meterResourceOwner => meterResourceOwner.resource.id === record.meter.resource.id)
+        if (meterResourceOwner) {
+            isDisabled = meterResourceOwner.organization.id !== record.meter.organization.id
+        }
+
+        return (
+            <MeterReadingInput
+                record={record}
+                newMeterReadings={newMeterReadings}
+                setNewMeterReadings={setNewMeterReadings}
+                disabled={isDisabled}
+            />
+        )
+    }, [newMeterReadings, meterResourceOwners])
     const textRenderer = useMemo(() => getTextRender(), [getTextRender])
     const dateRenderer = useMemo(() => getDateRender(intl), [intl, getDateRender])
 

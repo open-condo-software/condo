@@ -10,6 +10,7 @@ import {
 import { Col, ColProps, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import isNull from 'lodash/isNull'
 import uniqWith from 'lodash/uniqWith'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -34,6 +35,7 @@ import {
     MeterReading,
     PropertyMeterReading,
     PropertyMeter,
+    MeterResourceOwner,
     METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
@@ -214,7 +216,6 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const MeterReadingsFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.MeterReadingsFromResident' })
 
     const router = useRouter()
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
@@ -249,8 +250,14 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     })
 
     const { obj: property, loading: propertyLoading } = Property.useObject({
-        where: { id: selectedPropertyId ? selectedPropertyId : null },
-    })
+        where: { id: selectedPropertyId },
+    }, { skip: isNull(selectedPropertyId) })
+
+    const { objs: meterResourceOwners } = MeterResourceOwner.useObjects(
+        { where: { addressKey: get(property, 'addressKey') } },
+        { skip: isNull(get(property, 'addressKey', null)) }
+    )
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter, meterResourceOwners)
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
@@ -495,10 +502,24 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
 
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter)
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
+    const { obj: property } = Property.useObject(
+        { where: { id: selectedPropertyId } },
+        { skip: isNull(selectedPropertyId) }
+    )
+    const { objs: meterResourceOwners } = MeterResourceOwner.useObjects(
+        { where: { addressKey: get(property, 'addressKey') } },
+        { skip: isNull(get(property, 'addressKey', null)) }
+    )
+
+    const {
+        newMeterReadings,
+        setNewMeterReadings,
+        tableColumns,
+    } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter, meterResourceOwners)
+
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])
