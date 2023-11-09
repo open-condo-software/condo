@@ -3,7 +3,7 @@ const { get, isNil, isEmpty } = require('lodash')
 const {
     createInstance: createAddressServiceClientInstance,
 } = require('@open-condo/clients/address-service-client')
-
+const { getLogger } = require('@open-condo/keystone/logging')
 
 const { AddressTransform, AddressParser } = require('@condo/domains/billing/schema/helpers/addressTransform')
 const {
@@ -19,7 +19,9 @@ const { findPropertyByOrganizationAndAddress } = require('./propertyFinder')
 const PROPERTY_SCORE_TO_PASS = 95
 
 // constants
-const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint: 'billing-property-resolver' } }
+const fingerprint = 'billing-property-resolver'
+const dvAndSender = { dv: 1, sender: { dv: 1, fingerprint } }
+const logger = getLogger(fingerprint)
 
 class ResolveError extends Error {
     constructor (code, message) {
@@ -320,7 +322,7 @@ class BillingPropertyResolver {
      * @returns {Promise<void>}
      */
     async createBillingProblem (summary) {
-        // todo
+        logger.warn({ msg: 'BillingPropertyResolver resolved property not from current organization', ...summary })
     }
 
     /**
