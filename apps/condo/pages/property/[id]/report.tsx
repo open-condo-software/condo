@@ -591,19 +591,23 @@ const PropertyReportPage = (): React.ReactElement => {
     }, [reportPageEnabled, push, asPath])
 
     if (error || loading) {
-        return <LoadingOrErrorPage
-            title={PageTitle}
-            loading={loading}
-            error={error ? ServerErrorTitle : null}
-        />
+        return (
+            <LoadingOrErrorPage
+                title={PageTitle}
+                loading={loading}
+                error={error ? ServerErrorTitle : null}
+            />
+        )
     }
 
     if (!property) {
-        return <LoadingOrErrorPage
-            title={PropertyNotFoundTitle}
-            loading={false}
-            error={PropertyNotFoundMessage}
-        />
+        return (
+            <LoadingOrErrorPage
+                title={PropertyNotFoundTitle}
+                loading={false}
+                error={PropertyNotFoundMessage}
+            />
+        )
     }
 
     return (
