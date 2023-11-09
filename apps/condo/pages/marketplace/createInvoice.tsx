@@ -32,7 +32,7 @@ const CreateMeterPage: ICreateMeterPage = () => {
                             <Typography.Title level={1}>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <CreateInvoiceForm />
+                            <CreateInvoiceForm isCreateFrom />
                         </Col>
                     </Row>
                 </PageContent>

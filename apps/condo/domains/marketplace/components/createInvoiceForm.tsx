@@ -536,7 +536,7 @@ const PaymentAlert = ({ payerData }) => {
 }
 
 
-export const CreateInvoiceForm = () => {
+export const CreateInvoiceForm = ({ isCreateFrom }) => {
     const intl = useIntl()
     const ServicesChosenLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.servicesChosen' })
     const TotalToPayLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.totalToPay' })
@@ -733,7 +733,9 @@ export const CreateInvoiceForm = () => {
                             label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
                             name='paymentType'
                         >
-                            <RadioGroup>
+                            <RadioGroup
+                                onChange={() => form.setFieldsValue({ status: INVOICE_STATUS_DRAFT })}
+                            >
                                 <Space size={8} wrap direction='horizontal'>
                                     <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
                                         <Typography.Text strong>{PaymentOnlineLabel}</Typography.Text>
@@ -756,6 +758,7 @@ export const CreateInvoiceForm = () => {
                                     } = getFieldsValue(['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'disableCheckboxes'])
 
                                     const isNoPayerData = payerData && (!propertyId || !unitName || !unitType || !clientName || !clientPhone)
+                                    const isOnlinePaymentType = paymentType === INVOICE_PAYMENT_TYPE_ONLINE
 
                                     const disabled = disableCheckboxes || isNoPayerData
 
@@ -772,10 +775,10 @@ export const CreateInvoiceForm = () => {
                                                     <Radio value={INVOICE_STATUS_PUBLISHED} disabled={disabled}>
                                                         <Typography.Text type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'} disabled={disabled} strong>{InvoiceStatusReadyLabel}</Typography.Text>
                                                     </Radio>
-                                                    <Radio value={INVOICE_STATUS_PAID} disabled={disabled}>
+                                                    <Radio value={INVOICE_STATUS_PAID} disabled={disabled || isOnlinePaymentType}>
                                                         <Typography.Text type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'} disabled={disabled} strong>{InvoiceStatusPaidLabel}</Typography.Text>
                                                     </Radio>
-                                                    <Radio value={INVOICE_STATUS_CANCELED} disabled={disabled}>
+                                                    <Radio value={INVOICE_STATUS_CANCELED} disabled={disabled || isCreateFrom}>
                                                         <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
                                                             <Typography.Text type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'} disabled={disabled} strong>{InvoiceStatusCancelledLabel}</Typography.Text>
                                                         </div>
