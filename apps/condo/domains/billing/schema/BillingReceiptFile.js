@@ -10,9 +10,16 @@ const { GQLListSchema, getById, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceiptFile')
 const { BILLING_RECEIPT_FILE_FOLDER_NAME } = require('@condo/domains/billing/constants/constants')
+const { BillingReceipt: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
+const isEmpty = require("lodash/isEmpty");
+const {
+    addClientInfoToResidentMeterReading,
+    connectContactToMeterReading
+} = require("../../meter/utils/serverSchema/resolveHelpers");
+const {Meter} = require("../../meter/utils/serverSchema");
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
@@ -99,6 +106,22 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
             isRequired: true,
             knexOptions: { isNotNullable: true }, // Required relationship only!
             kmigratorOptions: { null: false, on_delete: 'models.CASCADE' },
+            hooks: {
+                resolveInput: async ({ resolvedData, operation, context }) => {
+                    const { receipt, importId, context: contextId } = resolvedData
+                    if (operation === 'create' && !receipt && importId) {
+                        const [receiptByImportId] = await BillingReceiptApi.getAll(context, {
+                            importId,
+                            context: { id: contextId, deletedAt: null },
+                            deletedAt: null,
+                        })
+                        if (receiptByImportId) {
+                            resolvedData.receipt = receiptByImportId.id
+                        }
+                    }
+                    return resolvedData.receipt
+                },
+            },
         },
 
         controlSum: {
@@ -123,12 +146,11 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
         auth: true,
     },
     hooks: {
-        afterChange: async ({ updatedItem, listKey }) => {
+        afterChange: async ({ context, operation, updatedItem, listKey }) => {
             if (updatedItem && Adapter.acl && Adapter.acl.setMeta) {
                 const sensitiveFile = get(updatedItem, 'sensitiveDataFile.filename')
                 const publicFile = get(updatedItem, 'publicDataFile.filename')
                 const key = (filename) => `${BILLING_RECEIPT_FILE_FOLDER_NAME}/${filename}`
-
                 // set files ACL meta
                 if (sensitiveFile) {
                     await Adapter.acl.setMeta(key(sensitiveFile), {
@@ -140,10 +162,20 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                     await Adapter.acl.setMeta(key(publicFile), { listkey: listKey, id: updatedItem.id })
                 }
             }
+            if (operation === 'create') {
+                await BillingReceiptApi.update(context, updatedItem.receipt, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'connect-receipt-file' },
+                    file: { connect: { id: updatedItem.id } },
+                })
+            }
         },
-        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
+        validateInput: async ({ context, resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            const { context: contextId, receipt: receiptId } = newItem
+            let { context: contextId, receipt: receiptId, importId } = newItem
+            if (!receiptId && importId) {
+
+            }
             const receipt = await getById('BillingReceipt', receiptId)
             const { context: receiptContextId } = receipt
             if (contextId !== receiptContextId) {
