@@ -77,7 +77,7 @@
   "apps.b2c.sections.info.icons.items.main.description": "Used in to display on the home screen of the resident's mobile app. Must be in {format} format and have a size between {minSize} and {maxSize} pixels",
   "apps.b2c.sections.builds.title": "App builds",
   "apps.b2c.sections.builds.table.columns.version.title": "Version",
-  "apps.b2c.sections.builds.table.columns.size.title": "Size",
+  "apps.b2c.sections.builds.table.columns.createdAt.title": "Upload date",
   "apps.b2c.sections.builds.actions.addBuild": "Add new build",
   "apps.b2c.sections.builds.newBuildModal.title": "Uploading new build",
   "apps.b2c.sections.builds.newBuildModal.form.items.version.label": "App version",

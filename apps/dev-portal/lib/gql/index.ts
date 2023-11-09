@@ -3494,6 +3494,15 @@ export type GetB2CAppQueryVariables = Exact<{
 
 export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
 
+export type AllB2CAppBuildsQueryVariables = Exact<{
+    where: B2CAppBuildWhereInput;
+    first: Scalars['Int']['input'];
+    skip: Scalars['Int']['input'];
+}>
+
+
+export type AllB2CAppBuildsQuery = { __typename?: 'Query', builds?: Array<{ __typename?: 'B2CAppBuild', id: string, version?: string | null, createdAt?: string | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
+
 export type CreateB2CAppMutationVariables = Exact<{
     data: B2CAppCreateInput;
 }>
@@ -3640,6 +3649,53 @@ export function useGetB2CAppLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions
 export type GetB2CAppQueryHookResult = ReturnType<typeof useGetB2CAppQuery>
 export type GetB2CAppLazyQueryHookResult = ReturnType<typeof useGetB2CAppLazyQuery>
 export type GetB2CAppQueryResult = Apollo.QueryResult<GetB2CAppQuery, GetB2CAppQueryVariables>
+export const AllB2CAppBuildsDocument = gql`
+    query allB2CAppBuilds($where: B2CAppBuildWhereInput!, $first: Int!, $skip: Int!) {
+  builds: allB2CAppBuilds(
+    where: $where
+    first: $first
+    skip: $skip
+    sortBy: createdAt_DESC
+  ) {
+    id
+    version
+    createdAt
+  }
+  meta: _allB2CAppBuildsMeta {
+    count
+  }
+}
+    `
+
+/**
+ * __useAllB2CAppBuildsQuery__
+ *
+ * To run a query within a React component, call `useAllB2CAppBuildsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllB2CAppBuildsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllB2CAppBuildsQuery({
+ *   variables: {
+ *      where: // value for 'where'
+ *      first: // value for 'first'
+ *      skip: // value for 'skip'
+ *   },
+ * });
+ */
+export function useAllB2CAppBuildsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>(AllB2CAppBuildsDocument, options)
+}
+export function useAllB2CAppBuildsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>(AllB2CAppBuildsDocument, options)
+}
+export type AllB2CAppBuildsQueryHookResult = ReturnType<typeof useAllB2CAppBuildsQuery>
+export type AllB2CAppBuildsLazyQueryHookResult = ReturnType<typeof useAllB2CAppBuildsLazyQuery>
+export type AllB2CAppBuildsQueryResult = Apollo.QueryResult<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>
 export const CreateB2CAppDocument = gql`
     mutation createB2CApp($data: B2CAppCreateInput!) {
   app: createB2CApp(data: $data) {

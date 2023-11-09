@@ -1,6 +1,5 @@
 const INVALID_BUILD_VERSION = 'INVALID_BUILD_VERSION'
 
-
 module.exports = {
     INVALID_BUILD_VERSION,
 }

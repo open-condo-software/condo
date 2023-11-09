@@ -12,7 +12,9 @@ import { BaseLayout } from '@/domains/common/components/BaseLayout'
 import { CollapsibleMenu } from '@/domains/common/components/CollapsibleMenu'
 import { BuildsSection } from '@/domains/miniapp/components/B2CApp/edit/builds/BuildsSection'
 import { InfoSection } from '@/domains/miniapp/components/B2CApp/edit/info/InfoSection'
-import { useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
+import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
+import { getCurrentSection, useB2CMenuItems } from '@/domains/miniapp/hooks/useB2CMenuItems'
+import { getCurrentPage } from '@/domains/miniapp/utils/query'
 
 import type { SectionType } from '@/domains/miniapp/hooks/useB2CMenuItems'
 import type { RowProps, MenuProps } from 'antd'
@@ -20,7 +22,15 @@ import type { GetServerSideProps } from 'next'
 
 import { extractApolloState, initializeApollo } from '@/lib/apollo'
 import { extractAuthHeadersFromRequest, prefetchAuth } from '@/lib/auth'
-import { GetB2CAppDocument, GetB2CAppQuery, GetB2CAppQueryVariables, useGetB2CAppQuery } from '@/lib/gql'
+import {
+    GetB2CAppDocument,
+    GetB2CAppQuery,
+    GetB2CAppQueryVariables,
+    AllB2CAppBuildsDocument,
+    AllB2CAppBuildsQuery,
+    AllB2CAppBuildsQueryVariables,
+    useGetB2CAppQuery,
+} from '@/lib/gql'
 
 const TITLE_GUTTER: RowProps['gutter'] = [40, 40]
 const FULL_COL_SPAN = 24
@@ -91,7 +101,7 @@ const AppSettingsPage: React.FC = () => {
 export default AppSettingsPage
 
 export const getServerSideProps: GetServerSideProps = async ({ req, query }) => {
-    const { id } = query
+    const { id, section, p } = query
 
     if (!id || Array.isArray(id)) {
         return {
@@ -112,6 +122,7 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
         }
     }
 
+    // Common info prefetch
     await client.query<GetB2CAppQuery, GetB2CAppQueryVariables>({
         query: GetB2CAppDocument,
         variables: {
@@ -119,6 +130,22 @@ export const getServerSideProps: GetServerSideProps = async ({ req, query }) => 
         },
         context: { headers },
     })
+
+    const currentSection = getCurrentSection(section)
+
+    // Tab-specific info prefetch
+    if (currentSection === 'builds') {
+        const currentPage = getCurrentPage(p)
+        await client.query<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>({
+            query: AllB2CAppBuildsDocument,
+            variables: {
+                where: { app: { id } },
+                first: DEFAULT_PAGE_SIZE,
+                skip: DEFAULT_PAGE_SIZE * (currentPage - 1),
+            },
+            context: { headers },
+        })
+    }
 
 
     return extractApolloState(client, {

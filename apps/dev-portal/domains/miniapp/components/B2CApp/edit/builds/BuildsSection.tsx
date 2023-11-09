@@ -1,4 +1,5 @@
 import { Table, Row, Col, RowProps, Form, Upload } from 'antd'
+import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
@@ -14,26 +15,35 @@ import {
     B2C_BUILD_ALLOWED_MIMETYPES,
     B2C_BUILD_MAX_FILE_SIZE_IN_BYTES,
     B2C_BUILD_VERSION_REGEXP,
-    B2C_BUILD_UNIQUE_VERSION_CONSTRAINT,
+    DEFAULT_PAGE_SIZE,
 } from '@/domains/miniapp/constants/common'
 import { useFileSizeFormatter } from '@/domains/miniapp/hooks/useFileSizeFormatter'
 import { useFileValidator } from '@/domains/miniapp/hooks/useFileValidator'
 import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutationCompletedHandler'
+import { nonNull } from '@/domains/miniapp/utils/nonNull'
+import { getCurrentPage } from '@/domains/miniapp/utils/query'
+import { INVALID_MIMETYPE } from '@dev-api/domains/common/constants/errors'
+import { B2C_BUILD_UNIQUE_VERSION_CONSTRAINT } from '@dev-api/domains/miniapp/constants/constraints'
+import { INVALID_BUILD_VERSION } from '@dev-api/domains/miniapp/constants/errors'
 
 import styles from './BuildsSection.module.css'
 
 import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 
-import { useCreateB2CAppBuildMutation } from '@/lib/gql'
+import {
+    useCreateB2CAppBuildMutation,
+    useAllB2CAppBuildsQuery,
+} from '@/lib/gql'
 
 
 const ROW_BUTTON_GUTTER: RowProps['gutter'] = [60, 60]
 const ROW_FORM_GUTTER: RowProps['gutter'] = [0, 0]
 const FULL_COL_SPAN = 24
-const PAGE_SIZE = 20
 const PAGINATION_POSITION = ['bottomLeft' as const]
 const BUILD_FORM_ERROR_TO_FIELD_MAPPING = {
     [B2C_BUILD_UNIQUE_VERSION_CONSTRAINT]: 'version',
+    [INVALID_BUILD_VERSION]: 'version',
+    [INVALID_MIMETYPE]: 'data',
 }
 const SEMVER_RULES_LINK = 'https://semver.org'
 
@@ -51,7 +61,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const BuildsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.title' })
     const VersionColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.version.title' })
-    const SizeColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.size.title' })
+    const CreatedAtColumnTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.columns.createdAt.title' })
     const AddBuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.actions.addBuild' })
     const NewBuildModalTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.title' })
     const VersionFormLabel = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.label' })
@@ -75,6 +85,20 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
         limit: formatFileSize(B2C_BUILD_MAX_FILE_SIZE_IN_BYTES),
     })
 
+    const router = useRouter()
+    const { p } = router.query
+    const page = getCurrentPage(p)
+
+    const { data, refetch: refetchBuilds } = useAllB2CAppBuildsQuery({
+        variables: {
+            where: { app: { id } },
+            first: DEFAULT_PAGE_SIZE,
+            skip: DEFAULT_PAGE_SIZE * (page - 1),
+        },
+    })
+    const builds = (data?.builds || []).filter(nonNull)
+
+
     const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
     const [form] = Form.useForm()
@@ -84,9 +108,10 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     }, [])
 
     const handleCloseModal = useCallback(() => {
+        refetchBuilds()
         setUploadModalOpen(false)
         form.resetFields()
-    }, [form])
+    }, [form, refetchBuilds])
 
     const onError = useMutationErrorHandler({
         form,
@@ -97,6 +122,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     })
     const onCompletedInform = useMutationCompletedHandler()
     const onCompleted = useCallback(() => {
+
         onCompletedInform()
         handleCloseModal()
     }, [handleCloseModal, onCompletedInform])
@@ -119,6 +145,10 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
         })
     }, [createB2CAppBuildMutation, id])
 
+    const handlePaginationChange = useCallback((newPage: number) => {
+        router.replace({ query: { ...router.query, p: newPage } },  undefined, { locale: router.locale })
+    }, [router])
+
     const beforeUpload = useFileValidator({
         restrictMimeTypes: B2C_BUILD_ALLOWED_MIMETYPES,
         sizeLimit: B2C_BUILD_MAX_FILE_SIZE_IN_BYTES,
@@ -134,10 +164,11 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
             width: '70%',
         },
         {
-            title: SizeColumnTitle,
-            dataIndex: 'size',
-            key: 'size',
+            title: CreatedAtColumnTitle,
+            dataIndex: 'createdAt',
+            key: 'createdAt',
             width: '30%',
+            render: (text: string) => intl.formatDate(text),
         },
     ]
 
@@ -149,16 +180,15 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
                         <Table
                             columns={columns}
                             bordered
-                            dataSource={[
-                                { size: '30Mb', version: '1.0.0-development' },
-                                { size: '30Mb', version: '1.0.0-prod' },
-                            ]}
+                            dataSource={builds}
                             pagination={{
-                                pageSize: PAGE_SIZE,
+                                pageSize: DEFAULT_PAGE_SIZE,
                                 position: PAGINATION_POSITION,
                                 showSizeChanger: false,
-                                total: 200,
+                                total: data?.meta?.count || 0,
                                 simple: true,
+                                current: page,
+                                onChange: handlePaginationChange,
                             }}
                             rowKey='version'
                         />

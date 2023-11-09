@@ -15,7 +15,7 @@ const AVAILABLE_SECTIONS = [
 
 export type SectionType = typeof AVAILABLE_SECTIONS[number]
 
-function getCurrentSection (querySection?: string | Array<string>): SectionType {
+export function getCurrentSection (querySection?: string | Array<string>): SectionType {
     if (!querySection || Array.isArray(querySection)) {
         return AVAILABLE_SECTIONS[0]
     }

@@ -11,9 +11,10 @@ const {
     getMimeTypesValidator,
 } = require('@dev-api/domains/common/utils/files')
 const access = require('@dev-api/domains/miniapp/access/B2CAppBuild')
+const { B2C_BUILD_UNIQUE_VERSION_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
 const { INVALID_BUILD_VERSION } = require('@dev-api/domains/miniapp/constants/errors')
 
-const SEM_VER_REGEX = /^\d+.\d+.\d+$/
+const SEM_VER_REGEX = /^\d+.\d+.\d+(?:-\w+)?$/
 const ERRORS = {
     INVALID_BUILD_VERSION: {
         code: BAD_USER_INPUT,
@@ -75,7 +76,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
                 type: 'models.UniqueConstraint',
                 fields: ['version', 'app'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'b2c_app_build_unique_version_app',
+                name: B2C_BUILD_UNIQUE_VERSION_CONSTRAINT,
             },
         ],
     },

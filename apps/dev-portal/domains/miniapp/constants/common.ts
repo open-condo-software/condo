@@ -12,4 +12,4 @@ export const B2C_BUILD_ALLOWED_MIMETYPES  = [
 ]
 export const B2C_BUILD_MAX_FILE_SIZE_IN_BYTES = 200 * 1024 * 1024  // 200 Mb in bytes
 export const B2C_BUILD_VERSION_REGEXP = /^\d+.\d+.\d+(?:-\w+)?$/
-export const B2C_BUILD_UNIQUE_VERSION_CONSTRAINT = 'b2c_app_build_unique_version_app'
+export const DEFAULT_PAGE_SIZE = 10
