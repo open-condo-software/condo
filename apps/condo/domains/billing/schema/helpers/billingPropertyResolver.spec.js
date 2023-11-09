@@ -49,7 +49,6 @@ describe('BillingPropertyResolver tests', () => {
         noPairProperty
 
     beforeAll(async () => {
-        tin = '12345789'
         adminContext = keystone.createContext({ skipAccessControl: true })
         const {
             admin: adminClient,
@@ -60,6 +59,7 @@ describe('BillingPropertyResolver tests', () => {
         admin = adminClient
         billingIntegrationContext = billingContext
         organization = org
+        tin = organization.tin
         const [secondContext] = await createTestBillingIntegrationOrganizationContext(
             admin,
             organization, integration, {}
@@ -77,8 +77,6 @@ describe('BillingPropertyResolver tests', () => {
         resolver = new BillingPropertyResolver()
         await resolver.init(
             adminContext,
-            tin,
-            organization.id,
             billingContext.id,
             {},
         )
@@ -136,7 +134,7 @@ describe('BillingPropertyResolver tests', () => {
             )
 
             // constant
-            const tin = '12345789'
+            const tin = organization.tin
             const organizationId = organization.id
             const billingIntegrationOrganizationContextId = context.id
             const addressTransformRules = { one: 'rule' }
@@ -147,8 +145,6 @@ describe('BillingPropertyResolver tests', () => {
 
             await resolver.init(
                 adminContext,
-                tin,
-                organizationId,
                 billingIntegrationOrganizationContextId,
                 addressTransformRules,
             )
@@ -462,7 +458,7 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('propagate for a given address', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
             resolver.tin = tin
@@ -483,7 +479,7 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('propagate for a given address and address sources', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
             const address2 = faker.address.streetAddress(true)
@@ -509,7 +505,7 @@ describe('BillingPropertyResolver tests', () => {
 
     describe('BillingPropertyResolver.getAddressConditionValues tests', () => {
         it('Cached address with all meta', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
             const normalizedAddress = faker.address.streetAddress(true)
@@ -534,9 +530,8 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('Cached fias with all meta', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
-            const address = faker.address.streetAddress(true)
             const normalizedAddress = faker.address.streetAddress(true)
             const addressKey = faker.datatype.uuid()
             const fias = faker.datatype.uuid()
@@ -564,7 +559,7 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('Cached address without fias', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
             const normalizedAddress = faker.address.streetAddress(true)
@@ -583,11 +578,10 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('Cached original input', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
             const address = faker.address.streetAddress(true)
             const originalInput = faker.address.streetAddress(true)
-            const normalizedAddress = faker.address.streetAddress(true)
             const addressKey = faker.datatype.uuid()
             resolver.tin = tin
             resolver.addressCache = {
@@ -606,7 +600,7 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('Not cached fias', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
             const fias = faker.datatype.uuid()
             resolver.tin = tin
@@ -623,7 +617,7 @@ describe('BillingPropertyResolver tests', () => {
         })
 
         it('Not cached address', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
             resolver.tin = tin
             resolver.addressCache = {}
@@ -851,7 +845,7 @@ describe('BillingPropertyResolver tests', () => {
 
     describe('BillingPropertyResolver.getSearchSummary tests', () => {
         it('regular case', async () => {
-            const tin = '12345789'
+            const tin = organization.tin
             const resolver = new BillingPropertyResolver()
 
             // properties mock
@@ -861,8 +855,6 @@ describe('BillingPropertyResolver tests', () => {
             const { address, normalizedAddress, addressKey, globalId: fias } = billingProperty
             await resolver.init(
                 adminContext,
-                tin,
-                organization.id,
                 billingIntegrationContext.id,
                 {},
             )
@@ -1006,14 +998,11 @@ describe('BillingPropertyResolver tests', () => {
             )
 
             // constant
-            const tin = '12345789'
-            const organizationId = organization.id
+            const tin = organization.tin
             const billingIntegrationOrganizationContextId = context.id
 
             await resolver.init(
                 adminContext,
-                tin,
-                organizationId,
                 billingIntegrationOrganizationContextId,
                 {},
             )
@@ -1111,14 +1100,11 @@ describe('BillingPropertyResolver tests', () => {
                 }
             }
             getResolver = async (rules = {}, addressServiceSearchMock = async () => null, providedOrg, providedContext) => {
-                const chosenOrg = isNil(providedOrg) ? organization : providedOrg
                 const chosenContext = isNil(providedContext) ? billingIntegrationContext : providedContext
                 // init resolver at the end since it cache data at init stage
                 resolver = new BillingPropertyResolver()
                 await resolver.init(
                     adminContext,
-                    tin,
-                    chosenOrg.id,
                     chosenContext.id,
                     rules,
                 )

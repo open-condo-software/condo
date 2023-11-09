@@ -332,8 +332,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 await categoryResolver.loadCategories(context)
                 const billingPropertyResolver = new BillingPropertyResolver()
                 await billingPropertyResolver.init(
-                    context, billingContext.organization.tin, billingContext.organization.id,
-                    billingContext.id, addressTransformRules || {}
+                    context, billingContext.id, addressTransformRules || {}
                 )
 
                 const propertyIndex = {}

@@ -32,6 +32,9 @@ const { createTestBillingCategory } = require('@condo/domains/billing/utils/test
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE, APARTMENT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const {
+    createTestProperty,
+} = require('@condo/domains/property/utils/testSchema')
+const {
     makeClientWithSupportUser,
     makeLoggedInClient,
 } = require('@condo/domains/user/utils/testSchema')
@@ -381,6 +384,59 @@ describe('RegisterBillingReceiptsService', () => {
                 const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
 
                 expect(billingProperties).toHaveLength(3)
+                expect(billingAccounts).toHaveLength(2)
+                expect(billingReceipts).toHaveLength(2)
+                expect(data).toHaveLength(2)
+            })
+            test('BillingProperties resolve by organization properties', async () => {
+                /**
+                 * Existing properties = {p1, p2}
+                 * Properties from args = {p1, p3}
+                 * Result: {p1, p2, p3}
+                 */
+
+                const EXISTING_TEST_ADDRESS_P1 = 'г. Екатеринбург, Тургенева 4, кв. 123'
+                const EXISTING_TEST_ADDRESS_P2 = 'г. Екатеринбург, Проспект Ленина, 44, кв. 12'
+
+                const [organization] = await createTestOrganization(admin)
+                const [integration] = await createTestBillingIntegration(admin)
+                const [billingContext] = await createTestBillingIntegrationOrganizationContext(admin, organization, integration, {
+                    settings: { dv: 1, billingPropertyResolver: { resolveOnlyByOrganizationProperties: true } },
+                })
+
+                await createTestProperty(admin, organization, {
+                    address: EXISTING_TEST_ADDRESS_P1,
+                })
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P1,
+                })
+
+                await createTestProperty(admin, organization, {
+                    address: EXISTING_TEST_ADDRESS_P2,
+                })
+                await createTestBillingProperty(admin, billingContext, {
+                    address: EXISTING_TEST_ADDRESS_P2,
+                })
+
+                const integrationInputNoise = ` ${faker.datatype.uuid()} ${faker.datatype.uuid()}`
+                const payload = {
+                    context: { id: billingContext.id },
+                    receipts: [
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS_P1 + integrationInputNoise,
+                        }),
+                        createRegisterBillingReceiptsPayload({
+                            address: EXISTING_TEST_ADDRESS_P2 + integrationInputNoise,
+                        }),
+                    ],
+                }
+
+                const [ data ] = await registerBillingReceiptsByTestClient(admin, payload)
+                const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
+                const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
+                const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
+
+                expect(billingProperties).toHaveLength(2)
                 expect(billingAccounts).toHaveLength(2)
                 expect(billingReceipts).toHaveLength(2)
                 expect(data).toHaveLength(2)

@@ -53,26 +53,24 @@ class BillingPropertyResolver {
     /**
      * Prepare address transformer to work with provided rule set
      * @param context - keystone server context
-     * @param tin - organization tin
-     * @param organizationId - organization id
      * @param billingIntegrationOrganizationContextId - billing integration organization context id
      * @param addressTransformRules - address transform rules
      * @param mockedItem - address service mocked item (for test purposes only)
      * @returns {Promise<{errorMessage: (string|undefined), error: (string|null)}>}
      */
-    async init (context, tin, organizationId, billingIntegrationOrganizationContextId, addressTransformRules, mockedItem = null) {
+    async init (context, billingIntegrationOrganizationContextId, addressTransformRules, mockedItem = null) {
         this.context = context
-        this.tin = tin
-        this.organizationId = organizationId
         this.billingIntegrationOrganizationContextId = billingIntegrationOrganizationContextId
-        this.addressService = createAddressServiceClientInstance(mockedItem)
-        this.addressTransformer = new AddressTransform()
-        this.parser = new AddressParser()
-        this.addressCache = {}
         this.billingIntegrationOrganizationContext = await BillingIntegrationOrganizationContext.getOne(
             context,
             { id: billingIntegrationOrganizationContextId }
         )
+        this.organizationId = this.billingIntegrationOrganizationContext.organization.id
+        this.tin = this.billingIntegrationOrganizationContext.organization.tin
+        this.addressService = createAddressServiceClientInstance(mockedItem)
+        this.addressTransformer = new AddressTransform()
+        this.parser = new AddressParser()
+        this.addressCache = {}
 
         // address transformRules from both input/context
         const inputRules = addressTransformRules || {}
