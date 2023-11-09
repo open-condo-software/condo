@@ -68,7 +68,9 @@ export const MobileMenu: React.FC = () => {
             return
         }
         if (isAuthenticated) {
-            router.push('/apps', '/apps', { locale: router.locale })
+            router.push('/apps', '/apps', { locale: router.locale }).then(() => {
+                setIsOpen(false)
+            })
         } else {
             startSignIn()
         }
