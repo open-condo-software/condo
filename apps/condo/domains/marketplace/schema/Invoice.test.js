@@ -658,7 +658,10 @@ describe('Invoice', () => {
         })
 
         test('can\'t edit published invoice', async () => {
-            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+            const [o10n] = await createTestOrganization(adminClient)
+            const [integration] = await createTestAcquiringIntegration(supportClient)
+            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            const [invoice] = await createTestInvoice(adminClient, invoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
             await expectToThrowGQLError(async () => {
                 await updateTestInvoice(adminClient, invoice.id)
