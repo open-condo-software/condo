@@ -258,8 +258,9 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     addValidationError(`${MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP} Failed ids: ${alreadyWithMPPayments.join(', ')}`)
                 }
 
-                const receiptPayments = payments.filter(({ receipt }) => !!receipt)
-                const invoicePayments = payments.filter(({ invoice }) => !!invoice)
+                const receiptPayments = payments.filter(({ invoice, receipt }) => !!receipt && !invoice)
+                const invoicePayments = payments.filter(({ invoice, receipt }) => !!invoice && !receipt)
+                const virtualPayments = payments.filter(({ invoice, receipt }) => !invoice && !receipt)
 
                 const currencyCode = resolvedData['currencyCode']
                 const anotherCurrencyPayments = receiptPayments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
@@ -281,7 +282,7 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     return addValidationError(MULTIPAYMENT_TOTAL_AMOUNT_MISMATCH)
                 }
                 const acquiringContexts = await find('AcquiringIntegrationContext', {
-                    id_in: compact(receiptPayments.map(payment => payment.context)),
+                    id_in: compact([...receiptPayments, ...virtualPayments].map(payment => payment.context)),
                 })
 
                 const invoices = await find('Invoice', { deletedAt: null, id_in: invoicePayments.map(({ invoice }) => invoice) })
