@@ -13,14 +13,10 @@ const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 const B2C_APP_BUILD_FIELDS = `{ app { id } version data { publicUrl } ${COMMON_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
-const B2C_APP_PROPERTY_FIELDS = `{ app { id } address addressKey ${COMMON_FIELDS} }`
-const B2CAppProperty = generateGqlQueries('B2CAppProperty', B2C_APP_PROPERTY_FIELDS)
-
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     B2CApp,
     B2CAppBuild,
-    B2CAppProperty,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

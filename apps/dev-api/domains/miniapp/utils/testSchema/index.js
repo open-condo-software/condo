@@ -11,14 +11,10 @@ const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.util
 const { B2CApp: B2CAppGQL } = require('@dev-api/domains/miniapp/gql')
 const { B2CAppBuild: B2CAppBuildGQL } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
-const { B2CAppProperty: B2CAppPropertyGQL } = require('@dev-api/domains/miniapp/gql')
-// TODO(DOMA-7456): Replace it with address builder from address-service plugin
-const { getFakeAddress } = require('@condo/domains/miniapp/utils/testSchema')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
 const B2CAppBuild = generateGQLTestUtils(B2CAppBuildGQL)
-const B2CAppProperty = generateGQLTestUtils(B2CAppPropertyGQL)
 /* AUTOGENERATE MARKER <CONST> */
 
 const FAKE_BUILD_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-api/domains/miniapp/utils/testSchema/assets/build.zip')
@@ -99,74 +95,10 @@ async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-async function createTestB2CAppProperty (client, app, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!app || !app.id) throw new Error('no app.id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const [address, addressMeta] = getFakeAddress()
-
-    const attrs = {
-        dv: 1,
-        sender,
-        app: { connect: { id: app.id } },
-        address,
-        addressMeta,
-        ...extraAttrs,
-    }
-    const obj = await B2CAppProperty.create(client, attrs)
-    return [obj, attrs]
-}
-
-async function createTestB2CAppProperties (client, attrsArray = []) {
-    if (!client) throw new Error('no client')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-
-    const data = attrsArray.map(attrs => {
-        const [address, addressMeta] = getFakeAddress()
-        return {
-            data: {
-                dv: 1,
-                sender,
-                address,
-                addressMeta,
-                ...attrs,
-            }
-        }
-    })
-    const obj = await B2CAppProperty.createMany(client, data)
-    return [obj, data]
-}
-
-async function updateTestB2CAppProperty (client, id, extraAttrs = {}) {
-    if (!client) throw new Error('no client')
-    if (!id) throw new Error('no id')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-
-    const attrs = {
-        dv: 1,
-        sender,
-        ...extraAttrs,
-    }
-    const obj = await B2CAppProperty.update(client, id, attrs)
-    return [obj, attrs]
-}
-
-async function updateTestB2CAppProperties (client, attrsArray) {
-    if (!client) throw new Error('no client')
-    if (!Array.isArray(attrsArray)) throw new Error('payload is not an array')
-    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const data = attrsArray.map(item => ({ id: item.id, data: { ...item.data, dv: 1, sender } }))
-    const objs = await B2CAppProperty.updateMany(client, data)
-
-    return [objs, data]
-}
-
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
     B2CApp, createTestB2CApp, updateTestB2CApp, updateTestB2CApps,
     B2CAppBuild, createTestB2CAppBuild, updateTestB2CAppBuild, generateBuildVersion,
-    B2CAppProperty, createTestB2CAppProperty, createTestB2CAppProperties, updateTestB2CAppProperty, updateTestB2CAppProperties, getFakeAddress,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

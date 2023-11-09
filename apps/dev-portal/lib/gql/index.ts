@@ -21,209 +21,6 @@ export type Scalars = {
     Upload: { input: any; output: any; }
 }
 
-export type AddressMetaDataField = {
-    __typename?: 'AddressMetaDataField';
-    area?: Maybe<Scalars['String']['output']>;
-    area_fias_id?: Maybe<Scalars['String']['output']>;
-    area_kladr_id?: Maybe<Scalars['String']['output']>;
-    area_type?: Maybe<Scalars['String']['output']>;
-    area_type_full?: Maybe<Scalars['String']['output']>;
-    area_with_type?: Maybe<Scalars['String']['output']>;
-    beltway_distance?: Maybe<Scalars['String']['output']>;
-    beltway_hit?: Maybe<Scalars['String']['output']>;
-    block?: Maybe<Scalars['String']['output']>;
-    block_type?: Maybe<Scalars['String']['output']>;
-    block_type_full?: Maybe<Scalars['String']['output']>;
-    capital_marker?: Maybe<Scalars['String']['output']>;
-    city?: Maybe<Scalars['String']['output']>;
-    city_area?: Maybe<Scalars['String']['output']>;
-    city_district?: Maybe<Scalars['String']['output']>;
-    city_district_fias_id?: Maybe<Scalars['String']['output']>;
-    city_district_kladr_id?: Maybe<Scalars['String']['output']>;
-    city_district_type?: Maybe<Scalars['String']['output']>;
-    city_district_type_full?: Maybe<Scalars['String']['output']>;
-    city_district_with_type?: Maybe<Scalars['String']['output']>;
-    city_fias_id?: Maybe<Scalars['String']['output']>;
-    city_kladr_id?: Maybe<Scalars['String']['output']>;
-    city_type?: Maybe<Scalars['String']['output']>;
-    city_type_full?: Maybe<Scalars['String']['output']>;
-    city_with_type?: Maybe<Scalars['String']['output']>;
-    country: Scalars['String']['output'];
-    country_iso_code?: Maybe<Scalars['String']['output']>;
-    entrance?: Maybe<Scalars['String']['output']>;
-    federal_district?: Maybe<Scalars['String']['output']>;
-    fias_actuality_state?: Maybe<Scalars['String']['output']>;
-    fias_code?: Maybe<Scalars['String']['output']>;
-    fias_id?: Maybe<Scalars['String']['output']>;
-    fias_level?: Maybe<Scalars['String']['output']>;
-    flat?: Maybe<Scalars['String']['output']>;
-    flat_area?: Maybe<Scalars['String']['output']>;
-    flat_fias_id?: Maybe<Scalars['String']['output']>;
-    flat_price?: Maybe<Scalars['String']['output']>;
-    flat_type?: Maybe<Scalars['String']['output']>;
-    flat_type_full?: Maybe<Scalars['String']['output']>;
-    floor?: Maybe<Scalars['String']['output']>;
-    geo_lat?: Maybe<Scalars['String']['output']>;
-    geo_lon?: Maybe<Scalars['String']['output']>;
-    geoname_id?: Maybe<Scalars['String']['output']>;
-    history_values?: Maybe<Array<Maybe<Scalars['String']['output']>>>;
-    house?: Maybe<Scalars['String']['output']>;
-    house_fias_id?: Maybe<Scalars['String']['output']>;
-    house_kladr_id?: Maybe<Scalars['String']['output']>;
-    house_type?: Maybe<Scalars['String']['output']>;
-    house_type_full?: Maybe<Scalars['String']['output']>;
-    kladr_id?: Maybe<Scalars['String']['output']>;
-    metro?: Maybe<Array<Maybe<AddressMetaDataMetroField>>>;
-    okato?: Maybe<Scalars['String']['output']>;
-    oktmo?: Maybe<Scalars['String']['output']>;
-    postal_box?: Maybe<Scalars['String']['output']>;
-    postal_code?: Maybe<Scalars['String']['output']>;
-    qc?: Maybe<Scalars['String']['output']>;
-    qc_complete?: Maybe<Scalars['String']['output']>;
-    qc_geo?: Maybe<Scalars['String']['output']>;
-    qc_house?: Maybe<Scalars['String']['output']>;
-    region: Scalars['String']['output'];
-    region_fias_id?: Maybe<Scalars['String']['output']>;
-    region_iso_code?: Maybe<Scalars['String']['output']>;
-    region_kladr_id?: Maybe<Scalars['String']['output']>;
-    region_type?: Maybe<Scalars['String']['output']>;
-    region_type_full?: Maybe<Scalars['String']['output']>;
-    region_with_type?: Maybe<Scalars['String']['output']>;
-    settlement?: Maybe<Scalars['String']['output']>;
-    settlement_fias_id?: Maybe<Scalars['String']['output']>;
-    settlement_kladr_id?: Maybe<Scalars['String']['output']>;
-    settlement_type?: Maybe<Scalars['String']['output']>;
-    settlement_type_full?: Maybe<Scalars['String']['output']>;
-    settlement_with_type?: Maybe<Scalars['String']['output']>;
-    source?: Maybe<Scalars['String']['output']>;
-    square_meter_price?: Maybe<Scalars['String']['output']>;
-    street?: Maybe<Scalars['String']['output']>;
-    street_fias_id?: Maybe<Scalars['String']['output']>;
-    street_kladr_id?: Maybe<Scalars['String']['output']>;
-    street_type?: Maybe<Scalars['String']['output']>;
-    street_type_full?: Maybe<Scalars['String']['output']>;
-    street_with_type?: Maybe<Scalars['String']['output']>;
-    tax_office?: Maybe<Scalars['String']['output']>;
-    tax_office_legal?: Maybe<Scalars['String']['output']>;
-    timezone?: Maybe<Scalars['String']['output']>;
-    unparsed_parts?: Maybe<Scalars['String']['output']>;
-}
-
-export type AddressMetaDataFieldInput = {
-    area?: InputMaybe<Scalars['String']['input']>;
-    area_fias_id?: InputMaybe<Scalars['String']['input']>;
-    area_kladr_id?: InputMaybe<Scalars['String']['input']>;
-    area_type?: InputMaybe<Scalars['String']['input']>;
-    area_type_full?: InputMaybe<Scalars['String']['input']>;
-    area_with_type?: InputMaybe<Scalars['String']['input']>;
-    beltway_distance?: InputMaybe<Scalars['String']['input']>;
-    beltway_hit?: InputMaybe<Scalars['String']['input']>;
-    block?: InputMaybe<Scalars['String']['input']>;
-    block_type?: InputMaybe<Scalars['String']['input']>;
-    block_type_full?: InputMaybe<Scalars['String']['input']>;
-    capital_marker?: InputMaybe<Scalars['String']['input']>;
-    city?: InputMaybe<Scalars['String']['input']>;
-    city_area?: InputMaybe<Scalars['String']['input']>;
-    city_district?: InputMaybe<Scalars['String']['input']>;
-    city_district_fias_id?: InputMaybe<Scalars['String']['input']>;
-    city_district_kladr_id?: InputMaybe<Scalars['String']['input']>;
-    city_district_type?: InputMaybe<Scalars['String']['input']>;
-    city_district_type_full?: InputMaybe<Scalars['String']['input']>;
-    city_district_with_type?: InputMaybe<Scalars['String']['input']>;
-    city_fias_id?: InputMaybe<Scalars['String']['input']>;
-    city_kladr_id?: InputMaybe<Scalars['String']['input']>;
-    city_type?: InputMaybe<Scalars['String']['input']>;
-    city_type_full?: InputMaybe<Scalars['String']['input']>;
-    city_with_type?: InputMaybe<Scalars['String']['input']>;
-    country: Scalars['String']['input'];
-    country_iso_code?: InputMaybe<Scalars['String']['input']>;
-    entrance?: InputMaybe<Scalars['String']['input']>;
-    federal_district?: InputMaybe<Scalars['String']['input']>;
-    fias_actuality_state?: InputMaybe<Scalars['String']['input']>;
-    fias_code?: InputMaybe<Scalars['String']['input']>;
-    fias_id?: InputMaybe<Scalars['String']['input']>;
-    fias_level?: InputMaybe<Scalars['String']['input']>;
-    flat?: InputMaybe<Scalars['String']['input']>;
-    flat_area?: InputMaybe<Scalars['String']['input']>;
-    flat_fias_id?: InputMaybe<Scalars['String']['input']>;
-    flat_price?: InputMaybe<Scalars['String']['input']>;
-    flat_type?: InputMaybe<Scalars['String']['input']>;
-    flat_type_full?: InputMaybe<Scalars['String']['input']>;
-    floor?: InputMaybe<Scalars['String']['input']>;
-    geo_lat?: InputMaybe<Scalars['String']['input']>;
-    geo_lon?: InputMaybe<Scalars['String']['input']>;
-    geoname_id?: InputMaybe<Scalars['String']['input']>;
-    history_values?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    house?: InputMaybe<Scalars['String']['input']>;
-    house_fias_id?: InputMaybe<Scalars['String']['input']>;
-    house_kladr_id?: InputMaybe<Scalars['String']['input']>;
-    house_type?: InputMaybe<Scalars['String']['input']>;
-    house_type_full?: InputMaybe<Scalars['String']['input']>;
-    kladr_id?: InputMaybe<Scalars['String']['input']>;
-    metro?: InputMaybe<Array<InputMaybe<AddressMetaDataMetroFieldInput>>>;
-    okato?: InputMaybe<Scalars['String']['input']>;
-    oktmo?: InputMaybe<Scalars['String']['input']>;
-    postal_box?: InputMaybe<Scalars['String']['input']>;
-    postal_code?: InputMaybe<Scalars['String']['input']>;
-    qc?: InputMaybe<Scalars['String']['input']>;
-    qc_complete?: InputMaybe<Scalars['String']['input']>;
-    qc_geo?: InputMaybe<Scalars['String']['input']>;
-    qc_house?: InputMaybe<Scalars['String']['input']>;
-    region: Scalars['String']['input'];
-    region_fias_id?: InputMaybe<Scalars['String']['input']>;
-    region_iso_code?: InputMaybe<Scalars['String']['input']>;
-    region_kladr_id?: InputMaybe<Scalars['String']['input']>;
-    region_type?: InputMaybe<Scalars['String']['input']>;
-    region_type_full?: InputMaybe<Scalars['String']['input']>;
-    region_with_type?: InputMaybe<Scalars['String']['input']>;
-    settlement?: InputMaybe<Scalars['String']['input']>;
-    settlement_fias_id?: InputMaybe<Scalars['String']['input']>;
-    settlement_kladr_id?: InputMaybe<Scalars['String']['input']>;
-    settlement_type?: InputMaybe<Scalars['String']['input']>;
-    settlement_type_full?: InputMaybe<Scalars['String']['input']>;
-    settlement_with_type?: InputMaybe<Scalars['String']['input']>;
-    source?: InputMaybe<Scalars['String']['input']>;
-    square_meter_price?: InputMaybe<Scalars['String']['input']>;
-    street?: InputMaybe<Scalars['String']['input']>;
-    street_fias_id?: InputMaybe<Scalars['String']['input']>;
-    street_kladr_id?: InputMaybe<Scalars['String']['input']>;
-    street_type?: InputMaybe<Scalars['String']['input']>;
-    street_type_full?: InputMaybe<Scalars['String']['input']>;
-    street_with_type?: InputMaybe<Scalars['String']['input']>;
-    tax_office?: InputMaybe<Scalars['String']['input']>;
-    tax_office_legal?: InputMaybe<Scalars['String']['input']>;
-    timezone?: InputMaybe<Scalars['String']['input']>;
-    unparsed_parts?: InputMaybe<Scalars['String']['input']>;
-}
-
-export type AddressMetaDataMetroField = {
-    __typename?: 'AddressMetaDataMetroField';
-    distance?: Maybe<Scalars['String']['output']>;
-    line?: Maybe<Scalars['String']['output']>;
-    name?: Maybe<Scalars['String']['output']>;
-}
-
-export type AddressMetaDataMetroFieldInput = {
-    distance?: InputMaybe<Scalars['String']['input']>;
-    line?: InputMaybe<Scalars['String']['input']>;
-    name?: InputMaybe<Scalars['String']['input']>;
-}
-
-export type AddressMetaField = {
-    __typename?: 'AddressMetaField';
-    data: AddressMetaDataField;
-    dv?: Maybe<Scalars['Int']['output']>;
-    unrestricted_value: Scalars['String']['output'];
-    value: Scalars['String']['output'];
-}
-
-export type AddressMetaFieldInput = {
-    data: AddressMetaDataFieldInput;
-    dv: Scalars['Int']['input'];
-    unrestricted_value: Scalars['String']['input'];
-    value: Scalars['String']['input'];
-}
-
 export type AuthenticateUserWithPhoneAndPasswordInput = {
     password: Scalars['String']['input'];
     phone: Scalars['String']['input'];
@@ -816,360 +613,6 @@ export type B2CAppHistoryRecordsUpdateInput = {
     id: Scalars['ID']['input'];
 }
 
-export type B2CAppPropertiesCreateInput = {
-    data?: InputMaybe<B2CAppPropertyCreateInput>;
-}
-
-export type B2CAppPropertiesUpdateInput = {
-    data?: InputMaybe<B2CAppPropertyUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-/**  Link between specific home address and B2C App. Used to control app visibility on a specific address  */
-export type B2CAppProperty = {
-    __typename?: 'B2CAppProperty';
-    /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the B2CAppProperty List config, or
-   *  2. As an alias to the field set on 'labelField' in the B2CAppProperty List config, or
-   *  3. As an alias to a 'name' field on the B2CAppProperty List (if one exists), or
-   *  4. As an alias to the 'id' field on the B2CAppProperty List.
-   */
-    _label_?: Maybe<Scalars['String']['output']>;
-    /**  Normalized address  */
-    address?: Maybe<Scalars['String']['output']>;
-    /**  The unique key of the address  */
-    addressKey?: Maybe<Scalars['String']['output']>;
-    /**  Property address components  */
-    addressMeta?: Maybe<AddressMetaField>;
-    /**  The origins of the address (some strings which may looks like real address or some id)  */
-    addressSources?: Maybe<Scalars['JSON']['output']>;
-    /**  Link to B2C App  */
-    app?: Maybe<B2CApp>;
-    createdAt?: Maybe<Scalars['String']['output']>;
-    /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-    createdBy?: Maybe<User>;
-    deletedAt?: Maybe<Scalars['String']['output']>;
-    /**  Data structure Version  */
-    dv?: Maybe<Scalars['Int']['output']>;
-    id: Scalars['ID']['output'];
-    newId?: Maybe<Scalars['String']['output']>;
-    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
-    sender?: Maybe<SenderField>;
-    updatedAt?: Maybe<Scalars['String']['output']>;
-    /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
-    updatedBy?: Maybe<User>;
-    v?: Maybe<Scalars['Int']['output']>;
-}
-
-export type B2CAppPropertyCreateInput = {
-    address?: InputMaybe<Scalars['String']['input']>;
-    addressKey?: InputMaybe<Scalars['String']['input']>;
-    addressMeta?: InputMaybe<Scalars['JSON']['input']>;
-    addressSources?: InputMaybe<Scalars['JSON']['input']>;
-    app?: InputMaybe<B2CAppRelateToOneInput>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<UserRelateToOneInput>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    newId?: InputMaybe<Scalars['String']['input']>;
-    sender?: InputMaybe<SenderFieldInput>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<UserRelateToOneInput>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-/**  A keystone list  */
-export type B2CAppPropertyHistoryRecord = {
-    __typename?: 'B2CAppPropertyHistoryRecord';
-    /**
-   * This virtual field will be resolved in one of the following ways (in this order):
-   *  1. Execution of 'labelResolver' set on the B2CAppPropertyHistoryRecord List config, or
-   *  2. As an alias to the field set on 'labelField' in the B2CAppPropertyHistoryRecord List config, or
-   *  3. As an alias to a 'name' field on the B2CAppPropertyHistoryRecord List (if one exists), or
-   *  4. As an alias to the 'id' field on the B2CAppPropertyHistoryRecord List.
-   */
-    _label_?: Maybe<Scalars['String']['output']>;
-    app?: Maybe<Scalars['String']['output']>;
-    createdAt?: Maybe<Scalars['String']['output']>;
-    createdBy?: Maybe<Scalars['String']['output']>;
-    deletedAt?: Maybe<Scalars['String']['output']>;
-    dv?: Maybe<Scalars['Int']['output']>;
-    history_action?: Maybe<B2CAppPropertyHistoryRecordHistoryActionType>;
-    history_date?: Maybe<Scalars['String']['output']>;
-    history_id?: Maybe<Scalars['String']['output']>;
-    id: Scalars['ID']['output'];
-    newId?: Maybe<Scalars['JSON']['output']>;
-    sender?: Maybe<Scalars['JSON']['output']>;
-    updatedAt?: Maybe<Scalars['String']['output']>;
-    updatedBy?: Maybe<Scalars['String']['output']>;
-    v?: Maybe<Scalars['Int']['output']>;
-}
-
-export type B2CAppPropertyHistoryRecordCreateInput = {
-    app?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<Scalars['String']['input']>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    history_action?: InputMaybe<B2CAppPropertyHistoryRecordHistoryActionType>;
-    history_date?: InputMaybe<Scalars['String']['input']>;
-    history_id?: InputMaybe<Scalars['String']['input']>;
-    newId?: InputMaybe<Scalars['JSON']['input']>;
-    sender?: InputMaybe<Scalars['JSON']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<Scalars['String']['input']>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-export enum B2CAppPropertyHistoryRecordHistoryActionType {
-    C = 'c',
-    D = 'd',
-    U = 'u',
-}
-
-export type B2CAppPropertyHistoryRecordUpdateInput = {
-    app?: InputMaybe<Scalars['String']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<Scalars['String']['input']>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    history_action?: InputMaybe<B2CAppPropertyHistoryRecordHistoryActionType>;
-    history_date?: InputMaybe<Scalars['String']['input']>;
-    history_id?: InputMaybe<Scalars['String']['input']>;
-    newId?: InputMaybe<Scalars['JSON']['input']>;
-    sender?: InputMaybe<Scalars['JSON']['input']>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<Scalars['String']['input']>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-export type B2CAppPropertyHistoryRecordWhereInput = {
-    AND?: InputMaybe<Array<InputMaybe<B2CAppPropertyHistoryRecordWhereInput>>>;
-    OR?: InputMaybe<Array<InputMaybe<B2CAppPropertyHistoryRecordWhereInput>>>;
-    app?: InputMaybe<Scalars['String']['input']>;
-    app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    app_not?: InputMaybe<Scalars['String']['input']>;
-    app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdBy?: InputMaybe<Scalars['String']['input']>;
-    createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdBy_not?: InputMaybe<Scalars['String']['input']>;
-    createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    dv_gt?: InputMaybe<Scalars['Int']['input']>;
-    dv_gte?: InputMaybe<Scalars['Int']['input']>;
-    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    dv_lt?: InputMaybe<Scalars['Int']['input']>;
-    dv_lte?: InputMaybe<Scalars['Int']['input']>;
-    dv_not?: InputMaybe<Scalars['Int']['input']>;
-    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    history_action?: InputMaybe<B2CAppPropertyHistoryRecordHistoryActionType>;
-    history_action_in?: InputMaybe<Array<InputMaybe<B2CAppPropertyHistoryRecordHistoryActionType>>>;
-    history_action_not?: InputMaybe<B2CAppPropertyHistoryRecordHistoryActionType>;
-    history_action_not_in?: InputMaybe<Array<InputMaybe<B2CAppPropertyHistoryRecordHistoryActionType>>>;
-    history_date?: InputMaybe<Scalars['String']['input']>;
-    history_date_gt?: InputMaybe<Scalars['String']['input']>;
-    history_date_gte?: InputMaybe<Scalars['String']['input']>;
-    history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    history_date_lt?: InputMaybe<Scalars['String']['input']>;
-    history_date_lte?: InputMaybe<Scalars['String']['input']>;
-    history_date_not?: InputMaybe<Scalars['String']['input']>;
-    history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    history_id?: InputMaybe<Scalars['String']['input']>;
-    history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    history_id_not?: InputMaybe<Scalars['String']['input']>;
-    history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    id?: InputMaybe<Scalars['ID']['input']>;
-    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    id_not?: InputMaybe<Scalars['ID']['input']>;
-    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    newId?: InputMaybe<Scalars['JSON']['input']>;
-    newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    newId_not?: InputMaybe<Scalars['JSON']['input']>;
-    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    sender?: InputMaybe<Scalars['JSON']['input']>;
-    sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    sender_not?: InputMaybe<Scalars['JSON']['input']>;
-    sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedBy?: InputMaybe<Scalars['String']['input']>;
-    updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedBy_not?: InputMaybe<Scalars['String']['input']>;
-    updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-    v_gt?: InputMaybe<Scalars['Int']['input']>;
-    v_gte?: InputMaybe<Scalars['Int']['input']>;
-    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    v_lt?: InputMaybe<Scalars['Int']['input']>;
-    v_lte?: InputMaybe<Scalars['Int']['input']>;
-    v_not?: InputMaybe<Scalars['Int']['input']>;
-    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-}
-
-export type B2CAppPropertyHistoryRecordWhereUniqueInput = {
-    id: Scalars['ID']['input'];
-}
-
-export type B2CAppPropertyHistoryRecordsCreateInput = {
-    data?: InputMaybe<B2CAppPropertyHistoryRecordCreateInput>;
-}
-
-export type B2CAppPropertyHistoryRecordsUpdateInput = {
-    data?: InputMaybe<B2CAppPropertyHistoryRecordUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-export type B2CAppPropertyUpdateInput = {
-    address?: InputMaybe<Scalars['String']['input']>;
-    addressKey?: InputMaybe<Scalars['String']['input']>;
-    addressMeta?: InputMaybe<Scalars['JSON']['input']>;
-    addressSources?: InputMaybe<Scalars['JSON']['input']>;
-    app?: InputMaybe<B2CAppRelateToOneInput>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdBy?: InputMaybe<UserRelateToOneInput>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    newId?: InputMaybe<Scalars['String']['input']>;
-    sender?: InputMaybe<SenderFieldInput>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedBy?: InputMaybe<UserRelateToOneInput>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-}
-
-export type B2CAppPropertyWhereInput = {
-    AND?: InputMaybe<Array<InputMaybe<B2CAppPropertyWhereInput>>>;
-    OR?: InputMaybe<Array<InputMaybe<B2CAppPropertyWhereInput>>>;
-    address?: InputMaybe<Scalars['String']['input']>;
-    addressKey?: InputMaybe<Scalars['String']['input']>;
-    addressKey_contains?: InputMaybe<Scalars['String']['input']>;
-    addressKey_contains_i?: InputMaybe<Scalars['String']['input']>;
-    addressKey_ends_with?: InputMaybe<Scalars['String']['input']>;
-    addressKey_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    addressKey_i?: InputMaybe<Scalars['String']['input']>;
-    addressKey_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    addressKey_not?: InputMaybe<Scalars['String']['input']>;
-    addressKey_not_contains?: InputMaybe<Scalars['String']['input']>;
-    addressKey_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    addressKey_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    addressKey_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    addressKey_not_i?: InputMaybe<Scalars['String']['input']>;
-    addressKey_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    addressKey_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    addressKey_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    addressKey_starts_with?: InputMaybe<Scalars['String']['input']>;
-    addressKey_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    addressMeta?: InputMaybe<Scalars['JSON']['input']>;
-    addressMeta_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    addressMeta_not?: InputMaybe<Scalars['JSON']['input']>;
-    addressMeta_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    addressSources?: InputMaybe<Scalars['JSON']['input']>;
-    addressSources_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    addressSources_not?: InputMaybe<Scalars['JSON']['input']>;
-    addressSources_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
-    address_contains?: InputMaybe<Scalars['String']['input']>;
-    address_contains_i?: InputMaybe<Scalars['String']['input']>;
-    address_ends_with?: InputMaybe<Scalars['String']['input']>;
-    address_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    address_i?: InputMaybe<Scalars['String']['input']>;
-    address_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    address_not?: InputMaybe<Scalars['String']['input']>;
-    address_not_contains?: InputMaybe<Scalars['String']['input']>;
-    address_not_contains_i?: InputMaybe<Scalars['String']['input']>;
-    address_not_ends_with?: InputMaybe<Scalars['String']['input']>;
-    address_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
-    address_not_i?: InputMaybe<Scalars['String']['input']>;
-    address_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    address_not_starts_with?: InputMaybe<Scalars['String']['input']>;
-    address_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    address_starts_with?: InputMaybe<Scalars['String']['input']>;
-    address_starts_with_i?: InputMaybe<Scalars['String']['input']>;
-    app?: InputMaybe<B2CAppWhereInput>;
-    app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
-    createdAt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
-    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not?: InputMaybe<Scalars['String']['input']>;
-    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    createdBy?: InputMaybe<UserWhereInput>;
-    createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
-    deletedAt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
-    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    dv?: InputMaybe<Scalars['Int']['input']>;
-    dv_gt?: InputMaybe<Scalars['Int']['input']>;
-    dv_gte?: InputMaybe<Scalars['Int']['input']>;
-    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    dv_lt?: InputMaybe<Scalars['Int']['input']>;
-    dv_lte?: InputMaybe<Scalars['Int']['input']>;
-    dv_not?: InputMaybe<Scalars['Int']['input']>;
-    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    id?: InputMaybe<Scalars['ID']['input']>;
-    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    id_not?: InputMaybe<Scalars['ID']['input']>;
-    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
-    newId?: InputMaybe<Scalars['String']['input']>;
-    newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    newId_not?: InputMaybe<Scalars['String']['input']>;
-    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    sender?: InputMaybe<SenderFieldInput>;
-    sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
-    sender_not?: InputMaybe<SenderFieldInput>;
-    sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
-    updatedAt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
-    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
-    updatedBy?: InputMaybe<UserWhereInput>;
-    updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
-    v?: InputMaybe<Scalars['Int']['input']>;
-    v_gt?: InputMaybe<Scalars['Int']['input']>;
-    v_gte?: InputMaybe<Scalars['Int']['input']>;
-    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-    v_lt?: InputMaybe<Scalars['Int']['input']>;
-    v_lte?: InputMaybe<Scalars['Int']['input']>;
-    v_not?: InputMaybe<Scalars['Int']['input']>;
-    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
-}
-
-export type B2CAppPropertyWhereUniqueInput = {
-    id: Scalars['ID']['input'];
-}
-
 export type B2CAppRelateToOneInput = {
     connect?: InputMaybe<B2CAppWhereUniqueInput>;
     create?: InputMaybe<B2CAppCreateInput>;
@@ -1759,14 +1202,6 @@ export type Mutation = {
     createB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Create multiple B2CAppHistoryRecord items.  */
     createB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
-    /**  Create multiple B2CAppProperty items.  */
-    createB2CAppProperties?: Maybe<Array<Maybe<B2CAppProperty>>>;
-    /**  Create a single B2CAppProperty item.  */
-    createB2CAppProperty?: Maybe<B2CAppProperty>;
-    /**  Create a single B2CAppPropertyHistoryRecord item.  */
-    createB2CAppPropertyHistoryRecord?: Maybe<B2CAppPropertyHistoryRecord>;
-    /**  Create multiple B2CAppPropertyHistoryRecord items.  */
-    createB2CAppPropertyHistoryRecords?: Maybe<Array<Maybe<B2CAppPropertyHistoryRecord>>>;
     /**  Create multiple B2CApp items.  */
     createB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Create a single ConfirmPhoneAction item.  */
@@ -1799,14 +1234,6 @@ export type Mutation = {
     deleteB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Delete multiple B2CAppHistoryRecord items by ID.  */
     deleteB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
-    /**  Delete multiple B2CAppProperty items by ID.  */
-    deleteB2CAppProperties?: Maybe<Array<Maybe<B2CAppProperty>>>;
-    /**  Delete a single B2CAppProperty item by ID.  */
-    deleteB2CAppProperty?: Maybe<B2CAppProperty>;
-    /**  Delete a single B2CAppPropertyHistoryRecord item by ID.  */
-    deleteB2CAppPropertyHistoryRecord?: Maybe<B2CAppPropertyHistoryRecord>;
-    /**  Delete multiple B2CAppPropertyHistoryRecord items by ID.  */
-    deleteB2CAppPropertyHistoryRecords?: Maybe<Array<Maybe<B2CAppPropertyHistoryRecord>>>;
     /**  Delete multiple B2CApp items by ID.  */
     deleteB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Delete a single ConfirmPhoneAction item by ID.  */
@@ -1843,14 +1270,6 @@ export type Mutation = {
     updateB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Update multiple B2CAppHistoryRecord items by ID.  */
     updateB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
-    /**  Update multiple B2CAppProperty items by ID.  */
-    updateB2CAppProperties?: Maybe<Array<Maybe<B2CAppProperty>>>;
-    /**  Update a single B2CAppProperty item by ID.  */
-    updateB2CAppProperty?: Maybe<B2CAppProperty>;
-    /**  Update a single B2CAppPropertyHistoryRecord item by ID.  */
-    updateB2CAppPropertyHistoryRecord?: Maybe<B2CAppPropertyHistoryRecord>;
-    /**  Update multiple B2CAppPropertyHistoryRecord items by ID.  */
-    updateB2CAppPropertyHistoryRecords?: Maybe<Array<Maybe<B2CAppPropertyHistoryRecord>>>;
     /**  Update multiple B2CApp items by ID.  */
     updateB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Update a single ConfirmPhoneAction item by ID.  */
@@ -1920,26 +1339,6 @@ export type MutationCreateB2CAppHistoryRecordArgs = {
 
 export type MutationCreateB2CAppHistoryRecordsArgs = {
     data?: InputMaybe<Array<InputMaybe<B2CAppHistoryRecordsCreateInput>>>;
-}
-
-
-export type MutationCreateB2CAppPropertiesArgs = {
-    data?: InputMaybe<Array<InputMaybe<B2CAppPropertiesCreateInput>>>;
-}
-
-
-export type MutationCreateB2CAppPropertyArgs = {
-    data?: InputMaybe<B2CAppPropertyCreateInput>;
-}
-
-
-export type MutationCreateB2CAppPropertyHistoryRecordArgs = {
-    data?: InputMaybe<B2CAppPropertyHistoryRecordCreateInput>;
-}
-
-
-export type MutationCreateB2CAppPropertyHistoryRecordsArgs = {
-    data?: InputMaybe<Array<InputMaybe<B2CAppPropertyHistoryRecordsCreateInput>>>;
 }
 
 
@@ -2019,26 +1418,6 @@ export type MutationDeleteB2CAppHistoryRecordArgs = {
 
 
 export type MutationDeleteB2CAppHistoryRecordsArgs = {
-    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
-}
-
-
-export type MutationDeleteB2CAppPropertiesArgs = {
-    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
-}
-
-
-export type MutationDeleteB2CAppPropertyArgs = {
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationDeleteB2CAppPropertyHistoryRecordArgs = {
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationDeleteB2CAppPropertyHistoryRecordsArgs = {
     ids?: InputMaybe<Array<Scalars['ID']['input']>>;
 }
 
@@ -2142,28 +1521,6 @@ export type MutationUpdateB2CAppHistoryRecordsArgs = {
 }
 
 
-export type MutationUpdateB2CAppPropertiesArgs = {
-    data?: InputMaybe<Array<InputMaybe<B2CAppPropertiesUpdateInput>>>;
-}
-
-
-export type MutationUpdateB2CAppPropertyArgs = {
-    data?: InputMaybe<B2CAppPropertyUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationUpdateB2CAppPropertyHistoryRecordArgs = {
-    data?: InputMaybe<B2CAppPropertyHistoryRecordUpdateInput>;
-    id: Scalars['ID']['input'];
-}
-
-
-export type MutationUpdateB2CAppPropertyHistoryRecordsArgs = {
-    data?: InputMaybe<Array<InputMaybe<B2CAppPropertyHistoryRecordsUpdateInput>>>;
-}
-
-
 export type MutationUpdateB2CAppsArgs = {
     data?: InputMaybe<Array<InputMaybe<B2CAppsUpdateInput>>>;
 }
@@ -2222,10 +1579,6 @@ export type Query = {
     B2CAppBuildHistoryRecord?: Maybe<B2CAppBuildHistoryRecord>;
     /**  Search for the B2CAppHistoryRecord item with the matching ID.  */
     B2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
-    /**  Search for the B2CAppProperty item with the matching ID.  */
-    B2CAppProperty?: Maybe<B2CAppProperty>;
-    /**  Search for the B2CAppPropertyHistoryRecord item with the matching ID.  */
-    B2CAppPropertyHistoryRecord?: Maybe<B2CAppPropertyHistoryRecord>;
     /**  Search for the ConfirmPhoneAction item with the matching ID.  */
     ConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Search for the ConfirmPhoneActionHistoryRecord item with the matching ID.  */
@@ -2240,10 +1593,6 @@ export type Query = {
     _B2CAppBuildsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the B2CAppHistoryRecord list.  */
     _B2CAppHistoryRecordsMeta?: Maybe<_ListMeta>;
-    /**  Retrieve the meta-data for the B2CAppProperty list.  */
-    _B2CAppPropertiesMeta?: Maybe<_ListMeta>;
-    /**  Retrieve the meta-data for the B2CAppPropertyHistoryRecord list.  */
-    _B2CAppPropertyHistoryRecordsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the B2CApp list.  */
     _B2CAppsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the ConfirmPhoneActionHistoryRecord list.  */
@@ -2260,10 +1609,6 @@ export type Query = {
     _allB2CAppBuildsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all B2CAppHistoryRecord items which match the where clause.  */
     _allB2CAppHistoryRecordsMeta?: Maybe<_QueryMeta>;
-    /**  Perform a meta-query on all B2CAppProperty items which match the where clause.  */
-    _allB2CAppPropertiesMeta?: Maybe<_QueryMeta>;
-    /**  Perform a meta-query on all B2CAppPropertyHistoryRecord items which match the where clause.  */
-    _allB2CAppPropertyHistoryRecordsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all B2CApp items which match the where clause.  */
     _allB2CAppsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
@@ -2282,10 +1627,6 @@ export type Query = {
     allB2CAppBuilds?: Maybe<Array<Maybe<B2CAppBuild>>>;
     /**  Search for all B2CAppHistoryRecord items which match the where clause.  */
     allB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
-    /**  Search for all B2CAppProperty items which match the where clause.  */
-    allB2CAppProperties?: Maybe<Array<Maybe<B2CAppProperty>>>;
-    /**  Search for all B2CAppPropertyHistoryRecord items which match the where clause.  */
-    allB2CAppPropertyHistoryRecords?: Maybe<Array<Maybe<B2CAppPropertyHistoryRecord>>>;
     /**  Search for all B2CApp items which match the where clause.  */
     allB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Search for all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
@@ -2319,16 +1660,6 @@ export type QueryB2CAppBuildHistoryRecordArgs = {
 
 export type QueryB2CAppHistoryRecordArgs = {
     where: B2CAppHistoryRecordWhereUniqueInput;
-}
-
-
-export type QueryB2CAppPropertyArgs = {
-    where: B2CAppPropertyWhereUniqueInput;
-}
-
-
-export type QueryB2CAppPropertyHistoryRecordArgs = {
-    where: B2CAppPropertyHistoryRecordWhereUniqueInput;
 }
 
 
@@ -2379,26 +1710,6 @@ export type Query_AllB2CAppHistoryRecordsMetaArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortB2CAppHistoryRecordsBy>>;
     where?: InputMaybe<B2CAppHistoryRecordWhereInput>;
-}
-
-
-export type Query_AllB2CAppPropertiesMetaArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortB2CAppPropertiesBy>>;
-    where?: InputMaybe<B2CAppPropertyWhereInput>;
-}
-
-
-export type Query_AllB2CAppPropertyHistoryRecordsMetaArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortB2CAppPropertyHistoryRecordsBy>>;
-    where?: InputMaybe<B2CAppPropertyHistoryRecordWhereInput>;
 }
 
 
@@ -2484,26 +1795,6 @@ export type QueryAllB2CAppHistoryRecordsArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortB2CAppHistoryRecordsBy>>;
     where?: InputMaybe<B2CAppHistoryRecordWhereInput>;
-}
-
-
-export type QueryAllB2CAppPropertiesArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortB2CAppPropertiesBy>>;
-    where?: InputMaybe<B2CAppPropertyWhereInput>;
-}
-
-
-export type QueryAllB2CAppPropertyHistoryRecordsArgs = {
-    first?: InputMaybe<Scalars['Int']['input']>;
-    orderBy?: InputMaybe<Scalars['String']['input']>;
-    search?: InputMaybe<Scalars['String']['input']>;
-    skip?: InputMaybe<Scalars['Int']['input']>;
-    sortBy?: InputMaybe<Array<SortB2CAppPropertyHistoryRecordsBy>>;
-    where?: InputMaybe<B2CAppPropertyHistoryRecordWhereInput>;
 }
 
 
@@ -2634,50 +1925,6 @@ export enum SortB2CAppHistoryRecordsBy {
     IdDesc = 'id_DESC',
     NameAsc = 'name_ASC',
     NameDesc = 'name_DESC',
-    UpdatedAtAsc = 'updatedAt_ASC',
-    UpdatedAtDesc = 'updatedAt_DESC',
-    VAsc = 'v_ASC',
-    VDesc = 'v_DESC',
-}
-
-export enum SortB2CAppPropertiesBy {
-    AddressKeyAsc = 'addressKey_ASC',
-    AddressKeyDesc = 'addressKey_DESC',
-    AddressAsc = 'address_ASC',
-    AddressDesc = 'address_DESC',
-    AppAsc = 'app_ASC',
-    AppDesc = 'app_DESC',
-    CreatedAtAsc = 'createdAt_ASC',
-    CreatedAtDesc = 'createdAt_DESC',
-    CreatedByAsc = 'createdBy_ASC',
-    CreatedByDesc = 'createdBy_DESC',
-    DeletedAtAsc = 'deletedAt_ASC',
-    DeletedAtDesc = 'deletedAt_DESC',
-    DvAsc = 'dv_ASC',
-    DvDesc = 'dv_DESC',
-    IdAsc = 'id_ASC',
-    IdDesc = 'id_DESC',
-    UpdatedAtAsc = 'updatedAt_ASC',
-    UpdatedAtDesc = 'updatedAt_DESC',
-    UpdatedByAsc = 'updatedBy_ASC',
-    UpdatedByDesc = 'updatedBy_DESC',
-    VAsc = 'v_ASC',
-    VDesc = 'v_DESC',
-}
-
-export enum SortB2CAppPropertyHistoryRecordsBy {
-    CreatedAtAsc = 'createdAt_ASC',
-    CreatedAtDesc = 'createdAt_DESC',
-    DeletedAtAsc = 'deletedAt_ASC',
-    DeletedAtDesc = 'deletedAt_DESC',
-    DvAsc = 'dv_ASC',
-    DvDesc = 'dv_DESC',
-    HistoryActionAsc = 'history_action_ASC',
-    HistoryActionDesc = 'history_action_DESC',
-    HistoryDateAsc = 'history_date_ASC',
-    HistoryDateDesc = 'history_date_DESC',
-    IdAsc = 'id_ASC',
-    IdDesc = 'id_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     VAsc = 'v_ASC',
