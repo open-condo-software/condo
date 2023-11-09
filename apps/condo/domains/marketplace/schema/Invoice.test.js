@@ -17,6 +17,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_STATUS_DRAFT,
@@ -60,6 +61,7 @@ describe('Invoice', () => {
         anonymousClient = await makeClient()
 
         ;[dummyO10n] = await createTestOrganization(adminClient)
+        await createTestBillingIntegration(adminClient)
         ;[dummyIntegration] = await createTestAcquiringIntegration(supportClient)
         ;[dummyInvoiceContext] = await createTestInvoiceContext(adminClient, dummyO10n, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
     })
@@ -658,10 +660,7 @@ describe('Invoice', () => {
         })
 
         test('can\'t edit published invoice', async () => {
-            const [o10n] = await createTestOrganization(adminClient)
-            const [integration] = await createTestAcquiringIntegration(supportClient)
-            const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
-            const [invoice] = await createTestInvoice(adminClient, invoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
             await expectToThrowGQLError(async () => {
                 await updateTestInvoice(adminClient, invoice.id)
