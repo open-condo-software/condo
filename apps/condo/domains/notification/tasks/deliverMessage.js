@@ -23,7 +23,6 @@ const {
     MESSAGE_SENT_STATUS,
     MESSAGE_DISABLED_BY_USER_STATUS,
     MESSAGE_DELIVERY_STRATEGY_AT_LEAST_ONE_TRANSPORT,
-    MESSAGE_META,
     MESSAGE_THROTTLED_STATUS,
 } = require('@condo/domains/notification/constants/constants')
 const { ONE_MESSAGE_PER_THROTTLING_PERIOD_FOR_USER } = require('@condo/domains/notification/constants/errors')
@@ -48,10 +47,11 @@ const TRANSPORT_ADAPTERS = {
     [EMAIL_TRANSPORT]: emailAdapter,
     [PUSH_TRANSPORT]: pushAdapter,
 }
-const MESSAGE_SENDING_STATUSES = {
-    [MESSAGE_SENDING_STATUS]: true,
-    [MESSAGE_RESENDING_STATUS]: true,
-}
+const MESSAGE_TASK_RETRY_STATUSES = [
+    MESSAGE_PROCESSING_STATUS,
+    MESSAGE_SENDING_STATUS,
+    MESSAGE_RESENDING_STATUS,
+]
 
 const throttlingCacheClient = getRedisClient('deliverMessage', 'throttleNotificationsForUser')
 
@@ -99,7 +99,7 @@ async function deliverMessage (messageId) {
 
     if (isEmpty(message)) throw new Error('get message by id has wrong result')
     // Skip messages that are already have been processed
-    if (!MESSAGE_SENDING_STATUSES[message.status]) return `already-${message.status}`
+    if (!MESSAGE_TASK_RETRY_STATUSES.includes(message.status)) return `already-${message.status}`
 
     const baseAttrs = { dv: message.dv, sender: message.sender }
     const { error } = await checkMessageTypeInBlackList(context, message)
