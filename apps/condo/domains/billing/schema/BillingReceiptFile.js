@@ -170,12 +170,9 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 })
             }
         },
-        validateInput: async ({ context, resolvedData, addValidationError, existingItem }) => {
+        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
             const newItem = { ...existingItem, ...resolvedData }
-            let { context: contextId, receipt: receiptId, importId } = newItem
-            if (!receiptId && importId) {
-
-            }
+            let { context: contextId, receipt: receiptId } = newItem
             const receipt = await getById('BillingReceipt', receiptId)
             const { context: receiptContextId } = receipt
             if (contextId !== receiptContextId) {
