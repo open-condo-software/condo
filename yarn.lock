@@ -756,7 +756,7 @@ __metadata:
     next-transpile-modules: ^7.0.0
     node-fetch: ^2.6.7
     numeral: 2.0.6
-    nunjucks: ^3.2.2
+    nunjucks: ^3.2.4
     oidc-provider: 7.14.3
     openid-client: 4.7.4
     pdf-lib: ^1.17.1
@@ -894,7 +894,7 @@ __metadata:
     next-transpile-modules: ^4.1.0
     node-fetch: ^2.6.7
     numeral: 2.0.6
-    nunjucks: ^3.2.2
+    nunjucks: ^3.2.4
     pdf-lib: ^1.17.1
     qs: ^6.9.4
     raw-loader: ^4.0.2
@@ -11778,7 +11778,7 @@ __metadata:
     js-cookie: ^2.2.1
     lodash: ^4.17.21
     ncp: ^2.0.0
-    nunjucks: ^3.2.2
+    nunjucks: ^3.2.4
     pluralize: ^8
     react: ^16.13.1
     react-dom: ^16.13.1
@@ -11907,7 +11907,7 @@ __metadata:
     redlock: ^5.0.0-beta.2
     serialize-error: ^8.1.0
     supertest: ^6.1.3
-    tough-cookie: ^4.0.0
+    tough-cookie: ^4.1.3
     uuid: ^8.3.0
     validator: ^13.7.0
   languageName: unknown
@@ -36156,9 +36156,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nunjucks@npm:^3.2.2":
-  version: 3.2.3
-  resolution: "nunjucks@npm:3.2.3"
+"nunjucks@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "nunjucks@npm:3.2.4"
   dependencies:
     a-sync-waterfall: ^1.0.0
     asap: ^2.0.3
@@ -36170,7 +36170,7 @@ __metadata:
       optional: true
   bin:
     nunjucks-precompile: bin/precompile
-  checksum: 9d0125acf917166675af2d9b5d525b6d3edaba68ec6f8c92edee8ad05140cfa8aef12feb46f4c3da52ed2836cadfb9d26fbf1fa9d9be6bef4660d03ce1e89dbe
+  checksum: 8b902a9deb9ff0f5c9ebbd2c7f96dfe5800bf42bdfc91d8f829fc0440ec1f87901593e20479f5ba1bddcc9f2472b16a5e932be5863dcdec0899a27c01a03df32
   languageName: node
   linkType: hard
 
@@ -46619,17 +46619,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tough-cookie@npm:^4.0.0":
-  version: 4.0.0
-  resolution: "tough-cookie@npm:4.0.0"
-  dependencies:
-    psl: ^1.1.33
-    punycode: ^2.1.1
-    universalify: ^0.1.2
-  checksum: 0891b37eb7d17faa3479d47f0dce2e3007f2583094ad272f2670d120fbcc3df3b0b0a631ba96ecad49f9e2297d93ff8995ce0d3292d08dd7eabe162f5b224d69
-  languageName: node
-  linkType: hard
-
 "tough-cookie@npm:^4.1.2":
   version: 4.1.2
   resolution: "tough-cookie@npm:4.1.2"
@@ -47852,7 +47841,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"universalify@npm:^0.1.0, universalify@npm:^0.1.2":
+"universalify@npm:^0.1.0":
   version: 0.1.2
   resolution: "universalify@npm:0.1.2"
   checksum: 40cdc60f6e61070fe658ca36016a8f4ec216b29bf04a55dce14e3710cc84c7448538ef4dad3728d0bfe29975ccd7bfb5f414c45e7b78883567fb31b246f02dff
