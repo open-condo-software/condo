@@ -12,6 +12,7 @@ const { createTestOrganization } = require('@condo/domains/organization/utils/te
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { createTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createTestInvoiceContext, createTestInvoice, createTestMarketCategory, createTestMarketItem } = require('../utils/testSchema')
@@ -179,6 +180,32 @@ describe('GetInvoiceByUserService', () => {
         })
 
         const [data] = await getInvoiceByUserByTestClient(admin, { organization: { id: organization.id } })
+        expect(data.invoices).toHaveLength(1)
+        expect(data.skuInfo).toHaveLength(1)
+        expect(data.invoices[0].id).toEqual(invoice.id)
+        expect(data.skuInfo[0].sku).toEqual(marketItem.sku)
+        expect(data.skuInfo[0].imageUrl).toEqual(marketCategory.image.publicUrl)
+    })
+
+    test('admin: execute with ticketIds', async () => {
+        const [organization] = await createTestOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+
+        const [ticket] = await createTestTicket(admin, organization, property)
+
+        const [marketCategory] = await createTestMarketCategory(admin)
+        const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
+        const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+            status: INVOICE_STATUS_PUBLISHED,
+            client: { connect: { id: admin.user.id } },
+            ticket: { connect: { id: ticket.id } },
+            rows: generateInvoiceRow({
+                sku: marketItem.sku,
+            }),
+        })
+
+        const [data] = await getInvoiceByUserByTestClient(admin, { organization: { id: organization.id }, ticketIds: [ticket.id] })
         expect(data.invoices).toHaveLength(1)
         expect(data.skuInfo).toHaveLength(1)
         expect(data.invoices[0].id).toEqual(invoice.id)
