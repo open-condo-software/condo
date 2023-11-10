@@ -14,12 +14,7 @@ const { BillingReceipt: BillingReceiptApi } = require('@condo/domains/billing/ut
 const { UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-const isEmpty = require("lodash/isEmpty");
-const {
-    addClientInfoToResidentMeterReading,
-    connectContactToMeterReading
-} = require("../../meter/utils/serverSchema/resolveHelpers");
-const {Meter} = require("../../meter/utils/serverSchema");
+
 
 const Adapter = new FileAdapter(BILLING_RECEIPT_FILE_FOLDER_NAME)
 
