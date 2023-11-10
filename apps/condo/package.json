@@ -85,7 +85,7 @@
     "amplitude-js": "^8.18.1",
     "antd": "^4.24.12",
     "antd-mask-input": "^0.1.15",
-    "axios": "^0.26.0",
+    "axios": "^1.0.0",
     "big.js": "^6.1.1",
     "body-parser": "^1.19.1",
     "carbone": "3.2.3",
