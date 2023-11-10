@@ -98,16 +98,14 @@ async function checkMkCertCommandAndLocalCerts (keyFile, certFile, domain = 'app
 }
 
 /**
- * Add or update some ./apps/<appName>/.env config value!
- * @param appName {string} application name ./apps/<appName>
- * @param key {string} environment name
- * @param value {string}
+ * Add or update some .env config value!
+ * @param filePath {string} path to env file
+ * @param key {string} environment variable name
+ * @param value {string} environment variable value
  * @return {Promise<void>}
  */
-async function updateAppEnvFile (appName, key, value) {
+async function updateEnvFile (filePath, key, value) {
     if (typeof value !== 'string') throw new Error('updateAppEnvFile(..., value) should be a string')
-    if (typeof appName !== 'string') throw new Error('updateAppEnvFile(..., appName) should be a string')
-    if (!appName) throw new Error('updateAppEnvFile(..., appName) should be a defined')
     if (typeof key !== 'string') throw new Error('updateAppEnvFile(..., key) should be a string')
     if (!key) throw new Error('updateAppEnvFile(..., key) should be a defined')
 
@@ -115,7 +113,7 @@ async function updateAppEnvFile (appName, key, value) {
     let envData, result
 
     try {
-        envData = (await readFile(`${PROJECT_ROOT}/apps/${appName}/.env`, { encoding: 'utf-8' })).toString()
+        envData = (await readFile(filePath, { encoding: 'utf-8' })).toString()
     } catch (e) {
         if (e.code === 'ENOENT') {
             envData = ''
@@ -135,7 +133,30 @@ async function updateAppEnvFile (appName, key, value) {
         result = envData.replace(re, `${key}=${value}\n`)
     }
 
-    await writeFile(`${PROJECT_ROOT}/apps/${appName}/.env`, result, { encoding: 'utf-8' })
+    await writeFile(filePath, result, { encoding: 'utf-8' })
+}
+
+/**
+ * Add or update some ./apps/<appName>/.env config value!
+ * @param appName {string} application name ./apps/<appName>
+ * @param key {string} environment variable name
+ * @param value {string} environment variable value
+ * @return {Promise<void>}
+ */
+async function updateAppEnvFile (appName, key, value) {
+    if (typeof appName !== 'string') throw new Error('updateAppEnvFile(..., appName) should be a string')
+    if (!appName) throw new Error('updateAppEnvFile(..., appName) should be a defined')
+    return await updateEnvFile(`${PROJECT_ROOT}/apps/${appName}/.env`, key, value)
+}
+
+/**
+ * Add or update some global monorepo .env file!
+ * @param key {string} environment variable name
+ * @param value {string} environment variable value
+ * @return {Promise<void>}
+ */
+async function updateGlobalEnvFile (key, value) {
+    return await updateEnvFile(`${PROJECT_ROOT}/.env`, key, value)
 }
 
 /**
@@ -174,13 +195,10 @@ async function prepareCondoAppB2BAppConfig (appName, p2pAppName) {
     return { appUrl }
 }
 
-async function prepareMinimalAppEnv (appName, dbName, redisName, port, sport, serverUrl) {
-    await updateAppEnvFile(appName, 'DATABASE_URL', `postgresql://postgres:postgres@127.0.0.1/${dbName}`)
-    await updateAppEnvFile(appName, 'REDIS_URL', `redis://127.0.0.1:6379/${redisName}`)
-    await updateAppEnvFile(appName, 'PORT', String(port))
-    await updateAppEnvFile(appName, 'SPORT', String(sport))
-    await updateAppEnvFile(appName, 'SERVER_URL', serverUrl)
-    await updateAppEnvFile(appName, 'COOKIE_SECRET', `${appName}-secret`)
+async function prepareMinimalAppEnv (appName, envToFill) {
+    for (const [key, value] of Object.entries(envToFill)) {
+        await updateAppEnvFile(appName, key, value)
+    }
 }
 
 async function prepareAppEnvLocalAdminUsers (appName, identity = 'email') {
@@ -212,10 +230,21 @@ async function runAppPackageJsonScript (appName, script) {
     return ''
 }
 
+/**
+ * @return {Promise<Array<{name: string, type: 'KS' | 'Next'}>>}
+ */
 async function getAllActualApps () {
     const appNames = await readdir(`${PROJECT_ROOT}/apps`)
     const hasPackageJson = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/package.json`)))
-    return appNames.filter((value, index) => hasPackageJson[index])
+    const hasIndexJs = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/index.js`)))
+    const hasNextConfig = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/next.config.js`)))
+
+    return appNames.reduce((apps, name, idx) => {
+        if (hasPackageJson[idx] && (hasIndexJs[idx] || hasNextConfig[idx])) {
+            apps.push({ name, type: hasIndexJs[idx] ? 'KS' : 'Next' })
+        }
+        return apps
+    }, [])
 }
 
 module.exports = {
@@ -224,6 +253,7 @@ module.exports = {
     createPostgresDatabaseInsideDockerComposeContainerIfNotExists,
     checkMkCertCommandAndLocalCerts,
     updateAppEnvFile,
+    updateGlobalEnvFile,
     getAppEnvValue,
     getAppServerUrl,
     prepareCondoAppOidcConfig,
