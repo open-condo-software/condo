@@ -1,6 +1,6 @@
-
+import { useLazyQuery } from '@apollo/client'
 import styled from '@emotion/styled'
-import { Col, Form, Row, RowProps, Input, InputNumber, AutoComplete, InputProps } from 'antd'
+import { Col, Form, Row, RowProps, Input, InputNumber, AutoComplete, InputProps, notification } from 'antd'
 import { gql } from 'graphql-tag'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
@@ -30,12 +30,13 @@ import {
 } from '@condo/domains/marketplace/constants'
 import { Invoice, InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
+import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 
 import { BuildingUnitSubType } from '../../../schema'
-import { EmptyTableCell } from '../../common/components/Table/EmptyTableCell'
+import { Loader } from '../../common/components/Loader'
+import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
 import { PropertyAddressSearchInput } from '../../property/components/PropertyAddressSearchInput'
 import { UnitInfoMode } from '../../property/components/UnitInfo'
-import { Property } from '../../property/utils/clientSchema'
 import { UnitNameInput, UnitNameInputOption } from '../../user/components/UnitNameInput'
 
 
@@ -522,15 +523,65 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
     )
 }
 
-const PaymentAlert = ({ payerData }) => {
-    if (payerData) {
-        // return Алерт, в котором проверяем, есть ли резидент по переданным данным клиента (написать мутацию)
+const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone }) => {
+    const [residentExistence, setResidentExistence] = useState<{ hasResident: boolean, hasResidentOnAddress: boolean }>()
+
+    const [getResidentExistenceByPhoneAndAddress, { loading }] = useLazyQuery(
+        GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
+        {
+            onCompleted: (data) => {
+                const { result: { hasResident, hasResidentOnAddress } } = data
+
+                setResidentExistence({ hasResident, hasResidentOnAddress })
+            },
+        },
+    )
+
+    useEffect(() => {
+        const sender = getClientSideSenderInfo()
+        const meta = { dv: 1, sender }
+
+        getResidentExistenceByPhoneAndAddress({
+            variables: {
+                data: {
+                    propertyId,
+                    unitName,
+                    unitType,
+                    phone: clientPhone,
+                    ...meta,
+                },
+            },
+        })
+    }, [clientPhone, getResidentExistenceByPhoneAndAddress, propertyId, unitName, unitType])
+
+    if (loading) return <Loader />
+    if (!residentExistence) return null
+
+    let type: 'warning' | 'info'
+    let message
+    let description
+
+    if (residentExistence.hasResidentOnAddress) {
+        type = 'info'
+        message = 'Скорее всего, этот житель сможет оплатить счёт в приложении Дома'
+        description = 'Этот житель точно устанавливал приложение. У него в приложении появится кнопка «Оплатить». Если он приложение уже удалил — передайте ему ссылку на оплату любым удобным вам способом.\n' +
+            'Эта ссылка будет автоматически сгенерирована после сохранения счёта'
+    } else if (residentExistence.hasResident) {
+        type = 'warning'
+        message = 'Скорее всего, этот житель сможет оплатить счёт в приложении Дома'
+        description = 'Этот житель точно устанавливал приложение, правда не на этом адресе. Если он добавит этот адрес, то в приложении появится кнопка «Оплатить». Если он приложение уже удалил — передайте ему ссылку на оплату любым удобным вам способом.\n' +
+            'Эта ссылка будет автоматически сгенерирована после сохранения счёта'
+    } else {
+        type = 'warning'
+        message = 'Передайте ссылку на оплату жителю'
+        description = 'У этого жителя не установлено приложение Дома или этот адрес не добавлен. Поэтому не забудьте передать ему ссылку на оплату, любым доступным вам способом.\n' +
+            'Эта ссылка будет автоматически сгенерирована после сохранения счёта'
     }
 
     return <Alert
-        type='info'
-        message='Ссылка на оплату будет готова после сохранения счёта'
-        description='Её можно будет передать жителю любым удобным вам способом '
+        type={type}
+        message={message}
+        description={description}
         showIcon
     />
 }
@@ -792,22 +843,44 @@ export const CreateInvoiceForm = ({ isCreateFrom }) => {
                         </Form.Item>
                     </Col>
                     <Form.Item
-                        dependencies={['paymentType', 'status', 'payerData']}
+                        dependencies={['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName']}
                         noStyle
                     >
                         {
-                            ({ getFieldValue }) => {
-                                const status = getFieldValue('status')
-                                const paymentType = getFieldValue('paymentType')
-                                const payerData = getFieldValue('payerData')
+                            ({ getFieldsValue }) => {
+                                const {
+                                    status, paymentType, payerData, propertyId, unitName, unitType, clientPhone,
+                                } = getFieldsValue(['status', 'paymentType', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientPhone'])
 
                                 if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE) {
                                     return
                                 }
 
+                                if (!payerData) {
+                                    return (
+                                        <Col md={20}>
+                                            <Alert
+                                                type='info'
+                                                message='Ссылка на оплату будет готова после сохранения счёта'
+                                                description='Её можно будет передать жителю любым удобным вам способом '
+                                                showIcon
+                                            />
+                                        </Col>
+                                    )
+                                }
+
+                                if (!propertyId || !unitName || !unitType || !clientPhone) {
+                                    return
+                                }
+
                                 return (
                                     <Col md={20}>
-                                        <PaymentAlert payerData={payerData} />
+                                        <ResidentPaymentAlert
+                                            propertyId={propertyId}
+                                            unitName={unitName}
+                                            unitType={unitType}
+                                            clientPhone={clientPhone}
+                                        />
                                     </Col>
                                 )
                             }

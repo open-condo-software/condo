@@ -4,6 +4,7 @@
 const { GQLCustomSchema, find } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/resident/access/GetResidentExistenceByPhoneAndAddressService')
+const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
 const GetResidentExistenceByPhoneAndAddressService = new GQLCustomSchema('GetResidentExistenceByPhoneAndAddressService', {
@@ -26,7 +27,7 @@ const GetResidentExistenceByPhoneAndAddressService = new GQLCustomSchema('GetRes
                 const { data: { phone, propertyId, unitName, unitType } } = args
 
                 const userResidents = await find('Resident', {
-                    user: { phone, deletedAt: null },
+                    user: { phone, type: RESIDENT, deletedAt: null },
                     deletedAt: null,
                 })
 
