@@ -18,7 +18,8 @@
  *    },
  * }
  *
- * // 2) you need to explicitly add one of the utilities from "@condo/domains/miniapp/utils/b2bAppServiceUserAccess" to the model accesses
+ * // 2) you need to explicitly add one of the utilities from "@condo/domains/miniapp/utils/b2bAppServiceUserAccess"
+ * to the model accesses
  *
  * // 3) You should update 'schema.ts' and 'schema.graphql'
  * // run 'yarn maketypes'
@@ -29,6 +30,8 @@
  * // 5) You should apply new migrations
  * // run 'yarn migrate'
  *
+ * // 6) You can also update the "B2BApp permissions for service user > Get all permissions for app" test so that
+ * in "@condo/domains/miniapp/schema/B2BAppAccessRightSet.test.js"
  *
  * @type {B2bAppServiceUserAccessConfig}
  */
