@@ -7,6 +7,10 @@ on:
     branches: [ master ]
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 env:
   DOCKER_IMAGE_FULL: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:${{ github.sha }}
 
@@ -73,7 +77,6 @@ jobs:
   domains-tests-job:
     needs: build-image
     strategy:
-      fail-fast: false  # for debug
       matrix:
         domain:
           - organization
