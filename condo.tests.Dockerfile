@@ -1,8 +1,10 @@
 # base
-FROM buildpack-deps:buster AS base
-COPY --from=python:3.8-slim-buster /usr/local/ /usr/local/
-COPY --from=node:16-buster-slim /usr/local/ /usr/local/
-COPY --from=node:16-buster-slim /opt/ /opt/
+FROM swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/buildpack-deps:buster AS base
+
+COPY --from=swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/python:3.8-slim-buster /usr/local/ /usr/local/
+COPY --from=swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/node:16-buster-slim /usr/local/ /usr/local/
+COPY --from=swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/node:16-buster-slim /opt/ /opt/
+
 RUN set -ex \
 	&& groupadd -r app --gid=999 \
 	&& useradd --system --create-home --home /app --gid 999 --uid=999 --shell /bin/bash app \
