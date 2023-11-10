@@ -11,7 +11,7 @@ const {
     serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
     serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
     mergeAccessFilters,
-} = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
+} = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,

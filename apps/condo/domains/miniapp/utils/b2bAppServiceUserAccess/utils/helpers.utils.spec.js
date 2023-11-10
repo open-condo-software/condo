@@ -4,10 +4,10 @@ const {
     generateGqlDataPart,
     generateGqlQueryAsString,
     getFilter,
-} = require('./serviceUserAccessForB2BApp')
+} = require('./helpers.utils')
 
 
-describe('Helper functions for serviceUserAccessForB2BApp preprocessor', () => {
+describe('Helper functions', () => {
     describe('generateGqlDataPart', () => {
         const validCases = [
             {

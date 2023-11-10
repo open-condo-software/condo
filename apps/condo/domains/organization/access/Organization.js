@@ -7,7 +7,7 @@ const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
-const { serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp, mergeAccessFilters } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
+const { serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp, mergeAccessFilters } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')

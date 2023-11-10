@@ -10,7 +10,7 @@ const {
     mergeAccessFilters,
     serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
     serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
-} = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
+} = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
 const { checkOrganizationPermission } = require('@condo/domains/organization/utils/accessSchema')

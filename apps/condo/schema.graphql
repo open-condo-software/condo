@@ -65471,12 +65471,12 @@ type B2BAppAccessRightSetHistoryRecord {
   canManageContacts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
   canManageMeterReadings: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -65507,10 +65507,6 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
-  canReadProperties: Boolean
-  canReadProperties_not: Boolean
-  canManageProperties: Boolean
-  canManageProperties_not: Boolean
   canReadMeters: Boolean
   canReadMeters_not: Boolean
   canManageMeters: Boolean
@@ -65519,6 +65515,10 @@ input B2BAppAccessRightSetHistoryRecordWhereInput {
   canReadMeterReadings_not: Boolean
   canManageMeterReadings: Boolean
   canManageMeterReadings_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -65610,10 +65610,6 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
-  canReadProperties_ASC
-  canReadProperties_DESC
-  canManageProperties_ASC
-  canManageProperties_DESC
   canReadMeters_ASC
   canReadMeters_DESC
   canManageMeters_ASC
@@ -65622,6 +65618,10 @@ enum SortB2BAppAccessRightSetHistoryRecordsBy {
   canReadMeterReadings_DESC
   canManageMeterReadings_ASC
   canManageMeterReadings_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -65646,12 +65646,12 @@ input B2BAppAccessRightSetHistoryRecordUpdateInput {
   canManageContacts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
   canManageMeterReadings: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -65677,12 +65677,12 @@ input B2BAppAccessRightSetHistoryRecordCreateInput {
   canManageContacts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
   canManageMeterReadings: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -65728,12 +65728,12 @@ type B2BAppAccessRightSet {
   """ Currently, this field is read-only. You cannot get manage access for the specified schema. 
   """
   canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
   canManageMeterReadings: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   id: ID!
   v: Int
   createdAt: String
@@ -65770,10 +65770,6 @@ input B2BAppAccessRightSetWhereInput {
   canReadOrganizations_not: Boolean
   canManageOrganizations: Boolean
   canManageOrganizations_not: Boolean
-  canReadProperties: Boolean
-  canReadProperties_not: Boolean
-  canManageProperties: Boolean
-  canManageProperties_not: Boolean
   canReadMeters: Boolean
   canReadMeters_not: Boolean
   canManageMeters: Boolean
@@ -65782,6 +65778,10 @@ input B2BAppAccessRightSetWhereInput {
   canReadMeterReadings_not: Boolean
   canManageMeterReadings: Boolean
   canManageMeterReadings_not: Boolean
+  canReadProperties: Boolean
+  canReadProperties_not: Boolean
+  canManageProperties: Boolean
+  canManageProperties_not: Boolean
   id: ID
   id_not: ID
   id_in: [ID]
@@ -65855,10 +65855,6 @@ enum SortB2BAppAccessRightSetsBy {
   canReadOrganizations_DESC
   canManageOrganizations_ASC
   canManageOrganizations_DESC
-  canReadProperties_ASC
-  canReadProperties_DESC
-  canManageProperties_ASC
-  canManageProperties_DESC
   canReadMeters_ASC
   canReadMeters_DESC
   canManageMeters_ASC
@@ -65867,6 +65863,10 @@ enum SortB2BAppAccessRightSetsBy {
   canReadMeterReadings_DESC
   canManageMeterReadings_ASC
   canManageMeterReadings_DESC
+  canReadProperties_ASC
+  canReadProperties_DESC
+  canManageProperties_ASC
+  canManageProperties_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -65891,12 +65891,12 @@ input B2BAppAccessRightSetUpdateInput {
   canManageContacts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
   canManageMeterReadings: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
@@ -65919,12 +65919,12 @@ input B2BAppAccessRightSetCreateInput {
   canManageContacts: Boolean
   canReadOrganizations: Boolean
   canManageOrganizations: Boolean
-  canReadProperties: Boolean
-  canManageProperties: Boolean
   canReadMeters: Boolean
   canManageMeters: Boolean
   canReadMeterReadings: Boolean
   canManageMeterReadings: Boolean
+  canReadProperties: Boolean
+  canManageProperties: Boolean
   v: Int
   createdAt: String
   updatedAt: String
