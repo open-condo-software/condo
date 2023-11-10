@@ -6,8 +6,7 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 async function canGetInvoiceByUser ({ authentication: { item: user } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
-
-    return true
+    return user.isAdmin || user.isSupport || user.type === 'resident'
 }
 
 /*

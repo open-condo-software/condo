@@ -45,24 +45,20 @@ const GetInvoiceByUserService = new GQLCustomSchema('GetInvoiceByUserService', {
                 if (propertyId) where.property = { id: propertyId }
                 if (!isEmpty(ticketIds)) where.ticket = { id_in: ticketIds }
 
+                const marketItemWhere = {
+                    deletedAt: null,
+                    sku_in: [],
+                    organization: { id: organizationId },
+                }
+
                 const invoices = await find('Invoice', where)
 
-
-                const allSku = []
                 for (const invoice of invoices) {
-                    allSku.push(...invoice.rows.map(({ sku }) => sku))
+                    marketItemWhere.sku_in.push(...invoice.rows.map(({ sku }) => sku))
                 }
 
-                const skuInfo = []
-                for (const sku of allSku) {
-                    const marketItem = await MarketItem.getOne(context, {
-                        sku,
-                        deletedAt: null,
-                        organization: { id: organizationId },
-                    })
-
-                    skuInfo.push({ sku, imageUrl: get(marketItem, 'marketCategory.image.publicUrl', null) })
-                }
+                const marketItems = await MarketItem.getAll(context, marketItemWhere)
+                const skuInfo = marketItems.map(item => ({ sku: item.sku, imageUrl: get(item, 'marketCategory.image.publicUrl', null) }))
 
                 return {
                     invoices,

@@ -5,7 +5,6 @@
 const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationError } = require('@open-condo/keystone/test.utils')
-const { expectToThrowAccessDeniedErrorToObj, expectToThrowAuthenticationErrorToObjects } = require('@open-condo/keystone/test.utils')
 
 const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { getInvoiceByUserByTestClient, generateInvoiceRow } = require('@condo/domains/marketplace/utils/testSchema')
@@ -96,6 +95,64 @@ describe('GetInvoiceByUserService', () => {
         expect(data.invoices[0].id).toEqual(invoice.id)
         expect(data.skuInfo[0].sku).toEqual(marketItem.sku)
         expect(data.skuInfo[0].imageUrl).toEqual(marketCategory.image.publicUrl)
+    })
+
+    test('two residents at different properties: the 1st can see the invoice, the 2nd can\'t', async () => {
+        const [organization] = await createTestOrganization(admin)
+        const [property] = await createTestProperty(admin, organization)
+        const [property2] = await createTestProperty(admin, organization)
+
+        const residentClient = await makeClientWithResidentUser()
+        const residentClient2 = await makeClientWithResidentUser()
+        const unitType = FLAT_UNIT_TYPE
+        const unitName = faker.lorem.word()
+        const [resident] = await registerResidentByTestClient(
+            residentClient,
+            {
+                address: property.address,
+                addressMeta: property.addressMeta,
+                unitType,
+                unitName,
+            }
+        )
+        const [resident2] = await registerResidentByTestClient(
+            residentClient,
+            {
+                address: property2.address,
+                addressMeta: property2.addressMeta,
+                unitType,
+                unitName,
+            }
+        )
+
+        const [marketCategory] = await createTestMarketCategory(admin)
+        const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
+        const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+        const [invoice] = await createTestInvoice(admin, invoiceContext, {
+            status: INVOICE_STATUS_PUBLISHED,
+            client: { connect: { id: residentClient.user.id } },
+            property: { connect: { id: property.id } },
+            rows: generateInvoiceRow({
+                sku: marketItem.sku,
+            }),
+        })
+
+        const [data] = await getInvoiceByUserByTestClient(residentClient, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(data.invoices).toHaveLength(1)
+        expect(data.skuInfo).toHaveLength(1)
+        expect(data.invoices[0].id).toEqual(invoice.id)
+        expect(data.skuInfo[0].sku).toEqual(marketItem.sku)
+        expect(data.skuInfo[0].imageUrl).toEqual(marketCategory.image.publicUrl)
+
+        const [data2] = await getInvoiceByUserByTestClient(residentClient2, {
+            organization: { id: organization.id },
+            property: { id: property.id },
+        })
+        expect(data2.invoices).toHaveLength(0)
+        expect(data2.skuInfo).toHaveLength(0)
     })
  
     test('anonymous: execute', async () => {
