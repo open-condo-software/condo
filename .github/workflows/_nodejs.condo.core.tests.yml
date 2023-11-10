@@ -34,7 +34,7 @@ jobs:
 
       - name: run postgresql for tests
         run: |
-          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d postgres:13.2
+          docker run -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_DB=$POSTGRES_DB -p="127.0.0.1:5432:5432" -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/postgres:13.2
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -42,7 +42,7 @@ jobs:
       
       - name: run redis for tests
         run: |
-          docker run -p="127.0.0.1:6379:6379" -d redis:6.2
+          docker run -p="127.0.0.1:6379:6379" -d swr.ru-moscow-1.hc.sbercloud.ru/doma/utils/redis:6.2
       
       - name: run tests
         run: |
