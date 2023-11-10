@@ -22672,6 +22672,21 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
   isPhoneVerified: Scalars['Boolean'];
 };
 
+export type GetResidentExistenceByPhoneAndAddressInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  phone: Scalars['String'];
+  propertyId: Scalars['ID'];
+  unitName: Scalars['String'];
+  unitType: BuildingUnitSubType;
+};
+
+export type GetResidentExistenceByPhoneAndAddressOutput = {
+  __typename?: 'GetResidentExistenceByPhoneAndAddressOutput';
+  hasResident: Scalars['Boolean'];
+  hasResidentOnAddress: Scalars['Boolean'];
+};
+
 /**  Entries of mass planned and emergency incidents with water, electricity, etc.  */
 export type Incident = {
   __typename?: 'Incident';
@@ -61067,6 +61082,7 @@ export type Query = {
    */
   predictTransactionClassification?: Maybe<PredictTransactionClassificationOutput>;
   predictTicketClassification?: Maybe<TicketClassifier>;
+  getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
@@ -67351,6 +67367,11 @@ export type QueryPredictTransactionClassificationArgs = {
 
 export type QueryPredictTicketClassificationArgs = {
   data: PredictTicketClassificationInput;
+};
+
+
+export type QueryGetResidentExistenceByPhoneAndAddressArgs = {
+  data: GetResidentExistenceByPhoneAndAddressInput;
 };
 
 

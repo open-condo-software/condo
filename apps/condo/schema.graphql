@@ -71012,6 +71012,20 @@ type DiscoverServiceConsumersOutput {
   statistics: DiscoverServiceConsumersOutputStatistics!
 }
 
+input GetResidentExistenceByPhoneAndAddressInput {
+  dv: Int!
+  sender: JSON!
+  phone: String!
+  propertyId: ID!
+  unitName: String!
+  unitType: BuildingUnitSubType!
+}
+
+type GetResidentExistenceByPhoneAndAddressOutput {
+  hasResident: Boolean!
+  hasResidentOnAddress: Boolean!
+}
+
 enum OnBoardingType {
   ADMINISTRATOR
 }
@@ -75182,6 +75196,7 @@ type Query {
   """
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
+  getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
