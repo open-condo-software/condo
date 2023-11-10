@@ -400,23 +400,7 @@ class BillingPropertyResolver {
      * @returns {Promise<{ billingProperty: (BillingProperty), unitType: string, unitName: string}>}
      */
     async packToResult (billingProperty, parsedFias, parsedAddress, providedUnitType, providedUnitName) {
-        /**
-         * We are expecting here the following cases:
-         * 1. For resolved billingProperty has paired billingAccount with unitType/unitName
-         * 2. For resolved billingProperty has no paired billingAccount - let's choose unitType/unitName by exists data
-         */
-        const billingAccounts = await BillingAccount.getAll(this.context, {
-            property: { id: billingProperty.id },
-            deletedAt: null,
-        }, { first: 1 })
-
-        // has paired billingAccount
-        if (!isNil(billingAccounts) && billingAccounts.length > 0) {
-            const { unitType, unitName } = billingAccounts[0]
-            return { billingProperty, unitType, unitName }
-        }
-
-        // choose unitName, unitType
+        // choose unitName, unitType from address or provided data
         const {
             unitType,
             unitName,

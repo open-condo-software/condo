@@ -1241,19 +1241,6 @@ describe('BillingPropertyResolver tests', () => {
                 expect(resolved).toHaveProperty('unitName', unitName)
             })
 
-            it('Has paired billingAccount', async () => {
-                const { property, billingProperty } = await createTestPropertyPair(admin, billingIntegrationContext, organization)
-                const [billingAccount] = await createTestBillingAccount(admin, billingIntegrationContext, billingProperty)
-                const { unitType, unitName, address } = generateFullAddress()
-                const fias = property.addressMeta.data.house_fias_id
-
-                const resolved = await resolver.resolve(address, { fias }, unitType, unitName)
-                expect(resolved).toBeDefined()
-                expect(resolved).toHaveProperty('billingProperty.id', billingProperty.id)
-                expect(resolved).toHaveProperty('unitType', billingAccount.unitType)
-                expect(resolved).toHaveProperty('unitName', billingAccount.unitName)
-            })
-
             it('Resolve by params: resolveOnlyByOrganizationProperties', async () => {
                 const {
                     context: billingIntegrationContext,
