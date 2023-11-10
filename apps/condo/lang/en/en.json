@@ -652,6 +652,7 @@
   "pages.condo.meter.create.LastReading": "Last meter reading",
   "pages.condo.meter.create.MetersAndReadings": "Meters and meter readings",
   "pages.condo.meter.create.MeterReadings": "Meter readings",
+  "pages.condo.meter.create.resourceOwnedByAnotherOrganization": "This resource is owned by another organization. Please, contact tech support",
   "pages.condo.meter.index.PageTitle": "Meters log",
   "pages.condo.meter.index.EmptyList.header": "The list is empty",
   "pages.condo.meter.index.CreateMeterButtonLabel": "Add new meter",

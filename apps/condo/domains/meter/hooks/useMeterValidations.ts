@@ -6,19 +6,24 @@ import { useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 
-import { Meter } from '@condo/domains/meter/utils/clientSchema'
+import { Meter, MeterResourceOwner } from '@condo/domains/meter/utils/clientSchema'
 
-export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null ) => {
+export const useMeterValidations = (installationDate: Dayjs, verificationDate: Dayjs, propertyId: string, unitName: string, organizationId: string, initialNumber: string | null, addressKey: string ) => {
     const intl = useIntl()
     const MeterWithSameNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameNumberIsExist' })
     const MeterWithSameAccountNumberIsExistMessage = intl.formatMessage({ id: 'pages.condo.meter.MeterWithSameAccountNumberIsExist' })
     const CanNotBeEarlierThanInstallationMessage = intl.formatMessage({ id: 'pages.condo.meter.СanNotBeEarlierThanInstallation' })
     const CanNotBeEarlierThanFirstVerificationMessage = intl.formatMessage({ id: 'pages.condo.meter.CanNotBeEarlierThanFirstVerification' })
+    const ResourceOwnedByAnotherOrganizationTitle = intl.formatMessage({ id: 'pages.condo.meter.create.resourceOwnedByAnotherOrganization' })
 
     const { refetch } = Meter.useObjects({
         where: {
             organization: { id: organizationId },
         },
+    }, { skip: true })
+
+    const { refetch: refetchMeterResourceOwners } = MeterResourceOwner.useObjects({
+        where: { addressKey },
     }, { skip: true })
 
     const earlierThanInstallationValidator: Rule = useMemo(() => ({
@@ -93,15 +98,38 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
         },
     }), [MeterWithSameNumberIsExistMessage, organizationId, propertyId, refetch, unitName])
 
+    const meterResourceOwnerValidation: Rule = useMemo(() => ({
+        validator: async (_, value) => {
+            if (!value) return Promise.resolve()
+
+            const { data: { objs } } = await refetchMeterResourceOwners({
+                where: {
+                    resource: { id: value },
+                    addressKey,
+                },
+            })
+
+            if (objs.length > 0) {
+                if (objs[0].organization.id !== organizationId) {
+                    return Promise.reject(ResourceOwnedByAnotherOrganizationTitle)
+                }
+            }
+
+            return Promise.resolve()
+        },
+    }), [addressKey, refetchMeterResourceOwners, organizationId, ResourceOwnedByAnotherOrganizationTitle])
+
     return useMemo(() => ({
         meterWithSameAccountNumberInOtherUnitValidation,
         meterWithSameNumberValidator,
         earlierThanFirstVerificationDateValidator,
         earlierThanInstallationValidator,
+        meterResourceOwnerValidation,
     }), [
         earlierThanFirstVerificationDateValidator,
         earlierThanInstallationValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
         meterWithSameNumberValidator,
+        meterResourceOwnerValidation,
     ])
 }

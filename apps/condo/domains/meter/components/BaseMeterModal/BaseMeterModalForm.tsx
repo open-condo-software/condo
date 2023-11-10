@@ -132,7 +132,8 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
         earlierThanInstallationValidator,
         earlierThanFirstVerificationDateValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
-    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber)
+        meterResourceOwnerValidation,
+    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber, addressKey)
 
     const meterNumberValidations = useMemo(() => [
         requiredValidator,
@@ -143,14 +144,14 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     const validations = useMemo(() => ({
         accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation],
         number: meterNumberValidations,
-        resource: [requiredValidator],
+        resource: [requiredValidator, meterResourceOwnerValidation],
         numberOfTariffs: [requiredValidator],
         commissioningDate: [earlierThanInstallationValidator],
         sealingDate: [earlierThanInstallationValidator],
         nextVerificationDate: [earlierThanFirstVerificationDateValidator],
         controlReadingsDate: [earlierThanInstallationValidator],
     }),
-    [meterType, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator, trimValidator])
+    [isPropertyMeter, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator, trimValidator, meterResourceOwnerValidation])
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleCancelModal = useCallback(() => () => setModalVisible(false), [])
@@ -214,7 +215,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                                         >
                                             <GraphQlSearchInput
                                                 onChange={resource => handleResourceChange(form, resource)}
-                                                search={searchMeterResources(organizationId, addressKey)}
+                                                search={searchMeterResources}
                                                 disabled={disabledFields}
                                             />
                                         </BaseMeterModalFormItem>

@@ -8,6 +8,7 @@ import pickBy from 'lodash/pickBy'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { Tooltip } from '@open-condo/ui'
 
 import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
@@ -107,6 +108,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes, meterResourceOwn
     const SecondTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff2Message' })
     const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
     const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
+    const ResourceOwnedByAnotherOrganizationTitle = intl.formatMessage({ id: 'pages.condo.meter.create.resourceOwnedByAnotherOrganization' })
 
     const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
     const [newMeterReadings, setNewMeterReadings] = useState({})
@@ -136,15 +138,29 @@ export const useMeterTableColumns = (meterType: MeterPageTypes, meterResourceOwn
             isDisabled = meterResourceOwner.organization.id !== record.meter.organization.id
         }
 
+        if (isDisabled) {
+            return (
+                <Tooltip title={ResourceOwnedByAnotherOrganizationTitle}>
+                    <div>
+                        <MeterReadingInput
+                            record={record}
+                            newMeterReadings={newMeterReadings}
+                            setNewMeterReadings={setNewMeterReadings}
+                            disabled
+                        />
+                    </div>
+                </Tooltip>
+            )
+        }
+
         return (
             <MeterReadingInput
                 record={record}
                 newMeterReadings={newMeterReadings}
                 setNewMeterReadings={setNewMeterReadings}
-                disabled={isDisabled}
             />
         )
-    }, [newMeterReadings, meterResourceOwners])
+    }, [newMeterReadings, meterResourceOwners, ResourceOwnedByAnotherOrganizationTitle])
     const textRenderer = useMemo(() => getTextRender(), [getTextRender])
     const dateRenderer = useMemo(() => getDateRender(intl), [intl, getDateRender])
 
