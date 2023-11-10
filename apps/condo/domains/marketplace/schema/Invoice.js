@@ -186,6 +186,7 @@ const Invoice = new GQLListSchema('Invoice', {
             const invoiceContext = await getByCondition('InvoiceContext', {
                 id: nextContextId,
                 status: INVOICE_CONTEXT_STATUS_FINISHED,
+                deletedAt: null,
             })
 
             if (!invoiceContext) {
