@@ -357,12 +357,16 @@ describe('B2BApp permissions for service user', () => {
         await createTestB2BAppAccessRight(support, serviceUser.user, app, accessRightSet)
 
         const foundRight = await B2BAppAccessRight.getOne(support, { app: { id: app.id } })
+        expect(foundRight).toHaveProperty('accessRightSet.canReadContacts', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageContacts', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadMeters', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageMeters', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canReadMeterReadings', false)
+        expect(foundRight).toHaveProperty('accessRightSet.canManageMeterReadings', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadOrganizations', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageOrganizations', false)
         expect(foundRight).toHaveProperty('accessRightSet.canReadProperties', false)
         expect(foundRight).toHaveProperty('accessRightSet.canManageProperties', false)
-        expect(foundRight).toHaveProperty('accessRightSet.canReadContacts', false)
-        expect(foundRight).toHaveProperty('accessRightSet.canManageContacts', false)
     })
 
     describe('Bulk-operations', () => {
