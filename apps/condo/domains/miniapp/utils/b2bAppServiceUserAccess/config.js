@@ -18,18 +18,7 @@
  *    },
  * }
  *
- * // 2) You should to add "serviceUserAccessForB2BApp" plugin for MySchema schema
- * {
- *    schemaDoc: // ...some schemaDoc
- *    fields: // ...some fields
- *    hooks: // ...some hooks
- *    kmigratorOptions: // ...some kmigratorOptions
- *    access: // ...some access
- *    plugins: [
- *        // ...some your plugins
- *        serviceUserAccessForB2BApp()
- *    ]
- * }
+ * // 2) you need to explicitly add one of the utilities from "@condo/domains/miniapp/utils/b2bAppServiceUserAccess" to the model accesses
  *
  * // 3) You should update 'schema.ts' and 'schema.graphql'
  * // run 'yarn maketypes'
@@ -41,8 +30,7 @@
  * // run 'yarn migrate'
  *
  *
- * B2bAppServiceUserAccessAvailableSchemas
- * @type {B2bAppServiceUserAccessAvailableSchemas}
+ * @type {B2bAppServiceUserAccessConfig}
  */
 const B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS = {
     Contact: {},

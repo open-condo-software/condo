@@ -43,7 +43,6 @@ const getPermissionFieldNames = (config) => {
 }
 
 /**
- *
  * @param permissionFieldName {string}
  * @return {string}
  */
@@ -63,9 +62,9 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
 
 /**
  *
- * Overrides the plugin's default behavior for the specified schema
+ * Overrides the default access behavior for the specified schema
  *
- * @typedef {Object} B2BAppAccessConfig
+ * @typedef {Object} B2bAppServiceUserAccessSchemaConfig
  * @property {Array.<string>} pathToOrganizationId - Way to get the organization id (default value: ['organization', 'id'])
  * @property {boolean} canBeRead - Service users can read schema (default value: true)
  * @property {boolean} canBeManage - Service users can manage schema (default value: true)
@@ -73,9 +72,9 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
 
 /**
  *
- * Overrides the plugin's default behavior for the specified schema
+ * Determines which models can be accessed by a service user linked to a B2B app
  *
- * @example Overrides for Organization schema
+ * @example Config for Organization schema
  * {
  *    Organization: {
  *       // Default value ['organization', 'id'] => get value from <SchemaName>.organization.id
@@ -86,13 +85,13 @@ const getSchemaDocForReadOnlyPermissionField = (permissionFieldName) => {
  *    },
  * }
  *
- * @typedef {Object.<string, B2BAppAccessConfig>} B2bAppServiceUserAccessAvailableSchemas
+ * @typedef {Object.<string, B2bAppServiceUserAccessSchemaConfig>} B2bAppServiceUserAccessConfig
  */
 
 /**
  * Generation of fields for scheme  B2BAppAccessRightSet canRead... and canManage... for the necessary schemes.
  *
- * @param {B2bAppServiceUserAccessAvailableSchemas} config  - Overrides the plugin's default behavior for the specified schema
+ * @param {B2bAppServiceUserAccessConfig} config  - Determines which models can be accessed by a service user linked to a B2B app
  * @return {Object.<string, Object>}
  */
 const generatePermissionFields = ({ config }) => {

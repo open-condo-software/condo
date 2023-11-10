@@ -18,4 +18,4 @@ ___
 
 ### How setup new schema
 
-...
+Read in [config file](config.js)
