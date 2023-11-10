@@ -7,32 +7,49 @@ const get = require('lodash/get')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const {
+    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    mergeAccessFilters,
+} = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
-async function canReadContacts ({ authentication: { item: user } }) {
+
+async function canReadContacts (args) {
+    const { authentication: { item: user } } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
     if (user.isAdmin) return {}
 
-    return {
+    const accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp = await serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+    return mergeAccessFilters(accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp, {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id, 'canReadContacts'),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadContacts'),
             ],
         },
-    }
+    })
 }
 
-async function canManageContacts ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageContacts (args) {
+    const { authentication: { item: user }, originalInput, operation, itemId } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
 
     if (user.isAdmin) return true
 
+    if (user.type === SERVICE) {
+        const hasAccess = await serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+        if (hasAccess) return hasAccess
+    }
+    
     if (operation === 'create') {
         const organizationId = get(originalInput, ['organization', 'connect', 'id'])
 

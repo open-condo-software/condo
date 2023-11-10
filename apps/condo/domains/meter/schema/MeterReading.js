@@ -14,7 +14,6 @@ const access = require('@condo/domains/meter/access/MeterReading')
 const { Meter } = require('@condo/domains/meter/utils/serverSchema')
 const { connectContactToMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
 const { addClientInfoToResidentMeterReading } = require('@condo/domains/meter/utils/serverSchema/resolveHelpers')
-const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
@@ -111,7 +110,6 @@ const MeterReading = new GQLListSchema('MeterReading', {
         softDeleted(),
         dvAndSender(),
         historical(),
-        serviceUserAccessForB2BApp(),
     ],
     access: {
         read: access.canReadMeterReadings,

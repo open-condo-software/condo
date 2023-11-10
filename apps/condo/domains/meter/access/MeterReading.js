@@ -6,16 +6,23 @@ const { get } = require('lodash')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { getById } = require('@open-condo/keystone/schema')
 
+const { getAvailableResidentMeters } = require('@condo/domains/meter/utils/serverSchema')
+const {
+    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    mergeAccessFilters,
+} = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
     checkPermissionInUserOrganizationOrRelatedOrganization,
 } = require('@condo/domains/organization/utils/accessSchema')
-const { RESIDENT } = require('@condo/domains/user/constants/common')
+const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 
-const { getAvailableResidentMeters } = require('../utils/serverSchema')
 
-async function canReadMeterReadings ({ authentication: { item: user } }) {
+async function canReadMeterReadings (args) {
+    const { authentication: { item: user } } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -31,20 +38,28 @@ async function canReadMeterReadings ({ authentication: { item: user } }) {
         }
     }
 
-    return {
+    const accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp = await serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+    return mergeAccessFilters(accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp, {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id, 'canReadMeters'),
                 queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMeters'),
             ],
         },
-    }
+    })
 }
 
-async function canManageMeterReadings ({ authentication: { item: user }, originalInput, operation }) {
+async function canManageMeterReadings (args) {
+    const { authentication: { item: user }, originalInput, operation } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin) return true
+
+    if (user.type === SERVICE) {
+        const hasAccess = await serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+        if (hasAccess) return hasAccess
+    }
 
     if (operation === 'create') {
         const meterId = get(originalInput, ['meter', 'connect', 'id'], null)

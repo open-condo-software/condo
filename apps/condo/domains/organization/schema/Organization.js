@@ -15,7 +15,6 @@ const { webHooked } = require('@open-condo/webhooks/plugins')
 const { COUNTRIES } = require('@condo/domains/common/constants/countries')
 const { PHONE_FIELD } = require('@condo/domains/common/schema/fields')
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
-const { serviceUserAccessForB2BApp } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const access = require('@condo/domains/organization/access/Organization')
 const { ORGANIZATION_TYPES, MANAGING_COMPANY_TYPE, HOLDING_TYPE } = require('@condo/domains/organization/constants/common')
 const { ORGANIZATION_FEATURES_FIELD } = require('@condo/domains/organization/schema/fields/features')
@@ -183,7 +182,6 @@ const Organization = new GQLListSchema('Organization', {
     },
     plugins: [
         uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked(),
-        serviceUserAccessForB2BApp(),
     ],
     access: {
         read: access.canReadOrganizations,

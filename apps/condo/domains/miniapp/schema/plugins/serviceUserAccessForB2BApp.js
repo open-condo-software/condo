@@ -6,9 +6,10 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { evaluateKeystoneAccessResult } = require('@open-condo/keystone/plugins/utils')
 const { GQL_SCHEMA_PLUGIN } = require('@open-condo/keystone/plugins/utils/typing')
-const { find, getById } = require('@open-condo/keystone/schema')
+const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 
 const { SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG } = require('@condo/domains/miniapp/constants')
+const { SERVICE } = require('@condo/domains/user/constants/common')
 
 
 const ALL_GENERATED_GQL_QUERIES = new Map()
@@ -123,6 +124,10 @@ const getFilter = (pathToOrganizationId, organizationIds) => {
     }
 }
 
+/**
+ *
+ * @return {Promise<Record<string, any>|false>}
+ */
 const canReadByServiceUser = async ({ authentication: { item: user }, args, listKey }, schemaConfig) => {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
@@ -248,6 +253,7 @@ function plugin (fn) {
 
 /**
  *
+ * @deprecated
  * This plugin solves the following problem: from the miniapp on behalf of the service user it is impossible to receive data of organizations connected to this miniapp.
  * ---
  *
@@ -342,9 +348,88 @@ const serviceUserAccessForB2BApp = () => plugin((schema, { schemaName }) => {
     return schema
 })
 
+const isServiceUser = ({ authentication: { item: user } }) => {
+    return get(user, 'type') === SERVICE
+}
+
+/**
+ * Checks that service user can read objects of organization that is connected to linked B2B app
+ *
+ * @param args
+ * @return {Promise<Record<string, any>|false>}
+ */
+const serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp = async (args) => {
+    const { listKey } = args
+    if (!isServiceUser(args)) return false
+    const schemaConfig = get(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG, listKey)
+    if (!isObject(schemaConfig)) return false
+    const canBeRead = get(schemaConfig, 'canBeRead', true)
+    if (!canBeRead) return false
+    return await canReadByServiceUser(args, schemaConfig)
+}
+
+const getRefSchemaName = (schemaConfig, listKey) => {
+    const pathToOrganizationId = get(schemaConfig, 'pathToOrganizationId', ['organization', 'id'])
+
+    if (!isArray(pathToOrganizationId) || isEmpty(pathToOrganizationId)) {
+        throw new Error('"pathToOrganizationId" must be not empty array!')
+    }
+    for (const pathPart of pathToOrganizationId) {
+        if (!isString(pathPart) || pathPart.trim().length < 1) {
+            throw new Error(`"pathToOrganizationId" must contain array of string! But was: ${pathToOrganizationId}`)
+        }
+    }
+
+    const schema = getSchemaCtx(listKey)
+
+    const schemaFields = get(schema, 'list._fields', {})
+    return get(schemaFields, [pathToOrganizationId[0], 'ref'], null)
+}
+
+/**
+ * Checks that service user can manage objects of organization that is connected to linked B2B app
+ *
+ * @param args
+ * @return {Promise<boolean>}
+ */
+const serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp = async (args) => {
+    const { listKey } = args
+    if (!isServiceUser(args)) return false
+    const schemaConfig = get(SERVICE_USER_ACCESS_FOR_B2B_APP_CONFIG, listKey)
+    if (!isObject(schemaConfig)) return false
+    const canBeManage = get(schemaConfig, 'canBeManage', true)
+    if (!canBeManage) return false
+    const refSchemaName = getRefSchemaName(schemaConfig, listKey)
+    return await canManageByServiceUser(args, schemaConfig, refSchemaName)
+}
+
+/**
+ * Merge two access filters or return false
+ *
+ * @param a {any}
+ * @param b {any}
+ * @return {Record<string, any>|{OR: [{AND: Record<string, any>[]},{AND: Record<string, any>[]}]}||false}
+ */
+const mergeAccessFilters = (a, b) => {
+    if ((isObject(a) && isEmpty(a)) || (isObject(b) && isEmpty(b))) return {}
+    if (isObject(a) && isObject(b)) {
+        return {
+            OR: [
+                { AND: [a] },
+                { AND: [b] },
+            ],
+        }
+    }
+    if (isObject(a)) return a
+    if (isObject(b)) return b
+    return false
+}
+
 module.exports = {
-    serviceUserAccessForB2BApp,
+    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
     generateGqlDataPart,
     generateGqlQueryAsString,
     getFilter,
+    mergeAccessFilters,
 }

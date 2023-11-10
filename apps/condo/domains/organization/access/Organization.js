@@ -7,12 +7,15 @@ const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
+const { serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp, mergeAccessFilters } = require('@condo/domains/miniapp/schema/plugins/serviceUserAccessForB2BApp')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
 
 
-async function canReadOrganizations ({ authentication: { item: user }, listKey }) {
+async function canReadOrganizations (args) {
+    const { authentication: { item: user }, listKey } = args
+
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     
@@ -38,10 +41,13 @@ async function canReadOrganizations ({ authentication: { item: user }, listKey }
         }
         return false
     }
-    const accessConditions =  [
+
+    const accessConditions = [
         { ...queryOrganizationEmployeeFor(user.id) },
         { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
     ]
+    const accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp = await serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+
     if (user.type === SERVICE) {
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
             integration: {
@@ -74,7 +80,7 @@ async function canReadOrganizations ({ authentication: { item: user }, listKey }
         }
     }
 
-    return { OR: accessConditions }
+    return mergeAccessFilters({ OR: accessConditions }, accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp)
 }
 
 async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {
