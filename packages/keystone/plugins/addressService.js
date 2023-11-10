@@ -120,6 +120,10 @@ const addressService = ({
                         msg: 'searched address does not match to the found address',
                         addressToSearch,
                         resultAddress,
+                        operation,
+                        listKey,
+                        itemId: get(existingItem, 'id'),
+                        addressKey: get(existingItem, 'addressKey'),
                     })
                 }
                 /**
@@ -139,7 +143,16 @@ const addressService = ({
                 addressFields['addressKey'] = get(result, 'addressKey')
                 addressFields['addressSources'] = get(result, 'addressSources', [])
             } else {
-                throw new Error(`No address found by string "${addressToSearch}"`)
+                const msg = `No address found by string "${addressToSearch}"`
+                logger.error({
+                    msg,
+                    operation,
+                    listKey,
+                    itemId: get(existingItem, 'id'),
+                    addressKey: get(existingItem, 'addressKey'),
+                })
+
+                throw new Error(msg)
             }
         } else {
             // NOTE(pahaz): if you don't need to change the address you want to prevent any changes
