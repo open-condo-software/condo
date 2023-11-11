@@ -10,12 +10,19 @@ const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemSharing')
 const publishSharedNewsItem = require('@condo/domains/news/tasks/publishSharedNewsItem')
+const get = require("lodash/get");
+const {NewsItemScope} = require("../utils/serverSchema");
+const {GQLError} = require("@open-condo/keystone/errors");
+const isEmpty = require("lodash/isEmpty");
+const {NEWS_TYPE_EMERGENCY} = require("../constants/newsTypes");
+const dayjs = require("dayjs");
+const {checkBadWordsExclusions} = require("../utils/serverSchema/badWords");
 
 const NEWS_ITEM_SHARING_STATUSES = {
     SCHEDULED: 'scheduled',
     PROCESSING: 'processing',
     PUBLISHED: 'published',
-    ARCHIVE: 'archive',
+    ERROR: 'error',
 }
 
 
@@ -56,14 +63,8 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         },
 
         statusMessage: {
-            schemaDoc: 'Explanations regarding the publication status. For example, the reason for rejection by moderators, details of a system error on the mini-app side',
+            schemaDoc: 'Explanations regarding the publication status. Might be shown to user',
             type: Text,
-            isRequired: false,
-        },
-
-        lastGetRecipientsRequest: {
-            schemaDoc: 'The outcome from the most recent invocation of the lastGetRecipientsRequest',
-            type: Json,
             isRequired: false,
         },
 
@@ -72,12 +73,25 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             type: Json,
             isRequired: false,
         },
-
     },
 
     hooks: {
+        validateInput: async (args) => {
+            const { resolvedData, existingItem, context, operation } = args
+            const resultItemData = { ...existingItem, ...resolvedData }
+
+            // Correct status movement:
+            // scheduled -> processing -> published : all -> error
+            if (operation === 'update') {
+                if (existingItem.status === NEWS_ITEM_SHARING_STATUSES.PROCESSING) {}
+            }
+        },
+
+        /**
+         * It is not guaranteed that NewsItemSharing will be created before NewsItem is published,
+         * We mitigate it by explicitly checking whether the related NewsItem had been published and publishing NewsItemSharing if it true
+         */
         afterChange: async ({ updatedItem }) => {
-            // TODO: @toplenboren what if we already tried to publish newsItemSharing ?
             if (updatedItem.status === NEWS_ITEM_SHARING_STATUSES.SCHEDULED) {
                 const newsItem = await getById('NewsItem', updatedItem.newsItem)
                 if (newsItem.isPublished) {
