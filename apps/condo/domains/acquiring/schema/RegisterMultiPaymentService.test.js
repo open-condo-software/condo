@@ -95,6 +95,8 @@ let dummyAcquiringIntegration
 describe('RegisterMultiPaymentService', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
+
+        await createTestBillingIntegration(adminClient)
         ;[dummyAcquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
             canGroupReceipts: true,
         })

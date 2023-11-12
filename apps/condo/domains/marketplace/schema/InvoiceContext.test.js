@@ -31,6 +31,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
+const { createTestBillingIntegration } = require('../../billing/utils/testSchema')
 
 let adminClient, supportClient, anonymousClient
 let integration
@@ -40,6 +41,7 @@ describe('InvoiceContext', () => {
         adminClient = await makeLoggedInAdminClient()
         supportClient = await makeClientWithSupportUser()
         anonymousClient = await makeClient()
+        await createTestBillingIntegration(adminClient)
         ;[integration] = await createTestAcquiringIntegration(supportClient)
     })
 
