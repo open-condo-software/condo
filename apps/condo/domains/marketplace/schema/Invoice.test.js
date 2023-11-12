@@ -48,7 +48,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
     makeClientWithResidentUser,
-    makeClientWithStaffUser,
+    makeClientWithStaffUser, createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
 
 let adminClient, supportClient, anonymousClient
@@ -536,6 +536,58 @@ describe('Invoice', () => {
                     client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
                 }),
             ])
+        })
+    })
+
+    describe('resolve hook', () => {
+        describe('connect contact to Invoice', () => {
+            it('create and connect contact if client data passed, but contact not passed', async () => {
+                const [property] = await createTestProperty(adminClient, dummyO10n)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const clientPhone = createTestPhone()
+                const clientName = faker.random.alphaNumeric(5)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                    clientName, clientPhone, unitName, unitType,
+                    property: { connect: { id: property.id } },
+                })
+
+                expect(invoice.contact).toBeDefined()
+
+                const contact = invoice.contact
+                expect(contact.name).toEqual(clientName)
+                expect(contact.phone).toEqual(clientPhone)
+                expect(contact.property.id).toEqual(property.id)
+                expect(contact.unitName).toEqual(unitName)
+                expect(contact.unitType).toEqual(unitType)
+            })
+
+            it('connect existed contact if contact founded by passed client data', async () => {
+                const [property] = await createTestProperty(adminClient, dummyO10n)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const clientPhone = createTestPhone()
+                const clientName = faker.random.alphaNumeric(5)
+
+                const [contact] = await createTestContact(adminClient, dummyO10n, property, {
+                    unitType, unitName, phone: clientPhone, name: clientName,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                    clientName, clientPhone, unitName, unitType,
+                    property: { connect: { id: property.id } },
+                })
+
+                expect(invoice.contact).toBeDefined()
+                expect(invoice.contact.id).toEqual(contact.id)
+            })
+
+            it('does not connect contact if no client data passed', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+
+                expect(invoice.contact).toBeNull()
+            })
         })
     })
 

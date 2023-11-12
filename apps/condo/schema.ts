@@ -25212,6 +25212,10 @@ export type Invoice = {
   contact?: Maybe<Contact>;
   /**  The user who sees the invoice. Must filled with the user of corresponding resident.  */
   client?: Maybe<User>;
+  /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
+  clientName?: Maybe<Scalars['String']>;
+  /**  Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it  */
+  clientPhone?: Maybe<Scalars['String']>;
   /**  Invoice status affects which invoices can be read by residents and which invoices can be managed  */
   status?: Maybe<Scalars['String']>;
   /**  Shows which payment type chosen: online or cash or something else  */
@@ -25750,6 +25754,8 @@ export type InvoiceCreateInput = {
   ticket?: Maybe<TicketRelateToOneInput>;
   contact?: Maybe<ContactRelateToOneInput>;
   client?: Maybe<UserRelateToOneInput>;
+  clientName?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -25785,6 +25791,8 @@ export type InvoiceHistoryRecord = {
   ticket?: Maybe<Scalars['String']>;
   contact?: Maybe<Scalars['String']>;
   client?: Maybe<Scalars['String']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
@@ -25814,6 +25822,8 @@ export type InvoiceHistoryRecordCreateInput = {
   ticket?: Maybe<Scalars['String']>;
   contact?: Maybe<Scalars['String']>;
   client?: Maybe<Scalars['String']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -25848,6 +25858,8 @@ export type InvoiceHistoryRecordUpdateInput = {
   ticket?: Maybe<Scalars['String']>;
   contact?: Maybe<Scalars['String']>;
   client?: Maybe<Scalars['String']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -25957,6 +25969,42 @@ export type InvoiceHistoryRecordWhereInput = {
   client_not?: Maybe<Scalars['String']>;
   client_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   client_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientName?: Maybe<Scalars['String']>;
+  clientName_not?: Maybe<Scalars['String']>;
+  clientName_contains?: Maybe<Scalars['String']>;
+  clientName_not_contains?: Maybe<Scalars['String']>;
+  clientName_starts_with?: Maybe<Scalars['String']>;
+  clientName_not_starts_with?: Maybe<Scalars['String']>;
+  clientName_ends_with?: Maybe<Scalars['String']>;
+  clientName_not_ends_with?: Maybe<Scalars['String']>;
+  clientName_i?: Maybe<Scalars['String']>;
+  clientName_not_i?: Maybe<Scalars['String']>;
+  clientName_contains_i?: Maybe<Scalars['String']>;
+  clientName_not_contains_i?: Maybe<Scalars['String']>;
+  clientName_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone?: Maybe<Scalars['String']>;
+  clientPhone_not?: Maybe<Scalars['String']>;
+  clientPhone_contains?: Maybe<Scalars['String']>;
+  clientPhone_not_contains?: Maybe<Scalars['String']>;
+  clientPhone_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_i?: Maybe<Scalars['String']>;
+  clientPhone_not_i?: Maybe<Scalars['String']>;
+  clientPhone_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_not_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status?: Maybe<Scalars['String']>;
   status_not?: Maybe<Scalars['String']>;
   status_contains?: Maybe<Scalars['String']>;
@@ -26131,6 +26179,8 @@ export type InvoiceUpdateInput = {
   ticket?: Maybe<TicketRelateToOneInput>;
   contact?: Maybe<ContactRelateToOneInput>;
   client?: Maybe<UserRelateToOneInput>;
+  clientName?: Maybe<Scalars['String']>;
+  clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
@@ -26217,6 +26267,42 @@ export type InvoiceWhereInput = {
   contact_is_null?: Maybe<Scalars['Boolean']>;
   client?: Maybe<UserWhereInput>;
   client_is_null?: Maybe<Scalars['Boolean']>;
+  clientName?: Maybe<Scalars['String']>;
+  clientName_not?: Maybe<Scalars['String']>;
+  clientName_contains?: Maybe<Scalars['String']>;
+  clientName_not_contains?: Maybe<Scalars['String']>;
+  clientName_starts_with?: Maybe<Scalars['String']>;
+  clientName_not_starts_with?: Maybe<Scalars['String']>;
+  clientName_ends_with?: Maybe<Scalars['String']>;
+  clientName_not_ends_with?: Maybe<Scalars['String']>;
+  clientName_i?: Maybe<Scalars['String']>;
+  clientName_not_i?: Maybe<Scalars['String']>;
+  clientName_contains_i?: Maybe<Scalars['String']>;
+  clientName_not_contains_i?: Maybe<Scalars['String']>;
+  clientName_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientName_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientName_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientName_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone?: Maybe<Scalars['String']>;
+  clientPhone_not?: Maybe<Scalars['String']>;
+  clientPhone_contains?: Maybe<Scalars['String']>;
+  clientPhone_not_contains?: Maybe<Scalars['String']>;
+  clientPhone_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with?: Maybe<Scalars['String']>;
+  clientPhone_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with?: Maybe<Scalars['String']>;
+  clientPhone_i?: Maybe<Scalars['String']>;
+  clientPhone_not_i?: Maybe<Scalars['String']>;
+  clientPhone_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_not_contains_i?: Maybe<Scalars['String']>;
+  clientPhone_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_starts_with_i?: Maybe<Scalars['String']>;
+  clientPhone_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_not_ends_with_i?: Maybe<Scalars['String']>;
+  clientPhone_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  clientPhone_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   status?: Maybe<Scalars['String']>;
   status_not?: Maybe<Scalars['String']>;
   status_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -74197,6 +74283,10 @@ export enum SortInvoiceHistoryRecordsBy {
   AccountNumberDesc = 'accountNumber_DESC',
   ToPayAsc = 'toPay_ASC',
   ToPayDesc = 'toPay_DESC',
+  ClientNameAsc = 'clientName_ASC',
+  ClientNameDesc = 'clientName_DESC',
+  ClientPhoneAsc = 'clientPhone_ASC',
+  ClientPhoneDesc = 'clientPhone_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   PaymentTypeAsc = 'paymentType_ASC',
@@ -74240,6 +74330,10 @@ export enum SortInvoicesBy {
   ContactDesc = 'contact_DESC',
   ClientAsc = 'client_ASC',
   ClientDesc = 'client_DESC',
+  ClientNameAsc = 'clientName_ASC',
+  ClientNameDesc = 'clientName_DESC',
+  ClientPhoneAsc = 'clientPhone_ASC',
+  ClientPhoneDesc = 'clientPhone_DESC',
   StatusAsc = 'status_ASC',
   StatusDesc = 'status_DESC',
   PaymentTypeAsc = 'paymentType_ASC',

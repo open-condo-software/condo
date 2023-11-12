@@ -41,12 +41,12 @@ export const CreateInvoiceForm: React.FC = () => {
         }
 
         const rawRows = get(values, 'rows', [])
-        const vatPercent = get(invoiceContext, 'vatPercent')
-        const salesTaxPercent = get(invoiceContext, 'salesTaxPercent')
-        const currencyCode = get(invoiceContext, 'currencyCode')
+        const vatPercent = String(get(invoiceContext, 'vatPercent'))
+        const salesTaxPercent = String(get(invoiceContext, 'salesTaxPercent'))
+        const currencyCode = String(get(invoiceContext, 'currencyCode'))
 
         const rows = rawRows.map(row => ({
-            name: row.name, toPay: row.price, count: row.count, sku: row.sku, isMin: row.isMin,
+            name: row.name, toPay: String(row.price), count: row.count, sku: row.sku, isMin: row.isMin,
             currencyCode, vatPercent, salesTaxPercent,
         }))
 

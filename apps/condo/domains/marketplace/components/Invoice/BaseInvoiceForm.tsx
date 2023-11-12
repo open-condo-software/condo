@@ -24,6 +24,8 @@ import {
     INVOICE_STATUS_CANCELED,
     INVOICE_PAYMENT_TYPE_ONLINE,
     INVOICE_PAYMENT_TYPE_CASH,
+    INVOICE_STATUSES,
+    INVOICE_PAYMENT_TYPES,
 } from '@condo/domains/marketplace/constants'
 import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
@@ -601,13 +603,33 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone }) =
     />
 }
 
+type InvoiceRowType = {
+    count: number
+    isMin: boolean
+    name: string
+    price: string
+    sku?: string
+}
+
+type InvoiceFormValuesType = {
+    clientName: string
+    clientPhone: string
+    contact: string
+    payerData: boolean
+    paymentType: typeof INVOICE_PAYMENT_TYPES[number]
+    propertyId: string
+    unitName: string
+    unitType: BuildingUnitSubType
+    rows: InvoiceRowType[]
+    status: typeof INVOICE_STATUSES[number]
+}
 
 type BaseInvoiceFormProps = {
-    isCreateForm?: boolean
-    // initialValues:
-    action: (values) => Promise<Invoice>
+    action: (values: InvoiceFormValuesType) => Promise<Invoice>
     organization: Organization
     role: OrganizationEmployeeRole
+    isCreateForm?: boolean
+    initialValues?: InvoiceFormValuesType
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, action, organization, role }) => {
