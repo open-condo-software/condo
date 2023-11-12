@@ -258,9 +258,19 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                     addValidationError(`${MULTIPAYMENT_PAYMENTS_ALREADY_WITH_MP} Failed ids: ${alreadyWithMPPayments.join(', ')}`)
                 }
 
-                const receiptPayments = payments.filter(({ invoice, receipt }) => !!receipt && !invoice)
-                const invoicePayments = payments.filter(({ invoice, receipt }) => !!invoice && !receipt)
-                const virtualPayments = payments.filter(({ invoice, receipt }) => !invoice && !receipt)
+                const { receiptPayments, invoicePayments, virtualPayments } = payments.reduce(
+                    (acc, { invoice, receipt }) => {
+                        if (!!receipt && !invoice) {
+                            acc.receiptPayments.push({ invoice, receipt })
+                        } else if (!!invoice && !receipt) {
+                            acc.invoicePayments.push({ invoice, receipt })
+                        } else if (!invoice && !receipt) {
+                            acc.virtualPayments.push({ invoice, receipt })
+                        }
+                        return acc
+                    },
+                    { receiptPayments: [], invoicePayments: [], virtualPayments: [] },
+                )
 
                 const currencyCode = resolvedData['currencyCode']
                 const anotherCurrencyPayments = receiptPayments.filter(payment => payment.currencyCode !== currencyCode).map(payment => `"${payment.id}"`)
