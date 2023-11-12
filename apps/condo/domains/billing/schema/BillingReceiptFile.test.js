@@ -33,6 +33,7 @@ const {
 const {
     registerResidentByTestClient,
     registerServiceConsumerByTestClient,
+    ServiceConsumer,
 } = require('@condo/domains/resident/utils/testSchema')
 const {
     makeClientWithResidentUser,
@@ -63,12 +64,13 @@ async function makeClientWithResidentVerificationAndReceiptFile ({
     })
     const [receipt] =  await createTestBillingReceipt(admin, billingContext, billingProperty, billingAccount)
     const [receiptFile, attrs] = await createTestBillingReceiptFile(admin, receipt, billingContext)
-    await registerServiceConsumerByTestClient(client, {
+    const [serviceConsumer] = await registerServiceConsumerByTestClient(client, {
         accountNumber: billingAccount.number,
         residentId: resident.id,
         organizationId: organization.id,
     })
     return {
+        serviceConsumer,
         residentClient: client,
         file: {
             receiptFile,
@@ -283,16 +285,39 @@ describe('BillingReceiptFile', () => {
                 ]))
             })
 
+            test('resident access to billing receipt do not depends on serviceConsumer deprecated fields: billingAccount, billingIntegrationContext', async () => {
+                const {
+                    serviceConsumer,
+                    residentClient,
+                    file,
+                } = await makeClientWithResidentVerificationAndReceiptFile({
+                    admin, organization, billingContext: context, billingProperty: property, property: organizationProperty,
+                }, false)
+                const [residentReceiptFile] = await BillingReceiptFile.getAll(residentClient, { id: file.receiptFile.id })
+                expect(residentReceiptFile).toBeDefined()
+                expect(residentReceiptFile.file.originalFilename).toEqual(path.basename(PUBLIC_FILE))
+                await ServiceConsumer.update(admin, serviceConsumer.id, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: 'admin-test-client' },
+                    billingIntegrationContext: { disconnectAll: true },
+                    billingAccount: { disconnectAll: true },
+                })
+                const [receiptFileAfterConsumerUpdate] = await BillingReceiptFile.getAll(residentClient, { id: file.receiptFile.id })
+                expect(receiptFileAfterConsumerUpdate).toBeDefined()
+                expect(receiptFileAfterConsumerUpdate.file.originalFilename).toEqual(path.basename(PUBLIC_FILE))
+            })
+
             test('service can', async () => {
                 const objs = await BillingReceiptFile.getAll(integrationUser, {}, { sortBy: ['updatedAt_DESC'] })
-
                 expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs[0]).toMatchObject({
-                    id: file.id,
-                    context: file.context,
-                    receipt: file.receipt,
-                    controlSum: file.controlSum,
-                })
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: file.id,
+                        context: file.context,
+                        receipt: file.receipt,
+                        controlSum: file.controlSum,
+                    }),
+                ]))
             })
 
             test('Employee can, but only for permitted organization', async () => {
