@@ -15,6 +15,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { TAX_REGIME_SIMPLE, DEFAULT_IMPLICIT_FEE_PERCENT } = require('@condo/domains/marketplace/constants')
 const {
@@ -31,7 +32,6 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
-const { createTestBillingIntegration } = require('../../billing/utils/testSchema')
 
 let adminClient, supportClient, anonymousClient
 let integration
