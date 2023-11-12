@@ -127,7 +127,7 @@ const addressService = ({
                     })
                 }
                 /**
-                 * We have restriction for updating some fields for existing resident
+                 * We have some restriction for updating some fields for existing resident
                  * @see apps/condo/domains/resident/schema/RegisterResidentService.js
                  * @see apps/condo/domains/resident/schema/Resident.js
                  */
