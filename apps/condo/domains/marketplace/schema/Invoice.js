@@ -197,7 +197,7 @@ const Invoice = new GQLListSchema('Invoice', {
                 throw new GQLError(ERRORS.EMPTY_ROWS, context)
             }
 
-            // Check rows
+            // Check rows data
             const nextRows = get(nextData, 'rows', [])
             for (let i = 0; i < nextRows.length; i++) {
                 if (Number(get(nextRows[i], 'count', null)) < 1) {
