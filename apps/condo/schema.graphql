@@ -70637,26 +70637,43 @@ type ResidentBillingReceiptOutput {
   file: ResidentBillingReceiptFile
 }
 
-input RegisterBillingReceiptInput {
-  importId: String!
-  address: String!
-  normalizedAddress: String
-  accountNumber: String!
-  unitName: String!
-  unitType: String!
+input RegisterBillingReceiptAddressMetaInput {
+  globalId: String
+  addressKey: String
+  unitName: String
+  unitType: String
+}
+
+input RegisterBillingReceiptAccountMetaInput {
+  globalId: String
+  importId: String
   fullName: String
+  isClosed: Boolean
+  ownerType: BillingAccountOwnerTypeType
+}
+
+input RegisterBillingReceiptInput {
+  importId: String
+  address: String!
+  addressMeta: RegisterBillingReceiptAddressMetaInput
+  accountNumber: String!
+  accountMeta: RegisterBillingReceiptAccountMetaInput
   toPay: String!
   toPayDetails: BillingReceiptServiceToPayDetailsFieldInput
   services: [BillingReceiptServiceFieldInput]
+  category: BillingCategoryWhereUniqueInput
   month: Int!
   year: Int!
-  category: BillingCategoryWhereUniqueInput
   tin: String!
   routingNumber: String!
   bankAccount: String!
+  raw: JSON
+  unitName: String
+  unitType: String
+  normalizedAddress: String
+  fullName: String
   tinMeta: JSON
   routingNumberMeta: JSON
-  raw: JSON
 }
 
 input RegisterBillingReceiptsInput {

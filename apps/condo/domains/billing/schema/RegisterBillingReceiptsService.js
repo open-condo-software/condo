@@ -280,35 +280,57 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
     types: [
         {
             access: true,
+            type: `input RegisterBillingReceiptAddressMetaInput {
+                globalId: String
+                addressKey: String
+                unitName: String
+                unitType: String
+            }`,
+        },
+        {
+            access: true,
+            type: `input RegisterBillingReceiptAccountMetaInput {
+                globalId: String 
+                importId: String
+                fullName: String
+                isClosed: Boolean
+                ownerType: BillingAccountOwnerTypeType
+            }`,
+        },
+        {
+            access: true,
             type: 'input RegisterBillingReceiptInput ' +
                 '{ ' +
-                    'importId: String! ' +
+                    'importId: String ' +
 
                     'address: String! ' +
-                    'normalizedAddress: String ' +
+                    'addressMeta: RegisterBillingReceiptAddressMetaInput ' +
 
                     'accountNumber: String! ' +
-                    'unitName: String! ' + // Is going to be made optional in future
-                    'unitType: String! ' + // Is going to be made optional in future
-                    'fullName: String ' +
+                    'accountMeta: RegisterBillingReceiptAccountMetaInput ' +
 
                     'toPay: String! ' +
                     'toPayDetails: BillingReceiptServiceToPayDetailsFieldInput ' +
                     'services: [BillingReceiptServiceFieldInput] ' +
 
+                    'category: BillingCategoryWhereUniqueInput ' +
+
                     'month: Int! ' +
                     'year: Int! ' +
-
-                    'category: BillingCategoryWhereUniqueInput ' +
 
                     'tin: String! ' +
                     'routingNumber: String! ' +
                     'bankAccount: String! ' +
 
-                    'tinMeta: JSON ' +
-                    'routingNumberMeta: JSON ' +
-
                     'raw: JSON ' +
+
+                    // [DEPRECATED] Not used fields will be removed
+                    'unitName: String ' +
+                    'unitType: String ' +
+                    'normalizedAddress: String ' +
+                    'fullName: String ' +
+                    'tinMeta: JSON ' +
+                    'routingNumberMeta: JSON' +
                 '}',
         },
         {
