@@ -105,7 +105,7 @@ const BillingReceiptFile = new GQLListSchema('BillingReceiptFile', {
                 resolveInput: async ({ resolvedData, operation, context }) => {
                     const { receipt, importId, context: contextId } = resolvedData
                     if (operation === 'create' && !receipt && importId) {
-                        const [receiptByImportId] = await BillingReceiptApi.getAll(context, {
+                        const receiptByImportId = await BillingReceiptApi.getOne(context, {
                             importId,
                             context: { id: contextId, deletedAt: null },
                             deletedAt: null,
