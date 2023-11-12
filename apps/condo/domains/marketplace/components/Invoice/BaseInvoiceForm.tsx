@@ -1,4 +1,5 @@
 import { useLazyQuery } from '@apollo/client'
+import { BuildingUnitSubType, Organization, OrganizationEmployeeRole, Invoice } from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
 import { isEmpty } from 'lodash'
@@ -24,16 +25,14 @@ import {
     INVOICE_PAYMENT_TYPE_ONLINE,
     INVOICE_PAYMENT_TYPE_CASH,
 } from '@condo/domains/marketplace/constants'
-import { Invoice, InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
-import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
+import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 
-import { BuildingUnitSubType } from '../../../schema'
-import { Loader } from '../../common/components/Loader'
-import { getClientSideSenderInfo } from '../../common/utils/userid.utils'
-import { PropertyAddressSearchInput } from '../../property/components/PropertyAddressSearchInput'
-import { UnitInfoMode } from '../../property/components/UnitInfo'
-import { UnitNameInput, UnitNameInputOption } from '../../user/components/UnitNameInput'
+import { Loader } from '../../../common/components/Loader'
+import { getClientSideSenderInfo } from '../../../common/utils/userid.utils'
+import { PropertyAddressSearchInput } from '../../../property/components/PropertyAddressSearchInput'
+import { UnitInfoMode } from '../../../property/components/UnitInfo'
+import { UnitNameInput, UnitNameInputOption } from '../../../user/components/UnitNameInput'
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
@@ -603,7 +602,15 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone }) =
 }
 
 
-export const CreateInvoiceForm = ({ isCreateFrom }) => {
+type BaseInvoiceFormProps = {
+    isCreateForm?: boolean
+    // initialValues:
+    action: (values) => Promise<Invoice>
+    organization: Organization
+    role: OrganizationEmployeeRole
+}
+
+export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, action, organization, role }) => {
     const intl = useIntl()
     const ServicesChosenLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.servicesChosen' })
     const TotalToPayLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.totalToPay' })
@@ -617,22 +624,6 @@ export const CreateInvoiceForm = ({ isCreateFrom }) => {
     const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.cancelled' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const { organization, link } = useOrganization()
-
-    const { requiredValidator } = useValidations()
-    const { addressValidator } = usePropertyValidations()
-    // const validations = {
-    //     property: [requiredValidator, addressValidator(selectedPropertyId, isMatchSelectedProperty)],
-    // }
-
-    const router = useRouter()
-
-    const createInvoiceAction = Invoice.useCreate({
-        //
-    }, async () => {
-        //
-    })
-
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
             organization: { id: organization.id },
@@ -643,42 +634,6 @@ export const CreateInvoiceForm = ({ isCreateFrom }) => {
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
-    // const moneyRender = getMoneyRender(intl, currencyCode)
-
-    const handleSubmit = useCallback(async (values) => {
-        console.log('handle submit', values)
-        let newInvoiceData = {}
-
-        const contact = get(values, 'contact')
-        if (contact) {
-            newInvoiceData = { ...newInvoiceData, contact: { connect: { id: contact } } }
-        }
-        const property = get(values, 'propertyId')
-        if (property) {
-            newInvoiceData = { ...newInvoiceData, property: { connect: { id: property } } }
-        }
-
-        const rawRows = get(values, 'rows', [])
-        const vatPercent = invoiceContext.vatPercent
-        const salesTaxPercent = invoiceContext.salesTaxPercent
-
-        const rows = rawRows.map(row => ({
-            name: row.name, toPay: row.price, count: row.count, sku: row.sku, isMin: row.isMin,
-            currencyCode, vatPercent, salesTaxPercent,
-        }))
-
-        newInvoiceData = {
-            ...newInvoiceData,
-            context: { connect: { id: invoiceContext.id } },
-            status: get(values, 'status'),
-            paymentType: get(values, 'paymentType'),
-            unitName: get(values, 'unitName'),
-            unitType: get(values, 'unitType'),
-            rows,
-        }
-
-        return await createInvoiceAction(newInvoiceData)
-    }, [currencyCode, invoiceContext])
 
     const initialFormValues = useMemo(() =>
         ({ rows: [{ name: '', count: 1, price: 0 }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),
@@ -689,7 +644,7 @@ export const CreateInvoiceForm = ({ isCreateFrom }) => {
     return (
         <FormWithAction
             initialValues={initialFormValues}
-            action={handleSubmit}
+            action={action}
             layout='horizontal'
             colon={false}
             OnCompletedMsg={null}
@@ -711,7 +666,7 @@ export const CreateInvoiceForm = ({ isCreateFrom }) => {
                                             return <PayerDataFields
                                                 organization={organization}
                                                 form={form}
-                                                role={link}
+                                                role={role}
                                                 disabled={isClientDataDisabled}
                                                 initialFormValues={initialFormValues}
                                             />
@@ -845,7 +800,7 @@ export const CreateInvoiceForm = ({ isCreateFrom }) => {
                                                     <Radio value={INVOICE_STATUS_PAID} disabled={disabled || isOnlinePaymentType}>
                                                         <Typography.Text type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'} disabled={disabled} strong>{InvoiceStatusPaidLabel}</Typography.Text>
                                                     </Radio>
-                                                    <Radio value={INVOICE_STATUS_CANCELED} disabled={disabled || isCreateFrom}>
+                                                    <Radio value={INVOICE_STATUS_CANCELED} disabled={disabled || isCreateForm}>
                                                         <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
                                                             <Typography.Text type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'} disabled={disabled} strong>{InvoiceStatusCancelledLabel}</Typography.Text>
                                                         </div>
