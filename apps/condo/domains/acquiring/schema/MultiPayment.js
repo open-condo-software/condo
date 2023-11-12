@@ -259,13 +259,14 @@ const MultiPayment = new GQLListSchema('MultiPayment', {
                 }
 
                 const { receiptPayments, invoicePayments, virtualPayments } = payments.reduce(
-                    (acc, { invoice, receipt }) => {
+                    (acc, payment) => {
+                        const { invoice, receipt } = payment
                         if (!!receipt && !invoice) {
-                            acc.receiptPayments.push({ invoice, receipt })
+                            acc.receiptPayments.push(payment)
                         } else if (!!invoice && !receipt) {
-                            acc.invoicePayments.push({ invoice, receipt })
+                            acc.invoicePayments.push(payment)
                         } else if (!invoice && !receipt) {
-                            acc.virtualPayments.push({ invoice, receipt })
+                            acc.virtualPayments.push(payment)
                         }
                         return acc
                     },
