@@ -12,7 +12,7 @@ const {
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
-const { BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE } = require('@condo/domains/billing/utils/testSchema')
+const { BillingReceipt, BillingReceiptFile, createTestBillingReceiptFile, updateTestBillingReceiptFile, PUBLIC_FILE, PRIVATE_FILE } = require('@condo/domains/billing/utils/testSchema')
 const {
     makeContextWithOrganizationAndIntegrationAsAdmin,
     createTestBillingProperty,
@@ -262,6 +262,21 @@ describe('BillingReceiptFile', () => {
                 })
             })
         })
+
+        describe('Check integration way to create pdf receipt file', () => {
+            it('can pass importId and pdf receipt will be auto bind', async () => {
+                const [file] = await createTestBillingReceiptFile(integrationUser, null, context, { importId: receiptByService.importId })
+                expect(file).toBeDefined()
+                expect(file).toHaveProperty(['context', 'id'], context.id)
+                expect(file).toHaveProperty(['receipt', 'id'], receiptByService.id)
+            })
+            it('will bind receipt file to receipt after save', async () => {
+                const [file] = await createTestBillingReceiptFile(integrationUser, null, context, { importId: receiptByService.importId })
+                const receiptAfterFileSave = await BillingReceipt.getOne(integrationUser, { id: receiptByService.id })
+                expect(receiptAfterFileSave.file.id).toEqual(file.id)
+            })
+        })
+        // 480
 
         describe('read', () => {
             let file

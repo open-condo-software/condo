@@ -502,9 +502,9 @@ const PRIVATE_FILE = path.resolve(conf.PROJECT_ROOT, 'apps/condo/domains/common/
 
 async function createTestBillingReceiptFile (client, receipt, context, extraAttrs = {}) {
     if (!client) throw new Error('no client')
-    if (!receipt) throw new Error('no receipt')
+    if (!receipt && !extraAttrs.importId) throw new Error('no way to set receipt')
     if (!context) throw new Error('no context')
-    const receiptConnection = { receipt: { connect: { id: receipt.id } } }
+    const receiptConnection = receipt ? { receipt: { connect: { id: receipt.id } } } : {}
     const contextConnection = { context: { connect: { id: context.id } } }
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
     const attrs = {
