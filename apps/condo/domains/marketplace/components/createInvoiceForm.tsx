@@ -1,23 +1,19 @@
 import { useLazyQuery } from '@apollo/client'
 import styled from '@emotion/styled'
-import { Col, Form, Row, RowProps, Input, InputNumber, AutoComplete, InputProps, notification } from 'antd'
-import { gql } from 'graphql-tag'
+import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
-import isFunction from 'lodash/isFunction'
 import { useRouter } from 'next/router'
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Alert, Button, Radio, RadioGroup, Select, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Alert, Button, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
-import { Button as ButtonOld } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { GraphQlSearchInput, SearchComponentType } from '@condo/domains/common/components/GraphQlSearchInput'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import {
@@ -338,6 +334,10 @@ const StyledFormItem = styled(Form.Item)`
     }
 `
 
+type MarketItemOptionType = {
+    label: string, value: string, price: string, isMin: boolean, sku: string
+}
+
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
     const intl = useIntl()
     const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.service' })
@@ -361,7 +361,13 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
         },
     })
 
-    const marketItemOptions = marketPriceScopes.map(scope => {
+    const groups = []
+
+    for (const scope of marketPriceScopes) {
+        const category = scope.marketItemPrice.marketItem.marketCategory
+        const key = category.parentCategory ? category.parentCategory.id + category.id : category.id
+        const label = category.parentCategory ? `${category.parentCategory.name} / ${category.name}` : category.name
+
         const marketItem = get(scope, 'marketItemPrice.marketItem')
         const name = get(marketItem, 'name')
         const sku = get(marketItem, 'sku')
@@ -371,13 +377,22 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
         const price = get(priceObj, 'price')
         const isMin = get(priceObj, 'isMin')
 
-
-        return {
+        const item = {
             label: name,
             value: name,
             price, isMin, sku,
+            key: marketItem.id,
         }
-    })
+
+        const existedGroup = groups.find(group => group.key === key)
+        if (existedGroup) {
+            existedGroup.options.push(item)
+        } else {
+            groups.push({ key, label, options: [item] })
+        }
+    }
+
+    groups.sort((a, b) => a.key > b.key ? 1 : -1)
 
     const moneyRender = getMoneyRender(intl)
 
@@ -400,8 +415,9 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
                                         >
                                             <AutoComplete
                                                 allowClear
-                                                options={marketItemOptions}
-                                                onSelect={(_, marketItem) => {
+                                                options={groups}
+                                                filterOption
+                                                onSelect={(_, marketItem: MarketItemOptionType) => {
                                                     form.setFieldsValue({
                                                         rows: {
                                                             ...form.getFieldValue('rows'),

@@ -27,7 +27,7 @@ const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIE
 const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent } marketItem { id } ${COMMON_FIELDS} }`
 const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
 
-const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id parentCategory { id } } } price { type group name price isMin vatPercent salesTaxPercent } } property { id } ${COMMON_FIELDS} }`
+const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name parentCategory { id name } } } price { type group name price isMin vatPercent salesTaxPercent } } property { id } ${COMMON_FIELDS} }`
 const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
 
 const REGISTER_INVOICE_MUTATION = gql`
