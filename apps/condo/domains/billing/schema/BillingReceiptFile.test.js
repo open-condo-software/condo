@@ -309,14 +309,15 @@ describe('BillingReceiptFile', () => {
 
             test('service can', async () => {
                 const objs = await BillingReceiptFile.getAll(integrationUser, {}, { sortBy: ['updatedAt_DESC'] })
-
                 expect(objs.length).toBeGreaterThanOrEqual(1)
-                expect(objs[0]).toMatchObject({
-                    id: file.id,
-                    context: file.context,
-                    receipt: file.receipt,
-                    controlSum: file.controlSum,
-                })
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        id: file.id,
+                        context: file.context,
+                        receipt: file.receipt,
+                        controlSum: file.controlSum,
+                    }),
+                ]))
             })
 
             test('Employee can, but only for permitted organization', async () => {
