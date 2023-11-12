@@ -26,6 +26,7 @@ const {
     PAYMENT_RECIPIENT_MISMATCH,
     PAYMENT_EXPLICIT_FEE_AND_CHARGE_SAME_TIME,
     PAYMENT_OVERRIDING_EXPLICIT_FEES_MUST_BE_EXPLICIT,
+    PAYMENT_RECEIPT_WITHOUT_ACCOUNT_NUMBER,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_STATUSES,
@@ -54,6 +55,11 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: PAYMENT_NO_PAIRED_INVOICE,
         message: 'Input is containing "frozenInvoice", but "invoice" is not specified',
+    },
+    RECEIPT_WITHOUT_ACCOUNT_NUMBER: {
+        code: BAD_USER_INPUT,
+        type: PAYMENT_RECEIPT_WITHOUT_ACCOUNT_NUMBER,
+        message: 'Input is containing "receipt", but "accountNumber" is not specified',
     },
 }
 
@@ -113,7 +119,14 @@ const Payment = new GQLListSchema('Payment', {
         accountNumber: {
             schemaDoc: 'Payer\'s account number',
             type: 'Text',
-            isRequired: true,
+            isRequired: false,
+            hooks: {
+                validateInput: ({ context, resolvedData, fieldPath }) => {
+                    if (!!resolvedData['receipt'] && !resolvedData[fieldPath]) {
+                        throw new GQLError(ERRORS.RECEIPT_WITHOUT_ACCOUNT_NUMBER, context)
+                    }
+                },
+            },
         },
 
         period: PERIOD_FIELD,

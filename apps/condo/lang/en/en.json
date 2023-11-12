@@ -2323,5 +2323,7 @@
   "api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED": "Cannot create scope with property from one organization and market item from another organization.",
   "api.marketplace.registerInvoice.error.noInvoiceContext":"The organization hasn't set up the marketplace",
   "api.marketplace.registerInvoice.error.itemFromOtherOrganization": "Item from other organization. Check line {rowNumber}",
-  "marketplace.invoice.newTicket.details": "The paid service ordered"
+  "marketplace.invoice.newTicket.details": "The paid service ordered",
+  "api.marketplace.invoice.error.NoFinishedInvoiceContext": "The organization has not finished the configuration of the marketplace",
+  "api.marketplace.invoice.error.editPublishedForbidden": "Updating of published invoice is forbidden"
 }

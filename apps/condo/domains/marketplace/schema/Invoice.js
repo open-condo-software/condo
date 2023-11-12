@@ -22,6 +22,9 @@ const {
     ERROR_INVOICE_ROW_WRONG_PRICE,
     INVOICE_PAYMENT_TYPES,
     INVOICE_PAYMENT_TYPE_ONLINE,
+    INVOICE_CONTEXT_STATUS_FINISHED,
+    ERROR_NO_FINISHED_INVOICE_CONTEXT,
+    ERROR_FORBID_EDIT_PUBLISHED,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
@@ -59,6 +62,18 @@ const ERRORS = {
         messageForUser: 'api.marketplace.invoice.error.rows.toPay',
         messageInterpolation: { rowNumber },
     }),
+    NO_FINISHED_INVOICE_CONTEXT: {
+        code: BAD_USER_INPUT,
+        type: ERROR_NO_FINISHED_INVOICE_CONTEXT,
+        message: 'The organization has no InvoiceContext in finished status',
+        messageForUser: 'api.marketplace.invoice.error.NoFinishedInvoiceContext',
+    },
+    FORBID_EDIT_PUBLISHED: {
+        code: BAD_USER_INPUT,
+        type: ERROR_FORBID_EDIT_PUBLISHED,
+        message: 'Update of published invoice is forbidden',
+        messageForUser: 'api.marketplace.invoice.error.editPublishedForbidden',
+    },
 }
 
 const Invoice = new GQLListSchema('Invoice', {
@@ -151,6 +166,14 @@ const Invoice = new GQLListSchema('Invoice', {
 
             const isUpdate = operation === 'update'
 
+            if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED) {
+                throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
+            }
+
+            if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED) {
+                throw new GQLError(ERRORS.ALREADY_CANCELED, context)
+            }
+
             if (
                 isUpdate
                 && existingItem.status === INVOICE_STATUS_PAID
@@ -159,15 +182,22 @@ const Invoice = new GQLListSchema('Invoice', {
                 throw new GQLError(ERRORS.ALREADY_PAID, context)
             }
 
-            if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED) {
-                throw new GQLError(ERRORS.ALREADY_CANCELED, context)
+            const nextContextId = get(nextData, 'context')
+            const invoiceContext = await getByCondition('InvoiceContext', {
+                id: nextContextId,
+                status: INVOICE_CONTEXT_STATUS_FINISHED,
+                deletedAt: null,
+            })
+
+            if (!invoiceContext) {
+                throw new GQLError(ERRORS.NO_FINISHED_INVOICE_CONTEXT, context)
             }
 
             if (get(resolvedData, 'status') === INVOICE_STATUS_PUBLISHED && get(nextData, 'rows', []).length === 0) {
                 throw new GQLError(ERRORS.EMPTY_ROWS, context)
             }
 
-            // Check rows
+            // Check rows data
             const nextRows = get(nextData, 'rows', [])
             for (let i = 0; i < nextRows.length; i++) {
                 if (Number(get(nextRows[i], 'count', null)) < 1) {

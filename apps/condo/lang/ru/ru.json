@@ -2323,5 +2323,7 @@
   "api.marketplace.MarketItemPrice.error.ORGANIZATION_IN_PROPERTY_AND_MARKET_ITEM_PRICE_NOT_MATCHED": "Невозможно создать область видимости списка услуг с домом из одной организации и услугой из другой организации.",
   "api.marketplace.registerInvoice.error.noInvoiceContext":"Не выполнена настройка со стороны организации",
   "api.marketplace.registerInvoice.error.itemFromOtherOrganization": "Позиция из другой организации. Проверьте строку {rowNumber}",
-  "marketplace.invoice.newTicket.details": "Заказана платная услуга"
+  "marketplace.invoice.newTicket.details": "Заказана платная услуга",
+  "api.marketplace.invoice.error.NoFinishedInvoiceContext": "Организация не завершила настройку маркетплейса",
+  "api.marketplace.invoice.error.editPublishedForbidden": "Нельзя редактировать готовый к оплате счет"
 }

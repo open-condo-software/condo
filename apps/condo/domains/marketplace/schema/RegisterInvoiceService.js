@@ -127,7 +127,7 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     unitName: resident.unitName,
                     toPay: rows.reduce((result, row) => Big(result).plus(row.toPay).toString(), 0),
                     rows,
-                    status: hasMinPrice ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PUBLISHED,
+                    status: INVOICE_STATUS_DRAFT,
                     client: { connect: { id: userId } },
                 })
 
@@ -146,7 +146,12 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     source: { connect: { id: MOBILE_APP_RESIDENT_TICKET_SOURCE_ID } },
                 })
 
-                await Invoice.update(context, invoice.id, { dv, sender, ticket: { connect: { id: ticket.id } } })
+                await Invoice.update(context, invoice.id, {
+                    dv,
+                    sender,
+                    ticket: { connect: { id: ticket.id } },
+                    status: hasMinPrice ? INVOICE_STATUS_DRAFT : INVOICE_STATUS_PUBLISHED,
+                })
 
                 return { invoice: await getById('Invoice', invoice.id) }
             },

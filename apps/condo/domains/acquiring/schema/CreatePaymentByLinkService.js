@@ -63,6 +63,8 @@ const CreatePaymentByLinkService = new GQLCustomSchema('CreatePaymentByLinkServi
             access: access.canCreatePaymentByLink,
             schema: 'createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput',
             resolver: async (parent, args, context) => {
+                // TODO(DOMA-7078) Must be modified within 7078
+
                 const { data: { dv, sender, qrCode } } = args
 
                 // Stage 0: validate QR code and normalize address

@@ -12,6 +12,7 @@ const {
     expectToThrowAuthenticationErrorToResult, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
+const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const {
     INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_CONTEXT_STATUS_INPROGRESS,
@@ -39,14 +40,19 @@ const {
 const MOBILE_APP_RESIDENT_TICKET_SOURCE_ID = '830d1d89-2d17-4c5b-96d1-21b5cd01a6d3'
 
 let adminClient
+let dummyAcquiringIntegration
+
 describe('RegisterInvoiceService', () => {
     beforeAll(async () => {
         adminClient = await makeLoggedInAdminClient()
+        ;[dummyAcquiringIntegration] = await createTestAcquiringIntegration(adminClient, {
+            canGroupReceipts: true,
+        })
     })
 
     test('admin can execute', async () => {
         const [o10n] = await createTestOrganization(adminClient)
-        const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+        const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
 
         const [property] = await createTestProperty(adminClient, o10n)
 
@@ -104,7 +110,7 @@ describe('RegisterInvoiceService', () => {
     describe('resident', () => {
         test('resident can execute, staff can see', async () => {
             const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
 
             const [property] = await createTestProperty(adminClient, o10n)
 
@@ -170,7 +176,7 @@ describe('RegisterInvoiceService', () => {
 
         test('can\'t create invoice if no finished invoice context', async () => {
             const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, { status: INVOICE_CONTEXT_STATUS_INPROGRESS })
+            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_INPROGRESS })
 
             const [property] = await createTestProperty(adminClient, o10n)
 
@@ -209,7 +215,7 @@ describe('RegisterInvoiceService', () => {
         test('can\'t create invoice with items from other organization', async () => {
             const [o10n1] = await createTestOrganization(adminClient)
             const [o10n2] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n1, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            await createTestInvoiceContext(adminClient, o10n1, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
 
             const [property1] = await createTestProperty(adminClient, o10n1)
             const [property2] = await createTestProperty(adminClient, o10n2)
@@ -249,7 +255,7 @@ describe('RegisterInvoiceService', () => {
 
         test('Create draft invoice if one of rows has isMin=true for price, resident can see draft of him', async () => {
             const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
 
             const [property] = await createTestProperty(adminClient, o10n)
 
@@ -295,7 +301,7 @@ describe('RegisterInvoiceService', () => {
 
         test('can\'t create invoice with no rows', async () => {
             const [o10n] = await createTestOrganization(adminClient)
-            await createTestInvoiceContext(adminClient, o10n, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
 
             const [property] = await createTestProperty(adminClient, o10n)
 

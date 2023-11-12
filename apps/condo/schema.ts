@@ -25214,9 +25214,11 @@ export type InvoiceContext = {
    *  4. As an alias to the 'id' field on the InvoiceContext List.
    */
   _label_?: Maybe<Scalars['String']>;
+  /**  Acquiring integration. Determines way of user's payment  */
+  integration?: Maybe<AcquiringIntegration>;
   /**  The organization who created this context  */
   organization?: Maybe<Organization>;
-  /**  Requisites from agreement. Are used for invoicing in case of not confirmed billing recipient in receipt  */
+  /**  Recipient. Should contain all meta information to identify the organization  */
   recipient?: Maybe<RecipientField>;
   /**  Settings required the context to work  */
   settings?: Maybe<Scalars['JSON']>;
@@ -25249,6 +25251,7 @@ export type InvoiceContext = {
 };
 
 export type InvoiceContextCreateInput = {
+  integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   recipient?: Maybe<RecipientFieldInput>;
   settings?: Maybe<Scalars['JSON']>;
@@ -25280,6 +25283,7 @@ export type InvoiceContextHistoryRecord = {
    *  4. As an alias to the 'id' field on the InvoiceContextHistoryRecord List.
    */
   _label_?: Maybe<Scalars['String']>;
+  integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
   settings?: Maybe<Scalars['JSON']>;
@@ -25305,6 +25309,7 @@ export type InvoiceContextHistoryRecord = {
 };
 
 export type InvoiceContextHistoryRecordCreateInput = {
+  integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
   settings?: Maybe<Scalars['JSON']>;
@@ -25335,6 +25340,7 @@ export enum InvoiceContextHistoryRecordHistoryActionType {
 }
 
 export type InvoiceContextHistoryRecordUpdateInput = {
+  integration?: Maybe<Scalars['String']>;
   organization?: Maybe<Scalars['String']>;
   recipient?: Maybe<Scalars['JSON']>;
   settings?: Maybe<Scalars['JSON']>;
@@ -25361,6 +25367,10 @@ export type InvoiceContextHistoryRecordUpdateInput = {
 export type InvoiceContextHistoryRecordWhereInput = {
   AND?: Maybe<Array<Maybe<InvoiceContextHistoryRecordWhereInput>>>;
   OR?: Maybe<Array<Maybe<InvoiceContextHistoryRecordWhereInput>>>;
+  integration?: Maybe<Scalars['String']>;
+  integration_not?: Maybe<Scalars['String']>;
+  integration_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  integration_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   organization?: Maybe<Scalars['String']>;
   organization_not?: Maybe<Scalars['String']>;
   organization_in?: Maybe<Array<Maybe<Scalars['String']>>>;
@@ -25560,6 +25570,7 @@ export type InvoiceContextRelateToOneInput = {
 };
 
 export type InvoiceContextUpdateInput = {
+  integration?: Maybe<AcquiringIntegrationRelateToOneInput>;
   organization?: Maybe<OrganizationRelateToOneInput>;
   recipient?: Maybe<RecipientFieldInput>;
   settings?: Maybe<Scalars['JSON']>;
@@ -25583,6 +25594,8 @@ export type InvoiceContextUpdateInput = {
 export type InvoiceContextWhereInput = {
   AND?: Maybe<Array<Maybe<InvoiceContextWhereInput>>>;
   OR?: Maybe<Array<Maybe<InvoiceContextWhereInput>>>;
+  integration?: Maybe<AcquiringIntegrationWhereInput>;
+  integration_is_null?: Maybe<Scalars['Boolean']>;
   organization?: Maybe<OrganizationWhereInput>;
   organization_is_null?: Maybe<Scalars['Boolean']>;
   recipient?: Maybe<RecipientFieldInput>;
@@ -68304,8 +68317,9 @@ export type RegisterMultiPaymentForVirtualReceiptOutput = {
 export type RegisterMultiPaymentInput = {
   dv: Scalars['Int'];
   sender: SenderFieldInput;
-  groupedReceipts: Array<RegisterMultiPaymentServiceConsumerInput>;
+  groupedReceipts?: Maybe<Array<RegisterMultiPaymentServiceConsumerInput>>;
   recurrentPaymentContext?: Maybe<RecurrentPaymentContextWhereUniqueInput>;
+  invoices?: Maybe<Array<InvoiceWhereUniqueInput>>;
 };
 
 export type RegisterMultiPaymentOutput = {
@@ -74074,6 +74088,8 @@ export enum SortInvoiceContextHistoryRecordsBy {
 }
 
 export enum SortInvoiceContextsBy {
+  IntegrationAsc = 'integration_ASC',
+  IntegrationDesc = 'integration_DESC',
   OrganizationAsc = 'organization_ASC',
   OrganizationDesc = 'organization_DESC',
   StatusAsc = 'status_ASC',
