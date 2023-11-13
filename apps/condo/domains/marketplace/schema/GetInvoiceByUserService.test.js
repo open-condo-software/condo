@@ -6,7 +6,9 @@ const { faker } = require('@faker-js/faker')
 
 const { makeLoggedInAdminClient, makeClient, expectToThrowAuthenticationError } = require('@open-condo/keystone/test.utils')
 
-const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
+const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
+const { createTestBillingIntegration } = require('@condo/domains/billing/utils/testSchema')
+const { INVOICE_STATUS_PUBLISHED, INVOICE_CONTEXT_STATUS_FINISHED } = require('@condo/domains/marketplace/constants')
 const { getInvoiceByUserByTestClient, generateInvoiceRow } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -18,9 +20,11 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 const { createTestInvoiceContext, createTestInvoice, createTestMarketCategory, createTestMarketItem } = require('../utils/testSchema')
  
 describe('GetInvoiceByUserService', () => {
-    let admin
+    let admin, integration
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        await createTestBillingIntegration(admin)
+        ;[integration] = await createTestAcquiringIntegration(admin)
     })
     test('resident: execute without property', async () => {
         const [organization] = await createTestOrganization(admin)
@@ -41,7 +45,7 @@ describe('GetInvoiceByUserService', () => {
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
         const [invoice] = await createTestInvoice(admin, invoiceContext, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: residentClient.user.id } },
@@ -77,7 +81,7 @@ describe('GetInvoiceByUserService', () => {
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
         const [invoice] = await createTestInvoice(admin, invoiceContext, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: residentClient.user.id } },
@@ -128,7 +132,7 @@ describe('GetInvoiceByUserService', () => {
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
         const [invoice] = await createTestInvoice(admin, invoiceContext, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: residentClient.user.id } },
@@ -170,7 +174,7 @@ describe('GetInvoiceByUserService', () => {
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
         const [invoice] = await createTestInvoice(admin, invoiceContext, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: admin.user.id } },
@@ -195,7 +199,7 @@ describe('GetInvoiceByUserService', () => {
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
-        const [invoiceContext] = await createTestInvoiceContext(admin, organization)
+        const [invoiceContext] = await createTestInvoiceContext(admin, organization, integration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
         const [invoice] = await createTestInvoice(admin, invoiceContext, {
             status: INVOICE_STATUS_PUBLISHED,
             client: { connect: { id: admin.user.id } },
