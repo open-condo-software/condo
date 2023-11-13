@@ -68239,26 +68239,43 @@ export type RecurrentPaymentsUpdateInput = {
   data?: Maybe<RecurrentPaymentUpdateInput>;
 };
 
-export type RegisterBillingReceiptInput = {
-  importId: Scalars['String'];
-  address: Scalars['String'];
-  normalizedAddress?: Maybe<Scalars['String']>;
-  accountNumber: Scalars['String'];
-  unitName: Scalars['String'];
-  unitType: Scalars['String'];
+export type RegisterBillingReceiptAccountMetaInput = {
+  globalId?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   fullName?: Maybe<Scalars['String']>;
+  isClosed?: Maybe<Scalars['Boolean']>;
+  ownerType?: Maybe<BillingAccountOwnerTypeType>;
+};
+
+export type RegisterBillingReceiptAddressMetaInput = {
+  globalId?: Maybe<Scalars['String']>;
+  addressKey?: Maybe<Scalars['String']>;
+  unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
+};
+
+export type RegisterBillingReceiptInput = {
+  importId?: Maybe<Scalars['String']>;
+  address: Scalars['String'];
+  addressMeta?: Maybe<RegisterBillingReceiptAddressMetaInput>;
+  accountNumber: Scalars['String'];
+  accountMeta?: Maybe<RegisterBillingReceiptAccountMetaInput>;
   toPay: Scalars['String'];
   toPayDetails?: Maybe<BillingReceiptServiceToPayDetailsFieldInput>;
   services?: Maybe<Array<Maybe<BillingReceiptServiceFieldInput>>>;
+  category?: Maybe<BillingCategoryWhereUniqueInput>;
   month: Scalars['Int'];
   year: Scalars['Int'];
-  category?: Maybe<BillingCategoryWhereUniqueInput>;
   tin: Scalars['String'];
   routingNumber: Scalars['String'];
   bankAccount: Scalars['String'];
+  raw?: Maybe<Scalars['JSON']>;
+  unitName?: Maybe<Scalars['String']>;
+  unitType?: Maybe<Scalars['String']>;
+  normalizedAddress?: Maybe<Scalars['String']>;
+  fullName?: Maybe<Scalars['String']>;
   tinMeta?: Maybe<Scalars['JSON']>;
   routingNumberMeta?: Maybe<Scalars['JSON']>;
-  raw?: Maybe<Scalars['JSON']>;
 };
 
 export type RegisterBillingReceiptsInput = {
