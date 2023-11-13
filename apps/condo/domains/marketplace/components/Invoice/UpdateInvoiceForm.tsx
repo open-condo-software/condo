@@ -16,18 +16,21 @@ type UpdateInvoiceFormProps = {
 }
 
 export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice }) => {
-    const intl = useIntl()
-
     const router = useRouter()
     const { organization, link } = useOrganization()
 
     const updateInvoiceAction = Invoice.useUpdate({}, async () => {
-        //
+        // replace after create marketplace/index page
+        // await router.push('/ticket')
     })
 
     const handleUpdateInvoice = useCallback(async (values) => {
         console.log(values)
+
+        // return await updateInvoiceAction(values)
     }, [])
+
+    console.log('invoice', invoice)
 
     const initialValues = useMemo(() => ({
         payerData: !!get(invoice, 'contact.id'),

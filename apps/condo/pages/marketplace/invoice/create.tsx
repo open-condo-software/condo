@@ -13,7 +13,7 @@ const CREATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
 const CreateInvoicePage = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.title' })
+    const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
 
     return (
         <>

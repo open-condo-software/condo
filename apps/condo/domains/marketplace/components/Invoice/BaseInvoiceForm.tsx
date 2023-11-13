@@ -41,6 +41,8 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
+import { useValidations } from '../../../common/hooks/useValidations'
+
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 
@@ -48,6 +50,71 @@ const SCROLL_TO_FIRST_ERROR_CONFIG = { behavior: 'smooth', block: 'center' }
 const OUTER_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const GROUP_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
+const CONTACT_FORM_FIELDS = {
+    id: 'contact',
+    phone: 'clientPhone',
+    name: 'clientName',
+}
+const PLUS_BUTTON_ICON_STYLE: CSSProperties = {
+    color: colors.black,
+    fontSize: 20,
+    position: 'relative',
+    top: '2px',
+}
+const PLUS_BUTTON_STYLE: CSSProperties = {
+    color: colors.black,
+    paddingLeft: '5px',
+}
+const ContactsInfoFocusContainer = styled(FocusContainer)`
+  position: relative;
+  left: ${({ padding }) => padding ? padding : '24px'};
+  box-sizing: border-box;
+  width: 100%;
+`
+const FormItemWithCustomWarningColor = styled(Form.Item)`
+    .ant-input-status-warning {
+      &:focus {
+        box-shadow: 0 0 0 1px ${colors.red[5]} !important;
+      }
+      
+      border-color: ${colors.red[5]} !important;;
+    }
+
+    .ant-input-group-wrapper-status-warning .ant-input-group-addon {
+      color: ${colors.red[5]};
+      border-color: ${colors.red[5]};
+    }
+  
+    .ant-form-item-explain-warning {
+      color: ${colors.red[5]};
+    }
+`
+const getMoneyRender = (intl, currencyCode?: string) => {
+    return function render (text: string, isMin: boolean) {
+        const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
+        const formattedValue = formattedParts.map((part) => {
+            return part.value
+        }).join('')
+
+        return isMin ? `от ${formattedValue}` : formattedValue
+    }
+}
+const prepareTotalPriceFromInput = (count, rawPrice) => {
+    if (!rawPrice) {
+        return { total: 0 }
+    }
+    if (!isNaN(+rawPrice)) {
+        return { total: +rawPrice * count }
+    }
+
+    const splittedRawPrice = rawPrice.split(' ')
+
+    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === 'от' && !isNaN(+splittedRawPrice[1])) {
+        return { isMin: true, total: +splittedRawPrice[1] * count }
+    }
+
+    return { error: true }
+}
 
 const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     return (
@@ -70,13 +137,6 @@ const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
         </Row>
     )
 }
-
-const ContactsInfoFocusContainer = styled(FocusContainer)`
-  position: relative;
-  left: ${({ padding }) => padding ? padding : '24px'};
-  box-sizing: border-box;
-  width: 100%;
-`
 
 const PropertyFormField = ({ organization, form, disabled, setSelectedPropertyId }) => {
     const intl = useIntl()
@@ -159,12 +219,6 @@ const UnitNameFormField = ({ form, property, disabled }) => {
     )
 }
 
-const CONTACT_FORM_FIELDS = {
-    id: 'contact',
-    phone: 'clientPhone',
-    name: 'clientName',
-}
-
 const ContactFormField = ({ role, organizationId, form, disabled }) => {
     const { ContactsEditorComponent } = useContactsEditorHook({
         role,
@@ -210,6 +264,11 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
 }
 
 const PayerDataFields = ({ organization, form, role, disabled, initialValues }) => {
+    const intl = useIntl()
+    const HasPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerData' })
+    const NoPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerNoData' })
+
+
     const [hasPayerData, setHasPayerData] = useState<boolean>(get(initialValues, 'payerData'))
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialValues, 'propertyId'))
     const [property, setProperty] = useState<PropertyType>()
@@ -256,12 +315,12 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
                         <Radio
                             key='1'
                             value={true}
-                            label='Есть данные о плательщике'
+                            label={HasPayerDataMessage}
                         />
                         <Radio
                             key='2'
                             value={false}
-                            label='Нет данных'
+                            label={NoPayerDataMessage}
                         />
                     </RadioGroup>
                 </Form.Item>
@@ -305,75 +364,22 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
     )
 }
 
-const getMoneyRender = (intl, currencyCode?: string) => {
-    return function render (text: string, isMin: boolean) {
-        const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
-        const formattedValue = formattedParts.map((part) => {
-            return part.value
-        }).join('')
-
-        return isMin ? `от ${formattedValue}` : formattedValue
-    }
-}
-
-const prepareTotalPriceFromInput = (count, rawPrice) => {
-    if (!rawPrice) {
-        return { total: 0 }
-    }
-    if (!isNaN(+rawPrice)) {
-        return { total: +rawPrice * count }
-    }
-
-    const splittedRawPrice = rawPrice.split(' ')
-
-    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === 'от' && !isNaN(+splittedRawPrice[1])) {
-        return { isMin: true, total: +splittedRawPrice[1] * count }
-    }
-
-    return { error: true }
-}
-
-const StyledFormItem = styled(Form.Item)`
-    .ant-input-status-warning {
-      &:focus {
-        box-shadow: 0 0 0 1px ${colors.red[5]} !important;
-      }
-      
-      border-color: ${colors.red[5]} !important;;
-    }
-
-    .ant-input-group-wrapper-status-warning .ant-input-group-addon {
-      color: ${colors.red[5]};
-      border-color: ${colors.red[5]};
-    }
-  
-    .ant-form-item-explain-warning {
-      color: ${colors.red[5]};
-    }
-`
-
 type MarketItemOptionType = {
     label: string, value: string, price: string, isMin: boolean, sku: string
 }
 
-const BUTTON_ICON_STYLE: CSSProperties = {
-    color: colors.black,
-    fontSize: 20,
-    position: 'relative',
-    top: '2px',
-}
-const BUTTON_STYLE: CSSProperties = {
-    color: colors.black,
-    paddingLeft: '5px',
-}
-
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus }) => {
     const intl = useIntl()
-    const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.service' })
-    const QuntityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.quantity' })
-    const TotalPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.totalPrice' })
-    const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.addService' })
-    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.price' })
+    const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service' })
+    const QuntityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.quantity' })
+    const TotalPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.totalPrice' })
+    const AddServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.addService' })
+    const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.price' })
+    const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
+    const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
+    const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
+
+    const { requiredValidator } = useValidations()
 
     const filterByProperty = useMemo(() => {
         const baseFilterByProperty = { property_is_null: true }
@@ -440,11 +446,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             required
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
-                                            rules={[{ required: true, message: 'Пожалуйста, введите число' }]}
+                                            rules={[requiredValidator]}
                                         >
                                             <AutoComplete
                                                 allowClear
                                                 disabled={disabled}
+                                                placeholder={ServicePlaceholder}
                                                 options={groups}
                                                 filterOption
                                                 onSelect={(_, marketItem: MarketItemOptionType) => {
@@ -472,7 +479,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             required
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
-                                            rules={[{ required: true, message: 'Пожалуйста, введите число' }]}
+                                            rules={[requiredValidator]}
                                             initialValue={1}
                                         >
                                             <Select
@@ -486,13 +493,13 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                         </Form.Item>
                                     </Col>
                                     <Col xs={24} lg={5}>
-                                        <StyledFormItem
+                                        <FormItemWithCustomWarningColor
                                             label={PriceLabel}
                                             required
                                             name={[marketItemForm.name, 'price']}
                                             labelCol={{ span: 24 }}
                                             rules={[
-                                                { required: true, message: 'Пожалуйста, введите число' },
+                                                requiredValidator,
                                                 {
                                                     warningOnly: true,
                                                     validator: (_, value) => {
@@ -503,7 +510,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                             })
                                                             setStatus(INVOICE_STATUS_DRAFT)
 
-                                                            return Promise.reject('Неточная цена может быть только у счёта в статусе «Черновик»')
+                                                            return Promise.reject(MinPriceValidationMessage)
                                                         }
 
                                                         form.setFieldsValue({
@@ -515,16 +522,15 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 },
                                                 {
                                                     pattern: /^(от |)(\d+|\d+,\d+)$/,
-                                                    message: 'Введите корректное число',
+                                                    message: NumberIsNotValidMessage,
                                                 },
                                             ]}
                                         >
                                             <Input
                                                 disabled={disabled}
-                                                placeholder="Введите число или 'от <число>'"
                                                 addonAfter={currencySymbol}
                                             />
-                                        </StyledFormItem>
+                                        </FormItemWithCustomWarningColor>
                                     </Col>
                                     <Col xs={24} lg={5}>
                                         <Form.Item
@@ -563,9 +569,9 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                     <Col span={24}>
                         <OldButton
                             type='link'
-                            style={BUTTON_STYLE}
+                            style={PLUS_BUTTON_STYLE}
                             onClick={() => operation.add()}
-                            icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
+                            icon={<PlusCircleOutlined style={PLUS_BUTTON_ICON_STYLE}/>}
                             disabled={disabled}
                         >
                             <Typography.Text strong>{AddServiceLabel}</Typography.Text>
@@ -578,6 +584,16 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 }
 
 const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isCreatedByResident }) => {
+    const intl = useIntl()
+    const CreatedByResidentMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.createdByResident' })
+    const CreatedByResidentDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.createdByResident' })
+    const HasAppMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.hasApp' })
+    const LinkWillBeGeneratedMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.linkWillBeGeneratedMessage' })
+    const HasAppOnAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasAppOnAddress' })
+    const HasAppOnOtherAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasAppOnOtherAddress' })
+    const PassPaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
+    const NoAppMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasNotApp' })
+
     const [residentExistence, setResidentExistence] = useState<{ hasResident: boolean, hasResidentOnAddress: boolean }>()
 
     const [getResidentExistenceByPhoneAndAddress, { loading }] = useLazyQuery(
@@ -618,23 +634,47 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isC
 
     if (isCreatedByResident) {
         type = 'info'
-        message = 'Житель может оплатить в приложении жителя'
-        description = 'Этот счёт  пришёл через МП от жителя'
+        message = CreatedByResidentMessage
+        description = CreatedByResidentDescription
     } else if (residentExistence.hasResidentOnAddress) {
         type = 'info'
-        message = 'Скорее всего, этот житель сможет оплатить счёт в приложении Дома'
-        description = 'Этот житель точно устанавливал приложение. У него в приложении появится кнопка «Оплатить». Если он приложение уже удалил — передайте ему ссылку на оплату любым удобным вам способом.\n' +
-            'Эта ссылка будет автоматически сгенерирована после сохранения счёта'
+        message = HasAppMessage
+        description = (
+            <>
+                <Typography.Paragraph size='medium'>
+                    {HasAppOnAddressMessage}
+                </Typography.Paragraph>
+                <Typography.Paragraph size='medium'>
+                    {LinkWillBeGeneratedMessage}
+                </Typography.Paragraph>
+            </>
+        )
     } else if (residentExistence.hasResident) {
         type = 'warning'
-        message = 'Скорее всего, этот житель сможет оплатить счёт в приложении Дома'
-        description = 'Этот житель точно устанавливал приложение, правда не на этом адресе. Если он добавит этот адрес, то в приложении появится кнопка «Оплатить». Если он приложение уже удалил — передайте ему ссылку на оплату любым удобным вам способом.\n' +
-            'Эта ссылка будет автоматически сгенерирована после сохранения счёта'
+        message = HasAppMessage
+        description = (
+            <>
+                <Typography.Paragraph size='medium'>
+                    {HasAppOnOtherAddressMessage}
+                </Typography.Paragraph>
+                <Typography.Paragraph size='medium'>
+                    {LinkWillBeGeneratedMessage}
+                </Typography.Paragraph>
+            </>
+        )
     } else {
         type = 'warning'
-        message = 'Передайте ссылку на оплату жителю'
-        description = 'У этого жителя не установлено приложение Дома или этот адрес не добавлен. Поэтому не забудьте передать ему ссылку на оплату, любым доступным вам способом.\n' +
-            'Эта ссылка будет автоматически сгенерирована после сохранения счёта'
+        message = PassPaymentLinkMessage
+        description = (
+            <>
+                <Typography.Paragraph size='medium'>
+                    {NoAppMessage}
+                </Typography.Paragraph>
+                <Typography.Paragraph size='medium'>
+                    {LinkWillBeGeneratedMessage}
+                </Typography.Paragraph>
+            </>
+        )
     }
 
     return <Alert
@@ -647,11 +687,14 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isC
 
 const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, paymentType, isCreateForm, form, status, setStatus }) => {
     const intl = useIntl()
-    const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus' })
-    const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.draft' })
-    const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.ready' })
-    const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.paid' })
-    const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.cancelled' })
+    const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus' })
+    const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.draft' })
+    const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.ready' })
+    const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.paid' })
+    const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.cancelled' })
+    const CancelInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.cancelInvoiceMessage' })
+    const CancelInvoiceDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.cancelInvoiceDescription' })
+    const CancelInvoiceButtonMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.cancelInvoiceButton' })
 
     const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
 
@@ -706,7 +749,7 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, pay
                 hidden
             />
             <Modal
-                title='Хотите отменить счёт?'
+                title={CancelInvoiceMessage}
                 open={isCancelModalOpen}
                 onCancel={() => setIsCancelModalOpen(false)}
                 footer={[
@@ -720,13 +763,14 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, pay
                         }}
                         key='submit'
                         type='primary'
-                        color={colors.red[5]}>
-                        Отменить счет
+                        color={colors.red[5]}
+                    >
+                        {CancelInvoiceButtonMessage}
                     </Button>,
                 ]}
             >
                 <Typography.Text type='secondary'>
-                    Это конечный статус. Из этого статуса больше не получится ни в какой другой перевести счёт. И отображаться у жителя этот счёт в МП тоже больше не будет.
+                    {CancelInvoiceDescription}
                 </Typography.Text>
             </Modal>
         </>
@@ -761,16 +805,20 @@ type BaseInvoiceFormProps = {
     isCreateForm?: boolean
     isCreatedByResident?: boolean
     initialValues?: InvoiceFormValuesType
+    OnCompletedMsg?
 }
 
-export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, isCreatedByResident, action, organization, role, initialValues }) => {
+export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, isCreatedByResident, action, organization, role, initialValues, OnCompletedMsg }) => {
     const intl = useIntl()
-    const ServicesChosenLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.servicesChosen' })
-    const TotalToPayLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.totalToPay' })
-    const PaymentModeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.payment' })
-    const PaymentOnlineLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.payment.online' })
-    const PaymentCashLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.payment.cash' })
+    const ServicesChosenLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.servicesChosen' })
+    const TotalToPayLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.totalToPay' })
+    const PaymentModeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payment' })
+    const PaymentOnlineLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payment.online' })
+    const PaymentCashLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payment.cash' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
+    const ServicesListMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.servicesList' })
+    const NoPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData' })
+    const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -796,7 +844,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
             action={action}
             layout='horizontal'
             colon={false}
-            OnCompletedMsg={null}
+            OnCompletedMsg={OnCompletedMsg}
             scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
             validateTrigger={FORM_VALIDATE_TRIGGER}
             children={({ handleSave, form }) => (
@@ -828,7 +876,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                     <Col md={22}>
                         <Row>
                             <Col span={24}>
-                                <Typography.Title level={3}>Список услуг</Typography.Title>
+                                <Typography.Title level={3}>{ServicesListMessage}</Typography.Title>
                             </Col>
                             <Col span={24}>
                                 <Form.Item
@@ -980,8 +1028,8 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                         <Col md={20}>
                                             <Alert
                                                 type='info'
-                                                message='Ссылка на оплату будет готова после сохранения счёта'
-                                                description='Её можно будет передать жителю любым удобным вам способом '
+                                                message={NoPayerDataAlertMessage}
+                                                description={NoPayerDataAlertDescription}
                                                 showIcon
                                             />
                                         </Col>
