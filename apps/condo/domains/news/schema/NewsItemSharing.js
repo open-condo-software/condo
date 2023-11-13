@@ -94,11 +94,20 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
             const { resolvedData, existingItem, operation } = args
             const resultItemData = { ...existingItem, ...resolvedData }
 
+            // Check if b2bAppContext support NewsSharing
+            if (operation === 'create') {
+                const b2bAppContext = getById('B2BAppContext', resultItemData.b2bAppContext)
+                const b2bApp = getById('B2BApp', b2bAppContext.app)
+                if (!b2bApp.newsSharingConfig) {
+                    throw new Error('B2BAppContext do not support news sharing')
+                }
+            }
+
             // Check correct status transitions:
-            const oldStatus = existingItem.status
-            const newStatus = resolvedData.status
-            if (operation === 'update' && newStatus) {
-                if (!ALLOWED_TRANSITIONS[oldStatus].includes(newStatus)) {
+            if (operation === 'update') {
+                const oldStatus = existingItem.status
+                const newStatus = resolvedData.status
+                if (newStatus && !ALLOWED_TRANSITIONS[oldStatus].includes(newStatus)) {
                     throw new Error('You cannot use this status transition')
                 }
             }
