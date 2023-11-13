@@ -1,5 +1,5 @@
 const { gql } = require('graphql-tag')
-const { isArray, isEmpty, isString, memoize, get, isObject } = require('lodash')
+const { isArray, isEmpty, isString, memoize } = require('lodash')
 const pluralize = require('pluralize')
 
 
@@ -103,4 +103,6 @@ const getFilter = (pathToOrganizationId, organizationIds) => {
 module.exports = {
     getFilter,
     generateGqlQuery,
+    generateGqlDataPart,
+    generateGqlQueryAsString,
 }
