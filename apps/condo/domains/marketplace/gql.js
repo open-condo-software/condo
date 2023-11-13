@@ -9,7 +9,7 @@ const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
 const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
 
-const INVOICE_CONTEXT_FIELDS = `{ organization { id } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent currencyCode ${COMMON_FIELDS} }`
+const INVOICE_CONTEXT_FIELDS = `{ integration { id name setupUrl hostUrl } organization { id } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent currencyCode ${COMMON_FIELDS} }`
 const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
 
 const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`

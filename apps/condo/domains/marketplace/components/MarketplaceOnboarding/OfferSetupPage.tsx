@@ -7,7 +7,7 @@ import { Typography } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
 import { extractOrigin } from '@condo/domains/common/utils/url.utils'
-import { INVOICE_CONTEXT_STATUS_INPROGRESS, MARKETPLACE_SETUP_URL } from '@condo/domains/marketplace/constants'
+import { INVOICE_CONTEXT_STATUS_INPROGRESS, MARKETPLACE_SETUP_URL_PATH } from '@condo/domains/marketplace/constants'
 import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
 
@@ -28,6 +28,7 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     })
 
     const invoiceContextId = get(invoiceContext, 'id', null)
+    const acquiringIntegrationHostUrl = get(invoiceContext, ['integration', 'hostUrl'])
 
     useEffect(() => {
         // No connected invoice context = go to setup beginning
@@ -41,7 +42,8 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         router,
     ])
 
-    const setupOrigin = extractOrigin(MARKETPLACE_SETUP_URL)
+    const setupUrl = `${acquiringIntegrationHostUrl}${MARKETPLACE_SETUP_URL_PATH}`
+    const setupOrigin = extractOrigin(setupUrl)
 
     const handleDoneMessage = useCallback((event: MessageEvent) => {
         if (event.origin === setupOrigin && get(event.data, 'success') === true) {
@@ -68,7 +70,7 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
 
     return (
         <IFrame
-            src={MARKETPLACE_SETUP_URL}
+            src={setupUrl}
             reloadScope='organization'
             withPrefetch
             withLoader

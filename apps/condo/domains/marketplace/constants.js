@@ -54,7 +54,7 @@ const INVOICE_PAYMENT_TYPES = [
 const MARKETPLACE_RULES_LINK = 'https://help.doma.ai/article/197-article'
 const MARKETPLACE_OFFER_LINK = 'https://help.doma.ai/article/214-19'
 const CONNECT_EMAIL = 'sales@doma.ai'
-const MARKETPLACE_SETUP_URL = 'https://rb.doma.ai/setupMarketplace'
+const MARKETPLACE_SETUP_URL_PATH = '/setupMarketplace'
 
 const BILLS_TAB_KEY = 'bills'
 const PAYMENTS_TAB_KEY = 'payments'
@@ -103,5 +103,5 @@ module.exports = {
     BILLS_TAB_KEY,
     PAYMENTS_TAB_KEY,
     SERVICES_TAB_KEY,
-    MARKETPLACE_SETUP_URL,
+    MARKETPLACE_SETUP_URL_PATH,
 }
