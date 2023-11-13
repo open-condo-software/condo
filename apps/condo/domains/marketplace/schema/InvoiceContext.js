@@ -7,6 +7,7 @@ const Ajv = require('ajv')
 const addFormats = require('ajv-formats')
 const { get } = require('lodash')
 
+const { getOrganizationInfo, getBankInfo } = require('@open-condo/clients/finance-info-client')
 const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -21,6 +22,9 @@ const {
     INVOICE_CONTEXT_STATUSES,
     ERROR_INVALID_INVOICE_CONTEXT_SETTINGS,
     ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED,
+    ERROR_NO_TIN_OR_BIC_PASSED,
+    ERROR_BANK_NOT_FOUND,
+    ERROR_ORGANIZATION_NOT_FOUND,
     VAT_OPTIONS,
     TAX_REGIMES,
     TAX_REGIME_SIMPLE,
@@ -32,6 +36,21 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: ERROR_TAX_REGIME_AND_VAT_NOT_MATCHED,
         message: 'Tax regime and vat values are not matched',
+    },
+    NO_TIN_OR_BIC_PASSED: {
+        code: BAD_USER_INPUT,
+        type: ERROR_NO_TIN_OR_BIC_PASSED,
+        message: 'No tin or bic passed',
+    },
+    ORGANIZATION_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ERROR_ORGANIZATION_NOT_FOUND,
+        message: 'Organization not found',
+    },
+    BANK_NOT_FOUND: {
+        code: BAD_USER_INPUT,
+        type: ERROR_BANK_NOT_FOUND,
+        message: 'Bank not found',
     },
 }
 
@@ -125,8 +144,8 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
         vatPercent: {
             schemaDoc: 'The percentage of VAT',
             type: Select,
-            dataType: 'integer',
-            options: VAT_OPTIONS.map((v) => ({ label: v, value: v })),
+            dataType: 'string',
+            options: VAT_OPTIONS.map((v) => ({ label: String(v), value: String(v) })),
             isRequired: false,
         },
 
@@ -136,6 +155,37 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
 
     },
     hooks: {
+        resolveInput: async ({ operation, resolvedData, context }) => {
+            if (operation === 'create') {
+                const { recipient } = resolvedData
+                if (!recipient) {
+                    return resolvedData
+                }
+
+                const { tin, bic } = recipient
+                if (!tin || !bic) {
+                    throw new GQLError(ERRORS.NO_TIN_OR_BIC_PASSED, context)
+                }
+
+                const { error: orgError, result: orgResult } = await getOrganizationInfo(tin)
+                if (orgError) {
+                    throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
+                }
+
+                const { error: bankError, result: bankResult } = await getBankInfo(bic)
+                if (bankError) {
+                    throw new GQLError(ERRORS.BANK_NOT_FOUND, context)
+                }
+
+                resolvedData.recipient.territoryCode = orgResult.territoryCode
+                resolvedData.recipient.iec = orgResult.iec
+                resolvedData.recipient.name = orgResult.name
+                resolvedData.recipient.bankName = bankResult.bankName
+                resolvedData.recipient.offsettingAccount = bankResult.offsettingAccount
+            }
+
+            return resolvedData
+        },
         validateInput: ({ resolvedData, existingItem, context }) => {
             /*
              vatPercent constraints:
@@ -151,7 +201,7 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
             const nextVat = get(nextData, 'vatPercent')
             const nextTaxRegime = get(nextData, 'taxRegime')
 
-            if (nextTaxRegime === TAX_REGIME_SIMPLE && nextVat === 0) {
+            if (nextTaxRegime === TAX_REGIME_SIMPLE && nextVat === '0') {
                 throw new GQLError(ERRORS.TAX_REGIME_AND_VAT_NOT_MATCHED, context)
             }
         },
