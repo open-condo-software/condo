@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { Alert, Button, Radio, RadioGroup, Select, SelectProps, Space } from '@open-condo/ui'
 
+import { AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
 import { useBankAccountValidation } from '@condo/domains/common/utils/clientSchema/bankAccountValidationUtils'
@@ -74,6 +75,15 @@ export const RequisitesSetup = () => {
         },
     })
 
+    const { objs: acquiring, loading: acquiringLoading, error: acquiringError } = AcquiringIntegration.useObjects({
+        where: {
+            isHidden: false,
+            setupUrl_not: null,
+        },
+    })
+
+    const acquiringId = get(acquiring, ['0', 'id'], null)
+
     const createAction = InvoiceContext.useCreate({
         status: INVOICE_CONTEXT_STATUS_INPROGRESS,
         settings: { dv: 1 },
@@ -109,26 +119,28 @@ export const RequisitesSetup = () => {
 
 
     const handleFormSubmit = useCallback(async (values) => {
-        setError(null)
-        setIsLoading(true)
-        createAction({
-            status: INVOICE_CONTEXT_STATUS_INPROGRESS,
-            organization: { connect: { id: orgId } },
-            recipient: {
-                tin: get(organization, 'tin'),
-                bic: values.bic,
-                bankAccount: values.account,
-            },
-            taxRegime: values.taxType,
-            vatPercent: String(values.taxPercent),
-            currencyCode: 'RUB',
-        }).then(()=>{
-            router.replace({ query: { step: 1 } })
-        })
+        if (!acquiringLoading && !acquiringError && !!acquiringId) {
+            setError(null)
+            setIsLoading(true)
+            createAction({
+                integration: { connect: { id: acquiringId } },
+                status: INVOICE_CONTEXT_STATUS_INPROGRESS,
+                organization: { connect: { id: orgId } },
+                recipient: {
+                    tin: get(organization, 'tin'),
+                    bic: values.bic,
+                    bankAccount: values.account,
+                },
+                taxRegime: values.taxType,
+                vatPercent: String(values.taxPercent),
+                currencyCode: 'RUB',
+            }).then(() => {
+                router.replace({ query: { step: 1 } })
+            })
 
-        setIsLoading(false)
-    }, [createAction, orgId, organization, router])
-
+            setIsLoading(false)
+        }
+    }, [acquiringError, acquiringId, acquiringLoading, createAction, orgId, organization, router])
 
     return (
         <Row gutter={VERTICAL_GUTTER}>
