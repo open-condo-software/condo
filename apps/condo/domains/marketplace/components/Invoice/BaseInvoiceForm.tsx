@@ -1,3 +1,4 @@
+import { PlusCircleOutlined } from '@ant-design/icons'
 import { useLazyQuery } from '@apollo/client'
 import {
     BuildingUnitSubType,
@@ -10,13 +11,14 @@ import styled from '@emotion/styled'
 import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Alert, Button, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Alert, Button, Modal, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
+import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Loader } from '@condo/domains/common/components/Loader'
@@ -163,7 +165,7 @@ const CONTACT_FORM_FIELDS = {
     name: 'clientName',
 }
 
-const ContactFormField = ({ role, organizationId, form, disabled, initialValues }) => {
+const ContactFormField = ({ role, organizationId, form, disabled }) => {
     const { ContactsEditorComponent } = useContactsEditorHook({
         role,
         initialQuery: { organization: { id: organizationId } },
@@ -218,10 +220,11 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
 
     useEffect(() => {
         if (selectedPropertyId && refetch) {
-            refetch({ where: { id: selectedPropertyId } }).then(result => {
-                const { data: { objs } } = result
-                setProperty(objs[0])
-            })
+            refetch({ where: { id: selectedPropertyId } })
+                ?.then(result => {
+                    const { data: { objs } } = result
+                    setProperty(objs[0])
+                })
         }
     }, [refetch, selectedPropertyId])
 
@@ -293,7 +296,6 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
                                 organizationId={organization.id}
                                 form={form}
                                 disabled={disabled}
-                                initialValues={initialValues}
                             />
                         </ContactsInfoFocusContainer>
                     </Col>
@@ -315,6 +317,9 @@ const getMoneyRender = (intl, currencyCode?: string) => {
 }
 
 const prepareTotalPriceFromInput = (count, rawPrice) => {
+    if (!rawPrice) {
+        return { total: 0 }
+    }
     if (!isNaN(+rawPrice)) {
         return { total: +rawPrice * count }
     }
@@ -351,7 +356,18 @@ type MarketItemOptionType = {
     label: string, value: string, price: string, isMin: boolean, sku: string
 }
 
-const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
+const BUTTON_ICON_STYLE: CSSProperties = {
+    color: colors.black,
+    fontSize: 20,
+    position: 'relative',
+    top: '2px',
+}
+const BUTTON_STYLE: CSSProperties = {
+    color: colors.black,
+    paddingLeft: '5px',
+}
+
+const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus }) => {
     const intl = useIntl()
     const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.service' })
     const QuntityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.quantity' })
@@ -428,6 +444,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
                                         >
                                             <AutoComplete
                                                 allowClear
+                                                disabled={disabled}
                                                 options={groups}
                                                 filterOption
                                                 onSelect={(_, marketItem: MarketItemOptionType) => {
@@ -458,11 +475,14 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
                                             rules={[{ required: true, message: 'Пожалуйста, введите число' }]}
                                             initialValue={1}
                                         >
-                                            <Select options={[...Array(50).keys() ].map( i => ({
-                                                label: `${i + 1}`,
-                                                key: i + 1,
-                                                value: i + 1,
-                                            }))}/>
+                                            <Select
+                                                disabled={disabled}
+                                                options={[...Array(50).keys() ].map( i => ({
+                                                    label: `${i + 1}`,
+                                                    key: i + 1,
+                                                    value: i + 1,
+                                                }))}
+                                            />
                                         </Form.Item>
                                     </Col>
                                     <Col xs={24} lg={5}>
@@ -478,15 +498,16 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
                                                     validator: (_, value) => {
                                                         if (/^от (\d+|\d+,\d+)$/.test(value)) {
                                                             form.setFieldsValue({
-                                                                disableCheckboxes: true,
+                                                                hasIsMinPrice: true,
                                                                 status: INVOICE_STATUS_DRAFT,
                                                             })
+                                                            setStatus(INVOICE_STATUS_DRAFT)
 
                                                             return Promise.reject('Неточная цена может быть только у счёта в статусе «Черновик»')
                                                         }
 
                                                         form.setFieldsValue({
-                                                            disableCheckboxes: false,
+                                                            hasIsMinPrice: false,
                                                         })
 
                                                         return Promise.resolve()
@@ -499,6 +520,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
                                             ]}
                                         >
                                             <Input
+                                                disabled={disabled}
                                                 placeholder="Введите число или 'от <число>'"
                                                 addonAfter={currencySymbol}
                                             />
@@ -539,12 +561,15 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
                         ))
                     }
                     <Col span={24}>
-                        <Typography.Text strong onClick={() => operation.add()}>
-                            <Space size={4}>
-                                <PlusCircle size='large'/>
-                                {AddServiceLabel}
-                            </Space>
-                        </Typography.Text>
+                        <OldButton
+                            type='link'
+                            style={BUTTON_STYLE}
+                            onClick={() => operation.add()}
+                            icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
+                            disabled={disabled}
+                        >
+                            <Typography.Text strong>{AddServiceLabel}</Typography.Text>
+                        </OldButton>
                     </Col>
                 </Row>
             }
@@ -552,7 +577,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
     )
 }
 
-const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone }) => {
+const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isCreatedByResident }) => {
     const [residentExistence, setResidentExistence] = useState<{ hasResident: boolean, hasResidentOnAddress: boolean }>()
 
     const [getResidentExistenceByPhoneAndAddress, { loading }] = useLazyQuery(
@@ -560,13 +585,14 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone }) =
         {
             onCompleted: (data) => {
                 const { result: { hasResident, hasResidentOnAddress } } = data
-
                 setResidentExistence({ hasResident, hasResidentOnAddress })
             },
         },
     )
 
     useEffect(() => {
+        if (isCreatedByResident) return
+
         const sender = getClientSideSenderInfo()
         const meta = { dv: 1, sender }
 
@@ -581,16 +607,20 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone }) =
                 },
             },
         })
-    }, [clientPhone, getResidentExistenceByPhoneAndAddress, propertyId, unitName, unitType])
+    }, [clientPhone, getResidentExistenceByPhoneAndAddress, isCreatedByResident, propertyId, unitName, unitType])
 
     if (loading) return <Loader />
-    if (!residentExistence) return null
+    if (!residentExistence && !isCreatedByResident) return null
 
     let type: 'warning' | 'info'
     let message
     let description
 
-    if (residentExistence.hasResidentOnAddress) {
+    if (isCreatedByResident) {
+        type = 'info'
+        message = 'Житель может оплатить в приложении жителя'
+        description = 'Этот счёт  пришёл через МП от жителя'
+    } else if (residentExistence.hasResidentOnAddress) {
         type = 'info'
         message = 'Скорее всего, этот житель сможет оплатить счёт в приложении Дома'
         description = 'Этот житель точно устанавливал приложение. У него в приложении появится кнопка «Оплатить». Если он приложение уже удалил — передайте ему ссылку на оплату любым удобным вам способом.\n' +
@@ -613,6 +643,94 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone }) =
         description={description}
         showIcon
     />
+}
+
+const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, paymentType, isCreateForm, form, status, setStatus }) => {
+    const intl = useIntl()
+    const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus' })
+    const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.draft' })
+    const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.ready' })
+    const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.paid' })
+    const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.cancelled' })
+
+    const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
+
+    const handleValueChange = useCallback((e) => {
+        const value = get(e, 'target.value')
+
+        if (value === INVOICE_STATUS_CANCELED) {
+            setIsCancelModalOpen(true)
+            return false
+        }
+
+        form.setFieldsValue({
+            status: value,
+        })
+        setStatus(value)
+    }, [form, setStatus])
+
+    const isOnlinePaymentType = paymentType === INVOICE_PAYMENT_TYPE_ONLINE
+
+    return (
+        <>
+            <Form.Item
+                label={<Typography.Text strong>{InvoiceStatusLabel}</Typography.Text>}
+                labelCol={{
+                    style: { marginRight: '24px' },
+                }}
+            >
+                <RadioGroup value={status} onChange={handleValueChange} disabled={isAllFieldsDisabled}>
+                    <Space size={24} wrap direction='horizontal'>
+                        <Radio value={INVOICE_STATUS_DRAFT}>
+                            <Typography.Text strong disabled={isAllFieldsDisabled}>{InvoiceStatusDraftLabel}</Typography.Text>
+                        </Radio>
+                        <Radio value={INVOICE_STATUS_PUBLISHED} disabled={isNotDraftStatusesDisabled}>
+                            <Typography.Text type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'} disabled={isNotDraftStatusesDisabled} strong>{InvoiceStatusReadyLabel}</Typography.Text>
+                        </Radio>
+                        <Radio value={INVOICE_STATUS_PAID} disabled={isNotDraftStatusesDisabled || isOnlinePaymentType}>
+                            <Typography.Text type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'} disabled={isNotDraftStatusesDisabled} strong>{InvoiceStatusPaidLabel}</Typography.Text>
+                        </Radio>
+                        <Radio
+                            value={INVOICE_STATUS_CANCELED}
+                            disabled={isNotDraftStatusesDisabled || isCreateForm}
+                        >
+                            <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
+                                <Typography.Text type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'} disabled={isNotDraftStatusesDisabled} strong>{InvoiceStatusCancelledLabel}</Typography.Text>
+                            </div>
+                        </Radio>
+                    </Space>
+                </RadioGroup>
+            </Form.Item>
+            <Form.Item
+                name='status'
+                hidden
+            />
+            <Modal
+                title='Хотите отменить счёт?'
+                open={isCancelModalOpen}
+                onCancel={() => setIsCancelModalOpen(false)}
+                footer={[
+                    <Button
+                        onClick={() => {
+                            form.setFieldsValue({
+                                status: INVOICE_STATUS_CANCELED,
+                            })
+                            setStatus(INVOICE_STATUS_CANCELED)
+                            setIsCancelModalOpen(false)
+                        }}
+                        key='submit'
+                        type='primary'
+                        color={colors.red[5]}>
+                        Отменить счет
+                    </Button>,
+                ]}
+            >
+                <Typography.Text type='secondary'>
+                    Это конечный статус. Из этого статуса больше не получится ни в какой другой перевести счёт. И отображаться у жителя этот счёт в МП тоже больше не будет.
+                </Typography.Text>
+            </Modal>
+        </>
+    )
 }
 
 type InvoiceRowType = {
@@ -641,21 +759,17 @@ type BaseInvoiceFormProps = {
     organization: Organization
     role: OrganizationEmployeeRole
     isCreateForm?: boolean
+    isCreatedByResident?: boolean
     initialValues?: InvoiceFormValuesType
 }
 
-export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, action, organization, role, initialValues }) => {
+export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, isCreatedByResident, action, organization, role, initialValues }) => {
     const intl = useIntl()
     const ServicesChosenLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.servicesChosen' })
     const TotalToPayLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.totalToPay' })
     const PaymentModeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.payment' })
     const PaymentOnlineLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.payment.online' })
     const PaymentCashLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.payment.cash' })
-    const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus' })
-    const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.draft' })
-    const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.ready' })
-    const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.paid' })
-    const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.invoiceStatus.cancelled' })
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -664,12 +778,17 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
         },
     })
 
+    const [status, setStatus] = useState<typeof INVOICE_STATUSES[number]>(get(initialValues, 'status'))
+    const [paymentType, setPaymentType] = useState<typeof INVOICE_PAYMENT_TYPES[number]>(get(initialValues, 'paymentType'))
+
+    const isAllFieldsDisabled = status === INVOICE_STATUS_CANCELED ||
+        (paymentType === INVOICE_PAYMENT_TYPE_ONLINE && status === INVOICE_STATUS_PAID)
+
     const currencyCode = get(invoiceContext, 'currencyCode')
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
-
-    const moneyRender = getMoneyRender(intl, currencyCode)
+    const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
 
     return (
         <FormWithAction
@@ -691,13 +810,13 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                     {
                                         ({ getFieldValue }) => {
                                             const status = getFieldValue('status')
-                                            const isClientDataDisabled = status !== INVOICE_STATUS_DRAFT
+                                            const disabled = isAllFieldsDisabled || status !== INVOICE_STATUS_DRAFT || isCreatedByResident
 
                                             return <PayerDataFields
                                                 organization={organization}
                                                 form={form}
                                                 role={role}
-                                                disabled={isClientDataDisabled}
+                                                disabled={disabled}
                                                 initialValues={initialValues}
                                             />
                                         }
@@ -706,24 +825,28 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                             </Col>
                         </Row>
                     </Col>
-                    <Col md={20}>
-                        <Row gutter={SMALL_VERTICAL_GUTTER}>
+                    <Col md={22}>
+                        <Row>
                             <Col span={24}>
                                 <Typography.Title level={3}>Список услуг</Typography.Title>
                             </Col>
                             <Col span={24}>
                                 <Form.Item
-                                    dependencies={['propertyId']}
+                                    dependencies={['propertyId', 'status']}
                                 >
                                     {
-                                        ({ getFieldValue }) => {
-                                            const propertyId = getFieldValue('propertyId')
+                                        ({ getFieldsValue }) => {
+                                            const { propertyId } = getFieldsValue(['propertyId'])
+                                            const disabled = isAllFieldsDisabled || isCreatedByResident ||
+                                                (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
                                             return <ServicesList
                                                 organizationId={organization.id}
                                                 propertyId={propertyId}
                                                 form={form}
                                                 currencySymbol={currencySymbol}
+                                                disabled={disabled}
+                                                setStatus={setStatus}
                                             />
                                         }
                                     }
@@ -759,14 +882,14 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
 
                                     return (
                                         <Row gutter={[0, 12]}>
-                                            <Col md={19}>
+                                            <Col md={24}>
                                                 <SubTotalInfo
                                                     label={ServicesChosenLabel}
                                                     total={totalCount}
                                                     totalTextType='primary'
                                                 />
                                             </Col>
-                                            <Col md={19}>
+                                            <Col md={24}>
                                                 <SubTotalInfo
                                                     label={TotalToPayLabel}
                                                     total={moneyRender(totalPrice, hasMinPrice)}
@@ -780,68 +903,63 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                             }
                         </Form.Item>
                     </Col>
-                    <Col md={20}>
-                        <Form.Item
-                            label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
-                            name='paymentType'
-                        >
-                            <RadioGroup
-                                onChange={() => form.setFieldsValue({ status: INVOICE_STATUS_DRAFT })}
-                            >
-                                <Space size={8} wrap direction='horizontal'>
-                                    <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
-                                        <Typography.Text strong>{PaymentOnlineLabel}</Typography.Text>
-                                    </Radio>
-                                    <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
-                                        <Typography.Text strong>{PaymentCashLabel}</Typography.Text>
-                                    </Radio>
-                                </Space>
-                            </RadioGroup>
-                        </Form.Item>
-                    </Col>
-                    <Col md={20}>
-                        <Form.Item
-                            dependencies={['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'disableCheckboxes']}
-                        >
-                            {
-                                ({ getFieldsValue }) => {
-                                    const {
-                                        paymentType, status, payerData, propertyId, unitName, unitType, clientName, clientPhone, disableCheckboxes,
-                                    } = getFieldsValue(['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'disableCheckboxes'])
+                    <Col span={24}>
+                        <Row gutter={[0, 40]}>
+                            <Col md={20}>
+                                <Form.Item
+                                    label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
+                                    name='paymentType'
+                                    labelCol={{
+                                        style: { marginRight: '24px' },
+                                    }}
+                                >
+                                    <RadioGroup
+                                        onChange={(e) => {
+                                            const value = get(e, 'target.value')
+                                            setPaymentType(value)
 
-                                    const isNoPayerData = payerData && (!propertyId || !unitName || !unitType || !clientName || !clientPhone)
-                                    const isOnlinePaymentType = paymentType === INVOICE_PAYMENT_TYPE_ONLINE
+                                            setStatus(INVOICE_STATUS_DRAFT)
+                                            form.setFieldsValue({ status: INVOICE_STATUS_DRAFT })
+                                        }}
+                                        disabled={isAllFieldsDisabled}
+                                    >
+                                        <Space size={24} wrap direction='horizontal'>
+                                            <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
+                                                <Typography.Text disabled={isAllFieldsDisabled} strong>{PaymentOnlineLabel}</Typography.Text>
+                                            </Radio>
+                                            <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
+                                                <Typography.Text disabled={isAllFieldsDisabled} strong>{PaymentCashLabel}</Typography.Text>
+                                            </Radio>
+                                        </Space>
+                                    </RadioGroup>
+                                </Form.Item>
+                            </Col>
+                            <Col md={20}>
+                                <Form.Item
+                                    dependencies={['paymentType', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice']}
+                                >
+                                    {
+                                        ({ getFieldsValue }) => {
+                                            const {
+                                                payerData, propertyId, unitName, unitType, clientName, clientPhone, hasIsMinPrice,
+                                            } = getFieldsValue(['payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice'])
+                                            const isNoPayerData = payerData && (!propertyId || !unitName || !unitType || !clientName || !clientPhone)
+                                            const isNotDraftStatusesDisabled = isAllFieldsDisabled || hasIsMinPrice || isNoPayerData
 
-                                    const disabled = disableCheckboxes || isNoPayerData
-
-                                    return (
-                                        <Form.Item
-                                            label={<Typography.Text strong>{InvoiceStatusLabel}</Typography.Text>}
-                                            name='status'
-                                        >
-                                            <RadioGroup>
-                                                <Space size={8} wrap direction='horizontal'>
-                                                    <Radio value={INVOICE_STATUS_DRAFT}>
-                                                        <Typography.Text strong>{InvoiceStatusDraftLabel}</Typography.Text>
-                                                    </Radio>
-                                                    <Radio value={INVOICE_STATUS_PUBLISHED} disabled={disabled}>
-                                                        <Typography.Text type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'} disabled={disabled} strong>{InvoiceStatusReadyLabel}</Typography.Text>
-                                                    </Radio>
-                                                    <Radio value={INVOICE_STATUS_PAID} disabled={disabled || isOnlinePaymentType}>
-                                                        <Typography.Text type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'} disabled={disabled} strong>{InvoiceStatusPaidLabel}</Typography.Text>
-                                                    </Radio>
-                                                    <Radio value={INVOICE_STATUS_CANCELED} disabled={disabled || isCreateForm}>
-                                                        <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
-                                                            <Typography.Text type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'} disabled={disabled} strong>{InvoiceStatusCancelledLabel}</Typography.Text>
-                                                        </div>
-                                                    </Radio>
-                                                </Space>
-                                            </RadioGroup>
-                                        </Form.Item>
-                                    )
-                                }
-                            }
-                        </Form.Item>
+                                            return <StatusRadioGroup
+                                                paymentType={paymentType}
+                                                isAllFieldsDisabled={isAllFieldsDisabled}
+                                                isNotDraftStatusesDisabled={isNotDraftStatusesDisabled}
+                                                isCreateForm={isCreateForm}
+                                                form={form}
+                                                status={status}
+                                                setStatus={setStatus}
+                                            />
+                                        }
+                                    }
+                                </Form.Item>
+                            </Col>
+                        </Row>
                     </Col>
                     <Form.Item
                         dependencies={['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName']}
@@ -881,6 +999,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                             unitName={unitName}
                                             unitType={unitType}
                                             clientPhone={clientPhone}
+                                            isCreatedByResident={isCreatedByResident}
                                         />
                                     </Col>
                                 )

@@ -23,7 +23,7 @@ type IAddressSearchInput = SelectProps<string> & {
 const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }
 
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
-    const { organization } = props
+    const { organization, disabled } = props
     const client = useApolloClient()
     const organizationId = get(organization, 'id')
     const initialValueGetter = useCallback(
@@ -92,7 +92,7 @@ export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props)
             initialValueGetter={initialValueGetter}
             infinityScroll
         />
-    ), [organizationId])
+    ), [organizationId, disabled])
 
     return <MemoizedBaseSearchInput/>
 }
