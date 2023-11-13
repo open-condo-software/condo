@@ -5,10 +5,12 @@ const {
     createInstance: createAddressServiceClientInstance,
 } = require('@open-condo/clients/address-service-client')
 const { Json } = require('@open-condo/keystone/fields')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { composeResolveInputHook } = require('@open-condo/keystone/plugins/utils')
 const { ADDRESS_META_FIELD } = require('@open-condo/keystone/plugins/utils/addressMetaDefinition')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 
+const logger = getLogger('addressServicePlugin')
 
 const readOnlyAccess = {
     read: true,
@@ -50,7 +52,10 @@ const getFieldsToAdd = (fieldsHooks) => ({
  * @param {Object} fieldsHooks
  * @param resolveAddressFields
  */
-const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFields }) => addressFields } = {}) => plugin(({
+const addressService = ({
+    fieldsHooks = {},
+    resolveAddressFields = ({ addressFields }) => addressFields,
+} = {}) => plugin(({
     fields = {},
     hooks = {},
     ...rest
@@ -103,17 +108,31 @@ const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFie
             )
         ) {
             const client = createAddressServiceClientInstance({ ...existingItem, ...resolvedData })
+            const addressToSearch = get({ ...existingItem, ...resolvedData }, 'address')
 
-            const result = await client.search(get({ ...existingItem, ...resolvedData }, 'address'))
+            const result = await client.search(addressToSearch)
 
             if (result) {
+                const resultAddress = get(result, 'address')
+
+                if (addressToSearch !== resultAddress) {
+                    logger.warn({
+                        msg: 'searched address does not match to the found address',
+                        addressToSearch,
+                        resultAddress,
+                        operation,
+                        listKey,
+                        itemId: get(existingItem, 'id'),
+                        addressKey: get(existingItem, 'addressKey'),
+                    })
+                }
                 /**
-                 * We have restriction for updating some fields for existing resident
-                 * @see apps/condo/domains/resident/schema/RegisterResidentService.js:65
-                 * @see apps/condo/domains/resident/schema/Resident.js:213
+                 * We have some restriction for updating some fields for existing resident
+                 * @see apps/condo/domains/resident/schema/RegisterResidentService.js
+                 * @see apps/condo/domains/resident/schema/Resident.js
                  */
 
-                addressFields['address'] = get(result, 'address')
+                addressFields['address'] = resultAddress
                 addressFields['addressMeta'] = {
                     dv: 1,
                     value: get(result, ['addressMeta', 'value'], ''),
@@ -123,6 +142,17 @@ const addressService = ({ fieldsHooks = {}, resolveAddressFields = ({ addressFie
 
                 addressFields['addressKey'] = get(result, 'addressKey')
                 addressFields['addressSources'] = get(result, 'addressSources', [])
+            } else {
+                const msg = `No address found by string "${addressToSearch}"`
+                logger.error({
+                    msg,
+                    operation,
+                    listKey,
+                    itemId: get(existingItem, 'id'),
+                    addressKey: get(existingItem, 'addressKey'),
+                })
+
+                throw new Error(msg)
             }
         } else {
             // NOTE(pahaz): if you don't need to change the address you want to prevent any changes
