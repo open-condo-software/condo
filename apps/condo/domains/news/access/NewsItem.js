@@ -49,7 +49,7 @@ async function canReadNewsItems ({ authentication: { item: user } }) {
         }
     }
 
-    // access for stuff
+    // access for staff
     return {
         organization: {
             OR: [
