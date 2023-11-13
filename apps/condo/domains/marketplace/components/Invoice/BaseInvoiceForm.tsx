@@ -13,7 +13,7 @@ import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { PlusCircle, Trash } from '@open-condo/icons'
+import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { ActionBar, Alert, Button, Modal, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
@@ -22,6 +22,7 @@ import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { Loader } from '@condo/domains/common/components/Loader'
+import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import {
@@ -40,8 +41,6 @@ import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
-
-import { useValidations } from '../../../common/hooks/useValidations'
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']

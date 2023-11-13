@@ -8,6 +8,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById, getByCondition } = require('@open-condo/keystone/schema')
 
 const { MONEY_AMOUNT_FIELD, UNIT_TYPE_FIELD } = require('@condo/domains/common/schema/fields')
+const { CLIENT_NAME_FIELD, CLIENT_PHONE_LANDLINE_FIELD } = require('@condo/domains/common/schema/fields')
+const { Contact } = require('@condo/domains/contact/utils/serverSchema')
 const access = require('@condo/domains/marketplace/access/Invoice')
 const {
     ERROR_INVOICE_ALREADY_PAID,
@@ -29,8 +31,6 @@ const {
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-const { CLIENT_NAME_FIELD, CLIENT_EMAIL_FIELD, CLIENT_PHONE_LANDLINE_FIELD } = require('../../common/schema/fields')
-const { Contact } = require('../../contact/utils/serverSchema')
 
 const ERRORS = {
     ALREADY_PAID: {
