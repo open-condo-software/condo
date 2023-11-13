@@ -1,21 +1,26 @@
 import { useLazyQuery } from '@apollo/client'
-import { BuildingUnitSubType, Organization, OrganizationEmployeeRole, Invoice } from '@app/condo/schema'
+import {
+    BuildingUnitSubType,
+    Organization,
+    OrganizationEmployeeRole,
+    Invoice,
+    Property as PropertyType,
+} from '@app/condo/schema'
 import styled from '@emotion/styled'
 import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
-import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Alert, Button, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import {
     INVOICE_STATUS_DRAFT,
@@ -28,13 +33,11 @@ import {
     INVOICE_PAYMENT_TYPES,
 } from '@condo/domains/marketplace/constants'
 import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
+import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
+import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
+import { Property } from '@condo/domains/property/utils/clientSchema'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
-
-import { Loader } from '../../../common/components/Loader'
-import { getClientSideSenderInfo } from '../../../common/utils/userid.utils'
-import { PropertyAddressSearchInput } from '../../../property/components/PropertyAddressSearchInput'
-import { UnitInfoMode } from '../../../property/components/UnitInfo'
-import { UnitNameInput, UnitNameInputOption } from '../../../user/components/UnitNameInput'
+import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
@@ -73,7 +76,7 @@ const ContactsInfoFocusContainer = styled(FocusContainer)`
   width: 100%;
 `
 
-const PropertyFormField = ({ organization, form, disabled }) => {
+const PropertyFormField = ({ organization, form, disabled, setSelectedPropertyId }) => {
     const intl = useIntl()
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
@@ -81,15 +84,15 @@ const PropertyFormField = ({ organization, form, disabled }) => {
     
     const handlePropertySelectChange = useCallback(async (_, option) => {
         const newPropertyId = isEmpty(option) ? null : option.key
-        const map = isEmpty(option) ? null : option.map
 
         form.setFieldsValue({
             unitName: null,
             unitType: null,
             propertyId: newPropertyId,
-            map,
         })
-    }, [form])
+
+        setSelectedPropertyId(newPropertyId)
+    }, [form, setSelectedPropertyId])
     
     return (
         <Form.Item
@@ -103,14 +106,13 @@ const PropertyFormField = ({ organization, form, disabled }) => {
                 onChange={handlePropertySelectChange}
                 placeholder={AddressPlaceholder}
                 notFoundContent={AddressNotFoundContent}
-                includeMapInOptions
                 disabled={disabled}
             />
         </Form.Item>
     )
 }
 
-const UnitNameFormField = ({ form, disabled }) => {
+const UnitNameFormField = ({ form, property, disabled }) => {
     const intl = useIntl()
     const UnitNameLabel = intl.formatMessage({ id: 'field.FlatNumber' })
 
@@ -137,28 +139,16 @@ const UnitNameFormField = ({ form, disabled }) => {
                 label={UnitNameLabel}
                 required
                 labelCol={{ span: 24 }}
-                dependencies={['propertyId']}
-            >
-                {
-                    ({ getFieldValue }) => {
-                        const propertyMap = getFieldValue('map')
-
-                        return (
-                            <UnitNameInput
-                                property={{ map: propertyMap }}
-                                allowClear
-                                mode={UnitInfoMode.All}
-                                onChange={onChange}
-                                disabled={disabled}
-                            />
-                        )
-                    }
-                }
-            </Form.Item>
-            <Form.Item
                 name='unitName'
-                hidden
-            />
+            >
+                <UnitNameInput
+                    property={property}
+                    allowClear
+                    mode={UnitInfoMode.All}
+                    onChange={onChange}
+                    disabled={disabled}
+                />
+            </Form.Item>
             <Form.Item
                 name='unitType'
                 hidden
@@ -167,7 +157,13 @@ const UnitNameFormField = ({ form, disabled }) => {
     )
 }
 
-const ContactFormField = ({ role, organizationId, form, disabled }) => {
+const CONTACT_FORM_FIELDS = {
+    id: 'contact',
+    phone: 'clientPhone',
+    name: 'clientName',
+}
+
+const ContactFormField = ({ role, organizationId, form, disabled, initialValues }) => {
     const { ContactsEditorComponent } = useContactsEditorHook({
         role,
         initialQuery: { organization: { id: organizationId } },
@@ -178,26 +174,26 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
             dependencies={['propertyId', 'unitName', 'unitType']}
         >
             {
-                ({ getFieldValue }) => {
-                    const property = getFieldValue('propertyId')
-                    const unitName = getFieldValue('unitName')
-                    const unitType = getFieldValue('unitType')
+                ({ getFieldsValue }) => {
+                    const {
+                        propertyId, unitName, unitType, contact, clientName, clientPhone,
+                    } = getFieldsValue(['propertyId', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone'])
+
+                    const value = {
+                        id: contact,
+                        phone: clientPhone,
+                        name: clientName,
+                    }
 
                     return (
                         <ContactsEditorComponent
                             form={form}
-                            fields={{
-                                id: 'contact',
-                                phone: 'clientPhone',
-                                name: 'clientName',
-                            }}
-                            value={{
-                                id: null, phone: null, name: null,
-                            }}
+                            fields={CONTACT_FORM_FIELDS}
+                            value={value}
                             hasNotResidentTab={false}
                             hideFocusContainer
                             hideTabBar
-                            property={property}
+                            property={propertyId}
                             unitName={unitName}
                             unitType={unitType}
                             contactFormItemProps={{ required: true, labelCol: { span: 24 } }}
@@ -211,8 +207,23 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
     )
 }
 
-const PayerDataFields = ({ organization, form, role, disabled, initialFormValues }) => {
-    const [hasPayerData, setHasPayerData] = useState<boolean>(initialFormValues.payerData)
+const PayerDataFields = ({ organization, form, role, disabled, initialValues }) => {
+    const [hasPayerData, setHasPayerData] = useState<boolean>(get(initialValues, 'payerData'))
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialValues, 'propertyId'))
+    const [property, setProperty] = useState<PropertyType>()
+
+    const { loading, refetch } = Property.useObject(
+        {}, { skip: true }
+    )
+
+    useEffect(() => {
+        if (selectedPropertyId && refetch) {
+            refetch({ where: { id: selectedPropertyId } }).then(result => {
+                const { data: { objs } } = result
+                setProperty(objs[0])
+            })
+        }
+    }, [refetch, selectedPropertyId])
 
     return (
         <Row gutter={GROUP_VERTICAL_GUTTER}>
@@ -262,19 +273,19 @@ const PayerDataFields = ({ organization, form, role, disabled, initialFormValues
                                         <Col span={20}>
                                             <PropertyFormField
                                                 organization={organization}
+                                                setSelectedPropertyId={setSelectedPropertyId}
                                                 form={form}
                                                 disabled={disabled}
                                             />
                                         </Col>
                                         <Col span={4}>
                                             <UnitNameFormField
+                                                property={property}
                                                 form={form}
                                                 disabled={disabled}
                                             />
                                         </Col>
                                     </Row>
-                                </Col>
-                                <Col span={24}>
                                 </Col>
                             </Row>
                             <ContactFormField
@@ -282,6 +293,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialFormValues
                                 organizationId={organization.id}
                                 form={form}
                                 disabled={disabled}
+                                initialValues={initialValues}
                             />
                         </ContactsInfoFocusContainer>
                     </Col>
@@ -353,7 +365,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol }) => {
         return propertyId ? { OR: [{ property: { id: propertyId } }, baseFilterByProperty] } : baseFilterByProperty
     }, [propertyId])
 
-    const { objs: marketPriceScopes, loading } = MarketPriceScope.useAllObjects({
+    const { objs: marketPriceScopes } = MarketPriceScope.useAllObjects({
         where: {
             AND: [
                 { marketItemPrice: { marketItem: { organization: { id: organizationId } } } },
@@ -612,16 +624,16 @@ type InvoiceRowType = {
 }
 
 type InvoiceFormValuesType = {
-    clientName: string
-    clientPhone: string
-    contact: string
     payerData: boolean
-    paymentType: typeof INVOICE_PAYMENT_TYPES[number]
-    propertyId: string
-    unitName: string
-    unitType: BuildingUnitSubType
     rows: InvoiceRowType[]
+    paymentType: typeof INVOICE_PAYMENT_TYPES[number]
     status: typeof INVOICE_STATUSES[number]
+    clientName?: string
+    clientPhone?: string
+    contact?: string
+    propertyId?: string
+    unitName?: string
+    unitType?: string
 }
 
 type BaseInvoiceFormProps = {
@@ -632,7 +644,7 @@ type BaseInvoiceFormProps = {
     initialValues?: InvoiceFormValuesType
 }
 
-export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, action, organization, role }) => {
+export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, action, organization, role, initialValues }) => {
     const intl = useIntl()
     const ServicesChosenLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.servicesChosen' })
     const TotalToPayLabel = intl.formatMessage({ id: 'pages.condo.marketplace.createBill.form.totalToPay' })
@@ -657,15 +669,11 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
 
-    const initialFormValues = useMemo(() =>
-        ({ rows: [{ name: '', count: 1, price: 0 }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),
-    [])
-
     const moneyRender = getMoneyRender(intl, currencyCode)
 
     return (
         <FormWithAction
-            initialValues={initialFormValues}
+            initialValues={initialValues}
             action={action}
             layout='horizontal'
             colon={false}
@@ -690,7 +698,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                                 form={form}
                                                 role={role}
                                                 disabled={isClientDataDisabled}
-                                                initialFormValues={initialFormValues}
+                                                initialValues={initialValues}
                                             />
                                         }
                                     }

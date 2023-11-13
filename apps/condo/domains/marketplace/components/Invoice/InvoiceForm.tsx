@@ -1,12 +1,13 @@
+import { Invoice } from '@app/condo/schema'
 import React from 'react'
 
 import { CreateInvoiceForm } from './CreateInvoiceForm'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 interface IInvoiceFormProps {
-    id?: string
+    invoice?: Invoice
 }
 
-export const InvoiceForm: React.FC<IInvoiceFormProps> = ({ id }) => {
-    return (id ? <UpdateInvoiceForm id={id}/> : <CreateInvoiceForm /> )
+export const InvoiceForm: React.FC<IInvoiceFormProps> = ({ invoice }) => {
+    return (invoice ? <UpdateInvoiceForm invoice={invoice}/> : <CreateInvoiceForm /> )
 }

@@ -8,24 +8,36 @@ import React from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { BaseInvoiceForm } from '@condo/domains/marketplace/components/Invoice/BaseInvoiceForm'
+import { InvoiceForm } from '@condo/domains/marketplace/components/Invoice/InvoiceForm'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 
 
 const UPDATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
 
 const UpdateInvoicePage = () => {
-    // const intl = useIntl()
+    const intl = useIntl()
+    const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
 
     const router = useRouter()
     const { query: { id } } = router as { query: { [key: string]: string } }
-    const { obj: invoice, loading } = Invoice.useObject({
+    const { obj: invoice, loading, error } = Invoice.useObject({
         where: {
             id,
         },
     })
 
-    const PageTitle = `Счёт № ${invoice.number}`
+    if (loading || error) {
+        return (
+            <LoadingOrErrorPage
+                loading={loading}
+                error={error && ServerErrorMessage}
+            />
+        )
+    }
+
+    const PageTitle = `Счёт № ${get(invoice, 'number')}`
 
     return (
         <>
@@ -39,7 +51,7 @@ const UpdateInvoicePage = () => {
                             <Typography.Title level={1}>{PageTitle}</Typography.Title>
                         </Col>
                         <Col span={24}>
-                            <BaseInvoiceForm />
+                            <InvoiceForm invoice={invoice} />
                         </Col>
                     </Row>
                 </PageContent>

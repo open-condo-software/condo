@@ -1,3 +1,4 @@
+import { Invoice as InvoiceType } from '@app/condo/schema'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback } from 'react'
@@ -7,15 +8,15 @@ import { useOrganization } from '@open-condo/next/organization'
 
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
+
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 
 type UpdateInvoiceFormProps = {
-    id: string
+    invoice: InvoiceType
 }
 
-export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ id }) => {
+export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice }) => {
     const intl = useIntl()
-    const CreatePropertyMessage = intl.formatMessage({ id: 'pages.condo.property.index.CreatePropertyButtonLabel' })
 
     const router = useRouter()
     const { organization, link } = useOrganization()
@@ -30,10 +31,21 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ id }) => {
 
     return (
         <BaseInvoiceForm
-            isCreateForm
-            action={handleUpdateInvoice}
             organization={organization}
             role={link}
+            action={handleUpdateInvoice}
+            initialValues={{
+                payerData: !!get(invoice, 'contact.id'),
+                paymentType: get(invoice, 'paymentType'),
+                status: get(invoice, 'status'),
+                contact: get(invoice, 'contact.id'),
+                propertyId: get(invoice, 'property.id'),
+                unitName: get(invoice, 'unitName'),
+                unitType: get(invoice, 'unitType'),
+                clientName: get(invoice, 'clientName'),
+                clientPhone: get(invoice, 'clientPhone'),
+                rows: get(invoice, 'rows', []).map(row => ({ ...row, price: row.toPay })),
+            }}
         />
     )
 }

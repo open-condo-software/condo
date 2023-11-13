@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -8,6 +8,9 @@ import { useOrganization } from '@open-condo/next/organization'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
+
+import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT } from '../../constants'
+
 
 
 export const CreateInvoiceForm: React.FC = () => {
@@ -28,7 +31,6 @@ export const CreateInvoiceForm: React.FC = () => {
     })
 
     const handleCreateInvoice = useCallback(async (values) => {
-        console.log('values', values)
         let newInvoiceData = {}
 
         const contact = get(values, 'contact')
@@ -55,6 +57,8 @@ export const CreateInvoiceForm: React.FC = () => {
             context: { connect: { id: invoiceContext.id } },
             status: get(values, 'status'),
             paymentType: get(values, 'paymentType'),
+            clientName: get(values, 'clientName'),
+            clientPhone: get(values, 'clientPhone'),
             unitName: get(values, 'unitName'),
             unitType: get(values, 'unitType'),
             rows,
@@ -63,12 +67,17 @@ export const CreateInvoiceForm: React.FC = () => {
         return await createInvoiceAction(newInvoiceData)
     }, [createInvoiceAction, invoiceContext])
 
+    const initialValues = useMemo(() =>
+        ({ rows: [{ name: '', count: 1, price: '0', isMin: false }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),
+    [])
+
     return (
         <BaseInvoiceForm
             isCreateForm
             action={handleCreateInvoice}
             organization={organization}
             role={link}
+            initialValues={initialValues}
         />
     )
 }

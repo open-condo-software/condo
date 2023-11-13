@@ -45,7 +45,7 @@ const GET_ALL_PROPERTIES_WITH_MAP_BY_VALUE_QUERY = gql`
         objs: allProperties(where: $where, orderBy: $orderBy, first: $first, skip: $skip) {
             id
             address
-            map { sections { floors { units { type label unitType } } } parking { floors { units { type label unitType } } } }
+            map { sections { floors { units { label } } } }
         }
     }
 `
@@ -130,7 +130,7 @@ export async function searchPropertyWithMap (client, where, orderBy, first = 10,
         skip,
     })
     if (error) console.warn(error)
-    if (data) return data.objs.map(x => ({ text: x.address, value: x.id, map: x.map }))
+    if (data) return data.objs.map(x => ({ address: x.address, id: x.id, map: x.map }))
 
     return []
 }
