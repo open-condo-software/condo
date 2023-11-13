@@ -250,6 +250,7 @@
   "global.share": "Share",
   "global.filters.dateRange.start": "Start date",
   "global.count": "Count",
+  "global.from": "From",
   "global.filters.dateRange.end": "Final date",
   "global.input.error.wrongEmails": "Wrong format of E-mail addresses",
   "global.input.error.wrongPhone": "Wrong phone format, we expect +1 (XXX) XXX XX XX",

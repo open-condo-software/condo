@@ -250,6 +250,7 @@
   "global.share": "Отправить",
   "global.filters.dateRange.start": "Начальная дата",
   "global.count": "Количество",
+  "global.from": "От",
   "global.filters.dateRange.end": "Конечная дата",
   "global.input.error.wrongEmails": "Неверный формат E-mail адресов",
   "global.input.error.wrongPhone": "Не соответствует формату +7 (XXX) XXX-XX-XX",

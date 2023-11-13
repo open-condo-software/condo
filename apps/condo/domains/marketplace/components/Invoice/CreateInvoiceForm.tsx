@@ -105,7 +105,7 @@ export const CreateInvoiceForm: React.FC = () => {
         const currencyCode = String(get(invoiceContext, 'currencyCode'))
 
         const rows = rawRows.map(row => ({
-            name: row.name, toPay: String(row.price), count: row.count, sku: row.sku, isMin: row.isMin,
+            name: row.name, toPay: String(row.toPay), count: row.count, sku: row.sku, isMin: row.isMin,
             currencyCode, vatPercent, salesTaxPercent,
         }))
         const toPay = rows.every(row => !row.isMin) ? rows.reduce((acc, row) => +row.toPay * row.count, 0) : 0
@@ -136,9 +136,6 @@ export const CreateInvoiceForm: React.FC = () => {
             },
             OnCompletedMsg: (data) => {
                 const { data: { result } } = data
-
-                console.log('data', data)
-
                 return getCompletedNotification({ number: createdInvoice.number, url: result.webViewUrl })
             },
             onError: (err) => {
@@ -151,7 +148,7 @@ export const CreateInvoiceForm: React.FC = () => {
     }, [createInvoiceAction, getCompletedNotification, intl, invoiceContext, registerMultiPayment])
 
     const initialValues = useMemo(() =>
-        ({ rows: [{ name: '', count: 1, price: '0', isMin: false }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),
+        ({ rows: [{ name: '', count: 1, toPay: '0', isMin: false }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),
     [])
 
 

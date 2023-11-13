@@ -88,17 +88,17 @@ const FormItemWithCustomWarningColor = styled(Form.Item)`
       color: ${colors.red[5]};
     }
 `
-const getMoneyRender = (intl, currencyCode?: string) => {
+const getMoneyRender = (intl, fromMessage, currencyCode?: string) => {
     return function render (text: string, isMin: boolean) {
         const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
         const formattedValue = formattedParts.map((part) => {
             return part.value
         }).join('')
 
-        return isMin ? `от ${formattedValue}` : formattedValue
+        return isMin ? `${fromMessage} ${formattedValue}` : formattedValue
     }
 }
-const prepareTotalPriceFromInput = (count, rawPrice) => {
+const prepareTotalPriceFromInput = (count, rawPrice, fromMessage) => {
     if (!rawPrice) {
         return { total: 0 }
     }
@@ -107,8 +107,7 @@ const prepareTotalPriceFromInput = (count, rawPrice) => {
     }
 
     const splittedRawPrice = rawPrice.split(' ')
-
-    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === 'от' && !isNaN(+splittedRawPrice[1])) {
+    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === fromMessage && !isNaN(+splittedRawPrice[1])) {
         return { isMin: true, total: +splittedRawPrice[1] * count }
     }
 
@@ -272,7 +271,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialValues, 'propertyId'))
     const [property, setProperty] = useState<PropertyType>()
 
-    const { loading, refetch } = Property.useObject(
+    const { refetch } = Property.useObject(
         {}, { skip: true }
     )
 
@@ -364,7 +363,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
 }
 
 type MarketItemOptionType = {
-    label: string, value: string, price: string, isMin: boolean, sku: string
+    label: string, value: string, toPay: string, isMin: boolean, sku: string
 }
 
 const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus }) => {
@@ -377,6 +376,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const NumberIsNotValidMessage = intl.formatMessage({ id: 'NumberIsNotValid' })
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
 
     const { requiredValidator } = useValidations()
 
@@ -414,7 +414,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
         const item = {
             label: name,
             value: name,
-            price, isMin, sku,
+            toPay: price, isMin, sku,
             key: marketItem.id,
         }
 
@@ -428,7 +428,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
     groups.sort((a, b) => a.key > b.key ? 1 : -1)
 
-    const moneyRender = getMoneyRender(intl)
+    const moneyRender = getMoneyRender(intl, FromMessage)
 
     return (
         <Form.List name='rows'>
@@ -453,20 +453,20 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 placeholder={ServicePlaceholder}
                                                 options={groups}
                                                 filterOption
-                                                onSelect={(_, marketItem: MarketItemOptionType) => {
+                                                onSelect={(_, option: MarketItemOptionType) => {
                                                     form.setFieldsValue({
                                                         rows: {
                                                             ...form.getFieldValue('rows'),
                                                             [marketItemForm.name]: {
                                                                 ...form.getFieldValue(['rows', marketItemForm.name]),
-                                                                price: marketItem.isMin ? `от ${marketItem.price}` : marketItem.price,
-                                                                isMin: marketItem.isMin,
-                                                                sku: marketItem.sku,
+                                                                toPay: option.isMin ? `${FromMessage} ${option.toPay}` : option.toPay,
+                                                                isMin: option.isMin,
+                                                                sku: option.sku,
                                                             },
                                                         },
                                                     })
 
-                                                    form.validateFields([['rows', marketItemForm.name, 'price']])
+                                                    form.validateFields([['rows', marketItemForm.name, 'toPay']])
                                                 }}
                                             />
                                         </Form.Item>
@@ -495,14 +495,14 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                         <FormItemWithCustomWarningColor
                                             label={PriceLabel}
                                             required
-                                            name={[marketItemForm.name, 'price']}
+                                            name={[marketItemForm.name, 'toPay']}
                                             labelCol={{ span: 24 }}
                                             rules={[
                                                 requiredValidator,
                                                 {
                                                     warningOnly: true,
                                                     validator: (_, value) => {
-                                                        if (/^от (\d+|\d+,\d+)$/.test(value)) {
+                                                        if (new RegExp(`^${FromMessage} (\\d+|\\d+,\\d+)$`).test(value)) {
                                                             form.setFieldsValue({
                                                                 hasIsMinPrice: true,
                                                                 status: INVOICE_STATUS_DRAFT,
@@ -520,7 +520,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     },
                                                 },
                                                 {
-                                                    pattern: /^(от |)(\d+|\d+,\d+)$/,
+                                                    pattern: new RegExp(`^(${FromMessage} |)(\\d+|\\d+,\\d+)$`),
                                                     message: NumberIsNotValidMessage,
                                                 },
                                             ]}
@@ -541,8 +541,8 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             {
                                                 ({ getFieldValue }) => {
                                                     const count = getFieldValue(['rows', marketItemForm.name, 'count'])
-                                                    const rawPrice = getFieldValue(['rows', marketItemForm.name, 'price'])
-                                                    const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice)
+                                                    const rawPrice = getFieldValue(['rows', marketItemForm.name, 'toPay'])
+                                                    const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice, FromMessage)
                                                     const value = error ? '' : moneyRender(String(total), isMin)
 
                                                     return <Input type='total' addonAfter={currencySymbol} disabled value={value} />
@@ -780,7 +780,7 @@ type InvoiceRowType = {
     count: number
     isMin: boolean
     name: string
-    price: string
+    toPay: string
     sku?: string
 }
 
@@ -818,6 +818,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const ServicesListMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.servicesList' })
     const NoPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData' })
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -835,7 +836,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
-    const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
+    const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage, currencyCode), [FromMessage, currencyCode, intl])
 
     return (
         <FormWithAction
@@ -914,9 +915,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                     let hasMinPrice
                                     let hasError
                                     const totalPrice = rows.reduce((acc, row) => {
-                                        const rawPrice = row.price
+                                        const rawPrice = row.toPay
                                         const count = row.count
-                                        const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice)
+                                        const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice, FromMessage)
                                         if (!hasError && error) {
                                             hasError = true
                                         }

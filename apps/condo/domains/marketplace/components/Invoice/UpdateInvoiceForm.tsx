@@ -40,7 +40,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
         unitType: get(invoice, 'unitType'),
         clientName: get(invoice, 'clientName'),
         clientPhone: get(invoice, 'clientPhone'),
-        rows: get(invoice, 'rows', []).map(row => ({ ...row, price: row.toPay })),
+        rows: get(invoice, 'rows', []),
     }), [invoice])
 
     return (
