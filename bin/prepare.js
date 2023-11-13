@@ -11,6 +11,8 @@ const {
     runAppPackageJsonScript,
     updateGlobalEnvFile,
     safeExec,
+    fillGlobalEnvWithDefaultValues,
+    fillAppEnvWithDefaultValues,
 } = require('@open-condo/cli')
 
 const DEFAULT_DB_NAME_PREFIX = 'local'
@@ -64,7 +66,9 @@ async function prepare () {
         }
     })
 
-    // Step 3. Extract domains .env information, like CONDO_DOMAIN, MY_APP_DOMAIN and put it global monorepo env
+    // Step 3.1. Copy global .env.example values to .env with no override
+    await fillGlobalEnvWithDefaultValues()
+    // Step 3.2. Extract domains .env information, like CONDO_DOMAIN, MY_APP_DOMAIN and put it global monorepo env
     for (const app of appsWithData) {
         const domainEnvKey = `${app.name.toUpperCase().replaceAll('-', '_')}_DOMAIN`
         await updateGlobalEnvFile(domainEnvKey, app.serviceUrl)
@@ -80,6 +84,7 @@ async function prepare () {
             console.log('========> Creating PG DB if not exists')
             await createPostgresDatabaseInsideDockerComposeContainerIfNotExists(app.pgName)
             console.log('========> Filling default .env values')
+            await fillAppEnvWithDefaultValues(app.name)
             const env = {
                 COOKIE_SECRET: `${app.name}-secret`,
                 DATABASE_URL: `${LOCAL_PG_DB_PREFIX}/${app.pgName}`,
@@ -94,7 +99,8 @@ async function prepare () {
             if (migrateResult) console.log(migrateResult)
         } else if (app.type === 'Next') {
             // NOTE: Server url is not filled, since it's per-app logic and probably should just use domains as well
-            console.log('========> Next app does not need databases and default .env values')
+            console.log('========> Filling default .env values')
+            await fillAppEnvWithDefaultValues(app.name)
         } else {
             throw new Error('Unknown app type')
         }

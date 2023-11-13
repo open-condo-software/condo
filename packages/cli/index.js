@@ -4,6 +4,8 @@ const fs = require('fs')
 const path = require('path')
 const util = require('util')
 
+const dotenv = require('dotenv')
+
 const conf = require('@open-condo/config')
 
 const exec = util.promisify(cp.exec)
@@ -102,14 +104,21 @@ async function checkMkCertCommandAndLocalCerts (keyFile, certFile, domain = 'app
  * @param filePath {string} path to env file
  * @param key {string} environment variable name
  * @param value {string} environment variable value
+ * @param opts {{ override: boolean }}
  * @return {Promise<void>}
  */
-async function updateEnvFile (filePath, key, value) {
+async function updateEnvFile (filePath, key, value, opts = { override: true }) {
     if (typeof value !== 'string') throw new Error('updateAppEnvFile(..., value) should be a string')
     if (typeof key !== 'string') throw new Error('updateAppEnvFile(..., key) should be a string')
     if (!key) throw new Error('updateAppEnvFile(..., key) should be a defined')
 
     value = value.trim()
+    // NOTE: JSON objects and space-containing strings must be escaped with quotes
+    if ((value.startsWith('{') && value.endsWith('}')) ||
+        (value.startsWith('[') && value.endsWith(']') ||
+        (value.includes(' ') && !value.startsWith('\'') && !value.endsWith('\'')))) {
+        value = `'${value}'`
+    }
     let envData, result
 
     try {
@@ -129,11 +138,13 @@ async function updateEnvFile (filePath, key, value) {
 
     if (!re.test(envData)) {
         result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${key}=${value}\n`
-    } else {
+    } else if (opts.override) {
         result = envData.replace(re, `${key}=${value}\n`)
     }
 
-    await writeFile(filePath, result, { encoding: 'utf-8' })
+    if (result) {
+        await writeFile(filePath, result, { encoding: 'utf-8' })
+    }
 }
 
 /**
@@ -231,6 +242,53 @@ async function runAppPackageJsonScript (appName, script) {
 }
 
 /**
+ * Takes all environment default variables from {fromPath} env file (if exists), and moves them to {toPath} env file
+ * If opts.override = true, existing keys in toPath will be overwritten, otherwise they will stay the same
+ * @param {string} fromPath
+ * @param {string} toPath
+ * @param {{override: boolean}} opts
+ * @return {Promise<void>}
+ */
+async function moveEnv (fromPath, toPath, opts = { override: true }) {
+    let fromEnvData
+
+    try {
+        fromEnvData = (await readFile(fromPath, { encoding: 'utf-8' })).toString()
+    } catch (e) {
+        if (e.code === 'ENOENT') {
+            fromEnvData = ''
+        } else {
+            throw e
+        }
+    }
+
+    const fromEnv = dotenv.parse(fromEnvData)
+    for (const [key, value] of Object.entries(fromEnv)) {
+        await updateEnvFile(toPath, key, value, opts)
+    }
+}
+
+/**
+ * Takes all environment default variables from {PROJECT_ROOT}/.env.example
+ * After that update {PROJECT_ROOT}/.env file to include default values
+ * (no override if key already present in .env)
+ * @return {Promise<void>}
+ */
+async function fillGlobalEnvWithDefaultValues () {
+    return await moveEnv(`${PROJECT_ROOT}/.env.example`, `${PROJECT_ROOT}/.env`, { override: false })
+}
+
+/**
+ * Takes all environment default variables from app's .env.example file
+ * After that update app's .env file to include default values
+ * (no override if key already present in .env)
+ * @return {Promise<void>}
+ */
+async function fillAppEnvWithDefaultValues (appName) {
+    return await moveEnv(`${PROJECT_ROOT}/apps/${appName}/.env.example`, `${PROJECT_ROOT}/apps/${appName}/.env`, { override: false })
+}
+
+/**
  * @return {Promise<Array<{name: string, type: 'KS' | 'Next'}>>}
  */
 async function getAllActualApps () {
@@ -262,4 +320,7 @@ module.exports = {
     prepareAppEnvLocalAdminUsers,
     runAppPackageJsonScript,
     getAllActualApps,
+    moveEnv,
+    fillAppEnvWithDefaultValues,
+    fillGlobalEnvWithDefaultValues,
 }

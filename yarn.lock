@@ -11750,6 +11750,7 @@ __metadata:
   resolution: "@open-condo/cli@workspace:packages/cli"
   dependencies:
     "@open-condo/config": "workspace:^"
+    dotenv: ^16.3.1
   languageName: unknown
   linkType: soft
 
