@@ -133,15 +133,93 @@ describe('RegisterMultiPaymentService', () => {
                 await registerMultiPaymentByTestClient(client, payload)
             }, 'result')
         })
-        test('Staff user', async () => {
-            const { serviceConsumer, billingReceipts } = await makePayer()
-            let payload = [{
-                serviceConsumer: { id: serviceConsumer.id },
-                receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
-            }]
-            const client = await makeClientWithNewRegisteredAndLoggedInUser()
-            await expectToThrowAccessDeniedErrorToResult(async () => {
-                await registerMultiPaymentByTestClient(client, payload)
+        describe('Staff user', () => {
+            test('Access denied if no invoices in payload', async () => {
+                const { serviceConsumer, billingReceipts } = await makePayer()
+                let payload = [{
+                    serviceConsumer: { id: serviceConsumer.id },
+                    receipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+                }]
+                const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                await expectToThrowAccessDeniedErrorToResult(async () => {
+                    await registerMultiPaymentByTestClient(client, payload)
+                })
+            })
+
+            test('Access allowed if invoices in payload', async () => {
+                const [o10n] = await createTestOrganization(adminClient)
+                const [property] = await createTestProperty(adminClient, o10n)
+
+                const residentClient = await makeClientWithResidentUser()
+                const unitType = FLAT_UNIT_TYPE
+                const unitName = faker.lorem.word()
+
+                const [resident] = await registerResidentByTestClient(
+                    residentClient,
+                    {
+                        address: property.address,
+                        addressMeta: property.addressMeta,
+                        unitType,
+                        unitName,
+                    })
+
+                const staffClient = await makeClientWithStaffUser()
+                const [role] = await createTestOrganizationEmployeeRole(adminClient, o10n, {
+                    canManageInvoices: true,
+                    canManageContacts: true,
+                    canReadInvoiceContexts: true,
+                })
+                await createTestOrganizationEmployee(adminClient, o10n, staffClient.user, role)
+
+                const [contact] = await createTestContact(staffClient, o10n, property, {
+                    phone: residentClient.userAttrs.phone,
+                    unitType,
+                    unitName,
+                })
+
+                const [invoiceContext, invoiceContextAttrs] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, {
+                    status: INVOICE_CONTEXT_STATUS_FINISHED,
+                    implicitFeePercent: '5',
+                    recipient: createTestRecipient(),
+                })
+                const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+                    property: { connect: { id: property.id } },
+                    unitType,
+                    unitName,
+                    contact: { connect: { id: contact.id } },
+                    status: INVOICE_STATUS_PUBLISHED,
+                })
+                const invoiceSum = invoice.rows.reduce((sum, { toPay, count }) => sum.plus(Big(toPay).mul(count)), Big(0))
+
+                const invoices = await Invoice.getAll(residentClient, {}, { sortBy: ['updatedAt_DESC'] })
+
+                expect(invoices).toEqual([
+                    expect.objectContaining({
+                        id: invoice.id,
+                        client: expect.objectContaining({ id: resident.user.id, name: resident.user.name }),
+                    }),
+                ])
+
+                const [result] = await registerMultiPaymentByTestClient(staffClient, null, {
+                    invoices: invoices.map(({ id }) => ({ id })),
+                })
+
+                expect(result).toMatchObject({
+                    dv: 1,
+                    multiPaymentId: expect.stringMatching(UUID_RE),
+                    webViewUrl: `${dummyAcquiringIntegration.hostUrl}/pay/${result.multiPaymentId}`,
+                    feeCalculationUrl: `${dummyAcquiringIntegration.hostUrl}/api/fee/${result.multiPaymentId}`,
+                    directPaymentUrl: `${dummyAcquiringIntegration.hostUrl}/api/pay/${result.multiPaymentId}`,
+                    getCardTokensUrl: `${dummyAcquiringIntegration.hostUrl}/api/clients/${staffClient.user.id}/card-tokens`,
+                })
+
+                const multipayment = await MultiPayment.getOne(adminClient, { id: result.multiPaymentId })
+                expect(multipayment).toMatchObject({
+                    currencyCode: invoiceContext.currencyCode,
+                    integration: { id: dummyAcquiringIntegration.id },
+                    amount: invoiceSum.toString(),
+                    implicitFee: Big(invoiceSum).mul(invoiceContextAttrs.implicitFeePercent).div(100).toFixed(8),
+                })
             })
         })
         test('Background process for RecurrentPaymentContext', async () => {

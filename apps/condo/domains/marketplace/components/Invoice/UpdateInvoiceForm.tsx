@@ -30,8 +30,6 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
         // return await updateInvoiceAction(values)
     }, [])
 
-    console.log('invoice', invoice)
-
     const initialValues = useMemo(() => ({
         payerData: !!get(invoice, 'contact.id'),
         paymentType: get(invoice, 'paymentType'),

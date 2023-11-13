@@ -562,9 +562,9 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     }
 
                     // All invoices with client must be related to the current user
-                    if (foundInvoices.some(({ client }) => !!client && client !== context.authedItem.id)) {
-                        throw new GQLError(ERRORS.INVOICES_FOR_THIRD_USER, context)
-                    }
+                    // if (foundInvoices.some(({ client }) => !!client && client !== context.authedItem.id)) {
+                    //     throw new GQLError(ERRORS.INVOICES_FOR_THIRD_USER, context)
+                    // }
 
                     // All invoices contexts must be finished
                     if (invoicesContexts.some(({ status }) => status !== INVOICE_CONTEXT_STATUS_FINISHED)) {
