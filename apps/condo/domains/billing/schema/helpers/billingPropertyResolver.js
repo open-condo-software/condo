@@ -8,7 +8,6 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { AddressTransform, AddressParser } = require('@condo/domains/billing/schema/helpers/addressTransform')
 const {
     BillingProperty,
-    BillingAccount,
     BillingIntegrationOrganizationContext,
 } = require('@condo/domains/billing/utils/serverSchema')
 const { Property } = require('@condo/domains/property/utils/serverSchema')
@@ -373,13 +372,18 @@ class BillingPropertyResolver {
      * @returns {Promise<BillingProperty>}
      */
     async createBillingProperty (fiasSummary, addressSummary, addressMeta) {
-        const address = get(addressSummary, 'normalizedAddress')
-            || get(addressSummary, 'address')
-            || get(addressSummary, 'originalInput')
+        const originalInput = get(addressSummary, 'originalInput')
+
+        // get cached search results
+        const searchResult = this.addressCache[this.getCacheKey(get(addressSummary, 'originalInput'))]
+            || this.addressCache[this.getCacheKey(get(addressSummary, 'normalizedAddress'))]
+            || this.addressCache[this.getCacheKey(get(addressSummary, 'address'))]
+        const billingPropertyAddress = get(searchResult, 'address') || originalInput
+
         const billingPropertyParams = {
             ...dvAndSender,
             globalId: get(fiasSummary, 'fias'),
-            address,
+            address: billingPropertyAddress,
             normalizedAddress: get(addressSummary, 'normalizedAddress'),
             raw: { dv: 1, address: addressSummary.originalInput },
             importId: this.getBillingPropertyKey(addressSummary),
