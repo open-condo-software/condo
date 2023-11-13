@@ -22603,6 +22603,20 @@ export type GetExternalReportIframeUrlOutput = {
   iframeUrl?: Maybe<Scalars['String']>;
 };
 
+export type GetInvoiceByUserInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organization: OrganizationWhereUniqueInput;
+  property?: Maybe<PropertyWhereUniqueInput>;
+  ticketIds?: Maybe<Array<Scalars['ID']>>;
+};
+
+export type GetInvoiceByUserOutput = {
+  __typename?: 'GetInvoiceByUserOutput';
+  invoices: Array<Invoice>;
+  skuInfo: Array<MarketSkuInfo>;
+};
+
 export type GetNewsItemsRecipientsCountersInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -28046,6 +28060,12 @@ export type MarketPriceScopesCreateInput = {
 export type MarketPriceScopesUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<MarketPriceScopeUpdateInput>;
+};
+
+export type MarketSkuInfo = {
+  __typename?: 'MarketSkuInfo';
+  sku: Scalars['String'];
+  imageUrl: Scalars['String'];
 };
 
 /**  Notification message  */
@@ -61057,6 +61077,7 @@ export type Query = {
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
+  executeGetInvoiceByUser?: Maybe<GetInvoiceByUserOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
   authenticatedUser?: Maybe<User>;
@@ -67388,6 +67409,11 @@ export type QueryGetNewsItemsRecipientsCountersArgs = {
 
 export type QueryAllMiniAppsArgs = {
   data: AllMiniAppsInput;
+};
+
+
+export type QueryExecuteGetInvoiceByUserArgs = {
+  data: GetInvoiceByUserInput;
 };
 
 export type ReInviteOrganizationEmployeeInput = {

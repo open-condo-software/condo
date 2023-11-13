@@ -71491,6 +71491,24 @@ type RegisterInvoiceOutput {
   invoice: Invoice!
 }
 
+input GetInvoiceByUserInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+  property: PropertyWhereUniqueInput
+  ticketIds: [ID!]
+}
+
+type MarketSkuInfo {
+  sku: String!
+  imageUrl: String!
+}
+
+type GetInvoiceByUserOutput {
+  invoices: [Invoice!]!
+  skuInfo: [MarketSkuInfo!]!
+}
+
 type unauthenticateUserOutput {
   """
   `true` when unauthentication succeeds.
@@ -75174,6 +75192,7 @@ type Query {
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
+  executeGetInvoiceByUser(data: GetInvoiceByUserInput!): GetInvoiceByUserOutput
 
   """The version of the Keystone application serving this API."""
   appVersion: String

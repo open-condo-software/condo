@@ -14,6 +14,7 @@ const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplac
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
 const { REGISTER_INVOICE_MUTATION } = require('@condo/domains/marketplace/gql')
+const { GET_INVOICE_BY_USER_MUTATION } = require('@condo/domains/marketplace/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const InvoiceContext = generateServerUtils(InvoiceContextGQL)
@@ -37,6 +38,19 @@ async function registerInvoice (context, data) {
     })
 }
 
+async function getInvoiceByUser (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_INVOICE_BY_USER_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getInvoiceByUser',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -48,5 +62,6 @@ module.exports = {
     MarketItemPrice,
     MarketPriceScope,
     registerInvoice,
+    getInvoiceByUser,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
