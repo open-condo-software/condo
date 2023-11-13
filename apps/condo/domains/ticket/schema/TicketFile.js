@@ -8,6 +8,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const FileAdapter = require('@condo/domains/common/utils/fileAdapter')
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
+const { convertFileNameToUTF8 } = require('@condo/domains/common/utils/fixFileNameEncoding')
 const { addOrganizationFieldPlugin } = require('@condo/domains/organization/schema/plugins/addOrganizationFieldPlugin')
 const access = require('@condo/domains/ticket/access/TicketFile')
 
@@ -37,6 +38,12 @@ const TicketFile = new GQLListSchema('TicketFile', {
         },
     },
     hooks: {
+        resolveInput: async ({ resolvedData }) => {
+            if (resolvedData['file']) {
+                resolvedData['file'].originalFilename = convertFileNameToUTF8(resolvedData['file'].originalFilename)
+            }
+            return resolvedData
+        },
         afterChange: fileMetaAfterChange,
         afterDelete: async ({ existingItem }) => {
             if (existingItem.file) {
