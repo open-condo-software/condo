@@ -88,6 +88,9 @@ export const CreateInvoiceForm: React.FC = () => {
     }), [CopiedLinkMessage, CopyLinkMessage, SuccessNotificationDescription, intl])
 
     const handleCreateInvoice = useCallback(async (values) => {
+        console.log('values', values)
+        return
+
         let newInvoiceData = {}
 
         const contact = get(values, 'contact')

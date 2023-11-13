@@ -395,8 +395,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
         },
     })
 
-    const groups = []
-
+    const marketItemGroups = []
     for (const scope of marketPriceScopes) {
         const category = scope.marketItemPrice.marketItem.marketCategory
         const key = category.parentCategory ? category.parentCategory.id + category.id : category.id
@@ -418,17 +417,16 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             key: marketItem.id,
         }
 
-        const existedGroup = groups.find(group => group.key === key)
+        const existedGroup = marketItemGroups.find(group => group.key === key)
         if (existedGroup) {
             existedGroup.options.push(item)
         } else {
-            groups.push({ key, label, options: [item] })
+            marketItemGroups.push({ key, label, options: [item] })
         }
     }
+    marketItemGroups.sort((a, b) => a.key > b.key ? 1 : -1)
 
-    groups.sort((a, b) => a.key > b.key ? 1 : -1)
-
-    const moneyRender = getMoneyRender(intl, FromMessage)
+    const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage), [])
 
     return (
         <Form.List name='rows'>
@@ -451,7 +449,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 allowClear
                                                 disabled={disabled}
                                                 placeholder={ServicePlaceholder}
-                                                options={groups}
+                                                options={marketItemGroups}
                                                 filterOption
                                                 onSelect={(_, option: MarketItemOptionType) => {
                                                     form.setFieldsValue({
@@ -528,6 +526,23 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             <Input
                                                 disabled={disabled}
                                                 addonAfter={currencySymbol}
+                                                onChange={e => {
+                                                    const value = get(e, 'target.value')
+                                                    if (!value) return
+
+                                                    const splittedValue = value.split(' ')
+                                                    const isMin = splittedValue.length === 2 && splittedValue[0] === FromMessage
+
+                                                    form.setFieldsValue({
+                                                        rows: {
+                                                            ...form.getFieldValue('rows'),
+                                                            [marketItemForm.name]: {
+                                                                ...form.getFieldValue(['rows', marketItemForm.name]),
+                                                                isMin,
+                                                            },
+                                                        },
+                                                    })
+                                                }}
                                             />
                                         </FormItemWithCustomWarningColor>
                                     </Col>
