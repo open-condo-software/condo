@@ -8,14 +8,11 @@ import pickBy from 'lodash/pickBy'
 import React, { CSSProperties, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Tooltip } from '@open-condo/ui'
 
 import { getDateRender, getTextRender } from '@condo/domains/common/components/Table/Renders'
 import { colors } from '@condo/domains/common/constants/style'
 import { fontSizes } from '@condo/domains/common/constants/style'
 import { METER_PAGE_TYPES, MeterPageTypes } from '@condo/domains/meter/utils/clientSchema'
-
-import type { MeterResourceOwner } from '@app/condo/schema'
 
 const inputNumberCSS = css`
   & .ant-input-number-handler-wrap {
@@ -50,7 +47,7 @@ const METER_READING_INPUT_ADDON_STYLE: CSSProperties = {
     color: colors.sberGrey[6],
 }
 
-const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings, disabled = false }) => {
+const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings }) => {
     const intl = useIntl()
     const AddMeterReadingPlaceholderMessage = intl.formatMessage({ id: 'pages.condo.meter.create.AddMeterReadingPlaceholder' })
 
@@ -85,7 +82,6 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings, disa
                 formatter={inputMeterReadingFormatter}
                 parser={inputMeterReadingParser}
                 min={0}
-                disabled={disabled}
             />
             <div style={METER_READING_INPUT_ADDON_STYLE}>
                 {meterResourceMeasure}
@@ -94,7 +90,7 @@ const MeterReadingInput = ({ record, newMeterReadings, setNewMeterReadings, disa
     )
 }
 
-export const useMeterTableColumns = (meterType: MeterPageTypes, meterResourceOwners: Array<MeterResourceOwner>) => {
+export const useMeterTableColumns = (meterType: MeterPageTypes) => {
     const intl = useIntl()
     const AccountMessage = intl.formatMessage({ id: 'pages.condo.meter.Account' })
     const ResourceMessage = intl.formatMessage({ id: 'pages.condo.meter.Resource' })
@@ -108,7 +104,6 @@ export const useMeterTableColumns = (meterType: MeterPageTypes, meterResourceOwn
     const SecondTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff2Message' })
     const ThirdTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff3Message' })
     const FourthTariffMessage = intl.formatMessage({ id: 'pages.condo.meter.Tariff4Message' })
-    const ResourceOwnedByAnotherOrganizationTitle = intl.formatMessage({ id: 'pages.condo.meter.create.resourceOwnedByAnotherOrganization' })
 
     const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
     const [newMeterReadings, setNewMeterReadings] = useState({})
@@ -129,38 +124,13 @@ export const useMeterTableColumns = (meterType: MeterPageTypes, meterResourceOwn
         return meterResource
     }, [tariffNumberMessages])
 
-    const meterReadingRenderer = useCallback((record) => {
-        let isDisabled = false
-
-        const meterResourceOwner = meterResourceOwners
-            .find(meterResourceOwner => meterResourceOwner.resource.id === record.meter.resource.id)
-        if (meterResourceOwner) {
-            isDisabled = meterResourceOwner.organization.id !== record.meter.organization.id
-        }
-
-        if (isDisabled) {
-            return (
-                <Tooltip title={ResourceOwnedByAnotherOrganizationTitle}>
-                    <div>
-                        <MeterReadingInput
-                            record={record}
-                            newMeterReadings={newMeterReadings}
-                            setNewMeterReadings={setNewMeterReadings}
-                            disabled
-                        />
-                    </div>
-                </Tooltip>
-            )
-        }
-
-        return (
-            <MeterReadingInput
-                record={record}
-                newMeterReadings={newMeterReadings}
-                setNewMeterReadings={setNewMeterReadings}
-            />
-        )
-    }, [newMeterReadings, meterResourceOwners, ResourceOwnedByAnotherOrganizationTitle])
+    const meterReadingRenderer = useCallback((record) => (
+        <MeterReadingInput
+            record={record}
+            newMeterReadings={newMeterReadings}
+            setNewMeterReadings={setNewMeterReadings}
+        />
+    ), [newMeterReadings])
     const textRenderer = useMemo(() => getTextRender(), [getTextRender])
     const dateRenderer = useMemo(() => getDateRender(intl), [intl, getDateRender])
 

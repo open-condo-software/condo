@@ -4,8 +4,7 @@ import {
     SortMetersBy,
     Meter as MeterType,
     PropertyMeter as PropertyMeterType,
-    MeterReading as MeterReadingType,
-    PropertyMeterReading as PropertyMeterReadingType, SortPropertyMeterReadingsBy,
+    SortPropertyMeterReadingsBy,
 } from '@app/condo/schema'
 import { Col, ColProps, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -35,7 +34,6 @@ import {
     MeterReading,
     PropertyMeterReading,
     PropertyMeter,
-    MeterResourceOwner,
     METER_PAGE_TYPES,
 } from '@condo/domains/meter/utils/clientSchema'
 import { usePropertyValidations } from '@condo/domains/property/components/BasePropertyForm/usePropertyValidations'
@@ -253,11 +251,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
         where: { id: selectedPropertyId },
     }, { skip: isNull(selectedPropertyId) })
 
-    const { objs: meterResourceOwners } = MeterResourceOwner.useObjects(
-        { where: { addressKey: get(property, 'addressKey') } },
-        { skip: isNull(get(property, 'addressKey', null)) }
-    )
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter, meterResourceOwners)
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
@@ -505,20 +499,12 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
-    const { obj: property } = Property.useObject(
-        { where: { id: selectedPropertyId } },
-        { skip: isNull(selectedPropertyId) }
-    )
-    const { objs: meterResourceOwners } = MeterResourceOwner.useObjects(
-        { where: { addressKey: get(property, 'addressKey') } },
-        { skip: isNull(get(property, 'addressKey', null)) }
-    )
 
     const {
         newMeterReadings,
         setNewMeterReadings,
         tableColumns,
-    } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter, meterResourceOwners)
+    } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter)
 
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId

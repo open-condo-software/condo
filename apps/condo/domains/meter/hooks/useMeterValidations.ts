@@ -73,7 +73,7 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
 
             return Promise.resolve()
         },
-    }), [MeterWithSameNumberIsExistMessage, initialNumber, organizationId])
+    }), [MeterWithSameNumberIsExistMessage, initialNumber, organizationId, refetch])
 
     const meterWithSameAccountNumberInOtherUnitValidation: Rule = useMemo(() => ({
         validator: async (_, value) => {
@@ -96,7 +96,7 @@ export const useMeterValidations = (installationDate: Dayjs, verificationDate: D
 
             return Promise.resolve()
         },
-    }), [MeterWithSameNumberIsExistMessage, organizationId, propertyId, refetch, unitName])
+    }), [MeterWithSameAccountNumberIsExistMessage, organizationId, propertyId, refetch, unitName])
 
     const meterResourceOwnerValidation: Rule = useMemo(() => ({
         validator: async (_, value) => {
