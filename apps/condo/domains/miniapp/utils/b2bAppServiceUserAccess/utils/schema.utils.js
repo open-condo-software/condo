@@ -119,4 +119,6 @@ const generatePermissionFields = ({ config }) => {
 module.exports = {
     generatePermissionFields,
     getSchemaDocForReadOnlyPermissionField,
+    PERMISSION_FIELD,
+    READ_ONLY_PERMISSION_FIELD,
 }
