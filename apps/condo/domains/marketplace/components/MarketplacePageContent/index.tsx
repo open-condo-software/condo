@@ -58,7 +58,7 @@ export const MarketplacePageContent = () => {
         if (!marketplaceIsSetup) {
             return <Tag bgColor={colors.pink['1']} textColor={colors.pink['5']}>{TagText}</Tag>
         }
-    }, [TagText])
+    }, [TagText, marketplaceIsSetup])
 
     const handleGoToSetup = ()=> {
         router.push('/marketplace/setup')
