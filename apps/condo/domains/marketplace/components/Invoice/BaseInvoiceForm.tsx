@@ -440,8 +440,6 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
     const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage), [FromMessage, intl])
 
-    console.log('breakpoints', breakpoints)
-
     return (
         <Form.List name='rows'>
             {(marketItemForms, operation) =>
