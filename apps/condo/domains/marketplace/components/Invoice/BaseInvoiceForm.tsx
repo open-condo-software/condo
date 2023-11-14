@@ -847,6 +847,13 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
 
     const [status, setStatus] = useState<typeof INVOICE_STATUSES[number]>(get(initialValues, 'status'))
     const [paymentType, setPaymentType] = useState<typeof INVOICE_PAYMENT_TYPES[number]>(get(initialValues, 'paymentType'))
+    const [submitLoading, setSubmitLoading] = useState<boolean>(false)
+
+    const formAction = useCallback(async (values) => {
+        setSubmitLoading(true)
+        await action(values)
+        setSubmitLoading(false)
+    }, [action])
 
     const isAllFieldsDisabled = get(initialValues, 'status') !== INVOICE_STATUS_DRAFT
 
@@ -859,7 +866,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     return (
         <FormWithAction
             initialValues={initialValues}
-            action={action}
+            action={formAction}
             layout='horizontal'
             colon={false}
             OnCompletedMsg={OnCompletedMsg}
@@ -1081,6 +1088,8 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                     key='submit'
                                     onClick={handleSave}
                                     type='primary'
+                                    loading={submitLoading}
+                                    disabled={submitLoading}
                                 >
                                     {SaveLabel}
                                 </Button>,
