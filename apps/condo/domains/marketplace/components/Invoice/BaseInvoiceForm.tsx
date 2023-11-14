@@ -21,6 +21,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
+import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
@@ -267,7 +268,6 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
     const HasPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerData' })
     const NoPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerNoData' })
 
-
     const [hasPayerData, setHasPayerData] = useState<boolean>(get(initialValues, 'payerData'))
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialValues, 'property'))
     const [property, setProperty] = useState<PropertyType>()
@@ -331,7 +331,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
                             <Row gutter={[0, 40]}>
                                 <Col span={24}>
                                     <Row gutter={[50, 0]}>
-                                        <Col span={20}>
+                                        <Col span={24} md={20}>
                                             <PropertyFormField
                                                 organization={organization}
                                                 setSelectedPropertyId={setSelectedPropertyId}
@@ -339,7 +339,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
                                                 disabled={disabled}
                                             />
                                         </Col>
-                                        <Col span={4}>
+                                        <Col span={24} md={4}>
                                             <UnitNameFormField
                                                 property={property}
                                                 form={form}
@@ -380,6 +380,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
 
     const { requiredValidator } = useValidations()
+    const { breakpoints } = useLayoutContext()
 
     const filterByProperty = useMemo(() => {
         const baseFilterByProperty = { property_is_null: true }
@@ -438,6 +439,8 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const flatMarketOptions = useMemo(() => marketItemGroups.flatMap(group => group.options), [marketItemGroups])
 
     const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage), [FromMessage, intl])
+
+    console.log('breakpoints', breakpoints)
 
     return (
         <Form.List name='rows'>
@@ -591,9 +594,9 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                     </Col>
                                     {
                                         index !== 0 && (
-                                            <Col xs={24} md={2}>
+                                            <Col span={24} md={2}>
                                                 <Typography.Text disabled={disabled} onClick={() => operation.remove(marketItemForm.name)}>
-                                                    <div style={{ paddingTop: '62px' }}>
+                                                    <div style={{ paddingTop: `${breakpoints.DESKTOP_SMALL ? '62px' : '12px'}` }}>
                                                         <Trash size='large' />
                                                     </div>
                                                 </Typography.Text>
@@ -866,7 +869,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
             validateTrigger={FORM_VALIDATE_TRIGGER}
             children={({ handleSave, form }) => (
                 <Row gutter={OUTER_VERTICAL_GUTTER}>
-                    <Col span={20}>
+                    <Col span={24} md={20}>
                         <Row gutter={GROUP_VERTICAL_GUTTER}>
                             <Col span={24}>
                                 <Form.Item
@@ -919,7 +922,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                             </Col>
                         </Row>
                     </Col>
-                    <Col md={20}>
+                    <Col span={24} md={20}>
                         <Form.Item
                             shouldUpdate
                         >
@@ -947,14 +950,14 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
 
                                     return (
                                         <Row gutter={[0, 12]}>
-                                            <Col md={24}>
+                                            <Col span={24}>
                                                 <SubTotalInfo
                                                     label={ServicesChosenLabel}
                                                     total={totalCount}
                                                     totalTextType='primary'
                                                 />
                                             </Col>
-                                            <Col md={24}>
+                                            <Col span={24}>
                                                 <SubTotalInfo
                                                     label={TotalToPayLabel}
                                                     total={moneyRender(totalPrice, hasMinPrice)}
