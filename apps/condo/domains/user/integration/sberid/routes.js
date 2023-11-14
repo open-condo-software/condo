@@ -114,7 +114,7 @@ class SberIdRoutes {
         await req.session.save()
 
         // get on boarding status
-        const { finished } = await getOnBoardingStatus(user)
+        const { finished, created } = await getOnBoardingStatus(user)
 
         // redirect
         if (isNil(redirectUrl) && RESIDENT === user.type) {
@@ -122,7 +122,7 @@ class SberIdRoutes {
             return res.redirect(SBER_ID_CONFIG.residentRedirectUri || '/')
         } else if (isNil(redirectUrl)) {
             // staff entry page
-            return res.redirect(finished ? '/' : '/onboarding')
+            return res.redirect(finished || !created ? '/' : '/onboarding')
         } else {
             // specified redirect page (mobile app case)
             const link = new URL(redirectUrl)

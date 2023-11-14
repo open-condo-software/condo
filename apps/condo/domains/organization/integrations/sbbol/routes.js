@@ -95,11 +95,11 @@ class SbbolRoutes {
             delete req.session[SBBOL_SESSION_KEY]
             await req.session.save()
 
-            const { finished } = await getOnBoardingStatus(user)
+            const { finished, created } = await getOnBoardingStatus(user)
 
             logger.info({ msg: 'SBBOL OK Authenticated', userId: user.id, organizationId: organization.id, employeeId: organizationEmployee.id, data: { finished } })
             if (redirectUrl) return res.redirect(redirectUrl)
-            return res.redirect(finished ? '/' : '/onboarding')
+            return res.redirect(finished || !created ? '/' : '/onboarding')
         } catch (error) {
             logger.error({ msg: 'SBBOL auth-callback error', err: error, reqId })
             return next(error)

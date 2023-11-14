@@ -108,7 +108,7 @@ async function authorizeUser (req, res, context, userId) {
     await req.session.save()
 
     // get on boarding status
-    const { finished } = await getOnBoardingStatus(user)
+    const { finished, created } = await getOnBoardingStatus(user)
 
     // redirect
     if (isNil(redirectUrl) && RESIDENT === user.type) {
@@ -116,7 +116,7 @@ async function authorizeUser (req, res, context, userId) {
         return res.redirect(APPLE_ID_CONFIG.residentRedirectUri || '/')
     } else if (isNil(redirectUrl)) {
         // staff entry page
-        return res.redirect(finished ? '/' : '/onboarding')
+        return res.redirect(finished || !created ? '/' : '/onboarding')
     } else {
         // specified redirect page (mobile app case)
         const link = new URL(redirectUrl)

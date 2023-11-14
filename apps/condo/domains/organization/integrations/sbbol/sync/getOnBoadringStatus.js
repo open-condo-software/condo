@@ -6,7 +6,7 @@ const { getOnBoardingProgress } = require('@condo/domains/onboarding/utils/serve
 
 async function getOnBoardingStatus (user) {
     const onBoarding = await getByCondition('OnBoarding', { user: { id: user.id } })
-    if (!onBoarding) return { finished: false }
+    if (!onBoarding) return { finished: false, created: false }
 
     const onBoardingSteps = await find('OnBoardingStep', { onBoarding: { id: onBoarding.id } })
     const progress = getOnBoardingProgress(onBoardingSteps, onBoarding)
