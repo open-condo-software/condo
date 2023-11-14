@@ -85,6 +85,7 @@ const MarketCategory = new GQLListSchema('MarketCategory', {
         delete: false,
         auth: true,
     },
+    escapeSearch: true,
 })
 
 module.exports = {
