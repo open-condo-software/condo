@@ -12,6 +12,7 @@ const PAYMENT_LINK_QP = {
     successUrlQp: 'su',
     failureUrlQp: 'fu',
     billingReceiptQp: 'br',
+    invoiceQp: 'i',
     currencyCodeQp: 'cc',
     amountQp: 'a',
     periodQp: 'p',

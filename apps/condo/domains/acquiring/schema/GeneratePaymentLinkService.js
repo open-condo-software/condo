@@ -22,6 +22,9 @@ const {
     RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
     RECEIPT_HAVE_INVALID_PAYMENT_MONTH_VALUE,
     RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE,
+    MUTALLY_EXCLUSIVE_DATA,
+    CANNOT_FIND_INVOICE,
+    INVOICE_IS_DELETED,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_LINK_PATH,
@@ -30,6 +33,7 @@ const {
         successUrlQp,
         failureUrlQp,
         billingReceiptQp,
+        invoiceQp,
         currencyCodeQp,
         amountQp,
         periodQp,
@@ -126,6 +130,21 @@ const ERRORS = {
         type: RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE,
         message: 'Cannot generate payment link with invalid "paymentYear" value',
     },
+    MUTALLY_EXCLUSIVE_DATA: {
+        code: BAD_USER_INPUT,
+        type: MUTALLY_EXCLUSIVE_DATA,
+        message: 'Mutually exclusive data was sent',
+    },
+    CANNOT_FIND_INVOICE: (id) => ({
+        code: BAD_USER_INPUT,
+        type: CANNOT_FIND_INVOICE,
+        message: `Cannot find specified invoice with id ${id}`,
+    }),
+    INVOICE_IS_DELETED: (id) => ({
+        code: BAD_USER_INPUT,
+        type: INVOICE_IS_DELETED,
+        message: `Cannot generate payment link with deleted invoice ${id}`,
+    }),
 }
 
 const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkService', {
@@ -140,7 +159,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
         },
         {
             access: true,
-            type: 'input GeneratePaymentLinkInput { dv: Int!, sender: SenderFieldInput!, receipt: BillingReceiptWhereUniqueInput, receiptData: GeneratePaymentLinkReceiptDataInput, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!, callbacks: GeneratePaymentLinkCallbacksInput! }',
+            type: 'input GeneratePaymentLinkInput { dv: Int!, sender: SenderFieldInput!, receipt: BillingReceiptWhereUniqueInput, receiptData: GeneratePaymentLinkReceiptDataInput, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput, invoice: InvoiceWhereUniqueInput, callbacks: GeneratePaymentLinkCallbacksInput! }',
         },
         {
             access: true,
@@ -159,6 +178,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     receipt,
                     receiptData,
                     acquiringIntegrationContext,
+                    invoice,
                     callbacks: { successUrl, failureUrl },
                 } = data
 
@@ -166,10 +186,16 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
-                const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
+                if ([receipt, receiptData, invoice].filter(Boolean).length > 1) {
+                    throw new GQLError(ERRORS.MUTALLY_EXCLUSIVE_DATA, context)
+                }
 
-                if (acquiringContext.deletedAt) {
-                    throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
+                if (receipt || receiptData) {
+                    const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
+
+                    if (acquiringContext.deletedAt) {
+                        throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
+                    }
                 }
 
                 // Stage 2: generate links
@@ -179,7 +205,9 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                 const paymentLinkBaseUrl = new URL(`${conf.SERVER_URL}${PAYMENT_LINK_PATH}`)
 
                 // set common QP
-                paymentLinkBaseUrl.searchParams.set(acquiringIntegrationContextQp, acquiringIntegrationContext.id)
+                if (receipt || receiptData) {
+                    paymentLinkBaseUrl.searchParams.set(acquiringIntegrationContextQp, acquiringIntegrationContext.id)
+                }
                 paymentLinkBaseUrl.searchParams.set(successUrlQp, successUrl)
                 paymentLinkBaseUrl.searchParams.set(failureUrlQp, failureUrl)
 
@@ -260,6 +288,18 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     paymentLinkBaseUrl.searchParams.set(amountQp, amount)
                     paymentLinkBaseUrl.searchParams.set(periodQp, period)
                     paymentLinkBaseUrl.searchParams.set(accountNumberQp, accountNumber)
+                } else if (!isNil(invoice)) {
+                    const invoiceModel = await getById('Invoice', invoice.id)
+
+                    if (isNil(invoiceModel)) {
+                        throw new GQLError(ERRORS.CANNOT_FIND_INVOICE(invoice.id), context)
+                    }
+
+                    if (invoiceModel.deletedAt) {
+                        throw new GQLError(ERRORS.INVOICE_IS_DELETED(invoiceModel.id), context)
+                    }
+
+                    paymentLinkBaseUrl.searchParams.set(invoiceQp, invoiceModel.id)
                 } else {
                     throw new GQLError({ ...ERRORS.EMPTY_RECEIPT_AND_RECEIPT_DATA_VALUES }, context)
                 }
