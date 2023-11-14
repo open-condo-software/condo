@@ -36,6 +36,7 @@ import {
     INVOICE_PAYMENT_TYPES,
 } from '@condo/domains/marketplace/constants'
 import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
+import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -148,7 +149,7 @@ const PropertyFormField = ({ organization, form, disabled, setSelectedPropertyId
         form.setFieldsValue({
             unitName: null,
             unitType: null,
-            propertyId: newPropertyId,
+            property: newPropertyId,
         })
 
         setSelectedPropertyId(newPropertyId)
@@ -159,7 +160,7 @@ const PropertyFormField = ({ organization, form, disabled, setSelectedPropertyId
             label={AddressLabel}
             labelCol={{ span: 24 }}
             required
-            name='propertyId'
+            name='property'
         >
             <PropertyAddressSearchInput
                 organization={organization}
@@ -225,13 +226,13 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
 
     return (
         <Form.Item
-            dependencies={['propertyId', 'unitName', 'unitType']}
+            dependencies={['property', 'unitName', 'unitType']}
         >
             {
                 ({ getFieldsValue }) => {
                     const {
-                        propertyId, unitName, unitType, contact, clientName, clientPhone,
-                    } = getFieldsValue(['propertyId', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone'])
+                        property, unitName, unitType, contact, clientName, clientPhone,
+                    } = getFieldsValue(['property', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone'])
 
                     const value = {
                         id: contact,
@@ -247,7 +248,7 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
                             hasNotResidentTab={false}
                             hideFocusContainer
                             hideTabBar
-                            property={propertyId}
+                            property={property}
                             unitName={unitName}
                             unitType={unitType}
                             contactFormItemProps={{ required: true, labelCol: { span: 24 } }}
@@ -268,7 +269,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
 
 
     const [hasPayerData, setHasPayerData] = useState<boolean>(get(initialValues, 'payerData'))
-    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialValues, 'propertyId'))
+    const [selectedPropertyId, setSelectedPropertyId] = useState<string>(get(initialValues, 'property'))
     const [property, setProperty] = useState<PropertyType>()
 
     const { refetch } = Property.useObject(
@@ -300,7 +301,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
 
                             if (!value) {
                                 form.setFieldsValue({
-                                    propertyId: null,
+                                    property: null,
                                     unitName: null,
                                     unitType: null,
                                     contact: null,
@@ -395,38 +396,48 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
         },
     })
 
-    const marketItemGroups = []
-    for (const scope of marketPriceScopes) {
-        const category = scope.marketItemPrice.marketItem.marketCategory
-        const key = category.parentCategory ? category.parentCategory.id + category.id : category.id
-        const label = category.parentCategory ? `${category.parentCategory.name} / ${category.name}` : category.name
+    const marketItemGroups = useMemo(() => {
+        const marketItemGroups = []
 
-        const marketItem = get(scope, 'marketItemPrice.marketItem')
-        const name = get(marketItem, 'name')
-        const sku = get(marketItem, 'sku')
+        for (const scope of marketPriceScopes) {
+            const category = get(scope, 'marketItemPrice.marketItem.marketCategory')
+            const key = get(category, 'parentCategory') ?
+                get(category, 'parentCategory.id') + get(category, 'id') : get(category, 'id')
+            const label = get(category, 'parentCategory') ?
+                `${get(category, 'parentCategory.name')} / ${get(category, 'name')}` : get(category, 'name')
 
-        const pricesArray = get(scope, 'marketItemPrice.price')
-        const priceObj = get(pricesArray, '0')
-        const price = get(priceObj, 'price')
-        const isMin = get(priceObj, 'isMin')
+            const marketItem = get(scope, 'marketItemPrice.marketItem')
+            const name = get(marketItem, 'name')
+            const pricesArray = get(scope, 'marketItemPrice.price')
+            const priceObj = get(pricesArray, '0')
+            const price = get(priceObj, 'price')
+            const isMin = get(priceObj, 'isMin')
+            const sku = get(marketItem, 'sku')
 
-        const item = {
-            label: name,
-            value: name,
-            toPay: price, isMin, sku,
-            key: marketItem.id,
+            const marketItemOption = {
+                label: name,
+                value: name,
+                toPay: price,
+                isMin,
+                sku,
+                key: marketItem.id,
+            }
+
+            const existedGroup = marketItemGroups.find(group => group.key === key)
+            if (existedGroup) {
+                existedGroup.options.push(marketItemOption)
+            } else {
+                marketItemGroups.push({ key, label, options: [marketItemOption] })
+            }
         }
+        marketItemGroups.sort((a, b) => a.key > b.key ? 1 : -1)
 
-        const existedGroup = marketItemGroups.find(group => group.key === key)
-        if (existedGroup) {
-            existedGroup.options.push(item)
-        } else {
-            marketItemGroups.push({ key, label, options: [item] })
-        }
-    }
-    marketItemGroups.sort((a, b) => a.key > b.key ? 1 : -1)
+        return marketItemGroups
+    }, [marketPriceScopes])
 
-    const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage), [])
+    const flatMarketOptions = useMemo(() => marketItemGroups.flatMap(group => group.options), [marketItemGroups])
+
+    const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage), [FromMessage, intl])
 
     return (
         <Form.List name='rows'>
@@ -459,12 +470,25 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                                 ...form.getFieldValue(['rows', marketItemForm.name]),
                                                                 toPay: option.isMin ? `${FromMessage} ${option.toPay}` : option.toPay,
                                                                 isMin: option.isMin,
-                                                                sku: option.sku,
                                                             },
                                                         },
                                                     })
 
                                                     form.validateFields([['rows', marketItemForm.name, 'toPay']])
+                                                }}
+                                                onChange={text => {
+                                                    const existedMarketItem = flatMarketOptions.find(marketItem => marketItem.label === text)
+                                                    const sku = existedMarketItem ? existedMarketItem.sku : null
+
+                                                    form.setFieldsValue({
+                                                        rows: {
+                                                            ...form.getFieldValue('rows'),
+                                                            [marketItemForm.name]: {
+                                                                ...form.getFieldValue(['rows', marketItemForm.name]),
+                                                                sku,
+                                                            },
+                                                        },
+                                                    })
                                                 }}
                                             />
                                         </Form.Item>
@@ -568,7 +592,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                     {
                                         index !== 0 && (
                                             <Col xs={24} md={2}>
-                                                <Typography.Text onClick={() => operation.remove(marketItemForm.name)}>
+                                                <Typography.Text disabled={disabled} onClick={() => operation.remove(marketItemForm.name)}>
                                                     <div style={{ paddingTop: '62px' }}>
                                                         <Trash size='large' />
                                                     </div>
@@ -736,9 +760,9 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, pay
                     style: { marginRight: '24px' },
                 }}
             >
-                <RadioGroup value={status} onChange={handleValueChange} disabled={isAllFieldsDisabled}>
+                <RadioGroup value={status} onChange={handleValueChange}>
                     <Space size={24} wrap direction='horizontal'>
-                        <Radio value={INVOICE_STATUS_DRAFT}>
+                        <Radio value={INVOICE_STATUS_DRAFT} disabled={isAllFieldsDisabled}>
                             <Typography.Text strong disabled={isAllFieldsDisabled}>{InvoiceStatusDraftLabel}</Typography.Text>
                         </Radio>
                         <Radio value={INVOICE_STATUS_PUBLISHED} disabled={isNotDraftStatusesDisabled}>
@@ -791,27 +815,6 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, pay
     )
 }
 
-type InvoiceRowType = {
-    count: number
-    isMin: boolean
-    name: string
-    toPay: string
-    sku?: string
-}
-
-type InvoiceFormValuesType = {
-    payerData: boolean
-    rows: InvoiceRowType[]
-    paymentType: typeof INVOICE_PAYMENT_TYPES[number]
-    status: typeof INVOICE_STATUSES[number]
-    clientName?: string
-    clientPhone?: string
-    contact?: string
-    propertyId?: string
-    unitName?: string
-    unitType?: string
-}
-
 type BaseInvoiceFormProps = {
     action: (values: InvoiceFormValuesType) => Promise<Invoice>
     organization: Organization
@@ -844,8 +847,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const [status, setStatus] = useState<typeof INVOICE_STATUSES[number]>(get(initialValues, 'status'))
     const [paymentType, setPaymentType] = useState<typeof INVOICE_PAYMENT_TYPES[number]>(get(initialValues, 'paymentType'))
 
-    const isAllFieldsDisabled = status === INVOICE_STATUS_CANCELED ||
-        (paymentType === INVOICE_PAYMENT_TYPE_ONLINE && status === INVOICE_STATUS_PAID)
+    const isAllFieldsDisabled = get(initialValues, 'status') !== INVOICE_STATUS_DRAFT
 
     const currencyCode = get(invoiceContext, 'currencyCode')
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
@@ -895,17 +897,17 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                             </Col>
                             <Col span={24}>
                                 <Form.Item
-                                    dependencies={['propertyId', 'status']}
+                                    dependencies={['property', 'status']}
                                 >
                                     {
                                         ({ getFieldsValue }) => {
-                                            const { propertyId } = getFieldsValue(['propertyId'])
+                                            const { property } = getFieldsValue(['property'])
                                             const disabled = isAllFieldsDisabled || isCreatedByResident ||
                                                 (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
                                             return <ServicesList
                                                 organizationId={organization.id}
-                                                propertyId={propertyId}
+                                                propertyId={property}
                                                 form={form}
                                                 currencySymbol={currencySymbol}
                                                 disabled={disabled}
@@ -999,15 +1001,17 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                             </Col>
                             <Col md={20}>
                                 <Form.Item
-                                    dependencies={['paymentType', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice']}
+                                    dependencies={['paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice']}
                                 >
                                     {
                                         ({ getFieldsValue }) => {
                                             const {
-                                                payerData, propertyId, unitName, unitType, clientName, clientPhone, hasIsMinPrice,
-                                            } = getFieldsValue(['payerData', 'propertyId', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice'])
-                                            const isNoPayerData = payerData && (!propertyId || !unitName || !unitType || !clientName || !clientPhone)
-                                            const isNotDraftStatusesDisabled = isAllFieldsDisabled || hasIsMinPrice || isNoPayerData
+                                                payerData, property, unitName, unitType, clientName, clientPhone, hasIsMinPrice,
+                                            } = getFieldsValue(['payerData', 'property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice'])
+                                            const isNoPayerData = payerData && (!property || !unitName || !unitType || !clientName || !clientPhone)
+                                            const initialStatus = get(initialValues, 'status')
+                                            const isNotDraftStatusesDisabled = hasIsMinPrice || isNoPayerData ||
+                                                initialStatus === INVOICE_STATUS_CANCELED || initialStatus === INVOICE_STATUS_PAID
 
                                             return <StatusRadioGroup
                                                 paymentType={paymentType}
@@ -1025,14 +1029,14 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                         </Row>
                     </Col>
                     <Form.Item
-                        dependencies={['paymentType', 'status', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientName']}
+                        dependencies={['paymentType', 'status', 'payerData', 'property', 'unitName', 'unitType', 'clientName']}
                         noStyle
                     >
                         {
                             ({ getFieldsValue }) => {
                                 const {
-                                    status, paymentType, payerData, propertyId, unitName, unitType, clientPhone,
-                                } = getFieldsValue(['status', 'paymentType', 'payerData', 'propertyId', 'unitName', 'unitType', 'clientPhone'])
+                                    status, paymentType, payerData, property, unitName, unitType, clientPhone,
+                                } = getFieldsValue(['status', 'paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientPhone'])
 
                                 if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE) {
                                     return
@@ -1051,14 +1055,14 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                     )
                                 }
 
-                                if (!propertyId || !unitName || !unitType || !clientPhone) {
+                                if (!property || !unitName || !unitType || !clientPhone) {
                                     return
                                 }
 
                                 return (
                                     <Col md={20}>
                                         <ResidentPaymentAlert
-                                            propertyId={propertyId}
+                                            propertyId={property}
                                             unitName={unitName}
                                             unitType={unitType}
                                             clientPhone={clientPhone}

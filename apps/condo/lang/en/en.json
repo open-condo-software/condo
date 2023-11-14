@@ -2413,5 +2413,5 @@
   "api.marketplace.registerInvoice.error.itemFromOtherOrganization": "Item from other organization. Check line {rowNumber}",
   "marketplace.invoice.newTicket.details": "The paid service ordered",
   "api.marketplace.invoice.error.NoFinishedInvoiceContext": "The organization has not finished the configuration of the marketplace",
-  "api.marketplace.invoice.error.editPublishedForbidden": "Updating of published invoice is forbidden"
+  "api.marketplace.invoice.error.editPublishedForbidden": "Only the status \"Canceled\" and \"INVOICE_STATUS_PAID\" can be updated by the published invoice"
 }

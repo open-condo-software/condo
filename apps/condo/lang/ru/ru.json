@@ -2413,5 +2413,5 @@
   "api.marketplace.registerInvoice.error.itemFromOtherOrganization": "Позиция из другой организации. Проверьте строку {rowNumber}",
   "marketplace.invoice.newTicket.details": "Заказана платная услуга",
   "api.marketplace.invoice.error.NoFinishedInvoiceContext": "Организация не завершила настройку маркетплейса",
-  "api.marketplace.invoice.error.editPublishedForbidden": "Нельзя редактировать готовый к оплате счет"
+  "api.marketplace.invoice.error.editPublishedForbidden": "У счёта в статусе \"Готов к оплате\" можно обновить только статус в значения \"Отменён\" или \"Оплачен\""
 }

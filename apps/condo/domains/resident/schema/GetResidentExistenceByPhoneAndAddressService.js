@@ -11,7 +11,7 @@ const GetResidentExistenceByPhoneAndAddressService = new GQLCustomSchema('GetRes
     types: [
         {
             access: true,
-            type: 'input GetResidentExistenceByPhoneAndAddressInput { dv: Int!, sender: JSON!, phone: String!, propertyId: ID!, unitName: String!, unitType: BuildingUnitSubType! }',
+            type: 'input GetResidentExistenceByPhoneAndAddressInput { dv: Int!, sender: SenderFieldInput!, phone: String!, propertyId: ID!, unitName: String!, unitType: BuildingUnitSubType! }',
         },
         {
             access: true,

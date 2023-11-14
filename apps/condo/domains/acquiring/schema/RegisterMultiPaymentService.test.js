@@ -149,7 +149,6 @@ describe('RegisterMultiPaymentService', () => {
             test('Access allowed if invoices in payload', async () => {
                 const [o10n] = await createTestOrganization(adminClient)
                 const [property] = await createTestProperty(adminClient, o10n)
-
                 const residentClient = await makeClientWithResidentUser()
                 const unitType = FLAT_UNIT_TYPE
                 const unitName = faker.lorem.word()
@@ -210,7 +209,7 @@ describe('RegisterMultiPaymentService', () => {
                     webViewUrl: `${dummyAcquiringIntegration.hostUrl}/pay/${result.multiPaymentId}`,
                     feeCalculationUrl: `${dummyAcquiringIntegration.hostUrl}/api/fee/${result.multiPaymentId}`,
                     directPaymentUrl: `${dummyAcquiringIntegration.hostUrl}/api/pay/${result.multiPaymentId}`,
-                    getCardTokensUrl: `${dummyAcquiringIntegration.hostUrl}/api/clients/${staffClient.user.id}/card-tokens`,
+                    getCardTokensUrl: `${dummyAcquiringIntegration.hostUrl}/api/clients/${residentClient.userAttrs.id}/card-tokens`,
                 })
 
                 const multipayment = await MultiPayment.getOne(adminClient, { id: result.multiPaymentId })
@@ -771,8 +770,9 @@ describe('RegisterMultiPaymentService', () => {
                 )
             })
 
-            test('Should not be able to pay for 3rd user\'s', async () => {
+            test('Resident: should not be able to pay for 3rd user\'s', async () => {
                 const residentClient = await makeClientWithResidentUser()
+                const otherResidentClient = await makeClientWithResidentUser()
                 const [o10n] = await createTestOrganization(adminClient)
                 const [invoiceContext] = await createTestInvoiceContext(adminClient, o10n, dummyAcquiringIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
 
@@ -783,7 +783,7 @@ describe('RegisterMultiPaymentService', () => {
 
                 await expectToThrowGQLError(
                     async () => await registerMultiPaymentByTestClient(
-                        adminClient,
+                        otherResidentClient,
                         null,
                         { invoices: [pick(invoice, 'id')] },
                     ),

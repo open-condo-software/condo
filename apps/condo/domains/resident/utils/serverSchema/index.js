@@ -89,7 +89,6 @@ async function getResidentExistenceByPhoneAndAddress (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write getResidentExistenceByPhoneAndAddress serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_MUTATION,

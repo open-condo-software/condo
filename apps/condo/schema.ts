@@ -22674,7 +22674,7 @@ export type GetPhoneByConfirmPhoneActionTokenOutput = {
 
 export type GetResidentExistenceByPhoneAndAddressInput = {
   dv: Scalars['Int'];
-  sender: Scalars['JSON'];
+  sender: SenderFieldInput;
   phone: Scalars['String'];
   propertyId: Scalars['ID'];
   unitName: Scalars['String'];

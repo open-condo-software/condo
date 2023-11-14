@@ -3,15 +3,110 @@
  */
 
 import {
-    Invoice,
+    Invoice, InvoiceContext,
     InvoiceCreateInput,
     InvoiceUpdateInput,
     QueryAllInvoicesArgs,
 } from '@app/condo/schema'
+import { get, isNull, isUndefined, pickBy } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
+import pick from 'lodash/pick'
+import set from 'lodash/set'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
+import { INVOICE_PAYMENT_TYPES, INVOICE_STATUSES } from '@condo/domains/marketplace/constants'
 import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
+
+
+const RELATIONS = ['property', 'contact', 'ticket', 'context']
+const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
+const IGNORE_FORM_FIELDS = ['payerData', 'toPay']
+
+export type InvoiceRowType = {
+    count: number
+    isMin: boolean
+    name: string
+    toPay: string
+    sku?: string
+}
+
+export type InvoiceFormValuesType = {
+    payerData: boolean
+    rows: InvoiceRowType[]
+    paymentType: typeof INVOICE_PAYMENT_TYPES[number]
+    status: typeof INVOICE_STATUSES[number]
+    clientName?: string
+    clientPhone?: string
+    contact?: string
+    property?: string
+    unitName?: string
+    unitType?: string
+}
+
+export function convertToFormState (invoice: Invoice): InvoiceFormValuesType | undefined {
+    const initialRows = get(invoice, 'rows') && invoice.rows
+        .map(({ count, isMin, name, toPay, sku }) => ({ count, isMin: !!isMin, name, toPay, sku }))
+
+    return {
+        payerData: !!get(invoice, 'contact.id'),
+        paymentType: get(invoice, 'paymentType'),
+        status: get(invoice, 'status'),
+        contact: get(invoice, 'contact.id'),
+        property: get(invoice, 'property.id'),
+        unitName: get(invoice, 'unitName'),
+        unitType: get(invoice, 'unitType'),
+        clientName: get(invoice, 'clientName'),
+        clientPhone: get(invoice, 'clientPhone'),
+        rows: initialRows || [],
+    }
+}
+
+type InvoiceMutationType = InvoiceUpdateInput | InvoiceCreateInput
+
+export function formValuesProcessor (formValues: InvoiceFormValuesType, context: InvoiceContext): InvoiceMutationType {
+    const result: InvoiceMutationType = {}
+
+    for (const key of Object.keys(formValues)) {
+        if (IGNORE_FORM_FIELDS.includes(key)) continue
+        const isRelation = RELATIONS.includes(key)
+
+        if (isRelation) {
+            if (DISCONNECT_ON_NULL.includes(key) && formValues[key] === null) {
+                result[key] = { disconnectAll: true }
+            } else if (formValues[key]) {
+                result[key] = { connect: { id: formValues[key] } }
+            }
+        } else if (!isUndefined(formValues[key])) {
+            if (key === 'rows' && !isNull(formValues[key])) {
+                const rows = formValues[key].map(({ name, toPay, count, sku, isMin }) => {
+                    const requiredFields = { name, toPay: String(toPay), count, isMin }
+                    const otherFields = pickBy({
+                        sku,
+                        currencyCode: context.currencyCode,
+                        vatPercent: context.vatPercent,
+                        salesTaxPercent: context.salesTaxPercent,
+                    }, (value) => !isEmpty(value))
+
+                    return { ...requiredFields, ...otherFields }
+                })
+
+                const toPay = rows.every(row => !row.isMin) ?
+                    rows.reduce((acc, row) => {
+                        acc += +row.toPay * row.count
+                        return acc
+                    }, 0) : 0
+
+                formValues['rows'] = rows
+                result['toPay'] = String(toPay)
+            }
+
+            result[key] = formValues[key]
+        }
+    }
+
+    return result
+}
 
 const {
     useObject,

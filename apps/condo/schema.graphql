@@ -71112,7 +71112,7 @@ type DiscoverServiceConsumersOutput {
 
 input GetResidentExistenceByPhoneAndAddressInput {
   dv: Int!
-  sender: JSON!
+  sender: SenderFieldInput!
   phone: String!
   propertyId: ID!
   unitName: String!

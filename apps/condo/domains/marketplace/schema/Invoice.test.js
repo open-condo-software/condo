@@ -712,6 +712,15 @@ describe('Invoice', () => {
             })
         })
 
+        test(`can update status to ${INVOICE_STATUS_CANCELED} of published invoice`, async () => {
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                status: INVOICE_STATUS_CANCELED,
+            })
+
+            expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
+        })
+
         test('can\'t edit published invoice', async () => {
             const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
@@ -720,7 +729,7 @@ describe('Invoice', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_EDIT_PUBLISHED',
-                message: 'Update of published invoice is forbidden',
+                message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
                 messageForUser: 'api.marketplace.invoice.error.editPublishedForbidden',
             })
         })

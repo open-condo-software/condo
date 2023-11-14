@@ -52,7 +52,7 @@ export const MarketplacePageContent = () => {
 
     const marketplaceIsSetup = invoiceContext && get(invoiceContext, 'status') === INVOICE_CONTEXT_STATUS_FINISHED
     const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
-
+    const canManageInvoices = get(userOrganization, ['link', 'role', 'canManageInvoices'], false)
 
     const RenderNotSetupTag = useMemo(() => {
         if (!marketplaceIsSetup) {
@@ -69,9 +69,13 @@ export const MarketplacePageContent = () => {
             {
                 label: BillsTab,
                 key: BILLS_TAB_KEY,
-                children: <EmptyListView label={BillsEmptyTitle} message={BillsEmptyText} button={
-                    <Button type='primary'>{BillsEmptyButtonText}</Button>
-                }/>,
+                children: <EmptyListView
+                    label={BillsEmptyTitle}
+                    message={BillsEmptyText}
+                    createLabel={BillsEmptyButtonText}
+                    createRoute='/marketplace/invoice/create'
+                    accessCheck={canManageInvoices}
+                />,
             },
             canReadPayments && {
                 label: PaymentsTab,
@@ -87,7 +91,7 @@ export const MarketplacePageContent = () => {
             }]
 
         return result
-    }, [canReadPayments])
+    }, [BillsEmptyButtonText, BillsEmptyText, BillsEmptyTitle, BillsTab, PaymentsEmptyText, PaymentsEmptyTitle, PaymentsTab, ServicesEmptyButtonText, ServicesEmptyText, ServicesEmptyTitle, ServicesTab, canReadPayments])
 
 
     return (
