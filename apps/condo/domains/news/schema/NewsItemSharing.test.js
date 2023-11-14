@@ -36,6 +36,7 @@ describe('NewsItemSharing', () => {
 
         let dummyNewsItem
         let dummyPublishedNewsItem
+        let dummyNewsItemSharing
 
         beforeAll(async () => {
             admin = await makeLoggedInAdminClient()
@@ -70,12 +71,15 @@ describe('NewsItemSharing', () => {
             await createTestNewsItemScope(admin, publishedNewsItem)
             await publishTestNewsItem(admin, publishedNewsItem.id)
 
+            const [newsItemSharing] = await createTestNewsItemSharing(admin, B2BContext, newsItem)
+
             dummyO10n = o10n
             dummyB2BAppNewsSharingConfig = B2BAppNewsSharingConfig
             dummyB2BApp = B2BApp
             dummyB2BContext = B2BContext
             dummyNewsItem = newsItem
             dummyPublishedNewsItem = publishedNewsItem
+            dummyNewsItemSharing = newsItemSharing
         })
 
         describe('create', () => {
@@ -123,54 +127,57 @@ describe('NewsItemSharing', () => {
         })
 
         describe('update', () => {
+
+            const payload = { statusMessage: 'test' }
+
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSharing(admin)
+                const [objCreated] = await createTestNewsItemSharing(admin, dummyB2BContext, dummyNewsItem)
 
-                const [obj, attrs] = await updateTestNewsItemSharing(admin, objCreated.id)
+                const [obj, attrs] = await updateTestNewsItemSharing(admin, objCreated.id, payload)
 
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: admin.user.id }))
+                expect(obj.newsItem.id).toEqual(dummyNewsItem.id)
+                expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
+                expect(obj.statusMessage).toEqual('test')
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
             test('support can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSharing(admin)
+                const [objCreated] = await createTestNewsItemSharing(support, dummyB2BContext, dummyNewsItem)
 
-                const client = await makeClientWithSupportUser()  // TODO(codegen): update SUPPORT client!
-                const [obj, attrs] = await updateTestNewsItemSharing(client, objCreated.id)  // TODO(codegen): write 'support: update NewsItemSharing' test
+                const [obj, attrs] = await updateTestNewsItemSharing(support, objCreated.id, payload)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.newsItem.id).toEqual(dummyNewsItem.id)
+                expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
+                expect(obj.statusMessage).toEqual('test')
             })
 
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSharing(admin)
+            test('staff with permissions can', async () => {
+                const [objCreated] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem)
 
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const [obj, attrs] = await updateTestNewsItemSharing(client, objCreated.id)  // TODO(codegen): write 'user: update NewsItemSharing' test
+                const [obj, attrs] = await updateTestNewsItemSharing(staffWithPermissions, objCreated.id, payload)
 
-                expect(obj.id).toMatch(UUID_RE)
-                expect(obj.dv).toEqual(1)
-                expect(obj.sender).toEqual(attrs.sender)
-                expect(obj.v).toEqual(2)
-                expect(obj.updatedBy).toEqual(expect.objectContaining({ id: client.user.id }))
+                expect(obj.newsItem.id).toEqual(dummyNewsItem.id)
+                expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
+                expect(obj.statusMessage).toEqual('test')
+            })
+
+            test('staff w\\o permissions can\'t', async () => {
+                const [objCreated] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestNewsItemSharing(staffWOPermissions, objCreated.id, payload)
+                })
+            })
+
+            test('user can\'t', async () => {
+                const [objCreated] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem)
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestNewsItemSharing(user, objCreated.id, payload)
+                })
             })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSharing(admin)
-
-                const client = await makeClient()
+                const [objCreated] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem)
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestNewsItemSharing(client, objCreated.id)  // TODO(codegen): write 'anonymous: update NewsItemSharing' test
+                    await updateTestNewsItemSharing(anonymous, objCreated.id, payload)
                 })
             })
         })
@@ -178,73 +185,57 @@ describe('NewsItemSharing', () => {
         describe('hard delete', () => {
             test('admin can\'t', async () => {
                 const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSharing(admin)
+                const [objCreated] = await createTestNewsItemSharing(admin, dummyB2BContext, dummyNewsItem)
 
                 await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await NewsItemSharing.delete(admin, objCreated.id)  // TODO(codegen): write 'admin: delete NewsItemSharing' test
-                })
-            })
-
-            test('user can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSharing(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await NewsItemSharing.delete(client, objCreated.id)  // TODO(codegen): write 'user: delete NewsItemSharing' test
-                })
-            })
-
-            test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [objCreated] = await createTestNewsItemSharing(admin)
-
-                const client = await makeClient()
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await NewsItemSharing.delete(client, objCreated.id)  // TODO(codegen): write 'anonymous: delete NewsItemSharing' test
+                    await NewsItemSharing.delete(admin, objCreated.id)
                 })
             })
         })
 
         describe('read', () => {
             test('admin can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestNewsItemSharing(admin)
+                const objs = await NewsItemSharing.getAll(admin, { id: dummyNewsItemSharing.id })
 
-                const objs = await NewsItemSharing.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
-
-                expect(objs.length).toBeGreaterThanOrEqual(1)
+                expect(objs).toHaveLength(1)
                 expect(objs).toEqual(expect.arrayContaining([
-                    expect.objectContaining({
-                        id: obj.id,
-                        // TODO(codegen): write fields which important to ADMIN access check
-                    }),
+                    expect.objectContaining(dummyNewsItemSharing),
                 ]))
             })
 
-            test('user can', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestNewsItemSharing(admin)
-
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()  // TODO(codegen): create USER client!
-                const objs = await NewsItemSharing.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+            test('support can', async () => {
+                const objs = await NewsItemSharing.getAll(support, { id: dummyNewsItemSharing.id })
 
                 expect(objs).toHaveLength(1)
-                expect(objs[0]).toMatchObject({
-                    id: obj.id,
-                    // TODO(codegen): write fields which important to USER access check
-                })
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining(dummyNewsItemSharing),
+                ]))
             })
 
-            // TODO(codegen): write test for user1 doesn't have access to user2 data if it's applicable
+            test('staff with permissions can', async () => {
+                const objs =    await NewsItemSharing.getAll(staffWithPermissions, { id: dummyNewsItemSharing.id })
+
+                expect(objs).toHaveLength(1)
+                expect(objs).toEqual(expect.arrayContaining([
+                    expect.objectContaining(dummyNewsItemSharing),
+                ]))
+            })
+
+            test('staff w\\o permissions can\'t', async () => {
+                const objs = await NewsItemSharing.getAll(staffWOPermissions, { id: dummyNewsItemSharing.id })
+
+                expect(objs).toHaveLength(0)
+            })
+
+            test('user can\'t', async () => {
+                const objs = await NewsItemSharing.getAll(user, { id: dummyNewsItemSharing.id })
+
+                expect(objs).toHaveLength(0)
+            })
 
             test('anonymous can\'t', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const [obj, attrs] = await createTestNewsItemSharing(admin)
-
-                const client = await makeClient()
                 await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await NewsItemSharing.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })  // TODO(codegen): write 'anonymous: read NewsItemSharing' test
+                    await NewsItemSharing.getAll(anonymous, { id: dummyNewsItemSharing.id })  // TODO(codegen): write 'anonymous: read NewsItemSharing' test
                 })
             })
         })

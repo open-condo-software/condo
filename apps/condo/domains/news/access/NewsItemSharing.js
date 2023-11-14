@@ -21,11 +21,14 @@ async function canReadNewsItemSharings ({ authentication: { item: user } }) {
     if (user.isAdmin || user.isSupport) return {}
 
     return {
-        organization: {
-            OR: [
-                queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
-                queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
-            ],
+        b2bAppContext: {
+            organization: {
+                OR: [
+                    queryOrganizationEmployeeFor(user.id, 'canReadNewsItems'),
+                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadNewsItems'),
+                ],
+                deletedAt: null,
+            },
             deletedAt: null,
         },
     }
@@ -44,7 +47,7 @@ async function canManageNewsItemSharings ({ authentication: { item: user }, orig
         organizationId = get(newsItem, 'organization', null)
     } else if (operation === 'update') {
         if (!itemId) return false
-        const newsItemSharing = await getById('NewsItemSharing', get(originalInput, itemId) )
+        const newsItemSharing = await getById('NewsItemSharing', itemId )
         const newsItem = await getById('NewsItem', newsItemSharing.newsItem)
         organizationId = get(newsItem, 'organization', null)
     }
