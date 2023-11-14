@@ -46,13 +46,15 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
         refetchOnBoarding()
     }, [refetchOnBoarding])
 
+    const shouldRedirectToReports = !onBoarding || onBoarding.completed
+
     useEffect(() => {
         // In some cases user may not have a connected `OnBoarding` record, like after invite with creating new `User` in `InviteNewOrganizationEmployeeService`
         // So, when no `OnBoarding` record is connected, redirect from this page
-        if (!isLoading && (!onBoarding || onBoarding.completed)) {
+        if (!isLoading && shouldRedirectToReports) {
             router.push('/reports')
         }
-    }, [onBoarding, isLoading])
+    }, [shouldRedirectToReports, isLoading])
 
     const sortedOnBoardingSteps = useMemo(() => {
         return onBoardingSteps.sort((leftStep, rightStep) => {
@@ -132,7 +134,7 @@ const OnBoardingPage: IOnBoardingIndexPage = () => {
                 )
             }
             {
-                !isLoading && organizationImportRemoteSystem === SBBOL_IMPORT_NAME && !some(otherSteps, 'completed') && (
+                !isLoading && organizationImportRemoteSystem === SBBOL_IMPORT_NAME && !some(otherSteps, 'completed') && !shouldRedirectToReports && (
                     <WelcomePopup />
                 )
             }
