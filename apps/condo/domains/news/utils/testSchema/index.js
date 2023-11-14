@@ -298,8 +298,6 @@ async function createTestNewsItemSharing (client, b2bAppContext, newsItem, extra
     if (!b2bAppContext || !b2bAppContext.id) throw new Error('no b2bAppContext.id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
-    // TODO(codegen): write createTestNewsItemSharing logic for generate fields
-
     const attrs = {
         dv: 1,
         sender,

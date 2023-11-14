@@ -40,10 +40,12 @@ async function canManageNewsItemSharings ({ authentication: { item: user }, orig
     let organizationId
 
     if (operation === 'create') {
-        organizationId = get(originalInput, ['organization', 'connect', 'id'])
+        const newsItem = await getById('NewsItem', get(originalInput, ['newsItem', 'connect', 'id']) )
+        organizationId = get(newsItem, 'organization', null)
     } else if (operation === 'update') {
         if (!itemId) return false
-        const newsItem = await getById('NewsItem', itemId)
+        const newsItemSharing = await getById('NewsItemSharing', get(originalInput, itemId) )
+        const newsItem = await getById('NewsItem', newsItemSharing.newsItem)
         organizationId = get(newsItem, 'organization', null)
     }
 

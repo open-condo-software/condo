@@ -11,9 +11,10 @@ const {
 const { createTestB2BAppNewsSharingConfig, createTestB2BApp, createTestB2BAppContext } = require('@condo/domains/miniapp/utils/testSchema')
 const { NewsItemSharing, createTestNewsItemSharing, updateTestNewsItemSharing } = require('@condo/domains/news/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
+const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
-const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem } = require('../utils/testSchema')
+const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem, NewsItem } = require('../utils/testSchema')
 
 
 describe('NewsItemSharing', () => {
@@ -24,6 +25,8 @@ describe('NewsItemSharing', () => {
         let support
         let anonymous
         let user
+        let staffWithPermissions
+        let staffWOPermissions
 
         let dummyO10n
 
@@ -38,8 +41,18 @@ describe('NewsItemSharing', () => {
             admin = await makeLoggedInAdminClient()
             support = await makeClientWithSupportUser()
             anonymous = await makeClient()
+            user = await makeClientWithNewRegisteredAndLoggedInUser()
+            staffWOPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
+            staffWithPermissions = await makeClientWithNewRegisteredAndLoggedInUser()
 
             const [o10n] = await createTestOrganization(admin)
+
+            const [canManageNewsItemsRole] = await createTestOrganizationEmployeeRole(admin, o10n, { canManageNewsItems: true, canReadNewsItems: true })
+            await createTestOrganizationEmployee(admin, o10n, staffWithPermissions.user, canManageNewsItemsRole)
+
+            const [emptyRole] = await createTestOrganizationEmployeeRole(admin, o10n)
+            await createTestOrganizationEmployee(admin, o10n, staffWOPermissions.user, emptyRole)
+
             const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin)
             const [B2BApp] = await createTestB2BApp(admin, { newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
             const [B2BContext] = await createTestB2BAppContext(admin, B2BApp, o10n)
@@ -70,22 +83,41 @@ describe('NewsItemSharing', () => {
                 const [obj, attrs] = await createTestNewsItemSharing(admin, dummyB2BContext, dummyNewsItem)
 
                 expectValuesOfCommonFields(obj, attrs, admin)
+                expect(obj.newsItem.id).toEqual(dummyNewsItem.id)
+                expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
             })
 
-            // TODO(codegen): if you do not have any SUPPORT specific tests just remove this block!
             test('support can', async () => {
+                const [obj, attrs] = await createTestNewsItemSharing(support, dummyB2BContext, dummyNewsItem)
 
+                expectValuesOfCommonFields(obj, attrs, support)
+                expect(obj.newsItem.id).toEqual(dummyNewsItem.id)
+                expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
             })
 
-            test('user can', async () => {
+            test('staff with permissions can', async () => {
+                const [obj, attrs] = await createTestNewsItemSharing(staffWithPermissions, dummyB2BContext, dummyNewsItem)
 
+                expectValuesOfCommonFields(obj, attrs, staffWithPermissions)
+                expect(obj.newsItem.id).toEqual(dummyNewsItem.id)
+                expect(obj.b2bAppContext.id).toEqual(dummyB2BContext.id)
+            })
+
+            test('staff w\\o permissions can\'t', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestNewsItemSharing(staffWOPermissions, dummyB2BContext, dummyNewsItem)
+                })
+            })
+
+            test('user can\'t', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await createTestNewsItemSharing(user, dummyB2BContext, dummyNewsItem)
+                })
             })
 
             test('anonymous can\'t', async () => {
-                const client = await makeClient()
-
                 await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestNewsItemSharing(client)  // TODO(codegen): write 'anonymous: create NewsItemSharing' test
+                    await createTestNewsItemSharing(anonymous, dummyB2BContext, dummyNewsItem)
                 })
             })
         })
@@ -222,9 +254,5 @@ describe('NewsItemSharing', () => {
         test('Should have correct dv field (=== 1)', async () => {
             // TODO(codegen): check it!
         })
-    })
-
-    describe('notifications', () => {
-        // TODO(codegen): write notifications tests if you have any sendMessage calls or drop this block!
     })
 })
