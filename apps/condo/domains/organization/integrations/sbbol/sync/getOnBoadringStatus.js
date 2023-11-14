@@ -10,7 +10,7 @@ async function getOnBoardingStatus (user) {
 
     const onBoardingSteps = await find('OnBoardingStep', { onBoarding: { id: onBoarding.id } })
     const progress = getOnBoardingProgress(onBoardingSteps, onBoarding)
-    return { progress, finished: !(progress < ONBOARDING_COMPLETED_PROGRESS) }
+    return { progress, finished: !(progress < ONBOARDING_COMPLETED_PROGRESS), created: true }
 }
 
 module.exports = {
