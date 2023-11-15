@@ -193,7 +193,7 @@ const Meter = new GQLListSchema('Meter', {
         ],
     },
     hooks: {
-        validateInput: async ({ resolvedData, addValidationError, existingItem, context }) => {
+        validateInput: async ({ resolvedData, addValidationError, existingItem, context, operation }) => {
             const newItem = { ...existingItem, ...resolvedData }
             if (newItem.isAutomatic && !newItem.b2bApp) {
                 return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
@@ -221,21 +221,23 @@ const Meter = new GQLListSchema('Meter', {
                 }
             }
 
-            const property = await Property.getOne(context, {
-                id: newItem.property,
-                deletedAt: null,
-            })
-            if (property) {
-                const meterResourceOwner = await MeterResourceOwner.getOne(context, {
-                    addressKey: property.addressKey,
-                    resource: { id: newItem.resource },
+            if (operation === 'create') {
+                const property = await Property.getOne(context, {
+                    id: newItem.property,
                     deletedAt: null,
                 })
+                if (property) {
+                    const meterResourceOwner = await MeterResourceOwner.getOne(context, {
+                        addressKey: property.addressKey,
+                        resource: { id: newItem.resource },
+                        deletedAt: null,
+                    })
 
-                if (meterResourceOwner && meterResourceOwner.organization.id !== newItem.organization) {
-                    throw new GQLError(ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION, context)
+                    if (meterResourceOwner && meterResourceOwner.organization.id !== newItem.organization) {
+                        throw new GQLError(ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION, context)
+                    }
+
                 }
-
             }
         },
         afterChange: async ({ context, operation, originalInput, updatedItem }) => {
