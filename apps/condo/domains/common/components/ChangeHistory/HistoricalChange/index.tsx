@@ -10,7 +10,7 @@ import { BaseChangesType, HistoricalChangeReturnType, HistoricalChangeInputType 
 
 
 const HISTORICAL_CHANGE_GUTTER: RowProps['gutter'] = [12, 12]
-const MESSAGES_VERTICAL_GUTTER: RowProps['gutter'] = [0, 12]
+const MESSAGES_VERTICAL_GUTTER: RowProps['gutter'] = [0, 8]
 
 export const HistoricalChange = <ChangesType extends BaseChangesType> (props: HistoricalChangeInputType<ChangesType>): HistoricalChangeReturnType => {
     const { changesValue, useChangedFieldMessagesOf, labelSpan = 6 } = props

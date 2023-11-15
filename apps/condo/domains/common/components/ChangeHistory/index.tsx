@@ -29,7 +29,7 @@ const TEXT_BUTTON_STYLE: React.CSSProperties = {
     color: colors.green[7],
 }
 const CHANGE_HISTORY_COL_STYLE: React.CSSProperties = { marginTop: '20px' }
-const CHANGE_HISTORY_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
+const CHANGE_HISTORY_VERTICAL_GUTTER: RowProps['gutter'] = [0, 16]
 
 
 export const ChangeHistory = <ChangesType extends BaseChangesType> (props: ChangeHistoryInputType<ChangesType>): ChangeHistoryReturnType => {
