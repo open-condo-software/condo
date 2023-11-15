@@ -14,11 +14,11 @@ const { Payment } = require('./Payment')
 const { PaymentsFilterTemplate } = require('./PaymentsFilterTemplate')
 const { RecurrentPayment } = require('./RecurrentPayment')
 const { RecurrentPaymentContext } = require('./RecurrentPaymentContext')
+const { RegisterMultiPaymentForInvoicesService } = require('./RegisterMultiPaymentForInvoicesService')
 const { RegisterMultiPaymentForOneReceiptService } = require('./RegisterMultiPaymentForOneReceiptService')
 const { RegisterMultiPaymentForVirtualReceiptService } = require('./RegisterMultiPaymentForVirtualReceiptService')
 const { RegisterMultiPaymentService } = require('./RegisterMultiPaymentService')
 const { SumPaymentsService } = require('./SumPaymentsService')
-const { RegisterMultiPaymentForInvoicesService } = require('./RegisterMultiPaymentForInvoicesService')
 /* AUTOGENERATE MARKER <REQUIRE> */
 
 module.exports = {
