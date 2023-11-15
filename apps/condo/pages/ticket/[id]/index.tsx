@@ -28,6 +28,7 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -71,7 +72,6 @@ import {
 } from '@condo/domains/ticket/utils/clientSchema'
 import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchema/Renders'
 import {
-    getTicketCreateMessage,
     getTicketTitleMessage,
 } from '@condo/domains/ticket/utils/helpers'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
@@ -101,8 +101,8 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const LessThanMinuteMessage = intl.formatMessage({ id: 'LessThanMinute' })
     const ResidentCannotReadTicketMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.ResidentCannotReadTicket' })
 
-    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [ticket])
-    const TicketCreationDate = useMemo(() => getTicketCreateMessage(intl, ticket), [ticket])
+    const TicketTitleMessage = useMemo(() => getTicketTitleMessage(intl, ticket), [intl, ticket])
+    const TicketCreationDate = useMemo(() => getObjectCreatedMessage(intl, ticket), [intl, ticket])
 
     const isEmergency = get(ticket, 'isEmergency')
     const isPayable = get(ticket, 'isPayable')

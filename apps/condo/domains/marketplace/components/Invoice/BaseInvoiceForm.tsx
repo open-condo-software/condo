@@ -44,6 +44,8 @@ import { Property } from '@condo/domains/property/utils/clientSchema'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
 
+import { useCancelStatusModal } from '../../hooks/useCancelStatusModal'
+
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 
@@ -727,15 +729,12 @@ const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isC
 const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, paymentType, isCreateForm, form, status, setStatus }) => {
     const intl = useIntl()
     const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus' })
-    const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.draft' })
-    const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.ready' })
-    const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.paid' })
-    const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus.cancelled' })
-    const CancelInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.cancelInvoiceMessage' })
-    const CancelInvoiceDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.cancelInvoiceDescription' })
-    const CancelInvoiceButtonMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.cancelInvoiceButton' })
+    const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.draft' }).toLowerCase()
+    const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.published' }).toLowerCase()
+    const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.paid' }).toLowerCase()
+    const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.canceled' }).toLowerCase()
 
-    const [isCancelModalOpen, setIsCancelModalOpen] = useState<boolean>(false)
+    const { CancelStatusModal, setIsCancelModalOpen } = useCancelStatusModal()
 
     const handleValueChange = useCallback((e) => {
         const value = get(e, 'target.value')
@@ -749,7 +748,7 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, pay
             status: value,
         })
         setStatus(value)
-    }, [form, setStatus])
+    }, [form, setIsCancelModalOpen, setStatus])
 
     const isOnlinePaymentType = paymentType === INVOICE_PAYMENT_TYPE_ONLINE
 
@@ -787,31 +786,14 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, pay
                 name='status'
                 hidden
             />
-            <Modal
-                title={CancelInvoiceMessage}
-                open={isCancelModalOpen}
-                onCancel={() => setIsCancelModalOpen(false)}
-                footer={[
-                    <Button
-                        onClick={() => {
-                            form.setFieldsValue({
-                                status: INVOICE_STATUS_CANCELED,
-                            })
-                            setStatus(INVOICE_STATUS_CANCELED)
-                            setIsCancelModalOpen(false)
-                        }}
-                        key='submit'
-                        type='primary'
-                        color={colors.red[5]}
-                    >
-                        {CancelInvoiceButtonMessage}
-                    </Button>,
-                ]}
-            >
-                <Typography.Text type='secondary'>
-                    {CancelInvoiceDescription}
-                </Typography.Text>
-            </Modal>
+            <CancelStatusModal
+                onButtonClick={() => {
+                    form.setFieldsValue({
+                        status: INVOICE_STATUS_CANCELED,
+                    })
+                    setStatus(INVOICE_STATUS_CANCELED)
+                }}
+            />
         </>
     )
 }

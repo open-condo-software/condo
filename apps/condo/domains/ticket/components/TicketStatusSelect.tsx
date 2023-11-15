@@ -20,15 +20,12 @@ import { getTicketLabel, sortStatusesByType } from '@condo/domains/ticket/utils/
 import { useStatusTransitions } from '../hooks/useStatusTransitions'
 
 
-
-
-
-interface IStyledSelect {
+interface IStatusSelect {
     color: string
     backgroundColor: string
 }
 
-const StyledSelect = styled(Select)<IStyledSelect>`
+export const StatusSelect = styled(Select)<IStatusSelect>`
   min-width: 175px;
   font-weight: 700;
   border-radius: 8px;
@@ -132,7 +129,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
 
     return (
         <>
-            <StyledSelect
+            <StatusSelect
                 color={color}
                 backgroundColor={backgroundColor}
                 disabled={isDisabled}
@@ -146,7 +143,7 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
                 {...props}
             >
                 {options}
-            </StyledSelect>
+            </StatusSelect>
             {cancelTicketModal}
             {deferTicketModal}
         </>

@@ -45,3 +45,22 @@ export const getTimeLeftMessage: (props: {
     }
     return null
 }
+
+export const getObjectCreatedMessage = (intl, object) => {
+    if (!object) {
+        return
+    }
+
+    const dt = dayjs(object.createdAt)
+    if (!dt.isValid()) return
+
+    const formattedDate = intl.formatDate(dt.valueOf(), {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    })
+
+    return `${intl.formatMessage({ id: 'CreatedDate' })} ${formattedDate}`
+}
