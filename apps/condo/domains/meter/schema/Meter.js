@@ -241,14 +241,13 @@ const Meter = new GQLListSchema('Meter', {
             }
         },
         afterChange: async ({ context, operation, originalInput, updatedItem }) => {
-            let hasMeterResourceOwnership = false
             const property = await Property.getOne(context, {
                 id: updatedItem.property,
                 deletedAt: null,
             })
 
             if (property) {
-                hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {
+                const hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {
                     addressKey: property.addressKey,
                     resource: { id: updatedItem.resource },
                     deletedAt: null,
