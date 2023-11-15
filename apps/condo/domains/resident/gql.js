@@ -45,6 +45,13 @@ const DISCOVER_SERVICE_CONSUMERS_MUTATION = gql`
         result: discoverServiceConsumers(data: $data) { status statistics { created residentsFound billingAccountsFound } }
     }
 `
+ 
+const GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY = gql`
+    query getGetResidentExistenceByPhoneAndAddress ($data: GetResidentExistenceByPhoneAndAddressInput!) {
+        result: getResidentExistenceByPhoneAndAddress(data: $data) { hasResident hasResidentOnAddress }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -58,5 +65,6 @@ module.exports = {
     PAYMENT_CATEGORIES_FIELDS,
     SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION,
     DISCOVER_SERVICE_CONSUMERS_MUTATION,
+    GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

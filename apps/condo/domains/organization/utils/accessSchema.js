@@ -9,6 +9,10 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
         isBlocked: false,
     })
 
+    if (!permission && employee) {
+        return true
+    }
+
     if (!employee || !employee.role) {
         return false
     }

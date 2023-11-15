@@ -1,4 +1,4 @@
-import { BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
+import { BuildingMap, BuildingSection, BuildingUnit, BuildingUnitSubType, Property } from '@app/condo/schema'
 import { LabeledValue } from 'antd/lib/select'
 import flattenDeep from 'lodash/flattenDeep'
 import get from 'lodash/get'
@@ -13,10 +13,10 @@ import { TrackingEventPropertiesType } from '@condo/domains/common/components/Tr
 import { getFloorsBySection, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 
 export interface IUnitNameInputProps extends Pick<CustomSelectProps<string>, 'onChange' | 'onSelect'> {
-    property: Property
+    property: Property | { map: BuildingMap }
     placeholder?: string
     allowClear?: boolean
-    loading: boolean
+    loading?: boolean
     disabled?: boolean
     eventName?: string
     eventProperties?: TrackingEventPropertiesType

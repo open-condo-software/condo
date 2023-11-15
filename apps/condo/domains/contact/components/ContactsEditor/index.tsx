@@ -1,7 +1,7 @@
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { BuildingUnitSubType, Contact as ContactType } from '@app/condo/schema'
 import styled from '@emotion/styled'
-import { Col, Form, FormInstance, Row, Tabs } from 'antd'
+import { Col, Form, FormInstance, FormItemProps, Row, Tabs } from 'antd'
 import { Gutter } from 'antd/lib/grid/row'
 import debounce from 'lodash/debounce'
 import find from 'lodash/find'
@@ -58,7 +58,7 @@ export interface IContactEditorProps {
     // Also, this makes usage of the component explicitly, — it's clear, what fields will be set.
     fields: FieldsType,
     value?: ContactValue,
-    onChange: (contact: ContactFields, isNew: boolean) => void,
+    onChange?: (contact: ContactFields, isNew: boolean) => void,
 
     // Composite scope of organization, property and unitName, used to
     // fetch contacts for autocomplete fields.
@@ -70,9 +70,13 @@ export interface IContactEditorProps {
     clientPhone?: string,
     allowLandLine?: boolean,
     disabled?: boolean
-    initialQuery
+    initialQuery?
     hasNotResidentTab?: boolean
     residentTitle?: string
+    hideFocusContainer?: boolean
+    hideTabBar?: boolean
+    contactFormItemProps?: FormItemProps
+    newContactFormItemProps?: FormItemProps
 }
 
 const ContactsInfoFocusContainer = styled(FocusContainer)`
@@ -120,6 +124,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         hasNotResidentTab = true,
         initialQuery,
         residentTitle,
+        hideFocusContainer,
+        hideTabBar,
+        contactFormItemProps,
+        newContactFormItemProps,
+        disabled,
     } = props
 
     const [selectedContact, setSelectedContact] = useState(null)
@@ -309,9 +318,11 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                 contact={contact}
                 onSelect={handleSelectContact}
                 selected={isContactSelected(contact)}
+                contactFormItemProps={contactFormItemProps}
+                disabled={disabled}
             />
         </Col>
-    )), [handleSelectContact, initialContacts, isContactSelected])
+    )), [contactFormItemProps, disabled, handleSelectContact, initialContacts, isContactSelected])
 
     const handleTabChange = useCallback((tab) => {
         triggerOnChange(null, false)
@@ -328,6 +339,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
         !isEmptyInitialNotResidentValue,
     [displayEditableContactFields, initialValue.id, initialValueIsPresentedInFetchedContacts, isEmptyInitialNotResidentValue])
 
+    const Container = useCallback((props) =>
+        hideFocusContainer ? <div {...props} /> : <ContactsInfoFocusContainer {...props} />,
+    [hideFocusContainer])
+
+    const tabBarStyle = useMemo(() =>
+        hideTabBar ? { display: 'none' } : {},
+    [hideTabBar])
+
     if (error) {
         console.warn(error)
         throw error
@@ -335,12 +354,13 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
 
     return (
         <Col span={24}>
-            <ContactsInfoFocusContainer className={className}>
+            <Container className={className}>
                 <Tabs
                     defaultActiveKey={activeTab}
                     activeKey={activeTab}
                     style={TABS_STYLE}
                     onChange={handleTabChange}
+                    tabBarStyle={tabBarStyle}
                 >
                     {
                         (canReadContacts || canManageContacts) && (
@@ -355,6 +375,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                             contactsLoading={contactsLoading}
                                             unitName={unitName}
                                             initialValueWithoutContact={initialValueWithoutContact}
+                                            newContactFormItemProps={newContactFormItemProps}
+                                            disabled={disabled}
                                         />
                                     ) : (
                                         <>
@@ -377,6 +399,8 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                                         contactsLoading={contactsLoading}
                                                                         unitName={unitName}
                                                                         initialValueWithoutContact={initialValueWithoutContact}
+                                                                        newContactFormItemProps={newContactFormItemProps}
+                                                                        disabled={disabled}
                                                                     />
                                                                     {
                                                                         !breakpoints.TABLET_LARGE && (
@@ -400,6 +424,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                                                                         style={BUTTON_STYLE}
                                                                         onClick={handleClickOnPlusButton}
                                                                         icon={<PlusCircleOutlined style={BUTTON_ICON_STYLE}/>}
+                                                                        disabled={disabled}
                                                                     >
                                                                         {AddNewContactLabel}
                                                                     </Button>
@@ -434,7 +459,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
                         )
                     }
                 </Tabs>
-            </ContactsInfoFocusContainer>
+            </Container>
             {/*
                     This is a place for items of external form, this component is embedded into.
                     Why not to use them in place of actual inputs?

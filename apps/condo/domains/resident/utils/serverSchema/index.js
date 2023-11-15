@@ -15,6 +15,7 @@ const { ServiceConsumer: ServiceConsumerGQL } = require('@condo/domains/resident
 const { REGISTER_CONSUMER_SERVICE_MUTATION } = require('@condo/domains/resident/gql')
 const { SEND_MESSAGE_TO_RESIDENT_SCOPES_MUTATION } = require('@condo/domains/resident/gql')
 const { DISCOVER_SERVICE_CONSUMERS_MUTATION } = require('@condo/domains/resident/gql')
+const { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_MUTATION } = require('@condo/domains/resident/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const logger = getLogger('resident/serverSchema')
@@ -84,6 +85,19 @@ async function discoverServiceConsumers (context, data) {
         dataPath: 'result',
     })
 }
+async function getResidentExistenceByPhoneAndAddress (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getResidentExistenceByPhoneAndAddress',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -93,5 +107,6 @@ module.exports = {
     registerConsumerService,
     sendMessageToResidentScopes,
     discoverServiceConsumers,
+    getResidentExistenceByPhoneAndAddress,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

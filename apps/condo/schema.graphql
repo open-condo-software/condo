@@ -67242,6 +67242,8 @@ type InvoiceHistoryRecord {
   ticket: String
   contact: String
   client: String
+  clientName: String
+  clientPhone: String
   status: String
   paymentType: String
   id: ID!
@@ -67352,6 +67354,42 @@ input InvoiceHistoryRecordWhereInput {
   client_not: String
   client_in: [String]
   client_not_in: [String]
+  clientName: String
+  clientName_not: String
+  clientName_contains: String
+  clientName_not_contains: String
+  clientName_starts_with: String
+  clientName_not_starts_with: String
+  clientName_ends_with: String
+  clientName_not_ends_with: String
+  clientName_i: String
+  clientName_not_i: String
+  clientName_contains_i: String
+  clientName_not_contains_i: String
+  clientName_starts_with_i: String
+  clientName_not_starts_with_i: String
+  clientName_ends_with_i: String
+  clientName_not_ends_with_i: String
+  clientName_in: [String]
+  clientName_not_in: [String]
+  clientPhone: String
+  clientPhone_not: String
+  clientPhone_contains: String
+  clientPhone_not_contains: String
+  clientPhone_starts_with: String
+  clientPhone_not_starts_with: String
+  clientPhone_ends_with: String
+  clientPhone_not_ends_with: String
+  clientPhone_i: String
+  clientPhone_not_i: String
+  clientPhone_contains_i: String
+  clientPhone_not_contains_i: String
+  clientPhone_starts_with_i: String
+  clientPhone_not_starts_with_i: String
+  clientPhone_ends_with_i: String
+  clientPhone_not_ends_with_i: String
+  clientPhone_in: [String]
+  clientPhone_not_in: [String]
   status: String
   status_not: String
   status_contains: String
@@ -67479,6 +67517,10 @@ enum SortInvoiceHistoryRecordsBy {
   accountNumber_DESC
   toPay_ASC
   toPay_DESC
+  clientName_ASC
+  clientName_DESC
+  clientPhone_ASC
+  clientPhone_DESC
   status_ASC
   status_DESC
   paymentType_ASC
@@ -67513,6 +67555,8 @@ input InvoiceHistoryRecordUpdateInput {
   ticket: String
   contact: String
   client: String
+  clientName: String
+  clientPhone: String
   status: String
   paymentType: String
   v: Int
@@ -67546,6 +67590,8 @@ input InvoiceHistoryRecordCreateInput {
   ticket: String
   contact: String
   client: String
+  clientName: String
+  clientPhone: String
   status: String
   paymentType: String
   v: Int
@@ -67581,6 +67627,7 @@ type InvoiceRowSchemaField {
   vatPercent: String
   salesTaxPercent: String
   sku: String
+  isMin: Boolean!
 }
 
 input InvoiceRowSchemaFieldInput {
@@ -67591,6 +67638,7 @@ input InvoiceRowSchemaFieldInput {
   vatPercent: String
   salesTaxPercent: String
   sku: String
+  isMin: Boolean!
 }
 
 """ Invoice model contains information about paid items and payer """
@@ -67637,6 +67685,14 @@ type Invoice {
   """ The user who sees the invoice. Must filled with the user of corresponding resident. 
   """
   client: User
+
+  """ Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it 
+  """
+  clientName: String
+
+  """ Inhabitant/customer/person who has a problem. Sometimes we get a problem from an unregistered client, in such cases we have a null inside the `client` and just have something here. Or sometimes clients want to change it 
+  """
+  clientPhone: String
 
   """ Invoice status affects which invoices can be read by residents and which invoices can be managed 
   """
@@ -67740,6 +67796,42 @@ input InvoiceWhereInput {
   contact_is_null: Boolean
   client: UserWhereInput
   client_is_null: Boolean
+  clientName: String
+  clientName_not: String
+  clientName_contains: String
+  clientName_not_contains: String
+  clientName_starts_with: String
+  clientName_not_starts_with: String
+  clientName_ends_with: String
+  clientName_not_ends_with: String
+  clientName_i: String
+  clientName_not_i: String
+  clientName_contains_i: String
+  clientName_not_contains_i: String
+  clientName_starts_with_i: String
+  clientName_not_starts_with_i: String
+  clientName_ends_with_i: String
+  clientName_not_ends_with_i: String
+  clientName_in: [String]
+  clientName_not_in: [String]
+  clientPhone: String
+  clientPhone_not: String
+  clientPhone_contains: String
+  clientPhone_not_contains: String
+  clientPhone_starts_with: String
+  clientPhone_not_starts_with: String
+  clientPhone_ends_with: String
+  clientPhone_not_ends_with: String
+  clientPhone_i: String
+  clientPhone_not_i: String
+  clientPhone_contains_i: String
+  clientPhone_not_contains_i: String
+  clientPhone_starts_with_i: String
+  clientPhone_not_starts_with_i: String
+  clientPhone_ends_with_i: String
+  clientPhone_not_ends_with_i: String
+  clientPhone_in: [String]
+  clientPhone_not_in: [String]
   status: String
   status_not: String
   status_in: [String]
@@ -67831,6 +67923,10 @@ enum SortInvoicesBy {
   contact_DESC
   client_ASC
   client_DESC
+  clientName_ASC
+  clientName_DESC
+  clientPhone_ASC
+  clientPhone_DESC
   status_ASC
   status_DESC
   paymentType_ASC
@@ -67865,6 +67961,8 @@ input InvoiceUpdateInput {
   ticket: TicketRelateToOneInput
   contact: ContactRelateToOneInput
   client: UserRelateToOneInput
+  clientName: String
+  clientPhone: String
   status: String
   paymentType: String
   v: Int
@@ -67895,6 +67993,8 @@ input InvoiceCreateInput {
   ticket: TicketRelateToOneInput
   contact: ContactRelateToOneInput
   client: UserRelateToOneInput
+  clientName: String
+  clientPhone: String
   status: String
   paymentType: String
   v: Int
@@ -71008,6 +71108,20 @@ type DiscoverServiceConsumersOutputStatistics {
 type DiscoverServiceConsumersOutput {
   status: String!
   statistics: DiscoverServiceConsumersOutputStatistics!
+}
+
+input GetResidentExistenceByPhoneAndAddressInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  phone: String!
+  propertyId: ID!
+  unitName: String!
+  unitType: BuildingUnitSubType!
+}
+
+type GetResidentExistenceByPhoneAndAddressOutput {
+  hasResident: Boolean!
+  hasResidentOnAddress: Boolean!
 }
 
 enum OnBoardingType {
@@ -75180,6 +75294,7 @@ type Query {
   """
   predictTransactionClassification(data: PredictTransactionClassificationInput!): PredictTransactionClassificationOutput
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
+  getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput

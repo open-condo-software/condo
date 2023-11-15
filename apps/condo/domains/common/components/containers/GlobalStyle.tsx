@@ -171,6 +171,10 @@ export default function GlobalStyle () {
                 opacity: .5;
               }
 
+              .ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
+                color: ${colors.black}
+              }
+
               .ant-input-affix-wrapper input, .ant-input-affix-wrapper:focus, .ant-input-affix-wrapper-focused {
                 border-color: ${colors.inputBorderHover};
                 box-shadow: none !important;

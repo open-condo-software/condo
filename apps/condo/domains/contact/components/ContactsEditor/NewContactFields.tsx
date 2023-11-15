@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { AutoComplete, Col, Form, InputProps, Row, RowProps } from 'antd'
+import { AutoComplete, Col, Form, FormItemProps, InputProps, Row, RowProps } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { Rule } from 'rc-field-form/lib/interface'
@@ -32,6 +32,8 @@ interface INewContactFieldsFieldsProps {
     activeTab: CONTACT_TYPE
     contactsLoading?: boolean
     unitName?: string
+    newContactFormItemProps?: FormItemProps
+    disabled?: boolean
 }
 
 const FIELD_WRAPPER_COL = { span: 24 }
@@ -59,6 +61,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
     contactsLoading,
     unitName,
     initialValueWithoutContact,
+    newContactFormItemProps,
+    disabled,
 }) => {
     const intl = useIntl()
     const NamePlaceholder = intl.formatMessage({ id: 'contact.Contact.ContactsEditor.Name.placeholder' })
@@ -120,8 +124,8 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
         phone: activeTab === CONTACT_TYPE.RESIDENT ? [phoneValidator, contactExistValidator] : [],
     }), [activeTab, contactExistValidator, phoneValidator])
 
-    const isPhoneDisabled = !unitName
-    const isNameDisabled = !isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked)
+    const isPhoneDisabled = disabled || !unitName
+    const isNameDisabled = disabled || (!isEmpty(contacts) && (!isPhoneFieldFilled || contactWithSamePhoneExistError || !checked))
 
     const inputProps: InputProps = useMemo(() => ({ disabled: isPhoneDisabled }), [isPhoneDisabled])
 
@@ -145,6 +149,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                                 initialValue={get(value, 'phone')}
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={PhoneLabel}
+                                {...newContactFormItemProps}
                             >
                                 <AutoComplete
                                     allowClear
@@ -165,6 +170,7 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                             <Form.Item
                                 wrapperCol={FIELD_WRAPPER_COL}
                                 label={FullNameLabel}
+                                {...newContactFormItemProps}
                             >
                                 <AutoComplete
                                     style={AUTO_COMPLETE_STYLE}
@@ -184,9 +190,10 @@ const NewContactFields: React.FC<INewContactFieldsFieldsProps> = ({
                             <Radio
                                 onChange={handleChecked}
                                 checked={checked}
+                                disabled={disabled}
                             />
                         )}
-                        {displayMinusButton && breakpoints.TABLET_LARGE && (
+                        {displayMinusButton && !disabled && breakpoints.TABLET_LARGE && (
                             <MinusCircle
                                 onClick={onClickMinusButton}
                             />

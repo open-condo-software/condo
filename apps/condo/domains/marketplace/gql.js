@@ -18,7 +18,7 @@ const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIEL
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id parentCategory { id } image { publicUrl } } sku description organization { id } ${COMMON_FIELDS} }`
 const MarketItem = generateGqlQueries('MarketItem', MARKET_ITEM_FIELDS)
 
-const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku } ticket { id } contact { id name phone email unitType unitName } client { id name } status paymentType ${COMMON_FIELDS} }`
+const INVOICE_FIELDS = `{ context { id organization { id } } number property { id address addressKey } unitType unitName accountNumber toPay rows { name toPay count vatPercent salesTaxPercent sku } ticket { id } contact { id name phone email unitType unitName property { id } } clientName clientPhone client { id name } status paymentType ${COMMON_FIELDS} }`
 const Invoice = generateGqlQueries('Invoice', INVOICE_FIELDS)
 
 const MARKET_ITEM_FILE_FIELDS = `{ marketItem { id organization { id } } file { id originalFilename publicUrl mimetype } ${COMMON_FIELDS} }`
@@ -27,7 +27,7 @@ const MarketItemFile = generateGqlQueries('MarketItemFile', MARKET_ITEM_FILE_FIE
 const MARKET_ITEM_PRICE_FIELDS = `{ price { type group name price isMin vatPercent salesTaxPercent } marketItem { id } ${COMMON_FIELDS} }`
 const MarketItemPrice = generateGqlQueries('MarketItemPrice', MARKET_ITEM_PRICE_FIELDS)
 
-const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id parentCategory { id } } } price { type group name price isMin vatPercent salesTaxPercent } } property { id } ${COMMON_FIELDS} }`
+const MARKET_PRICE_SCOPE_FIELDS = `{ marketItemPrice { id marketItem { id name sku organization { id } marketCategory { id name parentCategory { id name } } } price { type group name price isMin vatPercent salesTaxPercent } } property { id } ${COMMON_FIELDS} }`
 const MarketPriceScope = generateGqlQueries('MarketPriceScope', MARKET_PRICE_SCOPE_FIELDS)
 
 const REGISTER_INVOICE_MUTATION = gql`

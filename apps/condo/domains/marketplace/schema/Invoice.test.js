@@ -48,7 +48,7 @@ const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
     makeClientWithResidentUser,
-    makeClientWithStaffUser,
+    makeClientWithStaffUser, createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
 
 let adminClient, supportClient, anonymousClient
@@ -539,6 +539,58 @@ describe('Invoice', () => {
         })
     })
 
+    describe('resolve hook', () => {
+        describe('connect contact to Invoice', () => {
+            it('create and connect contact if client data passed, but contact not passed', async () => {
+                const [property] = await createTestProperty(adminClient, dummyO10n)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const clientPhone = createTestPhone()
+                const clientName = faker.random.alphaNumeric(5)
+
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                    clientName, clientPhone, unitName, unitType,
+                    property: { connect: { id: property.id } },
+                })
+
+                expect(invoice.contact).toBeDefined()
+
+                const contact = invoice.contact
+                expect(contact.name).toEqual(clientName)
+                expect(contact.phone).toEqual(clientPhone)
+                expect(contact.property.id).toEqual(property.id)
+                expect(contact.unitName).toEqual(unitName)
+                expect(contact.unitType).toEqual(unitType)
+            })
+
+            it('connect existed contact if contact founded by passed client data', async () => {
+                const [property] = await createTestProperty(adminClient, dummyO10n)
+                const unitName = faker.random.alphaNumeric(5)
+                const unitType = FLAT_UNIT_TYPE
+                const clientPhone = createTestPhone()
+                const clientName = faker.random.alphaNumeric(5)
+
+                const [contact] = await createTestContact(adminClient, dummyO10n, property, {
+                    unitType, unitName, phone: clientPhone, name: clientName,
+                })
+
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                    clientName, clientPhone, unitName, unitType,
+                    property: { connect: { id: property.id } },
+                })
+
+                expect(invoice.contact).toBeDefined()
+                expect(invoice.contact.id).toEqual(contact.id)
+            })
+
+            it('does not connect contact if no client data passed', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+
+                expect(invoice.contact).toBeNull()
+            })
+        })
+    })
+
     describe('validation', () => {
 
         test('can\'t change online-paid invoice', async () => {
@@ -601,6 +653,7 @@ describe('Invoice', () => {
                 ['toPay', 'String!'],
                 ['count', 'Int!'],
                 ['currencyCode', 'String!'],
+                ['isMin', 'Boolean!'],
             ]
 
             test.each(necessaryFields)('%s', async (fieldToOmit, omittedFieldType) => {
@@ -659,6 +712,15 @@ describe('Invoice', () => {
             })
         })
 
+        test(`can update status to ${INVOICE_STATUS_CANCELED} of published invoice`, async () => {
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                status: INVOICE_STATUS_CANCELED,
+            })
+
+            expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
+        })
+
         test('can\'t edit published invoice', async () => {
             const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
@@ -667,7 +729,7 @@ describe('Invoice', () => {
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_EDIT_PUBLISHED',
-                message: 'Update of published invoice is forbidden',
+                message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
                 messageForUser: 'api.marketplace.invoice.error.editPublishedForbidden',
             })
         })

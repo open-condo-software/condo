@@ -105,6 +105,7 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                 const rows = priceScopes.map((priceScope) => ({
                     name: get(priceScope, ['marketItemPrice', 'marketItem', 'name']),
                     toPay: get(priceScope, ['marketItemPrice', 'price', 0, 'price']),
+                    isMin: get(priceScope, ['marketItemPrice', 'price', 0, 'isMin']),
                     count: get(priceScopesCounts, get(priceScope, 'id'), 0),
                     currencyCode: invoiceContext.currencyCode,
                     vatPercent: get(priceScope, ['marketItemPrice', 'price', 0, 'vatPercent'], get(invoiceContext, 'vatPercent')),
