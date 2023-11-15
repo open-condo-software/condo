@@ -140,6 +140,7 @@ class PaymentLinkRouter {
     }
 
     async handleRequest (req, res) {
+        this.context.req = req
         const isEnabled = await featureToggleManager.isFeatureEnabled(this.context, PAYMENT_LINK)
 
         if (!isEnabled) {

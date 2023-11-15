@@ -787,8 +787,8 @@ describe('Payment', () => {
                 adapter: require('axios/lib/adapters/http'),
                 validateStatus: (status) => status >= 200 && status < 500,
                 maxRedirects: 0,
+                headers: { 'feature-flags': '[["payment-link",true]]' },
             })
-            setFeatureFlag(PAYMENT_LINK, true)
             const res = await axiosClient.get(testPaymentUrl)
 
             expect(res.status).toBe(302)
