@@ -33,7 +33,7 @@ const {
         successUrlQp,
         failureUrlQp,
         billingReceiptQp,
-        invoiceQp,
+        invoicesQp,
         currencyCodeQp,
         amountQp,
         periodQp,
@@ -302,7 +302,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                         throw new GQLError(ERRORS.INVOICE_IS_DELETED(deletedInvoiceModelsIds.join(',')), context)
                     }
 
-                    paymentLinkBaseUrl.searchParams.set(invoiceQp, map(invoicesModels, 'id').join(','))
+                    paymentLinkBaseUrl.searchParams.set(invoicesQp, map(invoicesModels, 'id').join(','))
                 } else {
                     throw new GQLError({ ...ERRORS.EMPTY_RECEIPT_AND_RECEIPT_DATA_VALUES }, context)
                 }

@@ -13,7 +13,7 @@ const {
         successUrlQp,
         failureUrlQp,
         billingReceiptQp,
-        invoiceQp,
+        invoicesQp,
         currencyCodeQp,
         amountQp,
         periodQp,
@@ -24,9 +24,9 @@ const {
     PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const {
-    registerMultiPayment,
     registerMultiPaymentForOneReceipt,
     registerMultiPaymentForVirtualReceipt,
+    registerMultiPaymentForInvoices,
     Payment,
 } = require('@condo/domains/acquiring/utils/serverSchema')
 const { PAYMENT_LINK } = require('@condo/domains/common/constants/featureflags')
@@ -56,9 +56,9 @@ class PaymentLinkRouter {
         return payments.length > 0
     }
 
-    async checkInvoiceAlreadyPaid ({ invoiceId }) {
+    async checkInvoicesAlreadyPaid ({ invoicesIds }) {
         const payments = await Payment.getAll(this.context, {
-            invoice: { id: invoiceId },
+            invoice: { id_in: invoicesIds.split(',') },
             status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
             deletedAt: null,
         })
@@ -76,12 +76,12 @@ class PaymentLinkRouter {
         })
     }
 
-    async createMultiPaymentByInvoice (params) {
-        const { invoiceId } = params
+    async createMultiPaymentByInvoices (params) {
+        const { invoicesIds } = params
 
-        return await registerMultiPayment(this.context, {
+        return await registerMultiPaymentForInvoices(this.context, {
             sender,
-            invoices: [{ id: invoiceId }],
+            invoices: invoicesIds.split(',').map((id) => ({ id })),
         })
     }
 
@@ -158,7 +158,7 @@ class PaymentLinkRouter {
                     res,
                     params,
                     this.virtualReceiptPaymentValidator.bind(this),
-                    this.createMultiPaymentByVirtualReceipt.bind(this)
+                    this.createMultiPaymentByVirtualReceipt.bind(this),
                 )
             } else {
                 if (this.isReceipt(req)) {
@@ -172,17 +172,17 @@ class PaymentLinkRouter {
                         res,
                         params,
                         this.regularReceiptPaymentValidator.bind(this),
-                        this.createMultiPaymentByReceipt.bind(this)
+                        this.createMultiPaymentByReceipt.bind(this),
                     )
-                } else if (this.isInvoice(req)) {
-                    const params = this.extractInvoiceParams(req)
-                    await this.redirectIfAlreadyPaid(res, params, this.checkInvoiceAlreadyPaid.bind(this))
+                } else if (this.isInvoices(req)) {
+                    const params = this.extractInvoicesParams(req)
+                    await this.redirectIfAlreadyPaid(res, params, this.checkInvoicesAlreadyPaid.bind(this))
 
                     return await this.handlePaymentLink(
                         res,
                         params,
-                        this.invoicePaymentValidator.bind(this),
-                        this.createMultiPaymentByInvoice.bind(this)
+                        this.invoicesPaymentValidator.bind(this),
+                        this.createMultiPaymentByInvoices.bind(this),
                     )
                 }
             }
@@ -209,17 +209,17 @@ class PaymentLinkRouter {
     }
 
     isVirtualReceipt (req) {
-        const { billingReceiptId } = this.extractRegularReceiptParams(req)
+        const { billingReceiptId, invoicesIds } = this.extractRegularReceiptParams(req)
 
-        return isNil(billingReceiptId)
+        return isNil(billingReceiptId) && isNil(invoicesIds)
     }
 
     isReceipt (req) {
         return has(req, ['query', billingReceiptQp])
     }
 
-    isInvoice (req) {
-        return has(req, ['query', invoiceQp])
+    isInvoices (req) {
+        return has(req, ['query', invoicesQp])
     }
 
     async redirectIfAlreadyPaid (res, params, alreadyPaidChecker) {
@@ -241,6 +241,7 @@ class PaymentLinkRouter {
         const {
             [acquiringIntegrationContextQp]: acquiringIntegrationContextId,
             [billingReceiptQp]: billingReceiptId,
+            [invoicesQp]: invoicesIds,
             [successUrlQp]: successUrl,
             [failureUrlQp]: failureUrl,
         } = req.query
@@ -248,20 +249,21 @@ class PaymentLinkRouter {
         return {
             acquiringIntegrationContextId,
             billingReceiptId,
+            invoicesIds,
             successUrl,
             failureUrl,
         }
     }
 
-    extractInvoiceParams (req) {
+    extractInvoicesParams (req) {
         const {
-            [invoiceQp]: invoiceId,
+            [invoicesQp]: invoicesIds,
             [successUrlQp]: successUrl,
             [failureUrlQp]: failureUrl,
         } = req.query
 
         return {
-            invoiceId,
+            invoicesIds,
             successUrl,
             failureUrl,
         }
@@ -310,11 +312,11 @@ class PaymentLinkRouter {
         }
     }
 
-    invoicePaymentValidator (params) {
-        const { invoiceId } = params
+    invoicesPaymentValidator (params) {
+        const { invoicesIds } = params
 
-        if (isNil(invoiceId)) {
-            throw new Error('Missing QP: invoiceId')
+        if (isNil(invoicesIds)) {
+            throw new Error('Missing QP: invoicesIds')
         }
     }
 
