@@ -45,28 +45,31 @@ const ERRORS = {
     DUPLICATED_INVOICE: {
         code: BAD_USER_INPUT,
         type: NOT_UNIQUE,
-        message: 'Found duplicated invoices.',
+        message: 'Found duplicated invoices',
     },
     INVOICES_NOT_FOUND: (ids) => ({
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
-        message: `Invoices not found: ${ids.join(',')}`,
+        message: 'Invoices not found: {ids}',
+        messageInterpolation: { ids: ids.join(',') },
     }),
-    DELETED_INVOICES: {
+    DELETED_INVOICES: (ids) => ({
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Some of specified invoices with ids {ids} were deleted, so you cannot pay for them anymore',
-    },
+        messageInterpolation: { ids: ids.join(',') },
+    }),
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS: {
         code: BAD_USER_INPUT,
         type: MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS,
         message: 'Listed serviceConsumers are linked to different acquiring integrations',
     },
-    ACQUIRING_INTEGRATION_IS_DELETED: {
+    ACQUIRING_INTEGRATION_IS_DELETED: (id) => ({
         code: BAD_USER_INPUT,
         type: ACQUIRING_INTEGRATION_IS_DELETED,
         message: 'Cannot pay via deleted acquiring integration with id "{id}"',
-    },
+        messageInterpolation: { id },
+    }),
     UNPUBLISHED_INVOICE: {
         code: BAD_USER_INPUT,
         type: INVOICES_ARE_NOT_PUBLISHED,
@@ -124,10 +127,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
 
                 const deletedInvoicesIds = foundInvoices.filter(({ deletedAt }) => !!deletedAt).map(({ id }) => id)
                 if (deletedInvoicesIds.length) {
-                    throw new GQLError({
-                        ...ERRORS.DELETED_INVOICES,
-                        messageInterpolation: { ids: deletedInvoicesIds.join(',') },
-                    }, context)
+                    throw new GQLError(ERRORS.DELETED_INVOICES(deletedInvoicesIds), context)
                 }
                 const invoicesContexts = await find('InvoiceContext', {
                     deletedAt: null,
@@ -146,10 +146,7 @@ const RegisterMultiPaymentForInvoicesService = new GQLCustomSchema('RegisterMult
                     id: Array.from(acquiringIntegrations)[0],
                 })
                 if (acquiringIntegrationModel.deletedAt) {
-                    throw new GQLError({
-                        ...ERRORS.ACQUIRING_INTEGRATION_IS_DELETED,
-                        messageInterpolation: { id: acquiringIntegrationModel.id },
-                    }, context)
+                    throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_IS_DELETED(acquiringIntegrationModel.id), context)
                 }
 
                 // All invoices must be published
