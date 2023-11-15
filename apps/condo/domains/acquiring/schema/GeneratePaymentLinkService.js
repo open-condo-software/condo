@@ -3,12 +3,12 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { isNil } = require('lodash')
+const { isNil, map } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/GeneratePaymentLinkService')
 const {
@@ -159,7 +159,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
         },
         {
             access: true,
-            type: 'input GeneratePaymentLinkInput { dv: Int!, sender: SenderFieldInput!, receipt: BillingReceiptWhereUniqueInput, receiptData: GeneratePaymentLinkReceiptDataInput, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput, invoice: InvoiceWhereUniqueInput, callbacks: GeneratePaymentLinkCallbacksInput! }',
+            type: 'input GeneratePaymentLinkInput { dv: Int!, sender: SenderFieldInput!, receipt: BillingReceiptWhereUniqueInput, receiptData: GeneratePaymentLinkReceiptDataInput, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput, invoices: [InvoiceWhereUniqueInput!], callbacks: GeneratePaymentLinkCallbacksInput! }',
         },
         {
             access: true,
@@ -178,7 +178,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     receipt,
                     receiptData,
                     acquiringIntegrationContext,
-                    invoice,
+                    invoices,
                     callbacks: { successUrl, failureUrl },
                 } = data
 
@@ -186,7 +186,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
-                if ([receipt, receiptData, invoice].filter(Boolean).length > 1) {
+                if ([receipt, receiptData, invoices].filter(Boolean).length > 1) {
                     throw new GQLError(ERRORS.MUTALLY_EXCLUSIVE_DATA, context)
                 }
 
@@ -288,18 +288,21 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     paymentLinkBaseUrl.searchParams.set(amountQp, amount)
                     paymentLinkBaseUrl.searchParams.set(periodQp, period)
                     paymentLinkBaseUrl.searchParams.set(accountNumberQp, accountNumber)
-                } else if (!isNil(invoice)) {
-                    const invoiceModel = await getById('Invoice', invoice.id)
+                } else if (!isNil(invoices)) {
+                    const invoicesIds = map(invoices, 'id')
+                    const invoicesModels = await find('Invoice', { id_in: invoicesIds })
 
-                    if (isNil(invoiceModel)) {
-                        throw new GQLError(ERRORS.CANNOT_FIND_INVOICE(invoice.id), context)
+                    if (invoicesModels.length < invoices.length) {
+                        const invoicesModelsIds = map(invoicesModels, 'id')
+                        throw new GQLError(ERRORS.CANNOT_FIND_INVOICE(invoicesIds.filter((invoiceId) => !invoicesModelsIds.includes(invoiceId)).join(',')), context)
                     }
 
-                    if (invoiceModel.deletedAt) {
-                        throw new GQLError(ERRORS.INVOICE_IS_DELETED(invoiceModel.id), context)
+                    const deletedInvoiceModelsIds = invoicesModels.reduce((result, invoiceModel) => invoiceModel.deletedAt ? [...result, invoiceModel.id] : result, [])
+                    if (deletedInvoiceModelsIds.length > 0) {
+                        throw new GQLError(ERRORS.INVOICE_IS_DELETED(deletedInvoiceModelsIds.join(',')), context)
                     }
 
-                    paymentLinkBaseUrl.searchParams.set(invoiceQp, invoiceModel.id)
+                    paymentLinkBaseUrl.searchParams.set(invoiceQp, map(invoicesModels, 'id').join(','))
                 } else {
                     throw new GQLError({ ...ERRORS.EMPTY_RECEIPT_AND_RECEIPT_DATA_VALUES }, context)
                 }

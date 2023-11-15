@@ -3,7 +3,7 @@
  */
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
-const { pick } = require('lodash')
+const { map, pick } = require('lodash')
 
 const conf = require('@open-condo/config')
 const {
@@ -142,21 +142,36 @@ describe('GeneratePaymentLinkService', () => {
                 expect(result).toHaveProperty('paymentUrl', paymentLink.toString())
             })
 
-            test('From invoice', async () => {
-                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+            test('From invoices', async () => {
+                const [invoice1] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice2] = await createTestInvoice(adminClient, dummyInvoiceContext)
+
                 const callbackUrls = callbacks()
-                const [result] = await generatePaymentLinkByTestClient(adminClient, null, null, null, callbackUrls, {
-                    invoice: pick(invoice, 'id'),
+
+                const [result1] = await generatePaymentLinkByTestClient(adminClient, null, null, null, callbackUrls, {
+                    invoices: [pick(invoice1, 'id')],
+                })
+                const [result2] = await generatePaymentLinkByTestClient(adminClient, null, null, null, callbackUrls, {
+                    invoices: [pick(invoice1, 'id'), pick(invoice2, 'id')],
                 })
 
-                const paymentLink = new URL(`${hostUrl}/payment-link`)
-                paymentLink.searchParams.set('su', callbackUrls.successUrl)
-                paymentLink.searchParams.set('fu', callbackUrls.failureUrl)
-                paymentLink.searchParams.set('i', invoice.id)
+                const paymentLink1 = new URL(`${hostUrl}/payment-link`)
+                paymentLink1.searchParams.set('su', callbackUrls.successUrl)
+                paymentLink1.searchParams.set('fu', callbackUrls.failureUrl)
+                paymentLink1.searchParams.set('i', invoice1.id)
 
-                expect(result).toBeDefined()
-                expect(result).toHaveProperty('dv', 1)
-                expect(result).toHaveProperty('paymentUrl', paymentLink.toString())
+                expect(result1).toBeDefined()
+                expect(result1).toHaveProperty('dv', 1)
+                expect(result1).toHaveProperty('paymentUrl', paymentLink1.toString())
+
+                const paymentLink2 = new URL(`${hostUrl}/payment-link`)
+                paymentLink2.searchParams.set('su', callbackUrls.successUrl)
+                paymentLink2.searchParams.set('fu', callbackUrls.failureUrl)
+                paymentLink2.searchParams.set('i', `${invoice1.id},${invoice2.id}`)
+
+                expect(result2).toBeDefined()
+                expect(result2).toHaveProperty('dv', 1)
+                expect(result2).toHaveProperty('paymentUrl', paymentLink2.toString())
             })
         })
     })
@@ -196,13 +211,13 @@ describe('GeneratePaymentLinkService', () => {
 
                 const acquiringIntegrationContext = { id: faker.datatype.uuid() }
                 const receipt = { id: faker.datatype.uuid() }
-                const invoice = { id: faker.datatype.uuid() }
+                const invoices = [{ id: faker.datatype.uuid() }]
 
                 const cases = [
                     { extraAttrs: { receipt, receiptData: receiptData() } },
-                    { extraAttrs: { receipt, invoice } },
-                    { extraAttrs: { receiptData: receiptData(), invoice } },
-                    { extraAttrs: { receipt, receiptData: receiptData(), invoice } },
+                    { extraAttrs: { receipt, invoices } },
+                    { extraAttrs: { receiptData: receiptData(), invoices } },
+                    { extraAttrs: { receipt, receiptData: receiptData(), invoices } },
                 ]
 
                 test.each(cases)('%#', async ({ extraAttrs }) => {
@@ -500,13 +515,13 @@ describe('GeneratePaymentLinkService', () => {
 
         describe('Invoice check', () => {
             test('Can\'t create link for un-existent invoice', async () => {
-                const invoice = { id: faker.datatype.uuid() }
+                const invoices = [{ id: faker.datatype.uuid() }, { id: faker.datatype.uuid() }]
                 await expectToThrowGQLError(async () => await generatePaymentLinkByTestClient(adminClient, null, null, pick(acquiringIntegrationContext, 'id'), callbacks(), {
-                    invoice,
+                    invoices,
                 }), {
                     code: 'BAD_USER_INPUT',
                     type: 'CANNOT_FIND_INVOICE',
-                    message: `Cannot find specified invoice with id ${invoice.id}`,
+                    message: `Cannot find specified invoice with id ${map(invoices, 'id').join(',')}`,
                 }, 'result')
             })
 
@@ -514,7 +529,7 @@ describe('GeneratePaymentLinkService', () => {
                 const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
                 await updateTestInvoice(adminClient, invoice.id, { deletedAt: dayjs().toISOString() })
                 await expectToThrowGQLError(async () => await generatePaymentLinkByTestClient(adminClient, null, null, pick(acquiringIntegrationContext, 'id'), callbacks(), {
-                    invoice: pick(invoice, 'id'),
+                    invoices: [pick(invoice, 'id')],
                 }), {
                     code: 'BAD_USER_INPUT',
                     type: 'INVOICE_IS_DELETED',
