@@ -354,7 +354,7 @@ const TicketActionBar = ({
     const id = get(ticket, 'id')
     const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
     const canShareTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
-    const canManageTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
+    const canManageTickets = useMemo(() => get(employee, 'role.canManageTickets'), [employee])
 
     const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
     const isDeletedProperty = !ticket.property && ticket.propertyAddress

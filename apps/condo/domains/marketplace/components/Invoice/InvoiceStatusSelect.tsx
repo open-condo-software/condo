@@ -6,10 +6,9 @@ import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 
 import { INVOICE_STATUS_CANCELED, INVOICE_STATUS_COLORS, INVOICE_STATUS_TRANSITIONS, INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_PAID } from '@condo/domains/marketplace/constants'
+import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { StatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-
-import { useCancelStatusModal } from '../../hooks/useCancelStatusModal'
 
 
 type InvoiceStatusOptionType = {
@@ -36,7 +35,7 @@ const mapStatusToOption = (intl, status, invoicePaymentType): InvoiceStatusOptio
     return mappedStatus
 }
 
-export const InvoiceStatusSelect = ({ invoice, onUpdate, organization, employee, ...props }) => {
+export const InvoiceStatusSelect = ({ invoice, onUpdate, employee }) => {
     const intl = useIntl()
 
     const [isUpdating, setUpdating] = useState(false)
@@ -94,9 +93,9 @@ export const InvoiceStatusSelect = ({ invoice, onUpdate, organization, employee,
                 onChange={handleChange}
                 value={selectedStatus.value}
                 bordered={false}
-                eventName='InvoiceStatusSelect'
                 options={optionsWithSelected}
-                {...props}
+                eventName='InvoiceStatusSelect'
+                data-cy='invoice__status-select'
             />
             <CancelStatusModal
                 onButtonClick={async () => {

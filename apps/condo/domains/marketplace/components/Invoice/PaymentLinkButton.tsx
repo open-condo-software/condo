@@ -4,10 +4,9 @@ import React, { useCallback, useState } from 'react'
 import { CheckCircle, Copy } from '@open-condo/icons'
 import { Button, Space } from '@open-condo/ui'
 
-
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
-const PaymentLinkButton = ({ url, copyMessage, copiedMessage }) => {
+export const PaymentLinkButton = ({ url, copyMessage, copiedMessage }) => {
     const [copied, setCopied] = useState<boolean>()
 
     const handleCopyClick = useCallback(async () => {

@@ -1,55 +1,45 @@
 /** @jsx jsx */
-import {
-    B2BAppGlobalFeature,
-} from '@app/condo/schema'
 import { jsx } from '@emotion/react'
-import { Col, ColProps, notification, Row, RowProps, Space, Typography } from 'antd'
-import dayjs from 'dayjs'
-import { compact, get, isEmpty } from 'lodash'
+import { Col, Row, RowProps, Table as AntdTable } from 'antd'
+import { get, isEmpty } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
-import { Edit, Link as LinkIcon } from '@open-condo/icons'
-import { useAuth } from '@open-condo/next/auth'
-import { FormattedMessage } from '@open-condo/next/intl'
+import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Space, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { Table } from '@condo/domains/common/components/Table'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
+import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { InvoiceStatusSelect } from '@condo/domains/marketplace/components/Invoice/InvoiceStatusSelect'
+import { PaymentLinkButton } from '@condo/domains/marketplace/components/Invoice/PaymentLinkButton'
 import { InvoiceReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
-import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
-import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
-import { ShareTicketModal } from '@condo/domains/ticket/components/ShareTicketModal'
-import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketId/TicketResidentFeatures'
-import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
-import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
-import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
-import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
-import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
-import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
 import {
-    useTicketQualityControl,
-} from '@condo/domains/ticket/contexts/TicketQualityControlContext'
-import { useTicketExportToPdfTask } from '@condo/domains/ticket/hooks/useTicketExportToPdfTask'
-import { FavoriteTicketIndicator } from '@condo/domains/ticket/utils/clientSchema/Renders'
+    INVOICE_STATUS_PAID,
+    INVOICE_STATUS_CANCELED,
+} from '@condo/domains/marketplace/constants'
+import { useOrderTableColumns } from '@condo/domains/marketplace/hooks/useOrderTableColumns'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
+import { TicketUserInfoField } from '@condo/domains/ticket/components/TicketId/TicketUserInfoField'
+import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit.js'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
-import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
-const INVOICE_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
-const BIG_VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
+const INVOICE_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
 const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
 const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
+const ELLIPSIS_CONFIG = { rows: 2 }
 
-const InvoiceHeader = ({ invoice, title, refetchInvoice, organization, employee }) => {
+const InvoiceHeader = ({ invoice, title, refetchInvoice, employee }) => {
     const intl = useIntl()
     const InvoiceAuthorMessage = intl.formatMessage({ id: 'Author' })
 
@@ -68,25 +58,21 @@ const InvoiceHeader = ({ invoice, title, refetchInvoice, organization, employee 
             <Col md={12} xs={24}>
                 <Row gutter={SMALL_VERTICAL_GUTTER} align='middle'>
                     <Col span={breakpoints.TABLET_LARGE ? 24 : 22}>
-                        <Typography.Title style={TITLE_STYLE}
-                            level={1}>{title}</Typography.Title>
+                        <Typography.Title level={1}>{title}</Typography.Title>
                     </Col>
                     <Col span={24}>
                         <Row>
                             <Col span={24}>
-                                <Typography.Text style={INVOICE_CREATE_INFO_TEXT_STYLE}>
-                                    <Typography.Text
-                                        style={INVOICE_CREATE_INFO_TEXT_STYLE}
-                                        type='secondary'
-                                    >
+                                <Typography.Text size='small'>
+                                    <Typography.Text type='secondary' size='small'>
                                         {InvoiceCreationDate},&nbsp;{InvoiceAuthorMessage}
                                     </Typography.Text>
                                     <UserNameField user={createdBy}>
                                         {({ name, postfix }) => (
-                                            <Typography.Text style={INVOICE_CREATE_INFO_TEXT_STYLE}>
+                                            <Typography.Text size='small'>
                                                 &nbsp;{name}
                                                 {postfix && (
-                                                    <Typography.Text type='secondary' ellipsis>&nbsp;{postfix}</Typography.Text>
+                                                    <Typography.Text type='secondary' size='small' ellipsis>&nbsp;{postfix}</Typography.Text>
                                                 )}
                                             </Typography.Text>
                                         )}
@@ -105,11 +91,9 @@ const InvoiceHeader = ({ invoice, title, refetchInvoice, organization, employee 
                                 <Row justify='end' align='middle' gutter={BIG_HORIZONTAL_GUTTER}>
                                     <Col>
                                         <InvoiceStatusSelect
-                                            organization={organization}
                                             employee={employee}
                                             invoice={invoice}
                                             onUpdate={handleInvoiceStatusChanged}
-                                            data-cy='invoice__status-select'
                                         />
                                     </Col>
                                 </Row>
@@ -119,11 +103,9 @@ const InvoiceHeader = ({ invoice, title, refetchInvoice, organization, employee 
                         <Row gutter={SMALL_VERTICAL_GUTTER}>
                             <Col span={24}>
                                 <InvoiceStatusSelect
-                                    organization={organization}
                                     employee={employee}
                                     invoice={invoice}
                                     onUpdate={handleInvoiceStatusChanged}
-                                    data-cy='invoice__status-select'
                                 />
                             </Col>
                         </Row>
@@ -134,158 +116,196 @@ const InvoiceHeader = ({ invoice, title, refetchInvoice, organization, employee 
     )
 }
 
+const OrderTable = ({ invoice }) => {
+    const intl = useIntl()
+    const OrderTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.order' })
+
+    const orders = useMemo(() => invoice.rows, [invoice.rows])
+    const orderColumns = useOrderTableColumns()
+
+    return (
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+            <Col span={24}>
+                <Typography.Title level={4}>{OrderTitle}</Typography.Title>
+            </Col>
+            <Col span={24}>
+                <Table
+                    totalRows={orders.length}
+                    loading={false}
+                    dataSource={orders}
+                    columns={orderColumns}
+                    pagination={false}
+                    summary={(pageData) => {
+                        return (
+                            <AntdTable.Summary fixed>
+                                <AntdTable.Summary.Row>
+                                    {
+                                        Array.from({ length: orderColumns.length - 1 }, (_, index) => index)
+                                            .map(index => <AntdTable.Summary.Cell key={index} index={index} colSpan={index} />)
+                                    }
+                                    <AntdTable.Summary.Cell index={orderColumns.length} colSpan={1}>
+                                        от 1213
+                                    </AntdTable.Summary.Cell>
+                                </AntdTable.Summary.Row>
+                            </AntdTable.Summary>
+                        )
+                    }}
+                />
+            </Col>
+        </Row>
+    )
+}
+
+const PaymentTypeField = ({ invoice }) => {
+    const intl = useIntl()
+    const PaymentTypeMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentType' })
+    const PaymentTypeValue = intl.formatMessage({ id: `pages.condo.marketplace.invoice.form.payment.${invoice.paymentType}` })
+    const PaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink' })
+    const CopyMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink.copy' })
+    const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
+
+    const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+
+    return (
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+            <PageFieldRow title={PaymentTypeMessage} ellipsis={ELLIPSIS_CONFIG}>
+                {PaymentTypeValue}
+            </PageFieldRow>
+            {
+                invoice.status !== INVOICE_STATUS_PAID && invoice.status !== INVOICE_STATUS_CANCELED && (
+                    <PageFieldRow align='middle' title={PaymentLinkMessage} ellipsis={ELLIPSIS_CONFIG}>
+                        <Row gutter={[36, 20]} align='middle'>
+                            <Col xs={20} md={10} lg={13} xl={15} xxl={17}>
+                                <Typography.Link href={url} title={url} ellipsis>{url}</Typography.Link>
+                            </Col>
+                            <Col>
+                                <PaymentLinkButton url={url} copyMessage={CopyMessage} copiedMessage={CopiedLinkMessage} />
+                            </Col>
+                        </Row>
+                    </PageFieldRow>
+                )
+            }
+        </Row>
+    )
+}
+
+const AddressField = ({ invoice }) => {
+    const intl = useIntl()
+    const FloorNameMessage = intl.formatMessage({ id: 'pages.condo.property.floor.Name' }).toLowerCase()
+
+    const property = get(invoice, 'property')
+
+    if (isEmpty(property)) {
+        return <Typography.Text>—</Typography.Text>
+    }
+
+    const unitName = get(invoice, 'unitName')
+    const unitType = get(invoice, 'unitType')
+    const address = get(property, 'address')
+    const addressMeta = get(property, 'addressMeta')
+    const UnitTypePrefix = intl.formatMessage({ id: `pages.condo.ticket.field.unitType.${unitType}` })
+    const addressDetails = getAddressDetails({ address, addressMeta })
+    const streetPart = get(addressDetails, 'streetPart')
+    const renderPostfix = get(addressDetails, 'renderPostfix')
+    const ticketUnitMessage = unitName ? `${UnitTypePrefix.toLowerCase()} ${invoice.unitName} ` : ''
+    const { sectionName, floorName, sectionType } = getSectionAndFloorByUnitName(property, unitName, unitType)
+    const SectionTypeMessage = intl.formatMessage({ id: `field.sectionType.${sectionType}` }).toLowerCase()
+    const SectionAndFloorMessage = `(${SectionTypeMessage} ${sectionName}, ${FloorNameMessage} ${floorName})`
+
+    return (
+        <Space size={4} direction='vertical'>
+            <Typography.Text type='secondary'>
+                {renderPostfix}
+            </Typography.Text>
+            <Link href={`/property/${get(invoice, 'property.id')}`}>
+                <Typography.Link>
+                    {streetPart}
+                </Typography.Link>
+            </Link>
+            <Typography.Paragraph>
+                <Typography.Text>{ticketUnitMessage}</Typography.Text>
+                <Typography.Text>{SectionAndFloorMessage}</Typography.Text>
+            </Typography.Paragraph>
+        </Space>
+    )
+}
+
+const ClientField = ({ invoice }) => {
+    const contactId = get(invoice, ['contact', 'id'])
+
+    const contactUser = useMemo(() => ({
+        name: get(invoice, ['contact', 'name']),
+        phone: get(invoice, ['contact', 'phone']),
+    }), [invoice])
+
+    const clientUser = useMemo(() => ({
+        name: get(invoice, 'clientName'),
+        phone: get(invoice, 'clientPhone'),
+    }), [invoice])
+
+    if (isEmpty(contactUser) && isEmpty(clientUser)) {
+        return <Typography.Text>—</Typography.Text>
+    }
+
+    return contactId
+        ? <TicketUserInfoField
+            user={contactUser}
+            nameLink={`/contact/${contactId}`}
+        />
+        : <Typography.Text>
+            <TicketUserInfoField
+                user={clientUser}
+            />
+        </Typography.Text>
+}
+
+const PayerDataField = ({ invoice }) => {
+    const intl = useIntl()
+    const PayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.payerData' })
+    const AddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.address' })
+    const ContactMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.contact' })
+
+    return (
+        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+            <Col span={24}>
+                <Typography.Title level={4}>{PayerDataMessage}</Typography.Title>
+            </Col>
+            <PageFieldRow title={AddressMessage} ellipsis={ELLIPSIS_CONFIG}>
+                <AddressField invoice={invoice} />
+            </PageFieldRow>
+            <PageFieldRow title={ContactMessage} ellipsis={ELLIPSIS_CONFIG}>
+                <ClientField invoice={invoice} />
+            </PageFieldRow>
+        </Row>
+    )
+}
+
 
 const InvoiceActionBar = ({
-    ticket,
-    organization,
+    invoice,
     employee,
 }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
-    const AttachCallToTicketMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket' })
-    const NotificationMessage = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.message' })
-    const NotificationDescription = intl.formatMessage({ id: 'ticket.callRecord.attachCallRecordToTicket.notification.description' })
 
-    const timeZone = intl.formatters.getDateTimeFormat().resolvedOptions().timeZone
+    const canManageInvoices = useMemo(() => get(employee, 'role.canManageInvoices'), [employee])
+    const disabledUpdateButton = invoice.status === INVOICE_STATUS_PAID || invoice.status === INVOICE_STATUS_CANCELED
 
-    const auth = useAuth() as { user: { id: string } }
-    const user = get(auth, 'user')
-
-    const { breakpoints } = useLayoutContext()
-    const { requestFeature } = useGlobalAppsFeaturesContext()
-    const { isCallActive, connectedTickets } = useActiveCall()
-
-    const id = get(ticket, 'id')
-    const ticketOrganizationId = useMemo(() => get(ticket, 'organization.id'), [ticket])
-    const canShareTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
-    const canManageTickets = useMemo(() => get(employee, 'role.canShareTickets'), [employee])
-
-    const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
-    const isDeletedProperty = !ticket.property && ticket.propertyAddress
-    const disabledEditTicketButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
-    const disabledEditQualityControlButton = ticket.status.id !== STATUS_IDS.COMPLETED && ticket.status.id !== STATUS_IDS.CLOSED
-    const showAttachCallToTicketButton = isCallActive && !connectedTickets.find(ticketId => ticketId === id)
-
-    const { TicketBlanksExportToPdfButton, TicketBlanksExportToPdfModal } = useTicketExportToPdfTask({
-        ticketId: id,
-        where: {
-            id,
-            organization: { id: organization.id },
-            deletedAt: null,
-        },
-        sortBy: [],
-        user,
-        timeZone,
-        locale: intl.locale,
-        eventNamePrefix: 'TicketDetail',
-    })
-
-    const { EditButton: EditQualityControlButton } = useTicketQualityControl()
-
-    const handleAttachCallRecordClick = useCallback(() => {
-        requestFeature({
-            feature: B2BAppGlobalFeature.AttachCallRecordToTicket,
-            ticketId: id,
-            ticketOrganizationId,
-        })
-
-        notification.info({ message: NotificationMessage, description: NotificationDescription })
-    }, [NotificationDescription, NotificationMessage, id, requestFeature, ticketOrganizationId])
-
-    return (
+    return canManageInvoices && (
         <ActionBar
             actions={[
-                showAttachCallToTicketButton && (
+                <Link key='update' href={`/marketplace/invoice/${invoice.id}/update`}>
                     <Button
-                        key='attachCallRecord'
-                        id='TicketIndexAttachCallRecord'
-                        icon={<LinkIcon size='medium'/>}
+                        disabled={disabledUpdateButton}
                         type='primary'
-                        onClick={handleAttachCallRecordClick}
+                        icon={<Edit size='medium'/>}
+                        data-cy='ticket__update-link'
                     >
-                        {AttachCallToTicketMessage}
+                        {UpdateMessage}
                     </Button>
-                ),
-                canManageTickets && (
-                    <Link key='update' href={`/ticket/${ticket.id}/update`}>
-                        <Button
-                            disabled={disabledEditTicketButton}
-                            type='secondary'
-                            icon={<Edit size='medium'/>}
-                            data-cy='ticket__update-link'
-                        >
-                            {UpdateMessage}
-                        </Button>
-                    </Link>
-                ),
-                breakpoints.TABLET_LARGE && <>
-                    <TicketBlanksExportToPdfButton/>
-                    {TicketBlanksExportToPdfModal}
-                </>,
-                canShareTickets && (
-                    <ShareTicketModal
-                        key='share'
-                        organization={organization}
-                        date={get(ticket, 'createdAt')}
-                        number={get(ticket, 'number')}
-                        details={get(ticket, 'details')}
-                        id={id}
-                        locale={get(organization, 'country')}
-                    />
-                ),
-                ticket.qualityControlValue && (
-                    <EditQualityControlButton
-                        key='editQuality'
-                        disabled={disabledEditQualityControlButton}
-                    />
-                ),
+                </Link>,
             ]}
         />
-    )
-}
-
-const INVOICE_CREATE_INFO_TEXT_STYLE: CSSProperties = { margin: 0, fontSize: '12px' }
-const TITLE_STYLE: CSSProperties = { margin: 0 }
-
-export const InvoicePageContent = ({ invoice, title, refetchInvoice, organization, employee }) => {
-    const intl = useIntl()
-
-    const auth = useAuth() as { user: { id: string } }
-    const user = get(auth, 'user')
-    const { breakpoints } = useLayoutContext()
-
-    const id = get(invoice, 'id')
-
-    return (
-        <Row gutter={BIG_VERTICAL_GUTTER}>
-            <Col md={18} xs={24}>
-                <Row gutter={INVOICE_CONTENT_VERTICAL_GUTTER}>
-                    <Col span={24}>
-                        <InvoiceHeader
-                            title={title}
-                            invoice={invoice}
-                            refetchInvoice={refetchInvoice}
-                            organization={organization}
-                            employee={employee}
-                        />
-                    </Col>
-                    {/*<Col span={24}>*/}
-                    {/*    <Row gutter={BIG_VERTICAL_GUTTER}>*/}
-                    {/*        <TicketPropertyField ticket={ticket}/>*/}
-                    {/*        <TicketClientField ticket={ticket}/>*/}
-                    {/*    </Row>*/}
-                    {/*</Col>*/}
-
-                    {/*<Col span={24}>*/}
-                    {/*    <InvoiceActionBar*/}
-                    {/*        invoice={invoice}*/}
-                    {/*        organization={organization}*/}
-                    {/*        employee={employee}*/}
-                    {/*    />*/}
-                    {/*</Col>*/}
-                </Row>
-            </Col>
-        </Row>
     )
 }
 
@@ -294,7 +314,7 @@ const InvoiceIdPage = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const RawInvoiceTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' })
 
-    const { link, organization, loading: employeeLoading } = useOrganization()
+    const { link, loading: employeeLoading } = useOrganization()
     const router = useRouter()
     const { query: { id } } = router as { query: { [key: string]: string } }
 
@@ -305,7 +325,7 @@ const InvoiceIdPage = () => {
     const InvoiceTitleMessage = RawInvoiceTitle.replace('{number}', get(invoice, 'number'))
     const loading = invoiceLoading || employeeLoading
 
-    if (!invoice || loading) {
+    if (!invoice) {
         return (
             <LoadingOrErrorPage
                 loading={loading}
@@ -321,13 +341,35 @@ const InvoiceIdPage = () => {
             </Head>
             <PageWrapper>
                 <PageContent>
-                    <InvoicePageContent
-                        invoice={invoice}
-                        title={InvoiceTitleMessage}
-                        refetchInvoice={refetchInvoice}
-                        organization={organization}
-                        employee={link}
-                    />
+                    <Row>
+                        <Col md={18} xs={24}>
+                            <Row gutter={INVOICE_CONTENT_VERTICAL_GUTTER}>
+                                <Col span={24}>
+                                    <InvoiceHeader
+                                        title={InvoiceTitleMessage}
+                                        invoice={invoice}
+                                        refetchInvoice={refetchInvoice}
+                                        employee={link}
+                                    />
+                                </Col>
+                                <Col span={24}>
+                                    <OrderTable invoice={invoice} />
+                                </Col>
+                                <Col span={24}>
+                                    <PaymentTypeField invoice={invoice} />
+                                </Col>
+                                <Col span={24}>
+                                    <PayerDataField invoice={invoice} />
+                                </Col>
+                                <Col span={24}>
+                                    <InvoiceActionBar
+                                        invoice={invoice}
+                                        employee={link}
+                                    />
+                                </Col>
+                            </Row>
+                        </Col>
+                    </Row>
                 </PageContent>
             </PageWrapper>
         </>

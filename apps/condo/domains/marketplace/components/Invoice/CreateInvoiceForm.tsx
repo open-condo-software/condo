@@ -1,4 +1,3 @@
-import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
@@ -13,7 +12,7 @@ import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLI
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
-import { getPaymentLinkNotification } from './PaymentLinkNotification'
+import { getPaymentLinkNotification } from './PaymentLinkButton'
 
 
 export const CreateInvoiceForm: React.FC = () => {
@@ -35,6 +34,10 @@ export const CreateInvoiceForm: React.FC = () => {
     const [registerMultiPayment] = useMutation(REGISTER_MULTI_PAYMENT_MUTATION)
 
     const handleCreateInvoice = useCallback(async (values) => {
+        console.log('values', values)
+
+        return
+
         const payload = Invoice.formValuesProcessor({ ...values, context: invoiceContext.id }, invoiceContext)
         const createdInvoice = await createInvoiceAction(payload)
 

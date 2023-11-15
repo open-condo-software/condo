@@ -17,7 +17,7 @@ import {
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
-import { getPaymentLinkNotification } from './PaymentLinkNotification'
+import { getPaymentLinkNotification } from './PaymentLinkButton'
 
 
 type UpdateInvoiceFormProps = {
@@ -38,7 +38,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
     const [registerMultiPayment] = useMutation(REGISTER_MULTI_PAYMENT_MUTATION)
 
     const updateInvoiceAction = Invoice.useUpdate({}, async () => {
-        await router.push('/marketplace?tab=bills')
+        await router.push(`/marketplace/invoice/${invoice.id}`)
     })
 
     const handleUpdateInvoice = useCallback(async (values) => {

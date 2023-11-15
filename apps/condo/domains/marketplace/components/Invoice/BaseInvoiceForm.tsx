@@ -15,7 +15,7 @@ import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 
 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Alert, Button, Modal, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Alert, Button, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
@@ -36,6 +36,7 @@ import {
     INVOICE_STATUSES,
     INVOICE_PAYMENT_TYPES,
 } from '@condo/domains/marketplace/constants'
+import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
 import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -43,8 +44,6 @@ import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
 import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
-
-import { useCancelStatusModal } from '../../hooks/useCancelStatusModal'
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
