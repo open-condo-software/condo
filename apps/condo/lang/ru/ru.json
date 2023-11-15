@@ -652,7 +652,7 @@
   "pages.condo.meter.create.LastReading": "Предыдущие показания",
   "pages.condo.meter.create.MetersAndReadings": "Приборы учета и показания",
   "pages.condo.meter.create.MeterReadings": "Показания",
-  "pages.condo.meter.create.resourceOwnedByAnotherOrganization": "Этот ресурс больше не принадлежит этой УК. Пожалуйста, обратитесть в техподдержку",
+  "pages.condo.meter.create.resourceOwnedByAnotherOrganization": "Этот ресурс больше не принадлежит этой УК. Пожалуйста, обратитесь в техподдержку",
   "pages.condo.meter.index.PageTitle": "Приборы учета",
   "pages.condo.meter.index.EmptyList.header": "Показания ИПУ пока не добавлены",
   "pages.condo.meter.index.CreateMeterButtonLabel": "Добавить показания",
