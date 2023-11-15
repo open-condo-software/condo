@@ -26,7 +26,7 @@ const AcquiringIntegrationContext = generateGqlQueries('AcquiringIntegrationCont
 const MULTI_PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee amountWithoutExplicitFee currencyCode withdrawnAt cardNumber paymentWay serviceCategory payerEmail serviceCategory transactionId meta status payments { id } integration { id } recurrentPaymentContext { id } ${COMMON_FIELDS} }`
 const MultiPayment = generateGqlQueries('MultiPayment', MULTI_PAYMENT_FIELDS)
 
-const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id property { id address addressKey } context { id organization { id } } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
+const PAYMENT_FIELDS = `{ amount explicitFee explicitServiceCharge implicitFee currencyCode advancedAt accountNumber purpose frozenReceipt receipt { id property { id address addressKey } account { unitName } } invoice { id status property { id address addressKey } context { id organization { id } } } frozenInvoice multiPayment { id transactionId } context { id integration { id name } } status order ${COMMON_FIELDS} period organization { id } recipientBic recipientBankAccount }`
 const Payment = generateGqlQueries('Payment', PAYMENT_FIELDS)
 
 const REGISTER_MULTI_PAYMENT_MUTATION = gql`
@@ -76,6 +76,12 @@ const PAYMENT_BY_LINK_MUTATION = gql`
     }
 `
 
+const REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION = gql`
+    mutation registerMultiPaymentForInvoices ($data: RegisterMultiPaymentForInvoicesInput!) {
+        result: registerMultiPaymentForInvoices(data: $data) { dv multiPaymentId webViewUrl feeCalculationUrl directPaymentUrl anonymousPaymentUrl }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 const EXPORT_PAYMENTS_TO_EXCEL =  gql`
@@ -100,5 +106,6 @@ module.exports = {
     RecurrentPaymentContext,
     RecurrentPayment,
     PAYMENT_BY_LINK_MUTATION,
+    REGISTER_MULTI_PAYMENT_FOR_INVOICES_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
