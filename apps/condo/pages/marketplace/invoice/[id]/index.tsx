@@ -5,7 +5,7 @@ import { get, isEmpty } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -27,6 +27,7 @@ import {
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_CANCELED,
 } from '@condo/domains/marketplace/constants'
+import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { useOrderTableColumns } from '@condo/domains/marketplace/hooks/useOrderTableColumns'
 import { Invoice, MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 import { calculateRowsTotalPrice, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
@@ -180,7 +181,13 @@ const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
     const CopyMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink.copy' })
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
 
-    const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+    const [url, setUrl] = useState<string>()
+    const getPaymentLink = useInvoicePaymentLink()
+
+    useEffect(() => {
+        getPaymentLink(invoice.id)
+            .then(url => setUrl(url))
+    }, [getPaymentLink, invoice.id])
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
@@ -188,7 +195,7 @@ const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
                 {PaymentTypeValue}
             </PageFieldRow>
             {
-                !isTerminalStatus && (
+                !isTerminalStatus && url && (
                     <PageFieldRow align='middle' title={PaymentLinkMessage} ellipsis={ELLIPSIS_CONFIG}>
                         <Row gutter={[36, 20]} align='middle'>
                             <Col xs={20} md={10} lg={13} xl={15} xxl={17}>
