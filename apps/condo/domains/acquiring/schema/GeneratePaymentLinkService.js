@@ -25,6 +25,7 @@ const {
     MUTALLY_EXCLUSIVE_DATA,
     CANNOT_FIND_INVOICE,
     INVOICE_IS_DELETED,
+    INVOICES_ARE_NOT_PUBLISHED,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_LINK_PATH,
@@ -42,6 +43,7 @@ const {
 } = require('@condo/domains/acquiring/constants/links')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -145,6 +147,11 @@ const ERRORS = {
         type: INVOICE_IS_DELETED,
         message: `Cannot generate payment link with deleted invoice ${id}`,
     }),
+    UNPUBLISHED_INVOICE: {
+        code: BAD_USER_INPUT,
+        type: INVOICES_ARE_NOT_PUBLISHED,
+        message: 'Found invoices with not "published" status',
+    },
 }
 
 const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkService', {
@@ -300,6 +307,11 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     const deletedInvoiceModelsIds = invoicesModels.reduce((result, invoiceModel) => invoiceModel.deletedAt ? [...result, invoiceModel.id] : result, [])
                     if (deletedInvoiceModelsIds.length > 0) {
                         throw new GQLError(ERRORS.INVOICE_IS_DELETED(deletedInvoiceModelsIds.join(',')), context)
+                    }
+
+                    // All invoices must be published
+                    if (invoicesModels.some(({ status }) => status !== INVOICE_STATUS_PUBLISHED)) {
+                        throw new GQLError(ERRORS.UNPUBLISHED_INVOICE, context)
                     }
 
                     paymentLinkBaseUrl.searchParams.set(invoicesQp, map(invoicesModels, 'id').join(','))

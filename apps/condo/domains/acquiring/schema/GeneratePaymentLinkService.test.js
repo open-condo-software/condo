@@ -33,7 +33,7 @@ const { createTestBillingIntegration } = require('@condo/domains/billing/utils/t
 const {
     updateTestBillingReceipt,
 } = require('@condo/domains/billing/utils/testSchema')
-const { INVOICE_CONTEXT_STATUS_FINISHED } = require('@condo/domains/marketplace/constants')
+const { INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 const { createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestInvoice, updateTestInvoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -143,8 +143,8 @@ describe('GeneratePaymentLinkService', () => {
             })
 
             test('From invoices', async () => {
-                const [invoice1] = await createTestInvoice(adminClient, dummyInvoiceContext)
-                const [invoice2] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const [invoice1] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
+                const [invoice2] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
                 const callbackUrls = callbacks()
 
@@ -534,6 +534,17 @@ describe('GeneratePaymentLinkService', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'INVOICE_IS_DELETED',
                     message: `Cannot generate payment link with deleted invoice ${invoice.id}`,
+                }, 'result')
+            })
+
+            test('Can\'t create link for unpublished invoice', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                await expectToThrowGQLError(async () => await generatePaymentLinkByTestClient(adminClient, null, null, pick(acquiringIntegrationContext, 'id'), callbacks(), {
+                    invoices: [pick(invoice, 'id')],
+                }), {
+                    code: 'BAD_USER_INPUT',
+                    type: 'INVOICES_ARE_NOT_PUBLISHED',
+                    message: 'Found invoices with not "published" status',
                 }, 'result')
             })
         })
