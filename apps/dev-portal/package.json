@@ -7,7 +7,7 @@
   "scripts": {
     "build:deps": "turbo build --filter=dev-portal^... --filter=!dev-api",
     "dev": "yarn build:deps && next dev & yarn types:watch",
-    "build": "yarn build:deps && next build",
+    "build": "next build",
     "start": "next start",
     "prepare": "node bin/prepare.js",
     "maketypes": "graphql-codegen --config codegen.ts",

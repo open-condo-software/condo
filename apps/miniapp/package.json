@@ -8,7 +8,7 @@
     "dev": "yarn build:deps && node ./../../bin/keystone-dev.js",
     "debug": "node inspect node_modules/.bin/keystone dev --port 3001",
     "build:deps": "turbo build --filter=miniapp^... --filter=!condo",
-    "build": "yarn build:deps && keystone build",
+    "build": "keystone build",
     "start": "keystone start",
     "kmigrator": "./../../bin/kmigrator.py",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",
