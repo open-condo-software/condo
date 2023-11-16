@@ -6,7 +6,7 @@ import { Button, Space } from '@open-condo/ui'
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
-export const CopyButton = ({ url, copyMessage, copiedMessage }) => {
+export const CopyButton = ({ url, copyMessage, copiedMessage, textButton = false }) => {
     const [copied, setCopied] = useState<boolean>()
 
     const handleCopyClick = useCallback(async () => {
@@ -21,6 +21,16 @@ export const CopyButton = ({ url, copyMessage, copiedMessage }) => {
             console.error('Unable to copy to clipboard', e)
         }
     }, [copied, url])
+
+    if (textButton) {
+        return (
+            <Typography.Text style={{ cursor: 'pointer' }} onClick={handleCopyClick} disabled={copied}>
+                <Space size={4}>
+                    {copied ? <CheckCircle size='small' /> : <Copy size='small' />} {copied ? copiedMessage : copyMessage}
+                </Space>
+            </Typography.Text>
+        )
+    }
 
     return (
         <Button

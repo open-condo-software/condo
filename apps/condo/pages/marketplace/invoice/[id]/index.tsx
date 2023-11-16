@@ -195,7 +195,12 @@ const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
                                 <Typography.Link href={url} title={url} ellipsis>{url}</Typography.Link>
                             </Col>
                             <Col>
-                                <CopyButton url={url} copyMessage={CopyMessage} copiedMessage={CopiedLinkMessage} />
+                                <CopyButton
+                                    textButton
+                                    url={url}
+                                    copyMessage={CopyMessage}
+                                    copiedMessage={CopiedLinkMessage}
+                                />
                             </Col>
                         </Row>
                     </PageFieldRow>
