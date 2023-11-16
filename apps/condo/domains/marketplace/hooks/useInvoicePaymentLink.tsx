@@ -16,7 +16,7 @@ export const useInvoicePaymentLink = () => {
                 data: {
                     dv: 1,
                     sender: getClientSideSenderInfo(),
-                    invoice: { id: invoiceId },
+                    invoices: [{ id: invoiceId }],
                     callbacks: {
                         // replace after deciding where to redirect
                         successUrl: 'https://doma.ai',

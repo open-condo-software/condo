@@ -27,6 +27,7 @@ import {
     INVOICE_STATUS_PAID,
     INVOICE_STATUS_CANCELED,
 } from '@condo/domains/marketplace/constants'
+import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { useOrderTableColumns } from '@condo/domains/marketplace/hooks/useOrderTableColumns'
 import { Invoice, MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
@@ -185,9 +186,11 @@ const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
     const getPaymentLink = useInvoicePaymentLink()
 
     useEffect(() => {
-        getPaymentLink(invoice.id)
-            .then(url => setUrl(url))
-    }, [getPaymentLink, invoice.id])
+        if (invoice.status === INVOICE_STATUS_PUBLISHED) {
+            getPaymentLink(invoice.id)
+                .then(url => setUrl(url))
+        }
+    }, [getPaymentLink, invoice.id, invoice.status])
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>
