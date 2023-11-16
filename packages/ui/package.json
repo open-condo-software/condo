@@ -33,7 +33,7 @@
     "build:colors": "find src/colors -mindepth 1 -not -name 'index.ts' -delete && node bin/generate-colors.js",
     "build:tokens": "yarn build:styles && yarn build:colors",
     "build:lib": "webpack --config webpack.prod.js && tsc --project tsconfig.prod.json",
-    "build": "yarn build:deps && yarn build:tokens && yarn build:lib",
+    "build": "yarn build:tokens && yarn build:lib",
     "build:sb": "yarn build:deps && yarn build:tokens && build-storybook",
     "dev": "yarn build:deps && yarn build:tokens && start-storybook -p 6006",
     "watch": "yarn build:deps && yarn build:tokens && webpack --config webpack.dev.js"

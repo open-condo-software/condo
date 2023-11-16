@@ -6,7 +6,7 @@
     "test": "jest --unhandled-rejections=strict",
     "prepare": "node bin/prepare.js",
     "build:deps": "turbo build --filter=dev-api^...",
-    "build": "yarn build:deps && cross-env PHASE=build keystone build",
+    "build": "cross-env PHASE=build keystone build",
     "dev": "node --trace-warnings ./../../bin/keystone-dev.js",
     "start": "keystone start",
     "makemigrations": "./../../bin/kmigrator.py makemigrations",

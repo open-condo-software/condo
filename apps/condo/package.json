@@ -9,7 +9,7 @@
     "debug": "node inspect node_modules/.bin/keystone dev",
     "build:static": "yarn workspace @open-condo/ui build:sb -o ../../apps/condo/public/ui && mv -f public/ui/ui/* public/ui",
     "build:deps": "turbo build --filter=condo^...",
-    "build": "yarn build:deps && yarn build:static && cross-env NODE_OPTIONS=\"--max_old_space_size=4096\" PHASE=build keystone build",
+    "build": "yarn build:static && cross-env NODE_OPTIONS=\"--max_old_space_size=4096\" PHASE=build keystone build",
     "start": "keystone start",
     "worker": "cross-env PHASE=worker node worker.js",
     "kmigrator": "./../../bin/kmigrator.py",
