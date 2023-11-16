@@ -260,6 +260,7 @@
   "global.globalHints.canDisableHints.inProfile": "профиле",
   "global.globalHints.banner.more": "Как это работает",
   "global.errors.serverError.title": "Ошибка",
+  "global.errors.constraintError.default.description": "Такой объект уже существует",
   "accrualsAndPayments.setup.title": "Настройка начислений и оплат",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Выбор биллинга",
   "accrualsAndPayments.setup.setupBillingStep.title": "Настройка интеграции",

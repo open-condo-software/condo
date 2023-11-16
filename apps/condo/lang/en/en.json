@@ -260,6 +260,7 @@
   "global.globalHints.canDisableHints.inProfile": "profile",
   "global.globalHints.banner.more": "More",
   "global.errors.serverError.title": "Server error",
+  "global.errors.constraintError.default.description": "This kind of object already exists",
   "accrualsAndPayments.setup.title": "Accruals and payments setup",
   "accrualsAndPayments.setup.chooseBillingStep.title": "Selecting a billing",
   "accrualsAndPayments.setup.setupBillingStep.title": "Integration setup",
