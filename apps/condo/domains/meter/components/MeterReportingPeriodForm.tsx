@@ -202,11 +202,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                 values.notifyStartDay = startNumberRef.current
                 values.notifyEndDay = finishNumberRef.current
 
-                if (isCreateMode) {
-                    values.organization = { connect: { id: organizationId } }
-                } else {
-                    values.organization = undefined
-                }
+                values.organization = { connect: { id: organizationId } }
 
                 return values
             }}

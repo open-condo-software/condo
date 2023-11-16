@@ -453,7 +453,13 @@ export const MeterReportingPeriodPageContent = ({
             else defaultPeriod.current = period
         }))
     }, [reportingPeriods])
-    const DefaultPeriodMessage = intl.formatMessage({ id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' }, { notifyStartDay: get(defaultPeriod, 'current.notifyStartDay'), notifyEndDay: get(defaultPeriod, 'current.notifyEndDay') })
+    const DefaultPeriodMessage = intl.formatMessage(
+        { id: 'pages.condo.meter.index.reportingPeriod.defaultPeriod' },
+        {
+            notifyStartDay: get(defaultPeriod, 'current.notifyStartDay'),
+            notifyEndDay: get(defaultPeriod, 'current.notifyEndDay'),
+        }
+    )
 
     const [search, handleSearchChange] = useSearch()
     const isNoMeterData = isEmpty(reportingPeriods) && isEmpty(filters) && !periodLoading && !loading
@@ -497,6 +503,7 @@ export const MeterReportingPeriodPageContent = ({
         selectedRowKeys: selectedRows.map(row => row.id),
     }), [handleSelectRow, handleSelectAll, selectedRows])
 
+    // todo replace to deleteMany hook
     const [updateSelected, { loading: updateLoading }] = useMutation(MeterReportingPeriodGQL.UPDATE_OBJS_MUTATION, {
         onCompleted: () => {
             setSelectedRows([])
