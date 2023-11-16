@@ -17,7 +17,7 @@ import {
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
-import { getPaymentLinkNotification } from './PaymentLinkButton'
+import { getPaymentLinkNotification } from './CopyButton'
 
 
 type UpdateInvoiceFormProps = {

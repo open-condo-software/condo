@@ -35,7 +35,7 @@ import {
 } from '@condo/domains/marketplace/constants'
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
-import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { calculateRowsTotalPrice, InvoiceFormValuesType, prepareTotalPriceFromInput, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -89,31 +89,6 @@ const FormItemWithCustomWarningColor = styled(Form.Item)`
       color: ${colors.red[5]};
     }
 `
-const getMoneyRender = (intl, fromMessage, currencyCode?: string) => {
-    return function render (text: string, isMin: boolean) {
-        const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
-        const formattedValue = formattedParts.map((part) => {
-            return part.value
-        }).join('')
-
-        return isMin ? `${fromMessage} ${formattedValue}` : formattedValue
-    }
-}
-const prepareTotalPriceFromInput = (count, rawPrice, fromMessage) => {
-    if (!rawPrice) {
-        return { total: 0 }
-    }
-    if (!isNaN(+rawPrice)) {
-        return { total: +rawPrice * count }
-    }
-
-    const splittedRawPrice = rawPrice.split(' ')
-    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === fromMessage && !isNaN(+splittedRawPrice[1])) {
-        return { isMin: true, total: +splittedRawPrice[1] * count }
-    }
-
-    return { error: true }
-}
 
 const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     return (
@@ -437,7 +412,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
 
     const flatMarketOptions = useMemo(() => marketItemGroups.flatMap(group => group.options), [marketItemGroups])
 
-    const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage), [FromMessage, intl])
+    const moneyRender = useMemo(() => getMoneyRender(intl), [intl])
 
     return (
         <Form.List name='rows'>
@@ -581,7 +556,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 ({ getFieldValue }) => {
                                                     const count = getFieldValue(['rows', marketItemForm.name, 'count'])
                                                     const rawPrice = getFieldValue(['rows', marketItemForm.name, 'toPay'])
-                                                    const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice, FromMessage)
+                                                    const { error, isMin, total } = prepareTotalPriceFromInput(intl, count, rawPrice)
                                                     const value = error ? '' : moneyRender(String(total), isMin)
 
                                                     return <Input type='total' addonAfter={currencySymbol} disabled value={value} />
@@ -714,7 +689,6 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const ServicesListMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.servicesList' })
     const NoPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData' })
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
-    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -738,7 +712,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
     const currencySymbolObj = parts.find(part => part.type === 'currency')
     const currencySymbol = get(currencySymbolObj, 'value')
-    const moneyRender = useMemo(() => getMoneyRender(intl, FromMessage, currencyCode), [FromMessage, currencyCode, intl])
+    const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
 
     return (
         <FormWithAction
@@ -813,22 +787,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                     const rows = getFieldValue('rows').filter(Boolean)
 
                                     const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
-
-                                    let hasMinPrice
-                                    let hasError
-                                    const totalPrice = rows.reduce((acc, row) => {
-                                        const rawPrice = row.toPay
-                                        const count = row.count
-                                        const { error, isMin, total } = prepareTotalPriceFromInput(count, rawPrice, FromMessage)
-                                        if (!hasError && error) {
-                                            hasError = true
-                                        }
-                                        if (!hasMinPrice && isMin) {
-                                            hasMinPrice = true
-                                        }
-
-                                        return acc + total
-                                    }, 0)
+                                    const { totalPrice, hasMinPrice } = calculateRowsTotalPrice(intl, rows)
 
                                     return (
                                         <Row gutter={[0, 12]}>

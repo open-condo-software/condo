@@ -6,7 +6,7 @@ import { Button, Space } from '@open-condo/ui'
 
 const REFRESH_COPY_BUTTON_INTERVAL_IN_MS = 3000
 
-export const PaymentLinkButton = ({ url, copyMessage, copiedMessage }) => {
+export const CopyButton = ({ url, copyMessage, copiedMessage }) => {
     const [copied, setCopied] = useState<boolean>()
 
     const handleCopyClick = useCallback(async () => {
@@ -50,7 +50,7 @@ export const getPaymentLinkNotification = ({ intl, number, url }) => {
                 <Typography.Text>
                     {SuccessNotificationDescription}
                 </Typography.Text>
-                <PaymentLinkButton url={url} copyMessage={CopyLinkMessage} copiedMessage={CopiedLinkMessage}/>
+                <CopyButton url={url} copyMessage={CopyLinkMessage} copiedMessage={CopiedLinkMessage}/>
             </Space>
         ),
         duration: 0,

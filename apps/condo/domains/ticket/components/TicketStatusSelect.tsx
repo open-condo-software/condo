@@ -23,10 +23,11 @@ import { useStatusTransitions } from '../hooks/useStatusTransitions'
 interface IStatusSelect {
     color: string
     backgroundColor: string
+    minWidth?: number
 }
 
 export const StatusSelect = styled(Select)<IStatusSelect>`
-  min-width: 175px;
+  min-width: ${({ minWidth }) => minWidth ? `${minWidth}px` : '175px'};
   font-weight: 700;
   border-radius: 8px;
   color: ${({ color }) => color};

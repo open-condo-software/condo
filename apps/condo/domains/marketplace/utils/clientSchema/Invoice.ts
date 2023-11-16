@@ -108,6 +108,57 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, context:
     return result
 }
 
+export function getMoneyRender (intl, currencyCode?: string) {
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+
+    return function render (text: string, isMin: boolean) {
+        const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
+        const formattedValue = formattedParts.map((part) => {
+            return part.value
+        }).join('')
+
+        return isMin ? `${FromMessage} ${formattedValue}` : formattedValue
+    }
+}
+
+export function prepareTotalPriceFromInput (intl, count, rawPrice) {
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+
+    if (!rawPrice) {
+        return { total: 0 }
+    }
+    if (!isNaN(+rawPrice)) {
+        return { total: +rawPrice * count }
+    }
+
+    const splittedRawPrice = rawPrice.split(' ')
+    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === FromMessage && !isNaN(+splittedRawPrice[1])) {
+        return { isMin: true, total: +splittedRawPrice[1] * count }
+    }
+
+    return { error: true }
+}
+
+export function calculateRowsTotalPrice (intl, rows) {
+    let hasMinPrice
+    let hasError
+    const totalPrice = rows.reduce((acc, row) => {
+        const rawPrice = row.toPay
+        const count = row.count
+        const { error, isMin, total } = prepareTotalPriceFromInput(intl, count, rawPrice)
+        if (!hasError && error) {
+            hasError = true
+        }
+        if (!hasMinPrice && isMin) {
+            hasMinPrice = true
+        }
+
+        return acc + total
+    }, 0)
+
+    return { hasMinPrice, hasError, totalPrice }
+}
+
 const {
     useObject,
     useObjects,

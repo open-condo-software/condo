@@ -86,6 +86,7 @@ export const InvoiceStatusSelect = ({ invoice, onUpdate, employee }) => {
     return (
         <>
             <StatusSelect
+                minWidth={210}
                 color={selectedStatus.color}
                 backgroundColor={selectedStatus.bgColor}
                 disabled={isDisabled}

@@ -12,7 +12,7 @@ import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLI
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
-import { getPaymentLinkNotification } from './PaymentLinkButton'
+import { getPaymentLinkNotification } from './CopyButton'
 
 
 export const CreateInvoiceForm: React.FC = () => {
