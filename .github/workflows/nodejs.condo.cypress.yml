@@ -53,6 +53,7 @@ jobs:
           echo "REDIS_URL=undefined" >> .env
           echo "NODE_ENV=production" >> .env
 
+          yarn workspace @app/condo build:deps
           yarn workspace @app/condo build
 
       - name: start server in production mode
