@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
-import { Col, Row, RowProps, Table as AntdTable } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import { get, isEmpty } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
@@ -16,10 +16,10 @@ import { PageContent, PageWrapper } from '@condo/domains/common/components/conta
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
-import { Table } from '@condo/domains/common/components/Table'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
+import { InvoiceRowsTable } from '@condo/domains/marketplace/components/Invoice/InvoiceRowsTable'
 import { InvoiceStatusSelect } from '@condo/domains/marketplace/components/Invoice/InvoiceStatusSelect'
 import { ResidentPaymentAlert } from '@condo/domains/marketplace/components/Invoice/ResidentPaymentAlert'
 import { InvoiceReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
@@ -29,9 +29,7 @@ import {
 } from '@condo/domains/marketplace/constants'
 import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
-import { useOrderTableColumns } from '@condo/domains/marketplace/hooks/useOrderTableColumns'
-import { Invoice, MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
-import { calculateRowsTotalPrice, getMoneyRender } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { TicketUserInfoField } from '@condo/domains/ticket/components/TicketId/TicketUserInfoField'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit.js'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
@@ -116,59 +114,6 @@ const InvoiceHeader = ({ invoice, title, refetchInvoice, employee }) => {
                         </Row>
                     )
                 }
-            </Col>
-        </Row>
-    )
-}
-
-const OrderTable = ({ invoice }) => {
-    const intl = useIntl()
-    const OrderTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.order' })
-
-    const currencyCode = get(invoice, 'context.currencyCode')
-    const rows = useMemo(() => get(invoice, 'rows'), [invoice])
-    const organizationId = get(invoice, 'context.organization.id')
-    const skuItems = rows.map(({ sku }) => sku).filter(Boolean)
-
-    const { objs: marketItems, loading: marketItemsLoading } = MarketItem.useObjects({
-        where: {
-            sku_in: skuItems,
-            organization: { id: organizationId },
-        },
-    })
-
-    const orderColumns = useOrderTableColumns(currencyCode, marketItems)
-
-    const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
-    const { totalPrice, hasMinPrice } = calculateRowsTotalPrice(intl, rows)
-    const SummaryContent = useCallback(() => (
-        <AntdTable.Summary fixed>
-            <AntdTable.Summary.Row>
-                {
-                    Array.from({ length: orderColumns.length - 1 }, (_, index) => index)
-                        .map(index => <AntdTable.Summary.Cell key={index} index={index} colSpan={1} />)
-                }
-                <AntdTable.Summary.Cell index={orderColumns.length} colSpan={1}>
-                    <Typography.Text strong>{moneyRender(totalPrice, hasMinPrice)}</Typography.Text>
-                </AntdTable.Summary.Cell>
-            </AntdTable.Summary.Row>
-        </AntdTable.Summary>
-    ), [hasMinPrice, moneyRender, orderColumns.length, totalPrice])
-
-    return (
-        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-            <Col span={24}>
-                <Typography.Title level={4}>{OrderTitle}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <Table
-                    totalRows={rows.length}
-                    loading={marketItemsLoading}
-                    dataSource={rows}
-                    columns={orderColumns}
-                    pagination={false}
-                    summary={SummaryContent}
-                />
             </Col>
         </Row>
     )
@@ -396,7 +341,7 @@ const InvoiceIdPage = () => {
                                     />
                                 </Col>
                                 <Col span={24}>
-                                    <OrderTable invoice={invoice} />
+                                    <InvoiceRowsTable invoice={invoice} />
                                 </Col>
                                 <Col span={24}>
                                     <PaymentTypeField
