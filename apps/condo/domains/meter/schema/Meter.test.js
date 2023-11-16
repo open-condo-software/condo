@@ -1102,6 +1102,29 @@ describe('Meter', () => {
             }, METER_ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION)
         })
 
+        test('should restrict update of the meter with same resource, owned by another organization', async () => {
+            const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const client2 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true, canManageProperties: true })
+
+            const [property] = await createTestProperty(client2, client2.organization, { address: client1.property.address })
+            const [coldResource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [hotResource] = await MeterResource.getAll(client2, { id: HOT_WATER_METER_RESOURCE_ID })
+            const [meter1] = await createTestMeter(client1, client1.organization, client1.property, coldResource, {})
+            const [meter2] = await createTestMeter(client2, client2.organization, property, hotResource, {})
+
+            await expectToThrowGQLError(async () => {
+                await updateTestMeter(client1, meter1.id, {
+                    resource: { connect: { id: HOT_WATER_METER_RESOURCE_ID } },
+                })
+            }, METER_ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION)
+
+            await expectToThrowGQLError(async () => {
+                await updateTestMeter(client2, meter2.id, {
+                    resource: { connect: { id: COLD_WATER_METER_RESOURCE_ID } },
+                })
+            }, METER_ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION)
+        })
+
         test('should create MeterResourceOwner after new meter creation', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,

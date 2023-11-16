@@ -221,7 +221,10 @@ const Meter = new GQLListSchema('Meter', {
                 }
             }
 
-            if (operation === 'create') {
+            const isNeedToCheckOwnership = operation === 'create' || (operation === 'update'
+                && (resolvedData['resource'] !== existingItem['resource'] || resolvedData['property'] !== existingItem['property']))
+
+            if (isNeedToCheckOwnership) {
                 const property = await Property.getOne(context, {
                     id: newItem.property,
                     deletedAt: null,
