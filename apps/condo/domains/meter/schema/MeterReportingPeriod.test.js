@@ -10,11 +10,10 @@ const {
     makeClient,
     expectValuesOfCommonFields,
     expectToThrowUniqueConstraintViolationError,
-    catchErrorFrom,
     expectToThrowAccessDeniedErrorToObjects,
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj,
+    expectToThrowAccessDeniedErrorToObj, expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const { makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingProperty, createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
@@ -31,6 +30,8 @@ const { buildingMapJson } = require('@condo/domains/property/constants/property'
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
+const { ERRORS } = require( './MeterReportingPeriod')
 
 
 describe('MeterReportingPeriod', () => {
@@ -469,54 +470,92 @@ describe('MeterReportingPeriod', () => {
                     sender: { dv: 1, fingerprint: 'initDefaultPeriod' },
                 })
 
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLError(async () => {
                     await MeterReportingPeriod.create(admin, {
                         dv: 1,
                         sender: { dv: 1, fingerprint: 'initDefaultPeriod' },
                     })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The organization is required to create')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                }, ERRORS.ORGANIZATION_IS_REQUIRED)
                 await MeterReportingPeriod.softDelete(admin, defaultMeterReportingPeriod.id)
             })
 
-            test('notifyStartDay field validation', async () => {
-                await catchErrorFrom(async () => {
-                    await createTestMeterReportingPeriod(admin, commonOrganization, {
-                        notifyStartDay: 0,
+            describe('property field validation', () => {
+                test('should be create and update item if property from organization', async () => {
+                    const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+
+                    // can create
+                    const [item] = await createTestMeterReportingPeriod(client1, client1.organization, {
+                        property: { connect: { id: client1.property.id } },
                     })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "notifyStartDay" field can take values in the range from 1 to 31')
-                    expect(data).toEqual({ 'obj': null })
+                    expect(item.property.id).toBe(client1.property.id)
+
+                    // can reset
+                    const [updatedItem1] = await updateTestMeterReportingPeriod(client1, item.id, {
+                        property: { disconnectAll: true },
+                    })
+                    expect(updatedItem1.property).toBeNull()
+
+                    // can update
+                    const [updatedItem2] = await updateTestMeterReportingPeriod(client1, item.id, {
+                        property: { connect: { id: client1.property.id } },
+                    })
+                    expect(updatedItem2.property.id).toBe(client1.property.id)
                 })
-                await catchErrorFrom(async () => {
-                    await createTestMeterReportingPeriod(admin, commonOrganization, {
-                        notifyStartDay: 32,
+
+                test('should not be create and update item if property from another organization', async () => {
+                    const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+                    const client2 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+                    await createTestOrganizationEmployee(admin, client2.organization, client1.user, client2.role)
+
+                    // cannot create
+                    await expectToThrowGQLError(async () => {
+                        await createTestMeterReportingPeriod(client1, client1.organization, {
+                            property: { connect: { id: client2.property.id } },
+                        })
+                    }, ERRORS.PROPERTY_NOT_FOUND)
+
+                    // cannot create
+                    const [item] = await createTestMeterReportingPeriod(client1, client2.organization, {
+                        property: { connect: { id: client2.property.id } },
                     })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "notifyStartDay" field can take values in the range from 1 to 31')
-                    expect(data).toEqual({ 'obj': null })
+                    await expectToThrowGQLError(async () => {
+                        await updateTestMeterReportingPeriod(client1, item.id, {
+                            property: { connect: { id: client1.property.id } },
+                        })
+                    }, ERRORS.PROPERTY_NOT_FOUND)
+
+                    // can reset
+                    const [updatedItem] = await updateTestMeterReportingPeriod(client1, item.id, {
+                        property: { disconnectAll: true },
+                    })
+                    expect(updatedItem.property).toBeNull()
                 })
             })
 
+            test('notifyStartDay field validation', async () => {
+                await expectToThrowGQLError(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        notifyStartDay: 0,
+                    })
+                }, ERRORS.INVALID_START)
+                await expectToThrowGQLError(async () => {
+                    await createTestMeterReportingPeriod(admin, commonOrganization, {
+                        notifyStartDay: 32,
+                    })
+                }, ERRORS.INVALID_START)
+            })
+
             test('notifyEndDay field validation', async () => {
-                await catchErrorFrom(async () => {
+                await expectToThrowGQLError(async () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization, {
                         notifyEndDay: 0,
                     })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "notifyEndDay" field can take values in the range from 1 to 31')
-                    expect(data).toEqual({ 'obj': null })
-                })
-                await catchErrorFrom(async () => {
+                }, ERRORS.INVALID_FINISH)
+                await expectToThrowGQLError(async () => {
                     await createTestMeterReportingPeriod(admin, commonOrganization, {
                         notifyEndDay: 32,
                     })
-                }, ({ errors, data }) => {
-                    expect(errors[0].message).toMatch('The "notifyEndDay" field can take values in the range from 1 to 31')
-                    expect(data).toEqual({ 'obj': null })
-                })
+                }, ERRORS.INVALID_FINISH)
             })
 
             test('The uniqueness of the period for property', async () => {
