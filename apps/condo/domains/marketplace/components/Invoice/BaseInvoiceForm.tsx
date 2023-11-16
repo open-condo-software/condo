@@ -1,5 +1,4 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
-import { useLazyQuery } from '@apollo/client'
 import {
     BuildingUnitSubType,
     Organization,
@@ -22,9 +21,7 @@ import { Button as OldButton } from '@condo/domains/common/components/Button'
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import {
     INVOICE_STATUS_DRAFT,
@@ -42,8 +39,9 @@ import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSc
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
-import { GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY } from '@condo/domains/resident/gql'
 import { UnitNameInput, UnitNameInputOption } from '@condo/domains/user/components/UnitNameInput'
+
+import { ResidentPaymentAlert } from './ResidentPaymentAlert'
 
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
@@ -621,108 +619,6 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
             }
         </Form.List>
     )
-}
-
-const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPhone, isCreatedByResident }) => {
-    const intl = useIntl()
-    const CreatedByResidentMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.createdByResident' })
-    const CreatedByResidentDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.createdByResident' })
-    const HasAppMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.hasApp' })
-    const LinkWillBeGeneratedMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.linkWillBeGeneratedMessage' })
-    const HasAppOnAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasAppOnAddress' })
-    const HasAppOnOtherAddressMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasAppOnOtherAddress' })
-    const PassPaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
-    const NoAppMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.hasNotApp' })
-
-    const [residentExistence, setResidentExistence] = useState<{ hasResident: boolean, hasResidentOnAddress: boolean }>()
-
-    const [getResidentExistenceByPhoneAndAddress, { loading }] = useLazyQuery(
-        GET_RESIDENT_EXISTENCE_BY_PHONE_AND_ADDRESS_QUERY,
-        {
-            onCompleted: (data) => {
-                const { result: { hasResident, hasResidentOnAddress } } = data
-                setResidentExistence({ hasResident, hasResidentOnAddress })
-            },
-        },
-    )
-
-    useEffect(() => {
-        if (isCreatedByResident) return
-
-        const sender = getClientSideSenderInfo()
-        const meta = { dv: 1, sender }
-
-        getResidentExistenceByPhoneAndAddress({
-            variables: {
-                data: {
-                    propertyId,
-                    unitName,
-                    unitType,
-                    phone: clientPhone,
-                    ...meta,
-                },
-            },
-        })
-    }, [clientPhone, getResidentExistenceByPhoneAndAddress, isCreatedByResident, propertyId, unitName, unitType])
-
-    if (loading) return <Loader />
-    if (!residentExistence && !isCreatedByResident) return null
-
-    let type: 'warning' | 'info'
-    let message
-    let description
-
-    if (isCreatedByResident) {
-        type = 'info'
-        message = CreatedByResidentMessage
-        description = CreatedByResidentDescription
-    } else if (residentExistence.hasResidentOnAddress) {
-        type = 'info'
-        message = HasAppMessage
-        description = (
-            <>
-                <Typography.Paragraph size='medium'>
-                    {HasAppOnAddressMessage}
-                </Typography.Paragraph>
-                <Typography.Paragraph size='medium'>
-                    {LinkWillBeGeneratedMessage}
-                </Typography.Paragraph>
-            </>
-        )
-    } else if (residentExistence.hasResident) {
-        type = 'warning'
-        message = HasAppMessage
-        description = (
-            <>
-                <Typography.Paragraph size='medium'>
-                    {HasAppOnOtherAddressMessage}
-                </Typography.Paragraph>
-                <Typography.Paragraph size='medium'>
-                    {LinkWillBeGeneratedMessage}
-                </Typography.Paragraph>
-            </>
-        )
-    } else {
-        type = 'warning'
-        message = PassPaymentLinkMessage
-        description = (
-            <>
-                <Typography.Paragraph size='medium'>
-                    {NoAppMessage}
-                </Typography.Paragraph>
-                <Typography.Paragraph size='medium'>
-                    {LinkWillBeGeneratedMessage}
-                </Typography.Paragraph>
-            </>
-        )
-    }
-
-    return <Alert
-        type={type}
-        message={message}
-        description={description}
-        showIcon
-    />
 }
 
 const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, paymentType, isCreateForm, form, status, setStatus }) => {

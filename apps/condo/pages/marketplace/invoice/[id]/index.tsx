@@ -21,6 +21,7 @@ import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { InvoiceStatusSelect } from '@condo/domains/marketplace/components/Invoice/InvoiceStatusSelect'
 import { PaymentLinkButton } from '@condo/domains/marketplace/components/Invoice/PaymentLinkButton'
+import { ResidentPaymentAlert } from '@condo/domains/marketplace/components/Invoice/ResidentPaymentAlert'
 import { InvoiceReadPermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 import {
     INVOICE_STATUS_PAID,
@@ -31,6 +32,7 @@ import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { TicketUserInfoField } from '@condo/domains/ticket/components/TicketId/TicketUserInfoField'
 import { getSectionAndFloorByUnitName } from '@condo/domains/ticket/utils/unit.js'
 import { UserNameField } from '@condo/domains/user/components/UserNameField'
+import { RESIDENT } from '@condo/domains/user/constants/common'
 
 
 const INVOICE_CONTENT_VERTICAL_GUTTER: RowProps['gutter'] = [0, 60]
@@ -156,7 +158,7 @@ const OrderTable = ({ invoice }) => {
     )
 }
 
-const PaymentTypeField = ({ invoice }) => {
+const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
     const intl = useIntl()
     const PaymentTypeMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentType' })
     const PaymentTypeValue = intl.formatMessage({ id: `pages.condo.marketplace.invoice.form.payment.${invoice.paymentType}` })
@@ -172,7 +174,7 @@ const PaymentTypeField = ({ invoice }) => {
                 {PaymentTypeValue}
             </PageFieldRow>
             {
-                invoice.status !== INVOICE_STATUS_PAID && invoice.status !== INVOICE_STATUS_CANCELED && (
+                !isTerminalStatus && (
                     <PageFieldRow align='middle' title={PaymentLinkMessage} ellipsis={ELLIPSIS_CONFIG}>
                         <Row gutter={[36, 20]} align='middle'>
                             <Col xs={20} md={10} lg={13} xl={15} xxl={17}>
@@ -232,6 +234,8 @@ const AddressField = ({ invoice }) => {
 
 const ClientField = ({ invoice }) => {
     const contactId = get(invoice, ['contact', 'id'])
+    const clientName = get(invoice, 'clientName')
+    const clientPhone = get(invoice, 'clientPhone')
 
     const contactUser = useMemo(() => ({
         name: get(invoice, ['contact', 'name']),
@@ -239,11 +243,11 @@ const ClientField = ({ invoice }) => {
     }), [invoice])
 
     const clientUser = useMemo(() => ({
-        name: get(invoice, 'clientName'),
-        phone: get(invoice, 'clientPhone'),
-    }), [invoice])
+        name: clientName,
+        phone: clientPhone,
+    }), [clientName, clientPhone])
 
-    if (isEmpty(contactUser) && isEmpty(clientUser)) {
+    if (!contactId || !(clientName && clientPhone)) {
         return <Typography.Text>—</Typography.Text>
     }
 
@@ -284,19 +288,19 @@ const PayerDataField = ({ invoice }) => {
 const InvoiceActionBar = ({
     invoice,
     employee,
+    isTerminalStatus,
 }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
 
     const canManageInvoices = useMemo(() => get(employee, 'role.canManageInvoices'), [employee])
-    const disabledUpdateButton = invoice.status === INVOICE_STATUS_PAID || invoice.status === INVOICE_STATUS_CANCELED
 
     return canManageInvoices && (
         <ActionBar
             actions={[
                 <Link key='update' href={`/marketplace/invoice/${invoice.id}/update`}>
                     <Button
-                        disabled={disabledUpdateButton}
+                        disabled={isTerminalStatus}
                         type='primary'
                         icon={<Edit size='medium'/>}
                         data-cy='ticket__update-link'
@@ -334,6 +338,16 @@ const InvoiceIdPage = () => {
         )
     }
 
+    const status = get(invoice, 'status')
+    const propertyId = get(invoice, 'property.id')
+    const unitType = get(invoice, 'unitType')
+    const unitName = get(invoice, 'unitName')
+    const clientPhone = get(invoice, 'clientPhone')
+    const isCreatedByResident = get(invoice, 'createdBy.type') === RESIDENT
+
+    const isTerminalStatus = status === INVOICE_STATUS_PAID || status === INVOICE_STATUS_CANCELED
+    const hasPayerData = propertyId && unitName && unitType && clientPhone
+
     return (
         <>
             <Head>
@@ -356,15 +370,32 @@ const InvoiceIdPage = () => {
                                     <OrderTable invoice={invoice} />
                                 </Col>
                                 <Col span={24}>
-                                    <PaymentTypeField invoice={invoice} />
+                                    <PaymentTypeField
+                                        invoice={invoice}
+                                        isTerminalStatus={isTerminalStatus}
+                                    />
                                 </Col>
                                 <Col span={24}>
                                     <PayerDataField invoice={invoice} />
                                 </Col>
+                                {
+                                    hasPayerData && !isTerminalStatus && (
+                                        <Col span={24}>
+                                            <ResidentPaymentAlert
+                                                propertyId={propertyId}
+                                                unitType={unitType}
+                                                unitName={unitName}
+                                                clientPhone={clientPhone}
+                                                isCreatedByResident={isCreatedByResident}
+                                            />
+                                        </Col>
+                                    )
+                                }
                                 <Col span={24}>
                                     <InvoiceActionBar
                                         invoice={invoice}
                                         employee={link}
+                                        isTerminalStatus={isTerminalStatus}
                                     />
                                 </Col>
                             </Row>

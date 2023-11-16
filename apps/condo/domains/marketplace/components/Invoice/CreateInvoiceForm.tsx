@@ -34,10 +34,6 @@ export const CreateInvoiceForm: React.FC = () => {
     const [registerMultiPayment] = useMutation(REGISTER_MULTI_PAYMENT_MUTATION)
 
     const handleCreateInvoice = useCallback(async (values) => {
-        console.log('values', values)
-
-        return
-
         const payload = Invoice.formValuesProcessor({ ...values, context: invoiceContext.id }, invoiceContext)
         const createdInvoice = await createInvoiceAction(payload)
 
