@@ -42,16 +42,20 @@ const ERRORS = {
         type: ERROR_NO_TIN_OR_BIC_PASSED,
         message: 'No tin or bic passed',
     },
-    ORGANIZATION_NOT_FOUND: {
+    ORGANIZATION_NOT_FOUND: (tin) => ({
         code: BAD_USER_INPUT,
         type: ERROR_ORGANIZATION_NOT_FOUND,
         message: 'Organization not found',
-    },
-    BANK_NOT_FOUND: {
+        messageForUser: 'pages.condo.marketplace.settings.requisites.organizationNotFound',
+        messageInterpolation: { tin },
+    }),
+    BANK_NOT_FOUND: (bic) => ({
         code: BAD_USER_INPUT,
         type: ERROR_BANK_NOT_FOUND,
         message: 'Bank not found',
-    },
+        messageForUser: 'pages.condo.marketplace.settings.requisites.bankNotFound',
+        messageInterpolation: { bic },
+    }),
 }
 
 const ajv = new Ajv()
@@ -169,12 +173,12 @@ const InvoiceContext = new GQLListSchema('InvoiceContext', {
 
                 const { error: orgError, result: orgResult } = await getOrganizationInfo(tin)
                 if (orgError) {
-                    throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.ORGANIZATION_NOT_FOUND(tin), context)
                 }
 
                 const { error: bankError, result: bankResult } = await getBankInfo(bic)
                 if (bankError) {
-                    throw new GQLError(ERRORS.BANK_NOT_FOUND, context)
+                    throw new GQLError(ERRORS.BANK_NOT_FOUND(bic), context)
                 }
 
                 resolvedData.recipient.territoryCode = orgResult.territoryCode

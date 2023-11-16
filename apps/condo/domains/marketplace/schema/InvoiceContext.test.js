@@ -388,11 +388,12 @@ describe('InvoiceContext', () => {
 
         test('no organization was found by passed tin', async () => {
             const [o10n] = await createTestOrganization(adminClient)
+            const tin = '00000000'
 
             await expectToThrowGQLError(async () => {
                 await createTestInvoiceContext(adminClient, o10n, integration, {
                     recipient: {
-                        tin: '00000000',
+                        tin,
                         bic: faker.finance.routingNumber(),
                         bankAccount: faker.finance.account(),
                     },
@@ -401,17 +402,20 @@ describe('InvoiceContext', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'ORGANIZATION_NOT_FOUND',
                 message: 'Organization not found',
+                messageForUser: 'pages.condo.marketplace.settings.requisites.organizationNotFound',
+                messageInterpolation: { tin },
             })
         })
 
         test('no bank was found by passed bic', async () => {
             const [o10n] = await createTestOrganization(adminClient)
+            const bic = '00000000'
 
             await expectToThrowGQLError(async () => {
                 await createTestInvoiceContext(adminClient, o10n, integration, {
                     recipient: {
                         tin: faker.finance.account(10),
-                        bic: '00000000',
+                        bic,
                         bankAccount: faker.finance.account(),
                     },
                 })
@@ -419,6 +423,8 @@ describe('InvoiceContext', () => {
                 code: 'BAD_USER_INPUT',
                 type: 'BANK_NOT_FOUND',
                 message: 'Bank not found',
+                messageForUser: 'pages.condo.marketplace.settings.requisites.bankNotFound',
+                messageInterpolation: { bic },
             })
         })
 
