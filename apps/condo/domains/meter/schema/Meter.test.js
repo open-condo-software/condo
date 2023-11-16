@@ -1149,7 +1149,7 @@ describe('Meter', () => {
             })
         })
 
-        test('should create MeterResourceOwner after meter resource field update', async () => {
+        test('should create MeterResourceOwner after meter update', async () => {
             const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
             const [meter] = await createTestMeter(client, client.organization, client.property, { id: COLD_WATER_METER_RESOURCE_ID }, {})
 
@@ -1163,6 +1163,20 @@ describe('Meter', () => {
                 expect(meterResourceOwner).toHaveProperty(['resource', 'id'], COLD_WATER_METER_RESOURCE_ID)
                 expect(meterResourceOwner).toHaveProperty('addressKey', client.property.addressKey)
             })
+
+            const newNumber = faker.random.alphaNumeric(5)
+            const [updatedObj] = await updateTestMeter(client, meter.id, {
+                number: newNumber,
+            })
+
+            expect(updatedObj).toHaveProperty('number', newNumber)
+            const tempMeterResourceOwners = await MeterResourceOwner.getAll(client, {
+                addressKey: client.property.addressKey,
+            })
+
+            expect(tempMeterResourceOwners).toHaveLength(1)
+            expect(tempMeterResourceOwners[0]).toHaveProperty('addressKey', client.property.addressKey)
+            expect(tempMeterResourceOwners[0]).toHaveProperty(['resource', 'id'], meter.resource.id)
 
             const [updatedMeter] = await updateTestMeter(client, meter.id, { resource: { connect: { id: HOT_WATER_METER_RESOURCE_ID } } })
 
