@@ -800,6 +800,7 @@ __metadata:
     webpack: ^4.46.0
     xlsx: ^0.17.0
     xss: ^1.0.13
+    zod: ^3.22.4
   languageName: unknown
   linkType: soft
 

@@ -10,15 +10,17 @@ import { Alert, Button, Radio, RadioGroup, Select, SelectProps, Space } from '@o
 import { AcquiringIntegration } from '@condo/domains/acquiring/utils/clientSchema'
 import { BankAccount } from '@condo/domains/banking/utils/clientSchema'
 import { RUSSIA_COUNTRY } from '@condo/domains/common/constants/countries'
+import { useMutationErrorHandler } from '@condo/domains/common/hooks/useMutationErrorHandler'
 import { useBankAccountValidation } from '@condo/domains/common/utils/clientSchema/bankAccountValidationUtils'
 import {
+    ERROR_BANK_NOT_FOUND,
+    ERROR_ORGANIZATION_NOT_FOUND,
+    INVOICE_CONTEXT_STATUS_INPROGRESS,
     TAX_REGIME_GENEGAL,
     TAX_REGIME_SIMPLE,
     VAT_OPTIONS,
-    INVOICE_CONTEXT_STATUS_INPROGRESS,
 } from '@condo/domains/marketplace/constants'
 import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
-
 
 const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
@@ -39,7 +41,7 @@ const getOptions = (items, fieldName) => (items.map((item) => {
     }
 }))
 
-export const RequisitesSetup = () => {
+export const RequisitesSetup: React.FC = () => {
     const intl = useIntl()
     const { numberValidator, routingNumberValidator } = useBankAccountValidation({ country: RUSSIA_COUNTRY })
 
@@ -63,7 +65,11 @@ export const RequisitesSetup = () => {
     const [form] = Form.useForm()
     const router = useRouter()
 
-    const { obj: invoiceContext, loading: invoiceContextLoading, error: invoiceContextError } = InvoiceContext.useObject({
+    const {
+        obj: invoiceContext,
+        loading: invoiceContextLoading,
+        error: invoiceContextError,
+    } = InvoiceContext.useObject({
         where: {
             organization: { id: orgId },
         },
@@ -99,16 +105,16 @@ export const RequisitesSetup = () => {
     const bicOptions: SelectProps['options'] = getOptions(bankAccounts, 'routingNumber')
     const invoiceContextId = get(invoiceContext, 'id', null)
 
-    useEffect(()=> {
+    useEffect(() => {
         form.resetFields(['taxPercent'])
-    }, [selectedTaxType])
+    }, [form, selectedTaxType])
 
-    useEffect(()=> {
+    useEffect(() => {
         if (!bankAccountsLoading && !bankAccountsError && bankAccounts) {
             form.setFieldValue('bic', get(bankAccounts[0], 'routingNumber', null))
             form.setFieldValue('account', get(bankAccounts[0], 'number', null))
         }
-    }, [bankAccounts, bankAccountsError, bankAccountsLoading])
+    }, [bankAccounts, bankAccountsError, bankAccountsLoading, form])
 
     // NOTE: If invoice context is already connected with status inProgress = skip to final step
     useEffect(() => {
@@ -117,6 +123,13 @@ export const RequisitesSetup = () => {
         }
     }, [router, invoiceContextLoading, invoiceContextError, invoiceContextId])
 
+    const errorHandler = useMutationErrorHandler({
+        form,
+        typeToFieldMapping: {
+            [ERROR_BANK_NOT_FOUND]: 'bic',
+            [ERROR_ORGANIZATION_NOT_FOUND]: 'tin',
+        },
+    })
 
     const handleFormSubmit = useCallback(async (values) => {
         if (!acquiringLoading && !acquiringError && !!acquiringId) {
@@ -136,15 +149,15 @@ export const RequisitesSetup = () => {
                 currencyCode: 'RUB',
             }).then(() => {
                 router.replace({ query: { step: 1 } })
-            })
+            }).catch(errorHandler)
 
             setIsLoading(false)
         }
-    }, [acquiringError, acquiringId, acquiringLoading, createAction, orgId, organization, router])
+    }, [acquiringError, acquiringId, acquiringLoading, createAction, errorHandler, orgId, organization, router])
 
     return (
         <Row gutter={VERTICAL_GUTTER}>
-            {error ? (
+            {error && (
                 <Col sm={13} span={24}>
                     <Row>
                         <Alert
@@ -154,7 +167,8 @@ export const RequisitesSetup = () => {
                             description={error}
                         />
                     </Row>
-                </Col>) : null}
+                </Col>
+            )}
             <Col sm={13} span={24}>
                 <Form
                     initialValues={{
@@ -169,101 +183,101 @@ export const RequisitesSetup = () => {
                     layout='horizontal'
                     colon={false}
                     validateTrigger={FORM_VALIDATE_TRIGGER}
-                    children={({ form }) => (
-                        <Row gutter={VERTICAL_GUTTER}>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={AccountLabel}
-                                    name='account'
-                                    required
-                                    labelCol={LABEL_COL}
-                                    labelAlign='left'
-                                    rules={numberValidator}
-                                >
+                >
+                    <Row gutter={VERTICAL_GUTTER}>
+                        <Col span={24}>
+                            <Form.Item
+                                label={AccountLabel}
+                                name='account'
+                                required
+                                labelCol={LABEL_COL}
+                                labelAlign='left'
+                                rules={numberValidator}
+                            >
+                                {!bankAccountsLoading && !bankAccountsError && bankAccounts.length > 1 ? (
+                                    <Select
+                                        options={bankAccountOptions}
+                                    />
+                                ) : <Input/>}
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                label={TINLabel}
+                                name='tin'
+                                required
+                                labelCol={LABEL_COL}
+                                labelAlign='left'
+                            >
+                                <Col lg={12}>
+                                    <Input disabled value={get(organization, 'tin')}/>
+                                </Col>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                label={BICLabel}
+                                name='bic'
+                                required
+                                labelCol={LABEL_COL}
+                                labelAlign='left'
+                                rules={routingNumberValidator}
+                            >
+                                <Col lg={12}>
                                     {!bankAccountsLoading && !bankAccountsError && bankAccounts.length > 1 ? (
                                         <Select
-                                            options={bankAccountOptions}
+                                            placeholder={bicOptions[0].label}
+                                            options={bicOptions}
                                         />
                                     ) : <Input/>}
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={TINLabel}
-                                    name='tin'
-                                    required
-                                    labelCol={LABEL_COL}
-                                    labelAlign='left'
-                                >
-                                    <Col lg={12}>
-                                        <Input disabled value={get(organization, 'tin')}/>
-                                    </Col>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={BICLabel}
-                                    name='bic'
-                                    required
-                                    labelCol={LABEL_COL}
-                                    labelAlign='left'
-                                    rules={routingNumberValidator}
-                                >
-                                    <Col lg={12}>
-                                        {!bankAccountsLoading && !bankAccountsError && bankAccounts.length > 1 ? (
-                                            <Select
-                                                placeholder={bicOptions[0].label}
-                                                options={bicOptions}
-                                            />
-                                        ) : <Input/>}
-                                    </Col>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={TaxTypeLabel}
-                                    name='taxType'
-                                    required
-                                    labelCol={LABEL_COL}
-                                    labelAlign='left'
-                                >
-                                    <RadioGroup onChange={handleTypeChange(form)}>
-                                        <Space size={8} wrap direction='vertical'>
-                                            <Radio value={TAX_REGIME_GENEGAL}>
-                                                {TaxTypeCommonLabel}
-                                            </Radio>
-                                            <Radio value={TAX_REGIME_SIMPLE}>
-                                                {TaxTypeSimpleLabel}
-                                            </Radio>
-                                        </Space>
-                                    </RadioGroup>
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Form.Item
-                                    label={TaxPercentLabel}
-                                    name='taxPercent'
-                                    required
-                                    labelCol={LABEL_COL}
-                                    labelAlign='left'
-                                >
-                                    <Select
-                                        placeholder={selectedTaxType === TAX_REGIME_GENEGAL ? TAX_PERCENT_OPTIONS[TAX_PERCENT_OPTIONS.length - 1].label : noTaxOption.label}
-                                        options={selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)]}
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col span={24}>
-                                <Row justify='start'>
-                                    <Space size={16}>
-                                        <Button type='primary' key='submit' htmlType='submit' loading={loading}>
-                                            {NextButtonLabel}
-                                        </Button>
+                                </Col>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                label={TaxTypeLabel}
+                                name='taxType'
+                                required
+                                labelCol={LABEL_COL}
+                                labelAlign='left'
+                            >
+                                <RadioGroup onChange={handleTypeChange(form)}>
+                                    <Space size={8} wrap direction='vertical'>
+                                        <Radio value={TAX_REGIME_GENEGAL}>
+                                            {TaxTypeCommonLabel}
+                                        </Radio>
+                                        <Radio value={TAX_REGIME_SIMPLE}>
+                                            {TaxTypeSimpleLabel}
+                                        </Radio>
                                     </Space>
-                                </Row>
-                            </Col>
-                        </Row>
-                    )}/>
+                                </RadioGroup>
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Form.Item
+                                label={TaxPercentLabel}
+                                name='taxPercent'
+                                required
+                                labelCol={LABEL_COL}
+                                labelAlign='left'
+                            >
+                                <Select
+                                    placeholder={selectedTaxType === TAX_REGIME_GENEGAL ? TAX_PERCENT_OPTIONS[TAX_PERCENT_OPTIONS.length - 1].label : noTaxOption.label}
+                                    options={selectedTaxType === TAX_REGIME_GENEGAL ? [noTaxOption, ...TAX_PERCENT_OPTIONS] : [noTaxOption, ...TAX_PERCENT_OPTIONS.slice(1)]}
+                                />
+                            </Form.Item>
+                        </Col>
+                        <Col span={24}>
+                            <Row justify='start'>
+                                <Space size={16}>
+                                    <Button type='primary' key='submit' htmlType='submit' loading={loading}>
+                                        {NextButtonLabel}
+                                    </Button>
+                                </Space>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Form>
             </Col>
         </Row>
     )
