@@ -1,5 +1,4 @@
 /** @jsx jsx */
-import { useMutation } from '@apollo/client'
 import {
     SortMeterReadingsBy,
     MeterReportingPeriod as MeterReportingPeriodType,
@@ -8,6 +7,7 @@ import {
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps, Tabs, Typography } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
+import chunk from 'lodash/chunk'
 import compact from 'lodash/compact'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -16,7 +16,6 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { FileDown, Filter, QuestionCircle, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -51,7 +50,6 @@ import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/
 import { MeterReadPermissionRequired } from '@condo/domains/meter/components/PageAccess'
 import { METER_REPORTING_PERIOD_FRONTEND_FEATURE_FLAG } from '@condo/domains/meter/constants/constants'
 import { EXISTING_METER_ACCOUNT_NUMBER_IN_OTHER_UNIT, EXISTING_METER_NUMBER_IN_SAME_ORGANIZATION } from '@condo/domains/meter/constants/errors'
-import { MeterReportingPeriod as MeterReportingPeriodGQL } from '@condo/domains/meter/gql'
 import { EXPORT_METER_READINGS_QUERY } from '@condo/domains/meter/gql'
 import { useFilters } from '@condo/domains/meter/hooks/useFilters'
 import { useImporterFunctions } from '@condo/domains/meter/hooks/useImporterFunctions'
@@ -503,34 +501,19 @@ export const MeterReportingPeriodPageContent = ({
         selectedRowKeys: selectedRows.map(row => row.id),
     }), [handleSelectRow, handleSelectAll, selectedRows])
 
-    // todo replace to deleteMany hook
-    const [updateSelected, { loading: updateLoading }] = useMutation(MeterReportingPeriodGQL.UPDATE_OBJS_MUTATION, {
-        onCompleted: () => {
-            setSelectedRows([])
-            refetch()
-        },
+    const softDeleteMeterReportingPeriods = MeterReportingPeriod.useSoftDeleteMany(() => {
+        setSelectedRows([])
+        refetch()
     })
+
     const handleDeleteButtonClick = useCallback(async () => {
         if (selectedRows.length) {
-            const sender = getClientSideSenderInfo()
-
-            await updateSelected({
-                variables: {
-                    data: selectedRows.map(item => {
-                        return {
-                            id: item.id,
-                            data: {
-                                dv: 1,
-                                sender,
-                                deletedAt: new Date().toDateString(),
-                            },
-                        }
-                    }),
-                },
-            })
+            const itemsToDeleteByChunks = chunk(selectedRows, 30)
+            for (const itemsToDelete of itemsToDeleteByChunks) {
+                await softDeleteMeterReportingPeriods(selectedRows)
+            }
         }
-
-    }, [updateSelected, selectedRows])
+    }, [softDeleteMeterReportingPeriods, selectedRows])
 
     return (
         <>
