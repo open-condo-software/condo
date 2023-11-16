@@ -1,6 +1,6 @@
 const querystring = require('querystring')
 
-const { has, isNil } = require('lodash')
+const { get, has, isNil } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { featureToggleManager } = require('@open-condo/featureflags/featureToggleManager')
@@ -56,9 +56,9 @@ class PaymentLinkRouter {
         return payments.length > 0
     }
 
-    async checkInvoicesAlreadyPaid ({ invoicesIds }) {
+    async checkInvoicesAlreadyPaid ({ invoicesIdsStr }) {
         const payments = await Payment.getAll(this.context, {
-            invoice: { id_in: invoicesIds.split(',') },
+            invoice: { id_in: invoicesIdsStr.split(',') },
             status_in: [PAYMENT_DONE_STATUS, PAYMENT_WITHDRAWN_STATUS],
             deletedAt: null,
         })
@@ -77,11 +77,11 @@ class PaymentLinkRouter {
     }
 
     async createMultiPaymentByInvoices (params) {
-        const { invoicesIds } = params
+        const { invoicesIdsStr } = params
 
         return await registerMultiPaymentForInvoices(this.context, {
             sender,
-            invoices: invoicesIds.split(',').map((id) => ({ id })),
+            invoices: invoicesIdsStr.split(',').map((id) => ({ id })),
         })
     }
 
@@ -140,7 +140,11 @@ class PaymentLinkRouter {
     }
 
     async handleRequest (req, res) {
-        this.context.req = req
+        const featureFlagsHeader = get(req, ['headers', 'feature-flags'])
+        if (featureFlagsHeader) {
+            this.context.req = { headers: { 'feature-flags': featureFlagsHeader } }
+        }
+
         const isEnabled = await featureToggleManager.isFeatureEnabled(this.context, PAYMENT_LINK)
 
         if (!isEnabled) {
@@ -161,31 +165,29 @@ class PaymentLinkRouter {
                     this.virtualReceiptPaymentValidator.bind(this),
                     this.createMultiPaymentByVirtualReceipt.bind(this),
                 )
-            } else {
-                if (this.isReceipt(req)) {
-                    const params = this.extractRegularReceiptParams(req)
+            } else if (this.isReceipt(req)) {
+                const params = this.extractRegularReceiptParams(req)
 
-                    // for regular receipts we can check if billing receipt
-                    // is already paid
-                    await this.redirectIfAlreadyPaid(res, params, this.checkReceiptAlreadyPaid.bind(this))
+                // for regular receipts we can check if billing receipt
+                // is already paid
+                await this.redirectIfAlreadyPaid(res, params, this.checkReceiptAlreadyPaid.bind(this))
 
-                    return await this.handlePaymentLink(
-                        res,
-                        params,
-                        this.regularReceiptPaymentValidator.bind(this),
-                        this.createMultiPaymentByReceipt.bind(this),
-                    )
-                } else if (this.isInvoices(req)) {
-                    const params = this.extractInvoicesParams(req)
-                    await this.redirectIfAlreadyPaid(res, params, this.checkInvoicesAlreadyPaid.bind(this))
+                return await this.handlePaymentLink(
+                    res,
+                    params,
+                    this.regularReceiptPaymentValidator.bind(this),
+                    this.createMultiPaymentByReceipt.bind(this),
+                )
+            } else if (this.isInvoices(req)) {
+                const params = this.extractInvoicesParams(req)
+                await this.redirectIfAlreadyPaid(res, params, this.checkInvoicesAlreadyPaid.bind(this))
 
-                    return await this.handlePaymentLink(
-                        res,
-                        params,
-                        this.invoicesPaymentValidator.bind(this),
-                        this.createMultiPaymentByInvoices.bind(this),
-                    )
-                }
+                return await this.handlePaymentLink(
+                    res,
+                    params,
+                    this.invoicesPaymentValidator.bind(this),
+                    this.createMultiPaymentByInvoices.bind(this),
+                )
             }
         } catch (error) {
             // print error log
@@ -210,9 +212,10 @@ class PaymentLinkRouter {
     }
 
     isVirtualReceipt (req) {
-        const { billingReceiptId, invoicesIds } = this.extractRegularReceiptParams(req)
+        const { billingReceiptId } = this.extractRegularReceiptParams(req)
+        const { invoicesIdsStr } = this.extractInvoicesParams(req)
 
-        return isNil(billingReceiptId) && isNil(invoicesIds)
+        return isNil(billingReceiptId) && isNil(invoicesIdsStr)
     }
 
     isReceipt (req) {
@@ -242,7 +245,6 @@ class PaymentLinkRouter {
         const {
             [acquiringIntegrationContextQp]: acquiringIntegrationContextId,
             [billingReceiptQp]: billingReceiptId,
-            [invoicesQp]: invoicesIds,
             [successUrlQp]: successUrl,
             [failureUrlQp]: failureUrl,
         } = req.query
@@ -250,7 +252,6 @@ class PaymentLinkRouter {
         return {
             acquiringIntegrationContextId,
             billingReceiptId,
-            invoicesIds,
             successUrl,
             failureUrl,
         }
@@ -258,13 +259,13 @@ class PaymentLinkRouter {
 
     extractInvoicesParams (req) {
         const {
-            [invoicesQp]: invoicesIds,
+            [invoicesQp]: invoicesIdsStr,
             [successUrlQp]: successUrl,
             [failureUrlQp]: failureUrl,
         } = req.query
 
         return {
-            invoicesIds,
+            invoicesIdsStr,
             successUrl,
             failureUrl,
         }
@@ -314,10 +315,10 @@ class PaymentLinkRouter {
     }
 
     invoicesPaymentValidator (params) {
-        const { invoicesIds } = params
+        const { invoicesIdsStr } = params
 
-        if (isNil(invoicesIds)) {
-            throw new Error('Missing QP: invoicesIds')
+        if (isNil(invoicesIdsStr)) {
+            throw new Error('Missing QP: invoicesIdsStr')
         }
     }
 
