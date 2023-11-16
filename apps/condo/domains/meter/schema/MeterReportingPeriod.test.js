@@ -4,20 +4,34 @@
 
 const { faker } = require('@faker-js/faker')
 
-const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError, catchErrorFrom } = require('@open-condo/keystone/test.utils')
 const {
-    expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
+    UUID_RE,
+    makeLoggedInAdminClient,
+    makeClient,
+    expectValuesOfCommonFields,
+    expectToThrowUniqueConstraintViolationError,
+    catchErrorFrom,
+    expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAuthenticationErrorToObj,
+    expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { makeContextWithOrganizationAndIntegrationAsAdmin, createTestBillingProperty, createTestBillingAccount } = require('@condo/domains/billing/utils/testSchema')
 const { MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod } = require('@condo/domains/meter/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+    createTestOrganizationWithAccessToAnotherOrganization,
+    makeEmployeeUserClientWithAbilities,
+    updateTestOrganizationEmployeeRole,
+} = require('@condo/domains/organization/utils/testSchema')
 const { buildingMapJson } = require('@condo/domains/property/constants/property')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser } = require('@condo/domains/user/utils/testSchema')
-const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
+
 
 describe('MeterReportingPeriod', () => {
     let admin, anonymous, commonOrganization, commonProperty, commonMeterReportingPeriod, commonClientWithPermission, commonClientWithoutPermission
@@ -125,7 +139,7 @@ describe('MeterReportingPeriod', () => {
             test('admin can', async () => {
                 const [property] = await createTestProperty(admin, commonOrganization, { map: buildingMapJson })
 
-                const [obj, attrs] = await createTestMeterReportingPeriod(admin, commonOrganization, { property: { connect: { id: property.id } } })
+                const [obj] = await createTestMeterReportingPeriod(admin, commonOrganization, { property: { connect: { id: property.id } } })
 
                 const objs = await MeterReportingPeriod.getAll(admin, {}, { sortBy: ['updatedAt_DESC'] })
 
@@ -140,7 +154,7 @@ describe('MeterReportingPeriod', () => {
             test('user can', async () => {
                 const [property] = await createTestProperty(admin, commonOrganization, { map: buildingMapJson })
 
-                const [obj, attrs] = await createTestMeterReportingPeriod(commonClientWithPermission, commonOrganization, { property: { connect: { id: property.id } } })
+                const [obj] = await createTestMeterReportingPeriod(commonClientWithPermission, commonOrganization, { property: { connect: { id: property.id } } })
                 const objs = await MeterReportingPeriod.getAll(commonClientWithPermission, {}, { sortBy: ['updatedAt_DESC'] })
 
                 expect(objs[0]).toMatchObject({
@@ -219,7 +233,7 @@ describe('MeterReportingPeriod', () => {
                 const unitName = faker.random.alphaNumeric(8)
                 const { organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
                 const [property] = await createTestProperty(admin, organization)
-                const [resident] = await createTestResident(admin, client.user, property, {
+                await createTestResident(admin, client.user, property, {
                     unitName,
                 })
                 const defaultMeterReportingPeriod = await MeterReportingPeriod.create(admin, {
@@ -239,6 +253,189 @@ describe('MeterReportingPeriod', () => {
             test('anonymous can\'t', async () => {
                 await expectToThrowAuthenticationErrorToObjects(async () => {
                     await MeterReportingPeriod.getAll(anonymous, {}, { sortBy: ['updatedAt_DESC'] })
+                })
+            })
+        })
+    })
+
+    describe('Bulk-operations', () => {
+        describe('create', () => {
+            test('employee cannot', async () => {
+                const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+                    const payload = [client.organization, client.organization].map(org => ({
+                        data: {
+                            dv: 1,
+                            sender,
+                            organization: { connect: { id: org.id } },
+                        },
+                    }))
+                    await MeterReportingPeriod.createMany(client, payload)
+                })
+            })
+        })
+
+        describe('update', () => {
+            test('employee can if items are from own organizations and have permission "canManageMeters"', async () => {
+                const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+                const client2 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+                await createTestOrganizationEmployee(admin, client2.organization, client1.user, client2.role)
+
+                const [item1] = await createTestMeterReportingPeriod(client1, client1.organization, {
+                    property: { connect: { id: client1.property.id } },
+                })
+                expect(item1.organization.id).toBe(client1.organization.id)
+
+                const [item2] = await createTestMeterReportingPeriod(client1, client2.organization, {
+                    property: { connect: { id: client2.property.id } },
+                })
+                expect(item2.organization.id).toBe(client2.organization.id)
+
+                const [item3] = await createTestMeterReportingPeriod(client1, client2.organization)
+                expect(item3.organization.id).toBe(client2.organization.id)
+
+                // case 1 (items from different organizations)
+                const payload1 = [item1, item2, item3].map(item => ({
+                    id: item.id,
+                    data: {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    },
+                }))
+                const updated1 = await MeterReportingPeriod.updateMany(client1, payload1)
+
+                expect(updated1).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ id: item1.id }),
+                        expect.objectContaining({ id: item2.id }),
+                        expect.objectContaining({ id: item3.id }),
+                    ])
+                )
+
+                // case 2 (items from one organization)
+                const payload2 = [item2, item3].map(item => ({
+                    id: item.id,
+                    data: {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    },
+                }))
+                const updated2 = await MeterReportingPeriod.updateMany(client1, payload2)
+
+                expect(updated2).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ id: item2.id }),
+                        expect.objectContaining({ id: item3.id }),
+                    ])
+                )
+            })
+
+            test('employee can if items are from related organization or own organization and have permission "canManageMeters" in each organizations', async () => {
+                const {
+                    clientFrom, organizationFrom, propertyFrom, organizationTo, propertyTo,
+                } = await createTestOrganizationWithAccessToAnotherOrganization({
+                    canManageMeters: true,
+                })
+
+                const [item1] = await createTestMeterReportingPeriod(clientFrom, organizationFrom, {
+                    property: { connect: { id: propertyFrom.id } },
+                })
+                expect(item1.organization.id).toBe(organizationFrom.id)
+
+                const [item2] = await createTestMeterReportingPeriod(clientFrom, organizationTo, {
+                    property: { connect: { id: propertyTo.id } },
+                })
+                expect(item2.organization.id).toBe(organizationTo.id)
+
+                const payload = [item1, item2].map(item => ({
+                    id: item.id,
+                    data: {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    },
+                }))
+                const updated = await MeterReportingPeriod.updateMany(clientFrom, payload)
+
+                expect(updated).toEqual(
+                    expect.arrayContaining([
+                        expect.objectContaining({ id: item1.id }),
+                        expect.objectContaining({ id: item2.id }),
+                    ])
+                )
+            })
+
+            test('employee cannot if items are not from his organizations', async () => {
+                const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+                const client2 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+
+                const [item1] = await createTestMeterReportingPeriod(client1, client1.organization, {
+                    property: { connect: { id: client1.property.id } },
+                })
+                expect(item1.organization.id).toBe(client1.organization.id)
+
+                const [item2] = await createTestMeterReportingPeriod(client2, client2.organization, {
+                    property: { connect: { id: client2.property.id } },
+                })
+                expect(item2.organization.id).toBe(client2.organization.id)
+
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    const payload = [item1, item2].map(item => ({
+                        id: item.id,
+                        data: {
+                            dv: 1,
+                            sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                        },
+                    }))
+                    await MeterReportingPeriod.updateMany(client1, payload)
+                })
+            })
+
+            test('employee cannot if items are from related or own organization but he have not permission "canManageMeters" in each organizations', async () => {
+                const {
+                    clientFrom, organizationTo, propertyTo, roleFrom,
+                } = await createTestOrganizationWithAccessToAnotherOrganization({
+                    canManageMeters: true,
+                })
+                const anotherClient = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+                await createTestOrganizationEmployee(admin, anotherClient.organization, clientFrom.user, anotherClient.role)
+
+                const [item1] = await createTestMeterReportingPeriod(clientFrom, organizationTo, {
+                    property: { connect: { id: propertyTo.id } },
+                })
+                expect(item1.organization.id).toBe(organizationTo.id)
+
+                const [item2] = await createTestMeterReportingPeriod(clientFrom, anotherClient.organization, {
+                    property: { connect: { id: anotherClient.property.id } },
+                })
+                expect(item2.organization.id).toBe(anotherClient.organization.id)
+
+                const payload = [item1, item2].map(item => ({
+                    id: item.id,
+                    data: {
+                        dv: 1,
+                        sender: { dv: 1, fingerprint: faker.random.alphaNumeric(8) },
+                    },
+                }))
+
+                // case 1 (no permission in holding organization)
+                await updateTestOrganizationEmployeeRole(admin, roleFrom.id, { canManageMeters: false })
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await MeterReportingPeriod.updateMany(clientFrom, payload)
+                })
+
+                // case 2 (no permission in own organization)
+                await updateTestOrganizationEmployeeRole(admin, roleFrom.id, { canManageMeters: true })
+                await updateTestOrganizationEmployeeRole(admin, anotherClient.role.id, { canManageMeters: false })
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await MeterReportingPeriod.updateMany(clientFrom, payload)
+                })
+
+                // case 3 (no permission anywhere)
+                await updateTestOrganizationEmployeeRole(admin, roleFrom.id, { canManageMeters: false })
+                await expectToThrowAccessDeniedErrorToObjects(async () => {
+                    await MeterReportingPeriod.updateMany(clientFrom, payload)
                 })
             })
         })
