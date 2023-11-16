@@ -9,21 +9,8 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/news/access/NewsItemSharing')
+const { STATUSES, ALLOWED_TRANSITIONS } = require('@condo/domains/news/constants/newsItemSharingStatuses')
 const publishSharedNewsItem = require('@condo/domains/news/tasks/publishSharedNewsItem')
-
-const STATUSES = {
-    SCHEDULED: 'scheduled',
-    PROCESSING: 'processing',
-    PUBLISHED: 'published',
-    ERROR: 'error',
-}
-
-const ALLOWED_TRANSITIONS = {
-    [STATUSES.SCHEDULED]: [STATUSES.PROCESSING, STATUSES.ERROR],
-    [STATUSES.PROCESSING]: [STATUSES.PUBLISHED, STATUSES.ERROR],
-    [STATUSES.PUBLISHED]: [STATUSES.ERROR],
-    [STATUSES.ERROR]: [],
-}
 
 const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
     schemaDoc: 'Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API.',
@@ -139,5 +126,4 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
 
 module.exports = {
     NewsItemSharing,
-    NEWS_ITEM_SHARING_STATUSES: STATUSES,
 }

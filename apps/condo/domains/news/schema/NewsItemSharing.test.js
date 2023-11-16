@@ -15,6 +15,13 @@ const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = r
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 
 const { createTestNewsItem, createTestNewsItemScope, publishTestNewsItem, NewsItem } = require('../utils/testSchema')
+const {
+    PAYMENT_INIT_STATUS,
+    PAYMENT_PROCESSING_STATUS,
+    PAYMENT_DONE_STATUS,
+    PAYMENT_ERROR_STATUS,
+    PAYMENT_WITHDRAWN_STATUS
+} = require("../../acquiring/constants/payment");
 
 
 describe('NewsItemSharing', () => {
@@ -277,11 +284,30 @@ describe('NewsItemSharing', () => {
                 }
             )
         })
+
+        test.skip('should not allow to make wrong status transitions', async () => {
+            const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin)
+            const [B2BApp] = await createTestB2BApp(admin, { newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
+            const [B2BContext] = await createTestB2BAppContext(admin, B2BApp, dummyO10n)
+
+            const [newsItem] = await createTestNewsItemSharing(admin, B2BContext, dummyPublishedNewsItem)
+
+            await catchErrorFrom(
+                async () => await createTestNewsItemSharing(admin, B2BContext, dummyPublishedNewsItem),
+                (error) => {
+                    expect('todo').toEqual('todo')
+                }
+            )
+        })
     })
 
     describe('Real life tests', () => {
-        test('Publishing news item', async () => {
+        test('News Items Sharing are actually published after News Item is published', async () => {
+            const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin)
+            const [B2BApp] = await createTestB2BApp(admin, { newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
+            const [B2BContext] = await createTestB2BAppContext(admin, B2BApp, dummyO10n)
 
+            const [newsItem] = await createTestNewsItemSharing(admin, B2BContext, dummyPublishedNewsItem)
         })
     })
 })
