@@ -37,8 +37,7 @@ async function canRegisterMultiPayment ({ authentication: { item: user }, args: 
     })
     const organizationIds = uniq(invoiceContexts.map(invoiceContext => invoiceContext.organization))
 
-    const { hasAllPermissions } = await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageInvoices')
-    return hasAllPermissions
+    return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageInvoices')
 }
 
 /*

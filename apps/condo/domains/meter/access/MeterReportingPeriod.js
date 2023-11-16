@@ -103,8 +103,7 @@ async function canManageMeterReportingPeriods ({ authentication: { item: user },
 
     if (isEmpty(organizationIds) || organizationIds.some(isNull)) return false
     
-    const { hasAllPermissions } = await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageMeters')
-    return hasAllPermissions
+    return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageMeters')
 }
 
 /*

@@ -1,4 +1,3 @@
-const compact = require('lodash/compact')
 const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
 const isString = require('lodash/isString')
@@ -60,70 +59,21 @@ async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, o
  * @param userId {string} User.id field
  * @param organizationIds {Array<string>} array of objects related organizations
  * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<{hasAllPermissions: boolean, withPermission: Array<string>, withoutPermission: Array<string>}>}
+ * @return {Promise<boolean>}
  */
 async function checkOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return {
-        hasAllPermissions: false, withPermission: [], withoutPermission: [],
-    }
+    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
 
     const uniqOrganizationIds = uniq(organizationIds)
 
-    if (uniqOrganizationIds.some(orgId => !isString(orgId))) {
-        return { hasAllPermissions: false, withPermission: [], withoutPermission: uniqOrganizationIds }
+    if (uniqOrganizationIds.some(orgId => !isString(orgId))) return false
+
+    for (const id of organizationIds) {
+        const hasAccess = await checkOrganizationPermission(userId, id, permission)
+        if (!hasAccess) return false
     }
 
-    const employees = await find('OrganizationEmployee', {
-        organization: { id_in: uniqOrganizationIds },
-        user: { id: userId },
-        deletedAt: null,
-        isBlocked: false,
-    })
-
-    if (!employees.length) {
-        return { hasAllPermissions: false, withPermission: [], withoutPermission: uniqOrganizationIds }
-    }
-
-    const hasPermissionByOrganizationId = uniqOrganizationIds.reduce((acc, orgId) => {
-        acc[orgId] = false
-        return acc
-    }, {})
-
-    if (!permission) {
-        for (const employee of employees) {
-            const organizationId = employee.organization || null
-            if (organizationId) {
-                hasPermissionByOrganizationId[organizationId] = true
-            }
-        }
-    } else {
-        const employeeRoles = await find('OrganizationEmployeeRole', {
-            id_in: compact(employees.map(employee => employee.role)),
-            organization: { id_in: uniqOrganizationIds },
-        })
-
-        if (!employeeRoles.length) {
-            return { hasAllPermissions: false, withPermission: [], withoutPermission: uniqOrganizationIds }
-        }
-
-        for (const role of employeeRoles) {
-            const hasPermission = role[permission] || false
-            const organizationId = role.organization || null
-            if (hasPermission && organizationId) {
-                hasPermissionByOrganizationId[organizationId] = true
-            }
-        }
-    }
-
-    return Object.entries(hasPermissionByOrganizationId).reduce((acc, [orgId, hasAccess]) => {
-        if (hasAccess) {
-            acc.withPermission.push(orgId)
-        } else {
-            acc.hasAllPermissions = false
-            acc.withoutPermission.push(orgId)
-        }
-        return acc
-    }, { hasAllPermissions: true, withPermission: [], withoutPermission: [] })
+    return true
 }
 
 /**
@@ -132,55 +82,21 @@ async function checkOrganizationsPermission (userId, organizationIds, permission
  * @param userId {string} User.id field
  * @param organizationIds {Array<string>} array of objects related organizations
  * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<{hasAllPermissions: boolean, withPermission: Array<string>, withoutPermission: Array<string>}>}
+ * @return {Promise<boolean>}
  */
 async function checkRelatedOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return {
-        hasAllPermissions: false, withPermission: [], withoutPermission: [],
-    }
+    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
 
     const uniqOrganizationIds = uniq(organizationIds)
 
-    if (uniqOrganizationIds.some(orgId => !isString(orgId))) {
-        return { hasAllPermissions: false, withPermission: [], withoutPermission: uniqOrganizationIds }
+    if (uniqOrganizationIds.some(orgId => !isString(orgId))) return false
+
+    for (const id of organizationIds) {
+        const hasAccess = await checkRelatedOrganizationPermission(userId, id, permission)
+        if (!hasAccess) return false
     }
 
-    const organizationLinks = await find('OrganizationLink', {
-        from: queryOrganizationEmployeeFor(userId, permission),
-        to: { id_in: uniqOrganizationIds },
-        deletedAt: null,
-    })
-
-    if (!organizationLinks.length) {
-        return { hasAllPermissions: false, withPermission: [], withoutPermission: uniqOrganizationIds }
-    }
-
-    const organizationFromIds = compact(uniq(organizationLinks.map(link => link.from || null)))
-
-    const { withPermission } = await checkOrganizationsPermission(userId, organizationFromIds, permission)
-
-    const hasPermissionByOrganizationId = uniqOrganizationIds.reduce((acc, orgId) => {
-        acc[orgId] = false
-        return acc
-    }, {})
-
-    for (const link of organizationLinks) {
-        const toId = link.to || null
-        const fromId = link.from || null
-        if (toId && fromId && withPermission.includes(fromId)) {
-            hasPermissionByOrganizationId[toId] = true
-        }
-    }
-
-    return Object.entries(hasPermissionByOrganizationId).reduce((acc, [orgId, hasAccess]) => {
-        if (hasAccess) {
-            acc.withPermission.push(orgId)
-        } else {
-            acc.hasAllPermissions = false
-            acc.withoutPermission.push(orgId)
-        }
-        return acc
-    }, { hasAllPermissions: true, withPermission: [], withoutPermission: [] })
+    return true
 }
 
 /**
@@ -191,49 +107,21 @@ async function checkRelatedOrganizationsPermission (userId, organizationIds, per
  * @param userId {string} User.id field
  * @param organizationIds {Array<string>} array of objects related organizations
  * @param permission {string} OrganizationEmployeeRole permission key to check for
- * @return {Promise<{hasAllPermissions: boolean, withPermission: Array<string>, withoutPermission: Array<string>}>}
+ * @return {Promise<boolean>}
  */
 async function checkPermissionsInUserOrganizationsOrRelatedOrganizations (userId, organizationIds, permission) {
-    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return {
-        hasAllPermissions: false, withPermission: [], withoutPermission: [],
-    }
+    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
 
     const uniqOrganizationIds = uniq(organizationIds)
 
-    if (uniqOrganizationIds.some(orgId => !isString(orgId))) {
-        return { hasAllPermissions: false, withPermission: [], withoutPermission: uniqOrganizationIds }
+    if (uniqOrganizationIds.some(orgId => !isString(orgId))) return false
+
+    for (const id of organizationIds) {
+        const hasAccess = await checkPermissionInUserOrganizationOrRelatedOrganization(userId, id, permission)
+        if (!hasAccess) return false
     }
 
-    const hasPermissionByOrganizationId = uniqOrganizationIds.reduce((acc, orgId) => {
-        acc[orgId] = false
-        return acc
-    }, {})
-
-    const { hasAllPermissions, withPermission, withoutPermission } = await checkOrganizationsPermission(userId, uniqOrganizationIds, permission)
-
-    if (hasAllPermissions || isEmpty(withoutPermission)) return { hasAllPermissions, withPermission, withoutPermission }
-
-    for (const organizationId of withPermission) {
-        hasPermissionByOrganizationId[organizationId] = true
-    }
-
-    const {
-        withPermission: withRelatedPermission,
-    } = await checkRelatedOrganizationsPermission(userId, withoutPermission, permission)
-
-    for (const organizationId of withRelatedPermission) {
-        hasPermissionByOrganizationId[organizationId] = true
-    }
-
-    return Object.entries(hasPermissionByOrganizationId).reduce((acc, [orgId, hasAccess]) => {
-        if (hasAccess) {
-            acc.withPermission.push(orgId)
-        } else {
-            acc.hasAllPermissions = false
-            acc.withoutPermission.push(orgId)
-        }
-        return acc
-    }, { hasAllPermissions: true, withPermission: [], withoutPermission: [] })
+    return true
 }
 
 async function checkUserBelongsToOrganization (userId, organizationId) {
@@ -301,5 +189,7 @@ module.exports = {
     checkRelatedOrganizationPermission,
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
+    checkOrganizationsPermission,
+    checkRelatedOrganizationsPermission,
     checkPermissionsInUserOrganizationsOrRelatedOrganizations,
 }

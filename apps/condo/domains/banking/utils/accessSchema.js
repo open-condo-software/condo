@@ -40,8 +40,7 @@ async function canManageBankEntityWithOrganization ({ authentication: { item: us
         }
     }
 
-    const { hasAllPermissions } = await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, permission)
-    return hasAllPermissions
+    return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, permission)
 }
 
 async function checkBankIntegrationsAccessRights (context, userId, integrationIds) {
