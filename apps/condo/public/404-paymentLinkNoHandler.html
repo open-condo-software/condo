@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Улучшаем сервис</title>
+    <meta name="viewport" content="width=device-width"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Wix+Madefor+Display:wght@400;600;700&display=swap');
+
+    :root {
+        --main-bg-color: #F1F3FF;
+        --logo-color: #525FA8;
+        --link-color: #389e0d;
+        --secondary-color: #8C8C8C;
+    }
+
+    body {
+        margin: 0;
+        background: var(--main-bg-color);
+        font-family: 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
+    }
+
+    header {
+        display: flex;
+        justify-content: center;
+
+        background: transparent;
+        padding: 20px 0;
+        margin: 0;
+        width: 100%;
+    }
+
+    .logo path {
+        fill: var(--logo-color);
+    }
+
+    main {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .poster-wrapper {
+        height: 55vh;
+        width: 100%;
+
+        background: url("authPoster.webp") no-repeat center center;
+        background-size: cover;
+    }
+
+    .error-text-content-wrapper {
+        width: 100%;
+        display: flex;
+        align-items: flex-end;
+        justify-content: start;
+    }
+
+    .error-text-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        height: 35vh;
+        max-width: 89%;
+        padding-left: 20px;
+    }
+
+    .error-text-content__title {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .error-text-content__help-info {
+        color: var(--secondary-color);
+        font-size: 12px;
+        line-height: 20px;
+        padding-bottom: 30px;
+    }
+
+    .text-link {
+        text-decoration: none;
+        color: var(--link-color);
+    }
+
+    @media screen and (min-width: 992px) {
+        header {
+            padding: 20px;
+            display: block;
+            position: fixed;
+            z-index: 1;
+        }
+
+        main {
+            flex-direction: row;
+        }
+
+        .poster-wrapper {
+            height: 100vh;
+            width: 42%;
+        }
+
+        .error-text-content-wrapper {
+            width: 48%;
+            height: 100vh;
+        }
+
+        .error-text-content {
+            height: 55vh;
+            max-width: 65%;
+        }
+
+        .error-text-content__help-info {
+            padding-bottom: 60px;
+        }
+
+        .error-text-content__title {
+            font-size: 38px;
+        }
+    }
+</style>
+<body>
+<header>
+    <svg width="121px" height="24px" fill="none" xmlns="http://www.w3.org/2000/svg" class="logo">
+        <path d="M2.49023 1.99988V22.9999H9.87023C17.1002 22.9999 21.9002 19.5499 21.9002 12.0799C21.9002 5.62988 18.1202 1.99988 9.60023 1.99988H2.49023ZM7.29023 18.4999V6.49988H9.96024C15.0302 6.49988 16.8902 8.53988 16.8902 12.4399C16.8902 16.0999 14.7902 18.4999 10.0202 18.4999H7.29023Z"/>
+        <path d="M32.0611 7.63988C26.9311 7.66988 23.8111 10.3099 23.8111 15.4699C23.8111 20.7199 27.1711 23.3599 31.7911 23.3599C36.8911 23.3299 40.0411 20.7199 40.0411 15.5299C40.0411 10.2799 36.6811 7.63988 32.0611 7.63988ZM28.4611 15.4399C28.4611 12.7399 29.7211 11.5999 31.9111 11.5999C33.9511 11.6299 35.3911 12.7699 35.3911 15.4699V15.5599C35.3911 18.2599 34.1311 19.3999 31.9411 19.3999C29.8711 19.3999 28.4611 18.2599 28.4611 15.5299V15.4399Z"/>
+        <path d="M52.0266 22.9999H56.5566V14.3899C56.5266 12.4999 57.5166 11.6599 59.1966 11.6599H59.2566C60.6366 11.6899 61.2366 12.4699 61.2366 14.1199V22.9999H65.7666V12.8299C65.7666 9.46988 63.9366 7.72988 60.9066 7.69988H60.8766C58.4466 7.69988 56.8266 9.16988 56.3166 10.9699C55.7166 8.83988 54.0666 7.72988 51.7266 7.69988H51.6666C49.2666 7.69988 47.6166 9.25988 47.1066 10.9099V7.99988H42.8766V22.9999H47.3766V14.3899C47.2866 12.3799 48.2466 11.6899 49.9566 11.6599C51.4566 11.6599 52.0266 12.4399 52.0266 14.1199V22.9999Z"/>
+        <path d="M69.8109 14.2099C70.8309 12.7099 72.2409 11.6299 75.4209 11.6299C77.2809 11.6299 77.8509 12.2599 77.8509 13.9399V14.0599H74.6109C71.2209 14.0599 68.5809 15.0199 68.5809 18.5899C68.5809 21.3799 70.2009 23.2399 73.3209 23.2399C75.6609 23.2399 77.3709 22.0399 78.0909 20.2999V22.9999H82.3509V13.0999C82.3509 9.37988 80.3709 7.69988 75.4209 7.69988C72.6009 7.69988 70.8009 8.23988 69.8109 8.98988V14.2099ZM74.8809 19.2799C73.7409 19.2799 73.1109 18.7999 73.1109 17.9899C73.1109 17.0299 73.9209 16.6699 75.3609 16.6699H77.8509V17.5399C77.7009 18.5599 76.5909 19.2799 74.8809 19.2799Z"/>
+        <path d="M86.753 20.6299C86.753 22.0999 87.383 23.2999 89.453 23.2999C91.613 23.2999 92.243 22.0999 92.243 20.6299C92.243 19.1299 91.613 17.8999 89.453 17.8999C87.383 17.8999 86.753 19.1299 86.753 20.6299Z"/>
+        <path d="M97.2914 14.2099C98.3114 12.7099 99.7214 11.6299 102.901 11.6299C104.761 11.6299 105.331 12.2599 105.331 13.9399V14.0599H102.091C98.7014 14.0599 96.0614 15.0199 96.0614 18.5899C96.0614 21.3799 97.6814 23.2399 100.801 23.2399C103.141 23.2399 104.851 22.0399 105.571 20.2999V22.9999H109.831V13.0999C109.831 9.37988 107.851 7.69988 102.901 7.69988C100.081 7.69988 98.2814 8.23988 97.2914 8.98988V14.2099ZM102.361 19.2799C101.221 19.2799 100.591 18.7999 100.591 17.9899C100.591 17.0299 101.401 16.6699 102.841 16.6699H105.331V17.5399C105.181 18.5599 104.071 19.2799 102.361 19.2799Z"/>
+        <path d="M113.213 2.68988C113.213 4.12988 114.203 5.05988 115.733 5.05988C117.203 5.05988 118.193 4.12988 118.193 2.68988C118.193 1.27988 117.203 0.379883 115.733 0.379883C114.203 0.379883 113.213 1.27988 113.213 2.68988ZM113.453 22.9999H117.983V7.99988H113.453V22.9999Z"/>
+    </svg>
+</header>
+<main>
+    <div class="poster-wrapper"></div>
+    <div class="error-text-content-wrapper">
+        <div class="error-text-content">
+            <div class="error-text-content__first-row">
+                <h1 class="error-text-content__title">Неизвестная ссылка на оплату</h1>
+                <p>Не удалось определить тип ссылки. Возможно ссылка неверная или скопирована не полностью.</p>
+            </div>
+            <p class="error-text-content__help-info">
+                Возникли вопросы? Напишите на <a class="text-link" href="mailto:help@doma.ai">help@doma.ai</a> или
+                позвоните
+                по телефону <a class="text-link" href="tel:88007003662">8 800 700 36 62</a>
+            </p>
+        </div>
+    </div>
+</main>
+</body>
+</html>

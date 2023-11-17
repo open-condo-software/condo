@@ -188,6 +188,9 @@ class PaymentLinkRouter {
                     this.invoicesPaymentValidator.bind(this),
                     this.createMultiPaymentByInvoices.bind(this),
                 )
+            } else {
+                logger.warn({ msg: 'No handler for payment link', reqId: get(req, 'id'), url: get(req, 'url') })
+                return res.redirect('/404-paymentLinkNoHandler.html')
             }
         } catch (error) {
             // print error log
