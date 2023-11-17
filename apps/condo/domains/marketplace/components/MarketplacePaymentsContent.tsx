@@ -22,7 +22,7 @@ import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
 import Input from '@condo/domains/common/components/antd/Input'
 import { TablePageContent } from '@condo/domains/common/components/containers/BaseLayout/BaseLayout'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
@@ -32,18 +32,14 @@ import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
 
 
-const ROW_GUTTERS: RowProps['gutter'] = [0, 40]
+const ROW_GUTTERS: RowProps['gutter'] = [200, 0]
 const PaymentsSumContainer = styled.div`
   max-width: calc(100% + 48px);
+  border: solid 1px ${colors.gray[1]};
   border-radius: ${DEFAULT_BORDER_RADIUS};
-  border-color: ${colors.gray};
   padding: 16px;
-  background-color: ${colors.white};
-
-  &.disabled {
-    opacity: 0.5;
-    pointer-events: none;  
-  }
+  background-color: ${colors.white[1]};
+  margin: 10px 0 10px;
 `
 
 export const MarketplacePaymentsContent = () => {
@@ -121,7 +117,7 @@ export const MarketplacePaymentsContent = () => {
                 },
             },
             fetchPolicy: 'network-only',
-        }).then((response) => setAllPaymentsSum(get(response, 'data.result.sum', 0)))
+        }).then((response) => setAllPaymentsSum(Number(Number(get(response, 'data.result.sum', 0)).toFixed(2))))
 
         client.query({
             query: SUM_PAYMENTS_QUERY,
@@ -132,7 +128,7 @@ export const MarketplacePaymentsContent = () => {
                 },
             },
             fetchPolicy: 'network-only',
-        }).then((response) => setDonePaymentsSum(get(response, 'data.result.sum', 0)))
+        }).then((response) => setDonePaymentsSum(Number(Number(get(response, 'data.result.sum', 0)).toFixed(2))))
 
         client.query({
             query: SUM_PAYMENTS_QUERY,
@@ -143,7 +139,7 @@ export const MarketplacePaymentsContent = () => {
                 },
             },
             fetchPolicy: 'network-only',
-        }).then((response) => setInProcessPaymentsSum(get(response, 'data.result.sum', 0)))
+        }).then((response) => setInProcessPaymentsSum(Number(Number(get(response, 'data.result.sum', 0)).toFixed(2))))
     }, [])
 
     const isNoPaymentsData = isEmpty(payments) && isEmpty(filters) && !paymentsLoading
@@ -204,14 +200,14 @@ export const MarketplacePaymentsContent = () => {
                             </Row>
                         </TableFiltersContainer>
                         <PaymentsSumContainer>
-                            <Row justify='space-between' gutter={ROW_GUTTERS}>
-                                <Col xs={24} lg={7}>
+                            <Row align='middle' justify='center' gutter={[80, 40]}>
+                                <Col>
                                     {`${allPaymentsSumMessage}: ${allPaymentsSum}`}
                                 </Col>
-                                <Col xs={24} lg={7}>
+                                <Col>
                                     {`${donePaymentsSumMessage}: ${donePaymentsSum}`}
                                 </Col>
-                                <Col xs={24} lg={7}>
+                                <Col>
                                     {`${inProcessPaymentsSumMessage}: ${inProcessPaymentsSum}`}
                                 </Col>
                             </Row>

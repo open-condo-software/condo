@@ -23,6 +23,7 @@ import {
 const invoiceNumberFilter = getStringContainsFilter(['invoice', 'number'])
 const ticketNumberFilter = getStringContainsFilter(['invoice', 'ticket', 'number'])
 const statusFilter = getStringContainsFilter('status')
+const amount = getStringContainsFilter('amount')
 const paymentDateRangeFilter = getDayRangeFilter('date')
 
 export function useMarketplacePaymentsFilters (): Array<FiltersMeta<PaymentWhereInput>>  {
@@ -36,7 +37,7 @@ export function useMarketplacePaymentsFilters (): Array<FiltersMeta<PaymentWhere
         return [
             {
                 keyword: 'search',
-                filters: [paymentDateRangeFilter, statusFilter, ticketNumberFilter, invoiceNumberFilter],
+                filters: [paymentDateRangeFilter, statusFilter, ticketNumberFilter, invoiceNumberFilter, amount],
                 combineType: 'OR',
             },
         ]

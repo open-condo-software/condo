@@ -5,7 +5,7 @@ import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Modal, TabItem, Tabs, Tag } from '@open-condo/ui'
+import { TabItem, Tabs, Tag } from '@open-condo/ui'
 import { Button } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
