@@ -1,8 +1,7 @@
-import { SortPaymentsBy } from '@app/condo/schema'
 import { Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import React, { useMemo, useState } from 'react'
+import React, { useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -13,13 +12,9 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
-import { parseQuery } from '@condo/domains/common/utils/tables.utils'
 import { MarketplacePaymentsContent } from '@condo/domains/marketplace/components/MarketplacePaymentsContent'
 import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
-import { useFilters } from '@condo/domains/marketplace/hooks/useFilters'
 import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
-import { useTableColumns } from '@condo/domains/marketplace/hooks/useTableColumns'
 import { InvoiceContext, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 
@@ -41,7 +36,6 @@ export const MarketplacePageContent = () => {
     const ServicesEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.title' })
     const ServicesEmptyText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.text' })
     const ServicesEmptyButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.buttonText' })
-    const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
 
     const { GlobalHints } = useGlobalHints()
     const [currentTab, onTabChange] = useQueryTab([MARKETPLACE_PAGE_TYPES.bills, MARKETPLACE_PAGE_TYPES.payments, MARKETPLACE_PAGE_TYPES.services])
@@ -60,34 +54,6 @@ export const MarketplacePageContent = () => {
     const role = get(userOrganization, ['link', 'role'], {})
     const canReadPayments = get(role, ['canReadPayments'], false)
     const canManageInvoices = get(role, ['canManageInvoices'], false)
-
-    const filterMetas = useFilters(currentTab)
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, [])
-    const { filters, sorters } = parseQuery(router.query)
-
-    const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
-    const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
-    const [textStatusDescModal, setTextStatusDescModal] = useState('')
-    const openStatusDescModal = (statusType) => {
-        const titleModal = intl.formatMessage({ id: 'payment.status.description.title.' + statusType })
-        const textModal = intl.formatMessage({ id: 'payment.status.description.text.' + statusType })
-
-        setTitleStatusDescModal(titleModal)
-        setTextStatusDescModal(textModal)
-        setIsStatusDescModalVisible(true)
-    }
-    const tableColumns = useTableColumns(filterMetas, currentTab, openStatusDescModal)
-
-    const searchPaymentsQuery = useMemo(() => {
-        return {
-            invoice: {
-                context: {
-                    organization: { id: orgId },
-                },
-            },
-        }},
-    [filters, filtersToWhere, orgId])
-    const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPaymentsBy[], [sorters, sortersToSortBy])
 
     const RenderNotSetupTag = useMemo(() => {
         if (!marketplaceIsSetup) {
@@ -115,13 +81,7 @@ export const MarketplacePageContent = () => {
             canReadPayments && {
                 label: PaymentsTab,
                 key: MARKETPLACE_PAGE_TYPES.payments,
-                children: <MarketplacePaymentsContent
-                    filterMetas={filterMetas}
-                    searchPaymentsQuery={searchPaymentsQuery}
-                    role={role}
-                    sortBy={sorters}
-                    tableColumns={tableColumns}
-                />,
+                children: <MarketplacePaymentsContent/>,
             },
             {
                 label: ServicesTab,
@@ -150,24 +110,6 @@ export const MarketplacePageContent = () => {
                     destroyInactiveTabPane
                 />
             )}
-            <Modal
-                open={isStatusDescModalVisible}
-                onCancel={() => setIsStatusDescModalVisible(false)}
-                title={titleStatusDescModal}
-                footer={[
-                    <Button
-                        key='close'
-                        type='secondary'
-                        onClick={() => setIsStatusDescModalVisible(false)}
-                    >
-                        {ConfirmTitle}
-                    </Button>,
-                ]}
-            >
-                <Typography.Text type='secondary'>
-                    {textStatusDescModal}
-                </Typography.Text>
-            </Modal>
         </PageWrapper>
     )
 }
