@@ -140,12 +140,12 @@ class PaymentLinkRouter {
     }
 
     async handleRequest (req, res) {
-        const featureFlagsHeader = get(req, ['headers', 'feature-flags'])
-        if (featureFlagsHeader) {
-            this.context.req = { headers: { 'feature-flags': featureFlagsHeader } }
-        }
-
-        const isEnabled = await featureToggleManager.isFeatureEnabled(this.context, PAYMENT_LINK)
+        const isEnabled = await featureToggleManager.isFeatureEnabled({
+            req: {
+                features: get(req, 'features'), // to compatibility with FeatureToggleManager._getFeaturesFromKeystoneContext
+                headers: { 'feature-flags': get(req, ['headers', 'feature-flags']) }, // to support tests
+            },
+        }, PAYMENT_LINK)
 
         if (!isEnabled) {
             return res.redirect('/404')
