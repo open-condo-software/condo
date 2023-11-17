@@ -1,4 +1,4 @@
-const { get, isEmpty } = require('lodash')
+const { get, isEmpty, isArray } = require('lodash')
 
 const { getById } = require('@open-condo/keystone/schema')
 
@@ -8,10 +8,10 @@ const HTTPS_REGEXP = /^https:/
 
 module.exports = function createConfiguration (context, conf) {
     const jwksStr = get(conf, 'JWKS')
-    const cookieKeys = JSON.parse(get(conf, 'COOKIE_KEYS', '[]'))
+    const cookieKeys = JSON.parse(get(conf, 'OIDC_COOKIE_KEYS', '[]'))
 
-    if (isEmpty(cookieKeys)) {
-        throw new Error('You should define COOKIE_KEYS env variable for security reasons of the OIDC provider')
+    if (!isArray(cookieKeys) || isEmpty(cookieKeys)) {
+        throw new Error('You should define OIDC_COOKIE_KEYS env variable for security reasons of the OIDC provider')
     }
 
     return {
