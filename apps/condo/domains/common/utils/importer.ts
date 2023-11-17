@@ -254,12 +254,18 @@ export class Importer implements IImporter {
                     processedRow.errors.push(this.errors.creation)
                 } else {
                     for (const mutationError of mutationErrors) {
-                        const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
-                        for (const message of mutationErrorMessages) {
-                            const errorCodes = Object.keys(this.mutationErrorsToMessages)
-                            for (const code of errorCodes) {
-                                if (message.includes(code)) {
-                                    processedRow.errors.push(this.mutationErrorsToMessages[code])
+                        const messageForUser = get(mutationError, 'extensions.messageForUser')
+
+                        if (messageForUser) {
+                            processedRow.errors.push(messageForUser)
+                        } else {
+                            const mutationErrorMessages = get(mutationError, ['data', 'messages'], []) || []
+                            for (const message of mutationErrorMessages) {
+                                const errorCodes = Object.keys(this.mutationErrorsToMessages)
+                                for (const code of errorCodes) {
+                                    if (message.includes(code)) {
+                                        processedRow.errors.push(this.mutationErrorsToMessages[code])
+                                    }
                                 }
                             }
                         }

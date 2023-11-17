@@ -34,7 +34,7 @@ import {
     IMPORT_CONDO_METER_READING_SOURCE_ID,
 } from '@condo/domains/meter/constants/constants'
 import { Meter, MeterReading } from '@condo/domains/meter/utils/clientSchema'
-import { searchMeter, searchMeterResourceOwners } from '@condo/domains/meter/utils/clientSchema/search'
+import { searchMeter } from '@condo/domains/meter/utils/clientSchema/search'
 import { normalizeMeterValue, validateMeterValue } from '@condo/domains/meter/utils/helpers'
 import { searchPropertyWithMap } from '@condo/domains/property/utils/clientSchema/search'
 
@@ -123,7 +123,6 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
     const MeterValue2InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value2ColumnMessage })
     const MeterValue3InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value3ColumnMessage })
     const MeterValue4InvalidMessage = intl.formatMessage({ id: 'meter.import.error.MeterValueInvalid' }, { columnName: Value4ColumnMessage })
-    const MeterResourceOwnedByAnotherOrganizationMessage = intl.formatMessage({ id: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION' })
 
     const userOrganization = useOrganization()
     const client = useApolloClient()
@@ -279,20 +278,11 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const address = get(processedRow, ['addons', 'address'])
         const propertyId = get(processedRow, ['addons', 'propertyId'])
-        const meterResourceId = get(processedRow, ['addons', 'meterResourceId'])
 
         if (!address) errors.push(AddressNotFoundMessage)
         if (address && !propertyId) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
         if (!get(processedRow, ['addons', 'valuesAmount'])) errors.push(NoValuesErrorMessage)
-
-        if (address && propertyId && meterResourceId) {
-            const [meterResourceOwner] = await searchMeterResourceOwners(client, address, meterResourceId)
-
-            if (meterResourceOwner && meterResourceOwner.organization.id !== userOrganizationIdRef.current) {
-                errors.push(MeterResourceOwnedByAnotherOrganizationMessage)
-            }
-        }
 
         const accountNumber = get(processedRow, ['addons', 'accountNumber'])
         const meterNumber = get(processedRow, ['addons', 'meterNumber'])
