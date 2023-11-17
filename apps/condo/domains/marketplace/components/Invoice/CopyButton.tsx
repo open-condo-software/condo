@@ -44,10 +44,11 @@ export const CopyButton = ({ url, copyMessage, copiedMessage, textButton = false
     )
 }
 
-export const getPaymentLinkNotification = ({ intl, number, url }) => {
+export const getPaymentLinkNotification = ({ intl, number, url = null, linkError = null }) => {
     const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.description' })
     const CopyLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copyLink' })
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
+    const GenerateLinkErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.failure.description' })
 
     return {
         message: (
@@ -57,10 +58,20 @@ export const getPaymentLinkNotification = ({ intl, number, url }) => {
         ),
         description: (
             <Space size={16} direction='vertical'>
-                <Typography.Text>
-                    {SuccessNotificationDescription}
-                </Typography.Text>
-                <CopyButton url={url} copyMessage={CopyLinkMessage} copiedMessage={CopiedLinkMessage}/>
+                {
+                    (!url || linkError) ? (
+                        <Typography.Text>
+                            {GenerateLinkErrorMessage}
+                        </Typography.Text>
+                    ) : (
+                        <>
+                            <Typography.Text>
+                                {SuccessNotificationDescription}
+                            </Typography.Text>
+                            <CopyButton url={url} copyMessage={CopyLinkMessage} copiedMessage={CopiedLinkMessage}/>
+                        </>
+                    )
+                }
             </Space>
         ),
         duration: 0,

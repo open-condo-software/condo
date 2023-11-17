@@ -10,24 +10,30 @@ export const useInvoicePaymentLink = () => {
     const client = useApolloClient()
 
     return useCallback(async (invoiceId) => {
-        const data = await client.query({
-            query: GENERATE_PAYMENT_LINK_QUERY,
-            variables: {
-                data: {
-                    dv: 1,
-                    sender: getClientSideSenderInfo(),
-                    invoices: [{ id: invoiceId }],
-                    callbacks: {
-                        // replace after deciding where to redirect
-                        successUrl: 'https://doma.ai',
-                        failureUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        try {
+            const data = await client.query({
+                query: GENERATE_PAYMENT_LINK_QUERY,
+                variables: {
+                    data: {
+                        dv: 1,
+                        sender: getClientSideSenderInfo(),
+                        invoices: [{ id: invoiceId }],
+                        callbacks: {
+                            // replace after deciding where to redirect
+                            successUrl: 'https://doma.ai',
+                            failureUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                        },
                     },
                 },
-            },
-        })
+            })
 
-        const paymentUrl = get(data, 'data.result.paymentUrl')
+            const paymentLink = get(data, 'data.result.paymentUrl')
 
-        return paymentUrl
+            return { paymentLink }
+        } catch (e) {
+            console.error(e)
+
+            return { paymentLink: null, error: true }
+        }
     }, [client])
 }

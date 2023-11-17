@@ -37,9 +37,13 @@ export const CreateInvoiceForm: React.FC = () => {
 
         const { status } = values
         if (status === INVOICE_STATUS_PUBLISHED) {
-            const paymentLink = await getPaymentLink(createdInvoice.id)
+            const { error, paymentLink } = await getPaymentLink(createdInvoice.id)
 
-            notification.success(getPaymentLinkNotification({ intl, number: createdInvoice.number, url: paymentLink }))
+            if (paymentLink) {
+                notification.success(getPaymentLinkNotification({ intl, number: createdInvoice.number, url: paymentLink }))
+            } else {
+                notification.error(getPaymentLinkNotification({ intl, number: createdInvoice.number, linkError: error }))
+            }
         }
 
         return createdInvoice

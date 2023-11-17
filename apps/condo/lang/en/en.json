@@ -1280,6 +1280,7 @@
   "pages.condo.marketplace.invoice.form.cancelInvoiceButton": "Cancel invoice",
   "pages.condo.marketplace.invoice.form.create.notification.message": "Invoice № {number} created",
   "pages.condo.marketplace.invoice.form.create.notification.description": "Now you can copy the link to the payment and pass it to the resident",
+  "pages.condo.marketplace.invoice.form.create.notification.failure.description": "Error occurred while composing link to payment",
   "pages.condo.marketplace.invoice.form.create.notification.copyLink": "Copy link",
   "pages.condo.marketplace.invoice.form.create.notification.copiedLink": "Copied",
   "pages.condo.marketplace.invoice.id.title.order": "Order",

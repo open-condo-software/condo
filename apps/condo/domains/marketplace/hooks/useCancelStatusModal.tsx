@@ -35,8 +35,7 @@ const CancelStatusModal = ({ open, onCancel, onButtonClick }) => {
 }
 
 type CancelModalPropsType = {
-    onCancel?: () => void
-    onButtonClick?: () => void
+    onButtonClick: () => void
 }
 
 export const useCancelStatusModal = () => {
@@ -46,16 +45,10 @@ export const useCancelStatusModal = () => {
         <CancelStatusModal
             open={isCancelModalOpen}
             onCancel={() => {
-                if (props.onCancel) {
-                    props.onCancel()
-                }
-
                 setIsCancelModalOpen(false)
             }}
             onButtonClick={() => {
-                if (props.onButtonClick) {
-                    props.onButtonClick()
-                }
+                props.onButtonClick()
 
                 setIsCancelModalOpen(false)
             }}

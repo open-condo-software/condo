@@ -133,7 +133,7 @@ const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
     useEffect(() => {
         if (invoice.status === INVOICE_STATUS_PUBLISHED) {
             getPaymentLink(invoice.id)
-                .then(url => setUrl(url))
+                .then(({ paymentLink }) => setUrl(paymentLink))
         }
     }, [getPaymentLink, invoice.id, invoice.status])
 
