@@ -58,9 +58,9 @@ const NewsItemSharing = new GQLListSchema('NewsItemSharing', {
         status: {
             schemaDoc: 'Publication status of the news: updated automatically',
             type: Select,
-            options: 'scheduled,processing,published,declined',
+            options: Object.values(STATUSES),
             isRequired: true,
-            defaultValue: 'scheduled',
+            defaultValue: STATUSES.SCHEDULED,
         },
 
         statusMessage: {
