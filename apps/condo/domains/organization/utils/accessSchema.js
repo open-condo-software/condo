@@ -1,7 +1,7 @@
 const isArray = require('lodash/isArray')
 const isEmpty = require('lodash/isEmpty')
-const isString = require('lodash/isString')
 const uniq = require('lodash/uniq')
+const { validate: isUUID } = require('uuid')
 
 const { getByCondition, find } = require('@open-condo/keystone/schema')
 
@@ -66,7 +66,7 @@ async function checkOrganizationsPermission (userId, organizationIds, permission
 
     const uniqOrganizationIds = uniq(organizationIds)
 
-    if (uniqOrganizationIds.some(orgId => !isString(orgId))) return false
+    if (!uniqOrganizationIds.every(isUUID)) return false
 
     for (const id of organizationIds) {
         const hasAccess = await checkOrganizationPermission(userId, id, permission)
@@ -89,7 +89,7 @@ async function checkRelatedOrganizationsPermission (userId, organizationIds, per
 
     const uniqOrganizationIds = uniq(organizationIds)
 
-    if (uniqOrganizationIds.some(orgId => !isString(orgId))) return false
+    if (!uniqOrganizationIds.every(isUUID)) return false
 
     for (const id of organizationIds) {
         const hasAccess = await checkRelatedOrganizationPermission(userId, id, permission)
@@ -114,7 +114,7 @@ async function checkPermissionsInUserOrganizationsOrRelatedOrganizations (userId
 
     const uniqOrganizationIds = uniq(organizationIds)
 
-    if (uniqOrganizationIds.some(orgId => !isString(orgId))) return false
+    if (!uniqOrganizationIds.every(isUUID)) return false
 
     for (const id of organizationIds) {
         const hasAccess = await checkPermissionInUserOrganizationOrRelatedOrganization(userId, id, permission)
