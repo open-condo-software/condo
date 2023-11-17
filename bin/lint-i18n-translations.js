@@ -23,28 +23,13 @@
     To use it as a pre-commit hook, add following entry into `script` section of repository's `package.json`:
 
     ```json
-    "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js",
-    ```
-
-    In `.husky/pre-commit` add a launch command, like following, supposing, that your repo
-    is named `your_repo` and located in `apps` folder:
-
-    ```
-    yarn workspace @app/your_repo lint-i18n-translations
+    "lint-translations": "node ./../../bin/lint-i18n-translations.js",
     ```
 
     Update pre-commit hooks, for example, when husky is in `prepare` script, run
 
     ```shell
     npm run prepare
-    ```
-
-    ### As part of CI/CD workflow
-
-    Add following command to appropriate workflow configuration file:
-
-    ```
-    yarn workspace @app/condo lint-i18n-translations
     ```
 */
 const fs = require('fs')

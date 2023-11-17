@@ -1,5 +1,6 @@
 **/.env
 **/.git*
+!**/.gitignore
 **/__*
 **/*.log
 **/.DS_Store

@@ -21,7 +21,7 @@
     "createservice": "node ./../../bin/createservice",
     "createschema": "node ./../../bin/createschema",
     "lint-schema": "NODE_ENV=test node ./../../bin/lint-schema.js",
-    "lint-i18n-translations": "node ./../../bin/lint-i18n-translations.js"
+    "lint-translations": "node ./../../bin/lint-i18n-translations.js"
   },
   "dependencies": {
     "@2gis/mapgl": "1.28.0",
@@ -190,7 +190,6 @@
     "cross-env": "^7.0.3",
     "css-loader": "1.0.1",
     "cypress": "12.17.3",
-    "eslint-plugin-cypress": "^2.12.1",
     "extracted-loader": "^1.0.7",
     "form-data": "^4.0.0",
     "identity-obj-proxy": "^3.0.0",
