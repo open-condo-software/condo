@@ -14,7 +14,8 @@
     "build:packages": "turbo run build --filter='./packages/*'",
     "build:apps": "turbo run build --filter='./apps/*' --concurrency=100%",
     "build": "turbo run build",
-    "lint": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:code": "yarn run eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint:translations": "turbo run lint-translations",
     "createapp": "node ./bin/createapp",
     "prepare": "husky install"
   },
@@ -34,6 +35,7 @@
     "babel-eslint": "^10.1.0",
     "commander": "^9.4.0",
     "eslint": "^7.13.0",
+    "eslint-plugin-cypress": "^2.12.1",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-jest": "^24.1.0",
     "eslint-plugin-react": "^7.21.5",
