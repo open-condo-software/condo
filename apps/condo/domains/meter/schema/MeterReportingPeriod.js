@@ -4,7 +4,7 @@
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/meter/access/MeterReportingPeriod')
 const { MeterReportingPeriod: MeterReportingPeriodAPI } = require('@condo/domains/meter/utils/serverSchema/index')
@@ -76,7 +76,10 @@ const MeterReportingPeriod = new GQLListSchema('MeterReportingPeriod', {
                     const organizationId = newItem.organization
 
                     if (propertyId) {
-                        const property = await getById('Property', propertyId)
+                        const property = await getByCondition('Property', {
+                            id: propertyId,
+                            deletedAt: null,
+                        })
 
                         if (organizationId !== property.organization) {
                             throw new GQLError(ERRORS.PROPERTY_NOT_FOUND, context)
