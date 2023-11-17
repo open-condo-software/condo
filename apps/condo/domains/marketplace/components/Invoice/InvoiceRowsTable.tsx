@@ -1,6 +1,7 @@
+import { Invoice } from '@app/condo/schema'
 import { Col, Row, RowProps, Table as AntdTable } from 'antd'
 import get from 'lodash/get'
-import { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
@@ -104,9 +105,12 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
     ]
 }
 
-export const InvoiceRowsTable = ({ invoice }) => {
+type InvoiceRowsTableProps = {
+    invoice: Invoice,
+}
+
+export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) => {
     const intl = useIntl()
-    const OrderTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.order' })
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const currencyCode = get(invoice, 'context.currencyCode')
@@ -143,20 +147,13 @@ export const InvoiceRowsTable = ({ invoice }) => {
     ), [ContractPriceMessage, hasMinPrice, isContractToPay, moneyRender, orderColumns.length, totalPrice])
 
     return (
-        <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-            <Col span={24}>
-                <Typography.Title level={4}>{OrderTitle}</Typography.Title>
-            </Col>
-            <Col span={24}>
-                <Table
-                    totalRows={rows.length}
-                    loading={marketItemsLoading}
-                    dataSource={rows}
-                    columns={orderColumns}
-                    pagination={false}
-                    summary={SummaryContent}
-                />
-            </Col>
-        </Row>
+        <Table
+            totalRows={rows.length}
+            loading={marketItemsLoading}
+            dataSource={rows}
+            columns={orderColumns}
+            pagination={false}
+            summary={SummaryContent}
+        />
     )
 }

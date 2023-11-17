@@ -160,7 +160,7 @@ const PaymentTypeField = ({ invoice, isTerminalStatus }) => {
 
     useEffect(() => {
         if (invoice.status === INVOICE_STATUS_PUBLISHED) {
-            getPaymentLink(invoice.id)
+            getPaymentLink([invoice.id])
                 .then(({ paymentLink }) => setUrl(paymentLink))
         }
     }, [getPaymentLink, invoice.id, invoice.status])
@@ -319,6 +319,7 @@ const InvoiceIdPage = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const RawInvoiceTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' })
+    const OrderTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.order' })
 
     const { link, loading: employeeLoading } = useOrganization()
     const router = useRouter()
@@ -377,7 +378,14 @@ const InvoiceIdPage = () => {
                                     )
                                 }
                                 <Col span={24}>
-                                    <InvoiceRowsTable invoice={invoice} />
+                                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                                        <Col span={24}>
+                                            <Typography.Title level={4}>{OrderTitle}</Typography.Title>
+                                        </Col>
+                                        <Col span={24}>
+                                            <InvoiceRowsTable invoice={invoice} />
+                                        </Col>
+                                    </Row>
                                 </Col>
                                 <Col span={24}>
                                     <PaymentTypeField

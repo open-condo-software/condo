@@ -9,7 +9,7 @@ import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.util
 export const useInvoicePaymentLink = () => {
     const client = useApolloClient()
 
-    return useCallback(async (invoiceId) => {
+    return useCallback(async (invoiceIds: string[]) => {
         try {
             const data = await client.query({
                 query: GENERATE_PAYMENT_LINK_QUERY,
@@ -17,7 +17,7 @@ export const useInvoicePaymentLink = () => {
                     data: {
                         dv: 1,
                         sender: getClientSideSenderInfo(),
-                        invoices: [{ id: invoiceId }],
+                        invoices: invoiceIds.map(id => ({ id })),
                         callbacks: {
                             // replace after deciding where to redirect
                             successUrl: 'https://doma.ai',

@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import {
-    B2BAppGlobalFeature,
+    B2BAppGlobalFeature, SortInvoicesBy,
     SortTicketChangesBy,
     SortTicketCommentFilesBy,
     SortTicketCommentsBy,
@@ -12,8 +12,9 @@ import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit, Link as LinkIcon } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
@@ -28,7 +29,15 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
+import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
+import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
+import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
+import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -446,6 +455,65 @@ const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
 const TITLE_STYLE: CSSProperties = { margin: 0 }
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 
+const TicketInvoices = ({ ticketId }) => {
+    const intl = useIntl()
+    const PaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink' })
+    const CopyMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink.copy' })
+    const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
+
+    const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({
+        where: {
+            ticket: { id: ticketId },
+        },
+        sortBy: [SortInvoicesBy.CreatedAtDesc],
+    })
+
+    const [paymentLink, setPaymentLink] = useState<string>()
+    const getPaymentLink = useInvoicePaymentLink()
+    const publishedInvoiceIds = useMemo(
+        () => invoices.filter(invoice => invoice.status === INVOICE_STATUS_PUBLISHED)
+            .map(({ id }) => id),
+        [invoices])
+
+    useEffect(() => {
+        if (!isEmpty(publishedInvoiceIds)) {
+            getPaymentLink(publishedInvoiceIds)
+                .then(setPaymentLink)
+        }
+    }, [getPaymentLink, publishedInvoiceIds])
+
+    if (invoicesLoading) return <Loader />
+
+    return (
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <TicketInvoicesList invoices={invoices} />
+            </Col>
+            {
+                publishedInvoiceIds.length > 0 && (
+                    <PageFieldRow align='middle' title={PaymentLinkMessage}>
+                        <Row gutter={[36, 20]} align='middle' justify='space-between'>
+                            <Col span={16}>
+                                <Typography.Link href={paymentLink} title={paymentLink} ellipsis>
+                                    {paymentLink}
+                                </Typography.Link>
+                            </Col>
+                            <Col>
+                                <CopyButton
+                                    textButton
+                                    url={paymentLink}
+                                    copyMessage={CopyMessage}
+                                    copiedMessage={CopiedLinkMessage}
+                                />
+                            </Col>
+                        </Row>
+                    </PageFieldRow>
+                )
+            }
+        </Row>
+    )
+}
+
 export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
@@ -554,6 +622,9 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
         [auth, employee])
 
+    const { useFlag } = useFeatureFlags()
+    const isMarketPlaceEnabled = useFlag(MARKETPLACE)
+
     const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
             <Col lg={16} xs={24}>
@@ -580,6 +651,13 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         }
                     </Row>
                     <TicketContent ticket={ticket}/>
+                    {
+                        isMarketPlaceEnabled && ticket.isPayable && (
+                            <Col span={24}>
+                                <TicketInvoices ticketId={ticket.id} />
+                            </Col>
+                        )
+                    }
                     {
                         ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
                             <TicketPropertyHintCard

@@ -36,6 +36,7 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -52,6 +53,7 @@ import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSche
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
@@ -143,7 +145,7 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
 )
 
-export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
+export const TicketInfo = ({ organizationId, form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
     const TicketDeadlineLabel = intl.formatMessage({ id: 'TicketDeadline' })
     const TicketDeferredDeadlineLabel = intl.formatMessage({ id: 'TicketDeferredDeadline' })
@@ -188,6 +190,15 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
         form.setFields([{ name: 'deadline', value: autoDeadlineValue }])
         setIsAutoDetectedDeadlineValue(true)
     }, [createdAt, form, setIsAutoDetectedDeadlineValue, ticketSetting])
+
+    const [isPayable, setIsPayable] = useState<boolean>(get(initialValues, 'isPayable'))
+
+    const handlePayableChange = useCallback((e) => {
+        const value = get(e, 'target.checked')
+
+        setIsPayable(value)
+        handleChangeType()
+    }, [handleChangeType])
 
     return (
         <Col span={24}>
@@ -255,7 +266,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                                     <Checkbox
                                                         disabled={disableUserInteraction}
                                                         eventName='TicketCreateCheckboxIsPayable'
-                                                        onChange={handleChangeType}
+                                                        onChange={handlePayableChange}
                                                     >
                                                         {PayableLabel}
                                                     </Checkbox>
@@ -687,6 +698,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 return (
                                                                     <Row gutter={BIG_VERTICAL_GUTTER}>
                                                                         <TicketInfo
+                                                                            organizationId={organizationId}
                                                                             form={form}
                                                                             UploadComponent={UploadComponent}
                                                                             validations={validations}

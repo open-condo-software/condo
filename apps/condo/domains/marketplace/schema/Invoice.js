@@ -184,7 +184,7 @@ const Invoice = new GQLListSchema('Invoice', {
 
             if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED) {
                 const resolvedStatus = get(resolvedData, 'status')
-                const otherResolvedFields = omit(resolvedData, ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'status'])
+                const otherResolvedFields = omit(resolvedData, ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'status', 'ticket'])
                 const otherChangedFields = omitBy(otherResolvedFields, (value, key) => {
                     if (key === 'toPay') {
                         return +value === +existingItem[key]
@@ -193,9 +193,12 @@ const Invoice = new GQLListSchema('Invoice', {
                     return isEqual(value, existingItem[key])
                 })
 
+                const hasAccessToUpdateStatus = resolvedStatus ?
+                    [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
+
                 if (
                     !isEmpty(otherChangedFields) ||
-                    ![INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus)
+                    !hasAccessToUpdateStatus
                 ) {
                     throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
                 }
