@@ -28,6 +28,7 @@ const {
     createTestMeter,
     updateTestMeter,
     MeterResourceOwner,
+    updateTestMeterResourceOwner,
 } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
@@ -1201,6 +1202,41 @@ describe('Meter', () => {
                 ]))
             })
 
+        })
+
+        test('should allow to softDelete Meter after loose resource ownership', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource)
+
+            let meterResourceOwner
+
+            await waitFor(async () => {
+                meterResourceOwner = await MeterResourceOwner.getOne(client, {
+                    address: meter.property.address,
+                    organization: { id: client.organization.id },
+                    resource: { id: meter.resource.id },
+                })
+
+                expect(meterResourceOwner).toHaveProperty(['organization', 'id'], client.organization.id)
+                expect(meterResourceOwner).toHaveProperty(['resource', 'id'], meter.resource.id)
+                expect(meterResourceOwner).toHaveProperty('address', meter.property.address)
+                expect(meterResourceOwner).toHaveProperty(['sender', 'fingerprint'], meter.sender.fingerprint)
+            })
+
+            const [organization] = await createTestOrganization(admin)
+
+            const [newMeterResourceOwner] = await updateTestMeterResourceOwner(admin, meterResourceOwner.id, {
+                organization: { connect: { id: organization.id } },
+            })
+
+            expect(newMeterResourceOwner).toHaveProperty(['organization', 'id'], organization.id)
+            expect(newMeterResourceOwner).toHaveProperty(['addressKey'], client.property.addressKey)
+            expect(newMeterResourceOwner).toHaveProperty(['resource', 'id'], COLD_WATER_METER_RESOURCE_ID)
+
+            const [updatedMeter] = await Meter.softDelete(client, meter.id, {})
+
+            expect(updatedMeter.deletedAt).not.toBeNull()
         })
     })
 })

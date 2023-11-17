@@ -221,8 +221,14 @@ const Meter = new GQLListSchema('Meter', {
                 }
             }
 
+            const oldDeletedAt = get(existingItem, 'deletedAt')
+            const newDeletedAt = get(resolvedData, 'deletedAt')
+            const isSoftDeleteOperation = newDeletedAt && !oldDeletedAt
+
             const isNeedToCheckOwnership = operation === 'create' || (operation === 'update'
-                && (resolvedData['resource'] !== existingItem['resource'] || resolvedData['property'] !== existingItem['property']))
+                && !isSoftDeleteOperation
+                && (resolvedData['resource'] !== existingItem['resource'] || resolvedData['property'] !== existingItem['property'])
+            )
 
             if (isNeedToCheckOwnership) {
                 const property = await Property.getOne(context, {
@@ -256,7 +262,7 @@ const Meter = new GQLListSchema('Meter', {
                     deletedAt: null,
                 })
 
-                if (!hasMeterResourceOwnership) {
+                if (!originalInput['deletedAt'] && !hasMeterResourceOwnership) {
                     await MeterResourceOwner.create(context, {
                         dv: 1, sender: originalInput.sender,
                         address: property.address,
