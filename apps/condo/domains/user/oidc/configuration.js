@@ -80,7 +80,6 @@ module.exports = function createConfiguration (context, conf) {
             },
         },
         cookies: {
-            // TODO(pahaz): take it from .env!
             keys: cookieKeys,
             short: {
                 sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
