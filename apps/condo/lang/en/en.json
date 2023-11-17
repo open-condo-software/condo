@@ -483,6 +483,8 @@
   "pages.condo.error.Description": "We are carrying out technical work. Please come back a little later.",
   "pages.condo.error.NotFoundTitle": "Page not found",
   "pages.condo.error.NotFoundDescription": "Page removed or never existed",
+  "pages.condo.error.paymentLinkHandler.NotFoundTitle": "Unknown payment link",
+  "pages.condo.error.paymentLinkHandler.NotFoundDescription": "Can't detect payment link type. Maybe link was corrupted or copied partially.",
   "pages.condo.contact.PageTitle": "Contacts",
   "pages.condo.contact.ImportTitle": "contacts",
   "pages.condo.contact.Verified": "Verified",

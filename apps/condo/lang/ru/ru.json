@@ -483,6 +483,8 @@
   "pages.condo.error.Description": "Проводим технические работы. Зайдите, пожалуйста, немного позже.",
   "pages.condo.error.NotFoundTitle": "Страница не найдена",
   "pages.condo.error.NotFoundDescription": "Страница удалена или её никогда не существовало",
+  "pages.condo.error.paymentLinkHandler.NotFoundTitle": "Неизвестная ссылка на оплату",
+  "pages.condo.error.paymentLinkHandler.NotFoundDescription": "Не удалось определить тип ссылки. Возможно ссылка неверная или скопирована не полностью.",
   "pages.condo.contact.PageTitle": "Контакты жителей",
   "pages.condo.contact.ImportTitle": "жителей",
   "pages.condo.contact.Verified": "Верифицирован",
