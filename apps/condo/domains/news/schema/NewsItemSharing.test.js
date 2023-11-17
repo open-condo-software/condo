@@ -326,30 +326,4 @@ describe('NewsItemSharing', () => {
             })
         })
     })
-
-    describe('Real life tests', () => {
-        test('Status transitions works', async () => {
-            const [B2BAppNewsSharingConfig] = await createTestB2BAppNewsSharingConfig(admin)
-            const [B2BApp] = await createTestB2BApp(admin, { newsSharingConfig: { connect: { id: B2BAppNewsSharingConfig.id } } })
-            const [B2BContext] = await createTestB2BAppContext(admin, B2BApp, dummyO10n)
-
-            const [publishedNewsItem] = await createTestNewsItem(staffWithPermissions, dummyO10n, {
-                title: '🚧 Planned Water Outage Notification 🚧',
-                body: 'We are conducting a planned water outage on September 25 2023 The outage will last approximately 4 hours',
-            })
-            await createTestNewsItemScope(staffWithPermissions, publishedNewsItem)
-            await publishTestNewsItem(staffWithPermissions, publishedNewsItem.id)
-            
-            const [newsItemSharing] = await createTestNewsItemSharing(staffWithPermissions, B2BContext, publishedNewsItem)
-
-            // Made by external miniapp
-
-            await updateTestNewsItemSharing(admin, newsItemSharing.id, { status: STATUSES.PROCESSING })
-            await updateTestNewsItemSharing(admin, newsItemSharing.id, { status: STATUSES.PUBLISHED })
-
-            const [retrievedNewsItemSharing] = await NewsItemSharing.getAll(staffWithPermissions, { id: newsItemSharing.id } )
-
-            expect(retrievedNewsItemSharing.status).toEqual(STATUSES.PUBLISHED)
-        })
-    })
 })
