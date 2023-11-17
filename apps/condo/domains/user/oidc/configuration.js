@@ -1,4 +1,4 @@
-const { get } = require('lodash')
+const { get, isEmpty, isArray } = require('lodash')
 
 const { getById } = require('@open-condo/keystone/schema')
 
@@ -8,6 +8,11 @@ const HTTPS_REGEXP = /^https:/
 
 module.exports = function createConfiguration (context, conf) {
     const jwksStr = get(conf, 'JWKS')
+    const cookieKeys = JSON.parse(get(conf, 'OIDC_COOKIE_KEYS', '[]'))
+
+    if (!isArray(cookieKeys) || isEmpty(cookieKeys)) {
+        throw new Error('You should define OIDC_COOKIE_KEYS env variable for security reasons of the OIDC provider')
+    }
 
     return {
         adapter: createAdapterClass(context),
@@ -75,8 +80,7 @@ module.exports = function createConfiguration (context, conf) {
             },
         },
         cookies: {
-            // TODO(pahaz): take it from .env!
-            keys: ['some secret key', 'and also the old rotated away some time ago', 'and one more'],
+            keys: cookieKeys,
             short: {
                 sameSite: HTTPS_REGEXP.test(conf.SERVER_URL) ? 'None' : 'Lax',
                 secure: HTTPS_REGEXP.test(conf.SERVER_URL),
