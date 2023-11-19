@@ -1,10 +1,11 @@
 import { Invoice as InvoiceType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Space, Tag, Typography } from '@open-condo/ui'
+import { Modal } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
@@ -13,6 +14,7 @@ import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { InvoiceRowsTable } from './InvoiceRowsTable'
+import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 
 const TicketInvoiceCard = ({ invoice }) => {
@@ -28,8 +30,9 @@ const TicketInvoiceCard = ({ invoice }) => {
     const StatusMessage = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` })
     const invoiceStatusColors = INVOICE_STATUS_COLORS[invoiceStatus]
 
+    const [editModalOpen, setEditModalOpen] = useState<boolean>()
     const handleInvoiceNumberClick = useCallback(() => {
-        // open invoice edit modal
+        setEditModalOpen(true)
     }, [])
 
     return (
@@ -55,6 +58,12 @@ const TicketInvoiceCard = ({ invoice }) => {
             <Col span={24}>
                 <InvoiceRowsTable invoice={invoice} />
             </Col>
+            <UpdateInvoiceForm invoice={invoice} modalFormProps={{
+                visible: editModalOpen,
+                showCancelButton: false,
+                cancelModal: () => setEditModalOpen(false),
+                modalProps: { width: 'big' },
+            }} />
         </Row>
     )
 }

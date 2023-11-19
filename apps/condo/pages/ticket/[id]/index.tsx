@@ -478,7 +478,7 @@ const TicketInvoices = ({ ticketId }) => {
     useEffect(() => {
         if (!isEmpty(publishedInvoiceIds)) {
             getPaymentLink(publishedInvoiceIds)
-                .then(setPaymentLink)
+                .then(({ paymentLink }) => setPaymentLink(paymentLink))
         }
     }, [getPaymentLink, publishedInvoiceIds])
 

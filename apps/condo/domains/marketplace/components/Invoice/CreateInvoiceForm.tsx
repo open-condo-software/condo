@@ -1,9 +1,10 @@
-import { notification } from 'antd'
+import { Col, notification } from 'antd'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
 import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
@@ -15,6 +16,8 @@ import { getPaymentLinkNotification } from './CopyButton'
 
 export const CreateInvoiceForm: React.FC = () => {
     const intl = useIntl()
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
+
     const router = useRouter()
     const { organization, link } = useOrganization()
 
@@ -30,10 +33,11 @@ export const CreateInvoiceForm: React.FC = () => {
     })
 
     const getPaymentLink = useInvoicePaymentLink()
+    const [submitLoading, setSubmitLoading] = useState<boolean>(false)
 
     const handleCreateInvoice = useCallback(async (values) => {
+        setSubmitLoading(true)
         const payload = Invoice.formValuesProcessor({ ...values, context: invoiceContext.id }, invoiceContext, intl)
-        console.log(payload)
         const createdInvoice = await createInvoiceAction(payload)
 
         const { status } = values
@@ -47,6 +51,7 @@ export const CreateInvoiceForm: React.FC = () => {
             }
         }
 
+        setSubmitLoading(false)
         return createdInvoice
     }, [invoiceContext, createInvoiceAction, getPaymentLink, intl])
 
@@ -62,6 +67,26 @@ export const CreateInvoiceForm: React.FC = () => {
             role={link}
             initialValues={initialValues}
             OnCompletedMsg={null}
-        />
+        >
+            {
+                ({ handleSave }) => (
+                    <Col span={24}>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='primary'
+                                    loading={submitLoading}
+                                    disabled={submitLoading}
+                                >
+                                    {SaveLabel}
+                                </Button>,
+                            ]}
+                        />
+                    </Col>
+                )
+            }
+        </BaseInvoiceForm>
     )
 }

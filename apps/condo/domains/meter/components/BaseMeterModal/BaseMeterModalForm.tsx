@@ -191,7 +191,7 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
                 {...otherProps}
             >
                 {
-                    (form) => (
+                    ({ form }) => (
                         <Row gutter={METER_MODAL_ROW_GUTTERS}>
                             <Col span={24}>
                                 <Row justify='space-between' gutter={METER_MODAL_ROW_GUTTERS}>

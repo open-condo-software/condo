@@ -10,15 +10,15 @@ import styled from '@emotion/styled'
 import { Col, Form, Row, RowProps, Input, AutoComplete, Select } from 'antd'
 import { isEmpty } from 'lodash'
 import get from 'lodash/get'
-import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { ActionBar, Alert, Button, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
+import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
@@ -372,7 +372,7 @@ type MarketItemOptionType = {
     label: string, value: string, toPay: string, isMin: boolean, sku: string
 }
 
-const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus }) => {
+const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabled, setStatus, isModalForm }) => {
     const intl = useIntl()
     const ServiceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service' })
     const QuntityLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.quantity' })
@@ -445,6 +445,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const flatMarketOptions = useMemo(() => marketItemGroups.flatMap(group => group.options), [marketItemGroups])
 
     const moneyRender = useMemo(() => getMoneyRender(intl), [intl])
+    const gutter: RowProps['gutter'] = useMemo(() => isModalForm ? [46, 12] : [50, 12], [isModalForm])
 
     const updateRowFields = useCallback((formName, newFields = {}) => {
         form.setFieldsValue({
@@ -465,7 +466,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                     {
                         marketItemForms.map((marketItemForm, index) => (
                             <Col span={24} key={marketItemForm.name}>
-                                <Row gutter={[50, 12]} align='top'>
+                                <Row gutter={gutter} align='top'>
                                     <Col xs={24} lg={8}>
                                         <Form.Item
                                             label={ServiceLabel}
@@ -739,24 +740,36 @@ type BaseInvoiceFormProps = {
     action: (values: InvoiceFormValuesType) => Promise<Invoice>
     organization: Organization
     role: OrganizationEmployeeRole
+    initialValues?: InvoiceFormValuesType
+    OnCompletedMsg?: ComponentProps<typeof FormWithAction>['OnCompletedMsg']
     isCreateForm?: boolean
     isCreatedByResident?: boolean
-    initialValues?: InvoiceFormValuesType
-    OnCompletedMsg?
+    modalFormProps?: ComponentProps<typeof BaseModalForm>
 }
 
-export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, isCreatedByResident, action, organization, role, initialValues, OnCompletedMsg }) => {
+export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const intl = useIntl()
     const ServicesChosenLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.servicesChosen' })
     const TotalToPayLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.totalToPay' })
     const PaymentModeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payment' })
     const PaymentOnlineLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payment.online' })
     const PaymentCashLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payment.cash' })
-    const SaveLabel = intl.formatMessage({ id: 'Save' })
     const ServicesListMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.servicesList' })
     const NoPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData' })
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+
+    const {
+        children,
+        action,
+        organization,
+        role,
+        initialValues,
+        OnCompletedMsg,
+        isCreateForm,
+        isCreatedByResident,
+        modalFormProps,
+    } = props
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -766,13 +779,6 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
 
     const [status, setStatus] = useState<typeof INVOICE_STATUSES[number]>(get(initialValues, 'status'))
     const [paymentType, setPaymentType] = useState<typeof INVOICE_PAYMENT_TYPES[number]>(get(initialValues, 'paymentType'))
-    const [submitLoading, setSubmitLoading] = useState<boolean>(false)
-
-    const formAction = useCallback(async (values) => {
-        setSubmitLoading(true)
-        await action(values)
-        setSubmitLoading(false)
-    }, [action])
 
     const isAllFieldsDisabled = get(initialValues, 'status') !== INVOICE_STATUS_DRAFT
 
@@ -782,42 +788,46 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const currencySymbol = get(currencySymbolObj, 'value')
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
 
+    const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
+    const colSpan = useMemo(() => isModalForm ? 24 : 20, [isModalForm])
+
+    const FormContainer = useMemo(
+        () => isModalForm ? BaseModalForm : FormWithAction,
+        [isModalForm])
+
     return (
-        <FormWithAction
+        <FormContainer
             initialValues={initialValues}
-            action={formAction}
+            action={action}
             layout='horizontal'
             colon={false}
             OnCompletedMsg={OnCompletedMsg}
             scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
             validateTrigger={FORM_VALIDATE_TRIGGER}
+            {...modalFormProps}
             children={({ handleSave, form }) => (
                 <Row gutter={OUTER_VERTICAL_GUTTER}>
-                    <Col span={24} md={20}>
-                        <Row gutter={GROUP_VERTICAL_GUTTER}>
-                            <Col span={24}>
-                                <Form.Item
-                                    dependencies={['status']}
-                                >
-                                    {
-                                        ({ getFieldValue }) => {
-                                            const status = getFieldValue('status')
-                                            const disabled = isAllFieldsDisabled || status !== INVOICE_STATUS_DRAFT || isCreatedByResident
+                    <Col span={24} md={colSpan} hidden={isModalForm}>
+                        <Form.Item
+                            dependencies={['status']}
+                        >
+                            {
+                                ({ getFieldValue }) => {
+                                    const status = getFieldValue('status')
+                                    const disabled = isAllFieldsDisabled || status !== INVOICE_STATUS_DRAFT || isCreatedByResident
 
-                                            return <PayerDataFields
-                                                organization={organization}
-                                                form={form}
-                                                role={role}
-                                                disabled={disabled}
-                                                initialValues={initialValues}
-                                            />
-                                        }
-                                    }
-                                </Form.Item>
-                            </Col>
-                        </Row>
+                                    return <PayerDataFields
+                                        organization={organization}
+                                        form={form}
+                                        role={role}
+                                        disabled={disabled}
+                                        initialValues={initialValues}
+                                    />
+                                }
+                            }
+                        </Form.Item>
                     </Col>
-                    <Col md={22}>
+                    <Col md={isModalForm ? 24 : 22}>
                         <Row>
                             <Col span={24}>
                                 <Typography.Title level={3}>{ServicesListMessage}</Typography.Title>
@@ -839,6 +849,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                                 currencySymbol={currencySymbol}
                                                 disabled={disabled}
                                                 setStatus={setStatus}
+                                                isModalForm={isModalForm}
                                             />
                                         }
                                     }
@@ -863,7 +874,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                     <>
                                         <Col
                                             span={24}
-                                            md={20}
+                                            md={colSpan}
                                         >
                                             <Form.Item
                                                 shouldUpdate
@@ -909,7 +920,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                         </Col>
                                         <Col span={24}>
                                             <Row gutter={[0, 40]}>
-                                                <Col md={20}>
+                                                <Col md={colSpan}>
                                                     <Form.Item
                                                         label={<Typography.Text strong>{PaymentModeLabel}</Typography.Text>}
                                                         name='paymentType'
@@ -938,7 +949,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                                         </RadioGroup>
                                                     </Form.Item>
                                                 </Col>
-                                                <Col md={20}>
+                                                <Col md={colSpan}>
                                                     <Form.Item
                                                         dependencies={['paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice']}
                                                     >
@@ -983,7 +994,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
 
                                                     if (!payerData) {
                                                         return (
-                                                            <Col md={20}>
+                                                            <Col md={colSpan}>
                                                                 <Alert
                                                                     type='info'
                                                                     message={NoPayerDataAlertMessage}
@@ -999,7 +1010,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                                     }
 
                                                     return (
-                                                        <Col md={20}>
+                                                        <Col md={colSpan}>
                                                             <ResidentPaymentAlert
                                                                 propertyId={property}
                                                                 unitName={unitName}
@@ -1017,21 +1028,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                             }
                         }
                     </Form.Item>
-                    <Col span={24}>
-                        <ActionBar
-                            actions={[
-                                <Button
-                                    key='submit'
-                                    onClick={handleSave}
-                                    type='primary'
-                                    loading={submitLoading}
-                                    disabled={submitLoading}
-                                >
-                                    {SaveLabel}
-                                </Button>,
-                            ]}
-                        />
-                    </Col>
+                    {typeof children === 'function' ? children({ handleSave, form }) : children}
                 </Row>
             )}/>
     )

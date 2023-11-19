@@ -1,12 +1,15 @@
 import { Invoice as InvoiceType, UserTypeType } from '@app/condo/schema'
-import { notification } from 'antd'
+import { Col, notification } from 'antd'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
-import React, { useCallback, useMemo } from 'react'
+import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
+import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import {
     INVOICE_STATUS_PUBLISHED,
     INVOICE_STATUS_DRAFT,
@@ -14,17 +17,19 @@ import {
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
-
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
 
 
 type UpdateInvoiceFormProps = {
     invoice: InvoiceType
+    modalFormProps?: ComponentProps<typeof BaseModalForm>
 }
 
-export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice }) => {
+export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice, modalFormProps }) => {
     const intl = useIntl()
+    const SaveLabel = intl.formatMessage({ id: 'Save' })
+
     const router = useRouter()
     const { organization, link } = useOrganization()
 
@@ -39,8 +44,10 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
     })
 
     const getPaymentLink = useInvoicePaymentLink()
+    const [submitLoading, setSubmitLoading] = useState<boolean>(false)
 
     const handleUpdateInvoice = useCallback(async (values) => {
+        setSubmitLoading(true)
         let payloadToProcessor = { ...values, context: invoiceContext.id }
         if (!values.payerData) {
             payloadToProcessor = { ...payloadToProcessor, property: null, contact: null, unitName: null, unitType: null }
@@ -61,10 +68,12 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
             }
         }
 
+        setSubmitLoading(false)
         return updatedInvoice
     }, [getPaymentLink, intl, invoice, invoiceContext, updateInvoiceAction])
 
     const initialValues = useMemo(() => Invoice.convertToFormState(invoice, intl), [intl, invoice])
+    const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
 
     return (
         <BaseInvoiceForm
@@ -74,6 +83,27 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
             initialValues={initialValues}
             isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident}
             OnCompletedMsg={null}
-        />
+            modalFormProps={modalFormProps}
+        >
+            {
+                ({ handleSave }) => !isModalForm && (
+                    <Col span={24}>
+                        <ActionBar
+                            actions={[
+                                <Button
+                                    key='submit'
+                                    onClick={handleSave}
+                                    type='primary'
+                                    loading={submitLoading}
+                                    disabled={submitLoading}
+                                >
+                                    {SaveLabel}
+                                </Button>,
+                            ]}
+                        />
+                    </Col>
+                )
+            }
+        </BaseInvoiceForm>
     )
 }
