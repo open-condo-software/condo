@@ -10,7 +10,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { B2BAppRole } = require('@condo/domains/miniapp/utils/serverSchema')
 
-class UpdateB2BAppRoles{
+class UpdateB2BAppRoles {
     constructor (b2bAppId) {
         this.b2bAppId = b2bAppId
         this.context = null
