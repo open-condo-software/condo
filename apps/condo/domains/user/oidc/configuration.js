@@ -8,10 +8,10 @@ const HTTPS_REGEXP = /^https:/
 
 module.exports = function createConfiguration (context, conf) {
     const jwksStr = get(conf, 'JWKS')
-    const cookieKeys = JSON.parse(get(conf, 'OIDC_COOKIE_KEYS', '[]'))
+    let cookieKeys = JSON.parse(get(conf, 'OIDC_COOKIE_KEYS', '[]'))
 
     if (!isArray(cookieKeys) || isEmpty(cookieKeys)) {
-        throw new Error('You should define OIDC_COOKIE_KEYS env variable for security reasons of the OIDC provider')
+        cookieKeys = [get(conf, 'COOKIE_SECRET')]
     }
 
     return {
