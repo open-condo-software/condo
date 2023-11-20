@@ -25,7 +25,6 @@ const { getPaymentsSum } = require('@condo/domains/billing/utils/serverSchema')
 const { REQUIRED, NOT_UNIQUE, NOT_FOUND, DV_VERSION_MISMATCH } = require('@condo/domains/common/constants/errors')
 const { WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
 const { INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
-const { RESIDENT, STAFF } = require('@condo/domains/user/constants/common')
 
 const {
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS, RECEIPTS_ARE_DELETED, RECEIPTS_HAVE_NEGATIVE_TO_PAY_VALUE,
@@ -36,7 +35,7 @@ const {
     CANNOT_FIND_ALL_BILLING_RECEIPTS, ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED,
     INVOICES_ARE_NOT_PUBLISHED, INVOICES_FOR_THIRD_USER, INVOICE_CONTEXT_NOT_FINISHED,
     INVOICES_HAS_MULTIPLE_CURRENCIES,
-    DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES, INVOICES_HAS_DIFFERENT_CLIENTS,
+    DIFFERENT_CURRENCY_CODES_FOR_RECEIPTS_AND_INVOICES,
 } = require('../constants/errors')
 
 const ERRORS = {
@@ -96,19 +95,12 @@ const ERRORS = {
         type: INVOICES_ARE_NOT_PUBLISHED,
         message: 'Found invoices with not "published" status',
     },
-    INVOICES_FOR_THIRD_USER: {
+    INVOICES_FOR_THIRD_USER:{
         mutation: 'registerMultiPayment',
         variable: ['data', 'invoices'],
         code: BAD_USER_INPUT,
         type: INVOICES_FOR_THIRD_USER,
         message: 'Found invoices not related to the current user',
-    },
-    INVOICES_HAS_DIFFERENT_CLIENTS: {
-        mutation: 'registerMultiPayment',
-        variable: ['data', 'invoices'],
-        code: BAD_USER_INPUT,
-        type: INVOICES_HAS_DIFFERENT_CLIENTS,
-        message: 'Found invoices with different client ids',
     },
     INVOICE_CONTEXT_NOT_FINISHED: {
         mutation: 'registerMultiPayment',
@@ -288,8 +280,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     recurrentPaymentContext,
                 } = data
 
-                const userType = context.authedItem.type
-                const userId = context.authedItem.id
                 const groupedReceipts = get(data, 'groupedReceipts', []) || []
                 const invoices = get(data, 'invoices', []) || []
 
@@ -565,19 +555,14 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                 // Processing of invoices if provided
                 let invoicesContextsCurrencyCode
-                let invoiceClientId
-
                 if (foundInvoices.length > 0) {
                     // All invoices must be published
                     if (foundInvoices.some(({ status }) => status !== INVOICE_STATUS_PUBLISHED)) {
                         throw new GQLError(ERRORS.UNPUBLISHED_INVOICE, context)
                     }
 
-                    // If resident user, all invoices with client must be related to the current user
-                    if (
-                        userType === RESIDENT &&
-                        foundInvoices.some(({ client }) => !!client && client !== context.authedItem.id)
-                    ) {
+                    // All invoices with client must be related to the current user
+                    if (foundInvoices.some(({ client }) => !!client && client !== context.authedItem.id)) {
                         throw new GQLError(ERRORS.INVOICES_FOR_THIRD_USER, context)
                     }
 
@@ -593,19 +578,6 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                     invoicesContextsCurrencyCode = get(invoicesContexts, [0, 'currencyCode'])
 
-                    if (userType === STAFF) {
-                        const invoicesClientIds = foundInvoices
-                            .filter(({ client }) => !!client)
-                            .map(({ client }) => client.id)
-                        const uniqClientIds = uniq(invoicesClientIds)
-
-                        if (uniqClientIds.length > 1) {
-                            throw new GQLError(ERRORS.INVOICES_HAS_DIFFERENT_CLIENTS, context)
-                        }
-
-                        invoiceClientId = get(uniqClientIds, '0')
-                    }
-
                     if (
                         !!billingIntegrationCurrencyCode && !!invoicesContextsCurrencyCode
                         && billingIntegrationCurrencyCode !== invoicesContextsCurrencyCode
@@ -615,7 +587,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
 
                     const acquiringIntegration = await getById('AcquiringIntegration', invoicesContexts[0].integration)
 
-                    for (const invoice of foundInvoices) {
+                    for (const invoice of foundInvoices){
                         const invoiceContext = _find(invoicesContexts, { id: invoice.context })
                         const frozenInvoice = await freezeInvoice(invoice)
                         const feeCalculator = new FeeDistribution(compactDistributionSettings([
@@ -681,21 +653,12 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                 const recurrentPaymentContextField = recurrentPaymentContext ? {
                     recurrentPaymentContext: { connect: { id: recurrentPaymentContext.id } },
                 } : {}
-
-                let userIdToConnect
-                if (userType === RESIDENT) {
-                    userIdToConnect = userId
-                } else if (userType === STAFF) {
-                    userIdToConnect = invoiceClientId
-                }
-
-                const connectUserStatement = userIdToConnect ? { user: { connect: { id: userIdToConnect } } } : {}
                 const multiPayment = await MultiPayment.create(context, {
                     dv: 1,
                     sender,
                     ...Object.fromEntries(Object.entries(totalAmount).map(([key, value]) => ([key, value.toFixed(2)]))),
                     currencyCode,
-                    ...connectUserStatement,
+                    user: { connect: { id: context.authedItem.id } },
                     integration: { connect: { id: acquiringIntegration.id } },
                     payments: { connect: paymentIds },
                     // TODO(DOMA-1574): add correct category
@@ -708,7 +671,7 @@ const RegisterMultiPaymentService = new GQLCustomSchema('RegisterMultiPaymentSer
                     webViewUrl: `${acquiringIntegration.hostUrl}${WEB_VIEW_PATH.replace('[id]', multiPayment.id)}`,
                     feeCalculationUrl: `${acquiringIntegration.hostUrl}${FEE_CALCULATION_PATH.replace('[id]', multiPayment.id)}`,
                     directPaymentUrl: `${acquiringIntegration.hostUrl}${DIRECT_PAYMENT_PATH.replace('[id]', multiPayment.id)}`,
-                    getCardTokensUrl: `${acquiringIntegration.hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', userIdToConnect)}`,
+                    getCardTokensUrl: `${acquiringIntegration.hostUrl}${GET_CARD_TOKENS_PATH.replace('[id]', context.authedItem.id)}`,
                 }
             },
         },
