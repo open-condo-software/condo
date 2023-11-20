@@ -113,21 +113,15 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
     return [ ...newAccountsWithData, ...existingAccountsWithData ]
 }
 
-const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) => {
+const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex, receiverId) => {
     item.category = { connect: { id: get(item, ['category', 'id']) } }
     item.context = { connect: { id: get(item, ['context', 'id']) } }
 
     item.property = { connect: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
     item.account = { connect: { id: get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
+    item.receiver = { connect: { id: item.receiverId } }
 
-    item.recipient = {
-        tin: item.tin,
-        ...item.iec && { iec: item.iec },
-        bankAccount: item.bankAccount,
-        bic: item.bic,
-    }
-
-    return omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
+    return omit(item, ['receiverId'])
 }
 
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
@@ -173,11 +167,10 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         const receiptKey = getBillingReceiptKey(
             {
                 ...item,
-                ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
+                ...{ recipient: item.recipient } },
         )
 
         const receiptExists = Reflect.has(receiptsIndex, receiptKey)
-
         if (!receiptExists) {
             receiptsToAdd.push(item)
         } else {
@@ -197,14 +190,8 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
             const newToPayDetails = item.toPayDetails ? item.toPayDetails : null
             const toPayDetailsIsEqual = isEqual(existingToPayDetails, newToPayDetails)
 
-            const existingRecipient = existingReceiptByKey.recipient
-            const newRecipient = {
-                tin: item.tin,
-                bic: item.bic,
-                iec: item.iec,
-                bankAccount: item.bankAccount,
-            }
-            const recipientIsEqual = isEqual(existingRecipient, newRecipient)
+            const existingReceiver = existingReceiptByKey.receiver
+            const recipientIsEqual = isEqual(existingReceiver, item.receiverId)
 
             const shouldUpdateReceipt = !toPayIsEqual || !servicesIsEqual || !toPayDetailsIsEqual || !recipientIsEqual
 
@@ -228,7 +215,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     for (const item of receiptsToUpdate) {
         const itemId = item.id
         const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
-        const updatableItem = omit(billingReceiptGQLInput, ['context', 'id', 'receiver'])
+        const updatableItem = omit(billingReceiptGQLInput, ['context', 'id'])
         const updatedReceipt = await BillingReceipt.update(context, itemId, updatableItem)
         updatedReceipts.push(updatedReceipt)
     }
@@ -348,6 +335,9 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     })
                 }
 
+
+
+
                 // Old way - will be removed
                 const partialErrors = []
 
@@ -372,6 +362,10 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 const accountIndex = {}
                 const receiptIndex = {}
 
+                const billingContextWithOrganization = await BillingContextApi.getOne(context, { id: billingContextId })
+
+                const recipientResolver = new RecipientResolver({ context, billingContext: billingContextWithOrganization })
+                await recipientResolver.init()
                 for (let i = 0; i < receiptsInput.length; ++i) {
 
                     const { importId, address, accountNumber, unitName, unitType, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
@@ -381,9 +375,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     let { normalizedAddress } = receiptsInput[i]
 
                     // Todo: (DOMA-3252) migrate it to new recipients
-                    const iec = get(tinMeta, 'iec')
-                    const bic = routingNumber
-
+                    const { result: { id: receiverId, recipient: normalizedRecipient } } = await recipientResolver.getReceiver({ tin, routingNumber, bankAccount })
                     // Validate period field
                     if (!(0 <= month && month <= 12 )) {
                         partialErrors.push(new GQLError({ ...ERRORS.WRONG_MONTH, inputIndex: i }, context))
@@ -467,7 +459,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         continue
                     }
 
-                    const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }
+                    const receipt = { category, period, property, account, services, recipient: normalizedRecipient }
                     const receiptKey = getBillingReceiptKey(receipt)
                     if (!receiptIndex[receiptKey]) {
                         receiptIndex[receiptKey] = {
@@ -482,10 +474,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             toPay: toPay,
                             services: services,
                             toPayDetails: toPayDetails,
-                            tin,
-                            iec,
-                            bic,
-                            bankAccount,
+                            receiverId: receiverId,
+                            recipient: normalizedRecipient,
                             raw: { ...{ dv: 1 }, ...raw },
                         }
                     }
