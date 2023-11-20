@@ -19,7 +19,6 @@ RUN set -ex \
 # Installer
 FROM base AS installer
 
-USER app:app
 WORKDIR /app
 # Copy pruned monorepo (only package.json + yarn.lock)
 COPY --chown=app:app ./out /app
@@ -32,7 +31,6 @@ RUN --mount=type=cache,target=/root/.yarn/cache YARN_CACHE_FOLDER=/root/.yarn/ca
 
 # Builder
 FROM base as builder
-USER app:app
 WORKDIR /app
 # Copy entire repo
 COPY --chown=app:app . /app
