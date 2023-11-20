@@ -2,7 +2,6 @@ import { Invoice as InvoiceType, UserTypeType } from '@app/condo/schema'
 import { Col, notification } from 'antd'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import { useRouter } from 'next/router'
 import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
@@ -24,13 +23,13 @@ import { getPaymentLinkNotification } from './CopyButton'
 type UpdateInvoiceFormProps = {
     invoice: InvoiceType
     modalFormProps?: ComponentProps<typeof BaseModalForm>
+    afterAction: () => Promise<void>
 }
 
-export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice, modalFormProps }) => {
+export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice, modalFormProps, afterAction }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const router = useRouter()
     const { organization, link } = useOrganization()
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -39,9 +38,9 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice, m
         },
     })
 
-    const updateInvoiceAction = Invoice.useUpdate({}, async () => {
-        await router.push(`/marketplace/invoice/${invoice.id}`)
-    })
+    const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
+
+    const updateInvoiceAction = Invoice.useUpdate({}, afterAction)
 
     const getPaymentLink = useInvoicePaymentLink()
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
@@ -73,7 +72,6 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice, m
     }, [getPaymentLink, intl, invoice, invoiceContext, updateInvoiceAction])
 
     const initialValues = useMemo(() => Invoice.convertToFormState(invoice, intl), [intl, invoice])
-    const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
 
     return (
         <BaseInvoiceForm

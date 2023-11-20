@@ -17,7 +17,7 @@ import { InvoiceRowsTable } from './InvoiceRowsTable'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 
-const TicketInvoiceCard = ({ invoice }) => {
+const TicketInvoiceCard = ({ invoice, refetchInvoices }) => {
     const intl = useIntl()
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' },
         { number: get(invoice, 'number') }
@@ -34,6 +34,10 @@ const TicketInvoiceCard = ({ invoice }) => {
     const handleInvoiceNumberClick = useCallback(() => {
         setEditModalOpen(true)
     }, [])
+    const afterInvoiceUpdate = useCallback(async () => {
+        await refetchInvoices()
+        setEditModalOpen(false)
+    }, [refetchInvoices])
 
     return (
         <Row gutter={[0, 24]}>
@@ -58,27 +62,36 @@ const TicketInvoiceCard = ({ invoice }) => {
             <Col span={24}>
                 <InvoiceRowsTable invoice={invoice} />
             </Col>
-            <UpdateInvoiceForm invoice={invoice} modalFormProps={{
-                visible: editModalOpen,
-                showCancelButton: false,
-                cancelModal: () => setEditModalOpen(false),
-                modalProps: { width: 'big' },
-            }} />
+            <UpdateInvoiceForm
+                invoice={invoice}
+                modalFormProps={{
+                    ModalTitleMsg: InvoiceNumberMessage,
+                    visible: editModalOpen,
+                    showCancelButton: false,
+                    cancelModal: () => setEditModalOpen(false),
+                    modalProps: { width: 'big' },
+                }}
+                afterAction={afterInvoiceUpdate}
+            />
         </Row>
     )
 }
 
 type TicketInvoicesListPropsType = {
     invoices: InvoiceType[]
+    refetchInvoices: () => void
 }
 
-export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invoices }) => {
+export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invoices, refetchInvoices }) => {
     return (
         <Row gutter={[0, 40]}>
             {
                 invoices.map(invoice => (
                     <Col key={invoice.id} span={24}>
-                        <TicketInvoiceCard invoice={invoice}/>
+                        <TicketInvoiceCard
+                            invoice={invoice}
+                            refetchInvoices={refetchInvoices}
+                        />
                     </Col>
                 ))
             }

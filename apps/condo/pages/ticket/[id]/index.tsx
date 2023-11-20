@@ -461,7 +461,7 @@ const TicketInvoices = ({ ticketId }) => {
     const CopyMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink.copy' })
     const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
 
-    const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({
+    const { objs: invoices, loading: invoicesLoading, refetch: refetchInvoices } = Invoice.useObjects({
         where: {
             ticket: { id: ticketId },
         },
@@ -482,12 +482,15 @@ const TicketInvoices = ({ ticketId }) => {
         }
     }, [getPaymentLink, publishedInvoiceIds])
 
-    if (invoicesLoading) return <Loader />
+    if (!invoices && invoicesLoading) return <Loader />
 
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
-                <TicketInvoicesList invoices={invoices} />
+                <TicketInvoicesList
+                    invoices={invoices}
+                    refetchInvoices={refetchInvoices}
+                />
             </Col>
             {
                 publishedInvoiceIds.length > 0 && (
