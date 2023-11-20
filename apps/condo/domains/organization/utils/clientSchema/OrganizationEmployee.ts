@@ -41,6 +41,7 @@ const {
     useUpdate,
     useSoftDelete,
     useAllObjects,
+    useCount,
 } = generateReactHooks<OrganizationEmployee, OrganizationEmployeeCreateInput, OrganizationEmployeeUpdateInput, QueryAllOrganizationEmployeesArgs>(OrganizationEmployeeGQL)
 
 export {
@@ -52,4 +53,5 @@ export {
     useAllObjects,
     convertGQLItemToFormSelectState,
     formValuesProcessor,
+    useCount,
 }
