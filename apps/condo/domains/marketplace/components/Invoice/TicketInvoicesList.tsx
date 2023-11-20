@@ -1,17 +1,12 @@
 import { Invoice as InvoiceType } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import get from 'lodash/get'
-import React, { useCallback, useMemo, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Space, Tag, Typography } from '@open-condo/ui'
-import { Modal } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
+import { Space, Tag, Typography } from '@open-condo/ui'
 
-import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
-import { Loader } from '@condo/domains/common/components/Loader'
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
-import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { InvoiceRowsTable } from './InvoiceRowsTable'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
@@ -44,7 +39,11 @@ const TicketInvoiceCard = ({ invoice, refetchInvoices }) => {
             <Col span={24}>
                 <Row justify='space-between'>
                     <Col>
-                        <Typography.Link onClick={handleInvoiceNumberClick}>{InvoiceNumberMessage}</Typography.Link>
+                        <Typography.Link onClick={handleInvoiceNumberClick}>
+                            <Typography.Text strong>
+                                {InvoiceNumberMessage}
+                            </Typography.Text>
+                        </Typography.Link>
                     </Col>
                     <Col>
                         <Space size={8} direction='horizontal'>

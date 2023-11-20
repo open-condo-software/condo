@@ -140,7 +140,7 @@ export const InvoiceRowsTable: React.FC<InvoiceRowsTableProps> = ({ invoice }) =
                         .map(index => <AntdTable.Summary.Cell key={index} index={index} colSpan={1} />)
                 }
                 <AntdTable.Summary.Cell index={orderColumns.length} colSpan={1}>
-                    <Typography.Text strong>{isContractToPay ? ContractPriceMessage : moneyRender(totalPrice, hasMinPrice)}</Typography.Text>
+                    <Typography.Text strong>{isContractToPay ? ContractPriceMessage : moneyRender(String(totalPrice), hasMinPrice)}</Typography.Text>
                 </AntdTable.Summary.Cell>
             </AntdTable.Summary.Row>
         </AntdTable.Summary>

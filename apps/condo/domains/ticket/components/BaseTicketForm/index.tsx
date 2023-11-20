@@ -8,7 +8,7 @@ import {
     TicketStatusTypeType,
     TicketSource as TicketSourceType,
 } from '@app/condo/schema'
-import { Affix, Alert, Col, ColProps, Form, FormItemProps, Row, Typography } from 'antd'
+import { Affix, Col, ColProps, Form, FormItemProps, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -19,15 +19,19 @@ import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Alert, Space } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
@@ -37,6 +41,7 @@ import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
+import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -53,7 +58,6 @@ import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSche
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
@@ -144,6 +148,94 @@ const MEDIUM_HORIZONTAL_GUTTER: [Gutter, Gutter] = [40, 0]
 export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
 )
+
+const AddInvoiceButton = () => {
+    const intl = useIntl()
+    const AddInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice' })
+
+    return (
+        <Col style={{ cursor: 'pointer' }}>
+            <Space size={4} direction='horizontal'>
+                <PlusCircle />
+                <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+            </Space>
+        </Col>
+    )
+}
+
+const TicketFormInvoicesEmptyContent = ({ organizationId }) => {
+    const intl = useIntl()
+    const AlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.message' })
+    const AlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.description' })
+    const AlertDescriptionLink = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.descriptionLink' })
+    const NoInvoicesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noInvoices' })
+
+    const { obj: invoiceContext, loading } = InvoiceContext.useObject({
+        where: {
+            organization: { id: organizationId },
+        },
+    })
+
+    if (loading) return <Loader />
+    if (!invoiceContext) {
+        return (
+            <Alert
+                type='warning'
+                showIcon
+                message={AlertMessage}
+                description={
+                    <Space direction='vertical' size={4}>
+                        <Typography.Paragraph size='medium'>
+                            {AlertDescription}
+                        </Typography.Paragraph>
+                        <Typography.Link size='large' href='/marketplace' target='_blank'>
+                            {AlertDescriptionLink}
+                        </Typography.Link>
+                    </Space>
+                }
+            />
+        )
+    }
+
+    return (
+        <FocusContainer margin='0'>
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <Typography.Text size='medium' type='secondary'>{NoInvoicesMessage}</Typography.Text>
+                </Col>
+                <Col span={24}>
+                    <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
+                        <AddInvoiceButton />
+                    </Row>
+                </Col>
+            </Row>
+        </FocusContainer>
+    )
+}
+
+const TicketFormInvoices = ({ invoiceIds, organizationId }) => {
+    const { objs: invoices, refetch: refetchInvoices, loading } = Invoice.useObjects({
+        where: {
+            id_in: invoiceIds,
+        },
+    })
+
+    if (isEmpty(invoiceIds)) {
+        return <TicketFormInvoicesEmptyContent organizationId={organizationId} />
+    }
+
+    return (
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <TicketInvoicesList
+                    invoices={invoices}
+                    refetchInvoices={refetchInvoices}
+                />
+            </Col>
+            <AddInvoiceButton />
+        </Row>
+    )
+}
 
 export const TicketInfo = ({ organizationId, form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
@@ -287,6 +379,31 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                     </Col>
                                 </Row>
                             </Col>
+                            {
+                                isPayable && (
+                                    <Col span={24} md={18}>
+                                        <Form.Item
+                                            hidden
+                                            noStyle
+                                            name='invoices'
+                                        />
+                                        <Form.Item
+                                            dependencies={['invoices']}
+                                        >
+                                            {
+                                                ({ getFieldValue }) => {
+                                                    const invoiceIds = getFieldValue('invoices')
+
+                                                    return <TicketFormInvoices
+                                                        invoiceIds={invoiceIds}
+                                                        organizationId={organizationId}
+                                                    />
+                                                }
+                                            }
+                                        </Form.Item>
+                                    </Col>
+                                )
+                            }
                             <Col span={deadlineColSpan}>
                                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
