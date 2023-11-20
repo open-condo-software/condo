@@ -200,46 +200,71 @@ const UnitNameFormField = ({ form, property, disabled }) => {
 }
 
 const ContactFormField = ({ role, organizationId, form, disabled }) => {
+    const intl = useIntl()
+    const FillContactDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.error.fillContactData' })
+
     const { ContactsEditorComponent } = useContactsEditorHook({
         role,
         initialQuery: { organization: { id: organizationId } },
     })
 
     return (
-        <Form.Item
-            dependencies={['property', 'unitName', 'unitType']}
-        >
-            {
-                ({ getFieldsValue }) => {
-                    const {
-                        property, unitName, unitType, contact, clientName, clientPhone,
-                    } = getFieldsValue(['property', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone'])
+        <>
+            <Form.Item
+                dependencies={['property', 'unitName', 'unitType']}
+            >
+                {
+                    ({ getFieldsValue }) => {
+                        const {
+                            property, unitName, unitType, contact, clientName, clientPhone,
+                        } = getFieldsValue(['property', 'unitName', 'unitType', 'contact', 'clientName', 'clientPhone'])
 
-                    const value = {
-                        id: contact,
-                        phone: clientPhone,
-                        name: clientName,
+                        const value = {
+                            id: contact,
+                            phone: clientPhone,
+                            name: clientName,
+                        }
+
+                        return (
+                            <ContactsEditorComponent
+                                form={form}
+                                fields={CONTACT_FORM_FIELDS}
+                                value={value}
+                                hasNotResidentTab={false}
+                                hideFocusContainer
+                                hideTabBar
+                                property={property}
+                                unitName={unitName}
+                                unitType={unitType}
+                                contactFormItemProps={{ required: true, labelCol: { span: 24 } }}
+                                newContactFormItemProps={{ labelCol: { span: 24 } }}
+                                disabled={disabled}
+                            />
+                        )
                     }
-
-                    return (
-                        <ContactsEditorComponent
-                            form={form}
-                            fields={CONTACT_FORM_FIELDS}
-                            value={value}
-                            hasNotResidentTab={false}
-                            hideFocusContainer
-                            hideTabBar
-                            property={property}
-                            unitName={unitName}
-                            unitType={unitType}
-                            contactFormItemProps={{ required: true, labelCol: { span: 24 } }}
-                            newContactFormItemProps={{ labelCol: { span: 24 } }}
-                            disabled={disabled}
-                        />
-                    )
                 }
-            }
-        </Form.Item>
+            </Form.Item>
+            <Form.Item
+                name='errorContainer'
+                noStyle
+                rules={[
+                    (form) => ({
+                        validator: () => {
+                            const payerData = form.getFieldValue('payerData')
+                            if (!payerData) return Promise.resolve()
+
+                            const { contact, clientName, clientPhone } = form.getFieldsValue(['contact', 'clientName', 'clientPhone'])
+
+                            if (contact || (clientPhone && clientName)) {
+                                return Promise.resolve()
+                            }
+
+                            return Promise.reject(FillContactDataMessage)
+                        },
+                    }),
+                ]}
+            />
+        </>
     )
 }
 
@@ -358,6 +383,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const ServicePlaceholder = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.service.placeholder' })
     const MinPriceValidationMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.minPriceValidation' })
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const { requiredValidator, maxLengthValidator } = useValidations()
     const { breakpoints } = useLayoutContext()
@@ -523,7 +549,10 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 {
                                                     warningOnly: true,
                                                     validator: (_, value) => {
-                                                        if (new RegExp(`^${FromMessage} (\\d+|\\d+,\\d+)$`).test(value)) {
+                                                        if (
+                                                            new RegExp(`^${FromMessage} (\\d+|\\d+.\\d+)$`).test(value) ||
+                                                            value === ContractPriceMessage
+                                                        ) {
                                                             form.setFieldsValue({
                                                                 hasIsMinPrice: true,
                                                                 status: INVOICE_STATUS_DRAFT,
@@ -541,8 +570,16 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     },
                                                 },
                                                 {
-                                                    pattern: new RegExp(`^(${FromMessage} |)(\\d+|\\d+,\\d+)$`),
-                                                    message: NumberIsNotValidMessage,
+                                                    validator: (_, value) => {
+                                                        if (
+                                                            new RegExp(`^(${FromMessage} |)(\\d+|\\d+.\\d+)$`).test(value) ||
+                                                            value === ContractPriceMessage
+                                                        ) {
+                                                            return Promise.resolve()
+                                                        }
+
+                                                        return Promise.reject(NumberIsNotValidMessage)
+                                                    },
                                                 },
                                             ]}
                                         >
@@ -554,7 +591,8 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     if (!value) return
 
                                                     const splittedValue = value.split(' ')
-                                                    const isMin = splittedValue.length === 2 && splittedValue[0] === FromMessage
+                                                    const isMin = (splittedValue.length === 2 && splittedValue[0] === FromMessage) ||
+                                                        (splittedValue.length === 1 && splittedValue[0] === ContractPriceMessage)
 
                                                     updateRowFields(marketItemForm.name, {
                                                         isMin,
@@ -575,7 +613,15 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     const count = getFieldValue(['rows', marketItemForm.name, 'count'])
                                                     const rawPrice = getFieldValue(['rows', marketItemForm.name, 'toPay'])
                                                     const { error, isMin, total } = prepareTotalPriceFromInput(intl, count, rawPrice)
-                                                    const value = error ? '' : moneyRender(String(total), isMin)
+
+                                                    let value
+                                                    if (error) {
+                                                        value = ''
+                                                    } else if (isMin && total === 0) {
+                                                        value = ContractPriceMessage
+                                                    } else {
+                                                        value = moneyRender(String(total), isMin)
+                                                    }
 
                                                     return <Input type='total' addonAfter={currencySymbol} disabled value={value} />
                                                 }
@@ -710,6 +756,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
     const ServicesListMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.servicesList' })
     const NoPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData' })
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -825,7 +872,17 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                                     ({ getFieldValue }) => {
                                                         const rows = getFieldValue('rows').filter(Boolean)
                                                         const totalCount = rows.reduce((acc, row) => acc + row.count, 0)
-                                                        const { totalPrice, hasMinPrice } = calculateRowsTotalPrice(intl, rows)
+                                                        const { totalPrice, hasMinPrice, hasError } = calculateRowsTotalPrice(intl, rows)
+                                                        const isContractToPay = hasMinPrice && totalPrice === 0
+
+                                                        let value
+                                                        if (hasError) {
+                                                            value = ''
+                                                        } else if (isContractToPay) {
+                                                            value = ContractPriceMessage
+                                                        } else {
+                                                            value = moneyRender(totalPrice, hasMinPrice)
+                                                        }
 
                                                         return (
                                                             <Row gutter={[0, 12]}>
@@ -839,7 +896,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = ({ isCreateForm, 
                                                                 <Col span={24}>
                                                                     <SubTotalInfo
                                                                         label={TotalToPayLabel}
-                                                                        total={moneyRender(totalPrice, hasMinPrice)}
+                                                                        total={value}
                                                                         large
                                                                         totalTextType={hasMinPrice ? 'danger' : 'primary'}
                                                                     />

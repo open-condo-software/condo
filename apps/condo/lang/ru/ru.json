@@ -1263,6 +1263,8 @@
   "pages.condo.marketplace.invoice.form.payerData": "Есть данные о плательщике",
   "pages.condo.marketplace.invoice.form.payerNoData": "Нет данных",
   "pages.condo.marketplace.invoice.form.service.placeholder": "Введите или выберите",
+  "pages.condo.marketplace.invoice.form.contractPrice": "Договорная",
+  "pages.condo.marketplace.invoice.form.error.fillContactData": "Заполните данные контакта",
   "pages.condo.marketplace.invoice.servicesList": "Список услуг",
   "pages.condo.marketplace.invoice.form.minPriceValidation": "Неточная цена может быть только у счёта в статусе «Черновик»",
   "pages.condo.marketplace.invoice.form.paymentAlert.message.createdByResident": "Житель может оплатить в приложении жителя",

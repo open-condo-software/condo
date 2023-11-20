@@ -45,7 +45,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
         if (!values.payerData) {
             payloadToProcessor = { ...payloadToProcessor, property: null, contact: null, unitName: null, unitType: null }
         }
-        const formattedValues = Invoice.formValuesProcessor(payloadToProcessor, invoiceContext)
+        const formattedValues = Invoice.formValuesProcessor(payloadToProcessor, invoiceContext, intl)
         const updatedInvoice = await updateInvoiceAction(formattedValues, invoice)
 
         if (
@@ -64,7 +64,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice })
         return updatedInvoice
     }, [getPaymentLink, intl, invoice, invoiceContext, updateInvoiceAction])
 
-    const initialValues = useMemo(() => Invoice.convertToFormState(invoice), [invoice])
+    const initialValues = useMemo(() => Invoice.convertToFormState(invoice, intl), [intl, invoice])
 
     return (
         <BaseInvoiceForm

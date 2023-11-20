@@ -9,9 +9,7 @@ import { Table } from '@condo/domains/common/components/Table'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 import {
-    prepareTotalPriceFromInput,
     getMoneyRender,
-    calculateRowsTotalPrice,
 } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 
@@ -24,6 +22,7 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
     const CountMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.table.header.count' })
     const PriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.table.header.price' })
     const ToPayMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.table.header.toPay' })
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const render = useMemo(() => getTableCellRenderer(), [])
     const renderWithEmptyValue = useCallback((value) => {
@@ -33,12 +32,25 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
     }, [render])
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
     const toPayRender = useCallback((row, count) => {
-        const rawPrice = get(row, 'toPay')
-        const { error, isMin, total } = prepareTotalPriceFromInput(intl, count, rawPrice)
-        const value = error ? '' : moneyRender(String(total), isMin)
+        const toPay = get(row, 'toPay')
+        const isMin = get(row, 'isMin')
+
+        let value
+        if (isMin) {
+            if (toPay === '0') {
+                value = ContractPriceMessage
+            } else {
+                const toPayStr = String(+toPay * count)
+                value = moneyRender(toPayStr, true)
+            }
+        } else {
+            const toPayStr = String(+toPay * count)
+            value = moneyRender(toPayStr, false)
+        }
 
         return renderWithEmptyValue(value)
-    }, [intl, moneyRender, renderWithEmptyValue])
+    }, [ContractPriceMessage, moneyRender, renderWithEmptyValue])
+
     const renderMarketItemName = useCallback((value, row) => {
         const sku = get(row, 'sku')
         if (!sku) {
@@ -95,6 +107,7 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
 export const InvoiceRowsTable = ({ invoice }) => {
     const intl = useIntl()
     const OrderTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.order' })
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const currencyCode = get(invoice, 'context.currencyCode')
     const rows = useMemo(() => get(invoice, 'rows'), [invoice])
@@ -111,7 +124,10 @@ export const InvoiceRowsTable = ({ invoice }) => {
     const orderColumns = useInvoiceRowsTableColumns(currencyCode, marketItems)
 
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
-    const { totalPrice, hasMinPrice } = calculateRowsTotalPrice(intl, rows)
+    const totalPrice = rows.filter(row => row.toPay !== '0').map(row => +row.toPay * row.count)
+    const hasMinPrice = rows.find(row => row.isMin)
+    const isContractToPay = rows.every(row => row.isMin && row.toPay === '0')
+
     const SummaryContent = useCallback(() => (
         <AntdTable.Summary fixed>
             <AntdTable.Summary.Row>
@@ -120,11 +136,11 @@ export const InvoiceRowsTable = ({ invoice }) => {
                         .map(index => <AntdTable.Summary.Cell key={index} index={index} colSpan={1} />)
                 }
                 <AntdTable.Summary.Cell index={orderColumns.length} colSpan={1}>
-                    <Typography.Text strong>{moneyRender(totalPrice, hasMinPrice)}</Typography.Text>
+                    <Typography.Text strong>{isContractToPay ? ContractPriceMessage : moneyRender(totalPrice, hasMinPrice)}</Typography.Text>
                 </AntdTable.Summary.Cell>
             </AntdTable.Summary.Row>
         </AntdTable.Summary>
-    ), [hasMinPrice, moneyRender, orderColumns.length, totalPrice])
+    ), [ContractPriceMessage, hasMinPrice, isContractToPay, moneyRender, orderColumns.length, totalPrice])
 
     return (
         <Row gutter={MEDIUM_VERTICAL_GUTTER}>

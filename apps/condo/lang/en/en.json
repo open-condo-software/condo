@@ -1263,6 +1263,8 @@
   "pages.condo.marketplace.invoice.form.payerData": "Has payer data",
   "pages.condo.marketplace.invoice.form.payerNoData": "No data",
   "pages.condo.marketplace.invoice.form.service.placeholder": "Type or select",
+  "pages.condo.marketplace.invoice.form.contractPrice": "Contract",
+  "pages.condo.marketplace.invoice.form.error.fillContactData": "Fill contact data",
   "pages.condo.marketplace.invoice.servicesList": "Services list",
   "pages.condo.marketplace.invoice.form.minPriceValidation": "Inaccurate price can be only at the invoice in the status of «Draft»",
   "pages.condo.marketplace.invoice.form.paymentAlert.message.createdByResident": "Resident can pay in the mobile app",
