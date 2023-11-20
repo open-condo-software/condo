@@ -27590,6 +27590,7 @@ export type MarketItemPricePriceSchemaField = {
   isMin: Scalars['Boolean'];
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
+  currencyCode: Scalars['String'];
 };
 
 export type MarketItemPricePriceSchemaFieldInput = {
@@ -27600,6 +27601,7 @@ export type MarketItemPricePriceSchemaFieldInput = {
   isMin: Scalars['Boolean'];
   vatPercent?: Maybe<Scalars['String']>;
   salesTaxPercent?: Maybe<Scalars['String']>;
+  currencyCode: Scalars['String'];
 };
 
 export type MarketItemPriceRelateToOneInput = {

@@ -168,6 +168,7 @@ function generatePriceRow (attrs = {}) {
         isMin: false,
         vatPercent: String(VAT_OPTIONS[0]),
         salesTaxPercent: String(faker.datatype.number({ min: 0, max: 3 })),
+        currencyCode: 'RUB',
         ...attrs,
     }
 }
