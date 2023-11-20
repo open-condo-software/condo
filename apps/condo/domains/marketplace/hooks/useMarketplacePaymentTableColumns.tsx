@@ -75,7 +75,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
             {
                 title: InvoiceNumberMessage,
                 filteredValue: getFilteredValue(filters, 'invoiceNumber'),
-                key: 'invoice',
+                key: 'invoiceNumber',
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'invoiceNumber'),
                 render: invoiceNumberRender,
@@ -84,7 +84,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
             {
                 title: TicketNumberMessage,
                 filteredValue: getFilteredValue(filters, 'ticketNumber'),
-                key: 'invoice',
+                key: 'ticketNumber',
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'ticketNumber'),
                 render: ticketNumberRender,
@@ -105,6 +105,8 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
                 key: 'status',
                 dataIndex: 'status',
                 width: '10%',
+                filterDropdown: getFilterDropdownByKey(filterMetas, 'status'),
+                filterIcon: getFilterIcon,
                 render: getStatusRender(intl, openStatusDescModal, search),
             },
             {

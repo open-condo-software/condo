@@ -67,8 +67,8 @@ export const MarketplacePaymentsContent = () => {
     const currentPageIndex = getPageIndexFromOffset(offset, DEFAULT_PAGE_SIZE)
     const canReadPayments = get(role, 'canReadPayments', false)
 
-    const filterMetas = useMarketplacePaymentsFilters()
-    const { filtersToWhere, sortersToSortBy } = useQueryMappers(filterMetas, [])
+    const queryMetas = useMarketplacePaymentsFilters()
+    const { filtersToWhere, sortersToSortBy } = useQueryMappers(queryMetas, [])
 
     const [isStatusDescModalVisible, setIsStatusDescModalVisible] = useState<boolean>(false)
     const [titleStatusDescModal, setTitleStatusDescModal] = useState('')
@@ -81,7 +81,7 @@ export const MarketplacePaymentsContent = () => {
         setTextStatusDescModal(textModal)
         setIsStatusDescModalVisible(true)
     }
-    const tableColumns = useMarketplacePaymentTableColumns(filterMetas, openStatusDescModal)
+    const tableColumns = useMarketplacePaymentTableColumns(queryMetas, openStatusDescModal)
 
     const searchPaymentsQuery = useMemo(() => {
         return {
@@ -90,6 +90,7 @@ export const MarketplacePaymentsContent = () => {
                     organization: { id: orgId },
                 },
             },
+            status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
         }},
     [filters, filtersToWhere, orgId])
     const sortBy = useMemo(() => sortersToSortBy(sorters) as SortPaymentsBy[], [sorters, sortersToSortBy])
@@ -101,7 +102,10 @@ export const MarketplacePaymentsContent = () => {
         refetch,
     } = Payment.useObjects({
         sortBy,
-        where: searchPaymentsQuery,
+        where: {
+            ...filtersToWhere(filters),
+            ...searchPaymentsQuery,
+        },
         first: DEFAULT_PAGE_SIZE,
         skip: (currentPageIndex - 1) * DEFAULT_PAGE_SIZE,
     }, {
@@ -150,77 +154,74 @@ export const MarketplacePaymentsContent = () => {
 
     return (
         <TablePageContent>
-            {
-                (paymentsLoading || payments.length === 0) ? <EmptyListView
-                    label={EmptyListTitle}
-                    message={EmptyListLabel}
-                    containerStyle={{ display: isNoPaymentsData ? 'flex' : 'none' }}
-                    accessCheck={canReadPayments}
-                /> : <>
-                    <Col span={24}>
-                        <TableFiltersContainer>
-                            <Row justify='space-between' gutter={ROW_GUTTERS}>
-                                <Col xs={24} lg={7}>
-                                    <Input
-                                        placeholder={SearchPlaceholder}
-                                        onChange={handleSearch}
-                                        value={search}
-                                        allowClear
-                                    />
-                                </Col>
-                            </Row>
-                        </TableFiltersContainer>
-                        <Col style={MARGIN_BOTTOM_AND_TOP_10_STYLE}>
-                            <PaymentsSumTable>
-                                <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
-                                    <Col>
-                                        <PaymentsSumInfo
-                                            title={AllPaymentsSumMessage}
-                                            message={get(allPaymentsSum, 'result.sum', 0)}
-                                            currencyCode='RUB'
-                                            loading={allPaymentsSumLoading}
-                                        />
-                                    </Col>
-                                    <Col>
-                                        <PaymentsSumInfo
-                                            title={DonePaymentsSumMessage}
-                                            message={get(donePaymentsSum, 'result.sum', 0)}
-                                            currencyCode='RUB'
-                                            type='success'
-                                            loading={donePaymentsLoading}
-                                        />
-                                    </Col>
-                                    <Col>
-                                        <PaymentsSumInfo
-                                            title={InProcessPaymentsSumMessage}
-                                            message={get(inProcessPaymentsSum, 'result.sum', 0)}
-                                            currencyCode='RUB'
-                                            type='warning'
-                                            loading={inProcessPaymentsLoading}
-                                        />
-                                    </Col>
-                                </Row>
-                            </PaymentsSumTable>
-                        </Col>
-                    </Col>
-                    <Row
-                        gutter={ROW_GUTTERS}
-                        align='middle'
-                        justify='center'
-                        hidden={isNoPaymentsData}
-                    >
-                        <Col span={24}>
-                            <Table
-                                totalRows={total}
-                                loading={paymentsLoading}
-                                dataSource={payments}
-                                columns={tableColumns}
-                                rowSelection={rowSelection}
+            <EmptyListView
+                label={EmptyListTitle}
+                message={EmptyListLabel}
+                containerStyle={{ display: isNoPaymentsData ? 'flex' : 'none' }}
+                accessCheck={canReadPayments}
+            />
+            <Col span={24}>
+                <TableFiltersContainer>
+                    <Row justify='space-between' gutter={ROW_GUTTERS}>
+                        <Col xs={24} lg={7}>
+                            <Input
+                                placeholder={SearchPlaceholder}
+                                onChange={handleSearch}
+                                value={search}
+                                allowClear
                             />
                         </Col>
                     </Row>
-                </>
-            }
+                </TableFiltersContainer>
+                <Col style={MARGIN_BOTTOM_AND_TOP_10_STYLE}>
+                    <PaymentsSumTable>
+                        <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
+                            <Col>
+                                <PaymentsSumInfo
+                                    title={AllPaymentsSumMessage}
+                                    message={get(allPaymentsSum, 'result.sum', 0)}
+                                    currencyCode='RUB'
+                                    loading={allPaymentsSumLoading}
+                                />
+                            </Col>
+                            <Col>
+                                <PaymentsSumInfo
+                                    title={DonePaymentsSumMessage}
+                                    message={get(donePaymentsSum, 'result.sum', 0)}
+                                    currencyCode='RUB'
+                                    type='success'
+                                    loading={donePaymentsLoading}
+                                />
+                            </Col>
+                            <Col>
+                                <PaymentsSumInfo
+                                    title={InProcessPaymentsSumMessage}
+                                    message={get(inProcessPaymentsSum, 'result.sum', 0)}
+                                    currencyCode='RUB'
+                                    type='warning'
+                                    loading={inProcessPaymentsLoading}
+                                />
+                            </Col>
+                        </Row>
+                    </PaymentsSumTable>
+                </Col>
+            </Col>
+            <Row
+                gutter={ROW_GUTTERS}
+                align='middle'
+                justify='center'
+                hidden={isNoPaymentsData}
+            >
+                <Col span={24}>
+                    <Table
+                        totalRows={total}
+                        loading={paymentsLoading}
+                        dataSource={payments}
+                        columns={tableColumns}
+                        rowSelection={rowSelection}
+                    />
+                </Col>
+            </Row>
 
             <Modal
                 open={isStatusDescModalVisible}

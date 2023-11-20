@@ -27,6 +27,7 @@ export const PaymentsTab: React.FC = () => {
         where: {
             organization: { id: orgId },
             status_in: [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS],
+            invoice_is_null: true,
         },
         first: 1,
     })
