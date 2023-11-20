@@ -11,6 +11,7 @@
 **/.turbo
 **/dist
 **/out
+!/out
 **/.idea
 **/.kmigrator
 **/docs
