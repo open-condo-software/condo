@@ -123,8 +123,8 @@ const GetOverviewDashboardService = new GQLCustomSchema('GetOverviewDashboardSer
 
                 const dateFilter = {
                     AND: [
-                        { createdAt_gte: where.dateFrom },
-                        { createdAt_lte: where.dateTo },
+                        { createdAt_gte: dayjs(where.dateFrom).startOf('day').toISOString() },
+                        { createdAt_lte: dayjs(where.dateTo).endOf('day').toISOString() },
                     ],
                 }
                 const ticketWhereFilter = {

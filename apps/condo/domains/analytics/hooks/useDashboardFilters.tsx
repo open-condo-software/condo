@@ -85,7 +85,7 @@ export const useDateRangeFilter: UseDateRangeFilterType = () => {
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
     }, [])
-    const onChange = useCallback((dateRange) => setDateRange([dateRange[0].startOf('day'), dateRange[1].endOf('day')]), [])
+    const onChange = useCallback((dateRange) => setDateRange([dateRange[0], dateRange[1]]), [])
 
     const SearchInput = useMemo(() => ({ disabled = false }) => (
         <DateRangePicker
