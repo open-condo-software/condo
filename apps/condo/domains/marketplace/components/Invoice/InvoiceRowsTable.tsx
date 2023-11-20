@@ -5,7 +5,7 @@ import { useCallback, useMemo } from 'react'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography } from '@open-condo/ui'
 
-import { Table } from '@condo/domains/common/components/Table'
+import { Table } from '@condo/domains/common/components/Table/Index'
 import { getTableCellRenderer } from '@condo/domains/common/components/Table/Renders'
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 import {
