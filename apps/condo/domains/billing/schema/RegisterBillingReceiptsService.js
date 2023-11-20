@@ -305,7 +305,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
-                const isNewFlow = !!receiptsInput.find(({ normalizedAddress }) => normalizedAddress)
+                const isNewFlow = !receiptsInput.find(({ normalizedAddress }) => normalizedAddress)
                 if (isNewFlow) {
                     if (receiptsInput.length > RECEIPTS_LIMIT) {
                         throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)
@@ -338,7 +338,6 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         receiptsCount:
                         receiptsInput.length,
                     })
-                    console.log(debug)
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(value => {
                         const id = get(value, 'id')
                         if (id) {
