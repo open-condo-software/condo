@@ -3,12 +3,12 @@
  */
 const Big = require('big.js')
 const dayjs = require('dayjs')
-const { isNil } = require('lodash')
+const { isNil, map } = require('lodash')
 
 const conf = require('@open-condo/config')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { checkDvAndSender } = require('@open-condo/keystone/plugins/dvAndSender')
-const { getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
+const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/acquiring/access/GeneratePaymentLinkService')
 const {
@@ -22,6 +22,10 @@ const {
     RECEIPT_HAVE_INVALID_CURRENCY_CODE_VALUE,
     RECEIPT_HAVE_INVALID_PAYMENT_MONTH_VALUE,
     RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE,
+    MUTALLY_EXCLUSIVE_DATA,
+    CANNOT_FIND_INVOICE,
+    INVOICE_IS_DELETED,
+    INVOICES_ARE_NOT_PUBLISHED,
 } = require('@condo/domains/acquiring/constants/errors')
 const {
     PAYMENT_LINK_PATH,
@@ -30,6 +34,7 @@ const {
         successUrlQp,
         failureUrlQp,
         billingReceiptQp,
+        invoicesQp,
         currencyCodeQp,
         amountQp,
         periodQp,
@@ -38,6 +43,7 @@ const {
 } = require('@condo/domains/acquiring/constants/links')
 const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { DV_VERSION_MISMATCH, WRONG_FORMAT } = require('@condo/domains/common/constants/errors')
+const { INVOICE_STATUS_PUBLISHED } = require('@condo/domains/marketplace/constants')
 
 /**
  * List of possible errors, that this custom schema can throw
@@ -126,6 +132,26 @@ const ERRORS = {
         type: RECEIPT_HAVE_INVALID_PAYMENT_YEAR_VALUE,
         message: 'Cannot generate payment link with invalid "paymentYear" value',
     },
+    MUTALLY_EXCLUSIVE_DATA: {
+        code: BAD_USER_INPUT,
+        type: MUTALLY_EXCLUSIVE_DATA,
+        message: 'Mutually exclusive data was sent',
+    },
+    CANNOT_FIND_INVOICE: (id) => ({
+        code: BAD_USER_INPUT,
+        type: CANNOT_FIND_INVOICE,
+        message: `Cannot find specified invoice with id ${id}`,
+    }),
+    INVOICE_IS_DELETED: (id) => ({
+        code: BAD_USER_INPUT,
+        type: INVOICE_IS_DELETED,
+        message: `Cannot generate payment link with deleted invoice ${id}`,
+    }),
+    UNPUBLISHED_INVOICE: {
+        code: BAD_USER_INPUT,
+        type: INVOICES_ARE_NOT_PUBLISHED,
+        message: 'Found invoices with not "published" status',
+    },
 }
 
 const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkService', {
@@ -140,7 +166,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
         },
         {
             access: true,
-            type: 'input GeneratePaymentLinkInput { dv: Int!, sender: SenderFieldInput!, receipt: BillingReceiptWhereUniqueInput, receiptData: GeneratePaymentLinkReceiptDataInput, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!, callbacks: GeneratePaymentLinkCallbacksInput! }',
+            type: 'input GeneratePaymentLinkInput { dv: Int!, sender: SenderFieldInput!, receipt: BillingReceiptWhereUniqueInput, receiptData: GeneratePaymentLinkReceiptDataInput, acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput, invoices: [InvoiceWhereUniqueInput!], callbacks: GeneratePaymentLinkCallbacksInput! }',
         },
         {
             access: true,
@@ -159,6 +185,7 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     receipt,
                     receiptData,
                     acquiringIntegrationContext,
+                    invoices,
                     callbacks: { successUrl, failureUrl },
                 } = data
 
@@ -166,10 +193,16 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                 checkDvAndSender(data, ERRORS.DV_VERSION_MISMATCH, ERRORS.WRONG_SENDER_FORMAT, context)
 
                 // Stage 1: get acquiring context & integration
-                const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
+                if ([receipt, receiptData, invoices].filter(Boolean).length > 1) {
+                    throw new GQLError(ERRORS.MUTALLY_EXCLUSIVE_DATA, context)
+                }
 
-                if (acquiringContext.deletedAt) {
-                    throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
+                if (receipt || receiptData) {
+                    const acquiringContext = await getById('AcquiringIntegrationContext', acquiringIntegrationContext.id)
+
+                    if (acquiringContext.deletedAt) {
+                        throw new GQLError(ERRORS.ACQUIRING_INTEGRATION_CONTEXT_IS_DELETED, context)
+                    }
                 }
 
                 // Stage 2: generate links
@@ -179,7 +212,9 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                 const paymentLinkBaseUrl = new URL(`${conf.SERVER_URL}${PAYMENT_LINK_PATH}`)
 
                 // set common QP
-                paymentLinkBaseUrl.searchParams.set(acquiringIntegrationContextQp, acquiringIntegrationContext.id)
+                if (receipt || receiptData) {
+                    paymentLinkBaseUrl.searchParams.set(acquiringIntegrationContextQp, acquiringIntegrationContext.id)
+                }
                 paymentLinkBaseUrl.searchParams.set(successUrlQp, successUrl)
                 paymentLinkBaseUrl.searchParams.set(failureUrlQp, failureUrl)
 
@@ -260,6 +295,26 @@ const GeneratePaymentLinkService = new GQLCustomSchema('GeneratePaymentLinkServi
                     paymentLinkBaseUrl.searchParams.set(amountQp, amount)
                     paymentLinkBaseUrl.searchParams.set(periodQp, period)
                     paymentLinkBaseUrl.searchParams.set(accountNumberQp, accountNumber)
+                } else if (!isNil(invoices)) {
+                    const invoicesIds = map(invoices, 'id')
+                    const invoicesModels = await find('Invoice', { id_in: invoicesIds })
+
+                    if (invoicesModels.length < invoices.length) {
+                        const invoicesModelsIds = map(invoicesModels, 'id')
+                        throw new GQLError(ERRORS.CANNOT_FIND_INVOICE(invoicesIds.filter((invoiceId) => !invoicesModelsIds.includes(invoiceId)).join(',')), context)
+                    }
+
+                    const deletedInvoiceModelsIds = invoicesModels.reduce((result, invoiceModel) => invoiceModel.deletedAt ? [...result, invoiceModel.id] : result, [])
+                    if (deletedInvoiceModelsIds.length > 0) {
+                        throw new GQLError(ERRORS.INVOICE_IS_DELETED(deletedInvoiceModelsIds.join(',')), context)
+                    }
+
+                    // All invoices must be published
+                    if (invoicesModels.some(({ status }) => status !== INVOICE_STATUS_PUBLISHED)) {
+                        throw new GQLError(ERRORS.UNPUBLISHED_INVOICE, context)
+                    }
+
+                    paymentLinkBaseUrl.searchParams.set(invoicesQp, map(invoicesModels, 'id').join(','))
                 } else {
                     throw new GQLError({ ...ERRORS.EMPTY_RECEIPT_AND_RECEIPT_DATA_VALUES }, context)
                 }

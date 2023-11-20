@@ -71261,7 +71261,8 @@ input GeneratePaymentLinkInput {
   sender: SenderFieldInput!
   receipt: BillingReceiptWhereUniqueInput
   receiptData: GeneratePaymentLinkReceiptDataInput
-  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput!
+  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput
+  invoices: [InvoiceWhereUniqueInput!]
   callbacks: GeneratePaymentLinkCallbacksInput!
 }
 
@@ -71291,6 +71292,21 @@ type CreatePaymentByLinkOutput {
   unitName: String!
   accountNumber: String!
   period: String!
+}
+
+input RegisterMultiPaymentForInvoicesInput {
+  dv: Int!
+  sender: JSON!
+  invoices: [InvoiceWhereUniqueInput!]!
+}
+
+type RegisterMultiPaymentForInvoicesOutput {
+  dv: Int!
+  multiPaymentId: String!
+  webViewUrl: String!
+  feeCalculationUrl: String!
+  directPaymentUrl: String!
+  anonymousPaymentUrl: String!
 }
 
 enum TicketReportPeriodType {
@@ -82200,6 +82216,7 @@ type Mutation {
   registerMultiPaymentForOneReceipt(data: RegisterMultiPaymentForOneReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   registerMultiPaymentForVirtualReceipt(data: RegisterMultiPaymentForVirtualReceiptInput!): RegisterMultiPaymentForOneReceiptOutput
   createPaymentByLink(data: CreatePaymentByLinkInput!): CreatePaymentByLinkOutput
+  registerMultiPaymentForInvoices(data: RegisterMultiPaymentForInvoicesInput!): RegisterMultiPaymentForInvoicesOutput
   sendB2CAppPushMessage(data: SendB2CAppPushMessageInput!): SendB2CAppPushMessageOutput
   registerInvoice(data: RegisterInvoiceInput!): RegisterInvoiceOutput
 

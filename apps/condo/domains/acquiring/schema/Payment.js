@@ -34,6 +34,8 @@ const {
     PAYMENT_TRANSITIONS,
     PAYMENT_REQUIRED_FIELDS,
     PAYMENT_FROZEN_FIELDS,
+    PAYMENT_DONE_STATUS,
+    PAYMENT_WITHDRAWN_STATUS,
 } = require('@condo/domains/acquiring/constants/payment')
 const { ACQUIRING_CONTEXT_FIELD } = require('@condo/domains/acquiring/schema/fields/relations')
 const { AcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/serverSchema')
@@ -44,6 +46,8 @@ const {
     NON_NEGATIVE_MONEY_FIELD,
     IMPORT_ID_FIELD,
 } = require('@condo/domains/common/schema/fields')
+const { INVOICE_STATUS_PUBLISHED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
+const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 
 const ERRORS = {
     PAYMENT_NO_PAIRED_FROZEN_INVOICE: {
@@ -330,7 +334,12 @@ const Payment = new GQLListSchema('Payment', {
                     ...existingItem,
                     ...resolvedData,
                 }
-                const requiredFields = PAYMENT_REQUIRED_FIELDS[newStatus]
+                let requiredFields = PAYMENT_REQUIRED_FIELDS[newStatus]
+
+                // In the case or invoice, there is no context needed, because the invoice context included in the invoice
+                if (newItem.invoice) {
+                    requiredFields = requiredFields.filter((field) => field !== 'context')
+                }
                 let requiredMissing = false
                 for (const field of requiredFields) {
                     if (!newItem.hasOwnProperty(field) || newItem[field] === null) {
@@ -363,6 +372,19 @@ const Payment = new GQLListSchema('Payment', {
                     if (resolvedData.hasOwnProperty(field)) {
                         addValidationError(`${PAYMENT_FROZEN_FIELD_INCLUDED} (${field})`)
                     }
+                }
+            }
+        },
+        afterChange: async ({ context, operation, existingItem, updatedItem }) => {
+            if (
+                updatedItem.invoice
+                && [PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS].includes(get(updatedItem, 'status'))
+            ) {
+                const invoice = await getById('Invoice', updatedItem.invoice)
+                if (get(invoice, 'status') === INVOICE_STATUS_PUBLISHED) {
+                    await Invoice.update(context, invoice.id, {
+                        status: INVOICE_STATUS_PAID,
+                    })
                 }
             }
         },

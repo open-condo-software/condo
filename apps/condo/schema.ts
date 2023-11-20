@@ -22561,7 +22561,8 @@ export type GeneratePaymentLinkInput = {
   sender: SenderFieldInput;
   receipt?: Maybe<BillingReceiptWhereUniqueInput>;
   receiptData?: Maybe<GeneratePaymentLinkReceiptDataInput>;
-  acquiringIntegrationContext: AcquiringIntegrationContextWhereUniqueInput;
+  acquiringIntegrationContext?: Maybe<AcquiringIntegrationContextWhereUniqueInput>;
+  invoices?: Maybe<Array<InvoiceWhereUniqueInput>>;
   callbacks: GeneratePaymentLinkCallbacksInput;
 };
 
@@ -40345,6 +40346,7 @@ export type Mutation = {
   registerMultiPaymentForOneReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   registerMultiPaymentForVirtualReceipt?: Maybe<RegisterMultiPaymentForOneReceiptOutput>;
   createPaymentByLink?: Maybe<CreatePaymentByLinkOutput>;
+  registerMultiPaymentForInvoices?: Maybe<RegisterMultiPaymentForInvoicesOutput>;
   sendB2CAppPushMessage?: Maybe<SendB2CAppPushMessageOutput>;
   registerInvoice?: Maybe<RegisterInvoiceOutput>;
   /**  Authenticate and generate a token for a User with the Password Authentication Strategy.  */
@@ -48282,6 +48284,11 @@ export type MutationRegisterMultiPaymentForVirtualReceiptArgs = {
 
 export type MutationCreatePaymentByLinkArgs = {
   data: CreatePaymentByLinkInput;
+};
+
+
+export type MutationRegisterMultiPaymentForInvoicesArgs = {
+  data: RegisterMultiPaymentForInvoicesInput;
 };
 
 
@@ -68430,6 +68437,22 @@ export type RegisterInvoiceInput = {
 export type RegisterInvoiceOutput = {
   __typename?: 'RegisterInvoiceOutput';
   invoice: Invoice;
+};
+
+export type RegisterMultiPaymentForInvoicesInput = {
+  dv: Scalars['Int'];
+  sender: Scalars['JSON'];
+  invoices: Array<InvoiceWhereUniqueInput>;
+};
+
+export type RegisterMultiPaymentForInvoicesOutput = {
+  __typename?: 'RegisterMultiPaymentForInvoicesOutput';
+  dv: Scalars['Int'];
+  multiPaymentId: Scalars['String'];
+  webViewUrl: Scalars['String'];
+  feeCalculationUrl: Scalars['String'];
+  directPaymentUrl: Scalars['String'];
+  anonymousPaymentUrl: Scalars['String'];
 };
 
 export type RegisterMultiPaymentForOneReceiptInput = {
