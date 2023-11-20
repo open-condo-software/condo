@@ -9,7 +9,7 @@ const conf = require('@open-condo/config')
 const { GQLErrorCode: { BAD_USER_INPUT }, GQLError } = require('@open-condo/keystone/errors')
 const { Json, AutoIncrementInteger } = require('@open-condo/keystone/fields')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
-const { GQLListSchema, getByCondition, getById } = require('@open-condo/keystone/schema')
+const { GQLListSchema, getByCondition, getById, find } = require('@open-condo/keystone/schema')
 const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const {
@@ -32,6 +32,8 @@ const { buildSetOfFieldsToTrackFrom, storeChangesIfUpdated } = require('@condo/d
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
+const { INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
+const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
 const { manageAssigneeScope } = require('@condo/domains/scope/utils/serverSchema')
@@ -904,6 +906,45 @@ const Ticket = new GQLListSchema('Ticket', {
             const { property, unitName, sectionName, sectionType, unitType, floorName, classifier } = Ticket.schema.fields
 
             const [requestData] = args
+
+            const { existingItem, updatedItem, operation, context } = requestData
+
+            if (operation === 'update') {
+                const ticketId = updatedItem.id
+                const isPropertyChanged = existingItem.property !== updatedItem.property
+                const isUnitChanged = existingItem.unitName !== updatedItem.unitName || existingItem.unitType !== updatedItem.unitType
+                const isClientInfoChanged = existingItem.clientName !== updatedItem.clientName || existingItem.clientPhone !== updatedItem.clientPhone
+                const isTicketCanceled = existingItem.status !== STATUS_IDS.DECLINED && updatedItem.status === STATUS_IDS.DECLINED
+
+                if (isPropertyChanged || isUnitChanged || isClientInfoChanged || isTicketCanceled) {
+                    const invoicesWithTicket = await find('Invoice', {
+                        ticket: { id: ticketId },
+                        deletedAt: null,
+                    })
+
+                    const updateInvoicePayload = { dv: updatedItem.dv, sender: updatedItem.sender }
+                    if (isPropertyChanged) {
+                        updateInvoicePayload['property'] = { property: { connect: { id: updatedItem.property } } }
+                    }
+                    if (isUnitChanged) {
+                        updateInvoicePayload['unitName'] = updatedItem.unitName
+                        updateInvoicePayload['unitType'] = updatedItem.unitType
+                    }
+                    if (isClientInfoChanged) {
+                        updateInvoicePayload['clientName'] = updatedItem.clientName
+                        updateInvoicePayload['clientPhone'] = updatedItem.clientPhone
+                    }
+                    if (isTicketCanceled) {
+                        updateInvoicePayload['status'] = INVOICE_STATUS_CANCELED
+                    }
+
+                    if (isTicketCanceled) {
+                        for (const invoice of invoicesWithTicket) {
+                            await Invoice.update(context, invoice.id, updateInvoicePayload)
+                        }
+                    }
+                }
+            }
 
             await storeChangesIfUpdated(
                 buildSetOfFieldsToTrackFrom(Ticket.schema, { except: OMIT_TICKET_CHANGE_TRACKABLE_FIELDS }),
