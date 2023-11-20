@@ -124,7 +124,10 @@ export const InvoiceRowsTable = ({ invoice }) => {
     const orderColumns = useInvoiceRowsTableColumns(currencyCode, marketItems)
 
     const moneyRender = useMemo(() => getMoneyRender(intl, currencyCode), [currencyCode, intl])
-    const totalPrice = rows.filter(row => row.toPay !== '0').map(row => +row.toPay * row.count)
+    const totalPrice = rows.filter(row => row.toPay !== '0').reduce((acc, row) => {
+        acc += +row.toPay * row.count
+        return acc
+    }, 0)
     const hasMinPrice = rows.find(row => row.isMin)
     const isContractToPay = rows.every(row => row.isMin && row.toPay === '0')
 
