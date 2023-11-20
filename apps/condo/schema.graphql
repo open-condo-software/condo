@@ -70951,7 +70951,7 @@ type ResidentBillingReceiptOutput {
 
 input RegisterBillingReceiptAddressMetaInput {
   globalId: String
-  addressKey: String
+  importId: String
   unitName: String
   unitType: String
 }
