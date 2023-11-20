@@ -24,10 +24,9 @@ WORKDIR /app
 COPY --chown=app:app ./out /app
 # Copy yarn berry
 COPY --chown=app:app ./.yarn/releases /app/.yarn/releases
-COPY --chown=app:app ./.yarn/plugins /app/.yarn/plugins
 COPY --chown=app:app ./.yarn/patches /app/.yarn/patches
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
-RUN --mount=type=cache,target=/root/.yarn/cache YARN_CACHE_FOLDER=/root/.yarn/cache yarn install --immutable
+RUN yarn install --immutable
 
 # Builder
 FROM base as builder
