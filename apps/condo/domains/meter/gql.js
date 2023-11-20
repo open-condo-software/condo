@@ -52,6 +52,12 @@ const DELETE_METER_AND_METER_READINGS_MUTATION = gql`
 const METER_RESOURCE_OWNER_FIELDS = `{ organization { id } resource { id } address addressKey ${COMMON_FIELDS} }`
 const MeterResourceOwner = generateGqlQueries('MeterResourceOwner', METER_RESOURCE_OWNER_FIELDS)
 
+const ALL_RESIDENT_METERS_QUERY = gql`
+    query allResidentMeters ($data: AllResidentMetersInput!) {
+        result: allResidentMeters(data: $data) { meters ${METER_FIELDS} }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -66,6 +72,7 @@ module.exports = {
     MeterReportingPeriod,
     DELETE_METER_AND_METER_READINGS_MUTATION,
     MeterResourceOwner,
+    ALL_RESIDENT_METERS_QUERY,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
 

@@ -20,6 +20,7 @@ const { PropertyMeter: PropertyMeterGQL } = require('@condo/domains/meter/gql')
 const { PropertyMeterReading: PropertyMeterReadingGQL } = require('@condo/domains/meter/gql')
 const { MeterReportingPeriod: MeterReportingPeriodGQL } = require('@condo/domains/meter/gql')
 const { MeterResourceOwner: MeterResourceOwnerGQL } = require('@condo/domains/meter/gql')
+const { ALL_RESIDENT_METERS_QUERY } = require('@condo/domains/meter/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const MeterResource = generateGQLTestUtils(MeterResourceGQL)
@@ -372,6 +373,20 @@ async function updateTestMeterResourceOwner (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function allResidentMetersByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(ALL_RESIDENT_METERS_QUERY, { data: attrs })
+    throwIfError(data, errors)
+    return [data.result, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 
 module.exports = {
@@ -387,5 +402,6 @@ module.exports = {
     PropertyMeterReading, createTestPropertyMeterReading, updateTestPropertyMeterReading,
     MeterReportingPeriod, createTestMeterReportingPeriod, updateTestMeterReportingPeriod,
     MeterResourceOwner, createTestMeterResourceOwner, updateTestMeterResourceOwner,
+    allResidentMetersByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
