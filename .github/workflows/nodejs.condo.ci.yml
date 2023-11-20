@@ -29,6 +29,9 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
+      - name: Prune repo to filter out yarn.lock and package.json
+        run: |
+          bash bin/prune.sh
       - name: Setup context for Docker BuildX
         id: buildx-context
         run: |
