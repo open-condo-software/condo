@@ -23,8 +23,7 @@ WORKDIR /app
 # Copy pruned monorepo (only package.json + yarn.lock)
 COPY --chown=app:app ./out /app
 # Copy yarn berry
-COPY --chown=app:app ./.yarn/releases /app/.yarn/releases
-COPY --chown=app:app ./.yarn/patches /app/.yarn/patches
+COPY --chown=app:app ./.yarn /app/.yarn
 COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
 RUN yarn install --immutable
 

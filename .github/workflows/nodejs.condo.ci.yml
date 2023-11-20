@@ -15,7 +15,7 @@ env:
 jobs:
   build-image:
 #    name: Build Docker Image
-    runs-on: runners-dind-set-cpu5-ram10
+#    runs-on: runners-dind-set-cpu5-ram10
     runs-on: ubuntu-latest
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
