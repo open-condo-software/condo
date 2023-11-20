@@ -157,7 +157,6 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
     const {
         loading: isPeriodsLoading,
         objs: reportingPeriods,
-        error: periodsLoadingError,
     } = MeterReportingPeriod.useObjects({
         where: {
             organization: { id: organizationId },
@@ -167,7 +166,10 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
         fetchPolicy: 'network-only',
     })
 
-    const hasOrganizationPeriod = Boolean(reportingPeriods.find(period => isNil(period.property) && !isNil(period.organization)))
+    const hasOrganizationPeriod = useMemo(() => Boolean(
+        reportingPeriods.find(period => isNil(period.property) && !isNil(period.organization) && period.id !== get(reportingPeriodRecord, 'id'))),
+    [reportingPeriodRecord, reportingPeriods]
+    )
 
     const periodsWithProperty = reportingPeriods.filter(period => !isNil(period.property))
 
@@ -212,7 +214,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
             }}
         >
             {
-                ({ handleSave, isLoading, form }) => {
+                ({ handleSave, isLoading }) => {
                     return (
                         <>
                             <Col span={24}>
@@ -310,7 +312,7 @@ export const MeterReportingPeriodForm: React.FC<IMeterReportingPeriodForm> = ({ 
                                             dependencies={['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod']}
                                             shouldUpdate>
                                             {
-                                                ({ getFieldsValue, getFieldError }) => {
+                                                ({ getFieldsValue }) => {
                                                     const { property, notifyStartDay, notifyEndDay, isOrganizationPeriod } = getFieldsValue(['property', 'notifyStartDay', 'notifyEndDay', 'isOrganizationPeriod'])
 
                                                     const messageLabels = []

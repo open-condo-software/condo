@@ -3,12 +3,19 @@
  */
 
 const get = require('lodash/get')
+const isEmpty = require('lodash/isEmpty')
+const isNull = require('lodash/isNil')
+const uniq = require('lodash/uniq')
 
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
-const { getById, getByCondition } = require('@open-condo/keystone/schema')
+const { getByCondition, find } = require('@open-condo/keystone/schema')
 
 const { getAvailableResidentMeterReportPeriods } = require('@condo/domains/meter/utils/serverSchema')
-const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor, checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
+const {
+    queryOrganizationEmployeeFor,
+    queryOrganizationEmployeeFromRelatedOrganizationFor,
+    checkPermissionsInUserOrganizationsOrRelatedOrganizations,
+} = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
 
@@ -42,44 +49,61 @@ async function canReadMeterReportingPeriods ({ authentication: { item: user } })
     }
 }
 
-async function canManageMeterReportingPeriods ({ authentication: { item: user }, originalInput, operation, itemId }) {
+async function canManageMeterReportingPeriods ({ authentication: { item: user }, originalInput, operation, itemId, itemIds }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isSupport || user.isAdmin) return true
 
+    const isBulkRequest = Array.isArray(originalInput)
+
+    let organizationIds = []
+
     if (operation === 'create') {
-        const orgId = get(originalInput, ['organization', 'connect', 'id'], null)
-        const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
-        let propertyOrganization
+        if (isBulkRequest) {
+            return false
+        } else {
+            let organizationId = get(originalInput, ['organization', 'connect', 'id'], null)
+            const propertyId = get(originalInput, ['property', 'connect', 'id'], null)
 
-        if (propertyId) {
-            const property = await getByCondition('Property', {
-                id: propertyId,
-                deletedAt: null,
-            })
+            if (!organizationId && propertyId) {
+                const property = await getByCondition('Property', {
+                    id: propertyId,
+                    deletedAt: null,
+                })
+                if (!property) return false
 
-            if (!property) return false
+                organizationId = get(property, 'organization', null)
+            }
 
-            propertyOrganization = get(property, 'organization', null)
+            organizationIds = [organizationId]
         }
-
-        const organizationId = orgId ?? propertyOrganization
-
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, organizationId, 'canManageMeters')
     }
 
     if (operation === 'update') {
-        const item = await getByCondition('MeterReportingPeriod', {
-            id: itemId,
-            deletedAt: null,
-        })
-        if (!item) return false
-        const itemOrganization = get(item, 'organization', null)
+        if (isBulkRequest) {
+            if (!itemIds || !Array.isArray(itemIds)) return false
+            if (itemIds.length !== uniq(itemIds).length) return false
 
-        return await checkPermissionInUserOrganizationOrRelatedOrganization(user.id, itemOrganization, 'canManageMeters')
+            const items = await find('MeterReportingPeriod', {
+                id_in: itemIds,
+                deletedAt: null,
+            })
+            if (!Array.isArray(items) || items.length !== itemIds.length) return false
+            organizationIds = uniq(items.map(item => get(item, 'organization', null)))
+        } else {
+            const item = await getByCondition('MeterReportingPeriod', {
+                id: itemId,
+                deletedAt: null,
+            })
+            if (!item) return false
+
+            organizationIds = [get(item, 'organization', null)]
+        }
     }
 
-    return false
+    if (isEmpty(organizationIds) || organizationIds.some(isNull)) return false
+    
+    return await checkPermissionsInUserOrganizationsOrRelatedOrganizations(user.id, organizationIds, 'canManageMeters')
 }
 
 /*

@@ -2,14 +2,22 @@
  * @jest-environment node
  */
 
+const index = require('@app/condo/index')
+
+const { setFakeClientMode } = require('@open-condo/keystone/test.utils')
+
 const { CALL_METER_READING_SOURCE_ID, COLD_WATER_METER_RESOURCE_ID } = require('@condo/domains/meter/constants/constants')
 const {
     MeterReadingSource,
     createTestMeterReading, MeterResource, createTestMeter, updateTestMeter,
+    createTestPropertyMeter, createTestPropertyMeterReading, updateTestPropertyMeter,
 } = require('@condo/domains/meter/utils/testSchema')
 const { makeClientWithProperty } = require('@condo/domains/property/utils/testSchema')
 
+
 describe('deleteReadingsOfDeletedMeter', () => {
+    setFakeClientMode(index)
+    
     it('readings are deleted after the related meter is deleted', async () => {
         const client = await makeClientWithProperty()
 
@@ -49,5 +57,27 @@ describe('deleteReadingsOfDeletedMeter', () => {
 
         expect(meterReading1.deletedAt).toBeNull()
         expect(meterReading2.deletedAt).toBeNull()
+    })
+
+    describe('property meter', () => {
+        it('property readings are deleted after the related property meter is deleted', async () => {
+            const client = await makeClientWithProperty()
+
+            const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestPropertyMeter(client, client.organization, client.property, resource, {})
+            const [meterReading1] = await createTestPropertyMeterReading(client, meter, source)
+            const [meterReading2] = await createTestPropertyMeterReading(client, meter, source)
+
+            expect(meterReading1.deletedAt).toBeNull()
+            expect(meterReading2.deletedAt).toBeNull()
+
+            await updateTestPropertyMeter(client, meter.id, {
+                deletedAt: new Date(),
+            })
+
+            expect(meterReading1.deletedAt).toBeDefined()
+            expect(meterReading2.deletedAt).toBeDefined()
+        })
     })
 })

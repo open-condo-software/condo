@@ -1972,6 +1972,7 @@
   "api.meter.MeterReportingPeriod.INVALID_FINISH": "Конец периода может принимать значение только от 1 до 31",
   "api.meter.MeterReportingPeriod.INVALID_START": "Начало периода может принимать значение только от 1 до 31",
   "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Необходима организация для создания периода сдачи показаний",
+  "api.meter.MeterReportingPeriod.PROPERTY_NOT_FOUND": "В организации такого дома нет",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "Глубина наследования категорий должна быть не больше 2",
   "api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF": "Нельзя привязать категорию к самой себе",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "Не найдено контактов для экспорта",

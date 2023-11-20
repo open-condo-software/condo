@@ -1,4 +1,10 @@
+const isArray = require('lodash/isArray')
+const isEmpty = require('lodash/isEmpty')
+const uniq = require('lodash/uniq')
+const { validate: isUUID } = require('uuid')
+
 const { getByCondition, find } = require('@open-condo/keystone/schema')
+
 
 async function checkOrganizationPermission (userId, organizationId, permission) {
     if (!userId || !organizationId) return false
@@ -26,28 +32,6 @@ async function checkOrganizationPermission (userId, organizationId, permission) 
     return employeeRole[permission] || false
 }
 
-async function checkOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !organizationIds.length) return false
-    const employees = await find('OrganizationEmployee', {
-        organization: { id_in: organizationIds },
-        user: { id: userId },
-        deletedAt: null,
-        isBlocked: false,
-    })
-
-    if (!employees.length || !employees.every(employee => employee.role)) {
-        return false
-    }
-
-    const employeeRoles = await find('OrganizationEmployeeRole', {
-        id_in: employees.map(employee => employee.role),
-        organization: { id_in: organizationIds },
-    })
-
-    if (!employeeRoles.length) return false
-    return employeeRoles.every(role => role[permission]) || false
-}
-
 async function checkRelatedOrganizationPermission (userId, organizationId, permission) {
     if (!userId || !organizationId) return false
     const [organizationLink] = await find('OrganizationLink', {
@@ -60,44 +44,84 @@ async function checkRelatedOrganizationPermission (userId, organizationId, permi
     return checkOrganizationPermission(userId, organizationLink.from, permission)
 }
 
-async function checkRelatedOrganizationsPermission (userId, organizationIds, permission) {
-    if (!userId || !organizationIds.length) return false
-    const organizationLinks = await find('OrganizationLink', {
-        from: queryOrganizationEmployeeFor(userId),
-        to: { id_in: organizationIds },
-        deletedAt: null,
-    })
-
-    if (!organizationLinks.length) {
-        return false
-    }
-    const organizationFromIds = organizationLinks.map(link => link.from)
-
-    return checkOrganizationsPermission(userId, organizationFromIds, permission)
-}
-
 // TODO(nomerdvadcatpyat): use this function where checkRelatedOrganizationPermission and checkOrganizationPermission used together
 async function checkPermissionInUserOrganizationOrRelatedOrganization (userId, organizationId, permission) {
     if (!userId || !organizationId) return false
-    const hasPermissionInRelatedOrganization = await checkRelatedOrganizationPermission(userId, organizationId, permission)
-    const hasPermissionInUserOrganization = await checkOrganizationPermission(userId, organizationId, permission)
 
-    return Boolean(hasPermissionInRelatedOrganization || hasPermissionInUserOrganization)
+    const hasPermissionInUserOrganization = await checkOrganizationPermission(userId, organizationId, permission)
+    if (hasPermissionInUserOrganization) return true
+    return await checkRelatedOrganizationPermission(userId, organizationId, permission)
+}
+
+/**
+ * Check that the user has access in each organization
+ *
+ * @param userId {string} User.id field
+ * @param organizationIds {Array<string>} array of objects related organizations
+ * @param permission {string} OrganizationEmployeeRole permission key to check for
+ * @return {Promise<boolean>}
+ */
+async function checkOrganizationsPermission (userId, organizationIds, permission) {
+    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
+
+    const uniqOrganizationIds = uniq(organizationIds)
+
+    if (!uniqOrganizationIds.every(isUUID)) return false
+
+    for (const id of organizationIds) {
+        const hasAccess = await checkOrganizationPermission(userId, id, permission)
+        if (!hasAccess) return false
+    }
+
+    return true
+}
+
+/**
+ * Check that the user has access in each related organization
+ *
+ * @param userId {string} User.id field
+ * @param organizationIds {Array<string>} array of objects related organizations
+ * @param permission {string} OrganizationEmployeeRole permission key to check for
+ * @return {Promise<boolean>}
+ */
+async function checkRelatedOrganizationsPermission (userId, organizationIds, permission) {
+    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
+
+    const uniqOrganizationIds = uniq(organizationIds)
+
+    if (!uniqOrganizationIds.every(isUUID)) return false
+
+    for (const id of organizationIds) {
+        const hasAccess = await checkRelatedOrganizationPermission(userId, id, permission)
+        if (!hasAccess) return false
+    }
+
+    return true
 }
 
 /**
  * Check permission for user to work with multiple objects in case of usage bulk request
+ *
+ * Check that the user has access in each organization (own or related)
+ *
  * @param userId {string} User.id field
  * @param organizationIds {Array<string>} array of objects related organizations
  * @param permission {string} OrganizationEmployeeRole permission key to check for
  * @return {Promise<boolean>}
  */
 async function checkPermissionsInUserOrganizationsOrRelatedOrganizations (userId, organizationIds, permission) {
-    if (!userId || !organizationIds.length) return false
-    const hasPermissionInRelatedOrganizations = await checkRelatedOrganizationsPermission(userId, organizationIds, permission)
-    const hasPermissionInUserOrganizations = await checkOrganizationsPermission(userId, organizationIds, permission)
+    if (!userId || !isArray(organizationIds) || isEmpty(organizationIds)) return false
 
-    return Boolean(hasPermissionInRelatedOrganizations || hasPermissionInUserOrganizations)
+    const uniqOrganizationIds = uniq(organizationIds)
+
+    if (!uniqOrganizationIds.every(isUUID)) return false
+
+    for (const id of organizationIds) {
+        const hasAccess = await checkPermissionInUserOrganizationOrRelatedOrganization(userId, id, permission)
+        if (!hasAccess) return false
+    }
+
+    return true
 }
 
 async function checkUserBelongsToOrganization (userId, organizationId) {
@@ -166,5 +190,6 @@ module.exports = {
     queryOrganizationEmployeeFromRelatedOrganizationFor,
     queryOrganizationEmployeeFor,
     checkOrganizationsPermission,
+    checkRelatedOrganizationsPermission,
     checkPermissionsInUserOrganizationsOrRelatedOrganizations,
 }

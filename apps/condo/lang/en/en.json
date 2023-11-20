@@ -1972,6 +1972,7 @@
   "api.meter.MeterReportingPeriod.INVALID_FINISH": "The \"finish\" field can take values in the range from 1 to 31",
   "api.meter.MeterReportingPeriod.INVALID_START": "The \"start\" field can take values in the range from 1 to 31",
   "api.meter.MeterReportingPeriod.ORGANIZATION_IS_REQUIRED": "Organization is required for create meter reading reporting period",
+  "api.meter.MeterReportingPeriod.PROPERTY_NOT_FOUND": "There is no such property in the organization",
   "api.marketplace.MarketCategory.MAXIMUM_DEPTH_REACHED": "The depth of category inheritance should be no more than 2",
   "api.marketplace.MarketCategory.CANNOT_CONNECT_TO_ITSELF": "Cannot connect to itself",
   "api.contact.exportContactsToExcel.NOTHING_TO_EXPORT": "No contacts found for export",

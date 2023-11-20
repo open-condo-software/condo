@@ -20,6 +20,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useSoftDeleteMany,
 } = generateReactHooks<MeterReportingPeriod, MeterReportingPeriodCreateInput, MeterReportingPeriodUpdateInput, QueryAllMeterReportingPeriodsArgs>(MeterReportingPeriodGQL)
 
 export {
@@ -28,4 +29,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useSoftDeleteMany,
 }
