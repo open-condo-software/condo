@@ -16,28 +16,10 @@ RUN set -ex \
 	&& python3 -m pip install 'psycopg2-binary==2.9.4' && python3 -m pip install 'Django==4.1.2' \
     && echo "OK"
 
-# Installer
-FROM base AS installer
-
+# Build container
+FROM base AS build
 USER app:app
 WORKDIR /app
-# Copy pruned monorepo (only package.json + yarn.lock)
-COPY --chown=app:app ./out /app
-# Copy yarn berry
-COPY --chown=app:app ./.yarn/releases /app/.yarn/releases
-COPY --chown=app:app ./.yarn/plugins /app/.yarn/plugins
-COPY --chown=app:app ./.yarn/patches /app/.yarn/patches
-COPY --chown=app:app ./.yarnrc.yml /app/.yarnrc.yml
-RUN --mount=type=cache,target=/root/.yarn/cache YARN_CACHE_FOLDER=/root/.yarn/cache yarn install --immutable
-
-# Builder
-FROM base as builder
-USER app:app
-WORKDIR /app
-# Copy entire repo
-COPY --chown=app:app . /app
-# Copy previously installed packages
-COPY --from=installer --chown=app:app /app /app
 
 RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "COOKIE_SECRET=undefined" >> /app/.env && \
@@ -47,6 +29,10 @@ RUN echo "# Build time .env config!" >> /app/.env && \
 	echo "NEXT_TELEMETRY_DISABLED=1" >> /app/.env && \
 	echo "NODE_ENV=production" >> /app/.env
 
+COPY --chown=app:app . /app
+RUN yarn install --immutable
+
+# yarn workspaces foreach -pt run build
 RUN set -ex \
     && yarn build \
     && rm -rf /app/.env  \
@@ -57,4 +43,4 @@ RUN set -ex \
 FROM base
 USER app:app
 WORKDIR /app
-COPY --from=builder --chown=app:app /app /app
+COPY --from=build --chown=root:root /app /app
