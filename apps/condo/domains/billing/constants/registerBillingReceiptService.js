@@ -2,7 +2,7 @@ const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/error
 
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
-const RECEIPTS_LIMIT = 50
+const RECEIPTS_LIMIT = 1000
 const ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE = 50
 const PROPERTY_SCORE_TO_PASS = 95
 const MAX_YEARS_DIFFERENCE = 10
