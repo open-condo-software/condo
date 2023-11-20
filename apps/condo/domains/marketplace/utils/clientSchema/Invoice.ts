@@ -53,10 +53,10 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
                 if (toPay === '0') {
                     toPayValue = { isMin: true, toPay: ContractPriceMessage }
                 } else {
-                    toPayValue = { isMin: true, toPay: `${FromMessage} ${toPay}` }
+                    toPayValue = { isMin: true, toPay: `${FromMessage} ${toPay.replace('.', ',')}` }
                 }
             } else {
-                toPayValue = { isMin: false, toPay }
+                toPayValue = { isMin: false, toPay: toPay.replace('.', ',') }
             }
 
             return { count, name, sku, ...toPayValue }
@@ -96,15 +96,16 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, context:
             }
         } else if (!isUndefined(formValues[key])) {
             if (key === 'rows' && !isNull(formValues[key])) {
-                const rows = formValues[key].map(({ name, toPay, count, sku, isMin }) => {
+                const rows = formValues[key].map(({ name, toPay, count, sku }) => {
                     const baseFields = { name, count }
                     let toPayFields
                     if (toPay === ContractPriceMessage) {
                         toPayFields = { toPay: '0', isMin: true }
                     } else if (toPay.startsWith(FromMessage)) {
-                        toPayFields = { toPay: toPay.split(' ')[1], isMin: true }
+                        const toPayValue = toPay.split(' ')[1].replace(',', '.')
+                        toPayFields = { toPay: toPayValue, isMin: true }
                     } else {
-                        toPayFields = { toPay, isMin: false }
+                        toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
                     }
 
                     const otherFields = pickBy({
@@ -154,11 +155,12 @@ export function prepareTotalPriceFromInput (intl, count, rawPrice) {
     if (!rawPrice) {
         return { total: 0 }
     }
-    if (!isNaN(+rawPrice)) {
-        return { total: +rawPrice * count }
+    const price = rawPrice.replace(',', '.')
+    if (!isNaN(+price)) {
+        return { total: +price * count }
     }
 
-    const splittedRawPrice = rawPrice.split(' ')
+    const splittedRawPrice = price.split(' ')
     if (splittedRawPrice.length === 2 && splittedRawPrice[0] === FromMessage && !isNaN(+splittedRawPrice[1])) {
         return { isMin: true, total: +splittedRawPrice[1] * count }
     }

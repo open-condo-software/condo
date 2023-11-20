@@ -550,7 +550,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     warningOnly: true,
                                                     validator: (_, value) => {
                                                         if (
-                                                            new RegExp(`^${FromMessage} (\\d+|\\d+.\\d+)$`).test(value) ||
+                                                            new RegExp(`^${FromMessage} (\\d+|\\d+,\\d+)$`).test(value) ||
                                                             value === ContractPriceMessage
                                                         ) {
                                                             form.setFieldsValue({
@@ -572,7 +572,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 {
                                                     validator: (_, value) => {
                                                         if (
-                                                            new RegExp(`^(${FromMessage} |)(\\d+|\\d+.\\d+)$`).test(value) ||
+                                                            new RegExp(`^(${FromMessage} |)(\\d+|\\d+,\\d+)$`).test(value) ||
                                                             value === ContractPriceMessage
                                                         ) {
                                                             return Promise.resolve()

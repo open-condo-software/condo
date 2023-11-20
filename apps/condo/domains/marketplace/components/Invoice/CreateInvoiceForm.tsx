@@ -33,6 +33,7 @@ export const CreateInvoiceForm: React.FC = () => {
 
     const handleCreateInvoice = useCallback(async (values) => {
         const payload = Invoice.formValuesProcessor({ ...values, context: invoiceContext.id }, invoiceContext, intl)
+        console.log(payload)
         const createdInvoice = await createInvoiceAction(payload)
 
         const { status } = values
