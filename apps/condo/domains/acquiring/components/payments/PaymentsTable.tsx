@@ -60,7 +60,7 @@ interface IPaymentsSumInfoProps {
     loading: boolean
 }
 
-const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
+export const PaymentsSumInfo: React.FC<IPaymentsSumInfoProps> = ({
     title,
     message,
     currencyCode = DEFAULT_CURRENCY_CODE,

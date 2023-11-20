@@ -1,9 +1,8 @@
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useQuery } from '@apollo/client'
 import {
     Payment as PaymentType, SortPaymentsBy,
 } from '@app/condo/schema'
-import styled from '@emotion/styled'
-import { Col, Row, RowProps, Typography } from 'antd'
+import { Col, Row, RowProps } from 'antd'
 import { TableRowSelection } from 'antd/lib/table/interface'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
@@ -11,11 +10,12 @@ import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { useOrganization } from '@open-condo/next/organization'
+import { Typography } from '@open-condo/ui'
 import { ActionBar, Button, Modal } from '@open-condo/ui'
-import { colors } from '@open-condo/ui/dist/colors'
 
+import { PaymentsSumTable } from '@condo/domains/acquiring/components/payments/PaymentsSumTable'
+import { PaymentsSumInfo } from '@condo/domains/acquiring/components/payments/PaymentsTable'
 import { PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_DONE_STATUS, PAYMENT_ERROR_STATUS } from '@condo/domains/acquiring/constants/payment'
 import { SUM_PAYMENTS_QUERY } from '@condo/domains/acquiring/gql'
 import { Payment } from '@condo/domains/acquiring/utils/clientSchema'
@@ -24,7 +24,6 @@ import { TablePageContent } from '@condo/domains/common/components/containers/Ba
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
-import { DEFAULT_BORDER_RADIUS } from '@condo/domains/common/constants/style'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
 import { getPageIndexFromOffset, parseQuery } from '@condo/domains/common/utils/tables.utils'
@@ -32,15 +31,21 @@ import { useMarketplacePaymentsFilters } from '@condo/domains/marketplace/hooks/
 import { useMarketplacePaymentTableColumns } from '@condo/domains/marketplace/hooks/useMarketplacePaymentTableColumns'
 
 
-const ROW_GUTTERS: RowProps['gutter'] = [200, 0]
-const PaymentsSumContainer = styled.div`
-  max-width: calc(100% + 48px);
-  border: solid 1px ${colors.gray[1]};
-  border-radius: ${DEFAULT_BORDER_RADIUS};
-  padding: 16px;
-  background-color: ${colors.white[1]};
-  margin: 10px 0 10px;
-`
+const ROW_GUTTERS: RowProps['gutter'] = [0, 0]
+const SUM_BAR_COL_GUTTER: RowProps['gutter'] = [40, 0]
+const MARGIN_BOTTOM_AND_TOP_10_STYLE: React.CSSProperties = { marginBottom: '10px', marginTop: '10px' }
+
+function usePaymentsSum (whereQuery) {
+    const { data, error, loading } = useQuery(SUM_PAYMENTS_QUERY, {
+        fetchPolicy: 'cache-first',
+        variables: {
+            where: {
+                ...whereQuery,
+            },
+        },
+    })
+    return { data, error, loading }
+}
 
 export const MarketplacePaymentsContent = () => {
     const intl = useIntl()
@@ -48,13 +53,12 @@ export const MarketplacePaymentsContent = () => {
     const EmptyListTitle = intl.formatMessage({ id: 'pages.condo.marketplace.payments.empty.title' })
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
     const ClearListSelectedRowMessage = intl.formatMessage({ id: 'global.cancelSelection' })
-    const allPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.allPayment' })
-    const donePaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.donePayment' })
-    const inProcessPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.inProcessPayment' })
+    const AllPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.allPayment' })
+    const DonePaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.donePayment' })
+    const InProcessPaymentsSumMessage = intl.formatMessage({ id: 'pages.condo.marketplace.payments.stats.inProcessPayment' })
     const ConfirmTitle = intl.formatMessage({ id: 'component.TicketWarningModal.ConfirmTitle' })
 
     const router = useRouter()
-    const client = useApolloClient()
     const userOrganization = useOrganization()
     const orgId = get(userOrganization, ['organization', 'id'], null)
     const role = get(userOrganization, ['link', 'role'], {})
@@ -104,43 +108,10 @@ export const MarketplacePaymentsContent = () => {
         fetchPolicy: 'network-only',
     })
 
-    const [allPaymentsSum, setAllPaymentsSum] = useState(0)
-    const [donePaymentsSum, setDonePaymentsSum] = useState(0)
-    const [inProcessPaymentsSum, setInProcessPaymentsSum] = useState(0)
 
-    useDeepCompareEffect(() => {
-        client.query({
-            query: SUM_PAYMENTS_QUERY,
-            variables: {
-                where: {
-                    ...searchPaymentsQuery,
-                },
-            },
-            fetchPolicy: 'network-only',
-        }).then((response) => setAllPaymentsSum(Number(Number(get(response, 'data.result.sum', 0)).toFixed(2))))
-
-        client.query({
-            query: SUM_PAYMENTS_QUERY,
-            variables: {
-                where: {
-                    ...searchPaymentsQuery,
-                    status: PAYMENT_DONE_STATUS,
-                },
-            },
-            fetchPolicy: 'network-only',
-        }).then((response) => setDonePaymentsSum(Number(Number(get(response, 'data.result.sum', 0)).toFixed(2))))
-
-        client.query({
-            query: SUM_PAYMENTS_QUERY,
-            variables: {
-                where: {
-                    ...searchPaymentsQuery,
-                    status_in: [PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_ERROR_STATUS],
-                },
-            },
-            fetchPolicy: 'network-only',
-        }).then((response) => setInProcessPaymentsSum(Number(Number(get(response, 'data.result.sum', 0)).toFixed(2))))
-    }, [])
+    const { data: allPaymentsSum, loading: allPaymentsSumLoading } = usePaymentsSum({ ...searchPaymentsQuery })
+    const { data: donePaymentsSum, loading: donePaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status: PAYMENT_DONE_STATUS })
+    const { data: inProcessPaymentsSum, loading: inProcessPaymentsLoading } = usePaymentsSum({ ...searchPaymentsQuery, status_in: [PAYMENT_PROCESSING_STATUS, PAYMENT_WITHDRAWN_STATUS, PAYMENT_ERROR_STATUS] })
 
     const isNoPaymentsData = isEmpty(payments) && isEmpty(filters) && !paymentsLoading
 
@@ -199,19 +170,38 @@ export const MarketplacePaymentsContent = () => {
                                 </Col>
                             </Row>
                         </TableFiltersContainer>
-                        <PaymentsSumContainer>
-                            <Row align='middle' justify='center' gutter={[80, 40]}>
-                                <Col>
-                                    {`${allPaymentsSumMessage}: ${allPaymentsSum}`}
-                                </Col>
-                                <Col>
-                                    {`${donePaymentsSumMessage}: ${donePaymentsSum}`}
-                                </Col>
-                                <Col>
-                                    {`${inProcessPaymentsSumMessage}: ${inProcessPaymentsSum}`}
-                                </Col>
-                            </Row>
-                        </PaymentsSumContainer>
+                        <Col style={MARGIN_BOTTOM_AND_TOP_10_STYLE}>
+                            <PaymentsSumTable>
+                                <Row justify='center' gutter={SUM_BAR_COL_GUTTER}>
+                                    <Col>
+                                        <PaymentsSumInfo
+                                            title={AllPaymentsSumMessage}
+                                            message={get(allPaymentsSum, 'result.sum', 0)}
+                                            currencyCode='RUB'
+                                            loading={allPaymentsSumLoading}
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <PaymentsSumInfo
+                                            title={DonePaymentsSumMessage}
+                                            message={get(donePaymentsSum, 'result.sum', 0)}
+                                            currencyCode='RUB'
+                                            type='success'
+                                            loading={donePaymentsLoading}
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <PaymentsSumInfo
+                                            title={InProcessPaymentsSumMessage}
+                                            message={get(inProcessPaymentsSum, 'result.sum', 0)}
+                                            currencyCode='RUB'
+                                            type='warning'
+                                            loading={inProcessPaymentsLoading}
+                                        />
+                                    </Col>
+                                </Row>
+                            </PaymentsSumTable>
+                        </Col>
                     </Col>
                     <Row
                         gutter={ROW_GUTTERS}
@@ -251,7 +241,7 @@ export const MarketplacePaymentsContent = () => {
                 </Typography.Text>
             </Modal>
             {
-                (canReadPayments && !isNoPaymentsData) || selectedRows.length > 0  && (
+                ((canReadPayments && !isNoPaymentsData) || selectedRows.length > 0)  && (
                     <ActionBar
                         actions={[
                             // TODO after the pdf check and uploading to Excel is ready
