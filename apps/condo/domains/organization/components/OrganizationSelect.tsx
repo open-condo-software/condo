@@ -1,6 +1,5 @@
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
-import isNull from 'lodash/isNull'
 import uniqBy from 'lodash/uniqBy'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
@@ -55,7 +54,7 @@ export const InlineOrganizationSelect: React.FC = () => {
             isAccepted: true,
             ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
         },
-    }, { skip: isNull(userId) })
+    }, { skip: !userId })
 
     const { count: hasInvites, loading: isInvitesLoading } = OrganizationEmployee.useCount({
         where: {
@@ -63,7 +62,7 @@ export const InlineOrganizationSelect: React.FC = () => {
             isAccepted: false,
             ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
         },
-    }, { skip: isNull(userId) })
+    }, { skip: !userId })
 
     // Note: Filter case where organization was deleted
     const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
