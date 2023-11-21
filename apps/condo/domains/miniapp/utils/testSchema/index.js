@@ -32,6 +32,7 @@ const { B2BAppPermission: B2BAppPermissionGQL } = require('@condo/domains/miniap
 const { B2BAppRole: B2BAppRoleGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppAccessRightSet: B2BAppAccessRightSetGQL } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
+const { GET_B2B_APP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 function randomChoice(options) {
@@ -529,6 +530,20 @@ async function updateTestB2BAppNewsSharingConfig (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
+
+async function getB2BAppLaunchParametersSignatureByTestClient(client, extraAttrs = {}) {
+    if (!client) throw new Error('no client')
+    const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
+
+    const attrs = {
+        dv: 1,
+        sender,
+        ...extraAttrs,
+    }
+    const { data, errors } = await client.mutate(GET_B2B_APP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION, { data: attrs })
+    throwIfError(data, errors)
+    return [data.obj, attrs]
+}
 /* AUTOGENERATE MARKER <FACTORY> */
 function getFakeAddress(validAddress = true, validHouse = true) {
     const { address, addressMeta } = buildFakeAddressAndMeta(false)
@@ -567,6 +582,7 @@ module.exports = {
     B2BAppRole, createTestB2BAppRole, updateTestB2BAppRole,
     B2BAppAccessRightSet, createTestB2BAppAccessRightSet, updateTestB2BAppAccessRightSet,
     B2BAppNewsSharingConfig, createTestB2BAppNewsSharingConfig, updateTestB2BAppNewsSharingConfig,
+    getB2BAppLaunchParametersSignatureByTestClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
     getFakeAddress,
 }

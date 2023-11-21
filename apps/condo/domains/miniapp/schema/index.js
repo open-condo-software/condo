@@ -16,6 +16,7 @@ const { B2CApp } = require('./B2CApp')
 const { B2CAppAccessRight } = require('./B2CAppAccessRight')
 const { B2CAppBuild } = require('./B2CAppBuild')
 const { B2CAppProperty } = require('./B2CAppProperty')
+const { GetB2BAppLaunchParametersSignatureService } = require('./GetB2BAppLaunchParametersSignatureService')
 const { MessageAppBlackList } = require('./MessageAppBlackList')
 const { SendB2CAppPushMessageService } = require('./SendB2CAppPushMessageService')
 /* AUTOGENERATE MARKER <REQUIRE> */
@@ -36,5 +37,6 @@ module.exports = {
     B2BAppRole,
     B2BAppAccessRightSet,
     B2BAppNewsSharingConfig,
+    GetB2BAppLaunchParametersSignatureService,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

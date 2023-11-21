@@ -22591,6 +22591,18 @@ export type GetAccessTokenByUserIdOutput = {
   ttl: Scalars['Int'];
 };
 
+export type GetB2BAppLaunchParametersSignatureInput = {
+  dv: Scalars['Int'];
+  sender: SenderFieldInput;
+  organization: OrganizationWhereUniqueInput;
+  app: B2BAppWhereUniqueInput;
+};
+
+export type GetB2BAppLaunchParametersSignatureOutput = {
+  __typename?: 'GetB2BAppLaunchParametersSignatureOutput';
+  signature: Scalars['String'];
+};
+
 export type GetExternalReportIframeUrlInput = {
   dv: Scalars['Int'];
   sender: Scalars['JSON'];
@@ -61190,6 +61202,27 @@ export type Query = {
   exportPropertyScopesToExcel?: Maybe<ExportPropertyScopeToExcelOutput>;
   getNewsItemsRecipientsCounters?: Maybe<GetNewsItemsRecipientsCountersOutput>;
   allMiniApps?: Maybe<Array<MiniAppOutput>>;
+  /**
+   * Returns a unique signature for each miniapp in conjunction with the organization and user.
+   *
+   * This signature allows the miniapp to verify that the request parameters were actually sent from the Condo and have not been changed.
+   *
+   * **Errors**
+   *
+   * Following objects will be presented in `extensions` property of thrown error
+   *
+   * `{
+   *   "query": "getB2BAppLaunchParametersSignature",
+   *   "variable": [
+   *     "data"
+   *   ],
+   *   "code": "FORBIDDEN",
+   *   "type": "MINIAPP_ACCESS_DENIED",
+   *   "message": "Miniapp access denied",
+   *   "messageForUser": "api.user.getB2BAppLaunchParametersSignature.MINIAPP_ACCESS_DENIED"
+   * }`
+   */
+  getB2BAppLaunchParametersSignature?: Maybe<GetB2BAppLaunchParametersSignatureOutput>;
   executeGetInvoiceByUser?: Maybe<GetInvoiceByUserOutput>;
   /** The version of the Keystone application serving this API. */
   appVersion?: Maybe<Scalars['String']>;
@@ -67527,6 +67560,11 @@ export type QueryGetNewsItemsRecipientsCountersArgs = {
 
 export type QueryAllMiniAppsArgs = {
   data: AllMiniAppsInput;
+};
+
+
+export type QueryGetB2BAppLaunchParametersSignatureArgs = {
+  data: GetB2BAppLaunchParametersSignatureInput;
 };
 
 

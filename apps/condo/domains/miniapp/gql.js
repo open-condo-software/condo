@@ -71,6 +71,12 @@ const B2BAppAccessRightSet = generateGqlQueries('B2BAppAccessRightSet', B2B_APP_
 const B2B_APP_NEWS_SHARING_CONFIG_FIELDS = `{ publishUrl previewUrl getRecipientsUrl name ${COMMON_FIELDS} }`
 const B2BAppNewsSharingConfig = generateGqlQueries('B2BAppNewsSharingConfig', B2B_APP_NEWS_SHARING_CONFIG_FIELDS)
 
+const GET_B2B_APP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION = gql`
+    query getB2BAppLaunchParametersSignature ($data: GetB2BAppLaunchParametersSignatureInput!) {
+        obj: getB2BAppLaunchParametersSignature(data: $data) { signature }
+    }
+`
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -89,5 +95,6 @@ module.exports = {
     B2CAppProperty,
     MessageAppBlackList,
     B2BAppNewsSharingConfig,
+    GET_B2B_APP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

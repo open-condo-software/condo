@@ -71607,6 +71607,17 @@ type SendB2CAppPushMessageOutput {
   status: String!
 }
 
+input GetB2BAppLaunchParametersSignatureInput {
+  dv: Int!
+  sender: SenderFieldInput!
+  organization: OrganizationWhereUniqueInput!
+  app: B2BAppWhereUniqueInput!
+}
+
+type GetB2BAppLaunchParametersSignatureOutput {
+  signature: String!
+}
+
 input InvoiceRowsInput {
   priceScope: MarketPriceScopeWhereUniqueInput!
   count: Int!
@@ -75325,6 +75336,28 @@ type Query {
   exportPropertyScopesToExcel(data: ExportPropertyScopeToExcelInput!): ExportPropertyScopeToExcelOutput
   getNewsItemsRecipientsCounters(data: GetNewsItemsRecipientsCountersInput!): GetNewsItemsRecipientsCountersOutput
   allMiniApps(data: AllMiniAppsInput!): [MiniAppOutput!]
+
+  """
+  Returns a unique signature for each miniapp in conjunction with the organization and user.
+  
+  This signature allows the miniapp to verify that the request parameters were actually sent from the Condo and have not been changed.
+  
+  **Errors**
+  
+  Following objects will be presented in `extensions` property of thrown error
+  
+  `{
+    "query": "getB2BAppLaunchParametersSignature",
+    "variable": [
+      "data"
+    ],
+    "code": "FORBIDDEN",
+    "type": "MINIAPP_ACCESS_DENIED",
+    "message": "Miniapp access denied",
+    "messageForUser": "api.user.getB2BAppLaunchParametersSignature.MINIAPP_ACCESS_DENIED"
+  }`
+  """
+  getB2BAppLaunchParametersSignature(data: GetB2BAppLaunchParametersSignatureInput!): GetB2BAppLaunchParametersSignatureOutput
   executeGetInvoiceByUser(data: GetInvoiceByUserInput!): GetInvoiceByUserOutput
 
   """The version of the Keystone application serving this API."""

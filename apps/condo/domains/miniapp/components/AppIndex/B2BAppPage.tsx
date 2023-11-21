@@ -1,8 +1,9 @@
+import { useQuery } from '@apollo/client'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
-import React, { useEffect } from 'react'
+import React, { useEffect, useMemo } from 'react'
 
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
@@ -13,7 +14,9 @@ import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/comp
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { GET_B2B_APP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION } from '@condo/domains/miniapp/gql'
 import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
+import { SIGN_KEYS } from '@condo/domains/miniapp/utils/serverSchema/generateSignature'
 
 
 type B2BAppPageProps = {
@@ -45,10 +48,32 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         loading: appRoleLoading,
         error: appRoleError,
     } = B2BAppRole.useObject({ where: { app: { id }, role: { id: employeeRoleId } } })
+    const { data, loading: signatureLoading, error: signatureError } = useQuery(GET_B2B_APP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION, {
+        variables: {
+            data: {
+                organization: { id: organizationId },
+                app: { id },
+            },
+        },
+    })
+
+    const signature = get(data, 'signature', null)
 
     const appUrl = get(context, ['app', 'appUrl'], null)
     const appName = get(context, ['app', 'name'], null)
     const hasDynamicTitle = get(context, ['app', 'hasDynamicTitle'], false)
+
+    const appUrlWithSignature = useMemo(() => {
+        if (!appUrl) return appUrl
+
+        const url = new URL(appUrl)
+        if (signature) {
+            url.searchParams.set('sign', signature)
+        }
+        url.searchParams.set('signKeys', SIGN_KEYS)
+
+        return url.toString()
+    }, [appUrl, signature])
 
     // NOTE 1: Page visiting is valid if context exists, visitor has B2BAppRole and app has appUrl
     // NOTE 2: In case of invalid id it will redirect to about page, where appId is checked
@@ -92,8 +117,14 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         }
     }, [shouldSendAnalytics])
 
-    if (contextLoading || contextError || appRoleLoading || appRoleError) {
-        return <LoadingOrErrorPage error={contextError || appRoleError} loading={contextLoading || appRoleLoading} title={LoadingMessage}/>
+    if (contextLoading || contextError || appRoleLoading || appRoleError || signatureLoading) {
+        return (
+            <LoadingOrErrorPage
+                error={contextError || appRoleError || signatureError}
+                loading={contextLoading || appRoleLoading || signatureLoading}
+                title={LoadingMessage}
+            />
+        )
     }
 
     if (isSupport || isAdmin) {
@@ -116,7 +147,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
                     but redirect is still happening*/}
                     {Boolean(appUrl && appRole && context) && (
                         <IFrame
-                            src={appUrl}
+                            src={appUrlWithSignature}
                             reloadScope='organization'
                             withLoader
                             withPrefetch

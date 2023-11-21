@@ -2021,6 +2021,7 @@
   "api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED": "SMS code expired, try to verify phone number again",
   "api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED": "Max retries reached for SMS code confirmation. Try to initiate phone confirmation again",
   "api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED": "SMS code verification mismatch",
+  "api.user.getB2BAppLaunchParametersSignature.MINIAPP_ACCESS_DENIED": "Miniapp access denied",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED": "User is already invited into organization",
   "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER": "Unable to register user",
   "api.organization.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND": "Could not find organization to which this employee belongs",

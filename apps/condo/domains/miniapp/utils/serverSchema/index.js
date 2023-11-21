@@ -23,6 +23,7 @@ const {
     MessageAppBlackList: MessageAppBlackListGQL,
 } = require('@condo/domains/miniapp/gql')
 const { B2BAppNewsSharingConfig: B2BAppNewsSharingConfigGQL } = require('@condo/domains/miniapp/gql')
+const { GET_B2_BAPP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION } = require('@condo/domains/miniapp/gql')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 async function allOrganizationApps (context, data) {
@@ -64,6 +65,20 @@ const B2BAppPermission = generateServerUtils(B2BAppPermissionGQL)
 const B2BAppRole = generateServerUtils(B2BAppRoleGQL)
 const B2BAppAccessRightSet = generateServerUtils(B2BAppAccessRightSetGQL)
 const B2BAppNewsSharingConfig = generateServerUtils(B2BAppNewsSharingConfigGQL)
+async function getB2BAppLaunchParametersSignature (context, data) {
+    if (!context) throw new Error('no context')
+    if (!data) throw new Error('no data')
+    if (!data.sender) throw new Error('no data.sender')
+    // TODO(codegen): write getB2BAppLaunchParametersSignature serverSchema guards
+
+    return await execGqlWithoutAccess(context, {
+        query: GET_B2_BAPP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION,
+        variables: { data: { dv: 1, ...data } },
+        errorMessage: '[error] Unable to getB2BAppLaunchParametersSignature',
+        dataPath: 'obj',
+    })
+}
+
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
@@ -82,5 +97,6 @@ module.exports = {
     MessageAppBlackList,
     B2BAppAccessRightSet,
     B2BAppNewsSharingConfig,
+    getB2BAppLaunchParametersSignature,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

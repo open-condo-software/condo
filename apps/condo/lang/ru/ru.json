@@ -2021,6 +2021,7 @@
   "api.user.completeConfirmPhoneAction.SMS_CODE_EXPIRED": "Просрочен код подтверждения телефона по СМС, попробуйте пройти подтверждение номера телефона заново",
   "api.user.completeConfirmPhoneAction.SMS_CODE_MAX_RETRIES_REACHED": "Превышено количество попыток подтверждения номера телефона по СМС. Попробуйте заново пройти подтверждение номера телефона",
   "api.user.completeConfirmPhoneAction.SMS_CODE_VERIFICATION_FAILED": "Неверный код подтверждения телефона",
+  "api.user.getB2BAppLaunchParametersSignature.MINIAPP_ACCESS_DENIED": "Нет доступа к миниапу",
   "api.organization.inviteNewOrganizationEmployee.ALREADY_INVITED": "Пользователь уже приглашен в организацию",
   "api.organization.inviteNewOrganizationEmployee.UNABLE_TO_REGISTER_USER": "Ошибка во время регистрации пользователя",
   "api.organization.reInviteOrganizationEmployee.ORGANIZATION_NOT_FOUND": "Не найдена организация, к которой принадлежит данный сотрудник",
