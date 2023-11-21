@@ -100,12 +100,18 @@ async function canManageOrganizations ({ authentication: { item: user }, operati
 const canAccessToImportField = {
     read: access.userIsNotResidentUser,
     create: access.userIsAdmin,
-    update: access.userIsAdminOrIsSupport,
+    update: access.userIsAdmin,
 }
 
 const canAccessOnlyAdminField = {
     read: access.userIsAdmin,
     create: access.userIsAdmin,
+    update: access.userIsAdmin,
+}
+
+const canAccessTinField = {
+    read: true,
+    create: access.userIsNotResidentUser,
     update: access.userIsAdmin,
 }
 
@@ -118,4 +124,5 @@ module.exports = {
     canManageOrganizations,
     canAccessToImportField,
     canAccessOnlyAdminField,
+    canAccessTinField,
 }
