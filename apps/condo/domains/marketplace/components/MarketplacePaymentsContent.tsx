@@ -242,7 +242,7 @@ export const MarketplacePaymentsContent = () => {
                 </Typography.Text>
             </Modal>
             {
-                ((canReadPayments && !isNoPaymentsData) || selectedRows.length > 0)  && (
+                selectedRows.length > 0  && (
                     <ActionBar
                         actions={[
                             // TODO after the pdf check and uploading to Excel is ready
