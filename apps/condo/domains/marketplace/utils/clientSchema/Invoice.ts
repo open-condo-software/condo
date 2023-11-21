@@ -10,8 +10,6 @@ import {
 } from '@app/condo/schema'
 import { get, isNull, isUndefined, pickBy } from 'lodash'
 import isEmpty from 'lodash/isEmpty'
-import pick from 'lodash/pick'
-import set from 'lodash/set'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
@@ -21,7 +19,7 @@ import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 
 const RELATIONS = ['property', 'contact', 'ticket', 'context']
 const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
-const IGNORE_FORM_FIELDS = ['payerData', 'toPay']
+const IGNORE_FORM_FIELDS = ['payerData', 'toPay', 'errorContainer']
 
 export type InvoiceRowType = {
     count: number
@@ -44,9 +42,25 @@ export type InvoiceFormValuesType = {
     unitType?: string
 }
 
-export function convertToFormState (invoice: Invoice): InvoiceFormValuesType | undefined {
+export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesType | undefined {
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+
     const initialRows = get(invoice, 'rows') && invoice.rows
-        .map(({ count, isMin, name, toPay, sku }) => ({ count, isMin: !!isMin, name, toPay, sku }))
+        .map(({ count, isMin, name, toPay, sku }) => {
+            let toPayValue
+            if (isMin) {
+                if (toPay === '0') {
+                    toPayValue = { isMin: true, toPay: ContractPriceMessage }
+                } else {
+                    toPayValue = { isMin: true, toPay: `${FromMessage} ${toPay.replace('.', ',')}` }
+                }
+            } else {
+                toPayValue = { isMin: false, toPay: toPay.replace('.', ',') }
+            }
+
+            return { count, name, sku, ...toPayValue }
+        })
 
     return {
         payerData: !!get(invoice, 'contact.id'),
@@ -64,7 +78,10 @@ export function convertToFormState (invoice: Invoice): InvoiceFormValuesType | u
 
 type InvoiceMutationType = InvoiceUpdateInput | InvoiceCreateInput
 
-export function formValuesProcessor (formValues: InvoiceFormValuesType, context: InvoiceContext): InvoiceMutationType {
+export function formValuesProcessor (formValues: InvoiceFormValuesType, context: InvoiceContext, intl): InvoiceMutationType {
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+
     const result: InvoiceMutationType = {}
 
     for (const key of Object.keys(formValues)) {
@@ -79,8 +96,18 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, context:
             }
         } else if (!isUndefined(formValues[key])) {
             if (key === 'rows' && !isNull(formValues[key])) {
-                const rows = formValues[key].map(({ name, toPay, count, sku, isMin }) => {
-                    const requiredFields = { name, toPay: String(toPay), count, isMin }
+                const rows = formValues[key].map(({ name, toPay, count, sku }) => {
+                    const baseFields = { name, count }
+                    let toPayFields
+                    if (toPay === ContractPriceMessage) {
+                        toPayFields = { toPay: '0', isMin: true }
+                    } else if (toPay.startsWith(FromMessage)) {
+                        const toPayValue = toPay.split(' ')[1].replace(',', '.')
+                        toPayFields = { toPay: toPayValue, isMin: true }
+                    } else {
+                        toPayFields = { toPay: toPay.replace(',', '.'), isMin: false }
+                    }
+
                     const otherFields = pickBy({
                         sku,
                         currencyCode: context.currencyCode,
@@ -88,7 +115,7 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, context:
                         salesTaxPercent: context.salesTaxPercent,
                     }, (value) => !isEmpty(value))
 
-                    return { ...requiredFields, ...otherFields }
+                    return { ...baseFields, ...toPayFields, ...otherFields }
                 })
 
                 const toPay = rows.every(row => !row.isMin) ?
@@ -106,6 +133,62 @@ export function formValuesProcessor (formValues: InvoiceFormValuesType, context:
     }
 
     return result
+}
+
+export function getMoneyRender (intl, currencyCode?: string) {
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+
+    return function render (text: string, isMin: boolean) {
+        const formattedParts = intl.formatNumberToParts(parseFloat(text),  currencyCode ? { style: 'currency', currency: currencyCode } : {})
+        const formattedValue = formattedParts.map((part) => {
+            return part.value
+        }).join('')
+
+        return isMin ? `${FromMessage} ${formattedValue}` : formattedValue
+    }
+}
+
+export function prepareTotalPriceFromInput (intl, count, rawPrice) {
+    const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
+    const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+
+    if (!rawPrice) {
+        return { total: 0 }
+    }
+    const price = rawPrice.replace(',', '.')
+    if (!isNaN(+price)) {
+        return { total: +price * count }
+    }
+
+    const splittedRawPrice = price.split(' ')
+    if (splittedRawPrice.length === 2 && splittedRawPrice[0] === FromMessage && !isNaN(+splittedRawPrice[1])) {
+        return { isMin: true, total: +splittedRawPrice[1] * count }
+    }
+    if (splittedRawPrice.length === 1 && splittedRawPrice[0] === ContractPriceMessage) {
+        return { isMin: true, total: 0 }
+    }
+
+    return { error: true }
+}
+
+export function calculateRowsTotalPrice (intl, rows) {
+    let hasMinPrice
+    let hasError
+    const totalPrice = rows.reduce((acc, row) => {
+        const rawPrice = row.toPay
+        const count = row.count
+        const { error, isMin, total } = prepareTotalPriceFromInput(intl, count, rawPrice)
+        if (!hasError && error) {
+            hasError = true
+        }
+        if (!hasMinPrice && isMin) {
+            hasMinPrice = true
+        }
+
+        return acc + total
+    }, 0)
+
+    return { hasMinPrice, hasError, totalPrice }
 }
 
 const {

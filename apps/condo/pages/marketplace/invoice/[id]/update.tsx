@@ -10,6 +10,9 @@ import { useIntl } from '@open-condo/next/intl'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { InvoiceForm } from '@condo/domains/marketplace/components/Invoice/InvoiceForm'
+import {
+    InvoiceReadAndManagePermissionRequired,
+} from '@condo/domains/marketplace/components/PageAccess'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 
 
@@ -59,5 +62,7 @@ const UpdateInvoicePage = () => {
         </>
     )
 }
+
+UpdateInvoicePage.requiredAccess = InvoiceReadAndManagePermissionRequired
 
 export default UpdateInvoicePage

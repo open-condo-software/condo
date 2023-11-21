@@ -68571,6 +68571,7 @@ type MarketItemPricePriceSchemaField {
   isMin: Boolean!
   vatPercent: String
   salesTaxPercent: String
+  currencyCode: String!
 }
 
 input MarketItemPricePriceSchemaFieldInput {
@@ -68581,6 +68582,7 @@ input MarketItemPricePriceSchemaFieldInput {
   isMin: Boolean!
   vatPercent: String
   salesTaxPercent: String
+  currencyCode: String!
 }
 
 """ MarketItemPrice is set separately from MarketItem and indicates the price of the service. 

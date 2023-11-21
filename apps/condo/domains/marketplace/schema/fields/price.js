@@ -13,6 +13,7 @@ const priceSchemaFields = {
     isMin: 'Boolean!',
     vatPercent: 'String',
     salesTaxPercent: 'String',
+    currencyCode: 'String!',
 }
 
 const priceGqlSchemaTypes = `
@@ -30,7 +31,7 @@ const PRICE_FIELD_SCHEMA = {
     items: {
         type: 'object',
         additionalProperties: false,
-        required: ['type', 'group', 'name', 'price', 'isMin'],
+        required: ['type', 'group', 'name', 'price', 'isMin', 'currencyCode'],
         properties: {
             type: {
                 type: 'string',
@@ -54,6 +55,9 @@ const PRICE_FIELD_SCHEMA = {
                 enum: VAT_OPTIONS.map(opt => opt.toString()),
             },
             salesTaxPercent: {
+                type: 'string',
+            },
+            currencyCode: {
                 type: 'string',
             },
         },

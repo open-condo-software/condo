@@ -22,7 +22,7 @@ const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSc
 
 const ajv = new Ajv()
 const validatePriceField = ajv.compile(PRICE_FIELD_SCHEMA)
-const validPriceFieldValue = [{ type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0' }]
+const validPriceFieldValue = [{ type: 'variant', group: 'group', name: 'name', price: '300', isMin: false, vatPercent: '20', salesTaxPercent: '0', currencyCode: 'RUB' }]
 
 describe('MarketItemPrice', () => {
     let admin, organization, marketCategory

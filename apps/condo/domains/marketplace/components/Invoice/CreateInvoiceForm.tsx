@@ -1,19 +1,16 @@
-import get from 'lodash/get'
+import { notification } from 'antd'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
-import { useMutation } from '@open-condo/next/apollo'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 
-import { REGISTER_MULTI_PAYMENT_MUTATION } from '@condo/domains/acquiring/gql'
-import { runMutation } from '@condo/domains/common/utils/mutations.utils'
-import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
+import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
-import { getPaymentLinkNotification } from './PaymentLinkNotification'
+import { getPaymentLinkNotification } from './CopyButton'
 
 
 export const CreateInvoiceForm: React.FC = () => {
@@ -32,36 +29,26 @@ export const CreateInvoiceForm: React.FC = () => {
         },
     })
 
-    const [registerMultiPayment] = useMutation(REGISTER_MULTI_PAYMENT_MUTATION)
+    const getPaymentLink = useInvoicePaymentLink()
 
     const handleCreateInvoice = useCallback(async (values) => {
-        const payload = Invoice.formValuesProcessor({ ...values, context: invoiceContext.id }, invoiceContext)
+        const payload = Invoice.formValuesProcessor({ ...values, context: invoiceContext.id }, invoiceContext, intl)
+        console.log(payload)
         const createdInvoice = await createInvoiceAction(payload)
 
         const { status } = values
         if (status === INVOICE_STATUS_PUBLISHED) {
-            await runMutation({
-                mutation: registerMultiPayment,
-                variables: {
-                    data: {
-                        dv: 1,
-                        sender: getClientSideSenderInfo(),
-                        invoices: [{ id: createdInvoice.id }],
-                    },
-                },
-                OnCompletedMsg: (data) => {
-                    const { data: { result } } = data
-                    return getPaymentLinkNotification({ intl, number: createdInvoice.number, url: result.webViewUrl })
-                },
-                onError: (err) => {
-                    console.log(err)
-                },
-                intl,
-            })
+            const { error, paymentLink } = await getPaymentLink(createdInvoice.id)
+
+            if (paymentLink) {
+                notification.success(getPaymentLinkNotification({ intl, number: createdInvoice.number, url: paymentLink }))
+            } else {
+                notification.error(getPaymentLinkNotification({ intl, number: createdInvoice.number, linkError: error }))
+            }
         }
 
         return createdInvoice
-    }, [createInvoiceAction, intl, invoiceContext, registerMultiPayment])
+    }, [invoiceContext, createInvoiceAction, getPaymentLink, intl])
 
     const initialValues = useMemo(() =>
         ({ rows: [{ name: '', count: 1, toPay: '0', isMin: false }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),

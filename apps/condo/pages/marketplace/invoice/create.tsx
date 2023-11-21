@@ -7,6 +7,7 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { InvoiceForm } from '@condo/domains/marketplace/components/Invoice/InvoiceForm'
+import { InvoiceReadAndManagePermissionRequired } from '@condo/domains/marketplace/components/PageAccess'
 
 
 const CREATE_INVOICE_PAGE_GUTTER: [Gutter, Gutter] = [12, 60]
@@ -35,5 +36,7 @@ const CreateInvoicePage = () => {
         </>
     )
 }
+
+CreateInvoicePage.requiredAccess = InvoiceReadAndManagePermissionRequired
 
 export default CreateInvoicePage
