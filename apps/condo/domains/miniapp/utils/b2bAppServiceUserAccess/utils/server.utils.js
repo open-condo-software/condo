@@ -188,13 +188,14 @@ const b2bAppServiceUserCanManageObjects = async (args) => {
 }
 
 /**
- * Merge two access filters or return false
+ * Merge (if it needed) two access filters or return false
  *
  * @param a {any}
  * @param b {any}
- * @return {Record<string, any>|{OR: [{AND: Record<string, any>[]},{AND: Record<string, any>[]}]}||false}
+ * @return {Record<string, any>|{OR: [{AND: Record<string, any>[]},{AND: Record<string, any>[]}]}|boolean}
  */
 const mergeAccessFilters = (a, b) => {
+    if (a === true || b === true) return true
     if ((isObject(a) && isEmpty(a)) || (isObject(b) && isEmpty(b))) return {}
     if (isObject(a) && isObject(b)) {
         return {
