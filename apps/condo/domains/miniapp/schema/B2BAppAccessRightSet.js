@@ -7,7 +7,7 @@ const { GQLListSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/miniapp/access/B2BAppAccessRightSet')
 const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
-const { generatePermissionFields } = require('apps/condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
+const { generatePermissionFields } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/schema.utils')
 
 
 const B2BAppAccessRightSet = new GQLListSchema('B2BAppAccessRightSet', {
