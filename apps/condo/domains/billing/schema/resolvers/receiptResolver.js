@@ -29,7 +29,6 @@ class ReceiptResolver extends Resolver {
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const uniqKey = this.buildUniqKey(receipt)
             const { importId, period, property, account, receiver } = receipt
-            //const sameReceiptQuery = { importId, context: { id: this.billingContext.id }, deletedAt: null }
             const sameReceiptQuery = {
                 OR: [
                     {

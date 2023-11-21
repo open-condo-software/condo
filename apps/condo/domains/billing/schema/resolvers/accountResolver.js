@@ -1,5 +1,5 @@
 // ELS is a 10-digit code, where 3 and 4 characters are numbers, and the rest are numbers.
-const IS_ELS_REGEXP = /^[0-9]{2}[А-Я]{2}[0-9]{6}$/i
+const IS_ELS_REGEXP = /^\d{2}[А-Я]{2}\d{6}$/i
 
 const { isEmpty, isNil } = require('lodash')
 

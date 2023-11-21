@@ -222,6 +222,57 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
             return resolvedData
         },
+        beforeChange: async ({ existingItem, resolvedData, context }) => {
+            const { sender: { fingerprint } } = resolvedData
+
+            // Handle cases when we do not need to search for BillingRecipient
+            // receiver is explicitly set
+            if ('receiver' in resolvedData) {
+                return
+            }
+            // receiver is in existing item and not being updated
+            if (existingItem && 'receiver' in existingItem && !('receiver' in resolvedData) && !('recipient' in resolvedData)) {
+                return
+            }
+
+            const newItem = { ...existingItem, ...resolvedData }
+            const contextId = get(newItem, 'context')
+            const recipient = get(newItem, 'recipient')
+            const billingIntegrationContext = await getById('BillingIntegrationOrganizationContext', contextId)
+            const billingIntegration = await getById('BillingIntegration', get(billingIntegrationContext, 'integration'))
+            const organization = await getById('Organization', get(billingIntegrationContext, 'organization'))
+            const isTrustedBankAccountSource = get(billingIntegration, 'isTrustedBankAccountSource')
+
+            const tinMatches = recipient.tin && recipient.tin === organization.tin
+
+            let receiverId
+            const sameRecipient = await BillingRecipient.getOne(context, {
+                context: { id: contextId },
+                tin: get(recipient, 'tin'),
+                bic: get(recipient, 'bic'),
+                bankAccount: get(recipient, 'bankAccount'),
+                deletedAt: null,
+            })
+            const { bankName = '', territoryCode = '', offsettingAccount = '' } = recipient
+            if (sameRecipient) {
+                receiverId = sameRecipient.id
+            } else {
+                const createdRecipient = await BillingRecipient.create(context, {
+                    dv: 1,
+                    sender: { dv: 1, fingerprint: fingerprint },
+                    context: { connect: { id: contextId } },
+                    name: get(recipient, 'name', null),
+                    tin: get(recipient, 'tin'),
+                    iec: get(recipient, 'iec'),
+                    bic: get(recipient, 'bic'),
+                    bankAccount: get(recipient, 'bankAccount'),
+                    isApproved: isTrustedBankAccountSource && tinMatches,
+                    bankName, territoryCode, offsettingAccount,
+                })
+                receiverId = createdRecipient.id
+            }
+            resolvedData.receiver = receiverId
+        },
     },
 })
 

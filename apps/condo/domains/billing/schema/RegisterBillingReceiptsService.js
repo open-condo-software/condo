@@ -293,6 +293,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
                 const isNewFlow = !receiptsInput.find(({ normalizedAddress }) => normalizedAddress)
+
                 if (isNewFlow) {
                     if (receiptsInput.length > RECEIPTS_LIMIT) {
                         throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)
@@ -318,19 +319,13 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         errorsIndex = { ...errorsIndex, ...errorReceipts }
                         receiptIndex = receipts
                     }
-                    registerReceiptLogger.info({
-                        msg: 'register-receipts-profiler',
-                        debug,
-                        context: billingContextInput,
-                        receiptsCount:
-                        receiptsInput.length,
-                    })
-                    return Object.values({ ...receiptIndex, ...errorsIndex }).map(value => {
-                        const id = get(value, 'id')
+                    registerReceiptLogger.info({ msg: 'register-receipts-profiler', debug, context: billingContextInput, receiptsCount: receiptsInput.length })
+                    return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
+                        const id = get(idOrError, 'id')
                         if (id) {
                             return getById('BillingReceipt', id)
                         } else {
-                            return Promise.reject(value)
+                            return Promise.reject(idOrError)
                         }
                     })
                 }
@@ -369,7 +364,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                 for (let i = 0; i < receiptsInput.length; ++i) {
 
                     const { importId, address, accountNumber, unitName, unitType, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
-                    const { tin, tinMeta, routingNumber, bankAccount } = receiptsInput[i]
+                    const { tin, routingNumber, bankAccount } = receiptsInput[i]
 
                     // Todo: (DOMA-2225) migrate it to address service
                     let { normalizedAddress } = receiptsInput[i]
