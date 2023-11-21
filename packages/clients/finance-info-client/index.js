@@ -30,6 +30,7 @@ async function getOrganizationInfo (tin) {
 
         return {
             result: {
+                name: faker.company.name(),
                 timezone: faker.address.timeZone(),
                 territoryCode: faker.address.countryCode(),
                 iec: faker.finance.account(),

@@ -172,7 +172,6 @@ describe('RegisterBillingReceiptsService', () => {
                 const billingProperties = await BillingProperty.getAll(admin, { context: { id: billingContext.id } })
                 const billingAccounts = await BillingAccount.getAll(admin, { context: { id: billingContext.id } })
                 const billingReceipts = await BillingReceipt.getAll(admin, { context: { id: billingContext.id } })
-
                 expect(billingProperties).toHaveLength(3)
                 expect(billingAccounts).toHaveLength(2)
                 expect(billingReceipts).toHaveLength(2)
