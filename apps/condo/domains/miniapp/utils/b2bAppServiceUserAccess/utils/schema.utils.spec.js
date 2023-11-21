@@ -6,7 +6,7 @@ const {
 } = require('./schema.utils')
 
 
-describe('Schema helpers functions', () => {
+describe('Schema functions', () => {
     describe('getSchemaDocForReadOnlyPermissionField', () => {
         const validCases = [
             {

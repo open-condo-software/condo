@@ -8,8 +8,8 @@ const { getById, find } = require('@open-condo/keystone/schema')
 
 const {
     mergeAccessFilters,
-    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
-    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    b2bAppServiceUserCanManageObjects,
+    b2bAppServiceUserCanReadObjects,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { queryOrganizationEmployeeFor } = require('@condo/domains/organization/utils/accessSchema')
@@ -35,8 +35,8 @@ async function canReadProperties (args) {
         }
     }
 
-    const accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp = await serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
-    return mergeAccessFilters(accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp, {
+    const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
+    return mergeAccessFilters(accessFilterForB2BAppServiceUser, {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id, 'canReadProperties'),
@@ -54,7 +54,7 @@ async function canManageProperties (args) {
     if (user.isAdmin || user.isSupport) return true
 
     if (user.type === SERVICE) {
-        const hasAccess = await serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+        const hasAccess = await b2bAppServiceUserCanManageObjects(args)
         if (hasAccess) return hasAccess
     }
 

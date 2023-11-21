@@ -1,12 +1,12 @@
 const {
-    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
-    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    b2bAppServiceUserCanManageObjects,
+    b2bAppServiceUserCanReadObjects,
     mergeAccessFilters,
 } = require('./utils/server.utils')
 
 
 module.exports = {
-    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
-    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    b2bAppServiceUserCanManageObjects,
+    b2bAppServiceUserCanReadObjects,
     mergeAccessFilters,
 }

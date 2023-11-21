@@ -160,7 +160,7 @@ const getRefSchemaName = (schemaConfig, listKey) => {
  * @param args
  * @return {Promise<Record<string, any>|false>}
  */
-const serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp = async (args) => {
+const b2bAppServiceUserCanReadObjects = async (args) => {
     const { listKey } = args
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS, listKey)
@@ -176,7 +176,7 @@ const serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp = asy
  * @param args
  * @return {Promise<boolean>}
  */
-const serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp = async (args) => {
+const b2bAppServiceUserCanManageObjects = async (args) => {
     const { listKey } = args
     if (!isServiceUser(args)) return false
     const schemaConfig = get(B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS, listKey)
@@ -210,7 +210,7 @@ const mergeAccessFilters = (a, b) => {
 }
 
 module.exports = {
-    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
-    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    b2bAppServiceUserCanManageObjects,
+    b2bAppServiceUserCanReadObjects,
     mergeAccessFilters,
 }

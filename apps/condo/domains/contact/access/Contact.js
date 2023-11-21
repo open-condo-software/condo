@@ -8,8 +8,8 @@ const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFo
 const { getById } = require('@open-condo/keystone/schema')
 
 const {
-    serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
-    serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp,
+    b2bAppServiceUserCanReadObjects,
+    b2bAppServiceUserCanManageObjects,
     mergeAccessFilters,
 } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { checkPermissionInUserOrganizationOrRelatedOrganization } = require('@condo/domains/organization/utils/accessSchema')
@@ -26,8 +26,8 @@ async function canReadContacts (args) {
     
     if (user.isAdmin) return {}
 
-    const accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp = await serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
-    return mergeAccessFilters(accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp, {
+    const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
+    return mergeAccessFilters(accessFilterForB2BAppServiceUser, {
         organization: {
             OR: [
                 queryOrganizationEmployeeFor(user.id, 'canReadContacts'),
@@ -46,7 +46,7 @@ async function canManageContacts (args) {
     if (user.isAdmin) return true
 
     if (user.type === SERVICE) {
-        const hasAccess = await serviceUserCanManageSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+        const hasAccess = await b2bAppServiceUserCanManageObjects(args)
         if (hasAccess) return hasAccess
     }
     

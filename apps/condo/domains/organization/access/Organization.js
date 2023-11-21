@@ -7,7 +7,7 @@ const access = require('@open-condo/keystone/access')
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find } = require('@open-condo/keystone/schema')
 
-const { serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp, mergeAccessFilters } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
+const { b2bAppServiceUserCanReadObjects, mergeAccessFilters } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess')
 const { queryOrganizationEmployeeFor, queryOrganizationEmployeeFromRelatedOrganizationFor } = require('@condo/domains/organization/utils/accessSchema')
 const { RESIDENT, SERVICE } = require('@condo/domains/user/constants/common')
 const { canDirectlyReadSchemaObjects, canDirectlyManageSchemaObjects } = require('@condo/domains/user/utils/directAccess')
@@ -46,7 +46,7 @@ async function canReadOrganizations (args) {
         { ...queryOrganizationEmployeeFor(user.id) },
         { ...queryOrganizationEmployeeFromRelatedOrganizationFor(user.id) },
     ]
-    const accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp = await serviceUserCanReadSchemaObjectsIfOrganizationConnectedToLinkedB2BApp(args)
+    const accessFilterForB2BAppServiceUser = await b2bAppServiceUserCanReadObjects(args)
 
     if (user.type === SERVICE) {
         const billingContexts = await find('BillingIntegrationOrganizationContext', {
@@ -80,7 +80,7 @@ async function canReadOrganizations (args) {
         }
     }
 
-    return mergeAccessFilters({ OR: accessConditions }, accessFilterForServiceUserIfOrganizationConnectedToLinkedB2BApp)
+    return mergeAccessFilters({ OR: accessConditions }, accessFilterForB2BAppServiceUser)
 }
 
 async function canManageOrganizations ({ authentication: { item: user }, operation, listKey, originalInput }) {
