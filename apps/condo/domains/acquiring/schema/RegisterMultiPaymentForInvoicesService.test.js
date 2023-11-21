@@ -116,7 +116,7 @@ describe('RegisterMultiPaymentForInvoicesService', () => {
                     code: 'BAD_USER_INPUT',
                     type: 'NOT_FOUND',
                     message: 'Some of specified invoices with ids {ids} were deleted, so you cannot pay for them anymore',
-                    messageInterpolation: { ids: [invoice1.id, invoice2.id].join(',') },
+                    messageInterpolation: { ids: [invoice1.id, invoice2.id].sort().join(',') },
                 },
                 'result',
             )

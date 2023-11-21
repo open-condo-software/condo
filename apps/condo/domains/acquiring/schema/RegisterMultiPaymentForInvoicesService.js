@@ -51,13 +51,13 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Invoices not found: {ids}',
-        messageInterpolation: { ids: ids.join(',') },
+        messageInterpolation: { ids: ids.sort().join(',') },
     }),
     DELETED_INVOICES: (ids) => ({
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Some of specified invoices with ids {ids} were deleted, so you cannot pay for them anymore',
-        messageInterpolation: { ids: ids.join(',') },
+        messageInterpolation: { ids: ids.sort().join(',') },
     }),
     MULTIPLE_ACQUIRING_INTEGRATION_CONTEXTS: {
         code: BAD_USER_INPUT,
