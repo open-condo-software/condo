@@ -103,10 +103,12 @@ export const ResidentPaymentAlert = ({ propertyId, unitName, unitType, clientPho
         )
     }
 
-    return <Alert
-        type={type}
-        message={message}
-        description={description}
-        showIcon
-    />
+    return (
+        <Alert
+            type={type}
+            message={message}
+            description={description}
+            showIcon
+        />
+    )
 }

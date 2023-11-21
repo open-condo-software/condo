@@ -1,7 +1,8 @@
 /** @jsx jsx */
 import { jsx } from '@emotion/react'
 import { Col, Row, RowProps } from 'antd'
-import { get, isEmpty } from 'lodash'
+import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'

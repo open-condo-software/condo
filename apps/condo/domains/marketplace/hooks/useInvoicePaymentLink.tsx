@@ -21,7 +21,7 @@ export const useInvoicePaymentLink = () => {
                         callbacks: {
                             // replace after deciding where to redirect
                             successUrl: 'https://doma.ai',
-                            failureUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+                            failureUrl: 'https://doma.ai',
                         },
                     },
                 },
