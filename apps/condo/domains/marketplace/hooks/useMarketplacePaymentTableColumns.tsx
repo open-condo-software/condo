@@ -85,6 +85,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
                 title: TicketNumberMessage,
                 filteredValue: getFilteredValue(filters, 'ticketNumber'),
                 key: 'ticketNumber',
+                dataIndex: ['ticket', 'number'],
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'ticketNumber'),
                 render: ticketNumberRender,
@@ -93,7 +94,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
             {
                 title: TransactionNumberMessage,
                 filteredValue: getFilteredValue(filters, 'number'),
-                dataIndex: ['invoice'],
+                dataIndex: ['importId'],
                 key: 'number',
                 width: '23%',
                 filterDropdown: getFilterDropdownByKey(filterMetas, 'number'),
@@ -114,7 +115,7 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
                 key: 'amount',
                 dataIndex: 'amount',
                 width: '11%',
-                render: getMoneyRender(intl, 'RUB'),
+                render: getMoneyRender(intl),
             },
         ]
     }, [sorterMap, filters, intl, search, filterMetas, SumMessage, StatusMessage, TransactionNumberMessage, DateMessage, TicketNumberMessage, InvoiceNumberMessage, transactionNumberRender, ticketNumberRender, invoiceNumberRender])

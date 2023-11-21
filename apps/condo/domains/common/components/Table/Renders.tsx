@@ -1,5 +1,4 @@
 import { Property, BuildingUnitSubType } from '@app/condo/schema'
-import { colors } from "@open-condo/ui/dist/colors";
 import { Typography } from 'antd'
 import { FilterValue } from 'antd/es/table/interface'
 import { EllipsisConfig } from 'antd/es/typography/Base'
@@ -13,19 +12,18 @@ import React from 'react'
 
 import { IconProps } from '@open-condo/icons'
 import { Tag, TypographyLinkProps } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
+import { PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
+import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { renderLink } from '@condo/domains/common/utils/Renders'
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
-import { PAYMENT_WITHDRAWN_STATUS } from "../../../acquiring/constants/payment";
-
-import { EmptyTableCell } from './EmptyTableCell'
-
-import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 
 
 export type RenderReturnType = string | React.ReactNode
@@ -35,15 +33,10 @@ const ELLIPSIS_SETTINGS: EllipsisConfig = { rows: ELLIPSIS_ROWS, expandable: fal
 const ELLIPSIS_STYLES: React.CSSProperties = { marginBottom: 0 }
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'HH:mm'
-const STATUS_STYLES = {
-    'WITHDRAWN': colors.orange[1],
-    'DONE': colors.green[5],
-}
 
 const DIM_TEXT_STYLE: React.CSSProperties = {
     color: 'inherit',
 }
-
 
 /**
  * Marks text according to marked flag
