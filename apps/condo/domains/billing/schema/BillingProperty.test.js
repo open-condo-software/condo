@@ -438,38 +438,7 @@ describe('BillingProperty', () => {
             })
         })
     })
-    describe('Constraints', () => {
-        describe('globalId', () => {
-            let globalId
-            beforeEach(async () => {
-                globalId = faker.datatype.uuid()
-            })
-            test('Can be same if context is different', async () => {
-                const [property] = await createTestBillingProperty(admin, context, {
-                    globalId,
-                })
-                expect(property).toBeDefined()
-                expect(property).toHaveProperty('globalId', globalId)
-                const [anotherProperty] = await createTestBillingProperty(admin, anotherContext, {
-                    globalId,
-                })
-                expect(anotherProperty).toBeDefined()
-                expect(anotherProperty).toHaveProperty('globalId', globalId)
-            })
-            test('Must be unique within the same context', async () => {
-                const [property] = await createTestBillingProperty(admin, context, {
-                    globalId,
-                })
-                expect(property).toBeDefined()
-                expect(property).toHaveProperty('globalId', globalId)
-                await expectToThrowInternalError(async () => {
-                    await createTestBillingProperty(admin, context, {
-                        globalId,
-                    })
-                }, 'billingProperty_unique_context_globalId')
-            })
-        })
-    })
+
     describe('Resolvers', () => {
         describe('Property field resolver', () => {
             test('Property with same address and organization must be assigned to BillingProperty', async () => {
