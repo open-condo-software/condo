@@ -4,7 +4,7 @@
 const { faker } = require('@faker-js/faker')
 
 
-const { makeLoggedInAdminClient, makeClient } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToResult,
     expectToThrowAuthenticationErrorToResult,
@@ -19,6 +19,8 @@ const {
     allResidentMetersByTestClient,
     MeterResource,
     createTestMeter,
+    MeterResourceOwner,
+    updateTestMeterResourceOwner,
 } = require('@condo/domains/meter/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
@@ -31,7 +33,7 @@ const {
     makeClientWithStaffUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const { COLD_WATER_METER_RESOURCE_ID } = require('../constants/constants')
+const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 
 
 describe('AllResidentMetersService', () => {
@@ -44,7 +46,7 @@ describe('AllResidentMetersService', () => {
     })
 
     describe('Resident', () => {
-        it('should get all meters from resident organization', async () => {
+        it('should get meters from resident main organization', async () => {
             const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
             const [property] = await createTestProperty(admin, organization)
             const [billingProperty] = await createTestBillingProperty(admin, context)
@@ -71,6 +73,113 @@ describe('AllResidentMetersService', () => {
                     expect.objectContaining(meter),
                 ]),
             )
+        })
+
+        it('should get all meters from organizations with resource ownership rights', async () => {
+            const { organization: originalOrganization, context: originalContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const { organization: serviceProviderOrganization, context: serviceProviderContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+            const [originalProperty] = await createTestProperty(admin, originalOrganization)
+            const [serviceProviderProperty] = await createTestProperty(admin, serviceProviderOrganization, {
+                address: originalProperty.address,
+            })
+            expect(serviceProviderProperty).toHaveProperty('addressKey', originalProperty.addressKey)
+
+            const [originalBillingProperty] = await createTestBillingProperty(admin, originalContext, {
+                address: originalProperty.address,
+            })
+            expect(originalBillingProperty).toHaveProperty('addressKey', originalProperty.addressKey)
+
+            const [serviceProviderBillingProperty] = await createTestBillingProperty(admin, serviceProviderContext, {
+                address: serviceProviderProperty.address,
+            })
+            expect(serviceProviderBillingProperty).toHaveProperty('addressKey', serviceProviderProperty.addressKey)
+
+            const [originalBillingAccount] = await createTestBillingAccount(admin, originalContext, originalBillingProperty)
+            const [serviceProviderBillingAccount] = await createTestBillingAccount(admin, serviceProviderContext, serviceProviderBillingProperty)
+
+            const unitName = faker.random.alphaNumeric(8)
+            const unitType = FLAT_UNIT_TYPE
+
+            const [resident] = await createTestResident(admin, residentClient.user, originalProperty, { unitName, unitType })
+            await createTestServiceConsumer(admin, resident, originalOrganization, { accountNumber: originalBillingAccount.number })
+            // const [serviceProviderResident] = await createTestResident(admin, residentClient.user, serviceProviderProperty, { unitName, unitType })
+            await createTestServiceConsumer(admin, resident, serviceProviderOrganization, { accountNumber: serviceProviderBillingAccount.number })
+
+            const coldWaterResource = await MeterResource.getOne(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+            const hotWaterResource = await MeterResource.getOne(residentClient, { id: HOT_WATER_METER_RESOURCE_ID })
+            const [hotMeter] = await createTestMeter(admin, originalOrganization, originalProperty, hotWaterResource, {
+                accountNumber: originalBillingAccount.number, unitName, unitType,
+            })
+
+            await waitFor(async () => {
+                const meterResourceOwner = await MeterResourceOwner.getOne(admin, {
+                    address_i: resident.address, resource: { id: HOT_WATER_METER_RESOURCE_ID },
+                })
+
+                expect(meterResourceOwner).toBeDefined()
+            })
+
+            const [coldMeter] = await createTestMeter(admin, originalOrganization, originalProperty, coldWaterResource, {
+                accountNumber: originalBillingAccount.number, unitName, unitType,
+            })
+
+            await waitFor(async () => {
+                const meterResourceOwner = await MeterResourceOwner.getOne(admin, {
+                    address_i: resident.address, resource: { id: COLD_WATER_METER_RESOURCE_ID },
+                })
+
+                expect(meterResourceOwner).toBeDefined()
+            })
+
+            const [data] = await allResidentMetersByTestClient(residentClient, { resident: resident.id })
+
+            expect(data).toHaveProperty('meters')
+            expect(data.meters).toHaveLength(2)
+            expect(data.meters).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining(hotMeter),
+                    expect.objectContaining(coldMeter),
+                ])
+            )
+
+            const coldMeterResourceOwner = await MeterResourceOwner.getOne(admin, {
+                resource: { id: COLD_WATER_METER_RESOURCE_ID }, address_i: resident.address,
+            })
+
+            await updateTestMeterResourceOwner(admin, coldMeterResourceOwner.id, {
+                organization: { connect: { id: serviceProviderOrganization.id } },
+            })
+            const [serviceProviderColdMeter] = await createTestMeter(admin, serviceProviderOrganization, serviceProviderProperty, coldWaterResource, {
+                accountNumber: serviceProviderBillingAccount.number, unitName, unitType,
+            })
+
+            expect(serviceProviderColdMeter).toHaveProperty(['property', 'id'], serviceProviderProperty.id)
+
+            const [updatedData] = await allResidentMetersByTestClient(residentClient, { resident: resident.id })
+
+            console.log('hotMeter id', hotMeter.id)
+            console.log('coldMeter id', coldMeter.id)
+            console.log('spColdMeter id', serviceProviderColdMeter.id)
+            console.log('updated data with ids ', updatedData.meters.map(e => e.id))
+
+            expect(updatedData).toHaveProperty('meters')
+            expect(updatedData.meters).toHaveLength(2)
+            const newMeter = updatedData.meters.find(m => m.id === serviceProviderColdMeter.id)
+            // TODO: fix access for property to resident. Now it returns null from custom query
+            expect(newMeter.property).not.toBeNull()
+            expect(updatedData.meters).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining(hotMeter),
+                    expect.objectContaining(serviceProviderColdMeter),
+                ])
+            )
+
+            // expect(updatedData.meters).toEqual(
+            //     expect.arrayContaining([
+            //         expect.objectContaining(serviceProviderColdMeter),
+            //     ])
+            // )
+
         })
 
         it('can\'t get meters by another resident', async () => {

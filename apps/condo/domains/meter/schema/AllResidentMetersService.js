@@ -9,17 +9,13 @@ const { NOT_FOUND } = require('@condo/domains/common/constants/errors')
 const access = require('@condo/domains/meter/access/AllResidentMetersService')
 const { MeterResource } = require('@condo/domains/meter/utils/serverSchema')
 
-/**
- * List of possible errors, that this custom schema can throw
- * They will be rendered in documentation section in GraphiQL for this custom schema
- */
 const ERRORS = {
-    NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY: { mutation: 'allResidentMeters',
-        variable: ['data', 'someVar'], // TODO(codegen): Provide path to a query/mutation variable, whose value caused this error. Remove this property, if variables are not relevant to this error
-        code: BAD_USER_INPUT, // TODO(codegen): use one of the basic codes, declared in '@open-condo/keystone/errors'
-        type: NOT_FOUND, // TODO(codegen): use value from `constants/errors.js` either from 'common' or current domain
-        message: 'Describe what happened for developer',
-        messageForUser: 'api.user.allResidentMeters.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY', // TODO(codegen): localized message for user, use translation files
+    RESIDENT_DOES_NOT_EXISTS: {
+        query: 'allResidentMeters',
+        variable: ['data', 'resident'],
+        code: BAD_USER_INPUT,
+        type: NOT_FOUND,
+        message: 'Resident with provided id does not exist',
     },
 }
 
@@ -40,25 +36,37 @@ const AllResidentMetersService = new GQLCustomSchema('AllResidentMetersService',
             access: access.canAllResidentMeters,
             schema: 'allResidentMeters(data: AllResidentMetersInput!): AllResidentMetersOutput',
             resolver: async (parent, args, context, info, extra = {}) => {
-                // TODO(codegen): write AllResidentMetersService logic!
                 const { data: { resident: residentId, first, skip } } = args
-
-                const meters = []
 
                 const [resident] = await find('Resident', {
                     id: residentId,
                     organization: { deletedAt: null },
                     property: { deletedAt: null },
                     deletedAt: null,
+                    user: { id: context.authedItem.id },
                 })
 
                 if (resident) {
-                    const condition = { deletedAt: null }
-                    if (resident.addressKey) {
-                        condition['addressKey'] = resident.addressKey
-                    } else {
-                        condition['address_i'] = resident.address
+                    const meters = []
+
+                    const condition = {
+                        deletedAt: null,
+                        OR: [
+                            { addressKey: resident.addressKey },
+                            { address_i: resident.address },
+                        ],
                     }
+
+                    const userConsumers = await find('ServiceConsumer', {
+                        resident: { id: residentId, deletedAt: null },
+                        organization: { deletedAt: null },
+                        deletedAt: null,
+                    })
+
+                    const accountNumberWhere = {
+                        OR: userConsumers.map(serviceConsumer => ({ AND: [{ accountNumber: serviceConsumer.accountNumber }] })),
+                    }
+
                     const meterResourceOwners = await find('MeterResourceOwner', condition)
                     const meterResources = await MeterResource.getAll(context, {})
 
@@ -66,6 +74,7 @@ const AllResidentMetersService = new GQLCustomSchema('AllResidentMetersService',
                         unitName: resident.unitName,
                         unitType: resident.unitType,
                         deletedAt: null,
+                        ...accountNumberWhere,
                     }
 
                     for (const meterResourceOwner of meterResourceOwners) {
@@ -94,16 +103,11 @@ const AllResidentMetersService = new GQLCustomSchema('AllResidentMetersService',
                             }
                         }
                     }
+
+                    return { meters }
                 }
 
-                // const meterResourceOwners = await find('MeterResourceOwner', {
-                //
-                // })
-
-
-                // TODO: throw ERRORS in a following way
-                // throw new GQLError(ERRORS.NAME_OF_ERROR_FOR_USAGE_INSIDE_THIS_MODULE_ONLY)
-                return { meters }
+                throw new GQLError(ERRORS.RESIDENT_DOES_NOT_EXISTS, context)
             },
         },
     ],
