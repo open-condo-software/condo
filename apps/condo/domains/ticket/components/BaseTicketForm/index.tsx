@@ -40,6 +40,7 @@ import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCou
 import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice/CreateInvoiceForm'
 import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
@@ -58,6 +59,7 @@ import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSche
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
+
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
@@ -149,21 +151,48 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
 )
 
-const AddInvoiceButton = () => {
+const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketForm }) => {
     const intl = useIntl()
     const AddInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice' })
+    const CreateInvoiceModalTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
+
+    const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
+    const afterInvoiceCreated = useCallback(async (invoice) => {
+        console.log('created invoice', invoice)
+        addInvoiceToTicketForm(invoice.id)
+
+        await refetchInvoices()
+        setCreateInvoiceModalOpen(false)
+    }, [addInvoiceToTicketForm, refetchInvoices])
 
     return (
-        <Col style={{ cursor: 'pointer' }}>
-            <Space size={4} direction='horizontal'>
-                <PlusCircle />
-                <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
-            </Space>
-        </Col>
+        <>
+            <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
+                <Space size={4} direction='horizontal'>
+                    <PlusCircle />
+                    <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+                </Space>
+            </Col>
+            {
+                createInvoiceModalOpen && (
+                    <CreateInvoiceForm
+                        afterAction={afterInvoiceCreated}
+                        initialValues={initialValues}
+                        modalFormProps={{
+                            ModalTitleMsg: CreateInvoiceModalTitle,
+                            visible: createInvoiceModalOpen,
+                            showCancelButton: false,
+                            cancelModal: () => setCreateInvoiceModalOpen(false),
+                            modalProps: { width: 'big', destroyOnClose: true },
+                        }}
+                    />
+                )
+            }
+        </>
     )
 }
 
-const TicketFormInvoicesEmptyContent = ({ organizationId }) => {
+const TicketFormInvoicesEmptyContent = ({ refetchInvoices, organizationId, initialValues, addInvoiceToTicketForm }) => {
     const intl = useIntl()
     const AlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.message' })
     const AlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.description' })
@@ -205,7 +234,11 @@ const TicketFormInvoicesEmptyContent = ({ organizationId }) => {
                 </Col>
                 <Col span={24}>
                     <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
-                        <AddInvoiceButton />
+                        <AddInvoiceButton
+                            refetchInvoices={refetchInvoices}
+                            initialValues={initialValues}
+                            addInvoiceToTicketForm={addInvoiceToTicketForm}
+                        />
                     </Row>
                 </Col>
             </Row>
@@ -213,7 +246,7 @@ const TicketFormInvoicesEmptyContent = ({ organizationId }) => {
     )
 }
 
-const TicketFormInvoices = ({ invoiceIds, organizationId }) => {
+const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm }) => {
     const { objs: invoices, refetch: refetchInvoices, loading } = Invoice.useObjects({
         where: {
             id_in: invoiceIds,
@@ -221,7 +254,14 @@ const TicketFormInvoices = ({ invoiceIds, organizationId }) => {
     })
 
     if (isEmpty(invoiceIds)) {
-        return <TicketFormInvoicesEmptyContent organizationId={organizationId} />
+        return (
+            <TicketFormInvoicesEmptyContent
+                refetchInvoices={refetchInvoices}
+                organizationId={organizationId}
+                initialValues={initialValues}
+                addInvoiceToTicketForm={addInvoiceToTicketForm}
+            />
+        )
     }
 
     return (
@@ -230,9 +270,14 @@ const TicketFormInvoices = ({ invoiceIds, organizationId }) => {
                 <TicketInvoicesList
                     invoices={invoices}
                     refetchInvoices={refetchInvoices}
+                    initialValues={initialValues}
                 />
             </Col>
-            <AddInvoiceButton />
+            <AddInvoiceButton
+                refetchInvoices={refetchInvoices}
+                initialValues={initialValues}
+                addInvoiceToTicketForm={addInvoiceToTicketForm}
+            />
         </Row>
     )
 }
@@ -388,16 +433,46 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                             name='invoices'
                                         />
                                         <Form.Item
-                                            dependencies={['invoices']}
+                                            dependencies={['invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName']}
                                         >
                                             {
-                                                ({ getFieldValue }) => {
-                                                    const invoiceIds = getFieldValue('invoices')
+                                                ({ getFieldValue, getFieldsValue, setFieldsValue }) => {
+                                                    const {
+                                                        invoices,
+                                                        property,
+                                                        unitName,
+                                                        unitType,
+                                                        clientPhone,
+                                                        clientName,
+                                                    } = getFieldsValue(['invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName'])
 
-                                                    return <TicketFormInvoices
-                                                        invoiceIds={invoiceIds}
-                                                        organizationId={organizationId}
-                                                    />
+                                                    const initialValues = {
+                                                        property,
+                                                        unitName,
+                                                        unitType,
+                                                        clientPhone,
+                                                        clientName,
+                                                    }
+
+                                                    const addInvoiceToTicketForm = (invoiceId) => {
+                                                        console.log('add in form', invoiceId)
+
+                                                        setFieldsValue({
+                                                            invoices: [
+                                                                ...getFieldValue('invoices'),
+                                                                invoiceId,
+                                                            ],
+                                                        })
+                                                    }
+
+                                                    return (
+                                                        <TicketFormInvoices
+                                                            invoiceIds={invoices}
+                                                            organizationId={organizationId}
+                                                            initialValues={initialValues}
+                                                            addInvoiceToTicketForm={addInvoiceToTicketForm}
+                                                        />
+                                                    )
                                                 }
                                             }
                                         </Form.Item>
@@ -562,7 +637,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialTicketValues, 'unitName'))
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialTicketValues, 'unitType'))
     const [selectedSectionType, setSelectedSectionType] = useState(get(initialTicketValues, 'sectionType'))
-    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
     const selectedSectionTypeRef = useRef(selectedSectionType)
@@ -607,10 +681,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         if (searchValueLength === 0) {
             return Promise.resolve()
         }
-        return selectedPropertyId !== undefined && isMatchSelectedProperty
-            ? Promise.resolve()
-            : Promise.reject(AddressNotSelected)
-    }, [selectedPropertyId, isMatchSelectedProperty])
+
+        return !isEmpty(selectedPropertyId) ? Promise.resolve() : Promise.reject(AddressNotSelected)
+    }, [selectedPropertyId, AddressNotSelected])
 
     const PROPERTY_VALIDATION_RULES = useMemo(() => [...validations.property, { validator: addressValidation }], [addressValidation, validations.property])
 
@@ -680,6 +753,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitType: null,
             sectionName: null,
             floorName: null,
+            property: option.key,
         })
         setSelectedUnitName(null)
         setSelectedPropertyId(option.key)
@@ -692,6 +766,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitType: null,
             sectionName: null,
             floorName: null,
+            property: null,
         })
         setSelectedUnitName(null)
         setSelectedPropertyId(null)
@@ -763,7 +838,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                     onClear={handlePropertiesSelectClear(form)}
                                                                                     placeholder={AddressPlaceholder}
                                                                                     notFoundContent={AddressNotFoundContent}
-                                                                                    setIsMatchSelectedProperty={setIsMatchSelectedProperty}
                                                                                 />
                                                                             </TicketFormItem>
                                                                         </Col>

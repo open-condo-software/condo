@@ -30,10 +30,10 @@ export type InvoiceRowType = {
 }
 
 export type InvoiceFormValuesType = {
-    payerData: boolean
-    rows: InvoiceRowType[]
-    paymentType: typeof INVOICE_PAYMENT_TYPES[number]
-    status: typeof INVOICE_STATUSES[number]
+    payerData?: boolean
+    rows?: InvoiceRowType[]
+    paymentType?: typeof INVOICE_PAYMENT_TYPES[number]
+    status?: typeof INVOICE_STATUSES[number]
     clientName?: string
     clientPhone?: string
     contact?: string

@@ -1,30 +1,38 @@
+import { Invoice as InvoiceType } from '@app/condo/schema'
 import { Col, notification } from 'antd'
-import { useRouter } from 'next/router'
-import React, { useCallback, useMemo, useState } from 'react'
+import isEmpty from 'lodash/isEmpty'
+import omit from 'lodash/omit'
+import React, { ComponentProps, useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
+import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
 import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
+import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
 import { getPaymentLinkNotification } from './CopyButton'
 
 
-export const CreateInvoiceForm: React.FC = () => {
+type CreateInvoiceFormProps = {
+    afterAction: (invoice: InvoiceType) => Promise<void>
+    modalFormProps?: ComponentProps<typeof BaseModalForm>
+    initialValues?: InvoiceFormValuesType
+}
+
+export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ afterAction, modalFormProps, initialValues }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const router = useRouter()
     const { organization, link } = useOrganization()
 
-    const createInvoiceAction = Invoice.useCreate({}, async () => {
-        // replace after create marketplace/index page
-        await router.push('/marketplace?tab=bills')
-    })
+    const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
+
+    const createInvoiceAction = Invoice.useCreate({}, afterAction)
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -37,11 +45,13 @@ export const CreateInvoiceForm: React.FC = () => {
 
     const handleCreateInvoice = useCallback(async (values) => {
         setSubmitLoading(true)
-        const payload = Invoice.formValuesProcessor({ ...values, context: invoiceContext.id }, invoiceContext, intl)
+        const valuesFromForm = isModalForm ? omit(values, ['clientName', 'clientPhone', 'contact', 'property', 'unitName', 'unitPhone']) : values
+        const payload = Invoice.formValuesProcessor({ ...valuesFromForm, context: invoiceContext.id }, invoiceContext, intl)
+
         const createdInvoice = await createInvoiceAction(payload)
 
         const { status } = values
-        if (status === INVOICE_STATUS_PUBLISHED) {
+        if (status === INVOICE_STATUS_PUBLISHED && !isModalForm) {
             const { error, paymentLink } = await getPaymentLink([createdInvoice.id])
 
             if (paymentLink) {
@@ -53,11 +63,14 @@ export const CreateInvoiceForm: React.FC = () => {
 
         setSubmitLoading(false)
         return createdInvoice
-    }, [invoiceContext, createInvoiceAction, getPaymentLink, intl])
+    }, [invoiceContext, intl, createInvoiceAction, isModalForm, getPaymentLink])
 
-    const initialValues = useMemo(() =>
-        ({ rows: [{ name: '', count: 1, toPay: '0', isMin: false }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true }),
-    [])
+    const formInitialValues: InvoiceFormValuesType = useMemo(() =>
+        ({
+            rows: [{ name: '', count: 1, toPay: '0', isMin: false }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true,
+            ...initialValues,
+        }),
+    [initialValues])
 
     return (
         <BaseInvoiceForm
@@ -65,11 +78,12 @@ export const CreateInvoiceForm: React.FC = () => {
             action={handleCreateInvoice}
             organization={organization}
             role={link}
-            initialValues={initialValues}
+            initialValues={formInitialValues}
             OnCompletedMsg={null}
+            modalFormProps={modalFormProps}
         >
             {
-                ({ handleSave }) => (
+                ({ handleSave }) => !isModalForm && (
                     <Col span={24}>
                         <ActionBar
                             actions={[

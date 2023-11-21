@@ -924,7 +924,7 @@ const Ticket = new GQLListSchema('Ticket', {
 
                     const updateInvoicePayload = { dv: updatedItem.dv, sender: updatedItem.sender }
                     if (isPropertyChanged) {
-                        updateInvoicePayload['property'] = { property: { connect: { id: updatedItem.property } } }
+                        updateInvoicePayload['property'] = { connect: { id: updatedItem.property } }
                     }
                     if (isUnitChanged) {
                         updateInvoicePayload['unitName'] = updatedItem.unitName
@@ -938,10 +938,8 @@ const Ticket = new GQLListSchema('Ticket', {
                         updateInvoicePayload['status'] = INVOICE_STATUS_CANCELED
                     }
 
-                    if (isTicketCanceled) {
-                        for (const invoice of invoicesWithTicket) {
-                            await Invoice.update(context, invoice.id, updateInvoicePayload)
-                        }
+                    for (const invoice of invoicesWithTicket) {
+                        await Invoice.update(context, invoice.id, updateInvoicePayload)
                     }
                 }
             }

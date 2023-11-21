@@ -12,6 +12,7 @@ import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'

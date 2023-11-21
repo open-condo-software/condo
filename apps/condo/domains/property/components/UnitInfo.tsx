@@ -127,7 +127,7 @@ export const UnitInfo: React.FC<IUnitInfo> = (props) => {
         }
 
         form.setFieldsValue({ sectionName: null, sectionType: null, floorName: null, unitType: null })
-    }, [property, setSelectedSectionType])
+    }, [property, setSelectedSectionType, setSelectedUnitType])
 
     useDeepCompareEffect(() => {
         const initialUnitName = get(initialValues, 'unitName')

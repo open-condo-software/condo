@@ -15,6 +15,7 @@ import { ActionBar } from '@open-condo/ui'
 import { colors } from '@condo/domains/common/constants/style'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
@@ -97,6 +98,7 @@ export const CreateTicketForm: React.FC = () => {
     const initialValuesFromQuery = useMemo(() => getObjectValueFromQuery(router, ['initialValues']), [router])
     const redirectToClientCard = useMemo(() => !!get(router, ['query', 'redirectToClientCard']), [router])
 
+    const updateInvoiceAction = Invoice.useUpdate({})
     const action = Ticket.useCreate(
         {
             status: { connect: { id: OPEN_STATUS } },
@@ -107,6 +109,7 @@ export const CreateTicketForm: React.FC = () => {
                 const clientPhone = ticket.clientPhone
                 const ticketPropertyId = get(ticket, 'property.id')
                 const isResidentTicket = !!get(ticket, 'contact')
+
                 if (clientPhone && ticketPropertyId) {
                     const clientCardTabType = isResidentTicket ? ClientType.Resident : ClientType.NotResident
                     await router.push(
@@ -125,10 +128,18 @@ export const CreateTicketForm: React.FC = () => {
         if (deadline && deadline.isToday()) {
             deadline = deadline.endOf('day')
         }
+        const { invoices, ...ticketValues } = variables
+
         const ticket = await action({
-            ...Ticket.formValuesProcessor({ ...variables, deadline }),
+            ...Ticket.formValuesProcessor({ ...ticketValues, deadline }),
             organization: { connect: { id: organization.id } },
         })
+
+        for (const invoiceId of invoices) {
+            await updateInvoiceAction({
+                ticket: { connect: { id: ticket.id } },
+            }, { id: invoiceId })
+        }
 
         if (attachCallRecord) {
             requestFeature({
@@ -139,12 +150,13 @@ export const CreateTicketForm: React.FC = () => {
         }
 
         return ticket
-    }, [action, organization.id, requestFeature])
+    }, [action, organization.id, requestFeature, updateInvoiceAction])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,
         assignee: auth.user.id,
         executor: auth.user.id,
+        invoices: [],
     }), [auth.user.id, initialValuesFromQuery])
 
     const getCompletedNotification = useCallback((data) => ({

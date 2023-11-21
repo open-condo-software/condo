@@ -98,9 +98,22 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
-    const updateAction = async (value) => action({
-        ...Ticket.formValuesProcessor(value),
-    }, obj)
+    const updateInvoiceAction = Invoice.useUpdate({})
+    const updateAction = async (values) => {
+        const { invoices, ...ticketValues } = values
+
+        const ticket = await action({
+            ...Ticket.formValuesProcessor(ticketValues),
+        }, obj)
+
+        for (const invoiceId of invoices) {
+            await updateInvoiceAction({
+                ticket: { connect: { id: ticket.id } },
+            }, { id: invoiceId })
+        }
+
+        return ticket
+    }
 
     useEffect(() => {
         refetch()

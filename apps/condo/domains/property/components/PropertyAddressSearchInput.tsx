@@ -4,7 +4,7 @@ import { Organization, Property } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Select, SelectProps } from 'antd'
 import get from 'lodash/get'
-import React, { CSSProperties, Dispatch, SetStateAction, useCallback } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
 
@@ -17,7 +17,6 @@ import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/util
 
 type IAddressSearchInput = SelectProps<string> & {
     organization: Organization
-    setIsMatchSelectedProperty?: Dispatch<SetStateAction<boolean>>
 }
 
 const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }

@@ -1,6 +1,6 @@
 import { Invoice } from '@app/condo/schema'
 import { useRouter } from 'next/router'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 import { CreateInvoiceForm } from './CreateInvoiceForm'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
@@ -11,15 +11,21 @@ interface IInvoiceFormProps {
 
 export const InvoiceForm: React.FC<IInvoiceFormProps> = ({ invoice }) => {
     const router = useRouter()
-
-    const afterUpdateAction = async () => {
+    const afterUpdateAction = useCallback(async () => {
         await router.push(`/marketplace/invoice/${invoice.id}`)
-    }
+    }, [invoice.id, router])
+    const afterCreateAction = useCallback(async () => {
+        await router.push('/marketplace?tab=bills')
+    }, [router])
 
     return invoice ? (
         <UpdateInvoiceForm
             invoice={invoice}
             afterAction={afterUpdateAction}
         />
-    ) : <CreateInvoiceForm />
+    ) : (
+        <CreateInvoiceForm
+            afterAction={afterCreateAction}
+        />
+    )
 }

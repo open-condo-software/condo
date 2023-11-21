@@ -7,12 +7,19 @@ import { useIntl } from '@open-condo/next/intl'
 import { Space, Tag, Typography } from '@open-condo/ui'
 
 import { INVOICE_STATUS_COLORS } from '@condo/domains/marketplace/constants'
+import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 import { InvoiceRowsTable } from './InvoiceRowsTable'
 import { UpdateInvoiceForm } from './UpdateInvoiceForm'
 
 
-const TicketInvoiceCard = ({ invoice, refetchInvoices }) => {
+type TicketInvoiceCardPropsType = {
+    invoice: InvoiceType
+    refetchInvoices: () => void
+    initialValues?: InvoiceFormValuesType
+}
+
+const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refetchInvoices, initialValues }) => {
     const intl = useIntl()
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' },
         { number: get(invoice, 'number') }
@@ -68,9 +75,10 @@ const TicketInvoiceCard = ({ invoice, refetchInvoices }) => {
                     visible: editModalOpen,
                     showCancelButton: false,
                     cancelModal: () => setEditModalOpen(false),
-                    modalProps: { width: 'big' },
+                    modalProps: { width: 'big', destroyOnClose: true },
                 }}
                 afterAction={afterInvoiceUpdate}
+                initialValues={initialValues}
             />
         </Row>
     )
@@ -79,9 +87,10 @@ const TicketInvoiceCard = ({ invoice, refetchInvoices }) => {
 type TicketInvoicesListPropsType = {
     invoices: InvoiceType[]
     refetchInvoices: () => void
+    initialValues?: InvoiceFormValuesType
 }
 
-export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invoices, refetchInvoices }) => {
+export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invoices, refetchInvoices, initialValues }) => {
     return (
         <Row gutter={[0, 40]}>
             {
@@ -90,6 +99,7 @@ export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invo
                         <TicketInvoiceCard
                             invoice={invoice}
                             refetchInvoices={refetchInvoices}
+                            initialValues={initialValues}
                         />
                     </Col>
                 ))

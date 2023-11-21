@@ -182,31 +182,31 @@ const Invoice = new GQLListSchema('Invoice', {
             const nextData = { ...existingItem, ...resolvedData }
             const isUpdate = operation === 'update'
 
-            if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED) {
-                const resolvedStatus = get(resolvedData, 'status')
-                const otherResolvedFields = omit(resolvedData, ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'status', 'ticket'])
-                const otherChangedFields = omitBy(otherResolvedFields, (value, key) => {
-                    if (key === 'toPay') {
-                        return +value === +existingItem[key]
-                    }
-
-                    return isEqual(value, existingItem[key])
-                })
-
-                const hasAccessToUpdateStatus = resolvedStatus ?
-                    [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
-
-                if (
-                    !isEmpty(otherChangedFields) ||
-                    !hasAccessToUpdateStatus
-                ) {
-                    throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
-                }
-            }
-
-            if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED) {
-                throw new GQLError(ERRORS.ALREADY_CANCELED, context)
-            }
+            // if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED) {
+            //     const resolvedStatus = get(resolvedData, 'status')
+            //     const otherResolvedFields = omit(resolvedData, ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'status', 'ticket'])
+            //     const otherChangedFields = omitBy(otherResolvedFields, (value, key) => {
+            //         if (key === 'toPay') {
+            //             return +value === +existingItem[key]
+            //         }
+            //
+            //         return isEqual(value, existingItem[key])
+            //     })
+            //
+            //     const hasAccessToUpdateStatus = resolvedStatus ?
+            //         [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
+            //
+            //     if (
+            //         !isEmpty(otherChangedFields) ||
+            //         !hasAccessToUpdateStatus
+            //     ) {
+            //         throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
+            //     }
+            // }
+            //
+            // if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED) {
+            //     throw new GQLError(ERRORS.ALREADY_CANCELED, context)
+            // }
 
             if (
                 isUpdate
@@ -247,9 +247,22 @@ const Invoice = new GQLListSchema('Invoice', {
             const user = get(context, ['req', 'user'])
             const userType = get(user, 'type')
             const userId = get(user, 'id')
-
             const resolvedContact = get(resolvedData, 'contact')
+            const resolvedTicket = get(resolvedData, 'ticket')
 
+            // Set client data from connected ticket
+            if (resolvedTicket && existingItem.ticket !== resolvedTicket) {
+                const ticketWithInvoice = await getById('Ticket', resolvedTicket)
+
+                resolvedData['property'] = ticketWithInvoice.property
+                resolvedData['unitName'] = ticketWithInvoice.unitName
+                resolvedData['unitType'] = ticketWithInvoice.unitType
+                resolvedData['clientName'] = ticketWithInvoice.clientName
+                resolvedData['clientPhone'] = ticketWithInvoice.clientPhone
+                resolvedData['contact'] = ticketWithInvoice.contact
+            }
+
+            // Set contact by passed client data
             if (!resolvedContact) {
                 const nextData = { ...existingItem, ...resolvedData }
                 const resolvedClientName = get(resolvedData, 'clientName')
@@ -312,9 +325,7 @@ const Invoice = new GQLListSchema('Invoice', {
                             deletedAt: null,
                         })
 
-                        if (resident) {
-                            set(resolvedData, 'client', resident.user)
-                        }
+                        set(resolvedData, 'client', get(resident, 'user', null))
                     }
                 }
             }
