@@ -69,7 +69,6 @@ async function getB2BAppLaunchParametersSignature (context, data) {
     if (!context) throw new Error('no context')
     if (!data) throw new Error('no data')
     if (!data.sender) throw new Error('no data.sender')
-    // TODO(codegen): write getB2BAppLaunchParametersSignature serverSchema guards
 
     return await execGqlWithoutAccess(context, {
         query: GET_B2_BAPP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION,
