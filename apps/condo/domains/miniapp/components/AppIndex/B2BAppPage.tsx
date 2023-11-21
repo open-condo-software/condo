@@ -5,6 +5,7 @@ import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React, { useEffect, useMemo } from 'react'
 
+import { getClientSideSenderInfo } from '@open-condo/codegen/utils/userId'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
@@ -14,9 +15,9 @@ import { PageContent, PageWrapper, PageHeader } from '@condo/domains/common/comp
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useTracking } from '@condo/domains/common/components/TrackingContext'
 import { IFrame } from '@condo/domains/miniapp/components/IFrame'
+import { B2B_APP_SIGN_KEYS } from '@condo/domains/miniapp/constants'
 import { GET_B2B_APP_LAUNCH_PARAMETERS_SIGNATURE_MUTATION } from '@condo/domains/miniapp/gql'
 import { B2BAppContext, B2BAppRole } from '@condo/domains/miniapp/utils/clientSchema'
-import { SIGN_KEYS } from '@condo/domains/miniapp/utils/serverSchema/generateSignature'
 
 
 type B2BAppPageProps = {
@@ -28,6 +29,8 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     const FallbackPageTitle = intl.formatMessage({ id: 'global.section.miniapps' })
     const SupportNotAllowedMessage = intl.formatMessage({ id: 'miniapp.supportIsNotAllowed' })
     const LoadingMessage = intl.formatMessage({ id: 'Loading' })
+    const AccessDeniedError = intl.formatMessage({ id: 'AccessError' })
+    const ServerError = intl.formatMessage({ id: 'ServerErrorPleaseTryAgainLater' })
 
     const { logEvent } = useTracking()
     const router = useRouter()
@@ -53,11 +56,20 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
             data: {
                 organization: { id: organizationId },
                 app: { id },
+                dv: 1,
+                sender: getClientSideSenderInfo(),
             },
         },
     })
 
-    const signature = get(data, 'signature', null)
+    const readableSignatureError = useMemo(() => {
+        if (!signatureError) return signatureError
+
+        console.error({ signatureError })
+        return String(signatureError).includes('not have access') ? AccessDeniedError : ServerError
+    }, [AccessDeniedError, ServerError, signatureError])
+
+    const signature = get(data, 'obj.signature', null)
 
     const appUrl = get(context, ['app', 'appUrl'], null)
     const appName = get(context, ['app', 'name'], null)
@@ -70,7 +82,7 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         if (signature) {
             url.searchParams.set('sign', signature)
         }
-        url.searchParams.set('signKeys', SIGN_KEYS)
+        url.searchParams.set('signKeys', String(B2B_APP_SIGN_KEYS))
 
         return url.toString()
     }, [appUrl, signature])
@@ -117,12 +129,12 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
         }
     }, [shouldSendAnalytics])
 
-    if (contextLoading || contextError || appRoleLoading || appRoleError || signatureLoading) {
+    if (contextLoading || contextError || appRoleLoading || appRoleError || signatureLoading || readableSignatureError) {
         return (
             <LoadingOrErrorPage
-                error={contextError || appRoleError || signatureError}
+                error={contextError || appRoleError || readableSignatureError}
                 loading={contextLoading || appRoleLoading || signatureLoading}
-                title={LoadingMessage}
+                title={(contextLoading || appRoleLoading || signatureLoading) && LoadingMessage}
             />
         )
     }
@@ -130,7 +142,6 @@ export const B2BAppPage: React.FC<B2BAppPageProps> = ({ id }) => {
     if (isSupport || isAdmin) {
         return <LoadingOrErrorPage title={FallbackPageTitle} error={SupportNotAllowedMessage}/>
     }
-
 
     return (
         <>

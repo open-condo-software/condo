@@ -2,14 +2,6 @@ const crypto = require('node:crypto')
 
 
 /**
- * A set of parameters that is used to create a signature.
- * It is sent when miniapp is opened to verify signature.
- *
- * @type {string[]}
- */
-const SIGN_KEYS = ['condoOrganizationId', 'condoUserId']
-
-/**
  * Generating a set of parameters that is used to create a signature.
  * It is sent when miniapp is opened to verify signature.
  *
@@ -52,5 +44,4 @@ const generateSignature = (organizationId, userId, secretKey) => {
 
 module.exports = {
     generateSignature,
-    SIGN_KEYS,
 }

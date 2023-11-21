@@ -91,6 +91,14 @@ const PROMO_BLOCK_TEXT_VARIANTS_TO_PROPS = {
 }
 
 /**
+ * A set of parameters that is used to create a signature.
+ * It is sent when miniapp is opened to verify signature.
+ *
+ * @type {string[]}
+ */
+const B2B_APP_SIGN_KEYS = ['condoOrganizationId', 'condoUserId']
+
+/**
  * In this configuration, you should specify all schemas for which you want to propagate service user access for b2b apps
  * ------
  * ________
@@ -197,4 +205,5 @@ module.exports = {
     PERMISSION_NAME_INVALID_LENGTH_ERROR,
     MAX_PERMISSION_NAME_LENGTH,
     MIN_PERMISSION_NAME_LENGTH,
+    B2B_APP_SIGN_KEYS,
 }
