@@ -193,26 +193,35 @@ describe('Organization', () => {
             })
 
         })
-        describe('Update TIN Field', () => {
+        describe('Update TIN and importId Field', () => {
             let userOrganization
             beforeAll(async () => {
                 [userOrganization] = await registerNewOrganization(user, { country: DEFAULT_ENGLISH_COUNTRY })
             })
-            test('Owner cannot change TIN', async () => {
+            test('Owner cannot change TIN and importId fields', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestOrganization(user, userOrganization.id, { tin: generateTin(DEFAULT_ENGLISH_COUNTRY) })
                 })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(user, userOrganization.id, { importId: faker.datatype.uuid() })
+                })
             })
-            test('Support cannot change TIN', async () => {
+            test('Support cannot change TIN and importId fields', async () => {
                 await expectToThrowAccessDeniedErrorToObj(async () => {
                     await updateTestOrganization(support, userOrganization.id, { tin: generateTin(DEFAULT_ENGLISH_COUNTRY) })
                 })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(support, userOrganization.id, { importId: faker.datatype.uuid() })
+                })
             })
 
-            test('Admin can change TIN', async () => {
+            test('Admin can change TIN and importId', async () => {
                 const newTin = generateTin(DEFAULT_ENGLISH_COUNTRY)
                 const [updatedOrg] = await updateTestOrganization(admin, userOrganization.id, { tin: newTin })
                 expect(updatedOrg.tin).toEqual(newTin)
+                const importId = faker.datatype.uuid()
+                const [updatedImportIdOrg] = await updateTestOrganization(admin, userOrganization.id, { importId })
+                expect(updatedImportIdOrg.importId).toEqual(importId)
             })
         })
         describe('Delete', () => {
