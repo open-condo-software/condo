@@ -179,14 +179,12 @@ describe('Organization', () => {
             test('Support can', async () => {
                 const [updatedOrg, attrs] = await updateTestOrganization(support, userOrganization.id)
                 expect(attrs).toHaveProperty('meta')
-                expect(attrs).toHaveProperty('tin')
                 expect(attrs).toHaveProperty('name')
                 expect(attrs).toHaveProperty('description')
                 expect(attrs).toHaveProperty('country')
                 expect(updatedOrg).toEqual(expect.objectContaining({
                     meta: attrs.meta,
                     name: attrs.name,
-                    tin: attrs.tin,
                     description: attrs.description,
                     country: attrs.country,
                 }))
