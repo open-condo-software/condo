@@ -5,8 +5,8 @@ const { execGqlWithoutAccess } = require('@open-condo/codegen/generate.server.ut
 const { throwAuthenticationError } = require('@open-condo/keystone/apolloErrorFormatter')
 const { find, getById, getSchemaCtx } = require('@open-condo/keystone/schema')
 
-const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('@condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
-const { SERVICE } = require('@condo/domains/user/constants/common')
+const { B2B_APP_SERVICE_USER_ACCESS_AVAILABLE_SCHEMAS } = require('apps/condo/domains/miniapp/utils/b2bAppServiceUserAccess/config')
+const { SERVICE } = require('apps/condo/domains/user/constants/common')
 
 const { generateGqlQuery, getFilter } = require('./helpers.utils')
 

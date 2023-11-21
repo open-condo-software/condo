@@ -2,7 +2,7 @@ const {
     b2bAppServiceUserCanManageObjects,
     b2bAppServiceUserCanReadObjects,
     mergeAccessFilters,
-} = require('./utils/server.utils')
+} = require('./server.utils')
 
 
 module.exports = {
