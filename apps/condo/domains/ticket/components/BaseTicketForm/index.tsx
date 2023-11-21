@@ -19,9 +19,9 @@ import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
+import { Info, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Typography, Alert, Space } from '@open-condo/ui'
+import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
@@ -587,6 +587,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
     const AttachCallRecordMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.AttachCallRecord' })
+    const CanReadByResidentTooltip = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident.tooltip' })
 
     const { breakpoints } = useLayoutContext()
     const { isCallActive } = useActiveCall()
@@ -898,7 +899,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         />
                                                                         <Col>
                                                                             <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                                                <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                                                                                <Row gutter={BIG_VERTICAL_GUTTER}>
                                                                                     <TicketAssignments
                                                                                         disableUserInteraction={disableUserInteraction}
                                                                                         validations={validations}
@@ -911,14 +912,23 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                     {
                                                                                         !isResidentTicket && (
                                                                                             <Col span={24}>
-                                                                                                <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                                                    <Checkbox
-                                                                                                        disabled={disableUserInteraction}
-                                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                                <Space size={8} align='center'>
+                                                                                                    <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                                                        <Checkbox
+                                                                                                            disabled={disableUserInteraction}
+                                                                                                            eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                                        >
+                                                                                                            {CanReadByResidentMessage}
+                                                                                                        </Checkbox>
+                                                                                                    </Form.Item>
+                                                                                                    <Tooltip
+                                                                                                        title={CanReadByResidentTooltip}
                                                                                                     >
-                                                                                                        {CanReadByResidentMessage}
-                                                                                                    </Checkbox>
-                                                                                                </Form.Item>
+                                                                                                        <Space size={4} align='center'>
+                                                                                                            <Info />
+                                                                                                        </Space>
+                                                                                                    </Tooltip>
+                                                                                                </Space>
                                                                                             </Col>
                                                                                         )
                                                                                     }

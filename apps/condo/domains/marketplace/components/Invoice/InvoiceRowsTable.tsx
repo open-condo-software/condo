@@ -1,5 +1,5 @@
 import { Invoice } from '@app/condo/schema'
-import { Col, Row, RowProps, Table as AntdTable } from 'antd'
+import { Table as AntdTable } from 'antd'
 import get from 'lodash/get'
 import React, { useCallback, useMemo } from 'react'
 
@@ -13,8 +13,6 @@ import {
     getMoneyRender,
 } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
-
-const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 
 const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
     const intl = useIntl()
@@ -63,7 +61,7 @@ const useInvoiceRowsTableColumns = (currencyCode, marketItems) => {
             return render(value)
         }
 
-        const renderLink = getTableCellRenderer({ href: `/marketplace/marketItem/${marketItemWithSameSku.id}` })
+        const renderLink = getTableCellRenderer({ href: `/marketplace/marketItem/${marketItemWithSameSku.id}`, target: '_blank' })
         return renderLink(value)
     }, [marketItems, render])
 

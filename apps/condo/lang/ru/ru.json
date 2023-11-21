@@ -684,6 +684,7 @@
   "pages.condo.ticket.field.EmployeeIsNullOrWasDeleted": "Сотрудник не указан или был удален",
   "pages.condo.ticket.field.AttachCallRecord": "Прикрепить текущий звонок к заявке",
   "pages.condo.ticket.field.CanReadByResident": "Отображать заявку в моб. приложении жителя",
+  "pages.condo.ticket.field.CanReadByResident.tooltip": "Если у заявки есть счета на оплату — они тоже перестанут отображаться в МП жителя",
   "pages.condo.ticket.field.ResidentClient": "Заявитель (житель)",
   "pages.condo.ticket.field.NotResidentClient": "Заявитель (не житель)",
   "pages.condo.ticket.field.Description": "Проблема",

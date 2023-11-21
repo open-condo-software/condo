@@ -684,6 +684,7 @@
   "pages.condo.ticket.field.EmployeeIsNullOrWasDeleted": "Employee is not specified or has been deleted",
   "pages.condo.ticket.field.AttachCallRecord": "Attach current call to ticket",
   "pages.condo.ticket.field.CanReadByResident": "Display ticket in mobile resident app",
+  "pages.condo.ticket.field.CanReadByResident.tooltip": "If ticket has invoices for payment - they will also stop showing up in the resident mobile app",
   "pages.condo.ticket.field.ResidentClient": "Client (resident)",
   "pages.condo.ticket.field.NotResidentClient": "Client (not resident)",
   "pages.condo.ticket.field.Description": "Problem description",
