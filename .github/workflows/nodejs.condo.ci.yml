@@ -8,6 +8,8 @@ on:
     branches:
       - master
   workflow_dispatch:
+    branches:
+      - '*'
 
 env:
   DOCKER_IMAGE_FULL: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:${{ github.sha }}
