@@ -12,6 +12,9 @@ async function canSumPayments ({ args: { where }, authentication: { item: user }
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
 
+    const organizationFromInvoice = get(where, ['invoice', 'context', 'organization', 'id'], null)
+    if (organizationFromInvoice) return await checkOrganizationPermission(user.id, organizationFromInvoice, 'canReadPayments')
+
     return await checkOrganizationPermission(user.id, get(where, ['organization', 'id'], null), 'canReadPayments')
 }
 

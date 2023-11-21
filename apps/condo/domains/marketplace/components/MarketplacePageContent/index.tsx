@@ -12,10 +12,10 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
-import { useQueryTab } from '@condo/domains/common/hooks/useQueryTab'
+import { MarketplacePaymentsContent } from '@condo/domains/marketplace/components/MarketplacePaymentsContent'
 import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
-import { BILLS_TAB_KEY, SERVICES_TAB_KEY, PAYMENTS_TAB_KEY } from '@condo/domains/marketplace/constants'
-import { InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
+import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
+import { InvoiceContext, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
 
 
 export const MarketplacePageContent = () => {
@@ -38,7 +38,7 @@ export const MarketplacePageContent = () => {
     const ServicesEmptyButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.buttonText' })
 
     const { GlobalHints } = useGlobalHints()
-    const [currentTab, onTabChange] = useQueryTab([BILLS_TAB_KEY, PAYMENTS_TAB_KEY, SERVICES_TAB_KEY])
+    const [currentTab, onTabChange] = useQueryTab([MARKETPLACE_PAGE_TYPES.bills, MARKETPLACE_PAGE_TYPES.payments, MARKETPLACE_PAGE_TYPES.services])
 
     const router = useRouter()
     const userOrganization = useOrganization()
@@ -51,8 +51,9 @@ export const MarketplacePageContent = () => {
     })
 
     const marketplaceIsSetup = invoiceContext && get(invoiceContext, 'status') === INVOICE_CONTEXT_STATUS_FINISHED
-    const canReadPayments = get(userOrganization, ['link', 'role', 'canReadPayments'], false)
-    const canManageInvoices = get(userOrganization, ['link', 'role', 'canManageInvoices'], false)
+    const role = get(userOrganization, ['link', 'role'], {})
+    const canReadPayments = get(role, ['canReadPayments'], false)
+    const canManageInvoices = get(role, ['canManageInvoices'], false)
 
     const RenderNotSetupTag = useMemo(() => {
         if (!marketplaceIsSetup) {
@@ -68,7 +69,7 @@ export const MarketplacePageContent = () => {
         const result: Array<TabItem> = [
             {
                 label: BillsTab,
-                key: BILLS_TAB_KEY,
+                key: MARKETPLACE_PAGE_TYPES.bills,
                 children: <EmptyListView
                     label={BillsEmptyTitle}
                     message={BillsEmptyText}
@@ -79,12 +80,12 @@ export const MarketplacePageContent = () => {
             },
             canReadPayments && {
                 label: PaymentsTab,
-                key: PAYMENTS_TAB_KEY,
-                children: <EmptyListView label={PaymentsEmptyTitle} message={PaymentsEmptyText}/>,
+                key: MARKETPLACE_PAGE_TYPES.payments,
+                children: <MarketplacePaymentsContent/>,
             },
             {
                 label: ServicesTab,
-                key: SERVICES_TAB_KEY,
+                key: MARKETPLACE_PAGE_TYPES.services,
                 children: <EmptyListView label={ServicesEmptyTitle} message={ServicesEmptyText} button={
                     <Button type='primary'>{ServicesEmptyButtonText}</Button>
                 }/>,
@@ -92,7 +93,6 @@ export const MarketplacePageContent = () => {
 
         return result
     }, [BillsEmptyButtonText, BillsEmptyText, BillsEmptyTitle, BillsTab, PaymentsEmptyText, PaymentsEmptyTitle, PaymentsTab, ServicesEmptyButtonText, ServicesEmptyText, ServicesEmptyTitle, ServicesTab, canReadPayments])
-
 
     return (
         <PageWrapper>

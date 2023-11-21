@@ -11,19 +11,19 @@ import isString from 'lodash/isString'
 import React from 'react'
 
 import { IconProps } from '@open-condo/icons'
-import { TypographyLinkProps } from '@open-condo/ui'
+import { Tag, TypographyLinkProps } from '@open-condo/ui'
+import { colors } from '@open-condo/ui/dist/colors'
 
+import { PAYMENT_WITHDRAWN_STATUS } from '@condo/domains/acquiring/constants/payment'
+import { EmptyTableCell } from '@condo/domains/common/components/Table/EmptyTableCell'
 import { TTextHighlighterRenderPartFN } from '@condo/domains/common/components/TextHighlighter'
+import { TextHighlighter, TTextHighlighterProps } from '@condo/domains/common/components/TextHighlighter'
 import { Tooltip } from '@condo/domains/common/components/Tooltip'
 import { LOCALES } from '@condo/domains/common/constants/locale'
 import { ELLIPSIS_ROWS } from '@condo/domains/common/constants/style'
 import { getAddressDetails } from '@condo/domains/common/utils/helpers'
 import { renderLink } from '@condo/domains/common/utils/Renders'
 import { ELECTRICITY_METER_RESOURCE_ID } from '@condo/domains/meter/constants/constants'
-
-import { EmptyTableCell } from './EmptyTableCell'
-
-import { TextHighlighter, TTextHighlighterProps } from '../TextHighlighter'
 
 
 export type RenderReturnType = string | React.ReactNode
@@ -33,15 +33,10 @@ const ELLIPSIS_SETTINGS: EllipsisConfig = { rows: ELLIPSIS_ROWS, expandable: fal
 const ELLIPSIS_STYLES: React.CSSProperties = { marginBottom: 0 }
 const DATE_FORMAT = 'DD.MM.YYYY'
 const TIME_FORMAT = 'HH:mm'
-const STATUS_STYLES = {
-    'WITHDRAWN': 'warning',
-    'DONE': 'success',
-}
 
 const DIM_TEXT_STYLE: React.CSSProperties = {
     color: 'inherit',
 }
-
 
 /**
  * Marks text according to marked flag
@@ -318,12 +313,13 @@ export const getStatusRender = (intl, openStatusDescModal, search?: FilterValue 
     return function render (statusType: string): RenderReturnType {
         const nameStatus = intl.formatMessage({ id: 'payment.status.' + statusType })
 
-        const extraProps: Partial<TTextHighlighterProps> = { type: STATUS_STYLES[statusType] }
-
         return (
-            <div onClick={() => openStatusDescModal(statusType)}>
-                {getTableCellRenderer({ search, extraHighlighterProps: extraProps })(nameStatus)}
-            </div>
+            <Tag onClick={() => openStatusDescModal(statusType)}
+                bgColor={ statusType === PAYMENT_WITHDRAWN_STATUS ? colors.orange[1] : colors.green[5]}
+                textColor={colors.white}
+            >
+                {nameStatus}
+            </Tag>
         )
     }
 }

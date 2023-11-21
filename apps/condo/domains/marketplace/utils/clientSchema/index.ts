@@ -11,3 +11,15 @@ export * as MarketItemFile from './MarketItemFile'
 export * as MarketItemPrice from './MarketItemPrice'
 export * as MarketPriceScope from './MarketPriceScope'
 /* AUTOGENERATE MARKER <IMPORT-EXPORT> */
+
+export type MarketplacePageTypes = 'bills' | 'payments' | 'services'
+type MarketplacePageTypesSwitch = {
+    bills: MarketplacePageTypes
+    payments: MarketplacePageTypes
+    services: MarketplacePageTypes
+}
+export const MARKETPLACE_PAGE_TYPES: MarketplacePageTypesSwitch = {
+    bills: 'bills',
+    payments: 'payments',
+    services: 'services',
+}
