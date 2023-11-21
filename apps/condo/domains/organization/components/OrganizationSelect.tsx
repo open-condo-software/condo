@@ -1,7 +1,6 @@
 import { Dropdown } from 'antd'
 import get from 'lodash/get'
 import uniqBy from 'lodash/uniqBy'
-import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, CSSProperties } from 'react'
 
 import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
@@ -32,14 +31,18 @@ function compareEmployees (lhs: OrganizationEmployeeType, rhs: OrganizationEmplo
 
 const DROPDOWN_OVERLAY_STYLES: CSSProperties = { maxWidth: 300, width: '100%' }
 
+const ORGANIZATION_EMPLOYEE_WHERE_QUERY = {
+    isRejected: false,
+    isBlocked: false,
+    organization: { type_not: HOLDING_TYPE },
+}
+
 export const InlineOrganizationSelect: React.FC = () => {
     const intl = useIntl()
     const AddOrganizationTitle = intl.formatMessage({ id: 'pages.organizations.CreateOrganizationButtonLabel' })
 
     const { breakpoints } = useLayoutContext()
     const textSize: TypographyTextProps['size'] = !breakpoints.TABLET_LARGE ? 'small' : 'medium'
-
-    const router = useRouter()
 
     const { user } = useAuth()
     const { link, selectLink, isLoading: organizationLoading } = useOrganization()
@@ -48,12 +51,18 @@ export const InlineOrganizationSelect: React.FC = () => {
     const { objs: userEmployees, allDataLoaded: employeesLoaded } = OrganizationEmployee.useAllObjects({
         where: {
             user: { id: userId },
-            isRejected: false,
-            isBlocked: false,
             isAccepted: true,
-            organization: { type_not: HOLDING_TYPE },
+            ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
         },
-    })
+    }, { skip: !userId })
+
+    const { count: hasInvites, loading: isInvitesLoading } = OrganizationEmployee.useCount({
+        where: {
+            user: { id: userId },
+            isAccepted: false,
+            ...ORGANIZATION_EMPLOYEE_WHERE_QUERY,
+        },
+    }, { skip: !userId })
 
     // Note: Filter case where organization was deleted
     const filteredEmployees = uniqBy(userEmployees.filter(employee => employee.organization), employee => employee.organization.id)
@@ -71,14 +80,14 @@ export const InlineOrganizationSelect: React.FC = () => {
     }, [selectLink])
 
     useDeepCompareEffect(() => {
-        if (employeesLoaded && user) {
+        if (employeesLoaded && !isInvitesLoading && user) {
             // Note: no current organization selected
             if (!link) {
                 // But has organizations to select -> select first one
                 if (filteredEmployees.length) {
                     selectLink({ id: filteredEmployees[0].id })
                 // No organization -> show modal for creation directly
-                } else {
+                } else if (!hasInvites) {
                     showCreateModal()
                 }
             // Note: organization in cookie, but value is invalid
@@ -86,7 +95,7 @@ export const InlineOrganizationSelect: React.FC = () => {
                 selectLink(null)
             }
         }
-    }, [employeesLoaded, user, link, filteredEmployees, selectLink, showCreateModal])
+    }, [employeesLoaded, user, link, filteredEmployees, selectLink, showCreateModal, isInvitesLoading, hasInvites])
 
     const menu = useMemo<DropdownProps['menu']>(() => {
         // Note: spread for sort, since it readonly array
