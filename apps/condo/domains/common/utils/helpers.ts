@@ -47,8 +47,6 @@ type ObjectWithAddressInfo = Pick<Property, 'address' | 'addressMeta'>
  * @param property
  */
 export const getAddressDetails = (property: ObjectWithAddressInfo) => {
-    if (isEmpty(property)) return
-
     const addressMeta = get(property, ['addressMeta', 'data'])
 
     const streetWithType = get(addressMeta, 'street_with_type')
