@@ -182,37 +182,33 @@ const Invoice = new GQLListSchema('Invoice', {
             const nextData = { ...existingItem, ...resolvedData }
             const isUpdate = operation === 'update'
 
-            // if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED) {
-            //     const resolvedStatus = get(resolvedData, 'status')
-            //     const otherResolvedFields = omit(resolvedData, ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'status', 'ticket'])
-            //     const otherChangedFields = omitBy(otherResolvedFields, (value, key) => {
-            //         if (key === 'toPay') {
-            //             return +value === +existingItem[key]
-            //         }
-            //
-            //         return isEqual(value, existingItem[key])
-            //     })
-            //
-            //     const hasAccessToUpdateStatus = resolvedStatus ?
-            //         [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
-            //
-            //     if (
-            //         !isEmpty(otherChangedFields) ||
-            //         !hasAccessToUpdateStatus
-            //     ) {
-            //         throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
-            //     }
-            // }
-            //
-            // if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED) {
-            //     throw new GQLError(ERRORS.ALREADY_CANCELED, context)
-            // }
+            if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED && !nextData.ticket) {
+                const resolvedStatus = get(resolvedData, 'status')
+                const otherResolvedFields = omit(resolvedData, ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'status'])
+                const changedFields = omitBy(otherResolvedFields, (value, key) => {
+                    if (key === 'toPay') {
+                        return +value === +existingItem[key]
+                    }
 
-            if (
-                isUpdate
-                && existingItem.status === INVOICE_STATUS_PAID
-                && existingItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE
-            ) {
+                    return isEqual(value, existingItem[key])
+                })
+
+                const hasAccessToUpdateStatus = resolvedStatus ?
+                    [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
+
+                if (
+                    !isEmpty(changedFields) ||
+                    !hasAccessToUpdateStatus
+                ) {
+                    throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
+                }
+            }
+
+            if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED && !nextData.ticket) {
+                throw new GQLError(ERRORS.ALREADY_CANCELED, context)
+            }
+
+            if (isUpdate && existingItem.status === INVOICE_STATUS_PAID && existingItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE && !nextData.ticket) {
                 throw new GQLError(ERRORS.ALREADY_PAID, context)
             }
 
