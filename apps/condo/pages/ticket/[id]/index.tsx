@@ -468,6 +468,8 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
 
     if (!invoices && invoicesLoading) return <Loader />
 
+    console.log(get(ticket, 'createdBy.type') === RESIDENT)
+
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
@@ -475,6 +477,7 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
                     invoices={invoices}
                     refetchInvoices={refetchInvoices}
                     isAllFieldsDisabled={isAllFieldsDisabled}
+                    ticketCreatedByResident={get(ticket, 'createdBy.type') === RESIDENT}
                 />
             </Col>
             {

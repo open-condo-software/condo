@@ -12,7 +12,6 @@ import { isEmpty } from 'lodash'
 import get from 'lodash/get'
 import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
-import { useDeepCompareEffect } from '@open-condo/codegen/utils/useDeepCompareEffect'
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
@@ -770,6 +769,7 @@ type BaseInvoiceFormProps = {
     isCreatedByResident?: boolean
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     isAllFieldsDisabled?: boolean
+    ticketCreatedByResident?: boolean
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
@@ -795,6 +795,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         isCreatedByResident,
         modalFormProps,
         isAllFieldsDisabled,
+        ticketCreatedByResident,
     } = props
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -1023,6 +1024,18 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
 
                                                     if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE || isAllFieldsDisabled) {
                                                         return
+                                                    }
+
+                                                    if (ticketCreatedByResident) {
+                                                        return (
+                                                            <Col md={colSpan}>
+                                                                <Alert
+                                                                    type='info'
+                                                                    message='Житель может оплатить в МП жителя'
+                                                                    showIcon
+                                                                />
+                                                            </Col>
+                                                        )
                                                     }
 
                                                     if (!payerData) {

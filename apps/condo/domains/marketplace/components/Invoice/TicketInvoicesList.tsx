@@ -18,9 +18,10 @@ type TicketInvoiceCardPropsType = {
     refetchInvoices: () => void
     initialValues?: InvoiceFormValuesType
     isAllFieldsDisabled?: boolean
+    ticketCreatedByResident?: boolean
 }
 
-const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refetchInvoices, initialValues, isAllFieldsDisabled }) => {
+const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident }) => {
     const intl = useIntl()
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' },
         { number: get(invoice, 'number') }
@@ -83,6 +84,7 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refe
                         afterAction={afterInvoiceUpdate}
                         initialValues={initialValues}
                         isAllFieldsDisabled={isAllFieldsDisabled}
+                        ticketCreatedByResident={ticketCreatedByResident}
                     />
                 )
             }
@@ -95,9 +97,12 @@ type TicketInvoicesListPropsType = {
     refetchInvoices: () => void
     initialValues?: InvoiceFormValuesType
     isAllFieldsDisabled?: boolean
+    ticketCreatedByResident?: boolean
 }
 
-export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invoices, refetchInvoices, initialValues, isAllFieldsDisabled }) => {
+export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({
+    invoices, refetchInvoices, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
+}) => {
     return (
         <Row gutter={[0, 40]}>
             {
@@ -108,6 +113,7 @@ export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invo
                             refetchInvoices={refetchInvoices}
                             initialValues={initialValues}
                             isAllFieldsDisabled={isAllFieldsDisabled}
+                            ticketCreatedByResident={ticketCreatedByResident}
                         />
                     </Col>
                 ))

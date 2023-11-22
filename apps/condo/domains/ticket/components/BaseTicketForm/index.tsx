@@ -246,7 +246,7 @@ const TicketFormInvoicesEmptyContent = ({ refetchInvoices, organizationId, initi
     )
 }
 
-const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm }) => {
+const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident }) => {
     const { objs: invoices, refetch: refetchInvoices } = Invoice.useObjects({
         where: {
             id_in: invoiceIds,
@@ -271,6 +271,7 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
                     invoices={invoices}
                     refetchInvoices={refetchInvoices}
                     initialValues={initialValues}
+                    ticketCreatedByResident={ticketCreatedByResident}
                 />
             </Col>
             <AddInvoiceButton
@@ -446,7 +447,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                         clientName,
                                                     } = getFieldsValue(['invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName'])
 
-                                                    const initialValues = {
+                                                    const invoiceInitialValues = {
                                                         property,
                                                         unitName,
                                                         unitType,
@@ -467,8 +468,9 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                         <TicketFormInvoices
                                                             invoiceIds={invoices}
                                                             organizationId={organizationId}
-                                                            initialValues={initialValues}
+                                                            initialValues={invoiceInitialValues}
                                                             addInvoiceToTicketForm={addInvoiceToTicketForm}
+                                                            ticketCreatedByResident={get(initialValues, 'createdByType') === RESIDENT}
                                                         />
                                                     )
                                                 }

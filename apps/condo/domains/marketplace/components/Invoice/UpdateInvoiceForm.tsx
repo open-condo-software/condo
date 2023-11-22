@@ -28,9 +28,12 @@ type UpdateInvoiceFormProps = {
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
     isAllFieldsDisabled?: boolean
+    ticketCreatedByResident?: boolean
 }
 
-export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice, modalFormProps, afterAction, initialValues, isAllFieldsDisabled }) => {
+export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
+    invoice, modalFormProps, afterAction, initialValues, isAllFieldsDisabled, ticketCreatedByResident,
+}) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
@@ -91,6 +94,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({ invoice, m
             OnCompletedMsg={null}
             modalFormProps={modalFormProps}
             isAllFieldsDisabled={isAllFieldsDisabled}
+            ticketCreatedByResident={ticketCreatedByResident}
         >
             {
                 ({ handleSave }) => !isModalForm && (
