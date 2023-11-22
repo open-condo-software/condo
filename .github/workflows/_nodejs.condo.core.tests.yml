@@ -54,7 +54,6 @@ jobs:
           REDIS_URL: redis://127.0.0.1:6379
           COOKIE_SECRET: test
           SERVER_URL: http://localhost:3000
-          CALLCENTER_DOMAIN: http://localhost:3001
 
       # # TODO: these two should collect logs from dirs which will be volumes for container above
       # - name: Collect docker logs on failure

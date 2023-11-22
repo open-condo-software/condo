@@ -31,6 +31,8 @@ if [ -z "$domain_name" ]; then
 fi
 
 cp .env.example .env
+# TODO: Remove all this evn below after migrating to new CI
+echo 'CALLCENTER_DOMAIN=http://localhost:3001' >> .env
 
 export NODE_ENV=test
 export DISABLE_LOGGING=false
