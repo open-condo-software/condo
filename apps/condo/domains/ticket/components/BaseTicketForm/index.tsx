@@ -6,7 +6,7 @@ import {
     Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
-    TicketSource as TicketSourceType,
+    TicketSource as TicketSourceType, SortInvoicesBy,
 } from '@app/condo/schema'
 import { Affix, Col, ColProps, Form, FormItemProps, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
@@ -254,6 +254,7 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
         where: {
             id_in: invoiceIds,
         },
+        sortBy: [SortInvoicesBy.CreatedAtDesc],
     })
 
     if (isEmpty(invoiceIds)) {
