@@ -46,11 +46,14 @@ jobs:
       
       - name: run tests
         run: |
-          docker run -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
+          docker run -e SERVER_URL=$SERVER_URL -e COOKIE_SECRET=$COOKIE_SECRET -e REDIS_URL=$REDIS_URL -e DATABASE_URL=$DATABASE_URL -e NODE_ENV=$NODE_ENV -e DISABLE_LOGGING=$DISABLE_LOGGING --network="host" ${{ inputs.image }} bash -c "/app/run_condo_domain_tests.sh -d ${{ inputs.domain_name }}"
         env:
           DATABASE_URL: postgresql://postgres:postgres@127.0.0.1/main
           NODE_ENV: development
           DISABLE_LOGGING: true
+          REDIS_URL: redis://127.0.0.1:6379
+          COOKIE_SECRET: test
+          SERVER_URL: http://localhost:3000
 
       # # TODO: these two should collect logs from dirs which will be volumes for container above
       # - name: Collect docker logs on failure

@@ -4,6 +4,8 @@ const fs = require('fs')
 const path = require('path')
 const util = require('util')
 
+const dotenv = require('dotenv')
+
 const conf = require('@open-condo/config')
 
 const exec = util.promisify(cp.exec)
@@ -50,9 +52,9 @@ async function safeExec (command, envNames = [], opts = {}) {
  */
 async function checkDockerComposePostgresIsRunning () {
     try {
-        await safeExec('docker-compose exec postgresdb bash -c "su -c \'psql -tAc \\"select 1+1\\" postgres\' postgres"', ['COMPOSE_PROJECT_NAME'])
+        await safeExec('docker compose exec -T postgresdb bash -c "su -c \'psql -tAc \\"select 1+1\\" postgres\' postgres"', ['COMPOSE_PROJECT_NAME'])
     } catch (e) {
-        throw new Error('ERROR: You should run: `docker-compose up -d postgresdb redis`')
+        throw new Error('ERROR: You should run: `docker compose up -d postgresdb redis`')
     }
 }
 
@@ -63,7 +65,7 @@ async function checkDockerComposePostgresIsRunning () {
  */
 async function createPostgresDatabaseInsideDockerComposeContainerIfNotExists (dbName) {
     try {
-        await safeExec(`docker-compose exec postgresdb bash -c "su -c 'createdb ${dbName}' postgres"`, ['COMPOSE_PROJECT_NAME'])
+        await safeExec(`docker compose exec -T postgresdb bash -c "su -c 'createdb ${dbName}' postgres"`, ['COMPOSE_PROJECT_NAME'])
     } catch (e) {
         if (!e.stderr.includes('already exists')) throw e
     }
@@ -98,24 +100,29 @@ async function checkMkCertCommandAndLocalCerts (keyFile, certFile, domain = 'app
 }
 
 /**
- * Add or update some ./apps/<appName>/.env config value!
- * @param appName {string} application name ./apps/<appName>
- * @param key {string} environment name
- * @param value {string}
+ * Add or update some .env config value!
+ * @param filePath {string} path to env file
+ * @param key {string} environment variable name
+ * @param value {string} environment variable value
+ * @param opts {{ override: boolean }}
  * @return {Promise<void>}
  */
-async function updateAppEnvFile (appName, key, value) {
+async function updateEnvFile (filePath, key, value, opts = { override: true }) {
     if (typeof value !== 'string') throw new Error('updateAppEnvFile(..., value) should be a string')
-    if (typeof appName !== 'string') throw new Error('updateAppEnvFile(..., appName) should be a string')
-    if (!appName) throw new Error('updateAppEnvFile(..., appName) should be a defined')
     if (typeof key !== 'string') throw new Error('updateAppEnvFile(..., key) should be a string')
     if (!key) throw new Error('updateAppEnvFile(..., key) should be a defined')
 
     value = value.trim()
+    // NOTE: JSON objects and space-containing strings must be escaped with quotes
+    if ((value.startsWith('{') && value.endsWith('}')) ||
+        (value.startsWith('[') && value.endsWith(']') ||
+        (value.includes(' ') && !value.startsWith('\'') && !value.endsWith('\'')))) {
+        value = `'${value}'`
+    }
     let envData, result
 
     try {
-        envData = (await readFile(`${PROJECT_ROOT}/apps/${appName}/.env`, { encoding: 'utf-8' })).toString()
+        envData = (await readFile(filePath, { encoding: 'utf-8' })).toString()
     } catch (e) {
         if (e.code === 'ENOENT') {
             envData = ''
@@ -131,11 +138,36 @@ async function updateAppEnvFile (appName, key, value) {
 
     if (!re.test(envData)) {
         result = envData + (envData && envData[envData.length - 1] !== '\n' ? '\n' : '') + `${key}=${value}\n`
-    } else {
+    } else if (opts.override) {
         result = envData.replace(re, `${key}=${value}\n`)
     }
 
-    await writeFile(`${PROJECT_ROOT}/apps/${appName}/.env`, result, { encoding: 'utf-8' })
+    if (result) {
+        await writeFile(filePath, result, { encoding: 'utf-8' })
+    }
+}
+
+/**
+ * Add or update some ./apps/<appName>/.env config value!
+ * @param appName {string} application name ./apps/<appName>
+ * @param key {string} environment variable name
+ * @param value {string} environment variable value
+ * @return {Promise<void>}
+ */
+async function updateAppEnvFile (appName, key, value) {
+    if (typeof appName !== 'string') throw new Error('updateAppEnvFile(..., appName) should be a string')
+    if (!appName) throw new Error('updateAppEnvFile(..., appName) should be a defined')
+    return await updateEnvFile(`${PROJECT_ROOT}/apps/${appName}/.env`, key, value)
+}
+
+/**
+ * Add or update some global monorepo .env file!
+ * @param key {string} environment variable name
+ * @param value {string} environment variable value
+ * @return {Promise<void>}
+ */
+async function updateGlobalEnvFile (key, value) {
+    return await updateEnvFile(`${PROJECT_ROOT}/.env`, key, value)
 }
 
 /**
@@ -174,13 +206,10 @@ async function prepareCondoAppB2BAppConfig (appName, p2pAppName) {
     return { appUrl }
 }
 
-async function prepareMinimalAppEnv (appName, dbName, redisName, port, sport, serverUrl) {
-    await updateAppEnvFile(appName, 'DATABASE_URL', `postgresql://postgres:postgres@127.0.0.1/${dbName}`)
-    await updateAppEnvFile(appName, 'REDIS_URL', `redis://127.0.0.1:6379/${redisName}`)
-    await updateAppEnvFile(appName, 'PORT', String(port))
-    await updateAppEnvFile(appName, 'SPORT', String(sport))
-    await updateAppEnvFile(appName, 'SERVER_URL', serverUrl)
-    await updateAppEnvFile(appName, 'COOKIE_SECRET', `${appName}-secret`)
+async function prepareAppEnv (appName, envToFill) {
+    for (const [key, value] of Object.entries(envToFill)) {
+        await updateAppEnvFile(appName, key, value)
+    }
 }
 
 async function prepareAppEnvLocalAdminUsers (appName, identity = 'email') {
@@ -212,10 +241,68 @@ async function runAppPackageJsonScript (appName, script) {
     return ''
 }
 
+/**
+ * Takes all environment default variables from {fromPath} env file (if exists), and copies them to {toPath} env file
+ * If opts.override = true, existing keys in toPath will be overwritten, otherwise they will stay the same
+ * @param {string} fromPath
+ * @param {string} toPath
+ * @param {{override: boolean}} opts
+ * @return {Promise<void>}
+ */
+async function copyEnv (fromPath, toPath, opts = { override: true }) {
+    let fromEnvData
+
+    try {
+        fromEnvData = (await readFile(fromPath, { encoding: 'utf-8' })).toString()
+    } catch (e) {
+        if (e.code === 'ENOENT') {
+            fromEnvData = ''
+        } else {
+            throw e
+        }
+    }
+
+    const fromEnv = dotenv.parse(fromEnvData)
+    for (const [key, value] of Object.entries(fromEnv)) {
+        await updateEnvFile(toPath, key, value, opts)
+    }
+}
+
+/**
+ * Takes all environment default variables from {PROJECT_ROOT}/.env.example
+ * After that update {PROJECT_ROOT}/.env file to include default values
+ * (no override if key already present in .env)
+ * @return {Promise<void>}
+ */
+async function fillGlobalEnvWithDefaultValues () {
+    return await copyEnv(`${PROJECT_ROOT}/.env.example`, `${PROJECT_ROOT}/.env`, { override: false })
+}
+
+/**
+ * Takes all environment default variables from app's .env.example file
+ * After that update app's .env file to include default values
+ * (no override if key already present in .env)
+ * @return {Promise<void>}
+ */
+async function fillAppEnvWithDefaultValues (appName) {
+    return await copyEnv(`${PROJECT_ROOT}/apps/${appName}/.env.example`, `${PROJECT_ROOT}/apps/${appName}/.env`, { override: false })
+}
+
+/**
+ * @return {Promise<Array<{name: string, type: 'KS' | 'Next'}>>}
+ */
 async function getAllActualApps () {
     const appNames = await readdir(`${PROJECT_ROOT}/apps`)
     const hasPackageJson = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/package.json`)))
-    return appNames.filter((value, index) => hasPackageJson[index])
+    const hasIndexJs = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/index.js`)))
+    const hasNextConfig = await Promise.all(appNames.map(name => exists(`${PROJECT_ROOT}/apps/${name}/next.config.js`)))
+
+    return appNames.reduce((apps, name, idx) => {
+        if (hasPackageJson[idx] && (hasIndexJs[idx] || hasNextConfig[idx])) {
+            apps.push({ name, type: hasIndexJs[idx] ? 'KS' : 'Next' })
+        }
+        return apps
+    }, [])
 }
 
 module.exports = {
@@ -224,12 +311,16 @@ module.exports = {
     createPostgresDatabaseInsideDockerComposeContainerIfNotExists,
     checkMkCertCommandAndLocalCerts,
     updateAppEnvFile,
+    updateGlobalEnvFile,
     getAppEnvValue,
     getAppServerUrl,
     prepareCondoAppOidcConfig,
     prepareCondoAppB2BAppConfig,
-    prepareMinimalAppEnv,
+    prepareAppEnv,
     prepareAppEnvLocalAdminUsers,
     runAppPackageJsonScript,
     getAllActualApps,
+    copyEnv,
+    fillAppEnvWithDefaultValues,
+    fillGlobalEnvWithDefaultValues,
 }

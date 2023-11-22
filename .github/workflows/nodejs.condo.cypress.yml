@@ -61,6 +61,9 @@ jobs:
           set -x
           cp .env.example .env
           echo 'NODE_ENV=test' >> .env
+          echo 'DATABASE_URL=postgresql://postgres:postgres@127.0.0.1/main' >> .env
+          echo 'REDIS_URL=redis://127.0.0.1:6379' >> .env
+          echo 'COOKIE_SECRET=random' >> .env
           export NODE_ENV=development
           export NOTIFICATION__SEND_ALL_MESSAGES_TO_CONSOLE=true
           export NOTIFICATION__DISABLE_LOGGING=true
