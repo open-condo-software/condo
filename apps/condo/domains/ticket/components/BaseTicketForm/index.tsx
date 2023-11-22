@@ -455,8 +455,6 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                                     }
 
                                                     const addInvoiceToTicketForm = (invoiceId) => {
-                                                        console.log('add in form', invoiceId)
-
                                                         setFieldsValue({
                                                             invoices: [
                                                                 ...getFieldValue('invoices'),
@@ -705,7 +703,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     }
 
     const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
-    const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === RESIDENT, [initialValues])
+
+    const isResidentTicket = useMemo(() => get(initialValues, ['createdByType']) === RESIDENT, [initialValues])
     const ErrorToFormFieldMsgMapping = useMemo(() => ({
         [PROPERTY_REQUIRED_ERROR]: {
             name: 'property',

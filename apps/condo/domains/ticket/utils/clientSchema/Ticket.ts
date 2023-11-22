@@ -18,7 +18,7 @@ import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier']
 const DISCONNECT_ON_NULL = ['executor', 'contact']
-const IGNORE_FIELDS = ['invoices']
+const IGNORE_FIELDS = ['invoices', 'createdByType']
 
 export interface ITicketFormState {
     id?: undefined
@@ -52,6 +52,10 @@ function convertToFormState (ticket: Ticket): ITicketFormState | undefined {
     for (const key of Object.keys(ticket)) {
         const relationId = get(ticket[key], 'id')
         result[key] = relationId || ticket[key]
+
+        if (key === 'createdBy') {
+            result['createdByType'] = get(ticket[key], 'type')
+        }
     }
 
     result['deadline'] = !isNull(deadline) ? dayjs(deadline) : deadline
