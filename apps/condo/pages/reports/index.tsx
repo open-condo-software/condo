@@ -10,6 +10,7 @@ import { Dashboard } from '@condo/domains/analytics/components/Dashboard'
 import { AccessDeniedPage } from '@condo/domains/common/components/containers/AccessDeniedPage'
 import { PageContent, PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { OrganizationRequired } from '@condo/domains/organization/components/OrganizationRequired'
+import { MANAGING_COMPANY_TYPE } from '@condo/domains/organization/constants/common'
 
 const IndexPage = () => {
     const intl = useIntl()
@@ -18,6 +19,7 @@ const IndexPage = () => {
     const { organization, link } = useOrganization()
 
     const canReadAnalytics = get(link, [ 'role', 'canReadAnalytics'], false)
+        && get(organization, 'type') === MANAGING_COMPANY_TYPE
 
     if (!canReadAnalytics) {
         return <AccessDeniedPage />

@@ -194,7 +194,7 @@ const MenuItems: React.FC = () => {
                     path: 'property',
                     icon: AllIcons['Building'],
                     label: 'global.section.properties',
-                    access: isManagingCompany && hasAccessToProperties,
+                    access: hasAccessToProperties,
                 },
             ].filter(checkItemAccess),
         },
