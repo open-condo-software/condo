@@ -62,13 +62,13 @@ describe('AllResidentMetersService', () => {
                 accountNumber: billingAccount.number, unitName, unitType,
             })
 
-            const [data] = await allResidentMetersByTestClient(residentClient, {
-                resident: resident.id,
-            })
+            const [data] = await allResidentMetersByTestClient(residentClient, { id: resident.id })
 
-            expect(data).toHaveProperty('meters')
-            expect(data.meters).toHaveLength(1)
-            expect(data.meters).toEqual(
+            expect(data).toBeDefined()
+            expect(data).toHaveLength(1)
+            // expect(data).toHaveProperty('meters')
+            // expect(data.meters).toHaveLength(1)
+            expect(data).toEqual(
                 expect.arrayContaining([
                     expect.objectContaining(meter),
                 ]),
@@ -131,7 +131,7 @@ describe('AllResidentMetersService', () => {
                 expect(meterResourceOwner).toBeDefined()
             })
 
-            const [data] = await allResidentMetersByTestClient(residentClient, { resident: resident.id })
+            const [data] = await allResidentMetersByTestClient(residentClient, { where: { id: resident.id } })
 
             expect(data).toHaveProperty('meters')
             expect(data.meters).toHaveLength(2)
@@ -155,7 +155,7 @@ describe('AllResidentMetersService', () => {
 
             expect(serviceProviderColdMeter).toHaveProperty(['property', 'id'], serviceProviderProperty.id)
 
-            const [updatedData] = await allResidentMetersByTestClient(residentClient, { resident: resident.id })
+            const [updatedData] = await allResidentMetersByTestClient(residentClient, { where: { id: resident.id } })
 
             console.log('hotMeter id', hotMeter.id)
             console.log('coldMeter id', coldMeter.id)
@@ -193,7 +193,7 @@ describe('AllResidentMetersService', () => {
             const [resident] = await createTestResident(admin, client.user, property, { unitName, unitType: FLAT_UNIT_TYPE })
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await allResidentMetersByTestClient(residentClient, { resident: resident.id })
+                await allResidentMetersByTestClient(residentClient, { where: { id: resident.id } })
             })
         })
     })

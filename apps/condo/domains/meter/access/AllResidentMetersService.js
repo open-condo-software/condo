@@ -8,7 +8,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canAllResidentMeters ({ authentication: { item: user }, args: { data: { resident } } }) {
+async function canAllResidentMeters ({ authentication: { item: user }, args: { where: { id: residentId } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -16,7 +16,7 @@ async function canAllResidentMeters ({ authentication: { item: user }, args: { d
     if (user.type === RESIDENT) {
         const residents = await find('Resident', {
             user: { id: user.id, deletedAt: null },
-            id: resident,
+            id: residentId,
             property: { deletedAt: null },
             organization: { deletedAt: null },
             deletedAt: null,

@@ -53,8 +53,8 @@ const METER_RESOURCE_OWNER_FIELDS = `{ organization { id } resource { id } addre
 const MeterResourceOwner = generateGqlQueries('MeterResourceOwner', METER_RESOURCE_OWNER_FIELDS)
 
 const ALL_RESIDENT_METERS_QUERY = gql`
-    query allResidentMeters ($data: AllResidentMetersInput!) {
-        result: allResidentMeters(data: $data) { meters ${METER_FIELDS} }
+    query allResidentMeters ($where: ResidentWhereUniqueInput!, $first: Int, $skip: Int) {
+        result: allResidentMeters(where: $where, first: $first, skip: $skip) ${METER_FIELDS}
     }
 `
 
