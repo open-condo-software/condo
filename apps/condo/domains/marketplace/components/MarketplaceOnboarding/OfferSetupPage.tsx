@@ -20,7 +20,11 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     const { organization } = useOrganization()
     const orgId = get(organization, 'id', null)
 
-    const { obj: invoiceContext, loading: invoiceContextLoading, error: invoiceContextError } = InvoiceContext.useObject({
+    const {
+        obj: invoiceContext,
+        loading: invoiceContextLoading,
+        error: invoiceContextError,
+    } = InvoiceContext.useObject({
         where: {
             status: INVOICE_CONTEXT_STATUS_INPROGRESS,
             organization: { id: orgId },
@@ -35,12 +39,7 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         if (!invoiceContextLoading && !invoiceContextError && !invoiceContextId) {
             router.replace({ query: { step: 0 } })
         }
-    }, [
-        invoiceContextError,
-        invoiceContextLoading,
-        invoiceContextId,
-        router,
-    ])
+    }, [invoiceContextError, invoiceContextLoading, invoiceContextId, router])
 
     const setupUrl = `${acquiringIntegrationHostUrl}${MARKETPLACE_SETUP_URL_PATH}`
     const setupOrigin = extractOrigin(setupUrl)
@@ -59,7 +58,6 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         }
     }, [handleDoneMessage])
 
-
     if (invoiceContextError) {
         return <Typography.Title>{invoiceContextError}</Typography.Title>
     }
@@ -68,13 +66,9 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
         return <Loader fill size='large'/>
     }
 
-    return (
-        <IFrame
-            src={setupUrl}
-            reloadScope='organization'
-            withPrefetch
-            withLoader
-            withResize
-        />
-    )
+    if (!invoiceContext) {
+        return null
+    }
+
+    return <IFrame src={setupUrl} reloadScope='organization' withPrefetch withLoader withResize/>
 }
