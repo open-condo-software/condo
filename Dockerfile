@@ -1,9 +1,13 @@
-ARG REGISRTY
-FROM ${REGISRTY}buildpack-deps:buster AS base
+ARG REGISRTY=docker.io
 
-COPY --from=python:3.8-buster /usr/local/ /usr/local/
-COPY --from=node:16-buster /usr/local/ /usr/local/
-COPY --from=node:16-buster /opt/ /opt/
+FROM ${REGISRTY}/python:3.8-buster AS python
+FROM ${REGISRTY}/node:16-buster AS node
+
+FROM ${REGISRTY}/buildpack-deps:buster AS base
+
+COPY --from=python /usr/local/ /usr/local/
+COPY --from=node /usr/local/ /usr/local/
+COPY --from=node /opt/ /opt/
 
 # Add app user/group! Clean packages and fix links! Check version! And install some extra packages!
 RUN set -ex \
