@@ -943,6 +943,7 @@ __metadata:
     "@keystonejs/server-side-graphql-client": ^2.1.0
     "@keystonejs/utils": ^6.1.0
     "@open-condo/apollo-server-client": "workspace:^"
+    "@open-condo/cli": "workspace:^"
     "@open-condo/codegen": "workspace:^"
     "@open-condo/config": "workspace:^"
     "@open-condo/keystone": "workspace:^"

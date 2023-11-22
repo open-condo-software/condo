@@ -7,7 +7,7 @@ const {
     checkMkCertCommandAndLocalCerts,
     createPostgresDatabaseInsideDockerComposeContainerIfNotExists,
     getAllActualApps,
-    prepareMinimalAppEnv,
+    prepareAppEnv,
     runAppPackageJsonScript,
     updateGlobalEnvFile,
     safeExec,
@@ -47,7 +47,7 @@ async function prepare () {
             return {
                 ...app,
                 pgName: `${DEFAULT_DB_NAME_PREFIX}-${app.name}`,
-                redisIndex: 5 + appOrder,
+                redisIndex: appOrder,
                 port,
                 sport,
                 serviceUrl: https
@@ -93,7 +93,7 @@ async function prepare () {
                 SPORT: String(app.sport),
                 SERVER_URL: app.serviceUrl,
             }
-            await prepareMinimalAppEnv(app.name, env)
+            await prepareAppEnv(app.name, env)
             console.log('========> Running migration script')
             const migrateResult = await runAppPackageJsonScript(app.name, 'migrate')
             if (migrateResult) console.log(migrateResult)

@@ -52,9 +52,9 @@ async function safeExec (command, envNames = [], opts = {}) {
  */
 async function checkDockerComposePostgresIsRunning () {
     try {
-        await safeExec('docker-compose exec postgresdb bash -c "su -c \'psql -tAc \\"select 1+1\\" postgres\' postgres"', ['COMPOSE_PROJECT_NAME'])
+        await safeExec('docker compose exec -T postgresdb bash -c "su -c \'psql -tAc \\"select 1+1\\" postgres\' postgres"', ['COMPOSE_PROJECT_NAME'])
     } catch (e) {
-        throw new Error('ERROR: You should run: `docker-compose up -d postgresdb redis`')
+        throw new Error('ERROR: You should run: `docker compose up -d postgresdb redis`')
     }
 }
 
@@ -65,7 +65,7 @@ async function checkDockerComposePostgresIsRunning () {
  */
 async function createPostgresDatabaseInsideDockerComposeContainerIfNotExists (dbName) {
     try {
-        await safeExec(`docker-compose exec postgresdb bash -c "su -c 'createdb ${dbName}' postgres"`, ['COMPOSE_PROJECT_NAME'])
+        await safeExec(`docker compose exec -T postgresdb bash -c "su -c 'createdb ${dbName}' postgres"`, ['COMPOSE_PROJECT_NAME'])
     } catch (e) {
         if (!e.stderr.includes('already exists')) throw e
     }
@@ -206,7 +206,7 @@ async function prepareCondoAppB2BAppConfig (appName, p2pAppName) {
     return { appUrl }
 }
 
-async function prepareMinimalAppEnv (appName, envToFill) {
+async function prepareAppEnv (appName, envToFill) {
     for (const [key, value] of Object.entries(envToFill)) {
         await updateAppEnvFile(appName, key, value)
     }
@@ -242,14 +242,14 @@ async function runAppPackageJsonScript (appName, script) {
 }
 
 /**
- * Takes all environment default variables from {fromPath} env file (if exists), and moves them to {toPath} env file
+ * Takes all environment default variables from {fromPath} env file (if exists), and copies them to {toPath} env file
  * If opts.override = true, existing keys in toPath will be overwritten, otherwise they will stay the same
  * @param {string} fromPath
  * @param {string} toPath
  * @param {{override: boolean}} opts
  * @return {Promise<void>}
  */
-async function moveEnv (fromPath, toPath, opts = { override: true }) {
+async function copyEnv (fromPath, toPath, opts = { override: true }) {
     let fromEnvData
 
     try {
@@ -275,7 +275,7 @@ async function moveEnv (fromPath, toPath, opts = { override: true }) {
  * @return {Promise<void>}
  */
 async function fillGlobalEnvWithDefaultValues () {
-    return await moveEnv(`${PROJECT_ROOT}/.env.example`, `${PROJECT_ROOT}/.env`, { override: false })
+    return await copyEnv(`${PROJECT_ROOT}/.env.example`, `${PROJECT_ROOT}/.env`, { override: false })
 }
 
 /**
@@ -285,7 +285,7 @@ async function fillGlobalEnvWithDefaultValues () {
  * @return {Promise<void>}
  */
 async function fillAppEnvWithDefaultValues (appName) {
-    return await moveEnv(`${PROJECT_ROOT}/apps/${appName}/.env.example`, `${PROJECT_ROOT}/apps/${appName}/.env`, { override: false })
+    return await copyEnv(`${PROJECT_ROOT}/apps/${appName}/.env.example`, `${PROJECT_ROOT}/apps/${appName}/.env`, { override: false })
 }
 
 /**
@@ -316,11 +316,11 @@ module.exports = {
     getAppServerUrl,
     prepareCondoAppOidcConfig,
     prepareCondoAppB2BAppConfig,
-    prepareMinimalAppEnv,
+    prepareAppEnv,
     prepareAppEnvLocalAdminUsers,
     runAppPackageJsonScript,
     getAllActualApps,
-    moveEnv,
+    copyEnv,
     fillAppEnvWithDefaultValues,
     fillGlobalEnvWithDefaultValues,
 }

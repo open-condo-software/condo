@@ -42,27 +42,20 @@ jobs:
           pip3 install psycopg2-binary
 
       - name: Setup docker-compose databases
-        run: docker-compose up -d postgresdb redis
-
-      - name: Prepare .env
-        run: cp apps/dev-api/.env.example apps/dev-api/.env
+        run: docker compose up -d postgresdb redis --wait
 
       - name: Build dependent apps
         run: turbo build --filter=dev-api^...
 
-      - name: Run migrations
-        run: yarn workspace @app/dev-api migrate
-
       - name: Prepare app
-        run: yarn workspace @app/dev-api node bin/prepare.js
+        run: node bin/prepare.js -f dev-api
 
       - name: Run tests with ${{ matrix.database }}
         env:
           DATABASE_URL: ${{ matrix.database }}
         run: |
-          set -x
-          export NODE_ENV=test
-          
+          set -x          
+          export PORT=3000
           node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(1024*1024))'
           
           mkdir -p apps/dev-api/dist/admin
