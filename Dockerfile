@@ -1,4 +1,5 @@
-FROM buildpack-deps:buster AS base
+ARG REGISRTY
+FROM ${REGISRTY}buildpack-deps:buster AS base
 
 COPY --from=python:3.8-buster /usr/local/ /usr/local/
 COPY --from=node:16-buster /usr/local/ /usr/local/
