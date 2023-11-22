@@ -11,7 +11,7 @@ const DOCS_ENTRY_ENDPOINT = process.env.DOCS_ENTRY_ENDPOINT || '/docs/index'
 // NOTE: Url of API server
 const SERVER_URL = process.env.SERVER_URL || 'http://localhost:4006'
 // NOTE: Url of current service
-const SERVICE_URL = process.env.DEVPORTAL_DOMAIN || 'http://localhost:3000'
+const SERVICE_URL = process.env.DEV_PORTAL_DOMAIN || 'http://localhost:3000'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {

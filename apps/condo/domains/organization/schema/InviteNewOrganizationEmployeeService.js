@@ -171,7 +171,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const organizationName = get(userOrganization, 'name')
                 const organizationId = get(userOrganization, 'id')
                 const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
-                const serverUrl = userOrganization.type === HOLDING_TYPE && get(conf, 'CC_DOMAIN') ? conf['CC_DOMAIN'] : conf['SERVER_URL']
+                const serverUrl = userOrganization.type === HOLDING_TYPE && get(conf, 'CALLCENTER_DOMAIN') ? conf['CALLCENTER_DOMAIN'] : conf['SERVER_URL']
 
                 await sendMessage(context, {
                     lang: organizationCountry,
@@ -233,7 +233,7 @@ const InviteNewOrganizationEmployeeService = new GQLCustomSchema('InviteNewOrgan
                 const organizationName = get(employeeOrganization, 'name')
                 const organizationId = get(employeeOrganization, 'id')
                 const type = !email ? DIRTY_INVITE_NEW_EMPLOYEE_SMS_MESSAGE_TYPE : DIRTY_INVITE_NEW_EMPLOYEE_EMAIL_MESSAGE_TYPE
-                const serverUrl = employeeOrganization.type === HOLDING_TYPE && get(conf, 'CC_DOMAIN') ? conf['CC_DOMAIN'] : conf['SERVER_URL']
+                const serverUrl = employeeOrganization.type === HOLDING_TYPE && get(conf, 'CALLCENTER_DOMAIN') ? conf['CALLCENTER_DOMAIN'] : conf['SERVER_URL']
 
                 await sendMessage(context, {
                     lang: organizationCountry,
