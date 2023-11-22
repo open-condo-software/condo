@@ -12,6 +12,7 @@ import { colors } from '@open-condo/ui/dist/colors'
 import { PageHeader, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import { EmptyListView } from '@condo/domains/common/components/EmptyListView'
 import { useGlobalHints } from '@condo/domains/common/hooks/useGlobalHints'
+import { MarketplaceInvoicesContent } from '@condo/domains/marketplace/components/Invoice/MarketplaceInvoicesContent'
 import { MarketplacePaymentsContent } from '@condo/domains/marketplace/components/MarketplacePaymentsContent'
 import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
 import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
@@ -28,11 +29,6 @@ export const MarketplacePageContent = () => {
     const BillsTab = intl.formatMessage({ id: 'pages.condo.marketplace.tab.bill' })
     const PaymentsTab = intl.formatMessage({ id: 'pages.condo.marketplace.tab.payments' })
     const ServicesTab = intl.formatMessage({ id: 'pages.condo.marketplace.tab.services' })
-    const BillsEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.bills.empty.title' })
-    const BillsEmptyText = intl.formatMessage({ id: 'pages.condo.marketplace.bills.empty.text' })
-    const BillsEmptyButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.bills.empty.buttonText' })
-    const PaymentsEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.payments.empty.title' })
-    const PaymentsEmptyText = intl.formatMessage({ id: 'pages.condo.marketplace.payments.empty.text' })
     const ServicesEmptyTitle = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.title' })
     const ServicesEmptyText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.text' })
     const ServicesEmptyButtonText = intl.formatMessage({ id: 'pages.condo.marketplace.services.empty.buttonText' })
@@ -67,16 +63,10 @@ export const MarketplacePageContent = () => {
 
     const items = useMemo(() => {
         const result: Array<TabItem> = [
-            {
+            canManageInvoices && {
                 label: BillsTab,
                 key: MARKETPLACE_PAGE_TYPES.bills,
-                children: <EmptyListView
-                    label={BillsEmptyTitle}
-                    message={BillsEmptyText}
-                    createLabel={BillsEmptyButtonText}
-                    createRoute='/marketplace/invoice/create'
-                    accessCheck={canManageInvoices}
-                />,
+                children: <MarketplaceInvoicesContent/>,
             },
             canReadPayments && {
                 label: PaymentsTab,
@@ -92,7 +82,7 @@ export const MarketplacePageContent = () => {
             }]
 
         return result
-    }, [BillsEmptyButtonText, BillsEmptyText, BillsEmptyTitle, BillsTab, PaymentsEmptyText, PaymentsEmptyTitle, PaymentsTab, ServicesEmptyButtonText, ServicesEmptyText, ServicesEmptyTitle, ServicesTab, canReadPayments])
+    }, [BillsTab, PaymentsTab, ServicesEmptyButtonText, ServicesEmptyText, ServicesEmptyTitle, ServicesTab, canManageInvoices, canReadPayments])
 
     return (
         <PageWrapper>

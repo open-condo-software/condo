@@ -197,6 +197,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<Invoice, InvoiceCreateInput, InvoiceUpdateInput, QueryAllInvoicesArgs>(InvoiceGQL)
 
 export {
@@ -205,4 +206,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 }
