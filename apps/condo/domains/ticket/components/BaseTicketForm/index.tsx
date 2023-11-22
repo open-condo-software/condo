@@ -247,7 +247,7 @@ const TicketFormInvoicesEmptyContent = ({ refetchInvoices, organizationId, initi
 }
 
 const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm }) => {
-    const { objs: invoices, refetch: refetchInvoices, loading } = Invoice.useObjects({
+    const { objs: invoices, refetch: refetchInvoices } = Invoice.useObjects({
         where: {
             id_in: invoiceIds,
         },

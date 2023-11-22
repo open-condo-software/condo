@@ -729,6 +729,7 @@
   "pages.condo.ticket.filters.ProblemClassifier": "What is the problem",
   "pages.condo.ticket.notification.success.message": "Ticket №{number} created",
   "pages.condo.ticket.notification.success.description": "Go to ticket card",
+  "pages.condo.ticket.notification.success.description.withPaymentLink": "Now you can copy the link to the payment of the invoice and pass it to the resident",
   "pages.condo.ticket.id.Notes": "Notes",
   "pages.condo.ticket.id.PageTitle": "Ticket",
   "pages.condo.ticket.id.CloseTicket": "Close ticket",

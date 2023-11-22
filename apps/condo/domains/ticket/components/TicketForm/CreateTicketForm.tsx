@@ -1,8 +1,9 @@
 import { B2BAppGlobalFeature } from '@app/condo/schema'
-import { Form, Typography } from 'antd'
+import { Form, notification } from 'antd'
 import dayjs from 'dayjs'
 import isToday from 'dayjs/plugin/isToday'
 import get from 'lodash/get'
+import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
@@ -10,11 +11,14 @@ import { useApolloClient } from '@open-condo/next/apollo'
 import { useAuth } from '@open-condo/next/auth'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar } from '@open-condo/ui'
+import { ActionBar, Space, Typography } from '@open-condo/ui'
 
-import { colors } from '@condo/domains/common/constants/style'
 import { getObjectValueFromQuery } from '@condo/domains/common/utils/query'
 import { ClientType, getClientCardTabKey } from '@condo/domains/contact/utils/clientCard'
+import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
+import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
+import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
+import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
@@ -82,11 +86,13 @@ export const CreateTicketActionBar = ({ handleSave, isLoading, form }) => {
     )
 }
 
-const LINK_STYLES = { color: colors.black, textDecoration: 'underline', textDecorationColor: colors.lightGrey[8] }
 
 export const CreateTicketForm: React.FC = () => {
     const intl = useIntl()
     const SuccessNotificationDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description' })
+    const CopyLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copyLink' })
+    const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
+    const SuccessNotificationWithPaymentLinkDescription = intl.formatMessage({ id: 'pages.condo.ticket.notification.success.description.withPaymentLink' })
 
     const { organization, link } = useOrganization()
     const router = useRouter()
@@ -123,6 +129,27 @@ export const CreateTicketForm: React.FC = () => {
             }
         })
 
+    const getCompletedNotification = useCallback(({ ticketId, ticketNumber, paymentUrl }) => ({
+        message: (
+            <Typography.Text strong>
+                {intl.formatMessage({ id: 'pages.condo.ticket.notification.success.message' }, { number: ticketNumber })}
+            </Typography.Text>
+        ),
+        description: paymentUrl ? (
+            <Space size={16} direction='vertical'>
+                <Typography.Text size='medium' type='secondary'>{SuccessNotificationWithPaymentLinkDescription}</Typography.Text>
+                <CopyButton url={paymentUrl} copyMessage={CopyLinkMessage} copiedMessage={CopiedLinkMessage}/>
+            </Space>
+        ) : (
+            <Typography.Link href={`/ticket/${ticketId}`} target='_blank' rel='noreferrer'>
+                {SuccessNotificationDescription}
+            </Typography.Link>
+        ),
+        duration: paymentUrl && 0,
+    }), [CopiedLinkMessage, CopyLinkMessage, SuccessNotificationDescription, SuccessNotificationWithPaymentLinkDescription, intl])
+
+    const getPaymentLink = useInvoicePaymentLink()
+
     const createAction = useCallback(async ({ attachCallRecord, ...variables }) => {
         let deadline = get(variables, 'deadline')
         if (deadline && deadline.isToday()) {
@@ -135,10 +162,27 @@ export const CreateTicketForm: React.FC = () => {
             organization: { connect: { id: organization.id } },
         })
 
-        for (const invoiceId of invoices) {
-            await updateInvoiceAction({
-                ticket: { connect: { id: ticket.id } },
-            }, { id: invoiceId })
+        let paymentUrl
+        if (!isEmpty(invoices)) {
+            for (const invoiceId of invoices) {
+                await updateInvoiceAction({
+                    ticket: { connect: { id: ticket.id } },
+                }, { id: invoiceId })
+            }
+
+            const data = await client.query({
+                query: InvoiceGQL.GET_ALL_OBJS_QUERY,
+                variables: {
+                    where: {
+                        ticket: { id: ticket.id },
+                        status: INVOICE_STATUS_PUBLISHED,
+                    },
+                },
+            })
+            const publishedInvoices = get(data, 'data.objs')
+
+            const { paymentLink } = await getPaymentLink(publishedInvoices.map(({ id }) => id))
+            paymentUrl = paymentLink
         }
 
         if (attachCallRecord) {
@@ -149,8 +193,20 @@ export const CreateTicketForm: React.FC = () => {
             })
         }
 
+        if (paymentUrl) {
+            notification.success(getCompletedNotification({
+                ticketNumber: ticket.number,
+                paymentUrl,
+            }))
+        } else {
+            notification.success(getCompletedNotification({
+                ticketNumber: ticket.number,
+                ticketId: ticket.id,
+            }))
+        }
+
         return ticket
-    }, [action, organization.id, requestFeature, updateInvoiceAction])
+    }, [action, organization.id, client, getPaymentLink, updateInvoiceAction, requestFeature, getCompletedNotification])
 
     const initialValues = useMemo(() => ({
         ...initialValuesFromQuery,
@@ -159,19 +215,6 @@ export const CreateTicketForm: React.FC = () => {
         invoices: [],
     }), [auth.user.id, initialValuesFromQuery])
 
-    const getCompletedNotification = useCallback((data) => ({
-        message: (
-            <Typography.Text strong>
-                {intl.formatMessage({ id: 'pages.condo.ticket.notification.success.message' }, { number: data.number })}
-            </Typography.Text>
-        ),
-        description: (
-            <Typography.Link style={LINK_STYLES} href={`/ticket/${data.id}`} target='_blank' rel='noreferrer'>
-                {SuccessNotificationDescription}
-            </Typography.Link>
-        ),
-    }), [SuccessNotificationDescription, intl])
-
     return useMemo(() => (
         <BaseTicketForm
             action={createAction}
@@ -179,10 +222,10 @@ export const CreateTicketForm: React.FC = () => {
             organization={organization}
             role={link.role}
             autoAssign
-            OnCompletedMsg={getCompletedNotification}
+            OnCompletedMsg={null}
             isExisted={false}
         >
             {({ handleSave, isLoading, form }) => <CreateTicketActionBar handleSave={handleSave} isLoading={isLoading} form={form} />}
         </BaseTicketForm>
-    ), [createAction, getCompletedNotification, initialValues, link.role, organization])
+    ), [createAction, initialValues, link.role, organization])
 }

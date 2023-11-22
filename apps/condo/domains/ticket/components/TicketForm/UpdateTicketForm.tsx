@@ -106,10 +106,12 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             ...Ticket.formValuesProcessor(ticketValues),
         }, obj)
 
-        for (const invoiceId of invoices) {
-            await updateInvoiceAction({
-                ticket: { connect: { id: ticket.id } },
-            }, { id: invoiceId })
+        if (!isEmpty(invoices)) {
+            for (const invoiceId of invoices) {
+                await updateInvoiceAction({
+                    ticket: { connect: { id: ticket.id } },
+                }, { id: invoiceId })
+            }
         }
 
         return ticket
