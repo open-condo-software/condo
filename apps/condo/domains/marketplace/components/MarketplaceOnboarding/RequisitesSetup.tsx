@@ -152,7 +152,6 @@ export const RequisitesSetup: React.FC = () => {
             }).then(() => {
                 router.replace({ query: { step: 1 } })
             }).catch(errorHandler)
-            console.log('SUBMIT', values)
 
             setIsLoading(false)
         }
