@@ -83,7 +83,6 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
     if (!client) throw new Error('no client')
     if (!id) throw new Error('no id')
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
-    const tin = generateTin(DEFAULT_ENGLISH_COUNTRY)
 
     const meta = {
         kpp: faker.random.alphaNumeric(9),
@@ -97,7 +96,6 @@ async function updateTestOrganization (client, id, extraAttrs = {}) {
         dv: 1,
         sender,
         meta,
-        tin,
         name: faker.company.name(),
         description: faker.company.catchPhrase(),
         country: DEFAULT_ENGLISH_COUNTRY,

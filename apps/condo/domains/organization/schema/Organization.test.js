@@ -4,6 +4,7 @@
 const { faker } = require('@faker-js/faker')
 const dayjs = require('dayjs')
 
+
 const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, makeLoggedInClient, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     catchErrorFrom,
@@ -14,11 +15,11 @@ const {
 
 const { createTestAcquiringIntegration, createTestAcquiringIntegrationAccessRight, createTestAcquiringIntegrationContext, updateTestAcquiringIntegrationContext } = require('@condo/domains/acquiring/utils/testSchema')
 const { createTestBillingIntegrationOrganizationContext, makeClientWithIntegrationAccess, updateTestBillingIntegrationOrganizationContext } = require('@condo/domains/billing/utils/testSchema')
-const { RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
+const { DEFAULT_ENGLISH_COUNTRY, RUSSIA_COUNTRY } = require('@condo/domains/common/constants/countries')
 const { COMMON_ERRORS } = require('@condo/domains/common/constants/errors')
 const { MANAGING_COMPANY_TYPE, SERVICE_PROVIDER_TYPE } = require('@condo/domains/organization/constants/common')
 const { SERVICE_PROVIDER_PROFILE_FEATURE } = require('@condo/domains/organization/constants/features')
-const { registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const { generateTin, registerNewOrganization, createTestOrganizationWithAccessToAnotherOrganization, OrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const {
     Organization,
     createTestOrganization,
@@ -178,17 +179,47 @@ describe('Organization', () => {
             test('Support can', async () => {
                 const [updatedOrg, attrs] = await updateTestOrganization(support, userOrganization.id)
                 expect(attrs).toHaveProperty('meta')
-                expect(attrs).toHaveProperty('tin')
                 expect(attrs).toHaveProperty('name')
                 expect(attrs).toHaveProperty('description')
                 expect(attrs).toHaveProperty('country')
                 expect(updatedOrg).toEqual(expect.objectContaining({
                     meta: attrs.meta,
                     name: attrs.name,
-                    tin: attrs.tin,
                     description: attrs.description,
                     country: attrs.country,
                 }))
+            })
+
+        })
+        describe('Update TIN and importId Field', () => {
+            let userOrganization
+            beforeAll(async () => {
+                [userOrganization] = await registerNewOrganization(user, { country: DEFAULT_ENGLISH_COUNTRY })
+            })
+            test('Owner cannot change TIN and importId fields', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(user, userOrganization.id, { tin: generateTin(DEFAULT_ENGLISH_COUNTRY) })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(user, userOrganization.id, { importId: faker.datatype.uuid() })
+                })
+            })
+            test('Support cannot change TIN and importId fields', async () => {
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(support, userOrganization.id, { tin: generateTin(DEFAULT_ENGLISH_COUNTRY) })
+                })
+                await expectToThrowAccessDeniedErrorToObj(async () => {
+                    await updateTestOrganization(support, userOrganization.id, { importId: faker.datatype.uuid() })
+                })
+            })
+
+            test('Admin can change TIN and importId', async () => {
+                const newTin = generateTin(DEFAULT_ENGLISH_COUNTRY)
+                const [updatedOrg] = await updateTestOrganization(admin, userOrganization.id, { tin: newTin })
+                expect(updatedOrg.tin).toEqual(newTin)
+                const importId = faker.datatype.uuid()
+                const [updatedImportIdOrg] = await updateTestOrganization(admin, userOrganization.id, { importId })
+                expect(updatedImportIdOrg.importId).toEqual(importId)
             })
         })
         describe('Delete', () => {

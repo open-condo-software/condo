@@ -64,7 +64,7 @@ const Organization = new GQLListSchema('Organization', {
             type: Text,
             isRequired: false,
             kmigratorOptions: { null: true },
-            access: true,
+            access: access.canAccessTinField,
             hooks: {
                 validateInput: async ({ resolvedData, addFieldValidationError, existingItem })  => {
                     const item = resolvedData
