@@ -151,14 +151,13 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
 )
 
-const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketForm }) => {
+const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketForm, organizationId }) => {
     const intl = useIntl()
     const AddInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice' })
     const CreateInvoiceModalTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
 
     const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
     const afterInvoiceCreated = useCallback(async (invoice) => {
-        console.log('created invoice', invoice)
         addInvoiceToTicketForm(invoice.id)
 
         await refetchInvoices()
@@ -176,6 +175,7 @@ const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketFo
             {
                 createInvoiceModalOpen && (
                     <CreateInvoiceForm
+                        organizationId={organizationId}
                         afterAction={afterInvoiceCreated}
                         initialValues={initialValues}
                         modalFormProps={{
@@ -192,7 +192,9 @@ const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketFo
     )
 }
 
-const TicketFormInvoicesEmptyContent = ({ refetchInvoices, organizationId, initialValues, addInvoiceToTicketForm }) => {
+const TicketFormInvoicesEmptyContent = ({
+    refetchInvoices, organizationId, initialValues, addInvoiceToTicketForm,
+}) => {
     const intl = useIntl()
     const AlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.message' })
     const AlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.description' })
@@ -238,6 +240,7 @@ const TicketFormInvoicesEmptyContent = ({ refetchInvoices, organizationId, initi
                             refetchInvoices={refetchInvoices}
                             initialValues={initialValues}
                             addInvoiceToTicketForm={addInvoiceToTicketForm}
+                            organizationId={organizationId}
                         />
                     </Row>
                 </Col>
@@ -278,6 +281,7 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
                 refetchInvoices={refetchInvoices}
                 initialValues={initialValues}
                 addInvoiceToTicketForm={addInvoiceToTicketForm}
+                organizationId={organizationId}
             />
         </Row>
     )
@@ -314,7 +318,6 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
-    const detailsColSpan = !breakpoints.TABLET_LARGE ? 24 : 20
     const classifierColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
     const deadlineColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
 
@@ -349,7 +352,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                 <span style={SPAN_STYLES}>*</span>
                             </Typography.Title>
                         </Col>
-                        <Col span={detailsColSpan}>
+                        <Col span={24}>
                             <Row>
                                 <Col span={24}>
                                     <TicketFormItem name='details' rules={validations.details}>
@@ -834,7 +837,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                 rules={PROPERTY_VALIDATION_RULES}
                                                                             >
                                                                                 <PropertyAddressSearchInput
-                                                                                    organization={organization}
+                                                                                    organizationId={get(organization, 'id')}
                                                                                     autoFocus
                                                                                     onSelect={handlePropertySelectChange(form)}
                                                                                     onClear={handlePropertiesSelectClear(form)}

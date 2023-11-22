@@ -112,7 +112,7 @@ const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     )
 }
 
-const PropertyFormField = ({ organization, form, disabled, setSelectedPropertyId }) => {
+const PropertyFormField = ({ organizationId, form, disabled, setSelectedPropertyId }) => {
     const intl = useIntl()
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
     const AddressNotFoundContent = intl.formatMessage({ id: 'field.Address.notFound' })
@@ -141,7 +141,7 @@ const PropertyFormField = ({ organization, form, disabled, setSelectedPropertyId
             rules={[requiredValidator]}
         >
             <PropertyAddressSearchInput
-                organization={organization}
+                organizationId={organizationId}
                 onChange={handlePropertySelectChange}
                 placeholder={AddressPlaceholder}
                 notFoundContent={AddressNotFoundContent}
@@ -268,7 +268,7 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
     )
 }
 
-const PayerDataFields = ({ organization, form, role, disabled, initialValues }) => {
+const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }) => {
     const intl = useIntl()
     const HasPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerData' })
     const NoPayerDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.payerNoData' })
@@ -338,7 +338,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
                                     <Row gutter={[50, 0]}>
                                         <Col span={24} md={20}>
                                             <PropertyFormField
-                                                organization={organization}
+                                                organizationId={organizationId}
                                                 setSelectedPropertyId={setSelectedPropertyId}
                                                 form={form}
                                                 disabled={disabled}
@@ -356,7 +356,7 @@ const PayerDataFields = ({ organization, form, role, disabled, initialValues }) 
                             </Row>
                             <ContactFormField
                                 role={role}
-                                organizationId={organization.id}
+                                organizationId={organizationId}
                                 form={form}
                                 disabled={disabled}
                             />
@@ -761,7 +761,7 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, onlyStatusTransitionsActive, is
 
 type BaseInvoiceFormProps = {
     action: (values: InvoiceFormValuesType) => Promise<Invoice>
-    organization: Organization
+    organizationId: string
     role: OrganizationEmployeeRole
     initialValues?: InvoiceFormValuesType
     OnCompletedMsg?: ComponentProps<typeof FormWithAction>['OnCompletedMsg']
@@ -787,7 +787,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const {
         children,
         action,
-        organization,
+        organizationId,
         role,
         initialValues,
         OnCompletedMsg,
@@ -800,7 +800,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
-            organization: { id: organization.id },
+            organization: { id: organizationId },
         },
     })
 
@@ -844,13 +844,15 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                     const disabled = isAllFieldsDisabled || onlyStatusTransitionsActive ||
                                         status !== INVOICE_STATUS_DRAFT || isCreatedByResident
 
-                                    return <PayerDataFields
-                                        organization={organization}
-                                        form={form}
-                                        role={role}
-                                        disabled={disabled}
-                                        initialValues={initialValues}
-                                    />
+                                    return (
+                                        <PayerDataFields
+                                            organizationId={organizationId}
+                                            form={form}
+                                            role={role}
+                                            disabled={disabled}
+                                            initialValues={initialValues}
+                                        />
+                                    )
                                 }
                             }
                         </Form.Item>
@@ -871,15 +873,17 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                 onlyStatusTransitionsActive || isCreatedByResident ||
                                                 (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
-                                            return <ServicesList
-                                                organizationId={organization.id}
-                                                propertyId={property}
-                                                form={form}
-                                                currencySymbol={currencySymbol}
-                                                disabled={disabled}
-                                                setStatus={setStatus}
-                                                isModalForm={isModalForm}
-                                            />
+                                            return (
+                                                <ServicesList
+                                                    organizationId={organizationId}
+                                                    propertyId={property}
+                                                    form={form}
+                                                    currencySymbol={currencySymbol}
+                                                    disabled={disabled}
+                                                    setStatus={setStatus}
+                                                    isModalForm={isModalForm}
+                                                />
+                                            )
                                         }
                                     }
                                 </Form.Item>

@@ -334,8 +334,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                                                             shouldUpdate
                                                         >
                                                             <PropertyAddressSearchInput
-                                                                organization={organization}
-                                                                setIsMatchSelectedProperty={setIsMatchSelectedProperty}
+                                                                organizationId={get(organization, 'id')}
                                                                 autoFocus={true}
                                                                 onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}
@@ -580,8 +579,7 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
                                                             shouldUpdate
                                                         >
                                                             <PropertyAddressSearchInput
-                                                                organization={organization}
-                                                                setIsMatchSelectedProperty={setIsMatchSelectedProperty}
+                                                                organizationId={get(organization, 'id')}
                                                                 autoFocus={true}
                                                                 onSelect={getHandleSelectPropertyAddress(form)}
                                                                 placeholder={AddressPlaceholder}

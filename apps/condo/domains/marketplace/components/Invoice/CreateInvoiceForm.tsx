@@ -19,16 +19,17 @@ import { getPaymentLinkNotification } from './CopyButton'
 
 
 type CreateInvoiceFormProps = {
+    organizationId: string
     afterAction: (invoice: InvoiceType) => Promise<void>
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
 }
 
-export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ afterAction, modalFormProps, initialValues }) => {
+export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizationId, afterAction, modalFormProps, initialValues }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const { organization, link } = useOrganization()
+    const { link } = useOrganization()
 
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
 
@@ -36,7 +37,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ afterActio
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
-            organization: { id: organization.id },
+            organization: { id: organizationId },
         },
     })
 
@@ -76,7 +77,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ afterActio
         <BaseInvoiceForm
             isCreateForm
             action={handleCreateInvoice}
-            organization={organization}
+            organizationId={organizationId}
             role={link}
             initialValues={formInitialValues}
             OnCompletedMsg={null}

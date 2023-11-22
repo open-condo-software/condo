@@ -37,15 +37,11 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
-    const { organization, link } = useOrganization()
-
-    const { obj: invoiceContext } = InvoiceContext.useObject({
-        where: {
-            organization: { id: organization.id },
-        },
-    })
-
     const isModalForm = useMemo(() => !isEmpty(modalFormProps), [modalFormProps])
+    const invoiceContext = useMemo(() => get(invoice, 'context'), [invoice])
+    const organization = useMemo(() => get(invoiceContext, 'organization'), [invoiceContext])
+
+    const { link } = useOrganization()
 
     const updateInvoiceAction = Invoice.useUpdate({}, afterAction)
 
@@ -77,7 +73,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
 
         setSubmitLoading(false)
         return updatedInvoice
-    }, [getPaymentLink, intl, invoice, invoiceContext, isModalForm, updateInvoiceAction])
+    }, [getPaymentLink, intl, invoice, isModalForm, updateInvoiceAction])
 
     const formInitialValues = useMemo(() => ({
         ...Invoice.convertToFormState(invoice, intl),

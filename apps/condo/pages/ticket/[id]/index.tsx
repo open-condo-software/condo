@@ -468,8 +468,6 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
 
     if (!invoices && invoicesLoading) return <Loader />
 
-    console.log(get(ticket, 'createdBy.type') === RESIDENT)
-
     return (
         <Row gutter={[0, 40]}>
             <Col span={24}>
@@ -505,7 +503,7 @@ const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) 
     )
 }
 
-export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
+export const TicketPageContent = ({ ticket, refetchTicket, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
@@ -798,7 +796,6 @@ const TicketIdPage = () => {
                     >
                         <TicketPageContent
                             ticket={ticket}
-                            loading={ticketLoading}
                             refetchTicket={refetchTicket}
                             organization={organization}
                             employee={link}

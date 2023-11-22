@@ -94,7 +94,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
     const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
-    const { organization, link } = useOrganization()
+    const { link } = useOrganization()
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
@@ -152,7 +152,7 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
             autoAssign={autoAssign}
             action={updateAction}
             initialValues={initialValues}
-            organization={organization}
+            organization={get(obj, 'organization')}
             role={link.role}
             files={files}
             afterActionCompleted={(ticket) => {
