@@ -1,9 +1,9 @@
-ARG REGISRTY=docker.io
+ARG REGISTRY=docker.io
 
-FROM ${REGISRTY}/python:3.8-buster AS python
-FROM ${REGISRTY}/node:16-buster AS node
+FROM ${REGISTRY}/python:3.8-buster AS python
+FROM ${REGISTRY}/node:16-buster AS node
 
-FROM ${REGISRTY}/buildpack-deps:buster AS base
+FROM ${REGISTRY}/buildpack-deps:buster AS base
 
 COPY --from=python /usr/local/ /usr/local/
 COPY --from=node /usr/local/ /usr/local/
