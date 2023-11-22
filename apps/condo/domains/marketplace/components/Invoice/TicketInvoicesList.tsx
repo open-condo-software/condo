@@ -17,9 +17,10 @@ type TicketInvoiceCardPropsType = {
     invoice: InvoiceType
     refetchInvoices: () => void
     initialValues?: InvoiceFormValuesType
+    isAllFieldsDisabled?: boolean
 }
 
-const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refetchInvoices, initialValues }) => {
+const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refetchInvoices, initialValues, isAllFieldsDisabled }) => {
     const intl = useIntl()
     const InvoiceNumberMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' },
         { number: get(invoice, 'number') }
@@ -68,18 +69,23 @@ const TicketInvoiceCard: React.FC<TicketInvoiceCardPropsType> = ({ invoice, refe
             <Col span={24}>
                 <InvoiceRowsTable invoice={invoice} />
             </Col>
-            <UpdateInvoiceForm
-                invoice={invoice}
-                modalFormProps={{
-                    ModalTitleMsg: InvoiceNumberMessage,
-                    visible: editModalOpen,
-                    showCancelButton: false,
-                    cancelModal: () => setEditModalOpen(false),
-                    modalProps: { width: 'big', destroyOnClose: true },
-                }}
-                afterAction={afterInvoiceUpdate}
-                initialValues={initialValues}
-            />
+            {
+                editModalOpen && (
+                    <UpdateInvoiceForm
+                        invoice={invoice}
+                        modalFormProps={{
+                            ModalTitleMsg: InvoiceNumberMessage,
+                            visible: editModalOpen,
+                            showCancelButton: false,
+                            cancelModal: () => setEditModalOpen(false),
+                            modalProps: { width: 'big', destroyOnClose: true },
+                        }}
+                        afterAction={afterInvoiceUpdate}
+                        initialValues={initialValues}
+                        isAllFieldsDisabled={isAllFieldsDisabled}
+                    />
+                )
+            }
         </Row>
     )
 }
@@ -88,9 +94,10 @@ type TicketInvoicesListPropsType = {
     invoices: InvoiceType[]
     refetchInvoices: () => void
     initialValues?: InvoiceFormValuesType
+    isAllFieldsDisabled?: boolean
 }
 
-export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invoices, refetchInvoices, initialValues }) => {
+export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invoices, refetchInvoices, initialValues, isAllFieldsDisabled }) => {
     return (
         <Row gutter={[0, 40]}>
             {
@@ -100,6 +107,7 @@ export const TicketInvoicesList: React.FC<TicketInvoicesListPropsType> = ({ invo
                             invoice={invoice}
                             refetchInvoices={refetchInvoices}
                             initialValues={initialValues}
+                            isAllFieldsDisabled={isAllFieldsDisabled}
                         />
                     </Col>
                 ))

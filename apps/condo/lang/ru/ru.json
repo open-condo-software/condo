@@ -740,6 +740,7 @@
   "pages.condo.ticket.id.CancelModal.title": "Хотите отменить заявку?",
   "pages.condo.ticket.id.CancelModal.cancelButtonLabel": "Отменить заявку",
   "pages.condo.ticket.id.CancelModal.content": "Это конечный статус заявки, перевести ее в работу или выполнить уже не получится. Укажите причину отмены заявки в комментариях, чтобы другие сотрудники могли увидеть информацию.",
+  "pages.condo.ticket.id.CancelModal.contentWithInvoices": "Это конечный статус заявки, перевести ее в работу или выполнить уже не получится. Редактировать счета тоже больше не получится — они автоматически переведутся в статус «Отменён». И отображаться у жителя в МП счета тоже больше не будут.",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.title": "Отложить заявку до…",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.DeferDateInput.placeholder": "Выбрать дату",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.InfoBlock.title": "Что произойдёт?",

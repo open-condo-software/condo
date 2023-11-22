@@ -665,7 +665,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     )
 }
 
-const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, paymentType, isCreateForm, form, status, setStatus }) => {
+const StatusRadioGroup = ({ isAllFieldsDisabled, onlyStatusTransitionsActive, isNotDraftStatusesDisabled, paymentType, isCreateForm, form, status, setStatus }) => {
     const intl = useIntl()
     const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus' })
     const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.draft' }).toLowerCase()
@@ -701,21 +701,44 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, isNotDraftStatusesDisabled, pay
             >
                 <RadioGroup value={status} onChange={handleValueChange}>
                     <Space size={24} wrap direction='horizontal'>
-                        <Radio value={INVOICE_STATUS_DRAFT} disabled={isAllFieldsDisabled}>
-                            <Typography.Text strong disabled={isAllFieldsDisabled}>{InvoiceStatusDraftLabel}</Typography.Text>
+                        <Radio value={INVOICE_STATUS_DRAFT} disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
+                            <Typography.Text strong disabled={onlyStatusTransitionsActive || isAllFieldsDisabled}>
+                                {InvoiceStatusDraftLabel}
+                            </Typography.Text>
                         </Radio>
-                        <Radio value={INVOICE_STATUS_PUBLISHED} disabled={isNotDraftStatusesDisabled}>
-                            <Typography.Text type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'} disabled={isNotDraftStatusesDisabled} strong>{InvoiceStatusReadyLabel}</Typography.Text>
+                        <Radio value={INVOICE_STATUS_PUBLISHED} disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}>
+                            <Typography.Text
+                                type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'}
+                                disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                strong
+                            >
+                                {InvoiceStatusReadyLabel}
+                            </Typography.Text>
                         </Radio>
-                        <Radio value={INVOICE_STATUS_PAID} disabled={isNotDraftStatusesDisabled || isOnlinePaymentType}>
-                            <Typography.Text type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'} disabled={isNotDraftStatusesDisabled} strong>{InvoiceStatusPaidLabel}</Typography.Text>
+                        <Radio
+                            value={INVOICE_STATUS_PAID}
+                            disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isOnlinePaymentType}
+                        >
+                            <Typography.Text
+                                type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'}
+                                disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                strong
+                            >
+                                {InvoiceStatusPaidLabel}
+                            </Typography.Text>
                         </Radio>
                         <Radio
                             value={INVOICE_STATUS_CANCELED}
-                            disabled={isNotDraftStatusesDisabled || isCreateForm}
+                            disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
                         >
                             <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
-                                <Typography.Text type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'} disabled={isNotDraftStatusesDisabled} strong>{InvoiceStatusCancelledLabel}</Typography.Text>
+                                <Typography.Text
+                                    type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'}
+                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                    strong
+                                >
+                                    {InvoiceStatusCancelledLabel}
+                                </Typography.Text>
                             </div>
                         </Radio>
                     </Space>
@@ -746,6 +769,7 @@ type BaseInvoiceFormProps = {
     isCreateForm?: boolean
     isCreatedByResident?: boolean
     modalFormProps?: ComponentProps<typeof BaseModalForm>
+    isAllFieldsDisabled?: boolean
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
@@ -770,6 +794,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         isCreateForm,
         isCreatedByResident,
         modalFormProps,
+        isAllFieldsDisabled,
     } = props
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -781,7 +806,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const [status, setStatus] = useState<typeof INVOICE_STATUSES[number]>(get(initialValues, 'status'))
     const [paymentType, setPaymentType] = useState<typeof INVOICE_PAYMENT_TYPES[number]>(get(initialValues, 'paymentType'))
 
-    const isAllFieldsDisabled = get(initialValues, 'status') !== INVOICE_STATUS_DRAFT
+    const onlyStatusTransitionsActive = get(initialValues, 'status') !== INVOICE_STATUS_DRAFT
 
     const currencyCode = get(invoiceContext, 'currencyCode')
     const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
@@ -815,7 +840,8 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                             {
                                 ({ getFieldValue }) => {
                                     const status = getFieldValue('status')
-                                    const disabled = isAllFieldsDisabled || status !== INVOICE_STATUS_DRAFT || isCreatedByResident
+                                    const disabled = isAllFieldsDisabled || onlyStatusTransitionsActive ||
+                                        status !== INVOICE_STATUS_DRAFT || isCreatedByResident
 
                                     return <PayerDataFields
                                         organization={organization}
@@ -840,7 +866,8 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                     {
                                         ({ getFieldsValue }) => {
                                             const { property } = getFieldsValue(['property'])
-                                            const disabled = isAllFieldsDisabled || isCreatedByResident ||
+                                            const disabled = isAllFieldsDisabled ||
+                                                onlyStatusTransitionsActive || isCreatedByResident ||
                                                 (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
                                             return <ServicesList
@@ -937,14 +964,18 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                                 setStatus(INVOICE_STATUS_DRAFT)
                                                                 form.setFieldsValue({ status: INVOICE_STATUS_DRAFT })
                                                             }}
-                                                            disabled={isAllFieldsDisabled}
+                                                            disabled={isAllFieldsDisabled || onlyStatusTransitionsActive}
                                                         >
                                                             <Space size={24} wrap direction='horizontal'>
                                                                 <Radio value={INVOICE_PAYMENT_TYPE_ONLINE}>
-                                                                    <Typography.Text disabled={isAllFieldsDisabled} strong>{PaymentOnlineLabel}</Typography.Text>
+                                                                    <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                        {PaymentOnlineLabel}
+                                                                    </Typography.Text>
                                                                 </Radio>
                                                                 <Radio value={INVOICE_PAYMENT_TYPE_CASH}>
-                                                                    <Typography.Text disabled={isAllFieldsDisabled} strong>{PaymentCashLabel}</Typography.Text>
+                                                                    <Typography.Text disabled={isAllFieldsDisabled || onlyStatusTransitionsActive} strong>
+                                                                        {PaymentCashLabel}
+                                                                    </Typography.Text>
                                                                 </Radio>
                                                             </Space>
                                                         </RadioGroup>
@@ -967,6 +998,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                                 return <StatusRadioGroup
                                                                     paymentType={paymentType}
                                                                     isAllFieldsDisabled={isAllFieldsDisabled}
+                                                                    onlyStatusTransitionsActive={onlyStatusTransitionsActive}
                                                                     isNotDraftStatusesDisabled={isNotDraftStatusesDisabled}
                                                                     isCreateForm={isCreateForm}
                                                                     form={form}
@@ -989,7 +1021,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                         status, paymentType, payerData, property, unitName, unitType, clientPhone,
                                                     } = getFieldsValue(['status', 'paymentType', 'payerData', 'property', 'unitName', 'unitType', 'clientPhone'])
 
-                                                    if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE) {
+                                                    if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE || isAllFieldsDisabled) {
                                                         return
                                                     }
 

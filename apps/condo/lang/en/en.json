@@ -740,6 +740,7 @@
   "pages.condo.ticket.id.CancelModal.title": "Want to cancel this ticket?",
   "pages.condo.ticket.id.CancelModal.cancelButtonLabel": "Cancel ticket",
   "pages.condo.ticket.id.CancelModal.content": "This is the final status of the ticket, it will be impossible to take it for execution. Indicate the reason for canceling the ticket in the comments so that other employees can see the information.",
+  "pages.condo.ticket.id.CancelModal.contentWithInvoices": "This is the final status of the ticket, it will be impossible to take it for execution. Editing invoices too will not work - they will automatically be transferred to the status of «Cancelled». And there will be no more invoices for the resident in the mobile app.",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.title": "Deferring application until…",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.DeferDateInput.placeholder": "Select date",
   "pages.condo.ticket.id.TicketDefer.DeferDateModal.InfoBlock.title": "What will happen?",
