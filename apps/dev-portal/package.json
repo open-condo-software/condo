@@ -5,7 +5,7 @@
     "hoistingLimits": "workspaces"
   },
   "scripts": {
-    "build:deps": "turbo build --filter=dev-portal^... --filter=!dev-api",
+    "build:deps": "turbo build --filter=dev-portal^... --filter=!dev-api --filter=!condo",
     "dev": "yarn build:deps && next dev & yarn types:watch",
     "build": "next build",
     "start": "next start",

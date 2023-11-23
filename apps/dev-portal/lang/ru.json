@@ -89,5 +89,14 @@
   "apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.message": "Иметь уникальную и {semVerCorrect} версию",
   "apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment": "семантически корректную",
   "apps.b2c.sections.builds.newBuildModal.form.info.limitations.format.message": "Быть загруженной в формате {format}",
-  "apps.b2c.sections.builds.newBuildModal.form.info.limitations.size.message": "Иметь размер не более {limit}"
+  "apps.b2c.sections.builds.newBuildModal.form.info.limitations.size.message": "Иметь размер не более {limit}",
+  "apps.b2c.sections.publishing.title": "Публикация",
+  "apps.b2c.sections.publishing.publishForm.items.stand.label": "Выберите окружение",
+  "apps.b2c.sections.publishing.publishForm.items.stand.options.development.label": "Тестовый стенд",
+  "apps.b2c.sections.publishing.publishForm.items.stand.options.production.label": "Продуктовый стенд",
+  "apps.b2c.sections.publishing.publishForm.items.components.label": "Выберите, какие изменения хотите опубликовать",
+  "apps.b2c.sections.publishing.publishForm.items.info.label": "Информация о приложении",
+  "apps.b2c.sections.publishing.publishForm.items.build.label": "Сборка приложения",
+  "apps.b2c.sections.publishing.publishForm.items.build.select.placeholder": "Выберите сборку",
+  "apps.b2c.sections.publishing.publishForm.actions.publish": "Опубликовать"
 }
