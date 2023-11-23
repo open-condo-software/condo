@@ -25,7 +25,6 @@ async function canExecuteAllResidentMeters ({ authentication: { item: user }, ar
         return !isEmpty(residents)
     }
 
-    // TODO(codegen): write mutation access logic!
     return false
 }
 
