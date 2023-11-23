@@ -23,9 +23,10 @@ type CreateInvoiceFormProps = {
     afterAction: (invoice: InvoiceType) => Promise<void>
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     initialValues?: InvoiceFormValuesType
+    ticketCreatedByResident?: boolean
 }
 
-export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizationId, afterAction, modalFormProps, initialValues }) => {
+export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizationId, afterAction, modalFormProps, initialValues, ticketCreatedByResident }) => {
     const intl = useIntl()
     const SaveLabel = intl.formatMessage({ id: 'Save' })
 
@@ -82,6 +83,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
             initialValues={formInitialValues}
             OnCompletedMsg={null}
             modalFormProps={modalFormProps}
+            isCreatedByResident={ticketCreatedByResident}
         >
             {
                 ({ handleSave }) => !isModalForm && (

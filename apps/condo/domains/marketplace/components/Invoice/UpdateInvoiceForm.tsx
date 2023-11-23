@@ -15,7 +15,7 @@ import {
     INVOICE_STATUS_DRAFT,
 } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
-import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
 
 import { BaseInvoiceForm } from './BaseInvoiceForm'
@@ -73,7 +73,7 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
 
         setSubmitLoading(false)
         return updatedInvoice
-    }, [getPaymentLink, intl, invoice, isModalForm, updateInvoiceAction])
+    }, [getPaymentLink, intl, invoice, invoiceContext, isModalForm, updateInvoiceAction])
 
     const formInitialValues = useMemo(() => ({
         ...Invoice.convertToFormState(invoice, intl),
@@ -82,15 +82,15 @@ export const UpdateInvoiceForm: React.FC<UpdateInvoiceFormProps> = ({
 
     return (
         <BaseInvoiceForm
-            organization={organization}
+            organizationId={get(organization, 'id')}
             role={link}
             action={handleUpdateInvoice}
             initialValues={formInitialValues}
-            isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident}
+            isCreatedByResident={get(invoice, 'createdBy.type') === UserTypeType.Resident || ticketCreatedByResident}
             OnCompletedMsg={null}
             modalFormProps={modalFormProps}
             isAllFieldsDisabled={isAllFieldsDisabled}
-            ticketCreatedByResident={ticketCreatedByResident}
+            isContactsFieldsDisabled={!!get(invoice, 'ticket')}
         >
             {
                 ({ handleSave }) => !isModalForm && (

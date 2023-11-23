@@ -151,7 +151,7 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
 )
 
-const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketForm, organizationId }) => {
+const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketForm, organizationId, ticketCreatedByResident }) => {
     const intl = useIntl()
     const AddInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice' })
     const CreateInvoiceModalTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
@@ -185,6 +185,7 @@ const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketFo
                             cancelModal: () => setCreateInvoiceModalOpen(false),
                             modalProps: { width: 'big', destroyOnClose: true },
                         }}
+                        ticketCreatedByResident={ticketCreatedByResident}
                     />
                 )
             }
@@ -193,7 +194,7 @@ const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketFo
 }
 
 const TicketFormInvoicesEmptyContent = ({
-    refetchInvoices, organizationId, initialValues, addInvoiceToTicketForm,
+    refetchInvoices, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident,
 }) => {
     const intl = useIntl()
     const AlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.message' })
@@ -241,6 +242,7 @@ const TicketFormInvoicesEmptyContent = ({
                             initialValues={initialValues}
                             addInvoiceToTicketForm={addInvoiceToTicketForm}
                             organizationId={organizationId}
+                            ticketCreatedByResident={ticketCreatedByResident}
                         />
                     </Row>
                 </Col>
@@ -264,6 +266,7 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
                 organizationId={organizationId}
                 initialValues={initialValues}
                 addInvoiceToTicketForm={addInvoiceToTicketForm}
+                ticketCreatedByResident={ticketCreatedByResident}
             />
         )
     }
@@ -283,6 +286,7 @@ const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvo
                 initialValues={initialValues}
                 addInvoiceToTicketForm={addInvoiceToTicketForm}
                 organizationId={organizationId}
+                ticketCreatedByResident={ticketCreatedByResident}
             />
         </Row>
     )

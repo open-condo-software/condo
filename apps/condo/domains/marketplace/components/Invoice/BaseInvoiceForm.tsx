@@ -385,7 +385,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     const FromMessage = intl.formatMessage({ id: 'global.from' }).toLowerCase()
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
-    const { requiredValidator, maxLengthValidator } = useValidations()
+    const { requiredValidator } = useValidations()
     const { breakpoints } = useLayoutContext()
 
     const filterByProperty = useMemo(() => {
@@ -474,7 +474,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             required
                                             labelAlign='left'
                                             labelCol={{ span: 24 }}
-                                            rules={[requiredValidator, maxLengthValidator(50)]}
+                                            rules={[requiredValidator]}
                                         >
                                             <AutoComplete
                                                 allowClear
@@ -545,6 +545,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                             required
                                             name={[marketItemForm.name, 'toPay']}
                                             labelCol={{ span: 24 }}
+                                            validateFirst
                                             rules={[
                                                 requiredValidator,
                                                 {
@@ -769,7 +770,7 @@ type BaseInvoiceFormProps = {
     isCreatedByResident?: boolean
     modalFormProps?: ComponentProps<typeof BaseModalForm>
     isAllFieldsDisabled?: boolean
-    ticketCreatedByResident?: boolean
+    isContactsFieldsDisabled?: boolean
 }
 
 export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
@@ -795,7 +796,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         isCreatedByResident,
         modalFormProps,
         isAllFieldsDisabled,
-        ticketCreatedByResident,
+        isContactsFieldsDisabled,
     } = props
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
@@ -822,12 +823,21 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
         () => isModalForm ? BaseModalForm : FormWithAction,
         [isModalForm])
 
+    const [form] = Form.useForm()
+    useEffect(() => {
+        if (!isCreateForm) {
+            const rows = form.getFieldValue('rows')
+            form.validateFields(rows.map((_, index) => ['rows', index, 'toPay']))
+        }
+    }, [form, isCreateForm])
+
     return (
         <FormContainer
             initialValues={initialValues}
             action={action}
             layout='horizontal'
             colon={false}
+            formInstance={form}
             OnCompletedMsg={OnCompletedMsg}
             scrollToFirstError={SCROLL_TO_FIRST_ERROR_CONFIG}
             validateTrigger={FORM_VALIDATE_TRIGGER}
@@ -841,7 +851,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                             {
                                 ({ getFieldValue }) => {
                                     const status = getFieldValue('status')
-                                    const disabled = isAllFieldsDisabled || onlyStatusTransitionsActive ||
+                                    const disabled = isContactsFieldsDisabled || isAllFieldsDisabled || onlyStatusTransitionsActive ||
                                         status !== INVOICE_STATUS_DRAFT || isCreatedByResident
 
                                     return (
@@ -870,7 +880,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                         ({ getFieldsValue }) => {
                                             const { property } = getFieldsValue(['property'])
                                             const disabled = isAllFieldsDisabled ||
-                                                onlyStatusTransitionsActive || isCreatedByResident ||
+                                                onlyStatusTransitionsActive || (!isCreateForm && isCreatedByResident) ||
                                                 (!isCreateForm && status !== INVOICE_STATUS_DRAFT)
 
                                             return (
@@ -1028,18 +1038,6 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
 
                                                     if (status !== INVOICE_STATUS_PUBLISHED || paymentType !== INVOICE_PAYMENT_TYPE_ONLINE || isAllFieldsDisabled) {
                                                         return
-                                                    }
-
-                                                    if (ticketCreatedByResident) {
-                                                        return (
-                                                            <Col md={colSpan}>
-                                                                <Alert
-                                                                    type='info'
-                                                                    message='Житель может оплатить в МП жителя'
-                                                                    showIcon
-                                                                />
-                                                            </Col>
-                                                        )
                                                     }
 
                                                     if (!payerData) {
