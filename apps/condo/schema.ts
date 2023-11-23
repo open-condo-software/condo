@@ -16485,6 +16485,8 @@ export type BillingReceipt = {
   invalidServicesError?: Maybe<Scalars['String']>;
   /**  A BillingReceiptFile that related to this billing receipt (filled up by integration)  */
   file?: Maybe<BillingReceiptFile>;
+  /**  Indicator that this invoice document is latest for its account and receiver/category  */
+  isPayable?: Maybe<Scalars['Boolean']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -17006,6 +17008,7 @@ export type BillingReceiptHistoryRecord = {
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
+  isPayable?: Maybe<Scalars['JSON']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -17044,6 +17047,7 @@ export type BillingReceiptHistoryRecordCreateInput = {
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
+  isPayable?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -17087,6 +17091,7 @@ export type BillingReceiptHistoryRecordUpdateInput = {
   receiver?: Maybe<Scalars['String']>;
   invalidServicesError?: Maybe<Scalars['JSON']>;
   file?: Maybe<Scalars['String']>;
+  isPayable?: Maybe<Scalars['JSON']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -17266,6 +17271,10 @@ export type BillingReceiptHistoryRecordWhereInput = {
   file_not?: Maybe<Scalars['String']>;
   file_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   file_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  isPayable?: Maybe<Scalars['JSON']>;
+  isPayable_not?: Maybe<Scalars['JSON']>;
+  isPayable_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  isPayable_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
