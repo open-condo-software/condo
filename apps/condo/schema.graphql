@@ -71357,6 +71357,44 @@ type _internalDeleteMeterAndMeterReadingsOutput {
   status: Status!
 }
 
+input AllResidentMetersInput {
+  where: ResidentWhereUniqueInput!
+  first: Int
+  skip: Int
+}
+
+type ResidentMeter {
+  organization: Organization!
+  property: Property!
+  resource: MeterResource!
+  numberOfTariffs: Int
+  installationDate: String
+  commissioningDate: String
+  verificationDate: String
+  nextVerificationDate: String
+  controlReadingsDate: String
+  sealingDate: String
+  isAutomatic: Boolean!
+  number: String!
+  accountNumber: String!
+  unitName: String!
+  unitType: String!
+  place: String
+  meta: JSON
+  b2bApp: B2BApp
+  b2cApp: B2CApp
+  v: Int
+  dv: Int!
+  sender: SenderField!
+  id: ID!
+  createdBy: User
+  updatedBy: User
+  deletedAt: String
+  updatedAt: String
+  createdAt: String
+  newId: String
+}
+
 input RegisterMultiPaymentServiceConsumerInput {
   serviceConsumer: ServiceConsumerWhereUniqueInput!
   receipts: [BillingReceiptWhereUniqueInput!]!
@@ -75506,6 +75544,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
+  allResidentMeters(where: ResidentWhereUniqueInput!, first: Int, skip: Int): [ResidentMeter!]
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
   _allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput

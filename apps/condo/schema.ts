@@ -1601,6 +1601,12 @@ export type AllMiniAppsWhereInput = {
   accessible?: Maybe<Scalars['Boolean']>;
 };
 
+export type AllResidentMetersInput = {
+  where: ResidentWhereUniqueInput;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
 export enum AppCategory {
   Dispatching = 'DISPATCHING',
   Gis = 'GIS',
@@ -61351,6 +61357,7 @@ export type Query = {
   predictTicketClassification?: Maybe<TicketClassifier>;
   getResidentExistenceByPhoneAndAddress?: Maybe<GetResidentExistenceByPhoneAndAddressOutput>;
   exportMeterReadings?: Maybe<ExportMeterReadingsOutput>;
+  allResidentMeters?: Maybe<Array<ResidentMeter>>;
   exportPaymentsToExcel?: Maybe<ExportPaymentsToExcelOutput>;
   generatePaymentLink?: Maybe<GeneratePaymentLinkOutput>;
   _allPaymentsSum?: Maybe<PaymentsSumOutput>;
@@ -67647,6 +67654,13 @@ export type QueryExportMeterReadingsArgs = {
 };
 
 
+export type QueryAllResidentMetersArgs = {
+  where: ResidentWhereUniqueInput;
+  first?: Maybe<Scalars['Int']>;
+  skip?: Maybe<Scalars['Int']>;
+};
+
+
 export type QueryExportPaymentsToExcelArgs = {
   data: ExportPaymentsToExcelInput;
 };
@@ -69943,6 +69957,39 @@ export type ResidentHistoryRecordsCreateInput = {
 export type ResidentHistoryRecordsUpdateInput = {
   id: Scalars['ID'];
   data?: Maybe<ResidentHistoryRecordUpdateInput>;
+};
+
+export type ResidentMeter = {
+  __typename?: 'ResidentMeter';
+  organization: Organization;
+  property: Property;
+  resource: MeterResource;
+  numberOfTariffs?: Maybe<Scalars['Int']>;
+  installationDate?: Maybe<Scalars['String']>;
+  commissioningDate?: Maybe<Scalars['String']>;
+  verificationDate?: Maybe<Scalars['String']>;
+  nextVerificationDate?: Maybe<Scalars['String']>;
+  controlReadingsDate?: Maybe<Scalars['String']>;
+  sealingDate?: Maybe<Scalars['String']>;
+  isAutomatic: Scalars['Boolean'];
+  number: Scalars['String'];
+  accountNumber: Scalars['String'];
+  unitName: Scalars['String'];
+  unitType: Scalars['String'];
+  place?: Maybe<Scalars['String']>;
+  meta?: Maybe<Scalars['JSON']>;
+  b2bApp?: Maybe<B2BApp>;
+  b2cApp?: Maybe<B2CApp>;
+  v?: Maybe<Scalars['Int']>;
+  dv: Scalars['Int'];
+  sender: SenderField;
+  id: Scalars['ID'];
+  createdBy?: Maybe<User>;
+  updatedBy?: Maybe<User>;
+  deletedAt?: Maybe<Scalars['String']>;
+  updatedAt?: Maybe<Scalars['String']>;
+  createdAt?: Maybe<Scalars['String']>;
+  newId?: Maybe<Scalars['String']>;
 };
 
 export type ResidentOverviewResult = {

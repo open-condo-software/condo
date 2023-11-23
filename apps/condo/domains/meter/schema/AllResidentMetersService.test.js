@@ -3,7 +3,6 @@
  */
 const { faker } = require('@faker-js/faker')
 
-
 const { makeLoggedInAdminClient, makeClient, waitFor } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAccessDeniedErrorToResult,
@@ -15,6 +14,11 @@ const {
     createTestBillingProperty,
     createTestBillingAccount,
 } = require('@condo/domains/billing/utils/testSchema')
+const {
+    COLD_WATER_METER_RESOURCE_ID,
+    HOT_WATER_METER_RESOURCE_ID,
+    HEAT_SUPPLY_METER_RESOURCE_ID,
+} = require('@condo/domains/meter/constants/constants')
 const {
     allResidentMetersByTestClient,
     MeterResource,
@@ -30,19 +34,82 @@ const { createTestServiceConsumer } = require('@condo/domains/resident/utils/tes
 const {
     makeClientWithSupportUser,
     makeClientWithResidentUser,
-    makeClientWithStaffUser,
+    makeClientWithNewRegisteredAndLoggedInUser,
 } = require('@condo/domains/user/utils/testSchema')
-
-const { COLD_WATER_METER_RESOURCE_ID, HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
 
 
 describe('AllResidentMetersService', () => {
     let admin
+    let support
+    let user
     let residentClient
+    let anonymous
+
+    let resident
+    let meter1
+    let meter2
+    let meter3
+    let property
 
     beforeAll(async () => {
         admin = await makeLoggedInAdminClient()
+        support = await makeClientWithSupportUser()
+        user = await makeClientWithNewRegisteredAndLoggedInUser()
         residentClient = await makeClientWithResidentUser()
+        anonymous = await makeClient()
+
+        const { organization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+        property = (await createTestProperty(admin, organization))[0]
+        const [billingProperty] = await createTestBillingProperty(admin, context)
+        const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty)
+        const unitName = faker.random.alphaNumeric(8)
+        resident = (await createTestResident(admin, residentClient.user, property, {
+            unitName, unitType: FLAT_UNIT_TYPE,
+        }))[0]
+
+        await createTestServiceConsumer(admin, resident, organization, { accountNumber: billingAccount.number })
+        const [coldResource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+        const [hotResource] = await MeterResource.getAll(admin, { id: HOT_WATER_METER_RESOURCE_ID })
+        const [heatResource] = await MeterResource.getAll(admin, { id: HEAT_SUPPLY_METER_RESOURCE_ID })
+        meter1 = (await createTestMeter(admin, organization, property, coldResource, {
+            accountNumber: billingAccount.number, unitName, unitType: FLAT_UNIT_TYPE,
+        }))[0]
+        meter2 = (await createTestMeter(admin, organization, property, hotResource, {
+            accountNumber: billingAccount.number, unitName, unitType: FLAT_UNIT_TYPE,
+        }))[0]
+        meter3 = (await createTestMeter(admin, organization, property, heatResource, {
+            accountNumber: billingAccount.number, unitName, unitType: FLAT_UNIT_TYPE,
+        }))[0]
+    })
+
+    describe('Admin', () => {
+        it('should get meters of the resident', async () => {
+            const [data] = await allResidentMetersByTestClient(support, { id: resident.id })
+
+            expect(data).toHaveLength(3)
+            expect(data.find(meter => meter.id === meter1.id)).toBeDefined()
+            expect(data.find(meter => meter.id === meter2.id)).toBeDefined()
+            expect(data.find(meter => meter.id === meter3.id)).toBeDefined()
+        })
+    })
+
+    describe('Support', () => {
+        it('should get meters of the resident', async () => {
+            const [data] = await allResidentMetersByTestClient(admin, { id: resident.id })
+
+            expect(data).toHaveLength(3)
+            expect(data.find(meter => meter.id === meter1.id)).toBeDefined()
+            expect(data.find(meter => meter.id === meter2.id)).toBeDefined()
+            expect(data.find(meter => meter.id === meter3.id)).toBeDefined()
+        })
+    })
+
+    describe('User', () => {
+        it('can\'t get meters from resident', async () => {
+            await expectToThrowAccessDeniedErrorToResult(async () => {
+                await allResidentMetersByTestClient(user, { id: resident.id })
+            })
+        })
     })
 
     describe('Resident', () => {
@@ -66,13 +133,7 @@ describe('AllResidentMetersService', () => {
 
             expect(data).toBeDefined()
             expect(data).toHaveLength(1)
-            // expect(data).toHaveProperty('meters')
-            // expect(data.meters).toHaveLength(1)
-            expect(data).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(meter),
-                ]),
-            )
+            expect(data[0]).toHaveProperty('id', meter.id)
         })
 
         it('should get all meters from organizations with resource ownership rights', async () => {
@@ -131,16 +192,19 @@ describe('AllResidentMetersService', () => {
                 expect(meterResourceOwner).toBeDefined()
             })
 
-            const [data] = await allResidentMetersByTestClient(residentClient, { where: { id: resident.id } })
+            const [data] = await allResidentMetersByTestClient(residentClient, { id: resident.id })
 
-            expect(data).toHaveProperty('meters')
-            expect(data.meters).toHaveLength(2)
-            expect(data.meters).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(hotMeter),
-                    expect.objectContaining(coldMeter),
-                ])
-            )
+            expect(data).toHaveLength(2)
+            const foundHotMeter = data.find(meter => meter.id === hotMeter.id)
+            const foundColdMeter = data.find(meter => meter.id === coldMeter.id)
+            expect(foundHotMeter).toBeDefined()
+            expect(foundHotMeter).toHaveProperty(['resource', 'id'], hotMeter.resource.id)
+            expect(foundHotMeter).toHaveProperty(['organization', 'id'], hotMeter.organization.id)
+            expect(foundHotMeter).toHaveProperty(['property', 'id'], hotMeter.property.id)
+            expect(foundColdMeter).toBeDefined()
+            expect(foundColdMeter).toHaveProperty(['resource', 'id'], coldMeter.resource.id)
+            expect(foundColdMeter).toHaveProperty(['organization', 'id'], coldMeter.organization.id)
+            expect(foundColdMeter).toHaveProperty(['property', 'id'], coldMeter.property.id)
 
             const coldMeterResourceOwner = await MeterResourceOwner.getOne(admin, {
                 resource: { id: COLD_WATER_METER_RESOURCE_ID }, address_i: resident.address,
@@ -155,31 +219,20 @@ describe('AllResidentMetersService', () => {
 
             expect(serviceProviderColdMeter).toHaveProperty(['property', 'id'], serviceProviderProperty.id)
 
-            const [updatedData] = await allResidentMetersByTestClient(residentClient, { where: { id: resident.id } })
+            const [updatedData] = await allResidentMetersByTestClient(residentClient, { id: resident.id })
 
-            console.log('hotMeter id', hotMeter.id)
-            console.log('coldMeter id', coldMeter.id)
-            console.log('spColdMeter id', serviceProviderColdMeter.id)
-            console.log('updated data with ids ', updatedData.meters.map(e => e.id))
+            expect(updatedData).toHaveLength(2)
 
-            expect(updatedData).toHaveProperty('meters')
-            expect(updatedData.meters).toHaveLength(2)
-            const newMeter = updatedData.meters.find(m => m.id === serviceProviderColdMeter.id)
-            // TODO: fix access for property to resident. Now it returns null from custom query
-            expect(newMeter.property).not.toBeNull()
-            expect(updatedData.meters).toEqual(
-                expect.arrayContaining([
-                    expect.objectContaining(hotMeter),
-                    expect.objectContaining(serviceProviderColdMeter),
-                ])
-            )
+            const originalHotMeter = updatedData.find(meter => meter.id === hotMeter.id)
+            const newMeter = updatedData.find(meter => meter.id === serviceProviderColdMeter.id)
 
-            // expect(updatedData.meters).toEqual(
-            //     expect.arrayContaining([
-            //         expect.objectContaining(serviceProviderColdMeter),
-            //     ])
-            // )
-
+            expect(originalHotMeter).toBeDefined()
+            expect(originalHotMeter).toHaveProperty('id', hotMeter.id)
+            expect(originalHotMeter).toHaveProperty(['organization', 'id'], hotMeter.organization.id)
+            expect(newMeter).toBeDefined()
+            expect(newMeter).toHaveProperty(['property', 'id'], serviceProviderProperty.id)
+            expect(newMeter).toHaveProperty(['organization', 'id'], serviceProviderOrganization.id)
+            expect(newMeter).toHaveProperty(['resource', 'id'], coldWaterResource.id)
         })
 
         it('can\'t get meters by another resident', async () => {
@@ -193,31 +246,40 @@ describe('AllResidentMetersService', () => {
             const [resident] = await createTestResident(admin, client.user, property, { unitName, unitType: FLAT_UNIT_TYPE })
 
             await expectToThrowAccessDeniedErrorToResult(async () => {
-                await allResidentMetersByTestClient(residentClient, { where: { id: resident.id } })
+                await allResidentMetersByTestClient(residentClient, { id: resident.id })
             })
         })
     })
 
-    test('user: execute', async () => {
-        const client = await makeClient()  // TODO(codegen): use truly useful client!
-        const payload = {}  // TODO(codegen): change the 'user: update AllResidentMetersService' payload
-        const [data, attrs] = await allResidentMetersByTestClient(client, payload)
-        // TODO(codegen): write user expect logic
-        throw new Error('Not implemented yet')
-    })
-
-    test('anonymous: execute', async () => {
-        const client = await makeClient()
-        await expectToThrowAuthenticationErrorToResult(async () => {
-            await allResidentMetersByTestClient(client)
+    describe('Anonymous', () => {
+        it('can\'t get any data', async () => {
+            await expectToThrowAuthenticationErrorToResult(async () => {
+                await allResidentMetersByTestClient(anonymous, { id: resident.id })
+            })
         })
     })
 
-    test('admin: execute', async () => {
-        const admin = await makeLoggedInAdminClient()
-        const payload = {}  // TODO(codegen): change the 'user: update AllResidentMetersService' payload
-        const [data, attrs] = await allResidentMetersByTestClient(admin, payload)
-        // TODO(codegen): write admin expect logic
-        throw new Error('Not implemented yet')
+    describe('Sorting', () => {
+        it('should be able to use skip and first arguments', async () => {
+            const [startFromFirstData] = await allResidentMetersByTestClient(admin, { id: resident.id }, 1)
+
+            expect(startFromFirstData).toHaveLength(1)
+            expect(startFromFirstData[0].id).toEqual(meter1.id)
+
+            const [skipOneData] = await allResidentMetersByTestClient(admin, { id: resident.id }, 2, 1)
+
+            expect(skipOneData).toHaveLength(2)
+            expect(skipOneData.find(meter => meter.id === meter1.id)).not.toBeDefined()
+            expect(skipOneData[0].id).toEqual(meter2.id)
+            expect(skipOneData[1].id).toEqual(meter3.id)
+        })
+
+        it('should ignore negative values', async () => {
+            const [data] = await allResidentMetersByTestClient(
+                admin, { id: resident.id }, faker.datatype.number({ max: 0, min: -10 }), faker.datatype.number({ max: 0, min: -10 })
+            )
+
+            expect(data).toHaveLength(3)
+        })
     })
 })
