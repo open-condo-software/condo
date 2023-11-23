@@ -22,6 +22,7 @@ import { BaseModalForm, FormWithAction } from '@condo/domains/common/components/
 import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
+import { NEW_CONTACT_PHONE_FORM_ITEM_NAME } from '@condo/domains/contact/components/ContactsEditor/NewContactFields'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
 import {
     INVOICE_STATUS_DRAFT,
@@ -112,6 +113,13 @@ const SubTotalInfo = ({ label, total, large = false, totalTextType }) => {
     )
 }
 
+const emptyContactValues = {
+    clientName: null,
+    clientPhone: null,
+    contact: null,
+    [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
+}
+
 const PropertyFormField = ({ organizationId, form, disabled, setSelectedPropertyId }) => {
     const intl = useIntl()
     const AddressPlaceholder = intl.formatMessage({ id: 'placeholder.Address' })
@@ -122,11 +130,11 @@ const PropertyFormField = ({ organizationId, form, disabled, setSelectedProperty
     
     const handlePropertySelectChange = useCallback(async (_, option) => {
         const newPropertyId = isEmpty(option) ? null : option.key
-
         form.setFieldsValue({
             unitName: null,
             unitType: null,
             property: newPropertyId,
+            ...emptyContactValues,
         })
 
         setSelectedPropertyId(newPropertyId)
@@ -162,6 +170,7 @@ const UnitNameFormField = ({ form, property, disabled }) => {
             return form.setFieldsValue({
                 unitName: null,
                 unitType: null,
+                ...emptyContactValues,
             })
         }
 
@@ -171,6 +180,7 @@ const UnitNameFormField = ({ form, property, disabled }) => {
         form.setFieldsValue({
             unitName,
             unitType,
+            ...emptyContactValues,
         })
     }, [form])
 
@@ -309,9 +319,7 @@ const PayerDataFields = ({ organizationId, form, role, disabled, initialValues }
                                     property: null,
                                     unitName: null,
                                     unitType: null,
-                                    contact: null,
-                                    clientName: null,
-                                    clientPhone: null,
+                                    ...emptyContactValues,
                                 })
                             }
                         }}
@@ -486,7 +494,12 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     form.setFieldsValue({
                                                         rows: {
                                                             ...form.getFieldValue('rows'),
-                                                            [marketItemForm.name]: null,
+                                                            [marketItemForm.name]: {
+                                                                count: 1,
+                                                                toPay: null,
+                                                                isMin: false,
+                                                                sku: null,
+                                                            },
                                                         },
                                                     })
                                                 }}

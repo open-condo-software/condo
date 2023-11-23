@@ -195,7 +195,9 @@ describe('GetInvoiceByUserService', () => {
         const [organization] = await createTestOrganization(admin)
         const [property] = await createTestProperty(admin, organization)
 
-        const [ticket] = await createTestTicket(admin, organization, property)
+        const [ticket] = await createTestTicket(admin, organization, property, {
+            client: { connect: { id: admin.user.id } },
+        })
 
         const [marketCategory] = await createTestMarketCategory(admin)
         const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)

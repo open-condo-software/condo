@@ -19,6 +19,7 @@ import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Info, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
@@ -35,6 +36,7 @@ import { Loader } from '@condo/domains/common/components/Loader'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
+import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { colors } from '@condo/domains/common/constants/style'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
@@ -59,7 +61,6 @@ import { TicketFile, TicketSource } from '@condo/domains/ticket/utils/clientSche
 import { ITicketFormState } from '@condo/domains/ticket/utils/clientSchema/Ticket'
 import { getTicketDefaultDeadline } from '@condo/domains/ticket/utils/helpers'
 import { RESIDENT } from '@condo/domains/user/constants/common'
-
 
 import { TicketAssignments } from './TicketAssignments'
 import { TicketDeadlineField } from './TicketDeadlineField'
@@ -346,6 +347,9 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
         handleChangeType()
     }, [handleChangeType])
 
+    const { useFlag } = useFeatureFlags()
+    const isMarketplaceEnabled = useFlag(MARKETPLACE)
+
     return (
         <Col span={24}>
             <Row gutter={BIG_VERTICAL_GUTTER}>
@@ -434,7 +438,7 @@ export const TicketInfo = ({ organizationId, form, validations, UploadComponent,
                                 </Row>
                             </Col>
                             {
-                                isPayable && (
+                                isMarketplaceEnabled && isPayable && (
                                     <Col span={24} md={18}>
                                         <Form.Item
                                             hidden

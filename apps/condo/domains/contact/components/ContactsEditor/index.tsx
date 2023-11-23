@@ -170,7 +170,7 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     } = Contact.useObjects({
         where: initialContactsQuery,
         first: 100,
-    })
+    }, { skip: (!property || !unitName || !unitType) })
 
     const {
         objs: fetchedEmployees,
@@ -248,11 +248,14 @@ export const ContactsEditor: React.FC<IContactEditorProps> = (props) => {
     const handleClickOnPlusButton = useCallback(() => {
         form.setFieldsValue({
             [NEW_CONTACT_PHONE_FORM_ITEM_NAME]: null,
+            [fields.id]: null,
+            [fields.name]: null,
+            [fields.phone]: null,
         })
         setSelectedContact(null)
         setDisplayEditableContactFields(true)
         setEditableFieldsChecked(true)
-    }, [form])
+    }, [fields.id, fields.name, fields.phone, form])
 
     const handleClickOnMinusButton = useCallback(() => {
         setDisplayEditableContactFields(false)
