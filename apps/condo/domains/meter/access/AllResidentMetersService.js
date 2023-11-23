@@ -8,7 +8,7 @@ const { find } = require('@open-condo/keystone/schema')
 
 const { RESIDENT } = require('@condo/domains/user/constants/common')
 
-async function canAllResidentMeters ({ authentication: { item: user }, args: { where: { id: residentId } } }) {
+async function canExecuteAllResidentMeters ({ authentication: { item: user }, args: { where: { id: residentId } } }) {
     if (!user) return throwAuthenticationError()
     if (user.deletedAt) return false
     if (user.isAdmin || user.isSupport) return true
@@ -34,5 +34,5 @@ async function canAllResidentMeters ({ authentication: { item: user }, args: { w
   all or no items are available) or a set of filters that limit the available items.
 */
 module.exports = {
-    canAllResidentMeters,
+    canExecuteAllResidentMeters,
 }

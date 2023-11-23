@@ -163,7 +163,6 @@ describe('AllResidentMetersService', () => {
 
             const [resident] = await createTestResident(admin, residentClient.user, originalProperty, { unitName, unitType })
             await createTestServiceConsumer(admin, resident, originalOrganization, { accountNumber: originalBillingAccount.number })
-            // const [serviceProviderResident] = await createTestResident(admin, residentClient.user, serviceProviderProperty, { unitName, unitType })
             await createTestServiceConsumer(admin, resident, serviceProviderOrganization, { accountNumber: serviceProviderBillingAccount.number })
 
             const coldWaterResource = await MeterResource.getOne(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })

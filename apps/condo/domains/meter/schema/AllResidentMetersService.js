@@ -12,14 +12,13 @@ const access = require('@condo/domains/meter/access/AllResidentMetersService')
 const {
     Meter,
     MeterResourceOwner,
-    MeterResource,
 } = require('@condo/domains/meter/utils/serverSchema')
 const { Resident } = require('@condo/domains/resident/utils/serverSchema')
 
 const ERRORS = {
     RESIDENT_DOES_NOT_EXISTS: {
         query: 'allResidentMeters',
-        variable: ['data', 'resident'],
+        variable: ['where', 'id'],
         code: BAD_USER_INPUT,
         type: NOT_FOUND,
         message: 'Resident with provided id does not exist',
@@ -40,10 +39,9 @@ const AllResidentMetersService = new GQLCustomSchema('AllResidentMetersService',
 
     queries: [
         {
-            access: access.canAllResidentMeters,
+            access: access.canExecuteAllResidentMeters,
             schema: 'allResidentMeters(where: ResidentWhereUniqueInput!, first: Int, skip: Int): [ResidentMeter!]',
             resolver: async (parent, args, context, info, extra = {}) => {
-
                 const { where: { id: residentId }, first, skip } = args
 
                 const residentWhere = {
@@ -78,18 +76,13 @@ const AllResidentMetersService = new GQLCustomSchema('AllResidentMetersService',
                     deletedAt: null,
                 })
 
-                const accountNumberWhere = {
-                    OR: userConsumers.map(serviceConsumer => ({ AND: [{ accountNumber: serviceConsumer.accountNumber }] })),
-                }
-
                 const meterResourceOwners = await MeterResourceOwner.getAll(context, condition)
-                const meterResources = await MeterResource.getAll(context, {})
 
                 const meterWhere = {
                     unitName: resident.unitName,
                     unitType: resident.unitType,
                     deletedAt: null,
-                    ...accountNumberWhere,
+                    accountNumber_in: userConsumers.map(serviceConsumer => serviceConsumer.accountNumber),
                 }
 
                 for (const meterResourceOwner of meterResourceOwners) {
@@ -101,21 +94,6 @@ const AllResidentMetersService = new GQLCustomSchema('AllResidentMetersService',
 
                     if (foundMeters && foundMeters.length > 0) {
                         meters.push(...foundMeters)
-                        meterResources.splice(meterResources.findIndex(resource => resource.id === foundMeters[0].resource.id), 1)
-                    }
-                }
-
-                if (meterResources.length > 0) {
-                    for (const meterResource of meterResources) {
-                        const foundMeters = await Meter.getAll(context, {
-                            organization: { id: resident.organization.id },
-                            resource: { id: meterResource.id },
-                            ...meterWhere,
-                        })
-
-                        if (foundMeters) {
-                            meters.push(...foundMeters)
-                        }
                     }
                 }
 
