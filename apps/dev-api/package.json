@@ -50,6 +50,7 @@
     "uuid": "^8.3.0"
   },
   "devDependencies": {
+    "@app/condo": "workspace:^",
     "@open-condo/cli": "workspace:^",
     "@types/jest": "^29.4.0",
     "@types/node": "^16",

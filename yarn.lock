@@ -947,6 +947,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@app/dev-api@workspace:apps/dev-api"
   dependencies:
+    "@app/condo": "workspace:^"
     "@dev-api/domains": "link:./domains"
     "@faker-js/faker": ^7.6.0
     "@keystonejs/adapter-knex": ^13.2.0
