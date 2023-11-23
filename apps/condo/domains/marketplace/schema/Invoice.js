@@ -6,6 +6,8 @@ const isEmpty = require('lodash/isEmpty')
 const isEqual = require('lodash/isEqual')
 const omit = require('lodash/omit')
 const omitBy = require('lodash/omitBy')
+const pick = require('lodash/pick')
+const pickBy = require('lodash/pickBy')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
@@ -31,10 +33,11 @@ const {
     INVOICE_CONTEXT_STATUS_FINISHED,
     ERROR_NO_FINISHED_INVOICE_CONTEXT,
     ERROR_FORBID_EDIT_PUBLISHED,
+    ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
+    ERROR_FORBID_UPDATE_TICKET, CLIENT_DATA_FIELDS, COMMON_RESOLVED_FIELDS,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { RESIDENT } = require('@condo/domains/user/constants/common')
-
 
 
 const ERRORS = {
@@ -81,6 +84,18 @@ const ERRORS = {
         type: ERROR_FORBID_EDIT_PUBLISHED,
         message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
         messageForUser: 'api.marketplace.invoice.error.editPublishedForbidden',
+    },
+    CLIENT_DATA_DOES_NOT_MATCH_TICKET: {
+        code: BAD_USER_INPUT,
+        type: ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
+        message: `Fields ${CLIENT_DATA_FIELDS.join(', ')} must match same fields in connected ticket`,
+        messageForUser: 'api.marketplace.invoice.error.clientDataDoesNotMatchTicket',
+    },
+    FORBID_UPDATE_TICKET: {
+        code: BAD_USER_INPUT,
+        type: ERROR_FORBID_UPDATE_TICKET,
+        message: 'You cannot update ticket in invoice that is already linked to the ticket',
+        messageForUser: 'api.marketplace.invoice.error.forbidUpdateTicket',
     },
 }
 
@@ -181,34 +196,56 @@ const Invoice = new GQLListSchema('Invoice', {
         validateInput: async ({ resolvedData, operation, existingItem, context }) => {
             const nextData = { ...existingItem, ...resolvedData }
             const isUpdate = operation === 'update'
+            const isConnectClientDataOp = Object.keys(resolvedData).some(key => CLIENT_DATA_FIELDS.includes(key))
+            const connectedTicketId = get(nextData, 'ticket')
+            const existingTicketId = get(existingItem, 'ticket')
+            const resolvedTicketId = get(resolvedData, 'ticket')
+            const isUpdateClientDataFromTicketOp = connectedTicketId && isConnectClientDataOp &&
+                isEmpty(omit(resolvedData, [...COMMON_RESOLVED_FIELDS, ...CLIENT_DATA_FIELDS]))
 
-            if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED && !nextData.ticket) {
+            if (existingTicketId && resolvedTicketId && existingTicketId !== resolvedTicketId) {
+                throw new GQLError(ERRORS.FORBID_UPDATE_TICKET, context)
+            }
+
+            if (connectedTicketId && isConnectClientDataOp) {
+                const ticket = await getById('Ticket', connectedTicketId)
+                const notEmptyTicketClientData = pickBy(pick(ticket, CLIENT_DATA_FIELDS), Boolean)
+                const notEmptyInvoiceClientData = pickBy(pick(nextData, CLIENT_DATA_FIELDS), Boolean)
+
+                if (!isEqual(notEmptyTicketClientData, notEmptyInvoiceClientData)) {
+                    throw new GQLError(ERRORS.CLIENT_DATA_DOES_NOT_MATCH_TICKET, context)
+                }
+            }
+
+            if (isUpdate && get(existingItem, 'status') === INVOICE_STATUS_PUBLISHED && !connectedTicketId) {
                 const resolvedStatus = get(resolvedData, 'status')
-                const otherResolvedFields = omit(resolvedData, ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'status'])
+                const otherResolvedFields = omit(resolvedData, [...COMMON_RESOLVED_FIELDS, 'status'])
                 const changedFields = omitBy(otherResolvedFields, (value, key) => {
                     if (key === 'toPay') {
-                        return +value === +existingItem[key]
+                        return Number(value) === Number(get(existingItem, key))
                     }
 
-                    return isEqual(value, existingItem[key])
+                    return isEqual(value, get(existingItem, key))
                 })
 
                 const hasAccessToUpdateStatus = resolvedStatus ?
                     [INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID, INVOICE_STATUS_PUBLISHED].includes(resolvedStatus) : true
 
-                if (
-                    !isEmpty(changedFields) ||
-                    !hasAccessToUpdateStatus
-                ) {
+                if (!isEmpty(changedFields) || !hasAccessToUpdateStatus) {
                     throw new GQLError(ERRORS.FORBID_EDIT_PUBLISHED, context)
                 }
             }
 
-            if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED && !nextData.ticket) {
+            if (isUpdate && existingItem.status === INVOICE_STATUS_CANCELED && !isUpdateClientDataFromTicketOp) {
                 throw new GQLError(ERRORS.ALREADY_CANCELED, context)
             }
 
-            if (isUpdate && existingItem.status === INVOICE_STATUS_PAID && existingItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE && !nextData.ticket) {
+            if (
+                isUpdate &&
+                existingItem.status === INVOICE_STATUS_PAID &&
+                existingItem.paymentType === INVOICE_PAYMENT_TYPE_ONLINE &&
+                !isUpdateClientDataFromTicketOp
+            ) {
                 throw new GQLError(ERRORS.ALREADY_PAID, context)
             }
 
@@ -247,7 +284,7 @@ const Invoice = new GQLListSchema('Invoice', {
             const resolvedTicket = get(resolvedData, 'ticket')
 
             // Set client data from connected ticket
-            if (resolvedTicket && existingItem.ticket !== resolvedTicket) {
+            if (resolvedTicket && get(existingItem, 'ticket') !== resolvedTicket) {
                 const ticketWithInvoice = await getById('Ticket', resolvedTicket)
 
                 resolvedData['property'] = ticketWithInvoice.property

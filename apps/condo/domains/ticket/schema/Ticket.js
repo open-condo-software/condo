@@ -32,7 +32,7 @@ const { buildSetOfFieldsToTrackFrom, storeChangesIfUpdated } = require('@condo/d
 const { normalizeText } = require('@condo/domains/common/utils/text')
 const { hasDbFields } = require('@condo/domains/common/utils/validation.utils')
 const { Contact } = require('@condo/domains/contact/utils/serverSchema')
-const { INVOICE_STATUS_CANCELED } = require('@condo/domains/marketplace/constants')
+const { INVOICE_STATUS_CANCELED, INVOICE_STATUS_PAID } = require('@condo/domains/marketplace/constants')
 const { Invoice } = require('@condo/domains/marketplace/utils/serverSchema')
 const { ORGANIZATION_OWNED_FIELD } = require('@condo/domains/organization/schema/fields')
 const { SECTION_TYPES, SECTION_SECTION_TYPE } = require('@condo/domains/property/constants/common')
@@ -934,12 +934,25 @@ const Ticket = new GQLListSchema('Ticket', {
                         updateInvoicePayload['clientName'] = updatedItem.clientName
                         updateInvoicePayload['clientPhone'] = updatedItem.clientPhone
                     }
-                    if (isTicketCanceled) {
-                        updateInvoicePayload['status'] = INVOICE_STATUS_CANCELED
-                    }
 
                     for (const invoice of invoicesWithTicket) {
                         await Invoice.update(context, invoice.id, updateInvoicePayload)
+                    }
+                }
+
+                if (isTicketCanceled) {
+                    const invoicesWithTicket = await find('Invoice', {
+                        ticket: { id: ticketId },
+                        status_not_in: [INVOICE_STATUS_PAID, INVOICE_STATUS_CANCELED],
+                        deletedAt: null,
+                    })
+
+                    for (const invoice of invoicesWithTicket) {
+                        await Invoice.update(context, invoice.id, {
+                            status: INVOICE_STATUS_CANCELED,
+                            dv: updatedItem.dv,
+                            sender: updatedItem.sender,
+                        })
                     }
                 }
             }
