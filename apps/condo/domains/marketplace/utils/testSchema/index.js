@@ -193,14 +193,12 @@ async function createTestInvoice (client, invoiceContext, extraAttrs = {}) {
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const rows = generateInvoiceRows()
-    const toPay = rows.reduce((result, row) => result.plus(Big(row.toPay).times(Big(row.count))), Big('0.0'))
 
     const attrs = {
         dv: 1,
         sender,
         context: { connect: { id: invoiceContext.id } },
         rows,
-        toPay,
         accountNumber: faker.random.alphaNumeric(13),
         ...extraAttrs,
     }

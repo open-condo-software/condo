@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const { omit } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -592,6 +593,15 @@ describe('Invoice', () => {
                 const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
 
                 expect(invoice.contact).toBeNull()
+            })
+
+            it('invoice.toPay must be a sum of rows.*.toPay', async () => {
+                const [invoice, invoiceAttrs] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const expectedSum = invoiceAttrs.rows.reduce((sum, {
+                    toPay,
+                    count,
+                }) => sum.plus(Big(toPay).mul(count)), Big(0)).toFixed(8)
+                expect(invoice).toHaveProperty('toPay', expectedSum)
             })
         })
     })
