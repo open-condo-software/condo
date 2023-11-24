@@ -132,7 +132,7 @@ export const TicketSubmittingSettingsForm: React.FC<ITicketSubmittingSettingsFor
                                         if (ticketSubmittingIsDisabled && !commonPhone) messageLabels.push(RequiredCommonPhoneMessage)
 
                                         const requiredErrorMessage = !isEmpty(messageLabels) && ErrorsContainerTitle.concat(' ', messageLabels.join(', '))
-                                        const hasInvalidPhoneError = commonPhone && (normalizePhone(commonPhone) !== commonPhone) ? InvalidPhoneMessage : undefined
+                                        const hasInvalidPhoneError = commonPhone && (normalizePhone(commonPhone, true) !== commonPhone) ? InvalidPhoneMessage : undefined
                                         const errors = [requiredErrorMessage, hasInvalidPhoneError]
                                             .filter(Boolean)
                                             .join(', ')
