@@ -71803,6 +71803,11 @@ type SendB2CAppPushMessageOutput {
   status: String!
 }
 
+enum InvoicePaymentType {
+  online
+  cash
+}
+
 input InvoiceRowsInput {
   priceScope: MarketPriceScopeWhereUniqueInput!
   count: Int!
@@ -71813,6 +71818,7 @@ input RegisterInvoiceInput {
   sender: SenderFieldInput!
   resident: ResidentWhereUniqueInput!
   invoiceRows: [InvoiceRowsInput!]!
+  paymentType: InvoicePaymentType!
 }
 
 type RegisterInvoiceOutput {

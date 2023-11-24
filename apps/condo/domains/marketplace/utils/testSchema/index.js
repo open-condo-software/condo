@@ -14,7 +14,7 @@ const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/gene
 const { InvoiceContext: InvoiceContextGQL, Invoice: InvoiceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketCategory: MarketCategoryGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItem: MarketItemGQL } = require('@condo/domains/marketplace/gql')
-const { VAT_OPTIONS, TAX_REGIME_GENEGAL } = require('@condo/domains/marketplace/constants')
+const { VAT_OPTIONS, TAX_REGIME_GENEGAL, INVOICE_PAYMENT_TYPE_ONLINE } = require('@condo/domains/marketplace/constants')
 const { MarketItemFile: MarketItemFileGQL } = require('@condo/domains/marketplace/gql')
 const { MarketItemPrice: MarketItemPriceGQL } = require('@condo/domains/marketplace/gql')
 const { MarketPriceScope: MarketPriceScopeGQL } = require('@condo/domains/marketplace/gql')
@@ -323,6 +323,7 @@ async function registerInvoiceByTestClient (client, resident, invoiceRows, extra
         sender,
         resident,
         invoiceRows,
+        paymentType: INVOICE_PAYMENT_TYPE_ONLINE,
         ...extraAttrs,
     }
     const { data, errors } = await client.mutate(REGISTER_INVOICE_MUTATION, { data: attrs })

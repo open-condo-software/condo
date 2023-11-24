@@ -26305,6 +26305,11 @@ export type InvoiceHistoryRecordsUpdateInput = {
   data?: Maybe<InvoiceHistoryRecordUpdateInput>;
 };
 
+export enum InvoicePaymentType {
+  Online = 'online',
+  Cash = 'cash'
+}
+
 export type InvoiceRelateToOneInput = {
   create?: Maybe<InvoiceCreateInput>;
   connect?: Maybe<InvoiceWhereUniqueInput>;
@@ -68652,6 +68657,7 @@ export type RegisterInvoiceInput = {
   sender: SenderFieldInput;
   resident: ResidentWhereUniqueInput;
   invoiceRows: Array<InvoiceRowsInput>;
+  paymentType: InvoicePaymentType;
 };
 
 export type RegisterInvoiceOutput = {
