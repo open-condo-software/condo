@@ -8,7 +8,7 @@ const ticketSubmittingValidations = async (resolvedData, context, existingItem, 
         if (!newItem['commonPhone']) {
             throw new GQLError(ERRORS.TICKET_SUBMITTING_PHONES_NOT_CONFIGURED, context)
         }
-        if (newItem['commonPhone'] && normalizePhone(newItem['commonPhone']) !== newItem['commonPhone']) {
+        if (newItem['commonPhone'] && normalizePhone(newItem['commonPhone'], true) !== newItem['commonPhone']) {
             throw new GQLError(ERRORS.COMMON_PHONE_INVALID, context)
         }
     }
