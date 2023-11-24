@@ -1,6 +1,6 @@
 const dayjs = require('dayjs')
 
-const { ERRORS, MAX_YEARS_DIFFERENCE } = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 
 class PeriodResolver extends Resolver {
@@ -14,8 +14,7 @@ class PeriodResolver extends Resolver {
                 receiptIndex[index].error = this.error(ERRORS.WRONG_MONTH)
                 continue
             }
-            const currentYear = Number(dayjs().format('YYYY'))
-            if (Math.abs(currentYear - year) > MAX_YEARS_DIFFERENCE ) {
+            if (!year || String(year).length !== 4) { // no validation for year only check that it was passed in valid format
                 receiptIndex[index].error = this.error(ERRORS.WRONG_YEAR)
                 continue
             }

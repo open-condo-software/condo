@@ -21,36 +21,30 @@ class ReceiptResolver extends Resolver {
     }
 
     buildUniqKey (receipt) {
-        const { accountNumber, addressResolve: { propertyAddress: { addressKey } }, period, receiver } = receipt
-        return [accountNumber, addressKey, period, receiver].join('_')
+        const { accountNumber, category, addressResolve: { propertyAddress: { addressKey } }, period, receiver } = receipt
+        // This is a unique combination to determine receipt
+        // In majority of cases period + accountNumber + addressKey and receiver or category will be enough
+        return [accountNumber, addressKey, period, receiver, category].join('_')
     }
 
     async processReceipts (receiptIndex) {
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const uniqKey = this.buildUniqKey(receipt)
-            const { importId, period, property, account, receiver } = receipt
-            const sameReceiptQuery = {
+            const { importId, period, account, receiver, category } = receipt
+
+            const sameReceiptQuery = importId ? {
+                importId,
+            } : {
+                period,
+                account: { id: account, deletedAt: null }, // accountNumber + addressKey
                 OR: [
-                    {
-                        AND: [
-                            { importId },
-                            { context: { id: this.billingContext.id } },
-                            { deletedAt: null },
-                        ],
-                    },
-                    {
-                        AND: [
-                            { period },
-                            { property: { id: property, deletedAt: null } },
-                            { account: { id: account, deletedAt: null } },
-                            { receiver: { id: receiver, deletedAt: null } },
-                            { context: { id: this.billingContext.id } },
-                            { deletedAt: null },
-                        ],
-                    },
+                    { receiver: { id: receiver, deletedAt: null } },
+                    { category: { id: category, deletedAt: null } },
                 ],
             }
-            const existingReceipts = await find('BillingReceipt', sameReceiptQuery)
+            const receiptQuery = { ...sameReceiptQuery, context: { id: this.billingContext.id }, deletedAt: null }
+
+            const existingReceipts = await find('BillingReceipt', receiptQuery)
             if (existingReceipts.length > 0) {
                 let receiptToUpdate = existingReceipts.find(({ importId: existingImportId }) => existingImportId === importId)
                 if (!receiptToUpdate) {
@@ -59,9 +53,9 @@ class ReceiptResolver extends Resolver {
                 const updateInput = {
                     ...(receipt.period !== receiptToUpdate.period) ? { period: receipt.period } : {},
                     ...(receipt.category !== receiptToUpdate.category) ? { category: { connect : { id: receipt.category } } } : {},
-                    ...(receipt.account !== receiptToUpdate.account) ? { category: { connect: { id: receipt.account } } } : {},
-                    ...(receipt.property !== receiptToUpdate.property) ? { category: { connect: { id: receipt.property } } } : {},
-                    ...(receipt.receiver !== receiptToUpdate.receiver) ? { category: { connect: { id: receipt.receiver } } } : {},
+                    ...(receipt.account !== receiptToUpdate.account) ? { account: { connect: { id: receipt.account } } } : {},
+                    ...(receipt.property !== receiptToUpdate.property) ? { property: { connect: { id: receipt.property } } } : {},
+                    ...(receipt.receiver !== receiptToUpdate.receiver) ? { receiver: { connect: { id: receipt.receiver } } } : {},
                     ...(receipt.importId !== receiptToUpdate.importId) ? { importId: receipt.importId } : {},
                     ...(!isAmountEqual(receipt.toPay, receiptToUpdate.toPay)) ? { toPay: receipt.toPay } : {},
                     ...(!isEmpty(receipt.recipient) && !isEqual(receipt.recipient, receiptToUpdate.recipient)) ? { recipient: receipt.recipient } : {},

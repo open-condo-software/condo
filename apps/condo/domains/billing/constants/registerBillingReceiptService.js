@@ -5,7 +5,6 @@ const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/
 const RECEIPTS_LIMIT = 1000
 const ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE = 50
 const PROPERTY_SCORE_TO_PASS = 95
-const MAX_YEARS_DIFFERENCE = 10
 
 const ERRORS = {
     BILLING_CONTEXT_NOT_FOUND: {
@@ -27,7 +26,7 @@ const ERRORS = {
         variable: ['data', 'receipts', '[]', 'year'],
         code: BAD_USER_INPUT,
         type: WRONG_FORMAT,
-        message: 'Year is wrong for some receipts. Year should be greater then 0. Example: 2022',
+        message: 'Year is wrong for some receipts. Year should be in format YYYY. Example: 2023',
     },
     WRONG_MONTH: {
         mutation: 'registerBillingReceipts',
@@ -91,5 +90,4 @@ module.exports = {
     ERRORS,
     RECIPIENT_IS_NOT_APPROVED,
     NO_PROPERTY_IN_ORGANIZATION,
-    MAX_YEARS_DIFFERENCE,
 }

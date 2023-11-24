@@ -292,6 +292,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
+
                 const isNewFlow = !receiptsInput.find(({ normalizedAddress }) => normalizedAddress)
 
                 if (isNewFlow) {
@@ -312,12 +313,16 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                     const debug = []
                     const chain = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
                     for (const Worker of chain) {
-                        const worker = new Worker({ context, billingContext })
-                        await worker.init()
-                        const { errorReceipts, receipts } = await worker.processReceipts(receiptIndex)
-                        debug.push(...worker.debugMessages)
-                        errorsIndex = { ...errorsIndex, ...errorReceipts }
-                        receiptIndex = receipts
+                        try {
+                            const worker = new Worker({ context, billingContext })
+                            await worker.init()
+                            const { errorReceipts, receipts } = await worker.processReceipts(receiptIndex)
+                            debug.push(...worker.debugMessages)
+                            errorsIndex = { ...errorsIndex, ...errorReceipts }
+                            receiptIndex = receipts
+                        } catch (error) {
+                            console.log(error)
+                        }
                     }
                     registerReceiptLogger.info({ msg: 'register-receipts-profiler', debug, context: billingContextInput, receiptsCount: receiptsInput.length })
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
