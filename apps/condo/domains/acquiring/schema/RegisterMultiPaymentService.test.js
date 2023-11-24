@@ -44,7 +44,11 @@ const {
     getRandomHiddenCard,
     MultiPayment,
 } = require('@condo/domains/acquiring/utils/testSchema')
-const { createTestBillingCategory, updateTestBillingAccount, createTestRecipient } = require('@condo/domains/billing/utils/testSchema')
+const {
+    createTestBillingCategory,
+    updateTestBillingAccount,
+    createTestRecipient,
+} = require('@condo/domains/billing/utils/testSchema')
 const {
     updateTestBillingReceipt,
     updateTestBillingIntegration,
@@ -61,7 +65,7 @@ const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED,
-    INVOICE_CONTEXT_STATUS_INPROGRESS,
+    INVOICE_CONTEXT_STATUS_INPROGRESS, INVOICE_STATUS_PAID,
 } = require('@condo/domains/marketplace/constants')
 const {
     createTestInvoiceContext,
@@ -1290,6 +1294,106 @@ describe('RegisterMultiPaymentService', () => {
                 amount: invoiceSum.toString(),
                 implicitFee: Big(invoiceSum).mul(invoiceContextAttrs.implicitFeePercent).div(100).toFixed(8),
             })
+        })
+
+        test('Should correctly register multipayment for receipt and invoice', async () => {
+            const {
+                acquiringIntegration,
+                organization,
+                property,
+                billingReceipts,
+                serviceConsumer,
+            } = await makePayer(2)
+
+            await updateTestAcquiringIntegration(adminClient, acquiringIntegration.id, {
+                canGroupReceipts: true,
+            })
+
+            const residentClient = await makeClientWithResidentUser()
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: property.address,
+                    addressMeta: property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const staffClient = await makeClientWithStaffUser()
+            const [role] = await createTestOrganizationEmployeeRole(adminClient, organization, {
+                canManageInvoices: true,
+                canManageContacts: true,
+                canReadInvoiceContexts: true,
+            })
+            await createTestOrganizationEmployee(adminClient, organization, staffClient.user, role)
+
+            const [contact] = await createTestContact(staffClient, organization, property, {
+                phone: residentClient.userAttrs.phone,
+                unitType,
+                unitName,
+            })
+
+            const [invoiceContext, invoiceContextAttrs] = await createTestInvoiceContext(adminClient, organization, acquiringIntegration, {
+                status: INVOICE_CONTEXT_STATUS_FINISHED,
+                implicitFeePercent: '5',
+                recipient: createTestRecipient(),
+            })
+            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+                property: { connect: { id: property.id } },
+                unitType,
+                unitName,
+                contact: { connect: { id: contact.id } },
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+
+            const receiptsPayload = [{
+                serviceConsumer: { id: serviceConsumer.id },
+                receipts: billingReceipts.map(({ id }) => ({ id })),
+            }]
+
+            const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, receiptsPayload, {
+                invoices: [pick(invoice, 'id')],
+            })
+
+            const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
+
+            // It's time to pay!
+            const sender = { dv: 1, fingerprint: `test-${faker.random.alphaNumeric(8)}` }
+            const transactionTime = dayjs().toISOString()
+            const cardNumber = getRandomHiddenCard()
+            const paymentWay = 'CARD'
+            const transactionId = faker.datatype.uuid()
+
+            await updateTestMultiPayment(adminClient, multiPaymentId, {
+                dv: 1,
+                sender,
+                status: MULTIPAYMENT_PROCESSING_STATUS,
+            })
+
+            for (const { id } of multiPayment.payments) {
+                await updateTestPayment(adminClient, id, { status: PAYMENT_PROCESSING_STATUS })
+            }
+
+            await updateTestMultiPayment(adminClient, multiPaymentId, {
+                dv: 1,
+                sender,
+                status: MULTIPAYMENT_WITHDRAWN_STATUS,
+                withdrawnAt: transactionTime,
+                cardNumber,
+                paymentWay,
+                transactionId,
+            })
+
+            for (const { id } of multiPayment.payments) {
+                await updateTestPayment(adminClient, id, { status: PAYMENT_WITHDRAWN_STATUS })
+            }
+
+            const paidInvoice = await Invoice.getOne(adminClient, { id: invoice.id })
+
+            expect(paidInvoice).toMatchObject({ status: INVOICE_STATUS_PAID })
         })
     })
     // TODO(savelevMatthew): Remove this test after custom GQL refactoring
