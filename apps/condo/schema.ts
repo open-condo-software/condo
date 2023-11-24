@@ -40356,6 +40356,9 @@ export type Mutation = {
    * 			"ticketId": {
    * 				"required": true
    * 			},
+   * 			"ticketNumber": {
+   * 				"required": true
+   * 			},
    * 			"residentId": {
    * 				"required": true
    * 			},

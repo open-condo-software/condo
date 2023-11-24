@@ -1640,6 +1640,8 @@
   "notification.messages.NEWS_ITEM_EMERGENCY_MESSAGE_TYPE.push.title": "{title}",
   "notification.messages.B2C_APP_MESSAGE_PUSH.push.title": "{title}",
   "notification.messages.SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_MESSAGE.push.title": "Просто напоминаем ☺️",
+  "notification.messages.MARKETPLACE_INVOICE_PUBLISHED_MESSAGE.push.title": "Вам выставлен счет за платные услуги️",
+  "notification.messages.MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE.push.title": "Оплатить счет за платные услуги по заявке №{ticketNumber}.️",
   "news.ConfirmDeleteTitle": "Удалить новость?",
   "news.ConfirmDeleteMessage": "Восстановить ее будет нельзя. Но можно создать заново.",
   "news.CancelMessage": "Оставить",

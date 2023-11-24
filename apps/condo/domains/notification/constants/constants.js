@@ -548,6 +548,7 @@ const MESSAGE_META = {
         data: {
             invoiceId: { required: true },
             ticketId: { required: true },
+            ticketNumber: { required: true },
             residentId: { required: true },
             userId: { required: true },
             url: { required: true },

@@ -405,6 +405,7 @@ const Invoice = new GQLListSchema('Invoice', {
                             },
                         })
                     } else {
+                        const ticket = await getById('Ticket', updatedItem.ticket)
                         await sendMessage(context, {
                             dv: 1,
                             sender: { dv: 1, fingerprint: 'invoice_afterChange' },
@@ -418,6 +419,7 @@ const Invoice = new GQLListSchema('Invoice', {
                                     residentId: resident.id,
                                     invoiceId: updatedItem.id,
                                     ticketId: updatedItem.ticket,
+                                    ticketNumber: ticket.number,
                                     url: `${conf.SERVER_URL}/ticket/${updatedItem.ticket}`,
                                 },
                             },
