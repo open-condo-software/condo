@@ -58,7 +58,7 @@ const mockReceipts = [
         description: 'Services have higher priority than the type of premises',
     },
     {
-        receipt: { addressMeta: { unitType: PARKING_UNIT_TYPE }, services: [ { name: 'Some service' } ] },
+        receipt: { addressResolve: { unitType: PARKING_UNIT_TYPE }, services: [ { name: 'Some service' } ] },
         result: 'parking',
         description: 'If services have no information unitType will determine category',
     },
