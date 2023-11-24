@@ -260,12 +260,12 @@ describe('AllResidentMetersService', () => {
 
     describe('Sorting and paging', () => {
         it('should be able to use skip and first arguments', async () => {
-            const [startFromFirstData] = await allResidentMetersByTestClient(admin, { id: resident.id }, 1)
+            const [startFromFirstData] = await allResidentMetersByTestClient(admin, { id: resident.id }, 1, 0, ['createdAt_ASC'])
 
             expect(startFromFirstData).toHaveLength(1)
             expect(startFromFirstData[0].id).toEqual(meter1.id)
 
-            const [skipOneData] = await allResidentMetersByTestClient(admin, { id: resident.id }, 2, 1)
+            const [skipOneData] = await allResidentMetersByTestClient(admin, { id: resident.id }, 2, 1, ['createdAt_ASC'])
 
             expect(skipOneData).toHaveLength(2)
             expect(skipOneData.find(meter => meter.id === meter1.id)).not.toBeDefined()
