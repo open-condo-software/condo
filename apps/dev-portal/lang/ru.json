@@ -53,6 +53,8 @@
   "global.newAppForm.items.type.b2bApp.label": "B2B приложение для УК",
   "global.newAppForm.items.type.b2сApp.label": "B2C приложение для жителей",
   "global.newAppForm.items.name.label": "Название приложения",
+  "global.newAppForm.items.developer.label": "Разработчик",
+  "global.newAppForm.items.developer.placeholder": "Название компании",
   "global.newAppForm.actions.create": "Создать",
 
   "global.recentAppsPopover.recentApps.title": "Недавно созданные",

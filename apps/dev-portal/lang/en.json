@@ -53,6 +53,8 @@
   "global.newAppForm.items.type.b2bApp.label": "B2B app for managing companies",
   "global.newAppForm.items.type.b2сApp.label": "B2C app for residents",
   "global.newAppForm.items.name.label": "App name",
+  "global.newAppForm.items.developer.label": "Developer",
+  "global.newAppForm.items.developer.placeholder": "Company name",
   "global.newAppForm.actions.create": "Create",
 
   "global.recentAppsPopover.recentApps.title": "Recently created",

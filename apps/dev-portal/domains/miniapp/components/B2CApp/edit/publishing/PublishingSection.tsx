@@ -11,7 +11,7 @@ import { nonNull } from '@/domains/miniapp/utils/nonNull'
 
 import styles from './PublishingSection.module.css'
 
-import { useAllB2CAppBuildsQuery } from '@/lib/gql'
+import { useAllB2CAppBuildsLazyQuery } from '@/lib/gql'
 
 const DEVELOPMENT_STAND = 'development'
 const PRODUCTION_STAND = 'production'
@@ -32,12 +32,8 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
     const [form] = Form.useForm()
     const [buildChecked, setBuildChecked] = useState(false)
     const [buildSearch, setBuildSearch] = useState('')
-    const handleBuildCheck = useCallback<Required<CheckboxProps>['onChange']>((evt) => {
-        setBuildChecked(evt.target.checked)
-        setBuildSearch('')
-    }, [])
 
-    const { data: buildsData } = useAllB2CAppBuildsQuery({
+    const [fetchBuilds, { data: buildsData }] = useAllB2CAppBuildsLazyQuery({
         variables: {
             where: {
                 app: { id },
@@ -47,6 +43,15 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
             skip: 0,
         },
     })
+
+    const handleBuildCheck = useCallback<Required<CheckboxProps>['onChange']>((evt) => {
+        if (evt.target.checked) {
+            fetchBuilds()
+        }
+        setBuildChecked(evt.target.checked)
+        setBuildSearch('')
+    }, [fetchBuilds])
+
     const buildOptions = (buildsData?.builds || []).filter(nonNull).map(build => {
         return {
             label: build.version as string,

@@ -21,6 +21,11 @@ export type Scalars = {
     Upload: { input: any; output: any; }
 }
 
+export enum AppEnvironment {
+    Development = 'development',
+    Production = 'production',
+}
+
 export type AuthenticateUserWithPhoneAndPasswordInput = {
     password: Scalars['String']['input'];
     phone: Scalars['String']['input'];
@@ -47,6 +52,10 @@ export type B2CApp = {
     /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
     createdBy?: Maybe<User>;
     deletedAt?: Maybe<Scalars['String']['output']>;
+    /**  Developer company name which will be exported. If not specified, creator name will be taken  */
+    developer?: Maybe<Scalars['String']['output']>;
+    /**  ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
+    developmentExportId?: Maybe<Scalars['String']['output']>;
     /**  Data structure Version  */
     dv?: Maybe<Scalars['Int']['output']>;
     id: Scalars['ID']['output'];
@@ -55,6 +64,8 @@ export type B2CApp = {
     /**  Name of application  */
     name?: Maybe<Scalars['String']['output']>;
     newId?: Maybe<Scalars['String']['output']>;
+    /**  ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
+    productionExportId?: Maybe<Scalars['String']['output']>;
     /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
@@ -82,10 +93,14 @@ export type B2CAppBuild = {
     /**  B2C app cordova build compressed to single .zip file  */
     data?: Maybe<File>;
     deletedAt?: Maybe<Scalars['String']['output']>;
+    /**  ID of this entity in the development environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
+    developmentExportId?: Maybe<Scalars['String']['output']>;
     /**  Data structure Version  */
     dv?: Maybe<Scalars['Int']['output']>;
     id: Scalars['ID']['output'];
     newId?: Maybe<Scalars['String']['output']>;
+    /**  ID of this entity in the production environment. If set, subsequent publications to this environment will update the entity with the specified ID.  */
+    productionExportId?: Maybe<Scalars['String']['output']>;
     /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
     sender?: Maybe<SenderField>;
     updatedAt?: Maybe<Scalars['String']['output']>;
@@ -102,8 +117,10 @@ export type B2CAppBuildCreateInput = {
     createdBy?: InputMaybe<UserRelateToOneInput>;
     data?: InputMaybe<Scalars['Upload']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     newId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
@@ -127,12 +144,14 @@ export type B2CAppBuildHistoryRecord = {
     createdBy?: Maybe<Scalars['String']['output']>;
     data?: Maybe<Scalars['JSON']['output']>;
     deletedAt?: Maybe<Scalars['String']['output']>;
+    developmentExportId?: Maybe<Scalars['String']['output']>;
     dv?: Maybe<Scalars['Int']['output']>;
     history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
     history_date?: Maybe<Scalars['String']['output']>;
     history_id?: Maybe<Scalars['String']['output']>;
     id: Scalars['ID']['output'];
     newId?: Maybe<Scalars['JSON']['output']>;
+    productionExportId?: Maybe<Scalars['String']['output']>;
     sender?: Maybe<Scalars['JSON']['output']>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     updatedBy?: Maybe<Scalars['String']['output']>;
@@ -146,11 +165,13 @@ export type B2CAppBuildHistoryRecordCreateInput = {
     createdBy?: InputMaybe<Scalars['String']['input']>;
     data?: InputMaybe<Scalars['JSON']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     history_action?: InputMaybe<B2CAppBuildHistoryRecordHistoryActionType>;
     history_date?: InputMaybe<Scalars['String']['input']>;
     history_id?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['JSON']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<Scalars['String']['input']>;
@@ -170,11 +191,13 @@ export type B2CAppBuildHistoryRecordUpdateInput = {
     createdBy?: InputMaybe<Scalars['String']['input']>;
     data?: InputMaybe<Scalars['JSON']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     history_action?: InputMaybe<B2CAppBuildHistoryRecordHistoryActionType>;
     history_date?: InputMaybe<Scalars['String']['input']>;
     history_id?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['JSON']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<Scalars['String']['input']>;
@@ -213,6 +236,24 @@ export type B2CAppBuildHistoryRecordWhereInput = {
     deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     dv_gt?: InputMaybe<Scalars['Int']['input']>;
     dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -245,6 +286,24 @@ export type B2CAppBuildHistoryRecordWhereInput = {
     newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     newId_not?: InputMaybe<Scalars['JSON']['input']>;
     newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     sender_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -308,8 +367,10 @@ export type B2CAppBuildUpdateInput = {
     createdBy?: InputMaybe<UserRelateToOneInput>;
     data?: InputMaybe<Scalars['Upload']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     newId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
@@ -344,6 +405,24 @@ export type B2CAppBuildWhereInput = {
     deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     dv_gt?: InputMaybe<Scalars['Int']['input']>;
     dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -360,6 +439,24 @@ export type B2CAppBuildWhereInput = {
     newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
     newId_not?: InputMaybe<Scalars['String']['input']>;
     newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
     sender_not?: InputMaybe<SenderFieldInput>;
@@ -419,10 +516,13 @@ export type B2CAppCreateInput = {
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<UserRelateToOneInput>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developer?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     logo?: InputMaybe<Scalars['Upload']['input']>;
     name?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
@@ -443,6 +543,8 @@ export type B2CAppHistoryRecord = {
     createdAt?: Maybe<Scalars['String']['output']>;
     createdBy?: Maybe<Scalars['String']['output']>;
     deletedAt?: Maybe<Scalars['String']['output']>;
+    developer?: Maybe<Scalars['String']['output']>;
+    developmentExportId?: Maybe<Scalars['String']['output']>;
     dv?: Maybe<Scalars['Int']['output']>;
     history_action?: Maybe<B2CAppHistoryRecordHistoryActionType>;
     history_date?: Maybe<Scalars['String']['output']>;
@@ -451,6 +553,7 @@ export type B2CAppHistoryRecord = {
     logo?: Maybe<Scalars['JSON']['output']>;
     name?: Maybe<Scalars['String']['output']>;
     newId?: Maybe<Scalars['JSON']['output']>;
+    productionExportId?: Maybe<Scalars['String']['output']>;
     sender?: Maybe<Scalars['JSON']['output']>;
     updatedAt?: Maybe<Scalars['String']['output']>;
     updatedBy?: Maybe<Scalars['String']['output']>;
@@ -461,6 +564,8 @@ export type B2CAppHistoryRecordCreateInput = {
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<Scalars['String']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developer?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     history_action?: InputMaybe<B2CAppHistoryRecordHistoryActionType>;
     history_date?: InputMaybe<Scalars['String']['input']>;
@@ -468,6 +573,7 @@ export type B2CAppHistoryRecordCreateInput = {
     logo?: InputMaybe<Scalars['JSON']['input']>;
     name?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['JSON']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<Scalars['String']['input']>;
@@ -484,6 +590,8 @@ export type B2CAppHistoryRecordUpdateInput = {
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<Scalars['String']['input']>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developer?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     history_action?: InputMaybe<B2CAppHistoryRecordHistoryActionType>;
     history_date?: InputMaybe<Scalars['String']['input']>;
@@ -491,6 +599,7 @@ export type B2CAppHistoryRecordUpdateInput = {
     logo?: InputMaybe<Scalars['JSON']['input']>;
     name?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['JSON']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<Scalars['String']['input']>;
@@ -520,6 +629,42 @@ export type B2CAppHistoryRecordWhereInput = {
     deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developer?: InputMaybe<Scalars['String']['input']>;
+    developer_contains?: InputMaybe<Scalars['String']['input']>;
+    developer_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developer_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developer_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developer_i?: InputMaybe<Scalars['String']['input']>;
+    developer_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developer_not?: InputMaybe<Scalars['String']['input']>;
+    developer_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developer_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developer_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developer_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developer_not_i?: InputMaybe<Scalars['String']['input']>;
+    developer_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developer_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developer_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     dv_gt?: InputMaybe<Scalars['Int']['input']>;
     dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -574,6 +719,24 @@ export type B2CAppHistoryRecordWhereInput = {
     newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     newId_not?: InputMaybe<Scalars['JSON']['input']>;
     newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<Scalars['JSON']['input']>;
     sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
     sender_not?: InputMaybe<Scalars['JSON']['input']>;
@@ -613,6 +776,11 @@ export type B2CAppHistoryRecordsUpdateInput = {
     id: Scalars['ID']['input'];
 }
 
+export type B2CAppPublishOptions = {
+    buildVersion?: InputMaybe<Scalars['String']['input']>;
+    info?: InputMaybe<Scalars['Boolean']['input']>;
+}
+
 export type B2CAppRelateToOneInput = {
     connect?: InputMaybe<B2CAppWhereUniqueInput>;
     create?: InputMaybe<B2CAppCreateInput>;
@@ -624,10 +792,13 @@ export type B2CAppUpdateInput = {
     createdAt?: InputMaybe<Scalars['String']['input']>;
     createdBy?: InputMaybe<UserRelateToOneInput>;
     deletedAt?: InputMaybe<Scalars['String']['input']>;
+    developer?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     logo?: InputMaybe<Scalars['Upload']['input']>;
     name?: InputMaybe<Scalars['String']['input']>;
     newId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     updatedAt?: InputMaybe<Scalars['String']['input']>;
     updatedBy?: InputMaybe<UserRelateToOneInput>;
@@ -655,6 +826,42 @@ export type B2CAppWhereInput = {
     deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not?: InputMaybe<Scalars['String']['input']>;
     deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developer?: InputMaybe<Scalars['String']['input']>;
+    developer_contains?: InputMaybe<Scalars['String']['input']>;
+    developer_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developer_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developer_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developer_i?: InputMaybe<Scalars['String']['input']>;
+    developer_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developer_not?: InputMaybe<Scalars['String']['input']>;
+    developer_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developer_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developer_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developer_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developer_not_i?: InputMaybe<Scalars['String']['input']>;
+    developer_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developer_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developer_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developer_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developer_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    developmentExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    developmentExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     dv?: InputMaybe<Scalars['Int']['input']>;
     dv_gt?: InputMaybe<Scalars['Int']['input']>;
     dv_gte?: InputMaybe<Scalars['Int']['input']>;
@@ -693,6 +900,24 @@ export type B2CAppWhereInput = {
     newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
     newId_not?: InputMaybe<Scalars['String']['input']>;
     newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    productionExportId_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with?: InputMaybe<Scalars['String']['input']>;
+    productionExportId_starts_with_i?: InputMaybe<Scalars['String']['input']>;
     sender?: InputMaybe<SenderFieldInput>;
     sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
     sender_not?: InputMaybe<SenderFieldInput>;
@@ -1252,6 +1477,7 @@ export type Mutation = {
     deleteUserHistoryRecords?: Maybe<Array<Maybe<UserHistoryRecord>>>;
     /**  Delete multiple User items by ID.  */
     deleteUsers?: Maybe<Array<Maybe<User>>>;
+    publishB2CApp?: Maybe<PublishB2CAppOutput>;
     registerNewUser?: Maybe<User>;
     startConfirmPhoneAction?: Maybe<StartConfirmPhoneActionOutput>;
     unauthenticateUser?: Maybe<UnauthenticateUserOutput>;
@@ -1467,6 +1693,11 @@ export type MutationDeleteUsersArgs = {
 }
 
 
+export type MutationPublishB2CAppArgs = {
+    data: PublishB2CAppInput;
+}
+
+
 export type MutationRegisterNewUserArgs = {
     data: RegisterNewUserInput;
 }
@@ -1567,6 +1798,19 @@ export type MutationUpdateUserHistoryRecordsArgs = {
 
 export type MutationUpdateUsersArgs = {
     data?: InputMaybe<Array<InputMaybe<UsersUpdateInput>>>;
+}
+
+export type PublishB2CAppInput = {
+    app: B2CAppWhereUniqueInput;
+    dv: Scalars['Int']['input'];
+    environment: AppEnvironment;
+    options: B2CAppPublishOptions;
+    sender: SenderFieldInput;
+}
+
+export type PublishB2CAppOutput = {
+    __typename?: 'PublishB2CAppOutput';
+    success: Scalars['Boolean']['output'];
 }
 
 export type Query = {
@@ -1871,6 +2115,8 @@ export enum SortB2CAppBuildHistoryRecordsBy {
     CreatedAtDesc = 'createdAt_DESC',
     DeletedAtAsc = 'deletedAt_ASC',
     DeletedAtDesc = 'deletedAt_DESC',
+    DevelopmentExportIdAsc = 'developmentExportId_ASC',
+    DevelopmentExportIdDesc = 'developmentExportId_DESC',
     DvAsc = 'dv_ASC',
     DvDesc = 'dv_DESC',
     HistoryActionAsc = 'history_action_ASC',
@@ -1879,6 +2125,8 @@ export enum SortB2CAppBuildHistoryRecordsBy {
     HistoryDateDesc = 'history_date_DESC',
     IdAsc = 'id_ASC',
     IdDesc = 'id_DESC',
+    ProductionExportIdAsc = 'productionExportId_ASC',
+    ProductionExportIdDesc = 'productionExportId_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     VAsc = 'v_ASC',
@@ -1896,10 +2144,14 @@ export enum SortB2CAppBuildsBy {
     CreatedByDesc = 'createdBy_DESC',
     DeletedAtAsc = 'deletedAt_ASC',
     DeletedAtDesc = 'deletedAt_DESC',
+    DevelopmentExportIdAsc = 'developmentExportId_ASC',
+    DevelopmentExportIdDesc = 'developmentExportId_DESC',
     DvAsc = 'dv_ASC',
     DvDesc = 'dv_DESC',
     IdAsc = 'id_ASC',
     IdDesc = 'id_DESC',
+    ProductionExportIdAsc = 'productionExportId_ASC',
+    ProductionExportIdDesc = 'productionExportId_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     UpdatedByAsc = 'updatedBy_ASC',
@@ -1915,6 +2167,10 @@ export enum SortB2CAppHistoryRecordsBy {
     CreatedAtDesc = 'createdAt_DESC',
     DeletedAtAsc = 'deletedAt_ASC',
     DeletedAtDesc = 'deletedAt_DESC',
+    DeveloperAsc = 'developer_ASC',
+    DeveloperDesc = 'developer_DESC',
+    DevelopmentExportIdAsc = 'developmentExportId_ASC',
+    DevelopmentExportIdDesc = 'developmentExportId_DESC',
     DvAsc = 'dv_ASC',
     DvDesc = 'dv_DESC',
     HistoryActionAsc = 'history_action_ASC',
@@ -1925,6 +2181,8 @@ export enum SortB2CAppHistoryRecordsBy {
     IdDesc = 'id_DESC',
     NameAsc = 'name_ASC',
     NameDesc = 'name_DESC',
+    ProductionExportIdAsc = 'productionExportId_ASC',
+    ProductionExportIdDesc = 'productionExportId_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     VAsc = 'v_ASC',
@@ -1938,12 +2196,18 @@ export enum SortB2CAppsBy {
     CreatedByDesc = 'createdBy_DESC',
     DeletedAtAsc = 'deletedAt_ASC',
     DeletedAtDesc = 'deletedAt_DESC',
+    DeveloperAsc = 'developer_ASC',
+    DeveloperDesc = 'developer_DESC',
+    DevelopmentExportIdAsc = 'developmentExportId_ASC',
+    DevelopmentExportIdDesc = 'developmentExportId_DESC',
     DvAsc = 'dv_ASC',
     DvDesc = 'dv_DESC',
     IdAsc = 'id_ASC',
     IdDesc = 'id_DESC',
     NameAsc = 'name_ASC',
     NameDesc = 'name_DESC',
+    ProductionExportIdAsc = 'productionExportId_ASC',
+    ProductionExportIdDesc = 'productionExportId_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
     UpdatedByAsc = 'updatedBy_ASC',
@@ -2739,7 +3003,7 @@ export type GetB2CAppQueryVariables = Exact<{
 }>
 
 
-export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
+export type GetB2CAppQuery = { __typename?: 'Query', app?: { __typename?: 'B2CApp', id: string, name?: string | null, developer?: string | null, logo?: { __typename?: 'File', publicUrl?: string | null } | null } | null }
 
 export type AllB2CAppBuildsQueryVariables = Exact<{
     where: B2CAppBuildWhereInput;
@@ -2862,6 +3126,7 @@ export const GetB2CAppDocument = gql`
   app: B2CApp(where: {id: $id}) {
     id
     name
+    developer
     logo {
       publicUrl
     }

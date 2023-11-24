@@ -20,11 +20,14 @@ const FULL_COL_SPAN = 24
 
 type CommonInfoFormValues = {
     name: string
+    developer?: string
 }
 
 export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const intl = useIntl()
     const AppNameLabel = intl.formatMessage({ id: 'global.newAppForm.items.name.label' })
+    const DeveloperNameLabel = intl.formatMessage({ id: 'global.newAppForm.items.developer.label' })
+    const DeveloperNamePlaceholder = intl.formatMessage({ id: 'global.newAppForm.items.developer.placeholder' })
     const SaveLabel = intl.formatMessage({ id: 'global.actions.save' })
 
     const [form] = Form.useForm()
@@ -51,6 +54,7 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
     const { trimValidator } = useValidations()
 
     const appName = get(data, ['app', 'name'])
+    const appDeveloper = get(data, ['app', 'developer'])
 
     const handleSubmit = useCallback((values: CommonInfoFormValues) => {
         updateB2CAppMutation({
@@ -71,11 +75,15 @@ export const CommonInfoSubsection: React.FC<{ id: string }> = ({ id }) => {
             layout='vertical'
             form={form}
             onFinish={handleSubmit}
+            initialValues={{ name: appName, developer: appDeveloper }}
         >
             <Row gutter={FORM_BUTTON_ROW_GUTTER}>
                 <Col span={FULL_COL_SPAN}>
                     <Form.Item name='name' label={AppNameLabel} rules={[trimValidator]}>
-                        <Input defaultValue={appName}/>
+                        <Input/>
+                    </Form.Item>
+                    <Form.Item name='developer' label={DeveloperNameLabel}>
+                        <Input placeholder={DeveloperNamePlaceholder}/>
                     </Form.Item>
                 </Col>
                 <Col span={FULL_COL_SPAN}>

@@ -13,6 +13,7 @@ query getB2CApp($id: ID!) {
     app: B2CApp(where: { id: $id }) {
         id
         name
+        developer
         logo {
             publicUrl
         }
