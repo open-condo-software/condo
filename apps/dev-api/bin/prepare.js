@@ -40,7 +40,7 @@ async function main () {
         email: 'dev-bot@dev.api',
         password: faker.internet.password(16),
     }
-    devBotConfig.apiUrl = condoUrl
+    devBotConfig.apiUrl = `${condoUrl}/admin/api`
     await updateAppEnvFile(APP_NAME, 'CONDO_DEV_BOT_CONFIG', JSON.stringify(devBotConfig))
 
     const prodBotEnvValue = await getAppEnvValue(APP_NAME, 'CONDO_PROD_BOT_CONFIG')
@@ -48,7 +48,7 @@ async function main () {
         email: 'prod-bot@dev.api',
         password: faker.internet.password(16),
     }
-    prodBotConfig.apiUrl = condoUrl
+    prodBotConfig.apiUrl = `${condoUrl}/admin/api`
     await updateAppEnvFile(APP_NAME, 'CONDO_PROD_BOT_CONFIG', JSON.stringify(prodBotConfig))
 
     const devBotOptions = { type: 'service', password: devBotConfig.password, name: '[DEV-API] Dev bot' }
