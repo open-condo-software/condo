@@ -18,6 +18,7 @@ const {
     B2C_APP_NOT_AVAILABLE,
     METER_NUMBER_HAVE_INVALID_VALUE,
     METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE,
+    METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
 } = require('@condo/domains/meter/constants/errors')
 const { deleteReadingsOfDeletedMeter } = require('@condo/domains/meter/tasks')
 const { Meter: MeterApi, MeterResourceOwner } = require('@condo/domains/meter/utils/serverSchema')
@@ -42,6 +43,13 @@ const ERRORS = {
         message: 'value of "accountNumber" field must be non-empty string',
         messageForUser: 'api.meter.METER_ACCOUNT_NUMBER_HAVE_INVALID_VALUE',
         variable: ['data', 'accountNumber'],
+    },
+    METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION: {
+        code: BAD_USER_INPUT,
+        type: METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION,
+        message: 'Provided meter resource belongs to another organization',
+        messageForUser: 'api.meter.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION',
+        variable: ['data', 'resource'],
     },
 }
 
@@ -185,7 +193,7 @@ const Meter = new GQLListSchema('Meter', {
         ],
     },
     hooks: {
-        validateInput: async ({ resolvedData, addValidationError, existingItem }) => {
+        validateInput: async ({ resolvedData, addValidationError, existingItem, context, operation }) => {
             const newItem = { ...existingItem, ...resolvedData }
             if (newItem.isAutomatic && !newItem.b2bApp) {
                 return addValidationError(AUTOMATIC_METER_NO_MASTER_APP)
@@ -212,33 +220,59 @@ const Meter = new GQLListSchema('Meter', {
                     return addValidationError(B2C_APP_NOT_AVAILABLE)
                 }
             }
-        },
-        afterChange: async ({ context, operation, originalInput, updatedItem }) => {
-            if (operation === 'create') {
+
+            const oldDeletedAt = get(existingItem, 'deletedAt')
+            const newDeletedAt = get(resolvedData, 'deletedAt')
+            const isSoftDeleteOperation = newDeletedAt && !oldDeletedAt
+
+            const isNeedToCheckOwnership = operation === 'create' || (operation === 'update'
+                && !isSoftDeleteOperation
+                && (resolvedData['resource'] !== existingItem['resource'] || resolvedData['property'] !== existingItem['property'])
+            )
+
+            if (isNeedToCheckOwnership) {
                 const property = await Property.getOne(context, {
-                    id: updatedItem.property,
+                    id: newItem.property,
                     deletedAt: null,
                 })
-
                 if (property) {
-                    const hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {
-                        address: property.address,
-                        organization: { id: updatedItem.organization },
-                        resource: { id: updatedItem.resource },
+                    const meterResourceOwner = await MeterResourceOwner.getOne(context, {
+                        addressKey: property.addressKey,
+                        resource: { id: newItem.resource },
                         deletedAt: null,
                     })
 
-                    if (!hasMeterResourceOwnership) {
-                        await MeterResourceOwner.create(context, {
-                            dv: 1,
-                            sender: originalInput.sender,
-                            address: property.address,
-                            organization: { connect: { id: updatedItem.organization } },
-                            resource: { connect: { id: updatedItem.resource } },
-                        })
+                    if (meterResourceOwner && meterResourceOwner.organization.id !== newItem.organization) {
+                        throw new GQLError(ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION, context)
                     }
+
                 }
-            } else if (operation === 'update') {
+            }
+        },
+        afterChange: async ({ context, operation, originalInput, updatedItem }) => {
+            const property = await Property.getOne(context, {
+                id: updatedItem.property,
+                deletedAt: null,
+            })
+
+            if (property) {
+                const hasMeterResourceOwnership = await MeterResourceOwner.getOne(context, {
+                    addressKey: property.addressKey,
+                    resource: { id: updatedItem.resource },
+                    deletedAt: null,
+                })
+
+                if (!originalInput['deletedAt'] && !hasMeterResourceOwnership) {
+                    await MeterResourceOwner.create(context, {
+                        dv: 1, sender: originalInput.sender,
+                        address: property.address,
+                        organization: { connect: { id: updatedItem.organization } },
+                        resource: { connect: { id: updatedItem.resource } },
+                    })
+                }
+            }
+
+            if (operation === 'update') {
                 const deletedMeterAt = get(originalInput, 'deletedAt')
 
                 if (deletedMeterAt) {

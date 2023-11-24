@@ -4,12 +4,12 @@ import {
     SortMetersBy,
     Meter as MeterType,
     PropertyMeter as PropertyMeterType,
-    MeterReading as MeterReadingType,
-    PropertyMeterReading as PropertyMeterReadingType, SortPropertyMeterReadingsBy,
+    SortPropertyMeterReadingsBy,
 } from '@app/condo/schema'
 import { Col, ColProps, Form, Row, Typography } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import get from 'lodash/get'
+import isNull from 'lodash/isNull'
 import uniqWith from 'lodash/uniqWith'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
@@ -99,6 +99,7 @@ function getTableData (meters: MeterType[] | PropertyMeterType[], meterReadings)
 export const MetersForm = ({
     handleSave,
     selectedPropertyId,
+    addressKey,
     selectedUnitName,
     selectedUnitType,
     organizationId,
@@ -134,7 +135,15 @@ export const MetersForm = ({
     }, [refetchMeterReadings, refetchMeters])
 
     const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.meter, selectedUnitName, selectedUnitType, refetch)
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal({
+        organizationId,
+        addressKey,
+        meterType: METER_PAGE_TYPES.meter,
+        unitName: selectedUnitName,
+        unitType: selectedUnitType,
+        refetch,
+        propertyId: selectedPropertyId,
+    })
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -204,12 +213,14 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     const ClientInfoMessage = intl.formatMessage({ id: 'ClientInfo' })
     const MeterReadingsFromResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.title.MeterReadingsFromResident' })
 
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
+    const router = useRouter()
+
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [selectedUnitName, setSelectedUnitName] = useState<string>(null)
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(BuildingUnitSubType.Flat)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
         setSelectedUnitName(null)
@@ -237,10 +248,10 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
     })
 
     const { obj: property, loading: propertyLoading } = Property.useObject({
-        where: { id: selectedPropertyId ? selectedPropertyId : null },
-    })
+        where: { id: selectedPropertyId },
+    }, { skip: isNull(selectedPropertyId) })
 
-    const router = useRouter()
+    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.meter)
 
     const createMeterReadingAction = MeterReading.useCreate({
         source: { connect: { id: CALL_METER_READING_SOURCE_ID } },
@@ -362,6 +373,7 @@ export const CreateMeterReadingsForm = ({ organization, role }) => {
                             </Col>
                             <MetersForm
                                 selectedPropertyId={selectedPropertyId}
+                                addressKey={get(property, 'addressKey', null)}
                                 selectedUnitName={selectedUnitName}
                                 selectedUnitType={selectedUnitType}
                                 handleSave={handleSave}
@@ -391,6 +403,8 @@ export const PropertyMetersForm = ({
     const { breakpoints } = useLayoutContext()
     const tableScrollConfig = useMemo(() => !breakpoints.TABLET_LARGE ? TABLE_SCROlL_CONFIG : null,  [breakpoints.TABLET_LARGE])
 
+    const { obj: property, loading: propertyLoading } = Property.useObject({ where: { id: selectedPropertyId } })
+
     const { objs: meters, refetch: refetchMeters, loading: metersLoading, count: total } = PropertyMeter.useObjects({
         where: {
             property: { id: selectedPropertyId },
@@ -410,8 +424,16 @@ export const PropertyMetersForm = ({
         refetchMeterReadings()
     }, [refetchMeterReadings, refetchMeters])
 
-    const loading = metersLoading || meterReadingsLoading
-    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal(organizationId, selectedPropertyId, METER_PAGE_TYPES.propertyMeter, null, null, refetch)
+    const loading = metersLoading || meterReadingsLoading || propertyLoading
+    const { CreateMeterModal, setIsCreateMeterModalVisible } = useCreateMeterModal({
+        organizationId,
+        propertyId: selectedPropertyId,
+        refetch,
+        addressKey: get(property, 'addressKey', null),
+        unitType: null,
+        unitName: null,
+        meterType: METER_PAGE_TYPES.propertyMeter,
+    })
     const dataSource = useMemo(() => getTableData(meters, meterReadings), [meterReadings, meters])
 
     useEffect(() => {
@@ -474,10 +496,16 @@ export const CreatePropertyMeterReadingsForm = ({ organization, role }) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.meter.warning.modal.HelpMessage' })
 
-    const { newMeterReadings, setNewMeterReadings, tableColumns } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter)
     const [selectedPropertyId, setSelectedPropertyId] = useState<string>(null)
     const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectPropertyIdRef = useRef(selectedPropertyId)
+
+    const {
+        newMeterReadings,
+        setNewMeterReadings,
+        tableColumns,
+    } = useMeterTableColumns(METER_PAGE_TYPES.propertyMeter)
+
     useEffect(() => {
         selectPropertyIdRef.current = selectedPropertyId
     }, [selectedPropertyId])

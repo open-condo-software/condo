@@ -52,9 +52,9 @@ const MeterResourceOwner = new GQLListSchema('MeterResourceOwner', {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['organization', 'resource', 'addressKey'],
+                fields: ['resource', 'addressKey'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: 'meterResourceOwner_unique_organization_resource_addressKey',
+                name: 'meterResourceOwner_unique_resource_addressKey',
             },
         ],
     },

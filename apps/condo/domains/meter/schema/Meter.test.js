@@ -11,6 +11,7 @@ const {
     expectToThrowAuthenticationErrorToObj,
     expectToThrowAuthenticationErrorToObjects,
     catchErrorFrom,
+    expectToThrowGQLError,
 } = require('@open-condo/keystone/test.utils')
 
 const {
@@ -27,6 +28,7 @@ const {
     createTestMeter,
     updateTestMeter,
     MeterResourceOwner,
+    updateTestMeterResourceOwner,
 } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
@@ -51,6 +53,33 @@ const { METER_ERRORS } = require('./Meter')
 
 
 describe('Meter', () => {
+    let admin
+    let clientFrom
+    let clientTo
+    let organizationFrom
+    let organizationTo
+    let propertyFrom
+    let propertyTo
+    let employeeFrom
+    let employeeTo
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+
+        if (!clientTo) {
+            ({
+                clientTo,
+                clientFrom,
+                organizationFrom,
+                organizationTo,
+                propertyFrom,
+                propertyTo,
+                employeeFrom,
+                employeeTo,
+            } = await createTestOrganizationWithAccessToAnotherOrganization())
+        }
+    })
+
     describe('CRUD', () => {
         describe('Create', () => {
             test('employee with "canManageMeters" role: can create Meter', async () => {
@@ -201,8 +230,6 @@ describe('Meter', () => {
             })
 
             test('employee from "from" related organization with "canManageMeters" role: can create Meter', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                     canManageMeters: true,
                 })
@@ -218,8 +245,6 @@ describe('Meter', () => {
             })
 
             test('employee from "from" related organization without "canManageMeters" role: cannot create Meter', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, organizationFrom, employeeFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
 
                 const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
@@ -235,8 +260,6 @@ describe('Meter', () => {
             })
 
             test('employee from "to" related organization with "canManageMeters" role: cannot create Meter in "from" organization', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientTo, clientFrom, employeeTo, organizationFrom, organizationTo, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [role] = await createTestOrganizationEmployeeRole(admin, organizationTo, {
                     canManageMeters: true,
                 })
@@ -439,7 +462,6 @@ describe('Meter', () => {
             })
 
             test('employee without "canManageMeters" role: cannot update Meter', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeEmployeeUserClientWithAbilities({
                     canManageMeters: false,
                 })
@@ -455,8 +477,6 @@ describe('Meter', () => {
             })
 
             test('employee from "from" related organization with "canManageMeters" role: can update Meter', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                     canManageMeters: true,
                 })
@@ -474,8 +494,6 @@ describe('Meter', () => {
             })
 
             test('employee from "from" related organization without "canManageMeters" role: cannot update Meter', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, organizationTo, propertyTo, organizationFrom, employeeFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
                 const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
@@ -494,10 +512,6 @@ describe('Meter', () => {
             })
 
             test('employee from "to" related organization with "canManageMeters" role: cannot update Meter from "from" organization', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization({
-                    canManageMeters: true,
-                })
                 const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
                 const newNumber = faker.random.alphaNumeric(8)
@@ -585,7 +599,6 @@ describe('Meter', () => {
         })
         describe('Read', () => {
             test('employee: can read Meters', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeEmployeeUserClientWithAbilities()
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
@@ -595,7 +608,6 @@ describe('Meter', () => {
             })
 
             test('employee without "canReadMeters": can not read Meters', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const client = await makeEmployeeUserClientWithAbilities({ canReadMeters: false })
                 const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
@@ -605,8 +617,6 @@ describe('Meter', () => {
             })
 
             test('employee from "from" related organization: can read Meters', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
                 const meters = await Meter.getAll(clientFrom, { id: meter.id })
@@ -615,8 +625,6 @@ describe('Meter', () => {
             })
 
             test('employee from "to" related organization: cannot read Meters from "from" organization', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
                 const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
                 const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
                 const meters = await Meter.getAll(clientTo, { id: meter.id })
@@ -929,7 +937,6 @@ describe('Meter', () => {
     })
     describe('Validations', () => {
         test('If automatic must have master-system b2b app', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
@@ -952,7 +959,6 @@ describe('Meter', () => {
             }, AUTOMATIC_METER_NO_MASTER_APP)
         })
         test('B2B app must have context with organization from meter', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
@@ -977,7 +983,6 @@ describe('Meter', () => {
             }, B2B_APP_NOT_CONNECTED)
         })
         test('B2C app must be available on meter\'s address', async () => {
-            const admin = await makeLoggedInAdminClient()
             const [organization] = await createTestOrganization(admin)
             const [property] = await createTestProperty(admin, organization)
             const [anotherProperty] = await createTestProperty(admin, organization)
@@ -1083,6 +1088,47 @@ describe('Meter', () => {
             })
         })
 
+        test('should restrict creation of the meter with same resource, owned by another organization', async () => {
+            const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const client2 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true, canManageProperties: true })
+            const [property] = await createTestProperty(client2, client2.organization, { address: client1.property.address })
+            const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(client1, client1.organization, client1.property, resource, {})
+
+            expect(property).toHaveProperty('address', client1.property.address)
+            expect(property).toHaveProperty('addressKey', client1.property.addressKey)
+            expect(meter).toHaveProperty(['organization', 'id'], client1.organization.id)
+            expect(meter).toHaveProperty(['property', 'id'], client1.property.id)
+            expect(meter).toHaveProperty(['resource', 'id'], resource.id)
+
+            await expectToThrowGQLError(async () => {
+                await createTestMeter(client2, client2.organization, property, resource, {})
+            }, METER_ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION)
+        })
+
+        test('should restrict update of the meter with same resource, owned by another organization', async () => {
+            const client1 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const client2 = await makeEmployeeUserClientWithAbilities({ canManageMeters: true, canManageProperties: true })
+
+            const [property] = await createTestProperty(client2, client2.organization, { address: client1.property.address })
+            const [coldResource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [hotResource] = await MeterResource.getAll(client2, { id: HOT_WATER_METER_RESOURCE_ID })
+            const [meter1] = await createTestMeter(client1, client1.organization, client1.property, coldResource, {})
+            const [meter2] = await createTestMeter(client2, client2.organization, property, hotResource, {})
+
+            await expectToThrowGQLError(async () => {
+                await updateTestMeter(client1, meter1.id, {
+                    resource: { connect: { id: HOT_WATER_METER_RESOURCE_ID } },
+                })
+            }, METER_ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION)
+
+            await expectToThrowGQLError(async () => {
+                await updateTestMeter(client2, meter2.id, {
+                    resource: { connect: { id: COLD_WATER_METER_RESOURCE_ID } },
+                })
+            }, METER_ERRORS.METER_RESOURCE_OWNED_BY_ANOTHER_ORGANIZATION)
+        })
+
         test('should create MeterResourceOwner after new meter creation', async () => {
             const client = await makeEmployeeUserClientWithAbilities({
                 canManageMeters: true,
@@ -1102,6 +1148,95 @@ describe('Meter', () => {
                 expect(meterResourceOwner).toHaveProperty('address', meter.property.address)
                 expect(meterResourceOwner).toHaveProperty(['sender', 'fingerprint'], meter.sender.fingerprint)
             })
+        })
+
+        test('should create MeterResourceOwner after meter update', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const [meter] = await createTestMeter(client, client.organization, client.property, { id: COLD_WATER_METER_RESOURCE_ID }, {})
+
+            await waitFor(async () => {
+                const meterResourceOwner = await MeterResourceOwner.getOne(client, {
+                    addressKey: client.property.addressKey,
+                    resource: { id: COLD_WATER_METER_RESOURCE_ID },
+                })
+
+                expect(meterResourceOwner).toHaveProperty(['organization', 'id'], client.organization.id)
+                expect(meterResourceOwner).toHaveProperty(['resource', 'id'], COLD_WATER_METER_RESOURCE_ID)
+                expect(meterResourceOwner).toHaveProperty('addressKey', client.property.addressKey)
+            })
+
+            const newNumber = faker.random.alphaNumeric(5)
+            const [updatedObj] = await updateTestMeter(client, meter.id, {
+                number: newNumber,
+            })
+
+            expect(updatedObj).toHaveProperty('number', newNumber)
+            const tempMeterResourceOwners = await MeterResourceOwner.getAll(client, {
+                addressKey: client.property.addressKey,
+            })
+
+            expect(tempMeterResourceOwners).toHaveLength(1)
+            expect(tempMeterResourceOwners[0]).toHaveProperty('addressKey', client.property.addressKey)
+            expect(tempMeterResourceOwners[0]).toHaveProperty(['resource', 'id'], meter.resource.id)
+
+            const [updatedMeter] = await updateTestMeter(client, meter.id, { resource: { connect: { id: HOT_WATER_METER_RESOURCE_ID } } })
+
+            expect(updatedMeter).toHaveProperty(['resource', 'id'], HOT_WATER_METER_RESOURCE_ID)
+            await waitFor(async () => {
+                const meterResourceOwners = await MeterResourceOwner.getAll(client, {
+                    addressKey: client.property.addressKey,
+                })
+
+                expect(meterResourceOwners).toHaveLength(2)
+                expect(meterResourceOwners).toEqual(expect.arrayContaining([
+                    expect.objectContaining({
+                        organization: { id: client.organization.id },
+                        resource: { id: COLD_WATER_METER_RESOURCE_ID },
+                        addressKey: client.property.addressKey,
+                    }),
+                    expect.objectContaining({
+                        organization: { id: client.organization.id },
+                        resource: { id: HOT_WATER_METER_RESOURCE_ID },
+                        addressKey: client.property.addressKey,
+                    }),
+                ]))
+            })
+
+        })
+
+        test('should allow to softDelete Meter after loose resource ownership', async () => {
+            const client = await makeEmployeeUserClientWithAbilities({ canManageMeters: true })
+            const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
+            const [meter] = await createTestMeter(client, client.organization, client.property, resource)
+
+            let meterResourceOwner
+
+            await waitFor(async () => {
+                meterResourceOwner = await MeterResourceOwner.getOne(client, {
+                    address: meter.property.address,
+                    organization: { id: client.organization.id },
+                    resource: { id: meter.resource.id },
+                })
+
+                expect(meterResourceOwner).toHaveProperty(['organization', 'id'], client.organization.id)
+                expect(meterResourceOwner).toHaveProperty(['resource', 'id'], meter.resource.id)
+                expect(meterResourceOwner).toHaveProperty('address', meter.property.address)
+                expect(meterResourceOwner).toHaveProperty(['sender', 'fingerprint'], meter.sender.fingerprint)
+            })
+
+            const [organization] = await createTestOrganization(admin)
+
+            const [newMeterResourceOwner] = await updateTestMeterResourceOwner(admin, meterResourceOwner.id, {
+                organization: { connect: { id: organization.id } },
+            })
+
+            expect(newMeterResourceOwner).toHaveProperty(['organization', 'id'], organization.id)
+            expect(newMeterResourceOwner).toHaveProperty(['addressKey'], client.property.addressKey)
+            expect(newMeterResourceOwner).toHaveProperty(['resource', 'id'], COLD_WATER_METER_RESOURCE_ID)
+
+            const [updatedMeter] = await Meter.softDelete(client, meter.id, {})
+
+            expect(updatedMeter.deletedAt).not.toBeNull()
         })
     })
 })

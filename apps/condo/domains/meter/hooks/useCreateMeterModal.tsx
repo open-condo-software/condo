@@ -7,12 +7,28 @@ import { useIntl } from '@open-condo/next/intl'
 import { BaseMeterModalForm } from '@condo/domains/meter/components/BaseMeterModal/BaseMeterModalForm'
 import { PropertyMeter, Meter, MeterPageTypes, METER_PAGE_TYPES } from '@condo/domains/meter/utils/clientSchema'
 
+type CreateMeterModalProps = {
+    organizationId: string
+    propertyId: string
+    meterType: MeterPageTypes
+    unitName: string
+    unitType: BuildingUnitSubType
+    refetch: () => void
+    addressKey: string
+}
 
-export function useCreateMeterModal (organizationId: string, propertyId: string, meterType: MeterPageTypes, unitName: string, unitType: BuildingUnitSubType, refetch) {
+type CreateMeterModalReturnType = {
+    CreateMeterModal: () => JSX.Element
+    setIsCreateMeterModalVisible: React.Dispatch<React.SetStateAction<boolean>>
+}
+
+export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterModalReturnType {
     const intl = useIntl()
     const AddMeterMessage = intl.formatMessage({ id: 'pages.condo.meter.AddMeter' })
 
     const [isCreateMeterModalVisible, setIsCreateMeterModalVisible] = useState<boolean>(false)
+
+    const { organizationId, propertyId, meterType, unitName, unitType, refetch, addressKey } = props
 
     const isPropertyMeter = meterType === METER_PAGE_TYPES.propertyMeter
     const MeterIdentity = isPropertyMeter ? PropertyMeter : Meter
@@ -37,7 +53,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
         propertyId,
         unitName: isPropertyMeter ? undefined : unitName,
         unitType: isPropertyMeter ? undefined : unitType,
-    }), [propertyId, unitName, unitType, meterType])
+    }), [propertyId, unitName, unitType, isPropertyMeter])
 
     const handleCancelModal = useCallback(() => setIsCreateMeterModalVisible(false),
         [setIsCreateMeterModalVisible])
@@ -46,6 +62,7 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
         return (
             <BaseMeterModalForm
                 propertyId={propertyId}
+                addressKey={addressKey}
                 unitName={unitName}
                 unitType={unitType}
                 initialValues={initialValues}
@@ -59,7 +76,8 @@ export function useCreateMeterModal (organizationId: string, propertyId: string,
                 centered
             />
         )
-    }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible])
+    }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible,
+        propertyId, unitName, unitType, meterType, organizationId])
 
     return useMemo(() => ({ CreateMeterModal, setIsCreateMeterModalVisible }), [CreateMeterModal])
 }

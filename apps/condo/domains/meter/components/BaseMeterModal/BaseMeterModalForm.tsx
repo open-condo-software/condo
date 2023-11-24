@@ -1,4 +1,3 @@
-import { MeterResource } from '@app/condo/schema'
 import { Col, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs, { Dayjs } from 'dayjs'
@@ -27,6 +26,8 @@ import { searchMeterResources } from '@condo/domains/meter/utils/clientSchema/se
 import { BaseMeterModalAccountNumberField } from './BaseMeterModalAccountNumberField'
 import { MeterModalDatePicker } from './BaseMeterModalDatePicker'
 import { BaseMeterModalFormItem } from './BaseMeterModalFormItem'
+
+import type { MeterResource } from '@app/condo/schema'
 
 type InitialMeterFormValuesType = {
     propertyId?: string
@@ -80,6 +81,7 @@ const getInitialDateValue = (initialValues, path) => {
 
 export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     propertyId,
+    addressKey,
     unitName,
     handleSubmit,
     initialValues,
@@ -130,7 +132,8 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
         earlierThanInstallationValidator,
         earlierThanFirstVerificationDateValidator,
         meterWithSameAccountNumberInOtherUnitValidation,
-    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber)
+        meterResourceOwnerValidation,
+    } = useMeterValidations(installationDate, verificationDate, propertyId, unitName, organizationId, initialMeterNumber, addressKey)
 
     const meterNumberValidations = useMemo(() => [
         requiredValidator,
@@ -141,14 +144,14 @@ export const BaseMeterModalForm: React.FC<BaseMeterModalFormProps> = ({
     const validations = useMemo(() => ({
         accountNumber: isPropertyMeter ? undefined : [requiredValidator, trimValidator, meterWithSameAccountNumberInOtherUnitValidation],
         number: meterNumberValidations,
-        resource: [requiredValidator],
+        resource: [requiredValidator, meterResourceOwnerValidation],
         numberOfTariffs: [requiredValidator],
         commissioningDate: [earlierThanInstallationValidator],
         sealingDate: [earlierThanInstallationValidator],
         nextVerificationDate: [earlierThanFirstVerificationDateValidator],
         controlReadingsDate: [earlierThanInstallationValidator],
     }),
-    [meterType, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator, trimValidator])
+    [isPropertyMeter, earlierThanFirstVerificationDateValidator, earlierThanInstallationValidator, meterNumberValidations, meterWithSameAccountNumberInOtherUnitValidation, requiredValidator, trimValidator, meterResourceOwnerValidation])
 
     const initialResourceValue = get(initialValues, ['resource', 'id'])
     const handleCancelModal = useCallback(() => () => setModalVisible(false), [])

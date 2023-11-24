@@ -123,6 +123,7 @@ export const useMeterTableColumns = (meterType: MeterPageTypes) => {
 
         return meterResource
     }, [tariffNumberMessages])
+
     const meterReadingRenderer = useCallback((record) => (
         <MeterReadingInput
             record={record}

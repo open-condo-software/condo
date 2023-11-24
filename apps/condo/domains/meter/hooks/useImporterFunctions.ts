@@ -278,6 +278,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
         const address = get(processedRow, ['addons', 'address'])
         const propertyId = get(processedRow, ['addons', 'propertyId'])
+
         if (!address) errors.push(AddressNotFoundMessage)
         if (address && !propertyId) errors.push(PropertyNotFoundMessage)
         if (!get(processedRow, ['addons', 'meterResourceId'])) errors.push(MeterResourceNotFoundMessage)
@@ -327,7 +328,7 @@ export const useImporterFunctions = (): [Columns, RowNormalizer, RowValidator, O
 
                     errors.push(intl.formatMessage({ id: 'meter.import.error.UnitNameNotFound' }, { columnName: columns[i].name }))
                     break
-                default: 
+                default:
                     break
             }
         })
