@@ -1,5 +1,3 @@
-const fetch = require('node-fetch')
-
 /**
  * @typedef {Object} SuggestionHelpersType
  * @property {string} tin The organization's tin (inn)
@@ -107,6 +105,10 @@ class AddressServiceClient {
         const urlParams = new URLSearchParams({ s, ...params }).toString()
 
         return this.call(`${this.url}/search?${urlParams}`)
+    }
+
+    async bulkSearch (params = {}) {
+        return this.call(`${this.url}/bulkSearch`, 'POST', params)
     }
 }
 
