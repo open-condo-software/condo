@@ -8,10 +8,12 @@ exports.up = async (knex) => {
 -- Remove field shortDescription from b2capp
 --
 -- ALTER TABLE "B2CApp" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "B2CApp" ALTER COLUMN "shortDescription" DROP NOT NULL;
 --
 -- Remove field shortDescription from b2capphistoryrecord
 --
 -- ALTER TABLE "B2CAppHistoryRecord" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "B2CAppHistoryRecord" ALTER COLUMN "shortDescription" DROP NOT NULL;
 --
 -- Add field importId to b2capp
 --
