@@ -60602,6 +60602,7 @@ type B2CAppHistoryRecord {
   _label_: String
   name: String
   logo: JSON
+  shortDescription: String
   developer: String
   isHidden: Boolean
   colorSchema: JSON
@@ -60648,6 +60649,24 @@ input B2CAppHistoryRecordWhereInput {
   logo_not: JSON
   logo_in: [JSON]
   logo_not_in: [JSON]
+  shortDescription: String
+  shortDescription_not: String
+  shortDescription_contains: String
+  shortDescription_not_contains: String
+  shortDescription_starts_with: String
+  shortDescription_not_starts_with: String
+  shortDescription_ends_with: String
+  shortDescription_not_ends_with: String
+  shortDescription_i: String
+  shortDescription_not_i: String
+  shortDescription_contains_i: String
+  shortDescription_not_contains_i: String
+  shortDescription_starts_with_i: String
+  shortDescription_not_starts_with_i: String
+  shortDescription_ends_with_i: String
+  shortDescription_not_ends_with_i: String
+  shortDescription_in: [String]
+  shortDescription_not_in: [String]
   developer: String
   developer_not: String
   developer_contains: String
@@ -60797,6 +60816,8 @@ input B2CAppHistoryRecordWhereUniqueInput {
 enum SortB2CAppHistoryRecordsBy {
   name_ASC
   name_DESC
+  shortDescription_ASC
+  shortDescription_DESC
   developer_ASC
   developer_DESC
   isHidden_ASC
@@ -60826,6 +60847,7 @@ enum SortB2CAppHistoryRecordsBy {
 input B2CAppHistoryRecordUpdateInput {
   name: String
   logo: JSON
+  shortDescription: String
   developer: String
   isHidden: Boolean
   colorSchema: JSON
@@ -60854,6 +60876,7 @@ input B2CAppHistoryRecordsUpdateInput {
 input B2CAppHistoryRecordCreateInput {
   name: String
   logo: JSON
+  shortDescription: String
   developer: String
   isHidden: Boolean
   colorSchema: JSON
@@ -60918,6 +60941,10 @@ type B2CApp {
 
   """ Logo of app's company or app itself """
   logo: File
+
+  """ [DEPRECATED] This field is not used by anyone but fetched from some clients 
+  """
+  shortDescription: String
 
   """ Developer company name """
   developer: String
@@ -60991,6 +61018,24 @@ input B2CAppWhereInput {
   logo_not: String
   logo_in: [String]
   logo_not_in: [String]
+  shortDescription: String
+  shortDescription_not: String
+  shortDescription_contains: String
+  shortDescription_not_contains: String
+  shortDescription_starts_with: String
+  shortDescription_not_starts_with: String
+  shortDescription_ends_with: String
+  shortDescription_not_ends_with: String
+  shortDescription_i: String
+  shortDescription_not_i: String
+  shortDescription_contains_i: String
+  shortDescription_not_contains_i: String
+  shortDescription_starts_with_i: String
+  shortDescription_not_starts_with_i: String
+  shortDescription_ends_with_i: String
+  shortDescription_not_ends_with_i: String
+  shortDescription_in: [String]
+  shortDescription_not_in: [String]
   developer: String
   developer_not: String
   developer_contains: String
@@ -61127,6 +61172,8 @@ input B2CAppWhereUniqueInput {
 enum SortB2CAppsBy {
   name_ASC
   name_DESC
+  shortDescription_ASC
+  shortDescription_DESC
   developer_ASC
   developer_DESC
   isHidden_ASC
@@ -61160,6 +61207,7 @@ enum SortB2CAppsBy {
 input B2CAppUpdateInput {
   name: String
   logo: Upload
+  shortDescription: String
   developer: String
   isHidden: Boolean
   colorSchema: AppColorSchemaFieldInput
@@ -61186,6 +61234,7 @@ input B2CAppsUpdateInput {
 input B2CAppCreateInput {
   name: String
   logo: Upload
+  shortDescription: String
   developer: String
   isHidden: Boolean
   colorSchema: AppColorSchemaFieldInput

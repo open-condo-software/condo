@@ -14,6 +14,7 @@ const { COLOR_SCHEMA_FIELD } = require('@condo/domains/miniapp/schema/fields/b2c
 const {
     LOGO_FIELD,
     APPS_FILE_ADAPTER,
+    SHORT_DESCRIPTION_FIELD,
     DEVELOPER_FIELD,
     IS_HIDDEN_FIELD,
 } = require('@condo/domains/miniapp/schema/fields/integration')
@@ -31,6 +32,11 @@ const B2CApp = new GQLListSchema('B2CApp', {
         logo: {
             ...LOGO_FIELD,
             isRequired: true,
+        },
+        shortDescription: {
+            ...SHORT_DESCRIPTION_FIELD,
+            isRequired: false,
+            schemaDoc: '[DEPRECATED] This field is not used by anyone but fetched from some clients',
         },
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
