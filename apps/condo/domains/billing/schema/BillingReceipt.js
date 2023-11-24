@@ -163,17 +163,17 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             type: Virtual,
             isRequired: false,
             resolver: async (receipt) => {
-                const chargeAmount = get(receipt, 'charge') || get(receipt, 'toPay')
-                const charge = Big(chargeAmount)
+                const toPayAmount = Big(get(receipt, 'toPay') || 0)
+                const paidAmount = Big(get(receipt, 'paid') || 0)
                 const services = get(receipt, 'services', [])
 
                 const servicesTotal = services
                     ? services.reduce((total, { toPay = 0 }) => Big(total).add(Big(toPay)), Big(0))
                     : Big(0)
 
-                const servicesAreValid = servicesTotal.cmp(charge) === 0
+                const servicesAreValid = servicesTotal.cmp(toPayAmount.add(paidAmount)) === 0
 
-                if (services && services.length > 0 && !servicesAreValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${charge}) amount correctly`
+                if (services && services.length > 0 && !servicesAreValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${toPayAmount}) amount correctly`
 
                 return null
             },
