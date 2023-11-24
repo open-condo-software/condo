@@ -5618,8 +5618,6 @@ export type B2CApp = {
   name?: Maybe<Scalars['String']>;
   /**  Logo of app's company or app itself  */
   logo?: Maybe<File>;
-  /**  Short description / catch phrase providing information about integration functionality. Will be shown on App's card  */
-  shortDescription?: Maybe<Scalars['String']>;
   /**  Developer company name  */
   developer?: Maybe<Scalars['String']>;
   /**  Indicates whether the integration or app is hidden inside the CRM. Used if integration is active by default or not ready to appear inside CRM  */
@@ -6345,7 +6343,6 @@ export type B2CAppBuildsUpdateInput = {
 export type B2CAppCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
-  shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
@@ -6375,7 +6372,6 @@ export type B2CAppHistoryRecord = {
   _label_?: Maybe<Scalars['String']>;
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
-  shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<Scalars['JSON']>;
@@ -6398,7 +6394,6 @@ export type B2CAppHistoryRecord = {
 export type B2CAppHistoryRecordCreateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
-  shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<Scalars['JSON']>;
@@ -6426,7 +6421,6 @@ export enum B2CAppHistoryRecordHistoryActionType {
 export type B2CAppHistoryRecordUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['JSON']>;
-  shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<Scalars['JSON']>;
@@ -6470,24 +6464,6 @@ export type B2CAppHistoryRecordWhereInput = {
   logo_not?: Maybe<Scalars['JSON']>;
   logo_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   logo_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  shortDescription?: Maybe<Scalars['String']>;
-  shortDescription_not?: Maybe<Scalars['String']>;
-  shortDescription_contains?: Maybe<Scalars['String']>;
-  shortDescription_not_contains?: Maybe<Scalars['String']>;
-  shortDescription_starts_with?: Maybe<Scalars['String']>;
-  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
-  shortDescription_ends_with?: Maybe<Scalars['String']>;
-  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
-  shortDescription_i?: Maybe<Scalars['String']>;
-  shortDescription_not_i?: Maybe<Scalars['String']>;
-  shortDescription_contains_i?: Maybe<Scalars['String']>;
-  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
-  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
-  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
-  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
-  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
-  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   developer?: Maybe<Scalars['String']>;
   developer_not?: Maybe<Scalars['String']>;
   developer_contains?: Maybe<Scalars['String']>;
@@ -7027,7 +7003,6 @@ export type B2CAppRelateToOneInput = {
 export type B2CAppUpdateInput = {
   name?: Maybe<Scalars['String']>;
   logo?: Maybe<Scalars['Upload']>;
-  shortDescription?: Maybe<Scalars['String']>;
   developer?: Maybe<Scalars['String']>;
   isHidden?: Maybe<Scalars['Boolean']>;
   colorSchema?: Maybe<AppColorSchemaFieldInput>;
@@ -7069,24 +7044,6 @@ export type B2CAppWhereInput = {
   logo_not?: Maybe<Scalars['String']>;
   logo_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   logo_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  shortDescription?: Maybe<Scalars['String']>;
-  shortDescription_not?: Maybe<Scalars['String']>;
-  shortDescription_contains?: Maybe<Scalars['String']>;
-  shortDescription_not_contains?: Maybe<Scalars['String']>;
-  shortDescription_starts_with?: Maybe<Scalars['String']>;
-  shortDescription_not_starts_with?: Maybe<Scalars['String']>;
-  shortDescription_ends_with?: Maybe<Scalars['String']>;
-  shortDescription_not_ends_with?: Maybe<Scalars['String']>;
-  shortDescription_i?: Maybe<Scalars['String']>;
-  shortDescription_not_i?: Maybe<Scalars['String']>;
-  shortDescription_contains_i?: Maybe<Scalars['String']>;
-  shortDescription_not_contains_i?: Maybe<Scalars['String']>;
-  shortDescription_starts_with_i?: Maybe<Scalars['String']>;
-  shortDescription_not_starts_with_i?: Maybe<Scalars['String']>;
-  shortDescription_ends_with_i?: Maybe<Scalars['String']>;
-  shortDescription_not_ends_with_i?: Maybe<Scalars['String']>;
-  shortDescription_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  shortDescription_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   developer?: Maybe<Scalars['String']>;
   developer_not?: Maybe<Scalars['String']>;
   developer_contains?: Maybe<Scalars['String']>;
@@ -71966,8 +71923,6 @@ export enum SortB2CAppBuildsBy {
 export enum SortB2CAppHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  ShortDescriptionAsc = 'shortDescription_ASC',
-  ShortDescriptionDesc = 'shortDescription_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
   IsHiddenAsc = 'isHidden_ASC',
@@ -72041,8 +71996,6 @@ export enum SortB2CAppPropertyHistoryRecordsBy {
 export enum SortB2CAppsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
-  ShortDescriptionAsc = 'shortDescription_ASC',
-  ShortDescriptionDesc = 'shortDescription_DESC',
   DeveloperAsc = 'developer_ASC',
   DeveloperDesc = 'developer_DESC',
   IsHiddenAsc = 'isHidden_ASC',

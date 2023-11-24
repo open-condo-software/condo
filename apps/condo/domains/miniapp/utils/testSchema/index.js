@@ -189,7 +189,6 @@ async function createTestB2CApp (client, extraAttrs = {}) {
         dv: 1,
         sender,
         name: faker.random.word() + ' B2C APP',
-        shortDescription: faker.company.bs(),
         developer: faker.name.firstName(),
         isHidden: true,
         colorSchema,

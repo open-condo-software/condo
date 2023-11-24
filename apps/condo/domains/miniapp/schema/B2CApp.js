@@ -33,7 +33,6 @@ const B2CApp = new GQLListSchema('B2CApp', {
             ...LOGO_FIELD,
             isRequired: true,
         },
-        shortDescription: SHORT_DESCRIPTION_FIELD,
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         colorSchema: COLOR_SCHEMA_FIELD,
