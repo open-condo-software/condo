@@ -4,7 +4,7 @@
 
 const { Text, Relationship } = require('@keystonejs/fields')
 
-const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
+const { historical, versioned, uuided, tracked, softDeleted, dvAndSender, importable } = require('@open-condo/keystone/plugins')
 const { GQLListSchema, getByCondition } = require('@open-condo/keystone/schema')
 
 const { getFileMetaAfterChange } = require('@condo/domains/common/utils/fileAdapter')
@@ -33,7 +33,11 @@ const B2CApp = new GQLListSchema('B2CApp', {
             ...LOGO_FIELD,
             isRequired: true,
         },
-        shortDescription: SHORT_DESCRIPTION_FIELD,
+        shortDescription: {
+            ...SHORT_DESCRIPTION_FIELD,
+            isRequired: false,
+            schemaDoc: '[DEPRECATED] This field is not used by anyone but fetched from some clients',
+        },
         developer: DEVELOPER_FIELD,
         isHidden: IS_HIDDEN_FIELD,
         colorSchema: COLOR_SCHEMA_FIELD,
@@ -70,7 +74,7 @@ const B2CApp = new GQLListSchema('B2CApp', {
     hooks: {
         afterChange: logoMetaAfterChange,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), importable(), historical()],
     access: {
         read: access.canReadB2CApps,
         create: access.canManageB2CApps,

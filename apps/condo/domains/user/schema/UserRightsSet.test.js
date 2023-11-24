@@ -608,7 +608,7 @@ describe('UserRightsSet', () => {
                     })
                 })
                 test('Can manage all miniapp-related models (without context)', async () => {
-                // Create / update section
+                    // Create / update section
                     const [b2bApp] = await createTestB2BApp(portalClient)
                     expect(b2bApp).toHaveProperty('id')
                     const b2bAppName = faker.commerce.productName()
@@ -648,7 +648,10 @@ describe('UserRightsSet', () => {
                     })
                     expect(updatedPermission).toHaveProperty('key', newPermissionKey)
 
-                    const [b2cApp] = await createTestB2CApp(portalClient)
+                    const [b2cApp] = await createTestB2CApp(portalClient, {
+                        importId: faker.datatype.uuid(),
+                        importRemoteSystem: 'dev-api',
+                    })
                     expect(b2cApp).toHaveProperty('id')
 
                     const [b2cAccessRight] = await createTestB2CAppAccessRight(portalClient, serviceUser, b2cApp)
@@ -663,7 +666,10 @@ describe('UserRightsSet', () => {
                     })
                     expect(updatedProperty).toHaveProperty('address', newAddress.toLowerCase())
 
-                    const [build] = await createTestB2CAppBuild(portalClient, b2cApp)
+                    const [build] = await createTestB2CAppBuild(portalClient, b2cApp, {
+                        importId: faker.datatype.uuid(),
+                        importRemoteSystem: 'dev-api',
+                    })
                     expect(build).toHaveProperty('id')
 
                     const [updatedB2CApp] = await updateTestB2CApp(portalClient, b2cApp.id, {
