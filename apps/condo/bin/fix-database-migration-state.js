@@ -164,6 +164,12 @@ ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "partnerUrl" CASCADE;
 ALTER TABLE "BillingIntegrationHistoryRecord" DROP COLUMN "price" CASCADE;
 
 COMMIT;
+--
+-- 20231124130130-0343_remove_b2capp_shortdescription_and_more.js Remove shortDescriptionField
+--
+
+ALTER TABLE "B2CApp" DROP COLUMN "shortDescription" CASCADE;
+ALTER TABLE "B2CAppHistoryRecord" DROP COLUMN "shortDescription" CASCADE;
 
     `))
 }

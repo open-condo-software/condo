@@ -5643,6 +5643,10 @@ export type B2CApp = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  ID of the object in the system from which it was imported  */
+  importId?: Maybe<Scalars['String']>;
+  /**  Name of the system from which object was imported  */
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 
@@ -6012,6 +6016,10 @@ export type B2CAppBuild = {
   dv?: Maybe<Scalars['Int']>;
   /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
   sender?: Maybe<SenderField>;
+  /**  ID of the object in the system from which it was imported  */
+  importId?: Maybe<Scalars['String']>;
+  /**  Name of the system from which object was imported  */
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 export type B2CAppBuildCreateInput = {
@@ -6027,6 +6035,8 @@ export type B2CAppBuildCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -6053,6 +6063,8 @@ export type B2CAppBuildHistoryRecord = {
   newId?: Maybe<Scalars['JSON']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -6071,6 +6083,8 @@ export type B2CAppBuildHistoryRecordCreateInput = {
   newId?: Maybe<Scalars['JSON']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -6095,6 +6109,8 @@ export type B2CAppBuildHistoryRecordUpdateInput = {
   newId?: Maybe<Scalars['JSON']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2CAppBuildHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -6189,6 +6205,42 @@ export type B2CAppBuildHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -6240,6 +6292,8 @@ export type B2CAppBuildUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 export type B2CAppBuildWhereInput = {
@@ -6325,6 +6379,42 @@ export type B2CAppBuildWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type B2CAppBuildWhereUniqueInput = {
@@ -6357,6 +6447,8 @@ export type B2CAppCreateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 /**  A keystone list  */
@@ -6386,6 +6478,8 @@ export type B2CAppHistoryRecord = {
   newId?: Maybe<Scalars['JSON']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2CAppHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -6407,6 +6501,8 @@ export type B2CAppHistoryRecordCreateInput = {
   newId?: Maybe<Scalars['JSON']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2CAppHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -6434,6 +6530,8 @@ export type B2CAppHistoryRecordUpdateInput = {
   newId?: Maybe<Scalars['JSON']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<Scalars['JSON']>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
   history_date?: Maybe<Scalars['String']>;
   history_action?: Maybe<B2CAppHistoryRecordHistoryActionType>;
   history_id?: Maybe<Scalars['String']>;
@@ -6552,6 +6650,42 @@ export type B2CAppHistoryRecordWhereInput = {
   sender_not?: Maybe<Scalars['JSON']>;
   sender_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   sender_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   history_date?: Maybe<Scalars['String']>;
   history_date_not?: Maybe<Scalars['String']>;
   history_date_lt?: Maybe<Scalars['String']>;
@@ -7017,6 +7151,8 @@ export type B2CAppUpdateInput = {
   newId?: Maybe<Scalars['String']>;
   dv?: Maybe<Scalars['Int']>;
   sender?: Maybe<SenderFieldInput>;
+  importId?: Maybe<Scalars['String']>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
 };
 
 export type B2CAppWhereInput = {
@@ -7132,6 +7268,42 @@ export type B2CAppWhereInput = {
   sender_not?: Maybe<SenderFieldInput>;
   sender_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
   sender_not_in?: Maybe<Array<Maybe<SenderFieldInput>>>;
+  importId?: Maybe<Scalars['String']>;
+  importId_not?: Maybe<Scalars['String']>;
+  importId_contains?: Maybe<Scalars['String']>;
+  importId_not_contains?: Maybe<Scalars['String']>;
+  importId_starts_with?: Maybe<Scalars['String']>;
+  importId_not_starts_with?: Maybe<Scalars['String']>;
+  importId_ends_with?: Maybe<Scalars['String']>;
+  importId_not_ends_with?: Maybe<Scalars['String']>;
+  importId_i?: Maybe<Scalars['String']>;
+  importId_not_i?: Maybe<Scalars['String']>;
+  importId_contains_i?: Maybe<Scalars['String']>;
+  importId_not_contains_i?: Maybe<Scalars['String']>;
+  importId_starts_with_i?: Maybe<Scalars['String']>;
+  importId_not_starts_with_i?: Maybe<Scalars['String']>;
+  importId_ends_with_i?: Maybe<Scalars['String']>;
+  importId_not_ends_with_i?: Maybe<Scalars['String']>;
+  importId_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importId_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem?: Maybe<Scalars['String']>;
+  importRemoteSystem_not?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with?: Maybe<Scalars['String']>;
+  importRemoteSystem_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_contains_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_starts_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_not_ends_with_i?: Maybe<Scalars['String']>;
+  importRemoteSystem_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  importRemoteSystem_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
 };
 
 export type B2CAppWhereUniqueInput = {
@@ -71891,6 +72063,10 @@ export enum SortB2CAppBuildHistoryRecordsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -71917,7 +72093,11 @@ export enum SortB2CAppBuildsBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
+  DvDesc = 'dv_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC'
 }
 
 export enum SortB2CAppHistoryRecordsBy {
@@ -71939,6 +72119,10 @@ export enum SortB2CAppHistoryRecordsBy {
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
   DvDesc = 'dv_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC',
   HistoryDateAsc = 'history_date_ASC',
   HistoryDateDesc = 'history_date_DESC',
   HistoryActionAsc = 'history_action_ASC',
@@ -72019,7 +72203,11 @@ export enum SortB2CAppsBy {
   DeletedAtAsc = 'deletedAt_ASC',
   DeletedAtDesc = 'deletedAt_DESC',
   DvAsc = 'dv_ASC',
-  DvDesc = 'dv_DESC'
+  DvDesc = 'dv_DESC',
+  ImportIdAsc = 'importId_ASC',
+  ImportIdDesc = 'importId_DESC',
+  ImportRemoteSystemAsc = 'importRemoteSystem_ASC',
+  ImportRemoteSystemDesc = 'importRemoteSystem_DESC'
 }
 
 export enum SortBankAccountHistoryRecordsBy {
