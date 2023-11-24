@@ -29,7 +29,7 @@ class RecipientResolver extends Resolver {
             this.created++
             return await BillingRecipientApi.create(this.context, { ...this.dvSender, ...updateInput })
         } else {
-            const fieldsToCheck = ['name', 'bankName', 'bankAccount', 'tin', 'iec', 'bic', 'offsettingAccount', 'territoryCode']
+            const fieldsToCheck = ['name', 'isApproved', 'bankName', 'bankAccount', 'tin', 'iec', 'bic', 'offsettingAccount', 'territoryCode']
             const fieldsToUpdate = {}
             for (const fieldName of fieldsToCheck) {
                 if (existing[fieldName] !== updateInput[fieldName]) {

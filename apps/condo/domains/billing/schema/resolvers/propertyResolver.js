@@ -1,6 +1,6 @@
-const fetch = require('cross-fetch')
 const { isEmpty, get, chunk } = require('lodash')
 
+const { createInstance } = require('@open-condo/clients/address-service-client')
 const { AddressFromStringParser } = require('@open-condo/clients/address-service-client/utils/parseAddressesFromString')
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 const { generateServerUtils } = require('@open-condo/codegen/generate.server.utils')
@@ -36,6 +36,7 @@ class PropertyResolver extends Resolver {
         this.tin = get(billingContext, 'organization.tin')
         this.transform.init(get(billingContext, 'settings.addressTransform', {}))
         this.isCottageVillage = !!(get(billingContext, 'settings.isCottageVillage'))
+        this.addressService = createInstance(conf['ADDRESSSERVICE_DOMAIN'])
     }
 
     async init () {
@@ -113,15 +114,10 @@ class PropertyResolver extends Resolver {
     }
 
     async normalizeChunk (properties) {
-        const response = await fetch(`${conf['ADDRESSSERVICE_DOMAIN']}/bulkSearch`, {
-            method: 'post',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                items: properties,
-                helpers: { tin: this.tin },
-            }),
+        const result = await this.addressService.bulkSearch({
+            items: properties,
+            helpers: { tin: this.tin },
         })
-        const result = await response.json()
         const normalizedAddresses = {}
         for (const address of Object.keys(result.map)) {
             try {
