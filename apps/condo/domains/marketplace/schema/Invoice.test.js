@@ -1156,5 +1156,21 @@ describe('Invoice', () => {
 
             expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
         })
+
+        test('can\'t publish invoice with isMin-price', async () => {
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                rows: [generateInvoiceRow({ isMin: true })],
+                status: INVOICE_STATUS_DRAFT,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN',
+                message: 'Can\'t publish invoice without defined prices',
+                messageForUser: 'api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden',
+            })
+        })
     })
 })

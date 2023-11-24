@@ -2475,5 +2475,6 @@
   "api.marketplace.invoice.error.NoFinishedInvoiceContext": "Организация не завершила настройку маркетплейса",
   "api.marketplace.invoice.error.editPublishedForbidden": "У счёта в статусе \"Готов к оплате\" можно обновить только статус в значения \"Отменён\" или \"Оплачен\"",
   "api.marketplace.invoice.error.clientDataDoesNotMatchTicket": "Адрес и данные контакта должны совпадать с данными из заявки, к которой привязан счёт",
-  "api.marketplace.invoice.error.forbidUpdateTicket": "Нельзя обновить заявку у счёта, который уже прикреплён к другой заявке"
+  "api.marketplace.invoice.error.forbidUpdateTicket": "Нельзя обновить заявку у счёта, который уже прикреплён к другой заявке",
+  "api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden": "Счет без определенных цен не может быть готов к оплате"
 }

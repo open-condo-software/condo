@@ -39,6 +39,7 @@ const {
     ERROR_FORBID_EDIT_PUBLISHED,
     ERROR_CLIENT_DATA_DOES_NOT_MATCH_TICKET,
     ERROR_FORBID_UPDATE_TICKET, CLIENT_DATA_FIELDS, COMMON_RESOLVED_FIELDS,
+    ERROR_PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN,
 } = require('@condo/domains/marketplace/constants')
 const { INVOICE_ROWS_FIELD } = require('@condo/domains/marketplace/schema/fields/invoiceRows')
 const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
@@ -101,6 +102,12 @@ const ERRORS = {
         type: ERROR_FORBID_UPDATE_TICKET,
         message: 'You cannot update ticket in invoice that is already linked to the ticket',
         messageForUser: 'api.marketplace.invoice.error.forbidUpdateTicket',
+    },
+    PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN: {
+        code: BAD_USER_INPUT,
+        type: ERROR_PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN,
+        message: 'Can\'t publish invoice without defined prices',
+        messageForUser: 'api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden',
     },
 }
 
@@ -278,6 +285,11 @@ const Invoice = new GQLListSchema('Invoice', {
                 if (Number(get(nextRows[i], 'toPay', null)) < 0) {
                     throw new GQLError(ERRORS.WRONG_PRICE(i + 1), context)
                 }
+            }
+
+            const hasMinPrice = nextRows.some((row) => get(row, 'isMin', false))
+            if (get(nextData, 'status') === INVOICE_STATUS_PUBLISHED && hasMinPrice) {
+                throw new GQLError(ERRORS.PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN, context)
             }
         },
 
