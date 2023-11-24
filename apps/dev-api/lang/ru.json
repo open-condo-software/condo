@@ -11,5 +11,7 @@
   "errors.USER_ALREADY_EXISTS.message": "Пользователь с таким номером телефона уже был зарегистрирован ранее",
   "errors.PASSWORD_TOO_SIMPLE.message": "Указанный пароль слишком короткий или содержит много повторяющихся символов",
   "errors.INVALID_MIMETYPE.message": "Неверный тип файла. Файл должен иметь одно из следующих расширений: {types}",
-  "errors.INVALID_BUILD_VERSION.message": "Версия билда должна быть семантически корректной и иметь формат X.Y.Z"
+  "errors.INVALID_BUILD_VERSION.message": "Указанная версия сборки не является семантически корректной",
+  "errors.FIRST_PUBLISH_WITHOUT_INFO.message": "Первая публикация приложения должна включать информацию о приложении",
+  "errors.APP_NOT_FOUND.message": "Приложение с указанным ID не найдено"
 }

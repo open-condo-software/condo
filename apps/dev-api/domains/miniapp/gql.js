@@ -3,20 +3,32 @@
  * In most cases you should not change it by hands
  * Please, don't remove `AUTOGENERATE MARKER`s
  */
+const { gql } = require('graphql-tag')
+
 const { generateGqlQueries } = require('@open-condo/codegen/generate.gql')
 
-const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const { AVAILABLE_ENVIRONMENTS } = require('@dev-api/domains/miniapp/constants/environments')
 
-const B2C_APP_FIELDS = `{ name logo { publicUrl } ${COMMON_FIELDS} }`
+const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId createdBy { id name } updatedBy { id name } createdAt updatedAt'
+const EXPORT_FIELDS = AVAILABLE_ENVIRONMENTS.map(environment => `${environment}ExportId`).join(' ')
+
+const B2C_APP_FIELDS = `{ name developer logo { publicUrl } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 
 const B2C_APP_BUILD_FIELDS = `{ app { id } version data { publicUrl } ${COMMON_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
+
+const PUBLISH_B2C_APP_MUTATION = gql`
+    mutation publishB2CApp ($data: PublishB2CAppInput!) {
+        result: publishB2CApp(data: $data) { success }
+    }
+`
 
 /* AUTOGENERATE MARKER <CONST> */
 
 module.exports = {
     B2CApp,
     B2CAppBuild,
+    PUBLISH_B2C_APP_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

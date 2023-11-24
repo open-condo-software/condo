@@ -13,6 +13,7 @@ const {
 const access = require('@dev-api/domains/miniapp/access/B2CAppBuild')
 const { B2C_BUILD_UNIQUE_VERSION_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
 const { INVALID_BUILD_VERSION } = require('@dev-api/domains/miniapp/constants/errors')
+const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
 
 const SEM_VER_REGEX = /^\d+.\d+.\d+(?:-\w+)?$/
 const ERRORS = {
@@ -80,7 +81,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
             },
         ],
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical()],
     access: {
         read: access.canReadB2CAppBuilds,
         create: access.canManageB2CAppBuilds,

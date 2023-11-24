@@ -1,0 +1,13 @@
+const DEV_ENVIRONMENT = 'development'
+const PROD_ENVIRONMENT = 'production'
+
+const AVAILABLE_ENVIRONMENTS = [
+    DEV_ENVIRONMENT,
+    PROD_ENVIRONMENT,
+]
+
+module.exports = {
+    DEV_ENVIRONMENT,
+    PROD_ENVIRONMENT,
+    AVAILABLE_ENVIRONMENTS,
+}

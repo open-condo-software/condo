@@ -11,6 +11,7 @@ const {
     getMimeTypesValidator,
 } = require('@dev-api/domains/common/utils/files')
 const access = require('@dev-api/domains/miniapp/access/B2CApp')
+const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
 
 const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos')
 const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
@@ -32,11 +33,16 @@ const B2CApp = new GQLListSchema('B2CApp', {
                 validateInput: getMimeTypesValidator({ allowedTypes: ['image/png'] }),
             },
         },
+        developer: {
+            schemaDoc: 'Developer company name which will be exported. If not specified, creator name will be taken',
+            type: 'Text',
+            isRequired: false,
+        },
     },
     hooks: {
         afterChange: LOGO_META_AFTER_CHANGE,
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), exportable(), historical()],
     access: {
         read: access.canReadB2CApps,
         create: access.canManageB2CApps,
