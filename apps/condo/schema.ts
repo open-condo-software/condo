@@ -1602,7 +1602,7 @@ export type AllMiniAppsWhereInput = {
 };
 
 export type AllResidentMetersInput = {
-  where: ResidentWhereUniqueInput;
+  resident: ResidentWhereUniqueInput;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
 };
@@ -67655,9 +67655,10 @@ export type QueryExportMeterReadingsArgs = {
 
 
 export type QueryAllResidentMetersArgs = {
-  where: ResidentWhereUniqueInput;
+  resident: ResidentWhereUniqueInput;
   first?: Maybe<Scalars['Int']>;
   skip?: Maybe<Scalars['Int']>;
+  sortBy?: Maybe<Array<SortMetersBy>>;
 };
 
 

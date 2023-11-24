@@ -374,12 +374,12 @@ async function updateTestMeterResourceOwner (client, id, extraAttrs = {}) {
 }
 
 
-async function allResidentMetersByTestClient(client, where = {}, first, skip) {
+async function allResidentMetersByTestClient(client, resident = {}, first, skip, sortBy) {
     if (!client) throw new Error('no client')
 
-    const { data, errors } = await client.query(ALL_RESIDENT_METERS_QUERY, { where, first, skip })
+    const { data, errors } = await client.query(ALL_RESIDENT_METERS_QUERY, { resident, first, skip, sortBy })
     throwIfError(data, errors)
-    return [data.result, {where, first, skip}]
+    return [data.result, { resident, first, skip, sortBy }]
 }
 /* AUTOGENERATE MARKER <FACTORY> */
 

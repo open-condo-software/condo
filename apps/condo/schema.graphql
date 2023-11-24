@@ -71358,7 +71358,7 @@ type _internalDeleteMeterAndMeterReadingsOutput {
 }
 
 input AllResidentMetersInput {
-  where: ResidentWhereUniqueInput!
+  resident: ResidentWhereUniqueInput!
   first: Int
   skip: Int
 }
@@ -75544,7 +75544,7 @@ type Query {
   predictTicketClassification(data: PredictTicketClassificationInput!): TicketClassifier
   getResidentExistenceByPhoneAndAddress(data: GetResidentExistenceByPhoneAndAddressInput!): GetResidentExistenceByPhoneAndAddressOutput
   exportMeterReadings(data: ExportMeterReadingsInput!): ExportMeterReadingsOutput
-  allResidentMeters(where: ResidentWhereUniqueInput!, first: Int, skip: Int): [ResidentMeter!]
+  allResidentMeters(resident: ResidentWhereUniqueInput!, first: Int, skip: Int, sortBy: [SortMetersBy!]): [ResidentMeter!]
   exportPaymentsToExcel(data: ExportPaymentsToExcelInput!): ExportPaymentsToExcelOutput
   generatePaymentLink(data: GeneratePaymentLinkInput!): GeneratePaymentLinkOutput
   _allPaymentsSum(where: PaymentWhereInput!): PaymentsSumOutput

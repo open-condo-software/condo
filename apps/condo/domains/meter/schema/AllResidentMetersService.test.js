@@ -258,7 +258,7 @@ describe('AllResidentMetersService', () => {
         })
     })
 
-    describe('Sorting', () => {
+    describe('Sorting and paging', () => {
         it('should be able to use skip and first arguments', async () => {
             const [startFromFirstData] = await allResidentMetersByTestClient(admin, { id: resident.id }, 1)
 
@@ -273,12 +273,12 @@ describe('AllResidentMetersService', () => {
             expect(skipOneData[1].id).toEqual(meter3.id)
         })
 
-        it('should ignore negative values', async () => {
-            const [data] = await allResidentMetersByTestClient(
-                admin, { id: resident.id }, faker.datatype.number({ max: 0, min: -10 }), faker.datatype.number({ max: 0, min: -10 })
-            )
+        it('should be able to use default sortBy argument from Meter', async () => {
+            const [createdAtDesc] = await allResidentMetersByTestClient(admin, { id: resident.id }, 3, 0, ['createdAt_DESC'])
+            const [createdAtAsc] = await allResidentMetersByTestClient(admin, { id: resident.id }, 3, 0, ['createdAt_ASC'])
 
-            expect(data).toHaveLength(3)
+            expect(createdAtDesc).not.toEqual(createdAtAsc)
+            expect(createdAtDesc).toEqual(createdAtAsc.reverse())
         })
     })
 })
