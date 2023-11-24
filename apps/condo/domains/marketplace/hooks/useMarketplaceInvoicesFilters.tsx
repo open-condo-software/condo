@@ -51,15 +51,15 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
         value: status,
     })), [intl])
 
-    const paymentTypeTranslationsToValue = INVOICE_PAYMENT_TYPES.reduce((acc, type) => {
+    const paymentTypeTranslationsToValue = useMemo(() => INVOICE_PAYMENT_TYPES.reduce((acc, type) => {
         acc[intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.payment.${type}` })] = type
         return acc
-    }, {})
+    }, {}), [intl])
     const paymentTypeSearchFilter = getTranslationToValueFilter('paymentType', paymentTypeTranslationsToValue)
-    const statusTranslationsToValue = INVOICE_STATUSES.reduce((acc, status) => {
+    const statusTranslationsToValue = useMemo(() => INVOICE_STATUSES.reduce((acc, status) => {
         acc[intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` })] = status
         return acc
-    }, {})
+    }, {}), [intl])
     const statusSearchFilter = getTranslationToValueFilter('status', statusTranslationsToValue)
 
     return useMemo(() => {

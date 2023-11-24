@@ -16,7 +16,9 @@ import { MarketplaceInvoicesContent } from '@condo/domains/marketplace/component
 import { MarketplacePaymentsContent } from '@condo/domains/marketplace/components/MarketplacePaymentsContent'
 import { INVOICE_CONTEXT_STATUS_FINISHED } from '@condo/domains/marketplace/constants'
 import { useQueryTab } from '@condo/domains/marketplace/hooks/useQueryTab'
-import { InvoiceContext, MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
+import { MARKETPLACE_PAGE_TYPES } from '@condo/domains/marketplace/utils/clientSchema'
+
+import { useInvoiceContext } from './ContextProvider'
 
 
 export const MarketplacePageContent = () => {
@@ -38,14 +40,7 @@ export const MarketplacePageContent = () => {
 
     const router = useRouter()
     const userOrganization = useOrganization()
-    const orgId = get(userOrganization, ['organization', 'id'], null)
-    const { obj: invoiceContext, loading: invoiceLoading, error: invoiceError, refetch: refetchInvoice } = InvoiceContext.useObject({
-        where: {
-            status: INVOICE_CONTEXT_STATUS_FINISHED,
-            organization: { id: orgId },
-        },
-    })
-
+    const { invoiceContext } = useInvoiceContext()
     const marketplaceIsSetup = invoiceContext && get(invoiceContext, 'status') === INVOICE_CONTEXT_STATUS_FINISHED
     const role = get(userOrganization, ['link', 'role'], {})
     const canReadPayments = get(role, ['canReadPayments'], false)

@@ -31,12 +31,12 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
     const search = getFilteredValue(filters, 'search')
     const render = useMemo(() => getTableCellRenderer({ search }), [search])
 
-    return [
+    return useMemo(() => [
         {
             title: DateTitle,
             dataIndex: 'createdAt',
             key: 'createdAt',
-            width: '9%',
+            width: '8%',
             render: getDateRender(intl, String(search)),
             sorter: true,
             sortOrder: get(sorterMap, 'createdAt'),
@@ -59,7 +59,10 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             dataIndex: 'rows',
             width: '25%',
             render: (rows) => {
-                const joinedRows = rows.map(row => row.name).join(', ')
+                const joinedRows = rows.map((row, index) => {
+                    const name = row.name
+                    return index > 0 ? name.toLowerCase() : name
+                }).join(', ')
 
                 return render(joinedRows)
             },
@@ -82,7 +85,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             title: StatusTitle,
             key: 'status',
             dataIndex: 'status',
-            width: '15%',
+            width: '20%',
             render: (status) => {
                 const label = intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceList.${status}` })
 
@@ -119,5 +122,5 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'toPay'),
             filterIcon: getFilterIcon,
         },
-    ]
+    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, StatusTitle, SumTitle, filters, filtersMeta, intl, render, search, sorterMap])
 }

@@ -7,12 +7,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
+import { ActionBar, Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
 import EmptyListView from '@condo/domains/common/components/EmptyListView'
 import { Loader } from '@condo/domains/common/components/Loader'
 import DateRangePicker from '@condo/domains/common/components/Pickers/DateRangePicker'
-import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table'
+import { DEFAULT_PAGE_SIZE, Table } from '@condo/domains/common/components/Table/Index'
 import { TableFiltersContainer } from '@condo/domains/common/components/TableFiltersContainer'
 import { useQueryMappers } from '@condo/domains/common/hooks/useQueryMappers'
 import { useSearch } from '@condo/domains/common/hooks/useSearch'
@@ -27,6 +28,7 @@ import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 const TableContent = () => {
     const intl = useIntl()
     const SearchPlaceholder = intl.formatMessage({ id: 'filters.FullSearch' })
+    const CreateInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceList.createInvoice' })
 
     const router = useRouter()
     const { organization } = useOrganization()
@@ -54,7 +56,7 @@ const TableContent = () => {
         where: {
             ...filtersToWhere(filters),
             context: {
-                organization: { id: organization.id },
+                organization: { id: get(organization, 'id', null) },
             },
         },
         first: DEFAULT_PAGE_SIZE,
@@ -66,9 +68,6 @@ const TableContent = () => {
 
     const filtersFromQuery = useMemo(() => getFiltersFromQuery(router.query), [router.query])
     const createdAtValueFromQuery = useMemo(() => get(filtersFromQuery, 'createdAt'), [filtersFromQuery])
-    const initialValue = createdAtValueFromQuery ?
-        [dayjs(createdAtValueFromQuery[0]), dayjs(createdAtValueFromQuery[1])] :
-        [dayjs().subtract(6, 'days'), dayjs()]
 
     const [dateRange, setDateRange] = useState()
     const handleDateRangeChange = useCallback(async (value) => {
@@ -79,13 +78,20 @@ const TableContent = () => {
 
     useEffect(() => {
         if (!dateRange) {
+            const initialValue = createdAtValueFromQuery ?
+                [dayjs(createdAtValueFromQuery[0]), dayjs(createdAtValueFromQuery[1])] :
+                [dayjs().subtract(6, 'days'), dayjs()]
             handleDateRangeChange(initialValue)
         }
-    }, [])
+    }, [createdAtValueFromQuery, dateRange, handleDateRangeChange])
 
     const disabledDate = useCallback((currentDate) => {
         return currentDate && currentDate < dayjs().startOf('year')
     }, [])
+
+    const handleCreateButtonClick = useCallback(async () => {
+        await router.push('/marketplace/invoice/create')
+    }, [router])
 
     return (
         <Row gutter={[0, 40]}>
@@ -120,6 +126,19 @@ const TableContent = () => {
                     onRow={handleRowAction}
                 />
             </Col>
+            <Col span={24}>
+                <ActionBar
+                    actions={[
+                        <Button
+                            key='createInvoice'
+                            type='primary'
+                            onClick={handleCreateButtonClick}
+                        >
+                            {CreateInvoiceMessage}
+                        </Button>,
+                    ]}
+                />
+            </Col>
         </Row>
     )
 }
@@ -137,7 +156,7 @@ export const MarketplaceInvoicesContent = () => {
     const { count, loading } = Invoice.useCount({
         where: {
             context: {
-                organization: { id: organization.id },
+                organization: { id: get(organization, 'id', null) },
             },
         },
     })
