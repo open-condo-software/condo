@@ -34,6 +34,8 @@ const {
     updateTestMeterReading,
     createTestMeterReadingSource,
     updateTestMeter,
+    MeterResourceOwner,
+    updateTestMeterResourceOwner,
 } = require('@condo/domains/meter/utils/testSchema')
 const {
     createTestB2BApp,
@@ -214,6 +216,56 @@ describe('MeterReading', () => {
                     const [meterReading] = await createTestMeterReading(userClient, meter, source)
 
                     expect(meterReading.id).toMatch(UUID_RE)
+                })
+
+                test('resident: can create MeterReadings based on resource ownership', async () => {
+                    const adminClient = await makeLoggedInAdminClient()
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const unitName = faker.random.alphaNumeric(8)
+                    const accountNumber = faker.random.alphaNumeric(8)
+                    const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(adminClient, resident, userClient.organization, {
+                        accountNumber,
+                    })
+                    const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
+                        unitName, accountNumber,
+                    })
+                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(userClient, meter, source)
+
+                    expect(meterReading.id).toMatch(UUID_RE)
+                    const resourceOwner = await MeterResourceOwner.getOne(adminClient, {
+                        addressKey: userClient.property.addressKey, organization: { id: userClient.organization.id }, resource: { id: resource.id } }
+                    )
+
+                    expect(resourceOwner).toBeDefined()
+
+                    const { organization: newOrganization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+
+                    const [property] = await createTestProperty(adminClient, newOrganization, {
+                        address: resourceOwner.address,
+                    })
+
+                    expect(property.addressKey).toEqual(resourceOwner.addressKey)
+
+                    const [updatedResourceOwner] = await updateTestMeterResourceOwner(adminClient, resourceOwner.id, {
+                        organization: { connect: { id: newOrganization.id } },
+                    })
+                    await createTestServiceConsumer(adminClient, resident, newOrganization, {
+                        accountNumber,
+                    })
+
+                    const [newMeter] = await createTestMeter(adminClient, newOrganization, property, resource, {
+                        unitName, accountNumber,
+                    })
+
+                    const [newMeterReading] = await createTestMeterReading(userClient, newMeter, source)
+
+                    expect(newMeterReading).toBeDefined()
+
                 })
 
                 test('resident: client info saved in new reading', async () => {
