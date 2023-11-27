@@ -7,7 +7,7 @@ import { z } from 'zod'
 import type { ApolloError } from '@apollo/client'
 import type { FormInstance } from 'antd'
 
-type ErrorHandler = (error: ApolloError) => void
+export type ErrorHandler = (error: ApolloError) => void
 
 type UseMutationErrorHandlerArgs<FormType> = {
     form?: FormInstance<FormType>

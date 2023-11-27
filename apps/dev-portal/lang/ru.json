@@ -70,6 +70,7 @@
   "apps.id.menu.title": "Настройки приложения",
   "apps.id.notifications.successSave.title": "Изменения сохранены",
   "apps.id.notifications.successSave.description": "Не забудьте опубликовать изменения на соответсвующий стенд, чтобы они вступили в силу",
+  "apps.id.notifications.successPublish.title": "Изменения опубликованы",
 
   "apps.b2c.sections.info.title": "Информация",
   "apps.b2c.sections.info.commonInfo.subtitle": "Общая информация",

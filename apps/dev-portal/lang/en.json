@@ -70,6 +70,7 @@
   "apps.id.menu.title": "App settings",
   "apps.id.notifications.successSave.title": "Changes have been saved",
   "apps.id.notifications.successSave.description": "Don't forget to publish the changes to the corresponding stand for them to take effect",
+  "apps.id.notifications.successPublish.title": "Changes have been published",
 
   "apps.b2c.sections.info.title": "Info",
   "apps.b2c.sections.info.commonInfo.subtitle": "Common info",

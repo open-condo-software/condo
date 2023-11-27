@@ -79,7 +79,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
         colorSchema: DEFAULT_COLOR_SCHEMA,
         logo: app.logo
             ? serverClient.createUploadFile(got.stream(app.logo.publicUrl), app.logo.originalFilename)
-            : fs.createReadStream(B2C_APP_DEFAULT_LOGO_PATH),
+            : serverClient.createUploadFile(fs.createReadStream(B2C_APP_DEFAULT_LOGO_PATH)),
         importId: app.id,
         importRemoteSystem: REMOTE_SYSTEM,
     }

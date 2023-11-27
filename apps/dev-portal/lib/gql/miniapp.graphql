@@ -50,3 +50,9 @@ mutation createB2CAppBuild($data: B2CAppBuildCreateInput!) {
         version
     }
 }
+
+mutation publishB2CApp($data: PublishB2CAppInput!) {
+    publishB2CApp(data: $data) {
+        success
+    }
+}
