@@ -1272,6 +1272,7 @@
   "pages.condo.marketplace.invoice.invoiceList.paid": "Paid",
   "pages.condo.marketplace.invoice.invoiceList.canceled": "Cancelled",
   "pages.condo.marketplace.invoice.invoiceList.createInvoice": "Add invoice",
+  "pages.condo.marketplace.invoice.invoiceList.ticketNumber": "Ticket number",
   "pages.condo.marketplace.invoice.form.payerData": "Has payer data",
   "pages.condo.marketplace.invoice.form.payerNoData": "No data",
   "pages.condo.marketplace.invoice.form.service.placeholder": "Type or select",

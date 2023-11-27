@@ -1,6 +1,6 @@
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
-import { useMemo } from 'react'
+import { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { Tag } from '@open-condo/ui'
@@ -23,6 +23,7 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
     const StatusTitle = intl.formatMessage({ id: 'Status' })
     const SumTitle = intl.formatMessage({ id: 'global.sum' })
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
+    const TicketNumber = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceList.ticketNumber' })
 
     const router = useRouter()
     const { filters, sorters } = parseQuery(router.query)
@@ -46,11 +47,33 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             key: 'number',
             dataIndex: 'number',
             width: '15%',
-            render,
+            render: (number) => {
+                return render(`№${number}`)
+            },
             sorter: true,
             sortOrder: get(sorterMap, 'number'),
             filteredValue: getFilteredValue(filters, 'number'),
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'number'),
+            filterIcon: getFilterIcon,
+        },
+        {
+            title: TicketNumber,
+            key: 'ticket',
+            dataIndex: 'ticket',
+            width: '15%',
+            render: (ticket) => {
+                if (!ticket) {
+                    return '—'
+                }
+
+                const renderTicketNumber = getTableCellRenderer({ search, href: `/ticket/${ticket.id}`, target: '_blank' })
+
+                return renderTicketNumber(`№${ticket.number}`)
+            },
+            sorter: true,
+            sortOrder: get(sorterMap, 'ticket'),
+            filteredValue: getFilteredValue(filters, 'ticket'),
+            filterDropdown: getFilterDropdownByKey(filtersMeta, 'ticket'),
             filterIcon: getFilterIcon,
         },
         {
@@ -122,5 +145,5 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             filterDropdown: getFilterDropdownByKey(filtersMeta, 'toPay'),
             filterIcon: getFilterIcon,
         },
-    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, StatusTitle, SumTitle, filters, filtersMeta, intl, render, search, sorterMap])
+    ], [ContractPriceMessage, DateTitle, InvoiceNumberTitle, PaymentTypeTitle, RowsTitle, StatusTitle, SumTitle, TicketNumber, filters, filtersMeta, intl, render, search, sorterMap])
 }

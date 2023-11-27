@@ -1272,6 +1272,7 @@
   "pages.condo.marketplace.invoice.invoiceList.paid": "Оплачен",
   "pages.condo.marketplace.invoice.invoiceList.canceled": "Отменён",
   "pages.condo.marketplace.invoice.invoiceList.createInvoice": "Добавить счёт",
+  "pages.condo.marketplace.invoice.invoiceList.ticketNumber": "№ заявки",
   "pages.condo.marketplace.invoice.form.payerData": "Есть данные о плательщике",
   "pages.condo.marketplace.invoice.form.payerNoData": "Нет данных",
   "pages.condo.marketplace.invoice.form.service.placeholder": "Введите или выберите",

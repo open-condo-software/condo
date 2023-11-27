@@ -17,6 +17,7 @@ const createdAtRangeFilter = getDayRangeFilter('createdAt')
 const numberFilter = getNumberFilter('number')
 const paymentTypeFilter = getFilter('paymentType', 'array', 'string', 'in')
 const statusFilter = getFilter('status', 'array', 'string', 'in')
+const ticketNumberFilter = getNumberFilter(['ticket', 'number'])
 
 const getTranslationToValueFilter = (field, fieldTranslationsToValueMap) => (search) => {
     if (!search) return
@@ -66,7 +67,7 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
         return [
             {
                 keyword: 'search',
-                filters: [createdAtRangeFilter, numberFilter, paymentTypeSearchFilter, statusSearchFilter],
+                filters: [createdAtRangeFilter, numberFilter, paymentTypeSearchFilter, statusSearchFilter, ticketNumberFilter],
                 combineType: 'OR',
             },
             {
@@ -82,6 +83,16 @@ export function useMarketplaceInvoicesFilters (): Array<FiltersMeta<InvoiceWhere
             {
                 keyword: 'number',
                 filters: [numberFilter],
+                component: {
+                    type: ComponentType.Input,
+                    props: {
+                        placeholder: NumberMessage,
+                    },
+                },
+            },
+            {
+                keyword: 'ticket',
+                filters: [ticketNumberFilter],
                 component: {
                     type: ComponentType.Input,
                     props: {
