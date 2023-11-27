@@ -1310,6 +1310,8 @@
   "pages.condo.marketplace.invoice.id.title.payerData": "Данные плательщика",
   "pages.condo.marketplace.invoice.id.field.address": "Адрес",
   "pages.condo.marketplace.invoice.id.field.contact": "Контакт",
+  "pages.condo.marketplace.invoice.id.ticketAlert.message": "Счёт привязан к заявке №{number}",
+  "pages.condo.marketplace.invoice.id.ticketAlert.description": "Посмотреть заявку",
   "news.fields.units.label": "Помещение",
   "news.fields.units.message": "Чтобы выбрать помещения, удалите выбранные подъезды",
   "news.fields.sections.label": "Подъезд",

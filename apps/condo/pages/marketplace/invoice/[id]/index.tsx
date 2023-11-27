@@ -11,7 +11,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Alert, Button, Space, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -117,6 +117,33 @@ const InvoiceHeader = ({ invoice, title, refetchInvoice, employee }) => {
                 }
             </Col>
         </Row>
+    )
+}
+
+const InvoiceTicketAlert = ({ invoiceTicket }) => {
+    const intl = useIntl()
+    const AlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.ticketAlert.message' }, { number: invoiceTicket.number })
+    const AlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.ticketAlert.description' })
+
+    return (
+        <Alert
+            type='info'
+            showIcon
+            message={
+                <Typography.Text>
+                    {AlertMessage}
+                </Typography.Text>
+            }
+            description={
+                <Typography.Link
+                    href={`/ticket/${invoiceTicket.id}`}
+                    target='_blank'
+                    size='large'
+                >
+                    {AlertDescription}
+                </Typography.Link>
+            }
+        />
     )
 }
 
@@ -319,6 +346,7 @@ const InvoiceIdPage = () => {
     const unitName = get(invoice, 'unitName')
     const clientPhone = get(invoice, 'clientPhone')
     const isCreatedByResident = get(invoice, 'createdBy.type') === RESIDENT
+    const invoiceTicket = get(invoice, 'ticket')
 
     const isTerminalStatus = status === INVOICE_STATUS_PAID || status === INVOICE_STATUS_CANCELED
     const hasPayerData = propertyId && unitName && unitType && clientPhone
@@ -341,6 +369,13 @@ const InvoiceIdPage = () => {
                                         employee={link}
                                     />
                                 </Col>
+                                {
+                                    invoiceTicket && (
+                                        <Col span={24}>
+                                            <InvoiceTicketAlert invoiceTicket={invoiceTicket} />
+                                        </Col>
+                                    )
+                                }
                                 <Col span={24}>
                                     <InvoiceRowsTable invoice={invoice} />
                                 </Col>
