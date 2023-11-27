@@ -17,7 +17,7 @@ type PageType = React.FC & {
 
 const MarketplacePage: PageType = () => {
     const intl = useIntl()
-    const PageTitle = intl.formatMessage({ id: 'global.section.accrualsAndPayments' })
+    const PageTitle = intl.formatMessage({ id: 'pages.condo.marketplace.title' })
 
     const userOrganization = useOrganization()
     const orgId = get(userOrganization, ['organization', 'id'], null)

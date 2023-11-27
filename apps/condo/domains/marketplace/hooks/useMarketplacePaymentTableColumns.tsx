@@ -30,14 +30,14 @@ export function useMarketplacePaymentTableColumns <T> (filterMetas: Array<Filter
     const search = getFilteredValue(filters, 'search')
 
     const invoiceNumberRender = useCallback(payment => {
-        const InvoiceId = get(payment, 'invoice.id')
+        const invoiceId = get(payment, 'invoice.id')
         const invoiceNumber = get(payment, 'invoice.number')
 
-        if (!InvoiceId) {
+        if (!invoiceId) {
             return '—'
         }
 
-        return getTableCellRenderer({ search, href: `marketplace/invoice/${InvoiceId}`, target: '_blank' })(invoiceNumber)
+        return getTableCellRenderer({ search, href: `marketplace/invoice/${invoiceId}`, target: '_blank' })(invoiceNumber)
     }
     , [search])
 
