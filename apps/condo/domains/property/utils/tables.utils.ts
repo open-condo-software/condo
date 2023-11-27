@@ -42,6 +42,6 @@ export const getUnitFilter = (translations: Record<string, string>): FilterType 
 
     return {
         unitName_i: unitName,
-        ...(unitType ? { unitType } : undefined),
+        unitType: unitType || FLAT_UNIT_TYPE,
     }
 }
