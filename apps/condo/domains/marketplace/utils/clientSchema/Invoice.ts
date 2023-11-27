@@ -19,7 +19,7 @@ import { Invoice as InvoiceGQL } from '@condo/domains/marketplace/gql'
 
 const RELATIONS = ['property', 'contact', 'ticket', 'context']
 const DISCONNECT_ON_NULL = ['property', 'contact', 'ticket']
-const IGNORE_FORM_FIELDS = ['payerData', 'toPay', 'errorContainer']
+const IGNORE_FORM_FIELDS = ['payerData', 'toPay']
 
 export type InvoiceRowType = {
     count: number
@@ -63,7 +63,7 @@ export function convertToFormState (invoice: Invoice, intl): InvoiceFormValuesTy
         })
 
     return {
-        payerData: !!get(invoice, 'contact.id'),
+        payerData: !!(get(invoice, 'contact.id') || get(invoice, 'property') || get(invoice, 'clientPhone')),
         paymentType: get(invoice, 'paymentType'),
         status: get(invoice, 'status'),
         contact: get(invoice, 'contact.id'),

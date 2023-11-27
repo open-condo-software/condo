@@ -226,10 +226,14 @@ const AddressField = ({ invoice }) => {
                     {streetPart}
                 </Typography.Link>
             </Link>
-            <Typography.Paragraph>
-                <Typography.Text>{ticketUnitMessage}</Typography.Text>
-                <Typography.Text>{SectionAndFloorMessage}</Typography.Text>
-            </Typography.Paragraph>
+            {
+                unitName && (
+                    <Typography.Paragraph>
+                        <Typography.Text>{ticketUnitMessage}</Typography.Text>
+                        <Typography.Text>{SectionAndFloorMessage}</Typography.Text>
+                    </Typography.Paragraph>
+                )
+            }
         </Space>
     )
 }

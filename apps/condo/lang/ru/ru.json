@@ -1293,6 +1293,7 @@
   "pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident": "Передайте ссылку на оплату жителю",
   "pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData": "Ссылка на оплату будет готова после сохранения счёта",
   "pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData": "Её можно будет передать жителю любым удобным вам способом",
+  "pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData": "Вы не указали телефон и ФИО жителя, поэтому не забудьте передать ему ссылку на оплату, любым доступным вам способом.",
   "pages.condo.marketplace.invoice.form.cancelInvoiceMessage": "Хотите отменить счёт?",
   "pages.condo.marketplace.invoice.form.cancelInvoiceDescription": "Это конечный статус. Из этого статуса больше не получится ни в какой другой перевести счёт. И отображаться у жителя этот счёт в МП тоже больше не будет.",
   "pages.condo.marketplace.invoice.form.cancelInvoiceButton": "Отменить счёт",

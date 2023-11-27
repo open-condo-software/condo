@@ -163,8 +163,6 @@ const UnitNameFormField = ({ form, property, disabled }) => {
     const intl = useIntl()
     const UnitNameLabel = intl.formatMessage({ id: 'field.FlatNumber' })
 
-    const { requiredValidator } = useValidations()
-
     const onChange = useCallback((_, option: UnitNameInputOption) => {
         if (isEmpty(option)) {
             return form.setFieldsValue({
@@ -188,10 +186,8 @@ const UnitNameFormField = ({ form, property, disabled }) => {
         <>
             <Form.Item
                 label={UnitNameLabel}
-                required
                 labelCol={{ span: 24 }}
                 name='unitName'
-                rules={[requiredValidator]}
             >
                 <UnitNameInput
                     property={property}
@@ -210,9 +206,6 @@ const UnitNameFormField = ({ form, property, disabled }) => {
 }
 
 const ContactFormField = ({ role, organizationId, form, disabled }) => {
-    const intl = useIntl()
-    const FillContactDataMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.error.fillContactData' })
-
     const { ContactsEditorComponent } = useContactsEditorHook({
         role,
         initialQuery: { organization: { id: organizationId } },
@@ -246,7 +239,7 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
                                 property={property}
                                 unitName={unitName}
                                 unitType={unitType}
-                                contactFormItemProps={{ required: true, labelCol: { span: 24 } }}
+                                contactFormItemProps={{ labelCol: { span: 24 } }}
                                 newContactFormItemProps={{ labelCol: { span: 24 } }}
                                 disabled={disabled}
                             />
@@ -254,26 +247,6 @@ const ContactFormField = ({ role, organizationId, form, disabled }) => {
                     }
                 }
             </Form.Item>
-            <Form.Item
-                name='errorContainer'
-                noStyle
-                rules={[
-                    (form) => ({
-                        validator: () => {
-                            const payerData = form.getFieldValue('payerData')
-                            if (!payerData) return Promise.resolve()
-
-                            const { contact, clientName, clientPhone } = form.getFieldsValue(['contact', 'clientName', 'clientPhone'])
-
-                            if (contact || (clientPhone && clientName)) {
-                                return Promise.resolve()
-                            }
-
-                            return Promise.reject(FillContactDataMessage)
-                        },
-                    }),
-                ]}
-            />
         </>
     )
 }
@@ -812,6 +785,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
     const ServicesListMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.servicesList' })
     const NoPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData' })
     const NoPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData' })
+    const EmptyPayerDataAlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident' })
+    const EmptyPayerDataAlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData' })
+    const LinkWillBeGeneratedMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.paymentAlert.description.linkWillBeGeneratedMessage' })
     const ContractPriceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' }).toLowerCase()
 
     const {
@@ -1032,9 +1008,9 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                         {
                                                             ({ getFieldsValue }) => {
                                                                 const {
-                                                                    payerData, property, unitName, unitType, clientName, clientPhone, hasIsMinPrice,
-                                                                } = getFieldsValue(['payerData', 'property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'hasIsMinPrice'])
-                                                                const isNoPayerData = payerData && (!property || !unitName || !unitType || !clientName || !clientPhone)
+                                                                    payerData, property, hasIsMinPrice,
+                                                                } = getFieldsValue(['payerData', 'property', 'hasIsMinPrice'])
+                                                                const isNoPayerData = payerData && !property
                                                                 const initialStatus = get(initialValues, 'status')
                                                                 const isNotDraftStatusesDisabled = hasIsMinPrice || isNoPayerData ||
                                                                     initialStatus === INVOICE_STATUS_CANCELED || initialStatus === INVOICE_STATUS_PAID
@@ -1084,7 +1060,25 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                     }
 
                                                     if (!property || !unitName || !unitType || !clientPhone) {
-                                                        return
+                                                        return (
+                                                            <Col md={colSpan}>
+                                                                <Alert
+                                                                    type='warning'
+                                                                    message={EmptyPayerDataAlertMessage}
+                                                                    description={(
+                                                                        <>
+                                                                            <Typography.Paragraph size='medium'>
+                                                                                {EmptyPayerDataAlertDescription}
+                                                                            </Typography.Paragraph>
+                                                                            <Typography.Paragraph size='medium'>
+                                                                                {LinkWillBeGeneratedMessage}
+                                                                            </Typography.Paragraph>
+                                                                        </>
+                                                                    )}
+                                                                    showIcon
+                                                                />
+                                                            </Col>
+                                                        )
                                                     }
 
                                                     return (

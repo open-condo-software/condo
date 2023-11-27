@@ -1293,6 +1293,7 @@
   "pages.condo.marketplace.invoice.form.paymentAlert.message.passLinkToResident": "Pass payment link to resident",
   "pages.condo.marketplace.invoice.form.paymentAlert.message.noPayerData": "Payment link will be ready after invoice saving",
   "pages.condo.marketplace.invoice.form.paymentAlert.description.noPayerData": "It can be given to the resident in any way convenient to you",
+  "pages.condo.marketplace.invoice.form.paymentAlert.description.emptyPayerData": "You have not specified the phone and name of the resident, so do not forget to give him the link to the payment, any way available to you.",
   "pages.condo.marketplace.invoice.form.cancelInvoiceMessage": "Do you want to cancel invoice?",
   "pages.condo.marketplace.invoice.form.cancelInvoiceDescription": "This is the final status. From this status you will not be able to change status. And this invoice will not be displayed in the resident’s mobile app either.",
   "pages.condo.marketplace.invoice.form.cancelInvoiceButton": "Cancel invoice",
