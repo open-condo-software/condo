@@ -63,38 +63,72 @@ const {
 } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
+const { HOT_WATER_METER_RESOURCE_ID } = require('../constants/constants')
+
 describe('MeterReading', () => {
+    let admin
+    let employeeCanManageReadings
+    let employeeCanNotManageReadings
+    let residentClient
+
+    beforeAll(async () => {
+        admin = await makeLoggedInAdminClient()
+        residentClient = await makeClientWithResidentUser()
+        employeeCanManageReadings = await makeEmployeeUserClientWithAbilities({ canManageMeterReadings: true })
+        employeeCanNotManageReadings = await makeEmployeeUserClientWithAbilities({ canManageMeterReadings: false })
+    })
     describe('CRUD', () => {
         describe('Create', () => {
-            describe('Employee', () => {
-                test('employee with "canManageMeterReadings" role: can create MeterReadings', async () => {
-                    const client = await makeEmployeeUserClientWithAbilities({
-                        canManageMeterReadings: true,
-                    })
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+            describe('Admin', () => {
+                test('can create MeterReadings', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
 
-                    const [meterReading] = await createTestMeterReading(client, meter, source)
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
 
                     expect(meterReading.id).toMatch(UUID_RE)
-                    expect(meterReading.organization.id).toMatch(client.organization.id)
+                })
+            })
+            describe('Employee', () => {
+                test('employee with "canManageMeterReadings" role: can create MeterReadings', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, {
+                        id: COLD_WATER_METER_RESOURCE_ID,
+                    })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, {
+                        id: CALL_METER_READING_SOURCE_ID,
+                    })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                        {}
+                    )
+
+                    const [meterReading] = await createTestMeterReading(employeeCanManageReadings, meter, source)
+
+                    expect(meterReading.id).toMatch(UUID_RE)
+                    expect(meterReading.organization.id).toMatch(employeeCanManageReadings.organization.id)
                 })
 
                 test('employee with "canManageMeterReadings" role: can create MeterReadings with float number value', async () => {
-                    const client = await makeEmployeeUserClientWithAbilities({
-                        canManageMeterReadings: true,
-                    })
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
-                        numberOfTariffs: 2,
-                    })
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                        { numberOfTariffs: 2 }
+                    )
 
                     const numberValue1 = String(faker.datatype.float())
                     const numberValue2 = String(faker.datatype.float())
 
-                    const [meterReading] = await createTestMeterReading(client, meter, source, {
+                    const [meterReading] = await createTestMeterReading(employeeCanManageReadings, meter, source, {
                         value1: numberValue1,
                         value2: numberValue2,
                     })
@@ -103,19 +137,20 @@ describe('MeterReading', () => {
                 })
 
                 test('employee with "canManageMeterReadings" role: cannot create MeterReadings with string value', async () => {
-                    const client = await makeEmployeeUserClientWithAbilities({
-                        canManageMeterReadings: true,
-                    })
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {
-                        numberOfTariffs: 2,
-                    })
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                        { numberOfTariffs: 2 }
+                    )
 
                     const stringValue = faker.random.alphaNumeric(8)
 
                     await catchErrorFrom(async () => {
-                        await createTestMeterReading(client, meter, source, {
+                        await createTestMeterReading(employeeCanManageReadings, meter, source, {
                             value1: stringValue,
                         })
                     }, ({ errors, data }) => {
@@ -125,15 +160,18 @@ describe('MeterReading', () => {
                 })
 
                 test('employee with "canManageMeterReadings" role: cannot create MeterReadings with wrong "sender" field', async () => {
-                    const client = await makeEmployeeUserClientWithAbilities({
-                        canManageMeterReadings: true,
-                    })
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                        {}
+                    )
 
                     await catchErrorFrom(async () => {
-                        await createTestMeterReading(client, meter, source, {
+                        await createTestMeterReading(employeeCanManageReadings, meter, source, {
                             sender: null,
                         })
                     }, ({ errors, data }) => {
@@ -144,21 +182,22 @@ describe('MeterReading', () => {
                 })
 
                 test('employee without "canManageMeters" role: cannot create MeterReadings', async () => {
-                    const admin = await makeLoggedInAdminClient()
-                    const client = await makeEmployeeUserClientWithAbilities({
-                        canManageMeterReadings: false,
-                    })
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                    const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
+                    const [resource] = await MeterResource.getAll(employeeCanNotManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanNotManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        admin,
+                        employeeCanNotManageReadings.organization,
+                        employeeCanNotManageReadings.property,
+                        resource,
+                        {}
+                    )
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client, meter, source)
+                        await createTestMeterReading(employeeCanNotManageReadings, meter, source)
                     })
                 })
 
                 test('employee from "from" related organization with "canManageMeterReadings" role: can create MeterReadings', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                     const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
                         canManageMeterReadings: true,
@@ -176,7 +215,6 @@ describe('MeterReading', () => {
                 })
 
                 test('employee from "from" related organization without "canManageMeterReadings" role: cannot create MeterReadings', async () => {
-                    const admin = await makeLoggedInAdminClient()
                     const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
                     const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
                     const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
@@ -196,69 +234,66 @@ describe('MeterReading', () => {
             })
 
             describe('Resident', () => {
-                test('resident: can create MeterReadings in his unit', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
+                test('can create MeterReadings in his unit', async () => {
                     const userClient = await makeClientWithResidentAccessAndProperty()
                     const unitName = faker.random.alphaNumeric(8)
                     const accountNumber = faker.random.alphaNumeric(8)
-                    const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+                    const [resident] = await createTestResident(admin, userClient.user, userClient.property, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident, userClient.organization,  {
+                    await createTestServiceConsumer(admin, resident, userClient.organization,  {
                         accountNumber,
                     })
                     const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
+                    const [meter] = await createTestMeter(admin, userClient.organization, userClient.property, resource, {
                         unitName,
                         accountNumber,
                     })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
                     const [meterReading] = await createTestMeterReading(userClient, meter, source)
 
                     expect(meterReading.id).toMatch(UUID_RE)
                 })
 
-                test('resident: can create MeterReadings based on resource ownership', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
+                test('can create MeterReadings based on resource ownership', async () => {
                     const userClient = await makeClientWithResidentAccessAndProperty()
                     const unitName = faker.random.alphaNumeric(8)
                     const accountNumber = faker.random.alphaNumeric(8)
-                    const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+                    const [resident] = await createTestResident(admin, userClient.user, userClient.property, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident, userClient.organization, {
+                    await createTestServiceConsumer(admin, resident, userClient.organization, {
                         accountNumber,
                     })
                     const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
+                    const [meter] = await createTestMeter(admin, userClient.organization, userClient.property, resource, {
                         unitName, accountNumber,
                     })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
                     const [meterReading] = await createTestMeterReading(userClient, meter, source)
 
                     expect(meterReading.id).toMatch(UUID_RE)
-                    const resourceOwner = await MeterResourceOwner.getOne(adminClient, {
+                    const resourceOwner = await MeterResourceOwner.getOne(admin, {
                         addressKey: userClient.property.addressKey, organization: { id: userClient.organization.id }, resource: { id: resource.id } }
                     )
 
                     expect(resourceOwner).toBeDefined()
 
-                    const { organization: newOrganization, context } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                    const { organization: newOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
 
-                    const [property] = await createTestProperty(adminClient, newOrganization, {
+                    const [property] = await createTestProperty(admin, newOrganization, {
                         address: resourceOwner.address,
                     })
 
                     expect(property.addressKey).toEqual(resourceOwner.addressKey)
-
-                    const [updatedResourceOwner] = await updateTestMeterResourceOwner(adminClient, resourceOwner.id, {
+                    await updateTestMeterResourceOwner(admin, resourceOwner.id, {
                         organization: { connect: { id: newOrganization.id } },
                     })
-                    await createTestServiceConsumer(adminClient, resident, newOrganization, {
+                    await createTestServiceConsumer(admin, resident, newOrganization, {
                         accountNumber,
                     })
 
-                    const [newMeter] = await createTestMeter(adminClient, newOrganization, property, resource, {
+                    const [newMeter] = await createTestMeter(admin, newOrganization, property, resource, {
                         unitName, accountNumber,
                     })
 
@@ -268,23 +303,22 @@ describe('MeterReading', () => {
 
                 })
 
-                test('resident: client info saved in new reading', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
+                test('client info saved in new reading', async () => {
                     const userClient = await makeClientWithResidentAccessAndProperty()
                     const unitName = faker.random.alphaNumeric(8)
                     const accountNumber = faker.random.alphaNumeric(8)
-                    const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+                    const [resident] = await createTestResident(admin, userClient.user, userClient.property, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident, userClient.organization,  {
+                    await createTestServiceConsumer(admin, resident, userClient.organization,  {
                         accountNumber,
                     })
                     const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
+                    const [meter] = await createTestMeter(admin, userClient.organization, userClient.property, resource, {
                         unitName,
                         accountNumber,
                     })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
                     const [meterReading] = await createTestMeterReading(userClient, meter, source)
 
                     const user = userClient.user
@@ -296,115 +330,107 @@ describe('MeterReading', () => {
                     expect(meterReading.clientEmail).toEqual(email)
                 })
 
-                test('resident: cannot create MetersReadings to Meter with accountNumber, which present in deleted serviceConsumer', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
-                    const client = await makeClientWithResidentUser()
+                test('cannot create MetersReadings to Meter with accountNumber, which present in deleted serviceConsumer', async () => {
                     const unitName = faker.random.alphaNumeric(8)
-                    const [organization] = await createTestOrganization(adminClient)
-                    const [property] = await createTestProperty(adminClient, organization)
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [resident] = await createTestResident(adminClient, client.user, property, {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
                         unitName,
                     })
                     const accountNumber1 = faker.random.alphaNumeric(8)
 
-                    const [serviceConsumer] = await createTestServiceConsumer(adminClient, resident, organization, {
+                    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, {
                         accountNumber: accountNumber1,
                     })
-                    const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
                         accountNumber: accountNumber1,
                         unitName,
                     })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                    await updateTestServiceConsumer(client, serviceConsumer.id, { deletedAt: 'true' })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    await updateTestServiceConsumer(residentClient, serviceConsumer.id, { deletedAt: 'true' })
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client, meter, source)
+                        await createTestMeterReading(residentClient, meter, source)
                     })
                 })
 
-                test('resident: cannot create MetersReadings to deleted Meter', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
-                    const client = await makeClientWithResidentUser()
+                test('cannot create MetersReadings to deleted Meter', async () => {
                     const unitName = faker.random.alphaNumeric(8)
-                    const [organization] = await createTestOrganization(adminClient)
-                    const [property] = await createTestProperty(adminClient, organization)
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [resident] = await createTestResident(adminClient, client.user, property, {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
                         unitName,
                     })
                     const accountNumber1 = faker.random.alphaNumeric(8)
 
-                    await createTestServiceConsumer(adminClient, resident, organization, {
+                    await createTestServiceConsumer(admin, resident, organization, {
                         accountNumber: accountNumber1,
                     })
-                    const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
                         accountNumber: accountNumber1,
                         unitName,
                     })
-                    await updateTestMeter(adminClient, meter.id, { deletedAt: 'true' })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    await updateTestMeter(admin, meter.id, { deletedAt: 'true' })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client, meter, source)
+                        await createTestMeterReading(residentClient, meter, source)
                     })
                 })
 
-                test('resident: cannot create MetersReadings to Meter from deleted organization', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
-                    const client = await makeClientWithResidentUser()
+                test('cannot create MetersReadings to Meter from deleted organization', async () => {
                     const unitName = faker.random.alphaNumeric(8)
-                    const [organization] = await createTestOrganization(adminClient)
-                    const [property] = await createTestProperty(adminClient, organization)
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [resident] = await createTestResident(adminClient, client.user, property, {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
                         unitName,
                     })
                     const accountNumber1 = faker.random.alphaNumeric(8)
 
-                    await createTestServiceConsumer(adminClient, resident, organization, {
+                    await createTestServiceConsumer(admin, resident, organization, {
                         accountNumber: accountNumber1,
                     })
-                    const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
                         accountNumber: accountNumber1,
                         unitName,
                     })
-                    await updateTestOrganization(adminClient, organization.id, { deletedAt: 'true' })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    await updateTestOrganization(admin, organization.id, { deletedAt: 'true' })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client, meter, source)
+                        await createTestMeterReading(residentClient, meter, source)
                     })
                 })
 
-                test('resident: cannot create MetersReadings to Meter from deleted property', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
-                    const client = await makeClientWithResidentUser()
+                test('cannot create MetersReadings to Meter from deleted property', async () => {
                     const unitName = faker.random.alphaNumeric(8)
-                    const [organization] = await createTestOrganization(adminClient)
-                    const [property] = await createTestProperty(adminClient, organization)
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [resident] = await createTestResident(adminClient, client.user, property, {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
                         unitName,
                     })
                     const accountNumber1 = faker.random.alphaNumeric(8)
 
-                    await createTestServiceConsumer(adminClient, resident, organization, {
+                    await createTestServiceConsumer(admin, resident, organization, {
                         accountNumber: accountNumber1,
                     })
 
-                    const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
                         accountNumber: accountNumber1,
                         unitName,
                     })
 
-                    await Property.softDelete(adminClient, property.id)
+                    await Property.softDelete(admin, property.id)
 
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
 
                     // test access before resident reconnection worker task executes
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client, meter, source)
+                        await createTestMeterReading(residentClient, meter, source)
                     })
 
                     // NOTE: give worker some time
@@ -412,174 +438,167 @@ describe('MeterReading', () => {
 
                     // test access after residents reconnection worker task done
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client, meter, source)
+                        await createTestMeterReading(residentClient, meter, source)
                     })
                 })
 
-                test('resident: cannot create MeterReadings in other organization', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
+                test('cannot create MeterReadings in other organization', async () => {
                     const client1 = await makeClientWithResidentUser()
                     const client2 = await makeClientWithResidentUser()
                     const unitName = faker.random.alphaNumeric(8)
 
                     const { context: context1, organization: organization1 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                    const [property1] = await createTestProperty(adminClient, organization1)
-                    const [billingProperty1] = await createTestBillingProperty(adminClient, context1)
-                    const [billingAccount1] = await createTestBillingAccount(adminClient, context1, billingProperty1)
-                    const [resident1] = await createTestResident(adminClient, client1.user, property1, {
+                    const [property1] = await createTestProperty(admin, organization1)
+                    const [billingProperty1] = await createTestBillingProperty(admin, context1)
+                    const [billingAccount1] = await createTestBillingAccount(admin, context1, billingProperty1)
+                    const [resident1] = await createTestResident(admin, client1.user, property1, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident1, organization1, {
+                    await createTestServiceConsumer(admin, resident1, organization1, {
                         accountNumber: billingAccount1.number,
                     })
 
                     const { context: context2, organization: organization2 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                    const [property2] = await createTestProperty(adminClient, organization2)
-                    const [billingProperty2] = await createTestBillingProperty(adminClient, context2)
-                    const [billingAccount2] = await createTestBillingAccount(adminClient, context2, billingProperty2)
-                    const [resident2] = await createTestResident(adminClient, client2.user, property2, {
+                    const [property2] = await createTestProperty(admin, organization2)
+                    const [billingProperty2] = await createTestBillingProperty(admin, context2)
+                    const [billingAccount2] = await createTestBillingAccount(admin, context2, billingProperty2)
+                    const [resident2] = await createTestResident(admin, client2.user, property2, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident2, organization2, {
+                    await createTestServiceConsumer(admin, resident2, organization2, {
                         accountNumber: billingAccount2.number,
                     })
 
                     const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [meter] = await createTestMeter(adminClient, organization2, property2, resource, {
+                    const [meter] = await createTestMeter(admin, organization2, property2, resource, {
                         accountNumber: billingAccount2.number,
                         unitName,
                     })
 
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestMeterReading(client1, meter, source)
                     })
                 })
 
-                test('resident: cannot create MeterReadings in other property in same organization', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
+                test('cannot create MeterReadings in other property in same organization', async () => {
                     const client1 = await makeClientWithResidentUser()
                     const client2 = await makeClientWithResidentUser()
                     const unitName = faker.random.alphaNumeric(8)
 
                     const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                    const [property1] = await createTestProperty(adminClient, organization)
-                    const [billingProperty1] = await createTestBillingProperty(adminClient, context)
-                    const [billingAccount1] = await createTestBillingAccount(adminClient, context, billingProperty1)
-                    const [resident1] = await createTestResident(adminClient, client1.user, property1, {
+                    const [property1] = await createTestProperty(admin, organization)
+                    const [billingProperty1] = await createTestBillingProperty(admin, context)
+                    const [billingAccount1] = await createTestBillingAccount(admin, context, billingProperty1)
+                    const [resident1] = await createTestResident(admin, client1.user, property1, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident1, organization, {
+                    await createTestServiceConsumer(admin, resident1, organization, {
                         accountNumber: billingAccount1.number,
                     })
 
-                    const [property2] = await createTestProperty(adminClient, organization)
-                    const [billingProperty2] = await createTestBillingProperty(adminClient, context)
-                    const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty2)
-                    const [resident2] = await createTestResident(adminClient, client2.user, property2, {
+                    const [property2] = await createTestProperty(admin, organization)
+                    const [billingProperty2] = await createTestBillingProperty(admin, context)
+                    const [billingAccount2] = await createTestBillingAccount(admin, context, billingProperty2)
+                    const [resident2] = await createTestResident(admin, client2.user, property2, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident2, organization, {
+                    await createTestServiceConsumer(admin, resident2, organization, {
                         accountNumber: billingAccount2.number,
                     })
 
                     const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [meter] = await createTestMeter(adminClient, organization, property2, resource, {
+                    const [meter] = await createTestMeter(admin, organization, property2, resource, {
                         accountNumber: billingAccount2.number,
                         unitName,
                     })
 
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
                         await createTestMeterReading(client1, meter, source)
                     })
                 })
 
-                test('resident: cannot create MeterReadings in other unit in same property', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
-                    const client1 = await makeClientWithResidentUser()
+                test('cannot create MeterReadings in other unit in same property', async () => {
                     const unitName1 = faker.random.alphaNumeric(8)
                     const unitName2 = faker.random.alphaNumeric(8)
 
                     const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                    const [property] = await createTestProperty(adminClient, organization)
-                    const [billingProperty] = await createTestBillingProperty(adminClient, context)
-                    const [billingAccount1] = await createTestBillingAccount(adminClient, context, billingProperty)
-                    const [resident1] = await createTestResident(adminClient, client1.user, property, {
+                    const [property] = await createTestProperty(admin, organization)
+                    const [billingProperty] = await createTestBillingProperty(admin, context)
+                    const [billingAccount1] = await createTestBillingAccount(admin, context, billingProperty)
+                    const [resident1] = await createTestResident(admin, residentClient.user, property, {
                         unitName: unitName1,
                     })
-                    await createTestServiceConsumer(adminClient, resident1, organization, {
+                    await createTestServiceConsumer(admin, resident1, organization, {
                         accountNumber: billingAccount1.number,
                     })
 
-                    const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
-                    const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                    const [billingAccount2] = await createTestBillingAccount(admin, context, billingProperty)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
                         accountNumber: billingAccount2.number,
                         unitName: unitName2,
                     })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client1, meter, source)
+                        await createTestMeterReading(residentClient, meter, source)
                     })
                 })
 
-                test('resident: cannot create MeterReadings in Meter which account number doesnt present in serviceConsumers', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
-                    const client1 = await makeClientWithResidentUser()
+                test('cannot create MeterReadings in Meter which account number doesnt present in serviceConsumers', async () => {
                     const unitName = faker.random.alphaNumeric(8)
                     const accountNumber1 = faker.random.alphaNumeric(8)
                     const accountNumber2 = faker.random.alphaNumeric(8)
-                    const [organization] = await createTestOrganization(adminClient)
-                    const [property] = await createTestProperty(adminClient, organization)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
 
-                    const [resident1] = await createTestResident(adminClient, client1.user, property, {
+                    const [resident1] = await createTestResident(admin, residentClient.user, property, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident1, organization, {
+                    await createTestServiceConsumer(admin, resident1, organization, {
                         accountNumber: accountNumber1,
                     })
 
-                    const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                    await createTestMeter(adminClient, organization, property, resource, {
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    await createTestMeter(admin, organization, property, resource, {
                         accountNumber: accountNumber1,
                         unitName,
                     })
-                    const [meter2] = await createTestMeter(adminClient, organization, property, resource, {
+                    const [meter2] = await createTestMeter(admin, organization, property, resource, {
                         accountNumber: accountNumber2,
                         unitName,
                     })
-                    const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
 
                     await expectToThrowAccessDeniedErrorToObj(async () => {
-                        await createTestMeterReading(client1, meter2, source)
+                        await createTestMeterReading(residentClient, meter2, source)
                     })
                 })
 
-                test('resident: cannot create MeterReadings in Meter which is automatic', async () => {
-                    const adminClient = await makeLoggedInAdminClient()
+                test('cannot create MeterReadings in Meter which is automatic', async () => {
                     const userClient = await makeClientWithResidentAccessAndProperty()
                     const unitName = faker.random.alphaNumeric(8)
                     const accountNumber = faker.random.alphaNumeric(8)
-                    const [resident] = await createTestResident(adminClient, userClient.user, userClient.property, {
+                    const [resident] = await createTestResident(admin, userClient.user, userClient.property, {
                         unitName,
                     })
-                    await createTestServiceConsumer(adminClient, resident, userClient.organization,  {
+                    await createTestServiceConsumer(admin, resident, userClient.organization,  {
                         accountNumber,
                     })
                     const [resource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [b2bApp] = await createTestB2BApp(adminClient)
-                    await createTestB2BAppContext(adminClient, b2bApp, userClient.organization)
-                    const [meter] = await createTestMeter(adminClient, userClient.organization, userClient.property, resource, {
+                    const [b2bApp] = await createTestB2BApp(admin)
+                    await createTestB2BAppContext(admin, b2bApp, userClient.organization)
+                    const [meter] = await createTestMeter(admin, userClient.organization, userClient.property, resource, {
                         unitName,
                         accountNumber,
                         isAutomatic: true,
                         b2bApp: { connect: { id: b2bApp.id } },
                     })
-                    const [source] = await createTestMeterReadingSource(adminClient, {
+                    const [source] = await createTestMeterReadingSource(admin, {
                         type: METER_READING_SOURCE_INTERNAL_IMPORT_TYPE,
                         name: faker.name.suffix(),
                     })
@@ -590,51 +609,188 @@ describe('MeterReading', () => {
                 })
             })
 
+            describe('User', () => {
+                test('cannot create MeterReadings', async () => {
+                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
 
-            test('user: cannot create MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await createTestMeterReading(client, meter, source)
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await createTestMeterReading(client, meter, source)
+                    })
                 })
             })
 
-            test('anonymous: cannot create MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClient()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
+            describe('Anonymous', () => {
+                test('cannot create MeterReadings', async () => {
+                    const client = await makeClient()
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
 
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await createTestMeterReading(client, meter, source)
+                    await expectToThrowAuthenticationErrorToObj(async () => {
+                        await createTestMeterReading(client, meter, source)
+                    })
                 })
-            })
-
-            test('admin: can create MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
-
-                expect(meterReading.id).toMatch(UUID_RE)
             })
         })
         describe('Update', () => {
+            describe('Admin', () => {
+                test('can update MeterReadings', async () => {
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const oldValue = Number(meterReading.value1)
+                    const newValue = String(oldValue + 100.1234)
+                    const [updatedMeterReading] = await updateTestMeterReading(admin, meterReading.id, {
+                        value1: newValue,
+                    })
+
+                    expect(updatedMeterReading.id).toMatch(UUID_RE)
+                    expect(updatedMeterReading.value1).toEqual(newValue)
+                })
+            })
+
+            describe('Employee', () => {
+                test('employee with "canManageMeterReadings" role: cannot update MeterReadings', async () => {
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(employeeCanManageReadings, employeeCanManageReadings.organization, employeeCanManageReadings.property, resource, {})
+                    const [meterReading] = await createTestMeterReading(employeeCanManageReadings, meter, source)
+
+                    const oldValue = meterReading.value1
+                    const newValue = oldValue + 100
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestMeterReading(employeeCanManageReadings, meterReading.id, {
+                            value1: newValue,
+                        })
+                    })
+                })
+
+                test('employee without "canManageMeterReadings" role: cannot update MeterReadings', async () => {
+
+                    const [resource] = await MeterResource.getAll(employeeCanNotManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanNotManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, employeeCanNotManageReadings.organization, employeeCanNotManageReadings.property, resource, {})
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const oldValue = meterReading.value1
+                    const newValue = oldValue + 100
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestMeterReading(employeeCanNotManageReadings, meterReading.id, {
+                            value1: newValue,
+                        })
+                    })
+                })
+
+                test('employee from "from" related organization: cannot update MeterReadings', async () => {
+                    const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+                    const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
+                        canManageMeterReadings: true,
+                    })
+                    await updateTestOrganizationEmployee(admin, employeeFrom.id, {
+                        role: { connect: { id: role.id } },
+                    })
+                    const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(clientFrom, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(clientFrom, organizationTo, propertyTo, resource, {})
+
+                    const [meterReading] = await createTestMeterReading(clientFrom, meter, source)
+
+                    const oldValue = meterReading.value1
+                    const newValue = oldValue + 100
+
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestMeterReading(clientFrom, meterReading.id, {
+                            value1: newValue,
+                        })
+                    })
+                })
+            })
+
+            describe('Resident', () => {
+                test('cannot update MeterReadings', async () => {
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                    const [property] = await createTestProperty(admin, organization)
+                    const [billingProperty] = await createTestBillingProperty(admin, context)
+                    const [billingAccount] = await createTestBillingAccount(admin, context, billingProperty)
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident, organization, {
+                        accountNumber: billingAccount.number,
+                    })
+
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        unitName,
+                        accountNumber: billingAccount.number,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(residentClient, meter, source)
+
+                    const oldValue = meterReading.value1
+                    const newValue = oldValue + 100
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestMeterReading(residentClient, meterReading.id, {
+                            value1: newValue,
+                        })
+                    })
+                })
+            })
+
+            describe('User', () => {
+                test('cannot update MeterReadings', async () => {
+                    const client = await makeClientWithProperty()
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const oldValue = meterReading.value1
+                    const newValue = oldValue + 100
+                    await expectToThrowAccessDeniedErrorToObj(async () => {
+                        await updateTestMeterReading(client, meterReading.id, {
+                            value1: newValue,
+                        })
+                    })
+                })
+            })
+
+            describe('Anonymous', () => {
+                test('cannot update MeterReadings', async () => {
+                    const client = await makeClient()
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const oldValue = meterReading.value1
+                    const newValue = oldValue + 100
+                    await expectToThrowAuthenticationErrorToObj(async () => {
+                        await updateTestMeterReading(client, meterReading.id, {
+                            value1: newValue,
+                        })
+                    })
+                })
+            })
+
             test('update organization field when connect other meter', async () => {
-                const admin = await makeLoggedInAdminClient()
                 const [organization] = await createTestOrganization(admin)
                 const [organization1] = await createTestOrganization(admin)
 
@@ -657,610 +813,510 @@ describe('MeterReading', () => {
 
                 expect(updatedMeterReading.organization.id).toEqual(organization1.id)
             })
-
-            test('employee with "canManageMeterReadings" role: cannot update MeterReadings', async () => {
-                const client = await makeEmployeeUserClientWithAbilities({
-                    canManageMeterReadings: true,
-                })
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
-                const [meterReading] = await createTestMeterReading(client, meter, source)
-
-                const oldValue = meterReading.value1
-                const newValue = oldValue + 100
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestMeterReading(client, meterReading.id, {
-                        value1: newValue,
-                    })
-                })
-            })
-
-            test('employee without "canManageMeterReadings" role: cannot update MeterReadings', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const client = await makeEmployeeUserClientWithAbilities({
-                    canManageMeterReadings: false,
-                })
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
-                const [meterReading] = await createTestMeterReading(admin, meter, source)
-
-                const oldValue = meterReading.value1
-                const newValue = oldValue + 100
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestMeterReading(client, meterReading.id, {
-                        value1: newValue,
-                    })
-                })
-            })
-
-            test('employee from "from" related organization: cannot update MeterReadings', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, employeeFrom, organizationFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
-                const [role] = await createTestOrganizationEmployeeRole(admin, organizationFrom, {
-                    canManageMeterReadings: true,
-                })
-                await updateTestOrganizationEmployee(admin, employeeFrom.id, {
-                    role: { connect: { id: role.id } },
-                })
-                const [resource] = await MeterResource.getAll(clientFrom, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(clientFrom, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(clientFrom, organizationTo, propertyTo, resource, {})
-
-                const [meterReading] = await createTestMeterReading(clientFrom, meter, source)
-
-                const oldValue = meterReading.value1
-                const newValue = oldValue + 100
-
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestMeterReading(clientFrom, meterReading.id, {
-                        value1: newValue,
-                    })
-                })
-            })
-
-            test('resident: cannot update MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-
-                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                const [property] = await createTestProperty(adminClient, organization)
-                const [billingProperty] = await createTestBillingProperty(adminClient, context)
-                const [billingAccount] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident] = await createTestResident(adminClient, client.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident, organization, {
-                    accountNumber: billingAccount.number,
-                })
-
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    unitName,
-                    accountNumber: billingAccount.number,
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client, meter, source)
-
-                const oldValue = meterReading.value1
-                const newValue = oldValue + 100
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestMeterReading(client, meterReading.id, {
-                        value1: newValue,
-                    })
-                })
-            })
-
-            test('user: cannot update MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithProperty()
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, client.organization, client.property, resource, {})
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
-
-                const oldValue = meterReading.value1
-                const newValue = oldValue + 100
-                await expectToThrowAccessDeniedErrorToObj(async () => {
-                    await updateTestMeterReading(client, meterReading.id, {
-                        value1: newValue,
-                    })
-                })
-            })
-
-            test('anonymous: cannot update MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClient()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
-
-                const oldValue = meterReading.value1
-                const newValue = oldValue + 100
-                await expectToThrowAuthenticationErrorToObj(async () => {
-                    await updateTestMeterReading(client, meterReading.id, {
-                        value1: newValue,
-                    })
-                })
-            })
-
-            test('admin: can update MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
-
-                const oldValue = Number(meterReading.value1)
-                const newValue = String(oldValue + 100.1234)
-                const [updatedMeterReading] = await updateTestMeterReading(adminClient, meterReading.id, {
-                    value1: newValue,
-                })
-
-                expect(updatedMeterReading.id).toMatch(UUID_RE)
-                expect(updatedMeterReading.value1).toEqual(newValue)
-            })
         })
         describe('Read', () => {
-            test('employee: can read MeterReadings', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const client = await makeEmployeeUserClientWithAbilities({})
-                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
+            describe('Employee', () => {
+                test('can read MeterReadings', async () => {
+                    const client = await makeEmployeeUserClientWithAbilities({})
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
 
-                const [meterReading] = await createTestMeterReading(admin, meter, source)
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
 
-                const meterReadings = await MeterReading.getAll(client, { id: meterReading.id })
-                expect(meterReadings).toHaveLength(1)
+                    const meterReadings = await MeterReading.getAll(client, { id: meterReading.id })
+                    expect(meterReadings).toHaveLength(1)
+                })
+
+                test('without "canReadMeters": can not read MeterReadings', async () => {
+                    const client = await makeEmployeeUserClientWithAbilities({ canReadMeters: false })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
+
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const readMeterReading = await MeterReading.getOne(client, { id: meterReading.id })
+                    expect(readMeterReading).toBeUndefined()
+                })
+
+                test('employee from "from" related organization: can read MeterReadings', async () => {
+                    const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
+
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const meterReadings = await MeterReading.getAll(clientFrom, { id: meterReading.id })
+                    expect(meterReadings).toHaveLength(1)
+                })
+
+                test('employee from "to" related organization: cannot read MeterReadings from "from" organization', async () => {
+                    const { clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
+
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const meterReadings = await MeterReading.getAll(clientTo, { id: meterReading.id })
+                    expect(meterReadings).toHaveLength(0)
+                })
             })
 
-            test('employee without "canReadMeters": can not read MeterReadings', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const client = await makeEmployeeUserClientWithAbilities({ canReadMeters: false })
-                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(admin, client.organization, client.property, resource, {})
+            describe('Resident', () => {
+                test('can read his own MeterReadings', async () => {
+                    const unitName = faker.random.alphaNumeric(8)
+                    const accountNumber = faker.random.alphaNumeric(8)
+                    const [organization] = await createTestOrganization(admin)
 
-                const [meterReading] = await createTestMeterReading(admin, meter, source)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident, organization, {
+                        accountNumber,
+                    })
 
-                const readMeterReading = await MeterReading.getOne(client, { id: meterReading.id })
-                expect(readMeterReading).toBeUndefined()
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        unitName,
+                        accountNumber,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(residentClient, meter, source)
+
+                    const meterReadings = await MeterReading.getAll(residentClient, {
+                        id: meterReading.id,
+                        meter: { id: meter.id },
+                    })
+
+                    expect(meterReadings).toHaveLength(1)
+                })
+
+                test('can read meter reading from automatic meter', async () => {
+                    const unitName = faker.random.alphaNumeric(8)
+                    const accountNumber = faker.random.alphaNumeric(8)
+                    const [organization] = await createTestOrganization(admin)
+
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident, organization, {
+                        accountNumber,
+                    })
+
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [app] = await createTestB2BApp(admin)
+                    await createTestB2BAppContext(admin, app, organization)
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        unitName,
+                        accountNumber,
+                        isAutomatic: true,
+                        b2bApp: { connect: { id: app.id } },
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
+
+                    const meterReadings = await MeterReading.getAll(residentClient, {
+                        id: meterReading.id,
+                        meter: { id: meter.id },
+                    })
+
+                    expect(meterReadings).toHaveLength(1)
+                })
+
+                test('cannot read MeterReadings in other organization', async () => {
+                    const client1 = await makeClientWithResidentUser()
+                    const client2 = await makeClientWithResidentUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const { context: context1, organization: organization1 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                    const [property1] = await createTestProperty(admin, organization1)
+                    const [billingProperty1] = await createTestBillingProperty(admin, context1)
+                    const [billingAccount1] = await createTestBillingAccount(admin, context1, billingProperty1)
+                    const [resident1] = await createTestResident(admin, client1.user, property1, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident1, organization1, {
+                        accountNumber: billingAccount1.number,
+                    })
+
+                    const { context: context2, organization: organization2 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                    const [property2] = await createTestProperty(admin, organization2)
+                    const [billingProperty2] = await createTestBillingProperty(admin, context2)
+                    const [billingAccount2] = await createTestBillingAccount(admin, context2, billingProperty2)
+                    const [resident2] = await createTestResident(admin, client2.user, property2, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident2, organization2, {
+                        accountNumber: billingAccount2.number,
+                    })
+
+                    const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization2, property2, resource, {
+                        accountNumber: billingAccount2.number,
+                        unitName,
+                    })
+
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(client2, meter, source)
+
+                    const meterReadings = await MeterReading.getAll(client1, {
+                        id: meterReading.id,
+                    })
+                    expect(meterReadings).toHaveLength(0)
+                })
+
+                test('cannot read MeterReadings in other property in same organization', async () => {
+                    const client1 = await makeClientWithResidentUser()
+                    const client2 = await makeClientWithResidentUser()
+                    const unitName = faker.random.alphaNumeric(8)
+
+                    const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                    const [property1] = await createTestProperty(admin, organization)
+                    const [billingProperty1] = await createTestBillingProperty(admin, context)
+                    const [billingAccount1] = await createTestBillingAccount(admin, context, billingProperty1)
+                    const [resident1] = await createTestResident(admin, client1.user, property1, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident1, organization, {
+                        accountNumber: billingAccount1.number,
+                    })
+
+                    const [property2] = await createTestProperty(admin, organization)
+                    const [billingProperty2] = await createTestBillingProperty(admin, context)
+                    const [billingAccount2] = await createTestBillingAccount(admin, context, billingProperty2)
+                    const [resident2] = await createTestResident(admin, client2.user, property2, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident2, organization, {
+                        accountNumber: billingAccount2.number,
+                    })
+
+                    const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property2, resource, {
+                        accountNumber: billingAccount2.number,
+                        unitName,
+                    })
+
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(client2, meter, source)
+
+                    const meterReadings = await MeterReading.getAll(client1, {
+                        id: meterReading.id,
+                    })
+                    expect(meterReadings).toHaveLength(0)
+                })
+
+                test('cannot read MeterReadings in other unit in same property', async () => {
+                    const client1 = await makeClientWithResidentUser()
+                    const client2 = await makeClientWithResidentUser()
+                    const unitName1 = faker.random.alphaNumeric(8)
+                    const unitName2 = faker.random.alphaNumeric(8)
+
+                    const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                    const [property] = await createTestProperty(admin, organization)
+                    const [billingProperty] = await createTestBillingProperty(admin, context)
+                    const [billingAccount1] = await createTestBillingAccount(admin, context, billingProperty)
+                    const [resident1] = await createTestResident(admin, client1.user, property, {
+                        unitName: unitName1,
+                    })
+                    await createTestServiceConsumer(admin, resident1, organization, {
+                        accountNumber: billingAccount1.number,
+                    })
+
+                    const [billingAccount2] = await createTestBillingAccount(admin, context, billingProperty)
+                    const [resident2] = await createTestResident(admin, client2.user, property, {
+                        unitName: unitName2,
+                    })
+                    await createTestServiceConsumer(admin, resident2, organization, {
+                        accountNumber: billingAccount2.number,
+                    })
+
+                    const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        accountNumber: billingAccount2.number,
+                        unitName: unitName2,
+                    })
+
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(client2, meter, source)
+
+                    const meterReadings = await MeterReading.getAll(client1, {
+                        id: meterReading.id,
+                    })
+
+                    expect(meterReadings).toHaveLength(0)
+                })
+
+                test('cannot read MeterReadings from Meter which accountNumber doesnt present in resident serviceConsumers', async () => {
+                    const client1 = await makeClientWithResidentUser()
+                    const client2 = await makeClientWithResidentUser()
+                    const unitName = faker.random.alphaNumeric(8)
+                    const accountNumber1 = faker.random.alphaNumeric(8)
+                    const accountNumber2 = faker.random.alphaNumeric(8)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+
+                    const [resident1] = await createTestResident(admin, client1.user, property, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident1, organization, {
+                        accountNumber: accountNumber1,
+                    })
+                    const [resident2] = await createTestResident(admin, client2.user, property, {
+                        unitName,
+                    })
+                    await createTestServiceConsumer(admin, resident2, organization, {
+                        accountNumber: accountNumber2,
+                    })
+
+                    const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter1] = await createTestMeter(admin, organization, property, resource, {
+                        accountNumber: accountNumber1,
+                        unitName,
+                    })
+                    const [meter2] = await createTestMeter(admin, organization, property, resource, {
+                        accountNumber: accountNumber2,
+                        unitName,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+
+                    const [meterReading1] = await createTestMeterReading(client1, meter1, source)
+                    const [meterReading2] = await createTestMeterReading(client2, meter2, source)
+
+                    const meterReadingsFromMeter1ByClient1 = await MeterReading.getAll(client1, { id: meterReading1.id })
+                    const meterReadingsFromMeter2ByClient2 = await MeterReading.getAll(client2, { id: meterReading2.id })
+                    const meterReadingsFromMeter2ByClient1 = await MeterReading.getAll(client1, { id: meterReading2.id })
+                    const meterReadingsFromMeter1ByClient2 = await MeterReading.getAll(client2, { id: meterReading1.id })
+
+                    expect(meterReadingsFromMeter1ByClient1).toHaveLength(1)
+                    expect(meterReadingsFromMeter2ByClient2).toHaveLength(1)
+                    expect(meterReadingsFromMeter2ByClient1).toHaveLength(0)
+                    expect(meterReadingsFromMeter1ByClient2).toHaveLength(0)
+                })
+
+                test('cannot read MetersReadings from Meter with accountNumber, which present in deleted serviceConsumer', async () => {
+                    const unitName = faker.random.alphaNumeric(8)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                    })
+                    const accountNumber1 = faker.random.alphaNumeric(8)
+
+                    const [serviceConsumer] = await createTestServiceConsumer(admin, resident, organization, {
+                        accountNumber: accountNumber1,
+                    })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        accountNumber: accountNumber1,
+                        unitName,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(residentClient, meter, source)
+                    await updateTestServiceConsumer(residentClient, serviceConsumer.id, { deletedAt: 'true' })
+                    const meterReadings = await MeterReading.getAll(residentClient, {
+                        id: meterReading.id,
+                    })
+
+                    expect(meterReadings).toHaveLength(0)
+                })
+
+                test('cannot read MetersReadings from deleted Meter', async () => {
+                    const unitName = faker.random.alphaNumeric(8)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                    })
+                    const accountNumber1 = faker.random.alphaNumeric(8)
+
+                    await createTestServiceConsumer(admin, resident, organization, {
+                        accountNumber: accountNumber1,
+                    })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        accountNumber: accountNumber1,
+                        unitName,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(residentClient, meter, source)
+
+                    await updateTestMeter(admin, meter.id, { deletedAt: 'true' })
+                    const meterReadings = await MeterReading.getAll(residentClient, {
+                        id: meterReading.id,
+                    })
+
+                    expect(meterReadings).toHaveLength(0)
+                })
+
+                test('cannot read MetersReadings from Meter from deleted organization', async () => {
+                    const unitName = faker.random.alphaNumeric(8)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                    })
+                    const accountNumber1 = faker.random.alphaNumeric(8)
+
+                    await createTestServiceConsumer(admin, resident, organization, {
+                        accountNumber: accountNumber1,
+                    })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        accountNumber: accountNumber1,
+                        unitName,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(residentClient, meter, source)
+
+                    await updateTestOrganization(admin, organization.id, { deletedAt: 'true' })
+                    const meterReadings = await MeterReading.getAll(residentClient, {
+                        id: meterReading.id,
+                    })
+
+                    expect(meterReadings).toHaveLength(0)
+                })
+
+                test('cannot read MetersReadings from Meter from deleted property', async () => {
+                    const unitName = faker.random.alphaNumeric(8)
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [resident] = await createTestResident(admin, residentClient.user, property, {
+                        unitName,
+                    })
+                    const accountNumber1 = faker.random.alphaNumeric(8)
+
+                    await createTestServiceConsumer(admin, resident, organization, {
+                        accountNumber: accountNumber1,
+                    })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {
+                        accountNumber: accountNumber1,
+                        unitName,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meterReading] = await createTestMeterReading(residentClient, meter, source)
+
+                    await Property.softDelete(admin, property.id)
+
+                    // test access before residents reconnection worker task executes
+                    const meterReadingsBeforeReconnect = await MeterReading.getAll(residentClient, {
+                        id: meterReading.id,
+                    })
+
+                    expect(meterReadingsBeforeReconnect).toHaveLength(0)
+
+                    // NOTE: give worker some time
+                    await sleep(1500)
+
+                    // test access after residents reconnection worker task done
+                    const meterReadingsAfterReconnect = await MeterReading.getAll(residentClient, {
+                        id: meterReading.id,
+                    })
+
+                    expect(meterReadingsAfterReconnect).toHaveLength(0)
+                })
+
+                test('can read readings from another organization if it has resource ownership', async () => {
+                    const userClient = await makeClientWithResidentAccessAndProperty()
+                    const unitName = faker.random.alphaNumeric(8)
+                    const accountNumber = faker.random.alphaNumeric(8)
+                    const [resident] = await createTestResident(admin, userClient.user, userClient.property, { unitName })
+                    await createTestServiceConsumer(admin, resident, userClient.organization, { accountNumber })
+                    const [coldWaterResource] = await MeterResource.getAll(userClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [hotWaterResource] = await MeterResource.getAll(userClient, { id: HOT_WATER_METER_RESOURCE_ID })
+                    const [coldMeter] = await createTestMeter(admin, userClient.organization, userClient.property, coldWaterResource, {
+                        unitName, accountNumber,
+                    })
+                    const [hotMeter] = await createTestMeter(admin, userClient.organization, userClient.property, hotWaterResource, {
+                        unitName, accountNumber,
+                    })
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+
+                    const [coldMeterReading] = await createTestMeterReading(userClient, coldMeter, source)
+                    const [hotMeterReading] = await createTestMeterReading(userClient, hotMeter, source)
+
+                    const originalOrganizationReadings = await MeterReading.getAll(userClient, {})
+
+                    expect(originalOrganizationReadings).toHaveLength(2)
+                    expect(originalOrganizationReadings).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining(coldMeterReading),
+                            expect.objectContaining(hotMeterReading),
+                        ])
+                    )
+
+                    const { organization: newOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
+                    const [property] = await createTestProperty(admin, newOrganization, {
+                        address: userClient.property.address,
+                    })
+                    const newAccountNumber = faker.random.alphaNumeric(8)
+
+                    await createTestServiceConsumer(admin, resident, newOrganization, { accountNumber: newAccountNumber })
+                    const meterResourceOwner = await MeterResourceOwner.getOne(admin, {
+                        organization: { id: userClient.organization.id },
+                        addressKey: property.addressKey,
+                        resource: { id: HOT_WATER_METER_RESOURCE_ID },
+                    })
+
+                    expect(meterResourceOwner).toBeDefined()
+
+                    await updateTestMeterResourceOwner(admin, meterResourceOwner.id, { organization: { connect: { id: newOrganization.id } } })
+                    const tempMeterReadings = await MeterReading.getAll(userClient, {})
+
+                    expect(tempMeterReadings).toHaveLength(1)
+                    expect(tempMeterReadings).toEqual(expect.arrayContaining([expect.objectContaining(coldMeterReading)]))
+
+                    const [newHotMeter] = await createTestMeter(admin, newOrganization, property, hotWaterResource, {
+                        unitName, accountNumber: newAccountNumber,
+                    })
+
+                    const [newHotMeterReading] = await createTestMeterReading(userClient, newHotMeter, source)
+                    const meterReadingsByResidentAddress = await MeterReading.getAll(userClient, {})
+
+                    expect(meterReadingsByResidentAddress).toHaveLength(2)
+                    expect(meterReadingsByResidentAddress).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining(coldMeterReading),
+                            expect.objectContaining(newHotMeterReading),
+                        ])
+                    )
+                })
             })
 
-            test('employee from "from" related organization: can read MeterReadings', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientFrom, organizationTo, propertyTo } = await createTestOrganizationWithAccessToAnotherOrganization()
-                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(admin, organizationTo, propertyTo, resource, {})
+            describe('User', () => {
+                test('cannot read MeterReadings', async () => {
+                    const client = await makeClientWithNewRegisteredAndLoggedInUser()
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
 
-                const [meterReading] = await createTestMeterReading(admin, meter, source)
-
-                const meterReadings = await MeterReading.getAll(clientFrom, { id: meterReading.id })
-                expect(meterReadings).toHaveLength(1)
+                    const meterReadings = await MeterReading.getAll(client, { id: meterReading.id })
+                    expect(meterReadings).toHaveLength(0)
+                })
             })
 
-            test('employee from "to" related organization: cannot read MeterReadings from "from" organization', async () => {
-                const admin = await makeLoggedInAdminClient()
-                const { clientTo, organizationFrom, propertyFrom } = await createTestOrganizationWithAccessToAnotherOrganization()
-                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
-                const [meter] = await createTestMeter(admin, organizationFrom, propertyFrom, resource, {})
+            describe('Anonymous', () => {
+                test('cannot read MeterReadings', async () => {
+                    const client = await makeClient()
+                    const [organization] = await createTestOrganization(admin)
+                    const [property] = await createTestProperty(admin, organization)
+                    const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                    const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [meter] = await createTestMeter(admin, organization, property, resource, {})
+                    const [meterReading] = await createTestMeterReading(admin, meter, source)
 
-                const [meterReading] = await createTestMeterReading(admin, meter, source)
-
-                const meterReadings = await MeterReading.getAll(clientTo, { id: meterReading.id })
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('resident: can read his own MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const accountNumber = faker.random.alphaNumeric(8)
-                const [organization] = await createTestOrganization(adminClient)
-
-                const [property] = await createTestProperty(adminClient, organization)
-                const [resident] = await createTestResident(adminClient, client.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident, organization, {
-                    accountNumber,
-                })
-
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    unitName,
-                    accountNumber,
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client, meter, source)
-
-                const meterReadings = await MeterReading.getAll(client, {
-                    id: meterReading.id,
-                    meter: { id: meter.id },
-                })
-
-                expect(meterReadings).toHaveLength(1)
-            })
-
-            test('resident: can read meter reading from automatic meter', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const accountNumber = faker.random.alphaNumeric(8)
-                const [organization] = await createTestOrganization(adminClient)
-
-                const [property] = await createTestProperty(adminClient, organization)
-                const [resident] = await createTestResident(adminClient, client.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident, organization, {
-                    accountNumber,
-                })
-
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [app] = await createTestB2BApp(adminClient)
-                await createTestB2BAppContext(adminClient, app, organization)
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    unitName,
-                    accountNumber,
-                    isAutomatic: true,
-                    b2bApp: { connect: { id: app.id } },
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
-
-                const meterReadings = await MeterReading.getAll(client, {
-                    id: meterReading.id,
-                    meter: { id: meter.id },
-                })
-
-                expect(meterReadings).toHaveLength(1)
-            })
-
-            test('resident: cannot read MeterReadings in other organization', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client1 = await makeClientWithResidentUser()
-                const client2 = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-
-                const { context: context1, organization: organization1 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                const [property1] = await createTestProperty(adminClient, organization1)
-                const [billingProperty1] = await createTestBillingProperty(adminClient, context1)
-                const [billingAccount1] = await createTestBillingAccount(adminClient, context1, billingProperty1)
-                const [resident1] = await createTestResident(adminClient, client1.user, property1, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident1, organization1, {
-                    accountNumber: billingAccount1.number,
-                })
-
-                const { context: context2, organization: organization2 } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                const [property2] = await createTestProperty(adminClient, organization2)
-                const [billingProperty2] = await createTestBillingProperty(adminClient, context2)
-                const [billingAccount2] = await createTestBillingAccount(adminClient, context2, billingProperty2)
-                const [resident2] = await createTestResident(adminClient, client2.user, property2, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident2, organization2, {
-                    accountNumber: billingAccount2.number,
-                })
-
-                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization2, property2, resource, {
-                    accountNumber: billingAccount2.number,
-                    unitName,
-                })
-
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client2, meter, source)
-
-                const meterReadings = await MeterReading.getAll(client1, {
-                    id: meterReading.id,
-                })
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('resident: cannot read MeterReadings in other property in same organization', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client1 = await makeClientWithResidentUser()
-                const client2 = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-
-                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                const [property1] = await createTestProperty(adminClient, organization)
-                const [billingProperty1] = await createTestBillingProperty(adminClient, context)
-                const [billingAccount1] = await createTestBillingAccount(adminClient, context, billingProperty1)
-                const [resident1] = await createTestResident(adminClient, client1.user, property1, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident1, organization, {
-                    accountNumber: billingAccount1.number,
-                })
-
-                const [property2] = await createTestProperty(adminClient, organization)
-                const [billingProperty2] = await createTestBillingProperty(adminClient, context)
-                const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty2)
-                const [resident2] = await createTestResident(adminClient, client2.user, property2, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident2, organization, {
-                    accountNumber: billingAccount2.number,
-                })
-
-                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property2, resource, {
-                    accountNumber: billingAccount2.number,
-                    unitName,
-                })
-
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client2, meter, source)
-
-                const meterReadings = await MeterReading.getAll(client1, {
-                    id: meterReading.id,
-                })
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('resident: cannot read MeterReadings in other unit in same property', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client1 = await makeClientWithResidentUser()
-                const client2 = await makeClientWithResidentUser()
-                const unitName1 = faker.random.alphaNumeric(8)
-                const unitName2 = faker.random.alphaNumeric(8)
-
-                const { context, organization } = await makeContextWithOrganizationAndIntegrationAsAdmin()
-                const [property] = await createTestProperty(adminClient, organization)
-                const [billingProperty] = await createTestBillingProperty(adminClient, context)
-                const [billingAccount1] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident1] = await createTestResident(adminClient, client1.user, property, {
-                    unitName: unitName1,
-                })
-                await createTestServiceConsumer(adminClient, resident1, organization, {
-                    accountNumber: billingAccount1.number,
-                })
-
-                const [billingAccount2] = await createTestBillingAccount(adminClient, context, billingProperty)
-                const [resident2] = await createTestResident(adminClient, client2.user, property, {
-                    unitName: unitName2,
-                })
-                await createTestServiceConsumer(adminClient, resident2, organization, {
-                    accountNumber: billingAccount2.number,
-                })
-
-                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: billingAccount2.number,
-                    unitName: unitName2,
-                })
-
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client2, meter, source)
-
-                const meterReadings = await MeterReading.getAll(client1, {
-                    id: meterReading.id,
-                })
-
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('resident: cannot read MeterReadings from Meter which accountNumber doesnt present in resident serviceConsumers', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client1 = await makeClientWithResidentUser()
-                const client2 = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const accountNumber1 = faker.random.alphaNumeric(8)
-                const accountNumber2 = faker.random.alphaNumeric(8)
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-
-                const [resident1] = await createTestResident(adminClient, client1.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident1, organization, {
-                    accountNumber: accountNumber1,
-                })
-                const [resident2] = await createTestResident(adminClient, client2.user, property, {
-                    unitName,
-                })
-                await createTestServiceConsumer(adminClient, resident2, organization, {
-                    accountNumber: accountNumber2,
-                })
-
-                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter1] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: accountNumber1,
-                    unitName,
-                })
-                const [meter2] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: accountNumber2,
-                    unitName,
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-
-                const [meterReading1] = await createTestMeterReading(client1, meter1, source)
-                const [meterReading2] = await createTestMeterReading(client2, meter2, source)
-
-                const meterReadingsFromMeter1ByClient1 = await MeterReading.getAll(client1, { id: meterReading1.id })
-                const meterReadingsFromMeter2ByClient2 = await MeterReading.getAll(client2, { id: meterReading2.id })
-                const meterReadingsFromMeter2ByClient1 = await MeterReading.getAll(client1, { id: meterReading2.id })
-                const meterReadingsFromMeter1ByClient2 = await MeterReading.getAll(client2, { id: meterReading1.id })
-
-                expect(meterReadingsFromMeter1ByClient1).toHaveLength(1)
-                expect(meterReadingsFromMeter2ByClient2).toHaveLength(1)
-                expect(meterReadingsFromMeter2ByClient1).toHaveLength(0)
-                expect(meterReadingsFromMeter1ByClient2).toHaveLength(0)
-            })
-
-            test('resident: cannot read MetersReadings from Meter with accountNumber, which present in deleted serviceConsumer', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, property, {
-                    unitName,
-                })
-                const accountNumber1 = faker.random.alphaNumeric(8)
-
-                const [serviceConsumer] = await createTestServiceConsumer(adminClient, resident, organization, {
-                    accountNumber: accountNumber1,
-                })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: accountNumber1,
-                    unitName,
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client, meter, source)
-                await updateTestServiceConsumer(client, serviceConsumer.id, { deletedAt: 'true' })
-                const meterReadings = await MeterReading.getAll(client, {
-                    id: meterReading.id,
-                })
-
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('resident: cannot read MetersReadings from deleted Meter', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, property, {
-                    unitName,
-                })
-                const accountNumber1 = faker.random.alphaNumeric(8)
-
-                await createTestServiceConsumer(adminClient, resident, organization, {
-                    accountNumber: accountNumber1,
-                })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: accountNumber1,
-                    unitName,
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client, meter, source)
-
-                await updateTestMeter(adminClient, meter.id, { deletedAt: 'true' })
-                const meterReadings = await MeterReading.getAll(client, {
-                    id: meterReading.id,
-                })
-
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('resident: cannot read MetersReadings from Meter from deleted organization', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, property, {
-                    unitName,
-                })
-                const accountNumber1 = faker.random.alphaNumeric(8)
-
-                await createTestServiceConsumer(adminClient, resident, organization, {
-                    accountNumber: accountNumber1,
-                })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: accountNumber1,
-                    unitName,
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client, meter, source)
-
-                await updateTestOrganization(adminClient, organization.id, { deletedAt: 'true' })
-                const meterReadings = await MeterReading.getAll(client, {
-                    id: meterReading.id,
-                })
-
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('resident: cannot read MetersReadings from Meter from deleted property', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithResidentUser()
-                const unitName = faker.random.alphaNumeric(8)
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [resident] = await createTestResident(adminClient, client.user, property, {
-                    unitName,
-                })
-                const accountNumber1 = faker.random.alphaNumeric(8)
-
-                await createTestServiceConsumer(adminClient, resident, organization, {
-                    accountNumber: accountNumber1,
-                })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
-                    accountNumber: accountNumber1,
-                    unitName,
-                })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(client, meter, source)
-
-                await Property.softDelete(adminClient, property.id)
-
-                // test access before residents reconnection worker task executes
-                const meterReadingsBeforeReconnect = await MeterReading.getAll(client, {
-                    id: meterReading.id,
-                })
-
-                expect(meterReadingsBeforeReconnect).toHaveLength(0)
-
-                // NOTE: give worker some time
-                await sleep(1500)
-
-                // test access after residents reconnection worker task done
-                const meterReadingsAfterReconnect = await MeterReading.getAll(client, {
-                    id: meterReading.id,
-                })
-
-                expect(meterReadingsAfterReconnect).toHaveLength(0)
-            })
-
-            test('user: cannot read MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClientWithNewRegisteredAndLoggedInUser()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
-
-                const meterReadings = await MeterReading.getAll(client, { id: meterReading.id })
-                expect(meterReadings).toHaveLength(0)
-            })
-
-            test('anonymous: cannot read MeterReadings', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client = await makeClient()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source)
-
-                await expectToThrowAuthenticationErrorToObjects(async () => {
-                    await MeterReading.getAll(client, { id: meterReading.id })
+                    await expectToThrowAuthenticationErrorToObjects(async () => {
+                        await MeterReading.getAll(client, { id: meterReading.id })
+                    })
                 })
             })
         })
@@ -1268,17 +1324,16 @@ describe('MeterReading', () => {
     describe('Validations', () => {
         describe('External integrations', () => {
             test('Can be created without contact / client info', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
-                const [source] = await createTestMeterReadingSource(adminClient, {
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
+                const [source] = await createTestMeterReadingSource(admin, {
                     name: faker.company.companyName(0),
                     type: METER_READING_SOURCE_EXTERNAL_IMPORT_TYPE,
                 })
-                const [resource] = await MeterResource.getAll(adminClient, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {})
+                const [resource] = await MeterResource.getAll(admin, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, organization, property, resource, {})
 
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source, {
+                const [meterReading] = await createTestMeterReading(admin, meter, source, {
                     contact: { disconnectAll: true },
                     client: { disconnectAll: true },
                     clientName: null,
@@ -1297,14 +1352,17 @@ describe('MeterReading', () => {
         describe('Fields', () => {
             describe('date', () => {
                 test('server side set date if it\'s not passed in resolvedData', async () => {
-                    const client = await makeEmployeeUserClientWithAbilities({
-                        canManageMeterReadings: true,
-                    })
-                    const [resource] = await MeterResource.getAll(client, { id: COLD_WATER_METER_RESOURCE_ID })
-                    const [source] = await MeterReadingSource.getAll(client, { id: CALL_METER_READING_SOURCE_ID })
-                    const [meter] = await createTestMeter(client, client.organization, client.property, resource, {})
+                    const [resource] = await MeterResource.getAll(employeeCanManageReadings, { id: COLD_WATER_METER_RESOURCE_ID })
+                    const [source] = await MeterReadingSource.getAll(employeeCanManageReadings, { id: CALL_METER_READING_SOURCE_ID })
+                    const [meter] = await createTestMeter(
+                        employeeCanManageReadings,
+                        employeeCanManageReadings.organization,
+                        employeeCanManageReadings.property,
+                        resource,
+                        {}
+                    )
 
-                    const [meterReading] = await createTestMeterReading(client, meter, source, {
+                    const [meterReading] = await createTestMeterReading(employeeCanManageReadings, meter, source, {
                         date: undefined,
                     })
 
@@ -1316,40 +1374,38 @@ describe('MeterReading', () => {
 
         describe('Resolve input', () => {
             it('Create contact if contact does not exist in same property, unitType and unitName', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client1 = await makeClientWithResidentUser()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
                 const unitName = faker.random.alphaNumeric(8)
 
                 // contact in other unitName
-                await createTestContact(adminClient, organization, property, {
-                    phone: client1.userAttrs.phone,
+                await createTestContact(admin, organization, property, {
+                    phone: residentClient.userAttrs.phone,
                     unitName: faker.random.alphaNumeric(8),
                     unitType: FLAT_UNIT_TYPE,
                 })
 
                 // contact in other unitType
-                await createTestContact(adminClient, organization, property, {
-                    phone: client1.userAttrs.phone,
+                await createTestContact(admin, organization, property, {
+                    phone: residentClient.userAttrs.phone,
                     unitName,
                     unitType: PARKING_UNIT_TYPE,
                 })
 
-                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, organization, property, resource, {
                     unitName,
                     unitType: FLAT_UNIT_TYPE,
                 })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source, {
-                    clientName: client1.userAttrs.name,
-                    clientPhone: client1.userAttrs.phone,
+                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                    clientName: residentClient.userAttrs.name,
+                    clientPhone: residentClient.userAttrs.phone,
                 })
 
-                const createdContact = await Contact.getOne(adminClient, {
+                const createdContact = await Contact.getOne(admin, {
                     property: { id: property.id },
-                    phone: client1.userAttrs.phone,
+                    phone: residentClient.userAttrs.phone,
                     unitName,
                     unitType: FLAT_UNIT_TYPE,
                 })
@@ -1358,26 +1414,24 @@ describe('MeterReading', () => {
             })
 
             it('Connect contact if he exists in same property, unitType and unitName', async () => {
-                const adminClient = await makeLoggedInAdminClient()
-                const client1 = await makeClientWithResidentUser()
-                const [organization] = await createTestOrganization(adminClient)
-                const [property] = await createTestProperty(adminClient, organization)
+                const [organization] = await createTestOrganization(admin)
+                const [property] = await createTestProperty(admin, organization)
                 const unitName = faker.random.alphaNumeric(8)
 
-                const [contact] = await createTestContact(adminClient, organization, property, {
-                    phone: client1.userAttrs.phone,
+                const [contact] = await createTestContact(admin, organization, property, {
+                    phone: residentClient.userAttrs.phone,
                     unitName,
                     unitType: FLAT_UNIT_TYPE,
                 })
 
-                const [resource] = await MeterResource.getAll(client1, { id: COLD_WATER_METER_RESOURCE_ID })
-                const [meter] = await createTestMeter(adminClient, organization, property, resource, {
+                const [resource] = await MeterResource.getAll(residentClient, { id: COLD_WATER_METER_RESOURCE_ID })
+                const [meter] = await createTestMeter(admin, organization, property, resource, {
                     unitName,
                 })
-                const [source] = await MeterReadingSource.getAll(adminClient, { id: CALL_METER_READING_SOURCE_ID })
-                const [meterReading] = await createTestMeterReading(adminClient, meter, source, {
-                    clientName: client1.userAttrs.name,
-                    clientPhone: client1.userAttrs.phone,
+                const [source] = await MeterReadingSource.getAll(admin, { id: CALL_METER_READING_SOURCE_ID })
+                const [meterReading] = await createTestMeterReading(admin, meter, source, {
+                    clientName: residentClient.userAttrs.name,
+                    clientPhone: residentClient.userAttrs.phone,
                 })
 
                 const connectedContact = meterReading.contact

@@ -693,7 +693,7 @@ describe('Meter', () => {
                 })
             })
 
-            test('resident: can read Meters from other organizations if it has resouce ownership', async () => {
+            test('resident: can read Meters from other organizations if it has resource ownership', async () => {
                 const residentClient = await makeClientWithResidentUser()
 
                 const { organization: originalOrganization, context: originalContext } = await makeContextWithOrganizationAndIntegrationAsAdmin()
@@ -771,10 +771,11 @@ describe('Meter', () => {
 
                 expect(newMeters).toHaveLength(2)
 
-                const newMeter = await Meter.getAll(residentClient, { id: serviceProviderColdMeter.id })
-                expect(newMeter).toHaveLength(1)
-                expect(newMeter[0]).toHaveProperty(['property', 'id'], serviceProviderProperty.id)
-
+                const newMeter = await Meter.getOne(residentClient, { id: serviceProviderColdMeter.id })
+                expect(newMeter).toBeDefined()
+                expect(newMeter).toHaveProperty(['accountNumber'], serviceProviderColdMeter.accountNumber)
+                expect(newMeter).toHaveProperty(['organization', 'id'], serviceProviderOrganization.id)
+                expect(newMeter).toHaveProperty(['resource', 'id'], COLD_WATER_METER_RESOURCE_ID)
             })
 
             test('resident: cannot read Meters from other organization', async () => {
