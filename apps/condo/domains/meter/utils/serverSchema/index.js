@@ -59,13 +59,6 @@ const getAvailableResidentMeters = async (userId) => {
         deletedAt: null,
     })
 
-    const selections = userConsumers.map(serviceConsumer => ({
-        property: { id: get(residentsByIds, [serviceConsumer.resident, 'property']) },
-        unitName: get(residentsByIds, [serviceConsumer.resident, 'unitName']),
-        accountNumber: serviceConsumer.accountNumber,
-    }))
-
-
     const orStatements = []
 
     for (const resourceOwner of resourceOwners) {
@@ -83,30 +76,6 @@ const getAvailableResidentMeters = async (userId) => {
             })
         }
     }
-
-    // const where = resourceOwners.map(resourceOwner => ({
-    //     AND: [
-    //         { organization: { id: resourceOwner.organization.id } },
-    //         { resource: { id: resourceOwner.resource.id } },
-    //         { accountNumber_in: userConsumers.map(consumer => consumer.accountNumber) },
-    //         { property: { deletedAt: null, addressKey: resourceOwner.addressKey } },
-    //
-    //     ],
-    // }))
-
-    // const selections = userConsumers.map(serviceConsumer => {
-    //     return {
-    //         property: { addressKey: get(residentsByIds, [serviceConsumer.resident, 'addressKey']), deletedAt: null },
-    //         unitName: get(residentsByIds, [serviceConsumer.resident, 'unitName']),
-    //         accountNumber: serviceConsumer.accountNumber,
-    //     }
-    // })
-
-    const orStatement = selections.map(selection => ({
-        AND: [
-            selection,
-        ],
-    }))
 
     return await find('Meter', {
         OR: orStatements,
