@@ -2,7 +2,10 @@ const get = require('lodash/get')
 
 const { ApolloServerClient } = require('@open-condo/apollo-server-client')
 const conf = require('@open-condo/config')
+const { GQLError, GQLErrorCode: { INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 
+const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
+const { MULTIPLE_FOUND } = require('@dev-api/domains/common/constants/errors')
 const { DEFAULT_LOCALE } = require('@dev-api/domains/common/constants/locales')
 const { SEND_MESSAGE_MUTATION } = require('@dev-api/domains/common/gql')
 
@@ -17,6 +20,15 @@ function _getClientRequisites (config) {
             password: get(config, 'password', 'your-secret-pass'),
         },
     }
+}
+
+const ERRORS = {
+    MULTIPLE_FOUND: {
+        code: INTERNAL_ERROR,
+        type: MULTIPLE_FOUND,
+        message: 'Unable to determine the object to update because multiple objects were found for the specified importID and exportId',
+        messageForUser: 'errors.MULTIPLE_FOUND.message',
+    },
 }
 
 
@@ -41,6 +53,24 @@ class CondoClient extends ApolloServerClient {
                 },
             },
         })
+    }
+
+    async findExportedModel ({ modelGql, exportId, id, context }) {
+        const searchConditions = []
+        if (exportId) searchConditions.push({ id: exportId })
+        searchConditions.push({ AND: [{ importId: id, importRemoteSystem: REMOTE_SYSTEM }] })
+        const objs = await this.getModels({
+            modelGql,
+            first: 2,
+            where: {
+                OR: searchConditions,
+            },
+        })
+        if (objs.length > 1) {
+            throw new GQLError(ERRORS.MULTIPLE_FOUND, context)
+        }
+
+        return objs.length ? objs[0] : null
     }
 }
 

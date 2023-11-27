@@ -777,7 +777,7 @@ export type B2CAppHistoryRecordsUpdateInput = {
 }
 
 export type B2CAppPublishOptions = {
-    buildVersion?: InputMaybe<Scalars['String']['input']>;
+    build?: InputMaybe<B2CAppBuildWhereUniqueInput>;
     info?: InputMaybe<Scalars['Boolean']['input']>;
 }
 

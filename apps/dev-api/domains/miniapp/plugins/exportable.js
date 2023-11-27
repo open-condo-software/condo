@@ -1,7 +1,7 @@
 const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { plugin } = require('@open-condo/keystone/plugins/utils/typing')
 
-const { AVAILABLE_ENVIRONMENTS } = require('@dev-api/domains/miniapp/constants/environments')
+const { AVAILABLE_ENVIRONMENTS } = require('@dev-api/domains/miniapp/constants/publishing')
 
 function exportable () {
     return plugin(({ fields = {}, ...rest }) => {
