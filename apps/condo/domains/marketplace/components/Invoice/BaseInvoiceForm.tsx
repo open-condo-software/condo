@@ -14,7 +14,7 @@ import React, { ComponentProps, CSSProperties, useCallback, useEffect, useMemo, 
 
 import { Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
-import { Alert, Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
+import { Alert, Radio, RadioGroup, Space, Tooltip, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { Button as OldButton } from '@condo/domains/common/components/Button'
@@ -565,7 +565,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                     warningOnly: true,
                                                     validator: (_, value) => {
                                                         if (
-                                                            new RegExp(`^${FromMessage} (\\d+|\\d+,\\d+)$`).test(value) ||
+                                                            new RegExp(`^${FromMessage} (\\d+|\\d+(,|.)\\d+)$`).test(value) ||
                                                             value === ContractPriceMessage
                                                         ) {
                                                             form.setFieldsValue({
@@ -587,7 +587,7 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
                                                 {
                                                     validator: (_, value) => {
                                                         if (
-                                                            new RegExp(`^(${FromMessage} |)(\\d+|\\d+,\\d+)$`).test(value) ||
+                                                            new RegExp(`^(${FromMessage} |)(\\d+|\\d+(,|.)\\d+)$`).test(value) ||
                                                             value === ContractPriceMessage
                                                         ) {
                                                             return Promise.resolve()
@@ -678,13 +678,25 @@ const ServicesList = ({ organizationId, propertyId, form, currencySymbol, disabl
     )
 }
 
-const StatusRadioGroup = ({ isAllFieldsDisabled, onlyStatusTransitionsActive, isNotDraftStatusesDisabled, paymentType, isCreateForm, form, status, setStatus }) => {
+const StatusRadioGroup = ({
+    isNoPayerData,
+    isAllFieldsDisabled,
+    onlyStatusTransitionsActive,
+    isNotDraftStatusesDisabled,
+    paymentType,
+    isCreateForm,
+    form,
+    status,
+    setStatus,
+}) => {
     const intl = useIntl()
     const InvoiceStatusLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.invoiceStatus' })
     const InvoiceStatusDraftLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.draft' }).toLowerCase()
     const InvoiceStatusReadyLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.published' }).toLowerCase()
     const InvoiceStatusPaidLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.paid' }).toLowerCase()
     const InvoiceStatusCancelledLabel = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.invoiceStatus.canceled' }).toLowerCase()
+    const NoPayerDataTooltipTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.disabledTooltip.noPayerData' })
+    const DisabledPaidForOnlineTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.disabledTooltip.disabledPaidForOnline' })
 
     const { CancelStatusModal, setIsCancelModalOpen } = useCancelStatusModal()
 
@@ -719,27 +731,31 @@ const StatusRadioGroup = ({ isAllFieldsDisabled, onlyStatusTransitionsActive, is
                                 {InvoiceStatusDraftLabel}
                             </Typography.Text>
                         </Radio>
-                        <Radio value={INVOICE_STATUS_PUBLISHED} disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}>
-                            <Typography.Text
-                                type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'}
-                                disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
-                                strong
+                        <Tooltip title={isNoPayerData && NoPayerDataTooltipTitle}>
+                            <Radio value={INVOICE_STATUS_PUBLISHED} disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}>
+                                <Typography.Text
+                                    type={status === INVOICE_STATUS_PUBLISHED ? 'warning' : 'primary'}
+                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                    strong
+                                >
+                                    {InvoiceStatusReadyLabel}
+                                </Typography.Text>
+                            </Radio>
+                        </Tooltip>
+                        <Tooltip title={paymentType === INVOICE_PAYMENT_TYPE_ONLINE && DisabledPaidForOnlineTitle}>
+                            <Radio
+                                value={INVOICE_STATUS_PAID}
+                                disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isOnlinePaymentType}
                             >
-                                {InvoiceStatusReadyLabel}
-                            </Typography.Text>
-                        </Radio>
-                        <Radio
-                            value={INVOICE_STATUS_PAID}
-                            disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isOnlinePaymentType}
-                        >
-                            <Typography.Text
-                                type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'}
-                                disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
-                                strong
-                            >
-                                {InvoiceStatusPaidLabel}
-                            </Typography.Text>
-                        </Radio>
+                                <Typography.Text
+                                    type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'}
+                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                    strong
+                                >
+                                    {InvoiceStatusPaidLabel}
+                                </Typography.Text>
+                            </Radio>
+                        </Tooltip>
                         <Radio
                             value={INVOICE_STATUS_CANCELED}
                             disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
@@ -1024,6 +1040,7 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                                     initialStatus === INVOICE_STATUS_CANCELED || initialStatus === INVOICE_STATUS_PAID
 
                                                                 return <StatusRadioGroup
+                                                                    isNoPayerData={isNoPayerData}
                                                                     paymentType={paymentType}
                                                                     isAllFieldsDisabled={isAllFieldsDisabled}
                                                                     onlyStatusTransitionsActive={onlyStatusTransitionsActive}

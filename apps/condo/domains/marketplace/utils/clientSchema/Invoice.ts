@@ -194,7 +194,6 @@ export function calculateRowsTotalPrice (intl, rows) {
 const {
     useObject,
     useObjects,
-    useCount,
     useCreate,
     useUpdate,
     useSoftDelete,
@@ -204,7 +203,6 @@ const {
 export {
     useObject,
     useObjects,
-    useCount,
     useCreate,
     useUpdate,
     useSoftDelete,

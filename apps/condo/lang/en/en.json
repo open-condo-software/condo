@@ -1301,6 +1301,8 @@
   "pages.condo.marketplace.invoice.form.create.notification.failure.description": "Error occurred while composing link to payment",
   "pages.condo.marketplace.invoice.form.create.notification.copyLink": "Copy link",
   "pages.condo.marketplace.invoice.form.create.notification.copiedLink": "Copied",
+  "pages.condo.marketplace.invoice.form.disabledTooltip.noPayerData": "Status «Ready, Waiting for Payment» will be available after you fill in the payer data",
+  "pages.condo.marketplace.invoice.form.disabledTooltip.disabledPaidForOnline": "«Paid» status is not available for «Online» payment method",
   "pages.condo.marketplace.invoice.id.title.order": "Order",
   "pages.condo.marketplace.invoice.id.table.header.name": "Name",
   "pages.condo.marketplace.invoice.id.table.header.sku": "Sku",
