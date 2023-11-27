@@ -88,9 +88,9 @@ class PropertyResolver extends Resolver {
                 const { unitName: unitNameFromFias, unitType: unitTypeFromFias, address: houseFromFias } = this.parser.parse(transformedGlobalId)
                 unitNames.push(unitNameFromFias)
                 unitTypes.push(unitTypeFromFias)
-                addresses.push(`fiasId:${houseFromFias}`)
+                addresses.push(`fiasId:${houseFromFias.toLowerCase()}`)
             } else {
-                addresses.push(`fiasId:${transformedGlobalId}`)
+                addresses.push(`fiasId:${transformedGlobalId.toLowerCase()}`)
             }
         }
         if (addressInput) {

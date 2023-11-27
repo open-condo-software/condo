@@ -75,6 +75,7 @@ const PARSE_ADDRESS_CASES_PRIORITIES = [
     { description: 'Additional info about address as a fias without unit', receipt: { address: 'пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)', addressMeta: { globalId:  'b746e6bd-e02b-4987-bb1c-bb9dd808f909' } }, result: { addresses: ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'пер.Малый Козихинский, д.7'], unitName: '3,4 (1 ур.)', unitType: 'parking' } },
     { description: 'Additional info about address as a fias with unitName', receipt: { address: 'пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)', addressMeta: { globalId:  'b746e6bd-e02b-4987-bb1c-bb9dd808f909,3-4[I]' } }, result: { addresses: ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'пер.Малый Козихинский, д.7'], unitName: '3-4[I]', unitType: 'parking' } },
     { description: 'Additional info about address as a fias with unit', receipt: { address: 'пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)', addressMeta: { globalId:  'b746e6bd-e02b-4987-bb1c-bb9dd808f909, кладовка 3-4[I]' } }, result: { addresses: ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'пер.Малый Козихинский, д.7'], unitName: '3-4[I]', unitType: 'warehouse' } },
+    { description: 'FIAS should be lower-cased to work with address service', receipt: { address: 'пер.Малый Козихинский, д.7, м/м 3,4 (1 ур.)', addressMeta: { globalId:  'B746E6BD-E02B-4987-BB1C-BB9DD808F909, кладовка 3-4[I]' } }, result: { addresses: ['fiasId:b746e6bd-e02b-4987-bb1c-bb9dd808f909', 'пер.Малый Козихинский, д.7'], unitName: '3-4[I]', unitType: 'warehouse' } },
 ]
 
 describe('Get information about address from receipt', () => {
@@ -379,3 +380,4 @@ describe('PropertyFinder', () => {
         expect(address).toEqual(MAIN_ADDRESS_PART + 'ул Вишневая, д 10')
     })
 })
+

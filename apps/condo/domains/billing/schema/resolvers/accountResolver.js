@@ -65,11 +65,8 @@ class AccountResolver extends Resolver {
                 receiptImportIds.push(receipt.importId)
             }
         }
-        console.log(receiptImportIds)
         if (receiptImportIds.length) {
-            console.log({ importId_in: receiptImportIds, deletedAt: null, context: { id: this.billingContext.id } })
             const receipts = await find('BillingReceipt', { importId_in: receiptImportIds, deletedAt: null, context: { id: this.billingContext.id } })
-            console.log(receipts)
             this.accountsByReceiptByImportId = Object.fromEntries(receipts.map(({ importId, account }) => ([importId, account])))
         }
     }

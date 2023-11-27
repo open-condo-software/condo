@@ -60,8 +60,8 @@ class ReceiptResolver extends Resolver {
                     ...(!isAmountEqual(receipt.toPay, receiptToUpdate.toPay)) ? { toPay: receipt.toPay } : {},
                     ...(!isEmpty(receipt.recipient) && !isEqual(receipt.recipient, receiptToUpdate.recipient)) ? { recipient: receipt.recipient } : {},
                     ...(!isEmpty(receipt.raw) && !isEqual(receipt.raw, receiptToUpdate.raw)) ? { raw: receipt.raw } : {},
-                    ...(!isEmpty(receipt.toPayDetails) && !isEqual(receipt.toPayDetails, receiptToUpdate.toPayDetails)) ? { toPayDetails: receipt.toPayDetails } : {},
-                    ...(!isEmpty(receipt.services) && !isArrayEqual(receipt.services, receiptToUpdate.services)) ? { services: receipt.services } : {},
+                    ...(receipt.toPayDetails && !isEmpty(receipt.toPayDetails) && !isEqual(receipt.toPayDetails, receiptToUpdate.toPayDetails)) ? { toPayDetails: receipt.toPayDetails } : {},
+                    ...(receipt.services && !isEmpty(receipt.services) && !isArrayEqual(receipt.services, receiptToUpdate.services)) ? { services: receipt.services } : {},
                 }
                 if (!isEmpty(updateInput)) {
                     this.updated++
