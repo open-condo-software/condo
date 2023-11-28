@@ -613,6 +613,7 @@
   "pages.condo.property.warning.modal.AddressValidationErrorMsg": "It doesn't look like a house address. Check if you have specified everything correctly.",
   "pages.condo.property.warning.modal.SameUnitNamesErrorMsg": "Unit names must be unique",
   "pages.condo.property.warning.modal.SameParkingPlaceNamesErrorMsg": "Parking place names must be unique",
+  "pages.condo.property.warning.modal.emptyUnitName": "Unit name must be not empty",
   "pages.condo.property.warning.modal.unsavedChanges": "You have unsaved changes",
   "pages.condo.property.warning.modal.SamePropertyErrorMsg": "Property with this address has already been added to the organization",
   "pages.condo.property.warning.modal.Title": "Do not save property?",
