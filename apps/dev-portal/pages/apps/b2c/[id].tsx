@@ -84,6 +84,7 @@ const AppSettingsPage: React.FC = () => {
                         items={menuItems}
                         mode='inline'
                         onClick={handleMenuClick}
+                        selectedKeys={[section]}
                     />
                 )}
             >

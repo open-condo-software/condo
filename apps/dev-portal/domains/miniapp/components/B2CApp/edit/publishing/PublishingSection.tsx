@@ -89,11 +89,19 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
 
     const handleBuildCheck = useCallback<Required<CheckboxProps>['onChange']>((evt) => {
         if (evt.target.checked) {
-            fetchBuilds()
+            fetchBuilds({
+                variables: {
+                    where: {
+                        app: { id },
+                    },
+                    first: DEFAULT_PAGE_SIZE,
+                    skip: 0,
+                },
+            })
         }
         setBuildChecked(evt.target.checked)
         setBuildSearch('')
-    }, [fetchBuilds])
+    }, [fetchBuilds, id])
 
     const buildOptions = (buildsData?.builds || []).filter(nonNull).map(build => {
         return {
@@ -132,6 +140,7 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
                         <Form.Item name='buildId' rules={[requiredFieldValidator]}>
                             <Select
                                 onSearch={setBuildSearch}
+                                optionFilterProp='key'
                                 options={buildOptions}
                                 placeholder={SelectBuildPlaceholder}
                                 showSearch

@@ -50,12 +50,13 @@ export const CreateAppContextProvider: React.FC<{ children: React.ReactElement }
     const onError = useMutationErrorHandler()
     const onB2CCompleted = useCallback((data: CreateB2CAppMutation) => {
         setOpenModal(false)
+        form.resetFields(['name'])
         const id = data.app?.id
         if (id) {
             const url = `/apps/${B2C_APP_VALUE}/${id}`
             router.push(url, url, { locale: router.locale })
         }
-    }, [router])
+    }, [router, form])
     const [createB2CAppMutation] = useCreateB2CAppMutation({
         onError,
         onCompleted: onB2CCompleted,
