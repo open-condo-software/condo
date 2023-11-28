@@ -15,11 +15,11 @@ env:
 jobs:
   build-image:
     name: Build Docker Image
-#    runs-on: runners-dind-set-cpu5-ram10
     runs-on: test-pool-runners
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
     steps:
+      - run: echo "type=registry,ref=${{ env.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' )"
       - name: Prepare runner
         run: |
           sudo apt update && sudo apt install -y git
@@ -47,18 +47,16 @@ jobs:
           registry: swr.ru-moscow-1.hc.sbercloud.ru
           username: ${{ secrets.SBERCLOUD_CR_USERNAME }}
           password: ${{ secrets.SBERCLOUD_CR_PASSWORD }}
-      - name: Build repo image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: Dockerfile
-          push: true
-          tags: ${{ env.DOCKER_IMAGE_FULL }}
-          provenance: false
-          cache-from: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache
-          cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=min,image-manifest=true
-      - name: testst
-        run: echo "hello, world"
+#      - name: Build repo image
+#        uses: docker/build-push-action@v5
+#        with:
+#          context: .
+#          file: Dockerfile
+#          push: true
+#          tags: ${{ env.DOCKER_IMAGE_FULL }}
+#          provenance: false
+#          cache-from:
+#          cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=min,image-manifest=true
 
   lint:
     name: Lint source code
