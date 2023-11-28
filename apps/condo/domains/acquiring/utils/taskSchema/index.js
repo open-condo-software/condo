@@ -245,7 +245,11 @@ async function filterPaidBillingReceipts (context, billingReceipts) {
         return !payedBillIds.includes(id)
     }).map(receipt => receipt.id)
 
-    return await BillingReceipt.getAll(context, { id_in: notPaidBillsIds, deletedAt: null })
+    return await BillingReceipt.getAll(context, {
+        id_in: notPaidBillsIds,
+        toPay_gt: '0',
+        deletedAt: null,
+    })
 }
 
 async function isLimitExceedForBillingReceipts (context, recurrentPaymentContext, billingReceipts) {
