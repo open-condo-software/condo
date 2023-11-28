@@ -79,6 +79,7 @@ const DEFAULT_IMPLICIT_FEE_PERCENT = '5'
 
 const COMMON_RESOLVED_FIELDS = ['dv', 'sender', 'v', 'updatedAt', 'updatedBy']
 const CLIENT_DATA_FIELDS = ['property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'contact', 'client']
+const INITIAL_ROWS_VALUE = [{ name: '', count: 1, toPay: '0', isMin: false }]
 
 module.exports = {
     INVOICE_CONTEXT_STATUS_FINISHED,
@@ -127,4 +128,5 @@ module.exports = {
     MARKETPLACE_SETUP_URL_PATH,
     COMMON_RESOLVED_FIELDS,
     CLIENT_DATA_FIELDS,
+    INITIAL_ROWS_VALUE,
 }

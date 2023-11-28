@@ -840,20 +840,35 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                                         {NoPropertiesAlert}
                                                                         <Col span={24} data-cy='ticket__property-address-search-input'>
-                                                                            <TicketFormItem
-                                                                                name='property'
-                                                                                label={AddressLabel}
-                                                                                rules={PROPERTY_VALIDATION_RULES}
+                                                                            <Form.Item
+                                                                                dependencies={['invoices']}
+                                                                                noStyle
                                                                             >
-                                                                                <PropertyAddressSearchInput
-                                                                                    organizationId={get(organization, 'id')}
-                                                                                    autoFocus
-                                                                                    onSelect={handlePropertySelectChange(form)}
-                                                                                    onClear={handlePropertiesSelectClear(form)}
-                                                                                    placeholder={AddressPlaceholder}
-                                                                                    notFoundContent={AddressNotFoundContent}
-                                                                                />
-                                                                            </TicketFormItem>
+                                                                                {
+                                                                                    ({ getFieldValue }) => {
+                                                                                        const invoices = getFieldValue('invoices')
+
+                                                                                        return (
+                                                                                            <TicketFormItem
+                                                                                                name='property'
+                                                                                                label={AddressLabel}
+                                                                                                rules={PROPERTY_VALIDATION_RULES}
+                                                                                            >
+                                                                                                <PropertyAddressSearchInput
+                                                                                                    organizationId={get(organization, 'id')}
+                                                                                                    autoFocus
+                                                                                                    onSelect={handlePropertySelectChange(form)}
+                                                                                                    onClear={handlePropertiesSelectClear(form)}
+                                                                                                    placeholder={AddressPlaceholder}
+                                                                                                    notFoundContent={AddressNotFoundContent}
+                                                                                                    disabled={!isEmpty(invoices)}
+                                                                                                />
+                                                                                            </TicketFormItem>
+                                                                                        )
+                                                                                    }
+                                                                                }
+                                                                            </Form.Item>
+
                                                                         </Col>
                                                                         {selectedPropertyId && (
                                                                             <UnitInfo

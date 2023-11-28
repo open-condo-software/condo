@@ -1,7 +1,6 @@
 import { PlusCircleOutlined } from '@ant-design/icons'
 import {
     BuildingUnitSubType,
-    Organization,
     OrganizationEmployeeRole,
     Invoice,
     Property as PropertyType,
@@ -33,6 +32,7 @@ import {
     INVOICE_PAYMENT_TYPE_CASH,
     INVOICE_STATUSES,
     INVOICE_PAYMENT_TYPES,
+    INITIAL_ROWS_VALUE,
 } from '@condo/domains/marketplace/constants'
 import { useCancelStatusModal } from '@condo/domains/marketplace/hooks/useCancelStatusModal'
 import { InvoiceContext, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
@@ -134,6 +134,7 @@ const PropertyFormField = ({ organizationId, form, disabled, setSelectedProperty
             unitName: null,
             unitType: null,
             property: newPropertyId,
+            rows: INITIAL_ROWS_VALUE,
             ...emptyContactValues,
         })
 
@@ -145,8 +146,8 @@ const PropertyFormField = ({ organizationId, form, disabled, setSelectedProperty
             label={AddressLabel}
             labelCol={{ span: 24 }}
             required
-            name='property'
             rules={[requiredValidator]}
+            name='property'
         >
             <PropertyAddressSearchInput
                 organizationId={organizationId}
@@ -1015,17 +1016,19 @@ export const BaseInvoiceForm: React.FC<BaseInvoiceFormProps> = (props) => {
                                                                 const isNotDraftStatusesDisabled = hasIsMinPrice || isNoPayerData ||
                                                                     initialStatus === INVOICE_STATUS_CANCELED || initialStatus === INVOICE_STATUS_PAID
 
-                                                                return <StatusRadioGroup
-                                                                    isNoPayerData={isNoPayerData}
-                                                                    paymentType={paymentType}
-                                                                    isAllFieldsDisabled={isAllFieldsDisabled}
-                                                                    onlyStatusTransitionsActive={onlyStatusTransitionsActive}
-                                                                    isNotDraftStatusesDisabled={isNotDraftStatusesDisabled}
-                                                                    isCreateForm={isCreateForm}
-                                                                    form={form}
-                                                                    status={status}
-                                                                    setStatus={setStatus}
-                                                                />
+                                                                return (
+                                                                    <StatusRadioGroup
+                                                                        isNoPayerData={isNoPayerData}
+                                                                        paymentType={paymentType}
+                                                                        isAllFieldsDisabled={isAllFieldsDisabled}
+                                                                        onlyStatusTransitionsActive={onlyStatusTransitionsActive}
+                                                                        isNotDraftStatusesDisabled={isNotDraftStatusesDisabled}
+                                                                        isCreateForm={isCreateForm}
+                                                                        form={form}
+                                                                        status={status}
+                                                                        setStatus={setStatus}
+                                                                    />
+                                                                )
                                                             }
                                                         }
                                                     </Form.Item>

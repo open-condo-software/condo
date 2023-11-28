@@ -9,7 +9,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { BaseModalForm } from '@condo/domains/common/components/containers/FormList'
-import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
+import { INVOICE_PAYMENT_TYPE_ONLINE, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED, INITIAL_ROWS_VALUE } from '@condo/domains/marketplace/constants'
 import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
 import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 import { InvoiceFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/Invoice'
@@ -69,7 +69,7 @@ export const CreateInvoiceForm: React.FC<CreateInvoiceFormProps> = ({ organizati
 
     const formInitialValues: InvoiceFormValuesType = useMemo(() =>
         ({
-            rows: [{ name: '', count: 1, toPay: '0', isMin: false }], paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true,
+            rows: INITIAL_ROWS_VALUE, paymentType: INVOICE_PAYMENT_TYPE_ONLINE, status: INVOICE_STATUS_DRAFT, payerData: true,
             ...initialValues,
         }),
     [initialValues])
