@@ -1,4 +1,3 @@
-import { Meter as MeterType } from '@app/condo/schema'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import pick from 'lodash/pick'
@@ -6,7 +5,6 @@ import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ButtonProps } from '@open-condo/ui'
 
 import {
     DeleteButtonWithConfirmModal,
@@ -53,7 +51,7 @@ export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_P
         if (selectedMeter) {
             return pick(selectedMeter, isPropertyMeter ? INITIAL_PROPERTY_METER_VALUES_KEYS : INITIAL_METER_VALUES_KEYS)
         }
-    }, [selectedMeter])
+    }, [selectedMeter, isPropertyMeter])
 
     const handleSubmit = useCallback(values => {
         if (values.resource) {
@@ -91,6 +89,7 @@ export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_P
             <BaseMeterModalForm
                 propertyId={get(selectedMeter, ['property', 'id'])}
                 unitName={get(selectedMeter, 'unitName')}
+                addressKey={get(selectedMeter, ['property', 'addressKey'])}
                 initialValues={initialValues}
                 ModalTitleMsg={modalTitle}
                 visible={selectedMeter}
@@ -119,6 +118,7 @@ export const useUpdateMeterModal = (refetch, meterType: MeterPageTypes = METER_P
         isAutomatic,
         masterAppName,
         organizationId,
+        meterType,
     ])
 
     return useMemo(() => ({ UpdateMeterModal, setSelectedMeter }), [UpdateMeterModal])
