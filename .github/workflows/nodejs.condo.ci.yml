@@ -56,7 +56,7 @@ jobs:
           tags: ${{ env.DOCKER_IMAGE_FULL }}
           provenance: false
           cache-from: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache
-          cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=max,image-manifest=true
+          cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=min,image-manifest=true
 
   lint:
     name: Lint source code
