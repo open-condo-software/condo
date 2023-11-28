@@ -1,4 +1,4 @@
-const { GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 
 const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
 
@@ -55,6 +55,34 @@ const ERRORS = {
         code: BAD_USER_INPUT,
         type: WRONG_VALUE,
         message: 'You have several receipts in request that has the same account number and property address',
+    },
+    ACCOUNT_SAVE_FAILED: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'accountNumber'],
+        code: INTERNAL_ERROR,
+        type: WRONG_VALUE,
+        message: 'Error on saving BillingAccount',
+    },
+    PROPERTY_SAVE_FAILED: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'address'],
+        code: INTERNAL_ERROR,
+        type: WRONG_VALUE,
+        message: 'Error on saving BillingProperty',
+    },
+    RECEIPT_SAVE_FAILED: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'importId'],
+        code: INTERNAL_ERROR,
+        type: WRONG_VALUE,
+        message: 'Error on saving BillingReceipt',
+    },
+    RECIPIENT_SAVE_FAILED: {
+        mutation: 'registerBillingReceipts',
+        variable: ['data', 'receipts', '[]', 'bankAccount'],
+        code: INTERNAL_ERROR,
+        type: WRONG_VALUE,
+        message: 'Error on saving BillingRecipient',
     },
     BANK_FOUND_ERROR: {
         mutation: 'registerBillingReceipts',

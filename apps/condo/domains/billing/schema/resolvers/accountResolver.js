@@ -8,13 +8,13 @@ const { generateServerUtils } = require('@open-condo/codegen/generate.server.uti
 const { find } = require('@open-condo/keystone/schema')
 
 const { BILLING_ACCOUNT_OWNER_TYPE_COMPANY, BILLING_ACCOUNT_OWNER_TYPE_PERSON } = require('@condo/domains/billing/constants/constants')
+const { ERRORS } = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const { clearAccountNumber, isPerson } = require('@condo/domains/billing/schema/resolvers/lib')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 
 const BILLING_ACCOUNT_FIELDS = '{ id  }'
 const BillingAccountGQL = generateGqlQueries('BillingAccount', BILLING_ACCOUNT_FIELDS)
 const BillingAccountApi = generateServerUtils(BillingAccountGQL)
-
-const REMOVE_NOT_USED_WORDS_REGEXP = /(л\/с|лс|№)/gi
 
 class AccountResolver extends Resolver {
     constructor ({ billingContext, context }) {
@@ -23,41 +23,11 @@ class AccountResolver extends Resolver {
         this.accountsByReceiptByImportId = {}
     }
 
-    replaceSameEnglishLetters (input) {
-        const replacements = {
-            'a': 'а', 'b': 'б', 'c': 'с', 'e': 'е', 'h': 'н', 'k': 'к', 'm': 'м',
-            'o': 'о', 'p': 'р', 't': 'т', 'x': 'х', 'y': 'у',
-        }
-        return input.replace(/[a-zA-Z]/g, (match) => {
-            const replacement = replacements[match.toLowerCase()]
-            if (replacement) {
-                if (match === match.toUpperCase()) {
-                    return replacement.toUpperCase()
-                }
-                return replacement
-            }
-            return match
-        })
-    }
-    isPerson (fullName) {
-        const FIO_REGEXP = /^[А-ЯЁ][а-яё]*([-' .][А-ЯЁ][а-яё]*){0,2}\s+[IVА-ЯЁ][a-zа-яё.]*([- .'ёЁ][IVА-ЯЁ][a-zа-яё.]*)*$/
-        const ENDINGS = 'оглы|кызы' // могут присутствовать в конце ФИО
-        let [input] = fullName.split(new RegExp(`\\s(${ENDINGS})$`))
-        input = this.replaceSameEnglishLetters(input).replace(/([А-ЯЁ])([А-ЯЁ]+)/gu,
-            (match, firstChar, restOfString) => firstChar + restOfString.toLowerCase()
-        )
-        return FIO_REGEXP.test(input)
-    }
-
     async init () {
         this.accounts = await find('BillingAccount', { context: { id: this.billingContext.id }, deletedAt: null })
     }
 
-    clearInput (accountNumber) {
-        return String(accountNumber).replace(REMOVE_NOT_USED_WORDS_REGEXP, '').trim()
-    }
-
-    // If receipt input has importId from integration - then connected account will not be created
+    // If receipt input has importId from integration - then connected account will not be created, only updated
     async createIndexByImportId (receiptIndex) {
         const receiptImportIds = []
         for (const [,receipt] of Object.entries(receiptIndex)) {
@@ -78,61 +48,43 @@ class AccountResolver extends Resolver {
             let { accountNumber, accountMeta = {} } = receipt
             let { globalId, importId, fullName, isClosed, ownerType } = accountMeta
             if (fullName && isNil(ownerType)) {
-                ownerType = this.isPerson(fullName) ? BILLING_ACCOUNT_OWNER_TYPE_PERSON : BILLING_ACCOUNT_OWNER_TYPE_COMPANY
+                ownerType = isPerson(fullName) ? BILLING_ACCOUNT_OWNER_TYPE_PERSON : BILLING_ACCOUNT_OWNER_TYPE_COMPANY
             }
-            accountNumber = this.clearInput(accountNumber)
+            accountNumber = clearAccountNumber(accountNumber)
             if (globalId && !IS_ELS_REGEXP.test(globalId)) {
-                globalId = ''
+                globalId = null
             }
             let existingAccount
             if (receipt.importId && this.accountsByReceiptByImportId[receipt.importId]) {
                 existingAccount = this.accounts.find(({ id }) => this.accountsByReceiptByImportId[receipt.importId] === id)
             }
-            if (importId && !existingAccount) {
-                existingAccount = this.accounts.find(({ importId: accountImportId }) => accountImportId === importId)
-            }
             if (!existingAccount) {
                 existingAccount = this.accounts.find(({ number, property }) => number === accountNumber && receipt.property === property)
             }
             if (existingAccount) {
-                const updateInput = {
-                    ...(accountNumber !== existingAccount.number) ? { number: accountNumber } : {},
-                    ...(receipt.property !== existingAccount.property) ? { property: { connect: { id: receipt.property } } } : {},
-                    ...(globalId && globalId !== existingAccount.globalId) ? { globalId } : {},
-                    ...(importId && existingAccount.importId !== importId) ? { importId } : {},
-                    ...(fullName && existingAccount.fullName !== fullName) ? { fullName } : {},
-                    ...(!isNil(isClosed) && existingAccount.isClosed !== isClosed) ? { isClosed } : {},
-                    ...(ownerType && existingAccount.ownerType !== ownerType) ? { ownerType } : {},
-                    ...(existingAccount.unitName !== unitName) ? { unitName } : {},
-                    ...(existingAccount.unitType !== unitType) ? { unitType } : {},
-                }
+                const updateInput = this.buildUpdateInput({
+                    number: accountNumber, unitName, unitType, property: receipt.property,
+                    globalId, importId,
+                    fullName, isClosed, ownerType }, existingAccount, ['property'])
                 if (!isEmpty(updateInput)) {
-                    this.updated++
-                    await BillingAccountApi.update(this.context, existingAccount.id, {
-                        ...this.dvSender,
-                        ...updateInput,
-                    })
-                } else {
-                    this.unTouched++
+                    try {
+                        await BillingAccountApi.update(this.context, existingAccount.id, updateInput)
+                    } catch (error) {
+                        receiptIndex[index].error = this.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error)
+                    }
                 }
                 receiptIndex[index].account = existingAccount.id
             } else {
-                const createInput = {
-                    ...this.dvSender,
-                    number: accountNumber,
-                    context: { connect: { id: this.billingContext.id } },
-                    property: { connect: { id: receipt.property } },
-                    unitName,
-                    unitType,
-                    ...globalId ? { globalId } : {},
-                    ...importId ? { importId } : {},
-                    ...fullName ? { fullName } : {},
-                    ...!isNil(isClosed) ? { isClosed } : {},
-                    ...ownerType ? { ownerType } : {},
+                try {
+                    const { id }  = await BillingAccountApi.create(this.context, this.buildCreateInput({
+                        number: accountNumber, unitName, unitType, context: this.billingContext.id, property: receipt.property,
+                        globalId, importId,
+                        fullName, isClosed, ownerType,
+                    }, ['context', 'property']))
+                    receiptIndex[index].account = id
+                } catch (error) {
+                    receiptIndex[index].error = this.error(ERRORS.ACCOUNT_SAVE_FAILED, index, error)
                 }
-                this.created++
-                const { id }  = await BillingAccountApi.create(this.context, createInput)
-                receiptIndex[index].account = id
             }
         }
         return this.result(receiptIndex)

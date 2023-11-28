@@ -4,6 +4,8 @@
 exports.up = async (knex) => {
     await knex.raw(`
     BEGIN;
+    
+SET statement_timeout = '1500s';
 --
 -- Remove constraint billingAccount_unique_context_globalId from model billingaccount
 --
@@ -40,6 +42,7 @@ ALTER TABLE "BillingReceipt" ALTER COLUMN "raw" DROP NOT NULL;
 -- Alter field recipient on billingreceipt
 --
 ALTER TABLE "BillingReceipt" ALTER COLUMN "recipient" DROP NOT NULL;
+SET statement_timeout = '10s';
 COMMIT;
 
     `)
@@ -48,6 +51,8 @@ COMMIT;
 exports.down = async (knex) => {
     await knex.raw(`
     BEGIN;
+SET statement_timeout = '1500s';
+
 --
 -- Alter field recipient on billingreceipt
 --
@@ -84,6 +89,8 @@ ALTER TABLE "BillingProperty" ADD CONSTRAINT "billingProperty_unique_context_glo
 -- Remove constraint billingAccount_unique_context_globalId from model billingaccount
 --
 ALTER TABLE "BillingAccount" ADD CONSTRAINT "billingAccount_unique_context_globalId" UNIQUE ("context", "globalId");
+SET statement_timeout = '10s';
+
 COMMIT;
 
     `)

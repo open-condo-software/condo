@@ -23,24 +23,23 @@ class RecipientResolver extends Resolver {
         this.recipients = await find('BillingRecipient', { context: { id: this.billingContext.id }, deletedAt: null })
         this.organization = await getById('Organization', get(this.billingContext, 'organization.id'))
     }
-    async syncBillingRecipient (existing, updateInput){
-        updateInput.isApproved = updateInput.tin && updateInput.tin === this.organization.tin
+    async syncBillingRecipient (existing, data){
+        data.isApproved = data.tin && data.tin === this.organization.tin
         if (!existing) {
-            this.created++
-            return await BillingRecipientApi.create(this.context, { ...this.dvSender, ...updateInput })
-        } else {
-            const fieldsToCheck = ['name', 'isApproved', 'bankName', 'bankAccount', 'tin', 'iec', 'bic', 'offsettingAccount', 'territoryCode']
-            const fieldsToUpdate = {}
-            for (const fieldName of fieldsToCheck) {
-                if (existing[fieldName] !== updateInput[fieldName]) {
-                    fieldsToUpdate[fieldName] = updateInput[fieldName]
-                }
+            try {
+                return await BillingRecipientApi.create(this.context, this.buildCreateInput(data, ['context']))
+            } catch (error) {
+                return { error: ERRORS.RECIPIENT_SAVE_FAILED }
             }
-            if (!isEmpty(fieldsToUpdate)) {
-                this.updated++
-                return await BillingRecipientApi.update(this.context, existing.id, { ...this.dvSender, ...fieldsToUpdate })
+        } else {
+            const updateInput = this.buildUpdateInput(data, existing)
+            if (!isEmpty(updateInput)) {
+                try {
+                    return await BillingRecipientApi.update(this.context, existing.id, updateInput)
+                } catch (error) {
+                    return { error: ERRORS.RECIPIENT_SAVE_FAILED }
+                }
             } else {
-                this.unTouched++
                 return existing
             }
         }
@@ -50,17 +49,20 @@ class RecipientResolver extends Resolver {
         const { error: getBankError, result: routingNumberMeta  } = await getBankInfo(routingNumber)
         const { error: getOrganizationError, result: tinMeta } = await getOrganizationInfo(tin)
         if (getBankError){
-            return { error: this.error(ERRORS.BANK_FOUND_ERROR) }
+            return { error: ERRORS.BANK_FOUND_ERROR }
         }
         if (getOrganizationError) {
-            return { error: this.error(ERRORS.ORGANIZATION_FOUND_ERROR) }
+            return { error: ERRORS.ORGANIZATION_FOUND_ERROR }
         }
         const bankName = get(routingNumberMeta, 'bankName', get(existingRecipient, 'bankName', null))
         const offsettingAccount = get(routingNumberMeta, 'offsettingAccount', get(existingRecipient, 'offsettingAccount', null))
         const name = get(tinMeta, 'name', get(existingRecipient, 'name', null))
         const iec = get(tinMeta, 'iec', get(existingRecipient, 'iec', null))
         const territoryCode = get(tinMeta, 'territoryCode', get(existingRecipient, 'territoryCode', null))
-        const { id, isApproved } = await this.syncBillingRecipient(existingRecipient, { context: { connect: { id: this.billingContext.id } }, name, iec, tin, bankAccount, bankName, bic: routingNumber, offsettingAccount, territoryCode })
+        const { error, id, isApproved } = await this.syncBillingRecipient(existingRecipient, { context: this.billingContext.id, name, iec, tin, bankAccount, bankName, bic: routingNumber, offsettingAccount, territoryCode })
+        if (error) {
+            return { error }
+        }
         // TODO(dkovyazin): DOMA-7656 Remove after removing recipient field from BillingReceipt
         const recipient = { name, bankName, territoryCode, offsettingAccount, tin, iec, bic: routingNumber, bankAccount }
         if (!isApproved) {
@@ -77,7 +79,7 @@ class RecipientResolver extends Resolver {
             }
             const { error, problem, result } = receiverSyncResult[receipt.bankAccount]
             if (error) {
-                receiptIndex[index].error = error
+                receiptIndex[index].error = this.error(error, index)
             }
             if (problem) {
                 receiptIndex[index].problems.push({ problem, params: { tin, routingNumber, bankAccount } })
@@ -85,7 +87,6 @@ class RecipientResolver extends Resolver {
             if (result) {
                 receiptIndex[index].receiver = result.id
                 receiptIndex[index].recipient = result.recipient
-
             }
         }
         return this.result(receiptIndex)

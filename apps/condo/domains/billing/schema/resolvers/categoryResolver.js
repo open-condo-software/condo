@@ -68,7 +68,7 @@ class CategoryResolver extends Resolver {
         const { category = {}, services = [], addressResolve: { unitType = '' } = {} } = receipt
         const userDefinedCategory = get(category, 'id')
         if (category && userDefinedCategory && !this.categories.some(({ id }) => id === userDefinedCategory)) {
-            return { error: this.error(ERRORS.BILLING_CATEGORY_NOT_FOUND) }
+            return { error: ERRORS.BILLING_CATEGORY_NOT_FOUND }
         }
         const byServicesCategoryId = this.detectCategoryByServices(services)
         const byUnitTypeCategoryId = this.detectCategoryByUnitType(unitType)
@@ -86,9 +86,9 @@ class CategoryResolver extends Resolver {
 
     async processReceipts (receiptIndex) {
         for (const [index, receipt] of Object.entries(receiptIndex)) {
-            const { error, result } = this.detectCategory(receipt)
+            const { error, result } = this.detectCategory(receipt, index)
             if (error) {
-                receiptIndex[index].error = error
+                receiptIndex[index].error = this.error(error, index)
                 continue
             }
             if (result) {

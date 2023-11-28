@@ -261,6 +261,35 @@ describe('RegisterBillingReceiptsService', () => {
                 expect(createdReceipt.receiver.id).not.toEqual(updatedReceipt.receiver.id)
                 expect(createdReceipt.id).toEqual(updatedReceipt.id)
             })
+            test('[all] Services change updates services in receipt', async () => {
+                const createServices = generateServicesData(3, '1000')
+                const createInput = createJSONReceipt({ services: createServices })
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [createInput],
+                })
+                const updateServices = generateServicesData(4, '1000')
+                const updateInput = createJSONReceipt({ ...createInput, services: updateServices })
+                const [[updatedReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [updateInput],
+                })
+                expect(createdReceipt.id).toEqual(updatedReceipt.id)
+                expect(createdReceipt.services).toHaveLength(3)
+                expect(updatedReceipt.services).toHaveLength(4)
+                expect(updatedReceipt.services.map(({ id, name, toPay }) => ({ id, name, toPay }) )).toEqual(updateServices.map(({ id, name, toPay }) => ({ id, name, toPay }) ))
+            })
+            test('[all] Check receipt output', async () => {
+                const createInput = createJSONReceipt()
+                const [[createdReceipt]] = await registerBillingReceiptsByTestClient(clients.admin, {
+                    context: { id: integration.billingContext.id },
+                    receipts: [createInput],
+                })
+                expect(createdReceipt.property.id).toBeDefined()
+                expect(createdReceipt.account.id).toBeDefined()
+                expect(createdReceipt.receiver.id).toBeDefined()
+                expect(createdReceipt.context.id).toBeDefined()
+            })
         })
     })
 

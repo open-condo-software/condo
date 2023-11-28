@@ -11,11 +11,11 @@ class PeriodResolver extends Resolver {
         for (const [index, receipt] of Object.entries(receiptIndex)) {
             const { month, year } = receipt
             if (!(0 <= month && month <= 12 )) {
-                receiptIndex[index].error = this.error(ERRORS.WRONG_MONTH)
+                receiptIndex[index].error = this.error(ERRORS.WRONG_MONTH, index)
                 continue
             }
             if (!year || String(year).length !== 4) { // no validation for year only check that it was passed in valid format
-                receiptIndex[index].error = this.error(ERRORS.WRONG_YEAR)
+                receiptIndex[index].error = this.error(ERRORS.WRONG_YEAR, index)
                 continue
             }
             receiptIndex[index].period = dayjs().year(year).month(month - 1).format('YYYY-MM-01')

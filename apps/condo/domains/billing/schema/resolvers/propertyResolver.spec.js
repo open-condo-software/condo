@@ -379,5 +379,9 @@ describe('PropertyFinder', () => {
         const { address } = finder.findPropertyByOrganizationAndAddress('п.Малое Васильково, ул.Вишнёвая, уч.10')
         expect(address).toEqual(MAIN_ADDRESS_PART + 'ул Вишневая, д 10')
     })
+    it('should ignore double spaces', () => {
+        const tokens = finder.getTokensFromAddress('п.Малое         Васильково,      ул.Вишнёвая,    уч.10')
+        expect(tokens).toEqual(['малое', 'васильково', 'ул', 'вишневая', 'уч', '10'])
+    })
 })
 

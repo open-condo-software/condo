@@ -12,6 +12,7 @@ const {
     NO_PROPERTY_IN_ORGANIZATION,
     ADDRESS_SERVICE_NORMALIZE_CHUNK_SIZE,
 } = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const { isValidFias } = require('@condo/domains/billing/schema/resolvers/lib')
 const { Resolver } = require('@condo/domains/billing/schema/resolvers/resolver')
 const { FLAT_UNIT_TYPE : DEFAULT_UNIT_TYPE, UNIT_TYPES } = require('@condo/domains/property/constants/common')
 
@@ -23,6 +24,8 @@ const COTTAGE_UNIT = {
 const BILLING_PROPERTY_FIELDS = '{ id importId globalId address addressKey }'
 const BillingPropertyGQL = generateGqlQueries('BillingProperty', BILLING_PROPERTY_FIELDS)
 const BillingPropertyApi = generateServerUtils(BillingPropertyGQL)
+
+// FIAS code is not an ordinary uuid
 
 class PropertyResolver extends Resolver {
 
@@ -47,14 +50,8 @@ class PropertyResolver extends Resolver {
     }
 
     getAddressFromReceipt (receipt) {
-        const isValidFias = (fias = '') => {
-            const FIAS_ADDRESS_REGEXP = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}.*?$/i
-            return FIAS_ADDRESS_REGEXP.test(fias)
-        }
         let {
             address: addressInput,
-            unitName: deprecatedUnitName,
-            unitType: deprecatedUnitType,
             addressMeta: {
                 globalId = '',
                 unitName: unitNameFromMeta,
@@ -65,8 +62,8 @@ class PropertyResolver extends Resolver {
             return { addresses: [addressInput], ...COTTAGE_UNIT }
         }
         // support for deprecated params
-        const unitNameInput = deprecatedUnitName || unitNameFromMeta || ''
-        const unitTypeInput = deprecatedUnitType || unitTypeFromMeta || ''
+        const unitNameInput = unitNameFromMeta || ''
+        const unitTypeInput = unitTypeFromMeta || ''
         const addresses = []
         const unitNames = [unitNameInput]
         let unitTypes = []
@@ -213,38 +210,34 @@ class PropertyResolver extends Resolver {
             if (existingProperty) {
                 receiptIndex[index].property = existingProperty.id
                 if (!updated.has(existingProperty.id)) {
-                    const updateInput = {
-                        ...(importIdInput && importIdInput !== existingProperty.importId) ? { importId: importIdInput } : {},
-                        ...(globalId && existingProperty.globalId !== globalId) ? { globalId } : {},
-                        ...(resultAddressKey !== existingProperty.addressKey) ? { address } : {},
-                    }
+                    const updateInput = this.buildUpdateInput({
+                        importId: importIdInput,
+                        globalId,
+                        address: resultAddressKey !== existingProperty.addressKey ? address : null,
+                    }, existingProperty)
                     if (!isEmpty(updateInput)) {
-                        this.updated++
-                        const updatedBillingProperty = await BillingPropertyApi.update(this.context, existingProperty.id, {
-                            ...this.dvSender,
-                            ...updateInput,
-                        })
-                        const indexToUpdate = this.properties.findIndex(({ id }) => id === existingProperty.id)
-                        this.properties.splice(indexToUpdate, 1, updatedBillingProperty)
-                    } else {
-                        this.unTouched++
+                        try {
+                            const updatedBillingProperty = await BillingPropertyApi.update(this.context, existingProperty.id, updateInput)
+                            const indexToUpdate = this.properties.findIndex(({ id }) => id === existingProperty.id)
+                            this.properties.splice(indexToUpdate, 1, updatedBillingProperty)
+                        } catch (error) {
+                            receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error)
+                        }
                     }
                     updated.add(existingProperty.id)
                 }
             } else {
-                const createInput = {
-                    ...this.dvSender,
-                    context: { connect: { id: this.billingContext.id } },
-                    address,
-                    ...importIdInput ? { importId: importIdInput } : {},
-                    ...globalId ? { globalId } : {},
-                    raw: { dv: 1, ...receipt.addressResolve },
+                try {
+                    const newProperty = await BillingPropertyApi.create(this.context, this.buildCreateInput({
+                        context: this.billingContext.id,
+                        address, importId: importIdInput, globalId,
+                    }, ['context']))
+                    this.properties.push(newProperty)
+                    receiptIndex[index].property = newProperty.id
+                    updated.add(newProperty.id)
+                } catch (error) {
+                    receiptIndex[index].error = this.error(ERRORS.PROPERTY_SAVE_FAILED, index, error)
                 }
-                this.created++
-                const newProperty = await BillingPropertyApi.create(this.context, createInput)
-                this.properties.push(newProperty)
-                receiptIndex[index].property = newProperty.id
-                updated.add(newProperty.id)
             }
 
         }
@@ -312,12 +305,13 @@ class PropertyFinder {
 
     getTokensFromAddress (addressStr) {
         const SYMBOLS_TO_REMOVE_REGEXP = /[!@#$%^&*)(+=_:"'`[\]]/g
-        const SPLITTERS_REGEXP = /[,;. -/]/
+        const SPLITTERS_REGEXP = /[,;.\s-/]/
         const IS_DIGITS_ONLY_REGEXP = /^\d+$/
         return addressStr
             .toLowerCase()
             .replace(/[ёë]/g, 'е')
             .replace(SYMBOLS_TO_REMOVE_REGEXP, '')
+            .replace(/\s+/g, ' ')
             .split(SPLITTERS_REGEXP)
             .filter(Boolean)
             .filter((x) => x.length > 1 || IS_DIGITS_ONLY_REGEXP.test(x))

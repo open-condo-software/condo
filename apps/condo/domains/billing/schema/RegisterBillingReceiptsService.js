@@ -292,7 +292,11 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
-
+                // New flow description:
+                // 1. Normalize addresses
+                // 2. Collect data for BillingProblems
+                // 3. Create BillingRecipients
+                // 4. Auto-detect BillingCategory
                 const isNewFlow = !receiptsInput.find(({ normalizedAddress }) => normalizedAddress)
 
                 if (isNewFlow) {
@@ -321,14 +325,18 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             errorsIndex = { ...errorsIndex, ...errorReceipts }
                             receiptIndex = receipts
                         } catch (error) {
-                            console.log(error)
+                            registerReceiptLogger.error({ msg: 'Resolver fail', payload: { error } })
                         }
                     }
                     registerReceiptLogger.info({ msg: 'register-receipts-profiler', debug, context: billingContextInput, receiptsCount: receiptsInput.length })
+                    const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
+
+                    const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
+                    const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
                     return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
                         const id = get(idOrError, 'id')
                         if (id) {
-                            return getById('BillingReceipt', id)
+                            return Promise.resolve(receiptsIndex[id])
                         } else {
                             return Promise.reject(idOrError)
                         }
