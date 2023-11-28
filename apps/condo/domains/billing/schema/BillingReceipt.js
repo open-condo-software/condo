@@ -195,8 +195,11 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             graphQLReturnType: 'Boolean',
             resolver: async (receipt, _, context) => {
                 const receipts = await BillingReceiptApi.getAll(context, {
-                    account: { id: get(receipt, 'account') },
-                    OR: [ { receiver: { id: get(receipt, 'receiver') } }, { category: { id: get(receipt, 'category') } } ],
+                    account: { id: get(receipt, 'account'), deletedAt: null },
+                    OR: [
+                        { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
+                        { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null } ] } },
+                    ],
                     period_gt: get(receipt, 'period'),
                     deletedAt: null,
                 }, {

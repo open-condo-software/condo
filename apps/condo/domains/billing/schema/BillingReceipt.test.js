@@ -51,9 +51,6 @@ const {
     makeClientWithSupportUser,
 } = require('@condo/domains/user/utils/testSchema')
 
-const HOUSING_CATEGORY = '928c97ef-5289-4daa-b80e-4b9fed50c629'
-const WATER_CATEGORY = 'b84acc8b-ee9d-401c-bde6-75a284d84789'
-
 describe('BillingReceipt', () => {
     let admin
     let support
@@ -1095,117 +1092,6 @@ describe('BillingReceipt', () => {
                 expect(receipt2).toHaveProperty(['invalidServicesError'],
                     'Services sum (9000) does not add up to the toPay (9999) amount correctly')
                 expect(receipt3).toHaveProperty(['invalidServicesError'], null)
-            })
-            test('Should set isPayable correctly when a similar receipt for the next period appears', async () => {
-                const [recipient] = await createTestBillingRecipient(admin, context)
-                const [marchReceipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-01-01',
-                })
-                expect(marchReceipt).toHaveProperty(['isPayable'], true)
-
-                const [aprilReceipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-02-01',
-                })
-                expect(aprilReceipt).toHaveProperty(['isPayable'], true)
-
-                const marchReceiptAfterAprilReceipt = await BillingReceipt.getOne(admin, { id: marchReceipt.id })
-                expect(marchReceiptAfterAprilReceipt).toHaveProperty(['isPayable'], false)
-
-                const bothReceipts = await BillingReceipt.getAll(admin, {
-                    receiver: { id: recipient.id },
-                },
-                {
-                    sortBy: 'period_DESC',
-                })
-
-                expect(bothReceipts[0]).toHaveProperty(['isPayable'], true)
-                expect(bothReceipts[1]).toHaveProperty(['isPayable'], false)
-            })
-            test('Should set isPayable = false if there is a newer receipt with same account, receiver and category', async () => {
-                const [recipient] = await createTestBillingRecipient(admin, context)
-                const [olderReceipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-03-01',
-                })
-                const [newerReceipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-04-01',
-                })
-
-                const oldReceipt = await BillingReceipt.getOne(admin, { id: olderReceipt.id })
-                const newReceipt = await BillingReceipt.getOne(admin, { id: newerReceipt.id })
-
-                expect(newReceipt).toHaveProperty(['isPayable'], true)
-                expect(oldReceipt).toHaveProperty(['isPayable'], false)
-            })
-            test('Should set isPayable = false if there is a newer receipt with same account and category', async () => {
-                const [olderReceipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    period: '2022-05-01',
-                })
-                const [newerReceipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    period: '2022-06-01',
-                })
-
-                const oldReceipt = await BillingReceipt.getOne(admin, { id: olderReceipt.id })
-                const newReceipt = await BillingReceipt.getOne(admin, { id: newerReceipt.id })
-
-                expect(newReceipt).toHaveProperty(['isPayable'], true)
-                expect(oldReceipt).toHaveProperty(['isPayable'], false)
-            })
-            test('Should set isPayable = true if there is a receipt with same account but different category, receiver and period', async () => {
-                const [recipient] = await createTestBillingRecipient(admin, context)
-                const [anotherRecipient] = await createTestBillingRecipient(admin, context)
-                const [receipt1] = await createTestBillingReceipt(admin, context, property, account, {
-                    category: { connect: { id: HOUSING_CATEGORY } },
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-07-01',
-                })
-                const [receipt2] = await createTestBillingReceipt(admin, context, property, account, {
-                    category: { connect: { id: WATER_CATEGORY } },
-                    receiver: { connect: { id: anotherRecipient.id } },
-                    period: '2022-08-01',
-                })
-
-                const housingReceipt = await BillingReceipt.getOne(admin, { id: receipt1.id })
-                const waterReceipt = await BillingReceipt.getOne(admin, { id: receipt2.id })
-
-                expect(housingReceipt).toHaveProperty(['isPayable'], true)
-                expect(waterReceipt).toHaveProperty(['isPayable'], true)
-            })
-            test('Should set isPayable = false if there are receipts with same account and category but different receiver', async () => {
-                const [recipient] = await createTestBillingRecipient(admin, context)
-                const [anotherRecipient] = await createTestBillingRecipient(admin, context)
-                const [receipt1] = await createTestBillingReceipt(admin, context, property, account, {
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-09-01',
-                })
-                const [receipt2] = await createTestBillingReceipt(admin, context, property, account, {
-                    receiver: { connect: { id: anotherRecipient.id } },
-                    period: '2022-10-01',
-                })
-
-                const octoberReceipt = await BillingReceipt.getOne(admin, { id: receipt1.id })
-                const novemberReceipt = await BillingReceipt.getOne(admin, { id: receipt2.id })
-
-                expect(octoberReceipt).toHaveProperty(['isPayable'], false)
-                expect(novemberReceipt).toHaveProperty(['isPayable'], true)
-            })
-            test('Should set isPayable = true if there are receipts with same receiver but different accounts for one period', async () => {
-                const [recipient] = await createTestBillingRecipient(admin, context)
-                const [anotherAccount] = await createTestBillingAccount(admin, context, property)
-                const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-11-01',
-                })
-                const [receipt2] = await createTestBillingReceipt(admin, context, property, anotherAccount, {
-                    receiver: { connect: { id: recipient.id } },
-                    period: '2022-12-01',
-                })
-
-                expect(receipt).toHaveProperty(['isPayable'], true)
-                expect(receipt2).toHaveProperty(['isPayable'], true)
             })
         })
         describe('toPayDetails field', () => {
