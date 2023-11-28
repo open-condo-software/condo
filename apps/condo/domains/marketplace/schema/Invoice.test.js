@@ -733,6 +733,12 @@ describe('Invoice', () => {
             const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
             const [ticket] = await createTestTicket(client, client.organization, client.property, {
                 isPayable: true,
+                unitType,
+                unitName,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                client: { connect: { id: residentClient.user.id } },
             })
             const [invoice] = await createTestInvoice(client, invoiceContext, {
                 property: { connect: { id: client.property.id } },
@@ -741,6 +747,9 @@ describe('Invoice', () => {
                 status: INVOICE_STATUS_PUBLISHED,
                 client: { connect: { id: residentClient.user.id } },
                 ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
             })
 
             let messages
@@ -778,6 +787,12 @@ describe('Invoice', () => {
             const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
             const [ticket] = await createTestTicket(client, client.organization, client.property, {
                 isPayable: true,
+                unitType,
+                unitName,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                client: { connect: { id: residentClient.user.id } },
             })
             const [createdInvoice] = await createTestInvoice(client, invoiceContext, {
                 property: { connect: { id: client.property.id } },
@@ -786,6 +801,9 @@ describe('Invoice', () => {
                 status: INVOICE_STATUS_DRAFT,
                 client: { connect: { id: residentClient.user.id } },
                 ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
             })
 
             const invoice = await Invoice.update(adminClient, createdInvoice.id, {
