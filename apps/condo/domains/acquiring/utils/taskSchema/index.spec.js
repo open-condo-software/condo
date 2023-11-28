@@ -733,6 +733,46 @@ describe('task schema queries', () => {
             expect(receipts).toHaveLength(0)
         })
 
+        it('should return no receipt - all billing receipt has negative toPay', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 2)
+            const [batch] = batches
+            const {
+                billingReceipts,
+            } = batch
+
+            for (let billingReceipt of billingReceipts) {
+                await BillingReceipt.update(adminContext, billingReceipt.id, {
+                    ...dvAndSender,
+                    toPay: '-1',
+                })
+            }
+
+            // get receipts
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
+
+            expect(receipts).toHaveLength(0)
+        })
+
+        it('should return no receipt - all billing receipt has zero toPay', async () => {
+            const { batches } = await makePayerWithMultipleConsumers(1, 2)
+            const [batch] = batches
+            const {
+                billingReceipts,
+            } = batch
+
+            for (let billingReceipt of billingReceipts) {
+                await BillingReceipt.update(adminContext, billingReceipt.id, {
+                    ...dvAndSender,
+                    toPay: '0',
+                })
+            }
+
+            // get receipts
+            const receipts = await filterPaidBillingReceipts(adminContext, billingReceipts)
+
+            expect(receipts).toHaveLength(0)
+        })
+
         it('should validate inputs', async () => {
             await catchErrorFrom(async () => {
                 await filterPaidBillingReceipts(adminContext, null)
@@ -1427,6 +1467,68 @@ describe('task schema queries', () => {
             }, (error) => {
                 expect(error.message).toContain('invalid recurrentPayment argument')
             })
+        })
+
+        it('should return registered=false - bills has negative toPay', async () => {
+            const {
+                billingReceipts,
+            } = serviceConsumerBatch
+
+            for (let billingReceipt of billingReceipts) {
+                await BillingReceipt.update(adminContext, billingReceipt.id, {
+                    ...dvAndSender,
+                    toPay: '-1',
+                })
+            }
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({
+                    ...serviceConsumerBatch,
+                    billingReceipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+                }, recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response.registered).not.toBeTruthy()
+            expect(response).not.toHaveProperty('errorCode')
+            expect(response).not.toHaveProperty('errorMessage')
+        })
+
+        it('should return registered=false - bills has zero toPay', async () => {
+            const {
+                billingReceipts,
+            } = serviceConsumerBatch
+
+            for (let billingReceipt of billingReceipts) {
+                await BillingReceipt.update(adminContext, billingReceipt.id, {
+                    ...dvAndSender,
+                    toPay: '0',
+                })
+            }
+
+            // create test recurrent payment
+            const [recurrentPayment] = await createTestRecurrentPayment(
+                admin,
+                getPaymentRequest({
+                    ...serviceConsumerBatch,
+                    billingReceipts: billingReceipts.map(receipt => ({ id: receipt.id })),
+                }, recurrentPaymentContext),
+            )
+
+            // register multi payment
+            const response = await registerMultiPayment(adminContext, recurrentPayment)
+
+            expect(response).toBeDefined()
+            expect(response).toHaveProperty('registered')
+            expect(response.registered).not.toBeTruthy()
+            expect(response).not.toHaveProperty('errorCode')
+            expect(response).not.toHaveProperty('errorMessage')
         })
     })
 
