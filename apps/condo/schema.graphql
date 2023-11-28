@@ -67468,6 +67468,9 @@ type InvoiceHistoryRecord {
   clientPhone: String
   status: String
   paymentType: String
+  publishedAt: String
+  paidAt: String
+  canceledAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -67648,6 +67651,30 @@ input InvoiceHistoryRecordWhereInput {
   paymentType_not_ends_with_i: String
   paymentType_in: [String]
   paymentType_not_in: [String]
+  publishedAt: String
+  publishedAt_not: String
+  publishedAt_lt: String
+  publishedAt_lte: String
+  publishedAt_gt: String
+  publishedAt_gte: String
+  publishedAt_in: [String]
+  publishedAt_not_in: [String]
+  paidAt: String
+  paidAt_not: String
+  paidAt_lt: String
+  paidAt_lte: String
+  paidAt_gt: String
+  paidAt_gte: String
+  paidAt_in: [String]
+  paidAt_not_in: [String]
+  canceledAt: String
+  canceledAt_not: String
+  canceledAt_lt: String
+  canceledAt_lte: String
+  canceledAt_gt: String
+  canceledAt_gte: String
+  canceledAt_in: [String]
+  canceledAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -67747,6 +67774,12 @@ enum SortInvoiceHistoryRecordsBy {
   status_DESC
   paymentType_ASC
   paymentType_DESC
+  publishedAt_ASC
+  publishedAt_DESC
+  paidAt_ASC
+  paidAt_DESC
+  canceledAt_ASC
+  canceledAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -67781,6 +67814,9 @@ input InvoiceHistoryRecordUpdateInput {
   clientPhone: String
   status: String
   paymentType: String
+  publishedAt: String
+  paidAt: String
+  canceledAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67816,6 +67852,9 @@ input InvoiceHistoryRecordCreateInput {
   clientPhone: String
   status: String
   paymentType: String
+  publishedAt: String
+  paidAt: String
+  canceledAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -67922,6 +67961,15 @@ type Invoice {
 
   """ Shows which payment type chosen: online or cash or something else """
   paymentType: String
+
+  """ When status of the invoice was changed to published (ready to pay) """
+  publishedAt: String
+
+  """ When status of the invoice was changed to paid """
+  paidAt: String
+
+  """ When status of the invoice was changed to canceled """
+  canceledAt: String
   id: ID!
   v: Int
   createdAt: String
@@ -68062,6 +68110,30 @@ input InvoiceWhereInput {
   paymentType_not: String
   paymentType_in: [String]
   paymentType_not_in: [String]
+  publishedAt: String
+  publishedAt_not: String
+  publishedAt_lt: String
+  publishedAt_lte: String
+  publishedAt_gt: String
+  publishedAt_gte: String
+  publishedAt_in: [String]
+  publishedAt_not_in: [String]
+  paidAt: String
+  paidAt_not: String
+  paidAt_lt: String
+  paidAt_lte: String
+  paidAt_gt: String
+  paidAt_gte: String
+  paidAt_in: [String]
+  paidAt_not_in: [String]
+  canceledAt: String
+  canceledAt_not: String
+  canceledAt_lt: String
+  canceledAt_lte: String
+  canceledAt_gt: String
+  canceledAt_gte: String
+  canceledAt_in: [String]
+  canceledAt_not_in: [String]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -68153,6 +68225,12 @@ enum SortInvoicesBy {
   status_DESC
   paymentType_ASC
   paymentType_DESC
+  publishedAt_ASC
+  publishedAt_DESC
+  paidAt_ASC
+  paidAt_DESC
+  canceledAt_ASC
+  canceledAt_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -68187,6 +68265,9 @@ input InvoiceUpdateInput {
   clientPhone: String
   status: String
   paymentType: String
+  publishedAt: String
+  paidAt: String
+  canceledAt: String
   v: Int
   createdAt: String
   updatedAt: String
@@ -68219,6 +68300,9 @@ input InvoiceCreateInput {
   clientPhone: String
   status: String
   paymentType: String
+  publishedAt: String
+  paidAt: String
+  canceledAt: String
   v: Int
   createdAt: String
   updatedAt: String
