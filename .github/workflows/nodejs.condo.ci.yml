@@ -57,6 +57,8 @@ jobs:
           provenance: false
           cache-from: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache
           cache-to: type=registry,ref=swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:buildcache,mode=min,image-manifest=true
+      - name: testst
+        run: echo "hello, world"
 
   lint:
     name: Lint source code
