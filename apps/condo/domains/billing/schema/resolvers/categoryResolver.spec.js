@@ -74,9 +74,8 @@ describe('Detect Billing Category', () => {
         const { error, result: { id: categoryId } = {} } = helper.detectCategory(receipt)
         expect(categoryId).toEqual(result)
         if (expectError) {
-            const { extensions: { code, type } } = error
-            expect(expectError.code).toEqual(code)
-            expect(expectError.type).toEqual(type)
+            expect(error.code).toEqual(expectError.code)
+            expect(error.type).toEqual(expectError.type)
         }
     })
 })

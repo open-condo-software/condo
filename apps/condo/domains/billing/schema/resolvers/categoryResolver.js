@@ -86,7 +86,7 @@ class CategoryResolver extends Resolver {
 
     async processReceipts (receiptIndex) {
         for (const [index, receipt] of Object.entries(receiptIndex)) {
-            const { error, result } = this.detectCategory(receipt, index)
+            const { error, result } = this.detectCategory(receipt)
             if (error) {
                 receiptIndex[index].error = this.error(error, index)
                 continue
