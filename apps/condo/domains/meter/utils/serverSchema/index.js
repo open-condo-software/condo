@@ -50,7 +50,7 @@ const getAvailableResidentMeters = async (userId) => {
 
     const resourceOwners = await find('MeterResourceOwner', {
         deletedAt: null,
-        addressKey_in:  userResidents.map(resident => resident.addressKey),
+        addressKey_in: userResidents.map(resident => resident.addressKey),
     })
 
     const userConsumers = await find('ServiceConsumer', {
@@ -72,6 +72,7 @@ const getAvailableResidentMeters = async (userId) => {
                     { accountNumber: userConsumer.accountNumber },
                     { property: { addressKey: resourceOwner.addressKey, deletedAt: null } },
                     { unitName: get(residentsByIds, [userConsumer.resident, 'unitName']) },
+                    { unitType: get(residentsByIds, [userConsumer.resident, 'unitType']) },
                 ],
             })
         }

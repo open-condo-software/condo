@@ -765,11 +765,11 @@ describe('Meter', () => {
                 })
                 expect(serviceProviderColdMeter).toHaveProperty(['property', 'id'], serviceProviderProperty.id)
 
-                const newMeters = await Meter.getAll(residentClient, {})
-
-                expect(newMeters.find(m => m.id === serviceProviderColdMeter.id)).toBeDefined()
+                const newMeters = await Meter.getAll(residentClient, {}, { sortBy: ['createdAt_DESC'] })
 
                 expect(newMeters).toHaveLength(2)
+                expect(newMeters).toHaveProperty(['0', 'id'], serviceProviderColdMeter.id)
+                expect(newMeters).toHaveProperty(['1', 'id'], hotMeter.id)
 
                 const newMeter = await Meter.getOne(residentClient, { id: serviceProviderColdMeter.id })
                 expect(newMeter).toBeDefined()
