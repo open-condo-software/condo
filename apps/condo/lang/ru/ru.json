@@ -711,7 +711,7 @@
   "pages.condo.ticket.filters.Author": "Автор",
   "pages.condo.ticket.filters.ClientPhone": "Телефон заявителя",
   "pages.condo.ticket.filters.CompletedAt": "Дата выполнения",
-  "pages.condo.ticket.filters.EnterUnitName": "Введите номер квартиры",
+  "pages.condo.ticket.filters.EnterUnitName": "Введите номер помещения",
   "pages.condo.ticket.filters.EnterPhone": "Введите телефон",
   "pages.condo.ticket.filters.EnterFullName": "Введите ФИО",
   "pages.condo.ticket.filters.EnterOrganization": "Введите организацию",

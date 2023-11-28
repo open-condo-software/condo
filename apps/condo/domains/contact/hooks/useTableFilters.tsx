@@ -5,13 +5,12 @@ import { useIntl } from '@open-condo/next/intl'
 
 import { ComponentType, FiltersMeta } from '@condo/domains/common/utils/filters.utils'
 import { getFilter, getStringContainsFilter } from '@condo/domains/common/utils/tables.utils'
-
+import { getUnitFilter } from '@condo/domains/property/utils/tables.utils'
 
 const filterName = getStringContainsFilter('name')
 const filterPhone = getStringContainsFilter('phone')
 const filterEmail = getStringContainsFilter('email')
 const filterAddress = getStringContainsFilter(['property', 'address'])
-const filterUnit = getFilter('unitName', 'array', 'string', 'in')
 const filterRole = getFilter(['role', 'id'], 'array', 'string', 'in')
 
 type UseContactsTableFilters = () => Array<FiltersMeta<ContactWhereInput>>
@@ -23,6 +22,8 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
     const PhoneMessage = intl.formatMessage({ id: 'Phone' })
     const EmailMessage = intl.formatMessage({ id: 'field.EMail' })
     const EnterUnitNameLabel = intl.formatMessage({ id: 'pages.condo.ticket.filters.EnterUnitName' })
+
+    const filterUnit = useMemo(() => getUnitFilter(intl.messages), [intl])
 
     return useMemo(() => {
         return [
@@ -91,5 +92,5 @@ export const useContactsTableFilters: UseContactsTableFilters = () => {
                 filters: [filterRole],
             },
         ]
-    }, [AddressMessage, EmailMessage, EnterUnitNameLabel, PhoneMessage, UserNameMessage])
+    }, [AddressMessage, EmailMessage, EnterUnitNameLabel, PhoneMessage, UserNameMessage, filterUnit])
 }
