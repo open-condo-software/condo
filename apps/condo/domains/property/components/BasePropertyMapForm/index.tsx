@@ -34,6 +34,8 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
     const PromptTitle = intl.formatMessage({ id: 'pages.condo.property.warning.modal.Title' })
     const PromptHelpMessage = intl.formatMessage({ id: 'pages.condo.property.warning.modal.HelpMessage' })
     const UnsavedChangesError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.unsavedChanges' })
+    const UnitLabelsNotUniqueError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.SameUnitNamesErrorMsg' })
+    const UnitLabelEmptyError = intl.formatMessage({ id: 'pages.condo.property.warning.modal.emptyUnitName' })
 
     const { action, initialValues, property, children, canManageProperties = false } = props
 
@@ -70,10 +72,33 @@ const BasePropertyMapForm: React.FC<IPropertyMapFormProps> = (props) => {
                                     const sections = get(value, 'sections', [])
                                     const parking = get(value, 'parking', [])
 
+                                    const getUnitLabelsFromSections = (sections) => sections.map(section =>
+                                        get(section, 'floors', []).map(floor =>
+                                            get(floor, 'units', []).map(unit =>
+                                                get(unit, 'label', '').trim()
+                                            )
+                                        )
+                                    ).flat(2)
+
+                                    const sectionUnitLabels = getUnitLabelsFromSections(sections)
+                                    const parkingUnitLabels = getUnitLabelsFromSections(parking)
+
+                                    if (sectionUnitLabels.some(label => !label.length)
+                                    || parkingUnitLabels.some(label => !label.length)) {
+                                        setMapValidationError(UnitLabelEmptyError)
+                                        return Promise.reject(UnitLabelEmptyError)
+                                    }
+
+                                    if (sectionUnitLabels.length !== new Set(sectionUnitLabels).size
+                                        || parkingUnitLabels.length !== new Set(parkingUnitLabels).size) {
+                                        setMapValidationError(UnitLabelsNotUniqueError)
+                                        return Promise.reject(UnitLabelsNotUniqueError)
+                                    }
+
                                     const hasPreview = (mapComponent) => get(mapComponent, 'preview', false)
                                     if (!isEmpty(sections.filter(hasPreview)) || !isEmpty(parking.filter(hasPreview))) {
                                         setMapValidationError(UnsavedChangesError)
-                                        return Promise.reject()
+                                        return Promise.reject(UnsavedChangesError)
                                     }
 
                                     setMapValidationError(null)
