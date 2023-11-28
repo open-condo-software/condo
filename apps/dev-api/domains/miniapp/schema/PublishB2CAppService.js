@@ -6,7 +6,7 @@ const fs = require('fs')
 
 const got = require('got')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
 // const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
@@ -45,7 +45,7 @@ const ERRORS = {
         messageForUser: 'errors.APP_NOT_FOUND.message',
     },
     CONDO_APP_NOT_FOUND: {
-        code: BAD_USER_INPUT,
+        code: INTERNAL_ERROR,
         type: CONDO_APP_NOT_FOUND,
         message: 'The application was probably deleted on remote server. Try to publish app info to recreate it',
         messageForUser: 'errors.CONDO_APP_NOT_FOUND.message',
@@ -138,6 +138,8 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
                 app: { connect: { id: condoApp.id } },
                 version: build.version,
                 data: serverClient.createUploadFile(got.stream(build.data.publicUrl), build.data.originalFilename),
+                importId: build.id,
+                importRemoteSystem: REMOTE_SYSTEM,
             },
         })
         // logger.info({ msg: 'Condo build created', environment, condoAppId: condoApp.id, appId: app.id, version: build.version })
@@ -191,13 +193,13 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
                 const { data: { app: { id }, options, environment } } = args
 
                 const app = await B2CApp.getOne(context, { id, deletedAt: null })
+                if (!app) {
+                    throw new GQLError(ERRORS.APP_NOT_FOUND, context)
+                }
 
                 const exportIdField = getExportIdField(environment)
                 let exportId = app[exportIdField]
 
-                if (!app) {
-                    throw new GQLError(ERRORS.APP_NOT_FOUND, context)
-                }
                 if (!exportId && !options.info) {
                     throw new GQLError(ERRORS.FIRST_PUBLISH_WITHOUT_INFO, context)
                 }

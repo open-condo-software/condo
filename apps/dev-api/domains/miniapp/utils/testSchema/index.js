@@ -6,12 +6,13 @@
 const { faker } = require('@faker-js/faker')
 const conf = require('@open-condo/config')
 const path = require('path')
-const { generateGQLTestUtils } = require('@open-condo/codegen/generate.test.utils')
+const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
 
 const { B2CApp: B2CAppGQL } = require('@dev-api/domains/miniapp/gql')
 const { B2CAppBuild: B2CAppBuildGQL } = require('@dev-api/domains/miniapp/gql')
 const { UploadingFile } = require('@open-condo/keystone/test.utils')
 const { PUBLISH_B2C_APP_MUTATION } = require('@dev-api/domains/miniapp/gql')
+const { DEV_ENVIRONMENT } = require('@dev-api/domains/miniapp/constants/publishing')
 /* AUTOGENERATE MARKER <IMPORT> */
 
 const B2CApp = generateGQLTestUtils(B2CAppGQL)
@@ -96,20 +97,18 @@ async function updateTestB2CAppBuild (client, id, extraAttrs = {}) {
     return [obj, attrs]
 }
 
-
-async function publishB2CAppByTestClient(client, app, environment, options = {}) {
+async function publishB2CAppByTestClient(client, app, options = undefined, environment = DEV_ENVIRONMENT) {
     if (!client) throw new Error('no client')
-    if (!app) throw new Error('no app')
-    if (!environment) throw new Error('no environment')
+    if (!app || !app.id) throw new Error('no app')
 
     const sender = { dv: 1, fingerprint: faker.random.alphaNumeric(8) }
 
     const attrs = {
         dv: 1,
         sender,
-        app: { id: app },
+        app: { id: app.id },
         environment,
-        options,
+        options: options || { info: true },
     }
     const { data, errors } = await client.mutate(PUBLISH_B2C_APP_MUTATION, { data: attrs })
     throwIfError(data, errors)

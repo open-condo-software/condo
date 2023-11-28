@@ -322,9 +322,9 @@ const makeApolloClient = (serverUrl, opts = {}) => {
     }
 }
 
-const makeClient = async (opts = { generateIP: true }) => {
+const makeClient = async (opts = { generateIP: true, serverUrl: undefined }) => {
     // Data for real client
-    let serverUrl = new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
+    let serverUrl = opts.serverUrl ? opts.serverUrl : new URL(TESTS_REAL_CLIENT_REMOTE_API_URL).origin
     let logErrors = TESTS_LOG_REAL_CLIENT_RESPONSE_ERRORS
     const customHeaders = {}
     if (opts.generateIP) {
@@ -364,40 +364,40 @@ const createAxiosClientWithCookie = (options = {}, cookie = '', cookieDomain = '
     return client
 }
 
-const makeLoggedInClient = async (args) => {
-    if (!args) {
+const makeLoggedInClient = async (credentials, serverUrl) => {
+    if (!credentials) {
         console.warn('Called makeLoggedInClient() without arguments! Try to create a new user and pass their credentials as argument to avoid unexpected test dependencies!')
-        args = {
+        credentials = {
             email: DEFAULT_TEST_USER_IDENTITY,
             password: DEFAULT_TEST_USER_SECRET,
         }
     }
-    if (!(args.email || args.phone) && !args.password) throw new Error('no credentials')
-    const client = await makeClient()
-    if (args.email) {
+    if (!(credentials.email || credentials.phone) && !credentials.password) throw new Error('no credentials')
+    const client = await makeClient({ generateIP: true, serverUrl })
+    if (credentials.email) {
         const { data, errors } = await client.mutate(SIGNIN_BY_EMAIL_MUTATION, {
-            identity: args.email,
-            secret: args.password,
+            identity: credentials.email,
+            secret: credentials.password,
         })
         if (errors && errors.length > 0) {
             throw new Error(errors[0].message)
         }
         client.user = {
-            email: args.email,
-            password: args.password,
+            email: credentials.email,
+            password: credentials.password,
             id: data.auth.user.id,
         }
-    } else if (args.phone) {
+    } else if (credentials.phone) {
         const { data, errors } = await client.mutate(SIGNIN_BY_PHONE_AND_PASSWORD_MUTATION, {
-            phone: args.phone,
-            password: args.password,
+            phone: credentials.phone,
+            password: credentials.password,
         })
         if (errors && errors.length > 0) {
             throw new Error(errors[0].message)
         }
         client.user = {
-            phone: args.phone,
-            password: args.password,
+            phone: credentials.phone,
+            password: credentials.password,
             id: data.obj.item.id,
         }
     } else {

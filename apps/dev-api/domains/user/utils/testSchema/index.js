@@ -8,6 +8,7 @@ const { countryPhoneData } = require('phone')
 const { makeLoggedInClient, makeClient } = require('@open-condo/keystone/test.utils')
 
 const { generateGQLTestUtils, throwIfError } = require('@open-condo/codegen/generate.test.utils')
+const { getAppEnvValue } = require('@open-condo/cli')
 
 const { User: UserGQL } = require('@dev-api/domains/user/gql')
 const { ConfirmPhoneAction: ConfirmPhoneActionGQL } = require('@dev-api/domains/user/gql')
@@ -180,6 +181,13 @@ async function makeLoggedInAdminClient () {
     return await makeLoggedInClient({ phone: DEFAULT_TEST_ADMIN_IDENTITY, password: DEFAULT_TEST_ADMIN_SECRET, })
 }
 
+async function makeLoggedInCondoAdminClient () {
+    const serverUrl = conf['CONDO_DOMAIN']
+    const email = await getAppEnvValue('condo', 'DEFAULT_TEST_ADMIN_IDENTITY')
+    const password = await getAppEnvValue('condo', 'DEFAULT_TEST_ADMIN_SECRET')
+    return await makeLoggedInClient({ email, password }, serverUrl)
+}
+
 async function makeRegisteredAndLoggedInUser () {
     const client = await makeClient()
     const [user, userAttrs] = await registerNewTestUser({}, client)
@@ -210,5 +218,6 @@ module.exports = {
     registerNewTestUser, authenticateUserWithPhoneAndPasswordByTestClient,
     makeLoggedInAdminClient, makeRegisteredAndLoggedInUser, makeLoggedInSupportClient,
     createTestPhone,
+    makeLoggedInCondoAdminClient,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }
