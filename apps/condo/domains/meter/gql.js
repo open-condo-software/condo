@@ -18,7 +18,7 @@ const MeterResource = generateGqlQueries('MeterResource', METER_RESOURCE_FIELDS_
 const METER_READING_SOURCE_FIELDS = `{ type name nameNonLocalized ${COMMON_FIELDS} }`
 const MeterReadingSource = generateGqlQueries('MeterReadingSource', METER_READING_SOURCE_FIELDS)
 
-const METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id address addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } ${COMMON_FIELDS} }`
+const METER_FIELDS = `{ number numberOfTariffs installationDate commissioningDate verificationDate nextVerificationDate controlReadingsDate sealingDate accountNumber organization { id } property { id address addressKey addressMeta { ${ADDRESS_META_SUBFIELDS_QUERY_LIST} } } unitName unitType place resource { ${METER_RESOURCE_FIELDS} } isAutomatic b2bApp { id name } b2cApp { id name } ${COMMON_FIELDS} }`
 const Meter = generateGqlQueries('Meter', METER_FIELDS)
 
 const METER_READING_FIELDS = `{ value1 value2 value3 value4 date meter ${METER_FIELDS} organization { id name } client { id } clientName clientEmail clientPhone contact { id name } source { id name type } ${COMMON_FIELDS} }`

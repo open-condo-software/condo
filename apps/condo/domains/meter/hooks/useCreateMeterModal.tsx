@@ -77,7 +77,7 @@ export function useCreateMeterModal (props: CreateMeterModalProps): CreateMeterM
             />
         )
     }, [AddMeterMessage, handleCancelModal, handleMeterCreate, initialValues, isCreateMeterModalVisible,
-        propertyId, unitName, unitType, meterType, organizationId])
+        propertyId, unitName, unitType, meterType, organizationId, addressKey])
 
     return useMemo(() => ({ CreateMeterModal, setIsCreateMeterModalVisible }), [CreateMeterModal])
 }
