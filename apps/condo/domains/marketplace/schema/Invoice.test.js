@@ -14,7 +14,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
-    expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestError, waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
@@ -622,12 +622,15 @@ describe('Invoice', () => {
                 client: { connect: { id: residentClient.user.id } },
             })
 
-            const messages = await Message.getAll(adminClient, {
-                user: { id: residentClient.user.id },
-                type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
             })
 
-            expect(messages).toHaveLength(1)
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
             expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/invoice/${invoice.id}`)
@@ -664,12 +667,15 @@ describe('Invoice', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
             })
 
-            const messages = await Message.getAll(adminClient, {
-                user: { id: residentClient.user.id },
-                type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
             })
 
-            expect(messages).toHaveLength(1)
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
             expect(messages[0].meta.data.residentId).toEqual(resident.id)
             expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/invoice/${invoice.id}`)
@@ -737,12 +743,15 @@ describe('Invoice', () => {
                 ticket: { connect: { id: ticket.id } },
             })
 
-            const messages = await Message.getAll(adminClient, {
-                user: { id: residentClient.user.id },
-                type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
             })
 
-            expect(messages).toHaveLength(1)
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
             expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
             expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
@@ -785,12 +794,15 @@ describe('Invoice', () => {
                 sender: { dv: 1, fingerprint: 'tests' },
             })
 
-            const messages = await Message.getAll(adminClient, {
-                user: { id: residentClient.user.id },
-                type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
             })
 
-            expect(messages).toHaveLength(1)
             expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
             expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
             expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)

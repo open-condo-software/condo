@@ -371,10 +371,7 @@ const Invoice = new GQLListSchema('Invoice', {
             return resolvedData
         },
         afterChange: async ({ context, operation, originalInput, updatedItem }) => {
-            const userId = updatedItem.client
-            const propertyId = updatedItem.property
-            const unitName = updatedItem.unitName
-            const unitType = updatedItem.unitType
+            const { client: userId, property: propertyId, unitName, unitType } = updatedItem
 
             if (originalInput.status === INVOICE_STATUS_PUBLISHED && userId && propertyId && unitName && unitType) {
                 const resident = await getByCondition('Resident', {
