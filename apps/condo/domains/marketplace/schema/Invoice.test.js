@@ -5,6 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const { omit } = require('lodash')
 
+const conf = require('@open-condo/config')
 const {
     makeLoggedInAdminClient,
     makeClient,
@@ -13,7 +14,7 @@ const {
     expectToThrowAuthenticationErrorToObjects,
     expectToThrowAccessDeniedErrorToObj,
     expectToThrowGQLError,
-    expectToThrowGraphQLRequestError,
+    expectToThrowGraphQLRequestError, waitFor,
 } = require('@open-condo/keystone/test.utils')
 
 const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
@@ -35,6 +36,8 @@ const {
     createTestInvoiceContext,
     generateInvoiceRow, generateInvoiceRows,
 } = require('@condo/domains/marketplace/utils/testSchema')
+const { MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE, MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE } = require('@condo/domains/notification/constants/constants')
+const { Message } = require('@condo/domains/notification/utils/testSchema')
 const {
     createTestOrganization,
     createTestOrganizationEmployeeRole,
@@ -591,6 +594,240 @@ describe('Invoice', () => {
                 expect(invoice.contact).toBeNull()
             })
         })
+    })
+
+    describe('sending push', () => {
+        test('send push after create invoice with published status', async () => {
+            const client = await makeClientWithProperty()
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            const [invoice] = await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: residentClient.user.id } },
+            })
+
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
+            })
+
+            expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
+            expect(messages[0].meta.data.residentId).toEqual(resident.id)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/invoice/${invoice.id}`)
+        })
+
+        test('send push after publish invoice', async () => {
+            const client = await makeClientWithProperty()
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            const [createdInvoice] = await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_DRAFT,
+                client: { connect: { id: residentClient.user.id } },
+            })
+
+            const invoice = await Invoice.update(adminClient, createdInvoice.id, {
+                status: INVOICE_STATUS_PUBLISHED,
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+            })
+
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
+            })
+
+            expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
+            expect(messages[0].meta.data.residentId).toEqual(resident.id)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/invoice/${invoice.id}`)
+        })
+
+        test('not send push after create invoice with no published status', async () => {
+            const client = await makeClientWithProperty()
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_PAID,
+                client: { connect: { id: residentClient.user.id } },
+            })
+
+            const messages = await Message.getAll(adminClient, {
+                user: { id: residentClient.user.id },
+                type: MARKETPLACE_INVOICE_PUBLISHED_MESSAGE_TYPE,
+            })
+
+            expect(messages).toHaveLength(0)
+        })
+
+        test('send push after create invoice with ticket and published status', async () => {
+            const client = await makeClientWithProperty()
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                isPayable: true,
+                unitType,
+                unitName,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                client: { connect: { id: residentClient.user.id } },
+            })
+            const [invoice] = await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_PUBLISHED,
+                client: { connect: { id: residentClient.user.id } },
+                ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+            })
+
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
+            })
+
+            expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
+            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
+            expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
+            expect(messages[0].meta.data.residentId).toEqual(resident.id)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}`)
+        })
+
+        test('send push after publish invoice with ticket', async () => {
+            const client = await makeClientWithProperty()
+
+            const unitType = FLAT_UNIT_TYPE
+            const unitName = faker.lorem.word()
+
+            const residentClient = await makeClientWithResidentUser()
+            const [resident] = await registerResidentByTestClient(
+                residentClient,
+                {
+                    address: client.property.address,
+                    addressMeta: client.property.addressMeta,
+                    unitType,
+                    unitName,
+                })
+
+            const [invoiceContext] = await createTestInvoiceContext(client, client.organization, dummyIntegration, { status: INVOICE_CONTEXT_STATUS_FINISHED })
+            const [ticket] = await createTestTicket(client, client.organization, client.property, {
+                isPayable: true,
+                unitType,
+                unitName,
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+                client: { connect: { id: residentClient.user.id } },
+            })
+            const [createdInvoice] = await createTestInvoice(client, invoiceContext, {
+                property: { connect: { id: client.property.id } },
+                unitType,
+                unitName,
+                status: INVOICE_STATUS_DRAFT,
+                client: { connect: { id: residentClient.user.id } },
+                ticket: { connect: { id: ticket.id } },
+                clientName: null,
+                clientPhone: null,
+                contact: null,
+            })
+
+            const invoice = await Invoice.update(adminClient, createdInvoice.id, {
+                status: INVOICE_STATUS_PUBLISHED,
+                dv: 1,
+                sender: { dv: 1, fingerprint: 'tests' },
+            })
+
+            let messages
+            await waitFor(async () => {
+                messages = await Message.getAll(adminClient, {
+                    user: { id: residentClient.user.id },
+                    type: MARKETPLACE_INVOICE_WITH_TICKET_PUBLISHED_MESSAGE_TYPE,
+                })
+                expect(messages).toHaveLength(1)
+            })
+
+            expect(messages[0].meta.data.invoiceId).toEqual(invoice.id)
+            expect(messages[0].meta.data.ticketId).toEqual(ticket.id)
+            expect(messages[0].meta.data.ticketNumber).toEqual(ticket.number)
+            expect(messages[0].meta.data.residentId).toEqual(resident.id)
+            expect(messages[0].meta.data.url).toEqual(`${conf.SERVER_URL}/ticket/${ticket.id}`)
+        })
+
     })
 
     describe('validation', () => {
