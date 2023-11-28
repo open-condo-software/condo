@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE_FULL: swr.ru-moscow-1.hc.sbercloud.ru/condo/condo-tests-image:${{ github.sha }}
+  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:${{ github.sha }}
 
 jobs:
   build-image:
@@ -22,6 +22,10 @@ jobs:
       - name: Prepare runner
         run: |
           sudo apt update && sudo apt install -y git
+      - name: Set registry variables
+        run: |
+          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
+          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v3
         with:
@@ -53,11 +57,11 @@ jobs:
           file: Dockerfile
           push: true
           tags: ${{ env.DOCKER_IMAGE_FULL }}
-          provenance: false
           build-args: |
-            REGISTRY=${{ vars.DOCKER_REGISTRY }}
-          cache-from: type=registry,ref=${{ vars.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' )
-          cache-to: type=registry,ref=${{ vars.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true
+            REGISTRY=${{ secrets.DOCKER_REGISTRY }}/doma/utils
+          provenance: false
+          cache-from: ${{ env.DOCKER_CACHE_FROM }}
+          cache-to: ${{ env.DOCKER_CACHE_TO }}
 
   lint:
     name: Lint source code
