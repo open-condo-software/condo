@@ -24,7 +24,7 @@ module.exports = [
                     phone: '+79067777777',
                     // this is development only data
                     // nosemgrep: generic.secrets.gitleaks.generic-api-key.generic-api-key
-                    password: '1a92b3a07c79',
+                    password: '1a92b3a07c78',
                     isAdmin: false,
                 },
             },
