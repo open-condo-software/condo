@@ -3,16 +3,47 @@
  */
 
 import {
+    Invoice, InvoiceContext, InvoiceCreateInput, InvoiceUpdateInput,
     MarketItem,
     MarketItemCreateInput,
     MarketItemUpdateInput,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
+import { get, isNull, isUndefined, pickBy } from 'lodash'
+import isEmpty from 'lodash/isEmpty'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
 import { MarketItem as MarketItemGQL } from '@condo/domains/marketplace/gql'
 
+
+type PriceFormValuesType = {
+    properties?: string[]
+    priceType?: string
+    price?: string
+}
+
+export type MarketItemFormValuesType = {
+    name?: string
+    sku?: string
+    parentCategory?: string
+    category?: string
+    description?: string
+    files?: string[]
+    prices?: PriceFormValuesType[]
+}
+
+export function convertToFormState (marketItem: MarketItem): MarketItemFormValuesType | undefined {
+    return {}
+}
+
+type MarketItemMutationType = MarketItemUpdateInput | MarketItemCreateInput
+
+export function formValuesProcessor (formValues: MarketItemFormValuesType): MarketItemMutationType {
+    const result: MarketItemMutationType = {}
+
+    return result
+}
 
 const {
     useObject,
@@ -20,6 +51,7 @@ const {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 } = generateReactHooks<MarketItem, MarketItemCreateInput, MarketItemUpdateInput, QueryAllMarketItemsArgs>(MarketItemGQL)
 
 export {
@@ -28,4 +60,5 @@ export {
     useCreate,
     useUpdate,
     useSoftDelete,
+    useCount,
 }

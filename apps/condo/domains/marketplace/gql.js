@@ -16,7 +16,7 @@ const COMMON_FIELDS = 'id dv sender { dv fingerprint } v deletedAt newId created
 const INVOICE_CONTEXT_FIELDS = `{ integration { id name setupUrl hostUrl } organization { id } recipient { tin bic bankAccount } settings status implicitFeePercent taxRegime vatPercent salesTaxPercent currencyCode ${COMMON_FIELDS} }`
 const InvoiceContext = generateGqlQueries('InvoiceContext', INVOICE_CONTEXT_FIELDS)
 
-const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id } ${COMMON_FIELDS} }`
+const MARKET_CATEGORY_FIELDS = `{ name image { publicUrl } mobileSettings { bgColor titleColor } parentCategory { id name } ${COMMON_FIELDS} }`
 const MarketCategory = generateGqlQueries('MarketCategory', MARKET_CATEGORY_FIELDS)
 
 const MARKET_ITEM_FIELDS = `{ name marketCategory { id name parentCategory { id name } image { publicUrl } } sku description organization { id } ${COMMON_FIELDS} }`

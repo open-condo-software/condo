@@ -17,6 +17,7 @@ import { MarketCategory as MarketCategoryGQL } from '@condo/domains/marketplace/
 const {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
     useAllObjects,
@@ -26,6 +27,7 @@ const {
 export {
     useObject,
     useObjects,
+    useAllObjects,
     useCreate,
     useUpdate,
     useAllObjects,
