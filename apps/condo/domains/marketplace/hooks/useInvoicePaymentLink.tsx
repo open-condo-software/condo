@@ -1,10 +1,13 @@
 import { useApolloClient } from '@apollo/client'
 import get from 'lodash/get'
+import getConfig from 'next/config'
 import { useCallback } from 'react'
 
 import { GENERATE_PAYMENT_LINK_QUERY } from '@condo/domains/acquiring/gql'
 import { getClientSideSenderInfo } from '@condo/domains/common/utils/userid.utils'
 
+
+const { publicRuntimeConfig: { serverUrl } } = getConfig()
 
 export const useInvoicePaymentLink = () => {
     const client = useApolloClient()
@@ -19,9 +22,8 @@ export const useInvoicePaymentLink = () => {
                         sender: getClientSideSenderInfo(),
                         invoices: invoiceIds.map(id => ({ id })),
                         callbacks: {
-                            // replace after deciding where to redirect
-                            successUrl: 'https://doma.ai',
-                            failureUrl: 'https://doma.ai',
+                            successUrl: `${serverUrl}/marketplace/invoice/payment/success`,
+                            failureUrl: `${serverUrl}/marketplace/invoice/payment/failure`,
                         },
                     },
                 },
