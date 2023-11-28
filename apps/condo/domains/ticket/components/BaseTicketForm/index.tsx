@@ -6,9 +6,9 @@ import {
     Ticket,
     TicketFile as TicketFileType,
     TicketStatusTypeType,
-    TicketSource as TicketSourceType,
+    TicketSource as TicketSourceType, SortInvoicesBy,
 } from '@app/condo/schema'
-import { Affix, Alert, Col, ColProps, Form, FormItemProps, Row, Typography } from 'antd'
+import { Affix, Col, ColProps, Form, FormItemProps, Row } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
@@ -19,23 +19,32 @@ import omit from 'lodash/omit'
 import { useRouter } from 'next/router'
 import React, { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
+import { Info, PlusCircle } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
+import { Typography, Alert, Space, Tooltip } from '@open-condo/ui'
 
 import Checkbox from '@condo/domains/common/components/antd/Checkbox'
 import Input from '@condo/domains/common/components/antd/Input'
 import Select from '@condo/domains/common/components/antd/Select'
 import { Button } from '@condo/domains/common/components/Button'
 import { FormWithAction, OnCompletedMsgType } from '@condo/domains/common/components/containers/FormList'
+import { FocusContainer } from '@condo/domains/common/components/FocusContainer'
 import { FrontLayerContainer } from '@condo/domains/common/components/FrontLayerContainer'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
 import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import Prompt from '@condo/domains/common/components/Prompt'
 import { PROPERTY_REQUIRED_ERROR } from '@condo/domains/common/constants/errors'
+import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { colors } from '@condo/domains/common/constants/style'
 import { useInputWithCounter } from '@condo/domains/common/hooks/useInputWithCounter'
 import { convertToOptions } from '@condo/domains/common/utils/filters.utils'
 import { normalizeText } from '@condo/domains/common/utils/text'
 import { useContactsEditorHook } from '@condo/domains/contact/components/ContactsEditor/useContactsEditorHook'
+import { CreateInvoiceForm } from '@condo/domains/marketplace/components/Invoice/CreateInvoiceForm'
+import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
+import { Invoice, InvoiceContext } from '@condo/domains/marketplace/utils/clientSchema'
 import { PropertyAddressSearchInput } from '@condo/domains/property/components/PropertyAddressSearchInput'
 import { UnitInfo, UnitInfoMode } from '@condo/domains/property/components/UnitInfo'
 import { Property } from '@condo/domains/property/utils/clientSchema'
@@ -143,7 +152,148 @@ export const TicketFormItem: React.FC<FormItemProps> = (props) => (
     <Form.Item labelCol={FORM_FILED_COL_PROPS} wrapperCol={FORM_FILED_COL_PROPS} {...props} />
 )
 
-export const TicketInfo = ({ form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
+const AddInvoiceButton = ({ refetchInvoices, initialValues, addInvoiceToTicketForm, organizationId, ticketCreatedByResident }) => {
+    const intl = useIntl()
+    const AddInvoiceMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.addInvoice' })
+    const CreateInvoiceModalTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.create.title' })
+
+    const [createInvoiceModalOpen, setCreateInvoiceModalOpen] = useState<boolean>(false)
+    const afterInvoiceCreated = useCallback(async (invoice) => {
+        addInvoiceToTicketForm(invoice.id)
+
+        await refetchInvoices()
+        setCreateInvoiceModalOpen(false)
+    }, [addInvoiceToTicketForm, refetchInvoices])
+
+    return (
+        <>
+            <Col style={{ cursor: 'pointer' }} onClick={() => setCreateInvoiceModalOpen(true)}>
+                <Space size={4} direction='horizontal'>
+                    <PlusCircle />
+                    <Typography.Text size='medium' strong>{AddInvoiceMessage}</Typography.Text>
+                </Space>
+            </Col>
+            {
+                createInvoiceModalOpen && (
+                    <CreateInvoiceForm
+                        organizationId={organizationId}
+                        afterAction={afterInvoiceCreated}
+                        initialValues={initialValues}
+                        modalFormProps={{
+                            ModalTitleMsg: CreateInvoiceModalTitle,
+                            visible: createInvoiceModalOpen,
+                            showCancelButton: false,
+                            cancelModal: () => setCreateInvoiceModalOpen(false),
+                            modalProps: { width: 'big', destroyOnClose: true },
+                        }}
+                        ticketCreatedByResident={ticketCreatedByResident}
+                    />
+                )
+            }
+        </>
+    )
+}
+
+const TicketFormInvoicesEmptyContent = ({
+    refetchInvoices, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident,
+}) => {
+    const intl = useIntl()
+    const AlertMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.message' })
+    const AlertDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.description' })
+    const AlertDescriptionLink = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noContextAlert.descriptionLink' })
+    const NoInvoicesMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.ticketInvoice.form.noInvoices' })
+
+    const { obj: invoiceContext, loading } = InvoiceContext.useObject({
+        where: {
+            organization: { id: organizationId },
+        },
+    })
+
+    if (loading) return <Loader />
+    if (!invoiceContext) {
+        return (
+            <Alert
+                type='warning'
+                showIcon
+                message={AlertMessage}
+                description={
+                    <Space direction='vertical' size={4}>
+                        <Typography.Paragraph size='medium'>
+                            {AlertDescription}
+                        </Typography.Paragraph>
+                        <Typography.Link size='large' href='/marketplace' target='_blank'>
+                            {AlertDescriptionLink}
+                        </Typography.Link>
+                    </Space>
+                }
+            />
+        )
+    }
+
+    return (
+        <FocusContainer margin='0'>
+            <Row gutter={[0, 40]}>
+                <Col span={24}>
+                    <Typography.Text size='medium' type='secondary'>{NoInvoicesMessage}</Typography.Text>
+                </Col>
+                <Col span={24}>
+                    <Row style={{ paddingBottom:'24px' }} justify='center' align='middle'>
+                        <AddInvoiceButton
+                            refetchInvoices={refetchInvoices}
+                            initialValues={initialValues}
+                            addInvoiceToTicketForm={addInvoiceToTicketForm}
+                            organizationId={organizationId}
+                            ticketCreatedByResident={ticketCreatedByResident}
+                        />
+                    </Row>
+                </Col>
+            </Row>
+        </FocusContainer>
+    )
+}
+
+const TicketFormInvoices = ({ invoiceIds, organizationId, initialValues, addInvoiceToTicketForm, ticketCreatedByResident }) => {
+    const { objs: invoices, refetch: refetchInvoices } = Invoice.useObjects({
+        where: {
+            id_in: invoiceIds,
+        },
+        sortBy: [SortInvoicesBy.CreatedAtDesc],
+    })
+
+    if (isEmpty(invoiceIds)) {
+        return (
+            <TicketFormInvoicesEmptyContent
+                refetchInvoices={refetchInvoices}
+                organizationId={organizationId}
+                initialValues={initialValues}
+                addInvoiceToTicketForm={addInvoiceToTicketForm}
+                ticketCreatedByResident={ticketCreatedByResident}
+            />
+        )
+    }
+
+    return (
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <TicketInvoicesList
+                    invoices={invoices}
+                    refetchInvoices={refetchInvoices}
+                    initialValues={initialValues}
+                    ticketCreatedByResident={ticketCreatedByResident}
+                />
+            </Col>
+            <AddInvoiceButton
+                refetchInvoices={refetchInvoices}
+                initialValues={initialValues}
+                addInvoiceToTicketForm={addInvoiceToTicketForm}
+                organizationId={organizationId}
+                ticketCreatedByResident={ticketCreatedByResident}
+            />
+        </Row>
+    )
+}
+
+export const TicketInfo = ({ organizationId, form, validations, UploadComponent, initialValues, disableUserInteraction }) => {
     const intl = useIntl()
     const TicketDeadlineLabel = intl.formatMessage({ id: 'TicketDeadline' })
     const TicketDeferredDeadlineLabel = intl.formatMessage({ id: 'TicketDeferredDeadline' })
@@ -174,7 +324,6 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
     const { InputWithCounter, Counter } = useInputWithCounter(Input.TextArea, 500)
     const handleInputBlur = useCallback(e => predictTicketClassifier(e.target.value), [predictTicketClassifier])
 
-    const detailsColSpan = !breakpoints.TABLET_LARGE ? 24 : 20
     const classifierColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
     const deadlineColSpan = !breakpoints.TABLET_LARGE ? 24 : 18
 
@@ -189,6 +338,18 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
         setIsAutoDetectedDeadlineValue(true)
     }, [createdAt, form, setIsAutoDetectedDeadlineValue, ticketSetting])
 
+    const [isPayable, setIsPayable] = useState<boolean>(get(initialValues, 'isPayable'))
+
+    const handlePayableChange = useCallback((e) => {
+        const value = get(e, 'target.checked')
+
+        setIsPayable(value)
+        handleChangeType()
+    }, [handleChangeType])
+
+    const { useFlag } = useFeatureFlags()
+    const isMarketplaceEnabled = useFlag(MARKETPLACE)
+
     return (
         <Col span={24}>
             <Row gutter={BIG_VERTICAL_GUTTER}>
@@ -200,7 +361,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                 <span style={SPAN_STYLES}>*</span>
                             </Typography.Title>
                         </Col>
-                        <Col span={detailsColSpan}>
+                        <Col span={24}>
                             <Row>
                                 <Col span={24}>
                                     <TicketFormItem name='details' rules={validations.details}>
@@ -255,7 +416,7 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                                     <Checkbox
                                                         disabled={disableUserInteraction}
                                                         eventName='TicketCreateCheckboxIsPayable'
-                                                        onChange={handleChangeType}
+                                                        onChange={handlePayableChange}
                                                     >
                                                         {PayableLabel}
                                                     </Checkbox>
@@ -276,6 +437,60 @@ export const TicketInfo = ({ form, validations, UploadComponent, initialValues, 
                                     </Col>
                                 </Row>
                             </Col>
+                            {
+                                isMarketplaceEnabled && isPayable && (
+                                    <Col span={24} md={18}>
+                                        <Form.Item
+                                            hidden
+                                            noStyle
+                                            name='invoices'
+                                        />
+                                        <Form.Item
+                                            dependencies={['invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName']}
+                                        >
+                                            {
+                                                ({ getFieldValue, getFieldsValue, setFieldsValue }) => {
+                                                    const {
+                                                        invoices,
+                                                        property,
+                                                        unitName,
+                                                        unitType,
+                                                        clientPhone,
+                                                        clientName,
+                                                    } = getFieldsValue(['invoices', 'property', 'unitName', 'unitType', 'clientPhone', 'clientName'])
+
+                                                    const invoiceInitialValues = {
+                                                        property,
+                                                        unitName,
+                                                        unitType,
+                                                        clientPhone,
+                                                        clientName,
+                                                    }
+
+                                                    const addInvoiceToTicketForm = (invoiceId) => {
+                                                        setFieldsValue({
+                                                            invoices: [
+                                                                ...getFieldValue('invoices'),
+                                                                invoiceId,
+                                                            ],
+                                                        })
+                                                    }
+
+                                                    return (
+                                                        <TicketFormInvoices
+                                                            invoiceIds={invoices}
+                                                            organizationId={organizationId}
+                                                            initialValues={invoiceInitialValues}
+                                                            addInvoiceToTicketForm={addInvoiceToTicketForm}
+                                                            ticketCreatedByResident={get(initialValues, 'createdByType') === RESIDENT}
+                                                        />
+                                                    )
+                                                }
+                                            }
+                                        </Form.Item>
+                                    </Col>
+                                )
+                            }
                             <Col span={deadlineColSpan}>
                                 <Row gutter={SMALL_VERTICAL_GUTTER}>
                                     <Col span={24}>
@@ -384,6 +599,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const NoPropertiesMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.NoProperties' })
     const CanReadByResidentMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident' })
     const AttachCallRecordMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.AttachCallRecord' })
+    const CanReadByResidentTooltip = intl.formatMessage({ id: 'pages.condo.ticket.field.CanReadByResident.tooltip' })
 
     const { breakpoints } = useLayoutContext()
     const { isCallActive } = useActiveCall()
@@ -434,7 +650,6 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     const [selectedUnitName, setSelectedUnitName] = useState(get(initialTicketValues, 'unitName'))
     const [selectedUnitType, setSelectedUnitType] = useState<BuildingUnitSubType>(get(initialTicketValues, 'unitType'))
     const [selectedSectionType, setSelectedSectionType] = useState(get(initialTicketValues, 'sectionType'))
-    const [isMatchSelectedProperty, setIsMatchSelectedProperty] = useState(true)
     const selectedUnitNameRef = useRef(selectedUnitName)
     const selectedUnitTypeRef = useRef<BuildingUnitSubType>(selectedUnitType)
     const selectedSectionTypeRef = useRef(selectedSectionType)
@@ -479,10 +694,9 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
         if (searchValueLength === 0) {
             return Promise.resolve()
         }
-        return selectedPropertyId !== undefined && isMatchSelectedProperty
-            ? Promise.resolve()
-            : Promise.reject(AddressNotSelected)
-    }, [selectedPropertyId, isMatchSelectedProperty])
+
+        return !isEmpty(selectedPropertyId) ? Promise.resolve() : Promise.reject(AddressNotSelected)
+    }, [selectedPropertyId, AddressNotSelected])
 
     const PROPERTY_VALIDATION_RULES = useMemo(() => [...validations.property, { validator: addressValidation }], [addressValidation, validations.property])
 
@@ -503,7 +717,8 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
     }
 
     const initialCanReadByResidentValue = useMemo(() => get(initialValues, 'canReadByResident', true), [initialValues])
-    const isResidentTicket = useMemo(() => get(initialValues, ['createdBy', 'type']) === RESIDENT, [initialValues])
+
+    const isResidentTicket = useMemo(() => get(initialValues, ['createdByType']) === RESIDENT, [initialValues])
     const ErrorToFormFieldMsgMapping = useMemo(() => ({
         [PROPERTY_REQUIRED_ERROR]: {
             name: 'property',
@@ -552,6 +767,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitType: null,
             sectionName: null,
             floorName: null,
+            property: option.key,
         })
         setSelectedUnitName(null)
         setSelectedPropertyId(option.key)
@@ -564,6 +780,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
             unitType: null,
             sectionName: null,
             floorName: null,
+            property: null,
         })
         setSelectedUnitName(null)
         setSelectedPropertyId(null)
@@ -623,21 +840,35 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                     <Row gutter={SMALL_VERTICAL_GUTTER}>
                                                                         {NoPropertiesAlert}
                                                                         <Col span={24} data-cy='ticket__property-address-search-input'>
-                                                                            <TicketFormItem
-                                                                                name='property'
-                                                                                label={AddressLabel}
-                                                                                rules={PROPERTY_VALIDATION_RULES}
+                                                                            <Form.Item
+                                                                                dependencies={['invoices']}
+                                                                                noStyle
                                                                             >
-                                                                                <PropertyAddressSearchInput
-                                                                                    organization={organization}
-                                                                                    autoFocus
-                                                                                    onSelect={handlePropertySelectChange(form)}
-                                                                                    onClear={handlePropertiesSelectClear(form)}
-                                                                                    placeholder={AddressPlaceholder}
-                                                                                    notFoundContent={AddressNotFoundContent}
-                                                                                    setIsMatchSelectedProperty={setIsMatchSelectedProperty}
-                                                                                />
-                                                                            </TicketFormItem>
+                                                                                {
+                                                                                    ({ getFieldValue }) => {
+                                                                                        const invoices = getFieldValue('invoices')
+
+                                                                                        return (
+                                                                                            <TicketFormItem
+                                                                                                name='property'
+                                                                                                label={AddressLabel}
+                                                                                                rules={PROPERTY_VALIDATION_RULES}
+                                                                                            >
+                                                                                                <PropertyAddressSearchInput
+                                                                                                    organizationId={get(organization, 'id')}
+                                                                                                    autoFocus
+                                                                                                    onSelect={handlePropertySelectChange(form)}
+                                                                                                    onClear={handlePropertiesSelectClear(form)}
+                                                                                                    placeholder={AddressPlaceholder}
+                                                                                                    notFoundContent={AddressNotFoundContent}
+                                                                                                    disabled={!isEmpty(invoices)}
+                                                                                                />
+                                                                                            </TicketFormItem>
+                                                                                        )
+                                                                                    }
+                                                                                }
+                                                                            </Form.Item>
+
                                                                         </Col>
                                                                         {selectedPropertyId && (
                                                                             <UnitInfo
@@ -687,6 +918,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                 return (
                                                                     <Row gutter={BIG_VERTICAL_GUTTER}>
                                                                         <TicketInfo
+                                                                            organizationId={organizationId}
                                                                             form={form}
                                                                             UploadComponent={UploadComponent}
                                                                             validations={validations}
@@ -695,7 +927,7 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                         />
                                                                         <Col>
                                                                             <FrontLayerContainer showLayer={disableUserInteraction} isSelectable={false}>
-                                                                                <Row gutter={MEDIUM_VERTICAL_GUTTER}>
+                                                                                <Row gutter={BIG_VERTICAL_GUTTER}>
                                                                                     <TicketAssignments
                                                                                         disableUserInteraction={disableUserInteraction}
                                                                                         validations={validations}
@@ -708,14 +940,23 @@ export const BaseTicketForm: React.FC<ITicketFormProps> = (props) => {
                                                                                     {
                                                                                         !isResidentTicket && (
                                                                                             <Col span={24}>
-                                                                                                <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
-                                                                                                    <Checkbox
-                                                                                                        disabled={disableUserInteraction}
-                                                                                                        eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                                <Space size={8} align='center'>
+                                                                                                    <Form.Item name='canReadByResident' valuePropName='checked' initialValue={initialCanReadByResidentValue}>
+                                                                                                        <Checkbox
+                                                                                                            disabled={disableUserInteraction}
+                                                                                                            eventName='TicketCreateCheckboxCanReadByResident'
+                                                                                                        >
+                                                                                                            {CanReadByResidentMessage}
+                                                                                                        </Checkbox>
+                                                                                                    </Form.Item>
+                                                                                                    <Tooltip
+                                                                                                        title={CanReadByResidentTooltip}
                                                                                                     >
-                                                                                                        {CanReadByResidentMessage}
-                                                                                                    </Checkbox>
-                                                                                                </Form.Item>
+                                                                                                        <Space size={4} align='center'>
+                                                                                                            <Info />
+                                                                                                        </Space>
+                                                                                                    </Tooltip>
+                                                                                                </Space>
                                                                                             </Col>
                                                                                         )
                                                                                     }

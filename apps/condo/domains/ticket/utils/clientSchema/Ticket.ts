@@ -18,6 +18,7 @@ import { Ticket as TicketGQL } from '@condo/domains/ticket/gql'
 
 const RELATIONS = ['status', 'client', 'contact', 'operator', 'assignee', 'organization', 'source', 'property', 'executor', 'related', 'classifier']
 const DISCONNECT_ON_NULL = ['executor', 'contact']
+const IGNORE_FIELDS = ['invoices', 'createdByType']
 
 export interface ITicketFormState {
     id?: undefined
@@ -51,6 +52,10 @@ function convertToFormState (ticket: Ticket): ITicketFormState | undefined {
     for (const key of Object.keys(ticket)) {
         const relationId = get(ticket[key], 'id')
         result[key] = relationId || ticket[key]
+
+        if (key === 'createdBy') {
+            result['createdByType'] = get(ticket[key], 'type')
+        }
     }
 
     result['deadline'] = !isNull(deadline) ? dayjs(deadline) : deadline
@@ -63,6 +68,8 @@ function convertToFormState (ticket: Ticket): ITicketFormState | undefined {
 function formValuesProcessor (formValues: ITicketFormState): TicketMutationType {
     const result: TicketMutationType = {}
     for (const key of Object.keys(formValues)) {
+        if (IGNORE_FIELDS.includes(key)) continue
+        
         const isRelation = RELATIONS.includes(key)
         if (isRelation) {
             if (DISCONNECT_ON_NULL.includes(key) && formValues[key] === null) {

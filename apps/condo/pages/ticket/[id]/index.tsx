@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import {
-    B2BAppGlobalFeature,
+    B2BAppGlobalFeature, SortInvoicesBy,
     SortTicketChangesBy,
     SortTicketCommentFilesBy,
     SortTicketCommentsBy,
@@ -12,8 +12,9 @@ import { compact, get, isEmpty, map } from 'lodash'
 import Head from 'next/head'
 import Link from 'next/link'
 import { useRouter } from 'next/router'
-import React, { CSSProperties, useCallback, useEffect, useMemo } from 'react'
+import React, { CSSProperties, useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useFeatureFlags } from '@open-condo/featureflags/FeatureFlagsContext'
 import { Edit, Link as LinkIcon } from '@open-condo/icons'
 import { useAuth } from '@open-condo/next/auth'
 import { FormattedMessage } from '@open-condo/next/intl'
@@ -28,7 +29,15 @@ import { AccessDeniedPage } from '@condo/domains/common/components/containers/Ac
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { Loader } from '@condo/domains/common/components/Loader'
+import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+import { MARKETPLACE } from '@condo/domains/common/constants/featureflags'
 import { getObjectCreatedMessage } from '@condo/domains/common/utils/date.utils'
+import { CopyButton } from '@condo/domains/marketplace/components/Invoice/CopyButton'
+import { TicketInvoicesList } from '@condo/domains/marketplace/components/Invoice/TicketInvoicesList'
+import { INVOICE_STATUS_PUBLISHED } from '@condo/domains/marketplace/constants'
+import { useInvoicePaymentLink } from '@condo/domains/marketplace/hooks/useInvoicePaymentLink'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { useGlobalAppsFeaturesContext } from '@condo/domains/miniapp/components/GlobalApps/GlobalAppsFeaturesContext'
 import { ASSIGNED_TICKET_VISIBILITY } from '@condo/domains/organization/constants/common'
 import { OrganizationEmployee } from '@condo/domains/organization/utils/clientSchema'
@@ -50,7 +59,7 @@ import { TicketResidentFeatures } from '@condo/domains/ticket/components/TicketI
 import { TicketPropertyHintCard } from '@condo/domains/ticket/components/TicketPropertyHint/TicketPropertyHintCard'
 import { TicketStatusSelect } from '@condo/domains/ticket/components/TicketStatusSelect'
 import { TicketTag } from '@condo/domains/ticket/components/TicketTag'
-import { CLOSED_STATUS_TYPE } from '@condo/domains/ticket/constants'
+import { CLOSED_STATUS_TYPE, CANCELED_STATUS_TYPE } from '@condo/domains/ticket/constants'
 import { STATUS_IDS } from '@condo/domains/ticket/constants/statusTransitions'
 import { TICKET_TYPE_TAG_COLORS } from '@condo/domains/ticket/constants/style'
 import { useActiveCall } from '@condo/domains/ticket/contexts/ActiveCallContext'
@@ -85,7 +94,7 @@ const MEDIUM_VERTICAL_GUTTER: RowProps['gutter'] = [0, 24]
 const SMALL_VERTICAL_GUTTER: RowProps['gutter'] = [0, 20]
 const BIG_HORIZONTAL_GUTTER: RowProps['gutter'] = [40, 0]
 
-const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization, employee }) => {
+const TicketHeader = ({ ticket, handleTicketStatusChanged, organization, employee }) => {
     const intl = useIntl()
     const SourceMessage = intl.formatMessage({ id: 'pages.condo.ticket.field.Source' })
     const TicketAuthorMessage = intl.formatMessage({ id: 'Author' })
@@ -111,10 +120,6 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
     const statusUpdatedAt = useMemo(() => get(ticket, 'statusUpdatedAt'), [ticket])
 
     const { breakpoints } = useLayoutContext()
-    const handleTicketStatusChanged = () => {
-        refetchTicket()
-        ticketChangesResult.refetch()
-    }
 
     const isResidentTicket = useMemo(() => get(ticket, ['createdBy', 'type']) === RESIDENT, [ticket])
     const canReadByResident = useMemo(() => get(ticket, 'canReadByResident'), [ticket])
@@ -307,25 +312,17 @@ const TicketHeader = ({ ticket, refetchTicket, ticketChangesResult, organization
 const TicketContent = ({ ticket }) => {
     return (
         <Col span={24}>
-            <Row gutter={BIG_VERTICAL_GUTTER}>
+            <Row gutter={[0, 16]}>
                 <TicketQualityControlFields ticket={ticket}/>
                 <TicketFeedbackFields ticket={ticket}/>
-                <Col span={24}>
-                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <TicketDeadlineField ticket={ticket}/>
-                        <TicketPropertyField ticket={ticket}/>
-                        <TicketClientField ticket={ticket}/>
-                        <TicketDetailsField ticket={ticket}/>
-                        <TicketFileListField ticket={ticket}/>
-                    </Row>
-                </Col>
-                <Col span={24}>
-                    <Row gutter={MEDIUM_VERTICAL_GUTTER}>
-                        <TicketClassifierField ticket={ticket}/>
-                        <TicketExecutorField ticket={ticket}/>
-                        <TicketAssigneeField ticket={ticket}/>
-                    </Row>
-                </Col>
+                <TicketDeadlineField ticket={ticket}/>
+                <TicketPropertyField ticket={ticket}/>
+                <TicketClientField ticket={ticket}/>
+                <TicketDetailsField ticket={ticket}/>
+                <TicketFileListField ticket={ticket}/>
+                <TicketClassifierField ticket={ticket}/>
+                <TicketExecutorField ticket={ticket}/>
+                <TicketAssigneeField ticket={ticket}/>
             </Row>
         </Col>
     )
@@ -358,7 +355,7 @@ const TicketActionBar = ({
 
     const ticketStatusType = useMemo(() => get(ticket, ['status', 'type']), [ticket])
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
-    const disabledEditTicketButton = ticketStatusType === CLOSED_STATUS_TYPE || isDeletedProperty
+    const disabledEditTicketButton = ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE || isDeletedProperty
     const disabledEditQualityControlButton = ticket.status.id !== STATUS_IDS.COMPLETED && ticket.status.id !== STATUS_IDS.CLOSED
     const showAttachCallToTicketButton = isCallActive && !connectedTickets.find(ticketId => ticketId === id)
 
@@ -446,7 +443,67 @@ const HINT_CARD_STYLE: CSSProperties = { maxHeight: '3em ' }
 const TITLE_STYLE: CSSProperties = { margin: 0 }
 const HINTS_COL_PROPS: ColProps = { span: 24 }
 
-export const TicketPageContent = ({ ticket, refetchTicket, loading, organization, employee, TicketContent }) => {
+const TicketInvoices = ({ invoices, invoicesLoading, refetchInvoices, ticket }) => {
+    const intl = useIntl()
+    const PaymentLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink' })
+    const CopyMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.field.paymentLink.copy' })
+    const CopiedLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.create.notification.copiedLink' })
+
+    const [paymentLink, setPaymentLink] = useState<string>()
+    const getPaymentLink = useInvoicePaymentLink()
+    const publishedInvoiceIds = useMemo(
+        () => invoices.filter(invoice => invoice.status === INVOICE_STATUS_PUBLISHED)
+            .map(({ id }) => id),
+        [invoices])
+
+    useEffect(() => {
+        if (!isEmpty(publishedInvoiceIds)) {
+            getPaymentLink(publishedInvoiceIds)
+                .then(({ paymentLink }) => setPaymentLink(paymentLink))
+        }
+    }, [getPaymentLink, publishedInvoiceIds])
+
+    const ticketStatusType = get(ticket, 'status.type')
+    const isAllFieldsDisabled = ticketStatusType === CLOSED_STATUS_TYPE || ticketStatusType === CANCELED_STATUS_TYPE
+
+    if (!invoices && invoicesLoading) return <Loader />
+
+    return (
+        <Row gutter={[0, 40]}>
+            <Col span={24}>
+                <TicketInvoicesList
+                    invoices={invoices}
+                    refetchInvoices={refetchInvoices}
+                    isAllFieldsDisabled={isAllFieldsDisabled}
+                    ticketCreatedByResident={get(ticket, 'createdBy.type') === RESIDENT}
+                />
+            </Col>
+            {
+                publishedInvoiceIds.length > 0 && (
+                    <PageFieldRow align='middle' title={PaymentLinkMessage}>
+                        <Row gutter={[36, 20]} align='middle' justify='space-between'>
+                            <Col span={16}>
+                                <Typography.Link href={paymentLink} title={paymentLink} ellipsis>
+                                    {paymentLink}
+                                </Typography.Link>
+                            </Col>
+                            <Col>
+                                <CopyButton
+                                    textButton
+                                    url={paymentLink}
+                                    copyMessage={CopyMessage}
+                                    copiedMessage={CopiedLinkMessage}
+                                />
+                            </Col>
+                        </Row>
+                    </PageFieldRow>
+                )
+            }
+        </Row>
+    )
+}
+
+export const TicketPageContent = ({ ticket, refetchTicket, organization, employee, TicketContent }) => {
     const intl = useIntl()
     const BlockedEditingTitleMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.title' })
     const BlockedEditingDescriptionMessage = intl.formatMessage({ id: 'pages.condo.ticket.alert.BlockedEditing.description' })
@@ -544,15 +601,26 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
         }
     })
 
-    const refetchTicketAndTicketChanges = () => {
-        refetchTicket()
-        ticketChangesResult.refetch()
-    }
-
     const ticketPropertyId = get(ticket, ['property', 'id'], null)
     const isDeletedProperty = !ticket.property && ticket.propertyAddress
     const canCreateComments = useMemo(() => get(auth, ['user', 'isAdmin']) || get(employee, ['role', 'canManageTicketComments']),
         [auth, employee])
+
+    const { useFlag } = useFeatureFlags()
+    const isMarketplaceEnabled = useFlag(MARKETPLACE)
+
+    const { objs: invoices, loading: invoicesLoading, refetch: refetchInvoices } = Invoice.useObjects({
+        where: {
+            ticket: { id: ticket.id },
+        },
+        sortBy: [SortInvoicesBy.CreatedAtDesc],
+    }, { skip: !isMarketplaceEnabled })
+
+    const refetchTicketAndRelatedObjs = useCallback(() => {
+        refetchTicket()
+        ticketChangesResult.refetch()
+        refetchInvoices()
+    }, [refetchInvoices, refetchTicket, ticketChangesResult])
 
     const render = (
         <Row gutter={BIG_VERTICAL_GUTTER}>
@@ -561,8 +629,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                     <Row gutter={MEDIUM_VERTICAL_GUTTER}>
                         <TicketHeader
                             ticket={ticket}
-                            refetchTicket={refetchTicket}
-                            ticketChangesResult={ticketChangesResult}
+                            handleTicketStatusChanged={refetchTicketAndRelatedObjs}
                             organization={organization}
                             employee={employee}
                         />
@@ -580,6 +647,18 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
                         }
                     </Row>
                     <TicketContent ticket={ticket}/>
+                    {
+                        isMarketplaceEnabled && ticket.isPayable && (
+                            <Col span={24}>
+                                <TicketInvoices
+                                    invoices={invoices}
+                                    refetchInvoices={refetchInvoices}
+                                    invoicesLoading={invoicesLoading}
+                                    ticket={ticket}
+                                />
+                            </Col>
+                        )
+                    }
                     {
                         ticketVisibilityType !== ASSIGNED_TICKET_VISIBILITY && (
                             <TicketPropertyHintCard
@@ -640,7 +719,7 @@ export const TicketPageContent = ({ ticket, refetchTicket, loading, organization
     )
 
     return (
-        <TicketQualityControlProvider ticket={ticket} afterUpdate={refetchTicketAndTicketChanges}>
+        <TicketQualityControlProvider ticket={ticket} afterUpdate={refetchTicketAndRelatedObjs}>
             {render}
         </TicketQualityControlProvider>
     )
@@ -717,7 +796,6 @@ const TicketIdPage = () => {
                     >
                         <TicketPageContent
                             ticket={ticket}
-                            loading={ticketLoading}
                             refetchTicket={refetchTicket}
                             organization={organization}
                             employee={link}

@@ -26,14 +26,14 @@ const {
     INVOICE_CONTEXT_STATUS_FINISHED,
     INVOICE_PAYMENT_TYPE_CASH,
     INVOICE_PAYMENT_TYPE_ONLINE,
-    INVOICE_STATUS_CANCELED,
+    INVOICE_STATUS_CANCELED, CLIENT_DATA_FIELDS,
 } = require('@condo/domains/marketplace/constants')
 const {
     Invoice,
     createTestInvoice,
     updateTestInvoice,
     createTestInvoiceContext,
-    generateInvoiceRow,
+    generateInvoiceRow, generateInvoiceRows,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const {
     createTestOrganization,
@@ -44,6 +44,8 @@ const {
 const { FLAT_UNIT_TYPE } = require('@condo/domains/property/constants/common')
 const { makeClientWithProperty, createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { registerResidentByTestClient } = require('@condo/domains/resident/utils/testSchema')
+const { STATUS_IDS } = require('@condo/domains/ticket/constants/statusTransitions')
+const { createTestTicket, updateTestTicket } = require('@condo/domains/ticket/utils/testSchema')
 const {
     makeClientWithNewRegisteredAndLoggedInUser,
     makeClientWithSupportUser,
@@ -725,13 +727,187 @@ describe('Invoice', () => {
             const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
             await expectToThrowGQLError(async () => {
-                await updateTestInvoice(adminClient, invoice.id)
+                await updateTestInvoice(adminClient, invoice.id, {
+                    toPay: faker.random.word(),
+                })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_EDIT_PUBLISHED',
                 message: `Only the status ${INVOICE_STATUS_CANCELED} and ${INVOICE_STATUS_PAID} can be updated by the published invoice`,
                 messageForUser: 'api.marketplace.invoice.error.editPublishedForbidden',
             })
+        })
+
+        test('can create invoice with ticket', async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const unitName = faker.random.alphaNumeric(5)
+            const unitType = FLAT_UNIT_TYPE
+            const clientPhone = createTestPhone()
+            const clientName = faker.random.alphaNumeric(5)
+            const [ticket] = await createTestTicket(adminClient, dummyO10n, property, {
+                unitName, unitType, clientPhone, clientName, isResidentTicket: true,
+            })
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                ticket: { connect: { id: ticket.id } },
+            })
+
+            expect(invoice).toBeDefined()
+            expect(invoice.ticket.id).toEqual(ticket.id)
+            expect(invoice.property.id).toEqual(ticket.property.id)
+            expect(invoice.unitName).toEqual(ticket.unitName)
+            expect(invoice.unitType).toEqual(ticket.unitType)
+            expect(invoice.clientPhone).toEqual(ticket.clientPhone)
+            expect(invoice.clientName).toEqual(ticket.clientName)
+        })
+
+        test('can connect ticket to invoice', async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const unitName = faker.random.alphaNumeric(5)
+            const unitType = FLAT_UNIT_TYPE
+            const clientPhone = createTestPhone()
+            const clientName = faker.random.alphaNumeric(5)
+            const [ticket] = await createTestTicket(adminClient, dummyO10n, property, {
+                unitName, unitType, clientPhone, clientName, isResidentTicket: true,
+            })
+
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+
+            expect(invoice).toBeDefined()
+            expect(invoice.ticket).toBeNull()
+            expect(invoice.property).toBeNull()
+            expect(invoice.unitName).toBeNull()
+            expect(invoice.unitType).toBeNull()
+            expect(invoice.clientPhone).toBeNull()
+            expect(invoice.clientName).toBeNull()
+
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                ticket: { connect: { id: ticket.id } },
+            })
+
+            expect(updatedInvoice).toBeDefined()
+            expect(updatedInvoice.ticket.id).toEqual(ticket.id)
+            expect(updatedInvoice.property.id).toEqual(ticket.property.id)
+            expect(updatedInvoice.unitName).toEqual(ticket.unitName)
+            expect(updatedInvoice.unitType).toEqual(ticket.unitType)
+            expect(updatedInvoice.clientPhone).toEqual(ticket.clientPhone)
+            expect(updatedInvoice.clientName).toEqual(ticket.clientName)
+        })
+
+        test('can\'t update ticket for invoice with ticket', async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
+            const [ticket1] = await createTestTicket(adminClient, dummyO10n, property)
+
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                ticket: { connect: { id: ticket.id } },
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestInvoice(adminClient, invoice.id, {
+                    ticket: { connect: { id: ticket1.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'FORBID_UPDATE_TICKET',
+                message: 'You cannot update ticket in invoice that is already linked to the ticket',
+                messageForUser: 'api.marketplace.invoice.error.forbidUpdateTicket',
+            })
+        })
+
+        test('can\'t update invoice client data to other than ticket client data', async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
+            const [property1] = await createTestProperty(adminClient, dummyO10n)
+
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                ticket: { connect: { id: ticket.id } },
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestInvoice(adminClient, invoice.id, {
+                    property: { connect: { id: property1.id } },
+                })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'CLIENT_DATA_DOES_NOT_MATCH_TICKET',
+                message: `Fields ${CLIENT_DATA_FIELDS.join(', ')} must match same fields in connected ticket`,
+                messageForUser: 'api.marketplace.invoice.error.clientDataDoesNotMatchTicket',
+            })
+        })
+
+        test('can update status and rows in invoice with ticket', async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
+
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                ticket: { connect: { id: ticket.id } },
+                rows: generateInvoiceRows(),
+                status: INVOICE_STATUS_DRAFT,
+            })
+
+            const newRows = generateInvoiceRows()
+            const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, {
+                rows: newRows,
+                status: INVOICE_STATUS_PUBLISHED,
+            })
+
+            expect(updatedInvoice.rows).toEqual(newRows)
+            expect(updatedInvoice.status).toEqual(INVOICE_STATUS_PUBLISHED)
+        })
+
+        test('client data auto update when ticket updates client data', async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const unitName = faker.random.alphaNumeric(5)
+            const unitType = FLAT_UNIT_TYPE
+            const clientPhone = createTestPhone()
+            const clientName = faker.random.alphaNumeric(5)
+            const [ticket] = await createTestTicket(adminClient, dummyO10n, property, {
+                unitName: null,
+                unitType: null,
+            })
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                ticket: { connect: { id: ticket.id } },
+            })
+
+            expect(invoice).toBeDefined()
+            expect(invoice.ticket.id).toEqual(ticket.id)
+            expect(invoice.property.id).toEqual(ticket.property.id)
+            expect(invoice.unitName).toBeNull()
+            expect(invoice.unitType).toBeNull()
+            expect(invoice.clientPhone).toBeNull()
+            expect(invoice.clientName).toBeNull()
+
+            const [updatedTicket] = await updateTestTicket(adminClient, ticket.id, {
+                isResidentTicket: true,
+                unitName, unitType, clientPhone, clientName,
+            })
+
+            const updatedInvoice = await Invoice.getOne(adminClient, { id: invoice.id })
+
+            expect(updatedInvoice.property.id).toEqual(updatedTicket.property.id)
+            expect(updatedInvoice.unitName).toEqual(updatedTicket.unitName)
+            expect(updatedInvoice.unitType).toEqual(updatedTicket.unitType)
+            expect(updatedInvoice.clientPhone).toEqual(updatedTicket.clientPhone)
+            expect(updatedInvoice.clientName).toEqual(updatedTicket.clientName)
+        })
+
+        test(`invoices status sets to ${INVOICE_STATUS_CANCELED} when ticket status sets canceled`, async () => {
+            const [property] = await createTestProperty(adminClient, dummyO10n)
+            const [ticket] = await createTestTicket(adminClient, dummyO10n, property)
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                status: INVOICE_STATUS_PUBLISHED,
+                ticket: { connect: { id: ticket.id } },
+            })
+
+            await updateTestTicket(adminClient, ticket.id, {
+                status: { connect: { id: STATUS_IDS.DECLINED } },
+            })
+
+            const updatedInvoice = await Invoice.getOne(adminClient, { id: invoice.id })
+
+            expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
         })
     })
 })

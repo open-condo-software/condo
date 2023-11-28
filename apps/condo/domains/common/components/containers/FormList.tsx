@@ -476,7 +476,7 @@ const BaseModalForm: React.FC<IBaseModalFormProps> = ({
                         handleSaveRef.current = handleSave
                         return (
                             <>
-                                {typeof children === 'function' ? children(form) : children}
+                                {typeof children === 'function' ? children({ form, handleSave }) : children}
                             </>
                         )
                     }

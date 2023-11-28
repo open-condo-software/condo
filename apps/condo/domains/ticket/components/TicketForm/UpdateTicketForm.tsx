@@ -8,6 +8,7 @@ import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
 import { Loader } from '@condo/domains/common/components/Loader'
+import { Invoice } from '@condo/domains/marketplace/utils/clientSchema'
 import { BaseTicketForm } from '@condo/domains/ticket/components/BaseTicketForm'
 import { TicketSubmitButton } from '@condo/domains/ticket/components/BaseTicketForm/TicketSubmitButton'
 import { useTicketFormContext } from '@condo/domains/ticket/components/TicketForm/TicketFormContext'
@@ -90,15 +91,31 @@ interface IUpdateTicketForm {
 
 export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
     const { replace } = useRouter()
-    const { obj, loading, refetch, error } = Ticket.useObject({ where: { id } })
+    const { obj, loading: ticketLoading, refetch, error } = Ticket.useObject({ where: { id } })
     const { objs: files, refetch: refetchFiles } = TicketFile.useObjects({ where: { ticket: { id } } })
-    const { organization, link } = useOrganization()
+    const { objs: invoices, loading: invoicesLoading } = Invoice.useObjects({ where: { ticket: { id } } })
+    const { link } = useOrganization()
 
     // no redirect after mutation as we need to wait for ticket files to save
     const action = Ticket.useUpdate({})
-    const updateAction = async (value) => action({
-        ...Ticket.formValuesProcessor(value),
-    }, obj)
+    const updateInvoiceAction = Invoice.useUpdate({})
+    const updateAction = async (values) => {
+        const { invoices, ...ticketValues } = values
+
+        const ticket = await action({
+            ...Ticket.formValuesProcessor(ticketValues),
+        }, obj)
+
+        if (!isEmpty(invoices)) {
+            for (const invoiceId of invoices) {
+                await updateInvoiceAction({
+                    ticket: { connect: { id: ticket.id } },
+                }, { id: invoiceId })
+            }
+        }
+
+        return ticket
+    }
 
     useEffect(() => {
         refetch()
@@ -111,6 +128,16 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
 
     const autoAssign = isEmpty(ticketAssignee) && ticketSourceType === TICKET_SOURCE_TYPES.MOBILE_APP
 
+    const initialValues = useMemo(() => {
+        const result = { ...Ticket.convertToFormState(obj) }
+        if (invoices) {
+            result['invoices'] = invoices.map(invoice => invoice.id)
+        }
+
+        return result
+    }, [invoices, obj])
+
+    const loading = ticketLoading || invoicesLoading
     if (error || loading) {
         return (
             <>
@@ -124,8 +151,8 @@ export const UpdateTicketForm: React.FC<IUpdateTicketForm> = ({ id }) => {
         <BaseTicketForm
             autoAssign={autoAssign}
             action={updateAction}
-            initialValues={Ticket.convertToFormState(obj)}
-            organization={organization}
+            initialValues={initialValues}
+            organization={get(obj, 'organization')}
             role={link.role}
             files={files}
             afterActionCompleted={(ticket) => {

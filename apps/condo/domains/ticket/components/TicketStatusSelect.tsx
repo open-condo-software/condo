@@ -88,7 +88,8 @@ export const TicketStatusSelect = ({ ticket, onUpdate, organization, employee, .
         })
     }, [updateTicketStatus])
 
-    const { cancelTicketModal, openModal: openCancelModal } = useTicketCancelModal(updateTicket)
+    const ticketId = get(ticket, 'id')
+    const { cancelTicketModal, openModal: openCancelModal } = useTicketCancelModal(updateTicket, ticketId)
     const { deferTicketModal, openModal: openTicketDeferModal } = useTicketDeferModal(updateDeferredTicket)
 
     const options = useMemo(() => sortStatusesByType(statuses).map((status) => {

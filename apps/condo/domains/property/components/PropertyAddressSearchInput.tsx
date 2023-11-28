@@ -1,13 +1,11 @@
 /** @jsx jsx */
 import { grey } from '@ant-design/colors'
-import { Organization, Property } from '@app/condo/schema'
+import { Property } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import { Select, SelectProps } from 'antd'
-import get from 'lodash/get'
-import React, { CSSProperties, Dispatch, SetStateAction, useCallback } from 'react'
+import React, { CSSProperties, useCallback } from 'react'
 
 import { useApolloClient } from '@open-condo/next/apollo'
-
 
 import { BaseSearchInput } from '@condo/domains/common/components/BaseSearchInput'
 import { renderHighlightedPart } from '@condo/domains/common/components/Table/Renders'
@@ -15,17 +13,16 @@ import { TextHighlighter } from '@condo/domains/common/components/TextHighlighte
 import { QUERY_SPLIT_REGEX } from '@condo/domains/common/constants/regexps'
 import { searchProperty, searchSingleProperty } from '@condo/domains/ticket/utils/clientSchema/search'
 
+
 type IAddressSearchInput = SelectProps<string> & {
-    organization: Organization
-    setIsMatchSelectedProperty?: Dispatch<SetStateAction<boolean>>
+    organizationId: string
 }
 
 const SELECT_OPTION_STYLE: CSSProperties = { direction: 'rtl', textAlign: 'left', color: grey[6] }
 
 export const PropertyAddressSearchInput: React.FC<IAddressSearchInput> = (props) => {
-    const { organization, disabled } = props
+    const { organizationId, disabled } = props
     const client = useApolloClient()
-    const organizationId = get(organization, 'id')
     const initialValueGetter = useCallback(
         (value) => {
             return searchSingleProperty(client, value, organizationId).then((property: Property) => {

@@ -16,7 +16,8 @@ const TICKET_SUBMITTING_FORM_RESIDENT_MOBILE_APP = 'ticket-submitting-from-resid
 const SUBMIT_ONLY_PROGRESSION_METER_READINGS = 'submit-only-progression-meter-readings'
 const SETTINGS_NEW_EMPLOYEE_ROLE_TABLE = 'settings-new-employee-role-table'
 const BIGGER_LIMIT_FOR_IMPORT = 'bigger-limit-for-import'
-const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK = 'send-billing-receipts-on-payday-remainder-task'
+const SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK = 'send-billing-receipts-on-payday-remainder-task'
+const MARKETPLACE = 'marketplace'
 
 module.exports = {
     SMS_AFTER_TICKET_CREATION,
@@ -37,5 +38,6 @@ module.exports = {
     SUBMIT_ONLY_PROGRESSION_METER_READINGS,
     SETTINGS_NEW_EMPLOYEE_ROLE_TABLE,
     BIGGER_LIMIT_FOR_IMPORT,
-    SEND_BILLING_RECEIPTS_ON_PAYDAY_REMINDER_TASK,
+    SEND_BILLING_RECEIPTS_ON_PAYDAY_REMAINDER_TASK,
+    MARKETPLACE,
 }

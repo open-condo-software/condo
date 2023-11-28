@@ -8,8 +8,8 @@ import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 
-
 import { PageFieldRow } from '@condo/domains/common/components/PageFieldRow'
+
 
 const CLASSIFIER_VALUE_STYLE = { fontSize: '16px' }
 
@@ -51,7 +51,6 @@ export const TicketClassifierField: React.FC<TicketClassifierFieldProps> = ({ ti
                             <Breadcrumb.Item key={name}>
                                 <Typography.Text
                                     style={CLASSIFIER_VALUE_STYLE}
-                                    strong
                                     type={getClassifierTextType(index)}
                                 >
                                     {name}
