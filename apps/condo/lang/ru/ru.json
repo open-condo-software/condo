@@ -1943,6 +1943,7 @@
   "Charged": "Начислено",
   "NoReceiptsLoaded": "Данные еще не загружены в нашу систему, или их загрузка находится в процессе",
   "BillingServiceName": "Услуга",
+  "BillingServiceAmount": "Стоимость",
   "MoreReceiptsWithZeroCharge": "{count, plural, one {# услуга} few {# услуги} many {# услуг} other {# услуг}} с нулевыми начислениями",
   "Volume": "Объём",
   "ServicesUnitsShort": "ЕИ",
@@ -2476,5 +2477,15 @@
   "api.marketplace.invoice.error.editPublishedForbidden": "У счёта в статусе \"Готов к оплате\" можно обновить только статус в значения \"Отменён\" или \"Оплачен\"",
   "api.marketplace.invoice.error.clientDataDoesNotMatchTicket": "Адрес и данные контакта должны совпадать с данными из заявки, к которой привязан счёт",
   "api.marketplace.invoice.error.forbidUpdateTicket": "Нельзя обновить заявку у счёта, который уже прикреплён к другой заявке",
-  "api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden": "Счет без определенных цен не может быть готов к оплате"
+  "api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden": "Счет без определенных цен не может быть готов к оплате",
+  "acquiringReceipt.total": "Итого",
+  "acquiringReceipt.invoice.title": "Счет №{number} от {date}",
+  "acquiringReceipt.taxRegime": "Режим налогообложения",
+  "acquiringReceipt.taxRegime.general": "ОСН",
+  "acquiringReceipt.taxRegime.simple": "УСН",
+  "acquiringReceipt.invoice.row.name": "Наименование",
+  "acquiringReceipt.invoice.row.toPay": "Цена за ед.",
+  "acquiringReceipt.invoice.row.count": "Кол-во",
+  "acquiringReceipt.invoice.row.vatPercent": "НДС",
+  "acquiringReceipt.invoice.row.amount": "Стоимость"
 }

@@ -65,13 +65,13 @@ const { ISO_CODES } = require('@condo/domains/common/constants/currencies')
 const { createTestContact } = require('@condo/domains/contact/utils/testSchema')
 const {
     INVOICE_CONTEXT_STATUS_FINISHED, INVOICE_STATUS_DRAFT, INVOICE_STATUS_PUBLISHED,
-    INVOICE_CONTEXT_STATUS_INPROGRESS, INVOICE_STATUS_PAID,
+    INVOICE_CONTEXT_STATUS_INPROGRESS, INVOICE_STATUS_PAID, VAT_OPTIONS,
 } = require('@condo/domains/marketplace/constants')
 const {
     createTestInvoiceContext,
     createTestInvoice,
     updateTestInvoice,
-    updateTestInvoiceContext,
+    updateTestInvoiceContext, generateInvoiceRow,
 } = require('@condo/domains/marketplace/utils/testSchema')
 const { Invoice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
@@ -1296,7 +1296,7 @@ describe('RegisterMultiPaymentService', () => {
             })
         })
 
-        test('Should correctly register multipayment for receipt and invoice', async () => {
+        test('Should correctly register multiPayment for receipt and invoice', async () => {
             const {
                 acquiringIntegration,
                 organization,
@@ -1336,17 +1336,28 @@ describe('RegisterMultiPaymentService', () => {
                 unitName,
             })
 
-            const [invoiceContext, invoiceContextAttrs] = await createTestInvoiceContext(adminClient, organization, acquiringIntegration, {
+            const [invoiceContext] = await createTestInvoiceContext(adminClient, organization, acquiringIntegration, {
                 status: INVOICE_CONTEXT_STATUS_FINISHED,
                 implicitFeePercent: '5',
                 recipient: createTestRecipient(),
             })
-            const [invoice] = await createTestInvoice(staffClient, invoiceContext, {
+            const [invoice1] = await createTestInvoice(staffClient, invoiceContext, {
                 property: { connect: { id: property.id } },
                 unitType,
                 unitName,
                 contact: { connect: { id: contact.id } },
                 status: INVOICE_STATUS_PUBLISHED,
+            })
+            const [invoice2] = await createTestInvoice(staffClient, invoiceContext, {
+                property: { connect: { id: property.id } },
+                unitType,
+                unitName,
+                contact: { connect: { id: contact.id } },
+                status: INVOICE_STATUS_PUBLISHED,
+                rows: [
+                    generateInvoiceRow({ vatPercent: String(VAT_OPTIONS[1]) }),
+                    generateInvoiceRow({ vatPercent: String(VAT_OPTIONS[1]) }),
+                ],
             })
 
             const receiptsPayload = [{
@@ -1355,7 +1366,7 @@ describe('RegisterMultiPaymentService', () => {
             }]
 
             const [{ multiPaymentId }] = await registerMultiPaymentByTestClient(residentClient, receiptsPayload, {
-                invoices: [pick(invoice, 'id')],
+                invoices: [pick(invoice1, 'id'), pick(invoice2, 'id')],
             })
 
             const multiPayment = await MultiPayment.getOne(adminClient, { id: multiPaymentId })
@@ -1391,7 +1402,7 @@ describe('RegisterMultiPaymentService', () => {
                 await updateTestPayment(adminClient, id, { status: PAYMENT_WITHDRAWN_STATUS })
             }
 
-            const paidInvoice = await Invoice.getOne(adminClient, { id: invoice.id })
+            const paidInvoice = await Invoice.getOne(adminClient, { id: invoice1.id })
 
             expect(paidInvoice).toMatchObject({ status: INVOICE_STATUS_PAID })
         })
