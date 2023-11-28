@@ -974,9 +974,7 @@ describe('Invoice', () => {
             const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
             await expectToThrowGQLError(async () => {
-                await updateTestInvoice(adminClient, invoice.id, {
-                    toPay: faker.random.word(),
-                })
+                await updateTestInvoice(adminClient, invoice.id, { rows: generateInvoiceRows() })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_EDIT_PUBLISHED',
