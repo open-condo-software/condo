@@ -19,10 +19,14 @@ jobs:
     outputs:
       DOCKER_IMAGE_FULL: ${{ env.DOCKER_IMAGE_FULL }}
     steps:
-      - run: echo "type=registry,ref=${{ vars.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' )"
       - name: Prepare runner
         run: |
           sudo apt update && sudo apt install -y git
+      - name: Set registry variables
+        run: |
+          echo "DOCKER_CACHE_FROM='type=registry,ref=${{ vars.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' )' >> $GITHUB_ENV"
+          echo "DOCKER_CACHE_TO='type=registry,ref=${{ vars.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true'" >> $GITHUB_ENV
+      - run: echo ${{ env.DOCKER_CACHE_FROM }} ${{ env.DOCKER_CACHE_TO }}
       - name: Checkout code
         uses: actions/checkout@v3
         with:
