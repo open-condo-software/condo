@@ -1,7 +1,7 @@
 ARG REGISTRY=docker.io
 
-FROM ${REGISTRY}/python:3.8-buster AS python
-FROM ${REGISTRY}/node:16-buster AS node
+FROM ${REGISTRY}/python:3.8-slim-buster AS python
+FROM ${REGISTRY}/node:16-buster-slim AS node
 
 FROM ${REGISTRY}/buildpack-deps:buster AS base
 
