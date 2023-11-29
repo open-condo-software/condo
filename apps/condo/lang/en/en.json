@@ -1362,6 +1362,8 @@
   "pages.condo.marketplace.marketItem.form.field.price.tooltip": "Including commission of our service",
   "pages.condo.marketplace.marketItem.form.field.addPriceScope": "Add price for other properties",
   "pages.condo.marketplace.marketItem.mobileAppPreview.title": "This is what looks in resident's app",
+  "pages.condo.marketplace.marketItem.notFoundError.title": "Market item not found",
+  "pages.condo.marketplace.marketItem.notFoundError.description": "No market item with such ID in your organization",
   "news.fields.units.label": "Flat",
   "news.fields.units.message": "To select flats, delete the selected entrances",
   "news.fields.sections.label": "Entrance",

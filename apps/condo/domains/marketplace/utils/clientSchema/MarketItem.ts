@@ -3,19 +3,23 @@
  */
 
 import {
-    Invoice, InvoiceContext, InvoiceCreateInput, InvoiceUpdateInput,
     MarketItem,
     MarketItemCreateInput,
     MarketItemUpdateInput,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
-import { get, isNull, isUndefined, pickBy } from 'lodash'
-import isEmpty from 'lodash/isEmpty'
+import { get } from 'lodash'
+import isUndefined from 'lodash/isUndefined'
+import omit from 'lodash/omit'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
 import { MarketItem as MarketItemGQL } from '@condo/domains/marketplace/gql'
 
+
+const RELATIONS = ['marketCategory']
+const DISCONNECT_ON_NULL = []
+const IGNORE_FORM_FIELDS = ['parentCategory']
 
 type PriceFormValuesType = {
     properties?: string[]
@@ -27,20 +31,47 @@ export type MarketItemFormValuesType = {
     name?: string
     sku?: string
     parentCategory?: string
-    category?: string
+    marketCategory?: string
     description?: string
     files?: string[]
     prices?: PriceFormValuesType[]
 }
 
 export function convertToFormState (marketItem: MarketItem): MarketItemFormValuesType | undefined {
-    return {}
+    const result: MarketItemFormValuesType = {}
+
+    for (const key of Object.keys(marketItem)) {
+        const relationId = get(marketItem[key], 'id')
+
+        result[key] = relationId || marketItem[key]
+
+        if (key === 'marketCategory') {
+            result['parentCategory'] = get(marketItem, 'marketCategory.parentCategory.id')
+        }
+    }
+
+    return result
 }
 
 type MarketItemMutationType = MarketItemUpdateInput | MarketItemCreateInput
 
 export function formValuesProcessor (formValues: MarketItemFormValuesType): MarketItemMutationType {
     const result: MarketItemMutationType = {}
+
+    for (const key of Object.keys(formValues)) {
+        if (IGNORE_FORM_FIELDS.includes(key)) continue
+        const isRelation = RELATIONS.includes(key)
+
+        if (isRelation) {
+            if (DISCONNECT_ON_NULL.includes(key) && formValues[key] === null) {
+                result[key] = { disconnectAll: true }
+            } else if (formValues[key]) {
+                result[key] = { connect: { id: formValues[key] } }
+            }
+        } else if (!isUndefined(formValues[key])) {
+            result[key] = formValues[key]
+        }
+    }
 
     return result
 }

@@ -1,10 +1,12 @@
 import { Typography, Row, Col } from 'antd'
 import { Gutter } from 'antd/es/grid/row'
+import get from 'lodash/get'
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { MarketItemForm } from '@condo//domains/marketplace/components/MarketItem/MarketItemForm'
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
@@ -19,14 +21,27 @@ const UpdateInvoicePage = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateMarketItemTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.update.title' })
+    const NotFoundErrorTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.notFoundError.title' })
+    const NotFoundDescription = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.notFoundError.description' })
 
     const router = useRouter()
+    const { organization } = useOrganization()
     const { query: { id } } = router as { query: { [key: string]: string } }
     const { obj: marketItem, loading, error } = MarketItem.useObject({
         where: {
             id,
+            organization: { id: get(organization, 'id', null) },
         },
     })
+
+    if (!marketItem && !error && !loading) {
+        return (
+            <LoadingOrErrorPage
+                title={NotFoundErrorTitle}
+                error={NotFoundDescription}
+            />
+        )
+    }
 
     if (loading || error) {
         return (

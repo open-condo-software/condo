@@ -108,13 +108,13 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
     useEffect(() => {
         if (subCategoriesOptions.length === 1) {
             form.setFieldsValue({
-                category: subCategoriesOptions[0].value,
+                marketCategory: subCategoriesOptions[0].value,
             })
         }
     }, [form, subCategoriesOptions])
 
     const handleChangeParentCategory = useCallback(() => form.setFieldsValue({
-        category: null,
+        marketCategory: null,
     }), [form])
 
     return (
@@ -138,7 +138,7 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
             </Col>
             <Col span={24} hidden={subCategoriesOptions.length < 2}>
                 <Form.Item
-                    name='category'
+                    name='marketCategory'
                     label={SubCategoryFieldMessage}
                     required
                     rules={[requiredValidator]}
@@ -167,7 +167,7 @@ const TextAreaWithCounter = styled(Input.TextArea)`
   }
 `
 
-const MarketItemFields = ({ form }) => {
+const MarketItemFields = ({ form, marketItemId }) => {
     const intl = useIntl()
     const NameFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.name' })
     const SkuFieldMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.sku' })
@@ -178,12 +178,13 @@ const MarketItemFields = ({ form }) => {
     const { organization } = useOrganization()
     const { refetch: fetchMarketItemsCount } = MarketItem.useCount({}, { skip: true })
 
-    const { requiredValidator } = useValidations()
+    const { requiredValidator, maxLengthValidator } = useValidations()
     const uniqueSkuValidator: Rule = useMemo(() => ({
         validateTrigger: FORM_VALIDATE_TRIGGER,
         validator: async (_, value) => {
             const result = await fetchMarketItemsCount({
                 where: {
+                    id_not: marketItemId,
                     organization: { id: get(organization, 'id', null) },
                     sku: value,
                 },
@@ -194,7 +195,7 @@ const MarketItemFields = ({ form }) => {
             if (marketItemsWithSameSkuCount > 0) return Promise.reject(SkuTooltipMessage)
             return Promise.resolve()
         },
-    }), [SkuTooltipMessage, fetchMarketItemsCount, organization])
+    }), [SkuTooltipMessage, fetchMarketItemsCount, marketItemId, organization])
 
     // до "Цена и видимость услуги"
     return (
@@ -214,7 +215,7 @@ const MarketItemFields = ({ form }) => {
                     name='sku'
                     label={SkuFieldMessage}
                     required
-                    rules={[requiredValidator, uniqueSkuValidator]}
+                    rules={[requiredValidator, uniqueSkuValidator, maxLengthValidator(50)]}
                     tooltip={SkuTooltipMessage}
                     validateTrigger={FORM_VALIDATE_TRIGGER}
                 >
@@ -275,18 +276,21 @@ const MarketPricesList = () => {
 
 type BaseMarketItemFormProps = {
     action: (values: MarketItemFormValuesType) => Promise<MarketItemType>
+    initialValues?: MarketItemFormValuesType
 }
 
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
-    const { children, action } = props
+    const { children, action, initialValues } = props
     const { breakpoints } = useLayoutContext()
 
+    const marketItemId = get(initialValues, 'id')
     const isSmallScreen = !breakpoints.DESKTOP_SMALL
 
     return (
         <FormWithAction
             validateTrigger={FORM_VALIDATE_TRIGGER}
             action={action}
+            initialValues={initialValues}
             {...FORM_LAYOUT_PROPS}
         >
             {
@@ -297,6 +301,7 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                 <Col span={24}>
                                     <MarketItemFields
                                         form={form}
+                                        marketItemId={marketItemId}
                                     />
                                 </Col>
                                 <Col span={24}>
