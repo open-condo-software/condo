@@ -85,7 +85,7 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             schemaDoc: 'Structured metadata obtained from the `billing data source`. Some of this data is required for use in the `receipt template`. ' +
                 'Examples of data keys: `property unit number`, `floor`, `entrance`, `is parking`',
             type: Json,
-            isRequired: true,
+            isRequired: false,
             hooks: {
                 validateInput: (args) => {
                     const { resolvedData, fieldPath, addFieldValidationError } = args
@@ -118,15 +118,20 @@ const BillingAccount = new GQLListSchema('BillingAccount', {
             }
         },
     },
+    /*
+    // TODO(dkovyazin): DOMA-7760 Turn on after clearing of duplicates
     kmigratorOptions: {
         constraints: [
             {
                 type: 'models.UniqueConstraint',
-                fields: ['context', 'globalId'],
-                name: 'billingAccount_unique_context_globalId',
+                fields: ['context', 'property', 'number'],
+                condition: 'Q(deletedAt__isnull=True)',
+                name: 'billingAccount_unique_address_number',
             },
         ],
     },
+
+    */
 })
 
 module.exports = {

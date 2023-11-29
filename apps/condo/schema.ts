@@ -68639,7 +68639,7 @@ export type RegisterBillingReceiptAccountMetaInput = {
 
 export type RegisterBillingReceiptAddressMetaInput = {
   globalId?: Maybe<Scalars['String']>;
-  addressKey?: Maybe<Scalars['String']>;
+  importId?: Maybe<Scalars['String']>;
   unitName?: Maybe<Scalars['String']>;
   unitType?: Maybe<Scalars['String']>;
 };

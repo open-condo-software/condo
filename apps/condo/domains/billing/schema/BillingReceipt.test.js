@@ -735,6 +735,105 @@ describe('BillingReceipt', () => {
                 }, '"data.services[0]"; Field "name" of required type "String!" was not provided.')
             })
         })
+        describe('Hooks', () => {
+            describe('receiver field', () => {
+                test('Should create recipient and set receiver field automatically', async () => {
+                    const [receipt, attrs] = await createTestBillingReceipt(admin, context, property, account)
+
+                    expect(attrs).not.toHaveProperty('receiver')
+                    expect(attrs).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
+                })
+                test('Should create recipient and set receiver.isApproved field automatically if billing integration is trusted and tin matches', async () => {
+                    const {
+                        context: trustedBillingContext,
+                        organization: trustedOrganization,
+                    } = await makeContextWithOrganizationAndIntegrationAsAdmin({ isTrustedBankAccountSource: true })
+                    const tin = trustedOrganization.tin
+                    const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
+                    const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
+                    const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
+
+                    expect(attrs).not.toHaveProperty('receiver')
+                    expect(attrs).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
+                    expect(receipt).toHaveProperty(['receiver', 'isApproved'], true)
+                })
+                test('Should create recipient and not set receiver.isApproved field automatically if billing integration is not trusted and tin matches', async () => {
+                    const {
+                        context: trustedBillingContext,
+                        organization: trustedOrganization,
+                    } = await makeContextWithOrganizationAndIntegrationAsAdmin({ isTrustedBankAccountSource: false })
+                    const tin = trustedOrganization.tin
+                    const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
+                    const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
+                    const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
+
+                    expect(attrs).not.toHaveProperty('receiver')
+                    expect(attrs).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
+                    expect(receipt).toHaveProperty(['receiver', 'isApproved'], false)
+                })
+                test('Should create recipient and not set receiver.isApproved field automatically if billing integration is trusted and tin do not match', async () => {
+                    const {
+                        context: trustedBillingContext,
+                        organization: trustedOrganization,
+                    } = await makeContextWithOrganizationAndIntegrationAsAdmin({ isTrustedBankAccountSource: true })
+                    const tin = trustedOrganization.tin
+                    const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
+                    const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
+                    const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin + '0' }) })
+
+                    expect(attrs).not.toHaveProperty('receiver')
+                    expect(attrs).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['recipient', 'tin'])
+                    expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
+                    expect(receipt).toHaveProperty(['receiver', 'isApproved'], false)
+                })
+                test('Should connect to existing recipient, if passed explicitly', async () => {
+                    const recipientAttrs = createTestRecipient()
+                    const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
+                    const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        recipient: receiptRecipientField,
+                        receiver: { connect: { id: recipient.id } },
+                    })
+
+                    expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
+                    expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
+                })
+                test('Should automatically connect to existing recipient, if receiver is not passed', async () => {
+                    const recipientAttrs = createTestRecipient()
+                    const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
+                    const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        recipient: receiptRecipientField,
+                    })
+
+                    expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
+                    expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
+                })
+                test('Should validate that services add up to the total sum (toPay)', async () => {
+                    const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
+                        services: generateServicesData(1, '9000'), toPay: '9000.00',
+                    })
+                    const [receipt2] = await createTestBillingReceipt(admin, context, property, account, {
+                        services: generateServicesData(1, '9000'), toPay: '9999.00',
+                    })
+                    const [receipt3] = await createTestBillingReceipt(admin, context, property, account, {
+                        services: [],
+                    })
+
+                    expect(receipt).toHaveProperty(['invalidServicesError'], null)
+                    expect(receipt2).toHaveProperty(['invalidServicesError'],
+                        'Services sum (9000) does not add up to the toPay (9999) amount correctly')
+                    expect(receipt3).toHaveProperty(['invalidServicesError'], null)
+                })
+            })
+        })
         describe('toPay', () => {
             test('Must be Decimal', async () => {
                 const payload = {
@@ -907,94 +1006,6 @@ describe('BillingReceipt', () => {
         })
     })
     describe('Hooks', () => {
-        describe('receiver field', () => {
-            test('Should create recipient and set receiver field automatically', async () => {
-                const [receipt, attrs] = await createTestBillingReceipt(admin, context, property, account)
-
-                expect(attrs).not.toHaveProperty('receiver')
-                expect(attrs).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
-            })
-            test('Should create recipient and set receiver.isApproved field automatically if billing integration is trusted and tin matches', async () => {
-                const { context: trustedBillingContext, organization: trustedOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin( { isTrustedBankAccountSource: true })
-                const tin = trustedOrganization.tin
-                const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
-                const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
-                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
-
-                expect(attrs).not.toHaveProperty('receiver')
-                expect(attrs).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'isApproved'], true)
-            })
-            test('Should create recipient and not set receiver.isApproved field automatically if billing integration is not trusted and tin matches', async () => {
-                const { context: trustedBillingContext, organization: trustedOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin( { isTrustedBankAccountSource: false })
-                const tin = trustedOrganization.tin
-                const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
-                const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
-                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin }) })
-
-                expect(attrs).not.toHaveProperty('receiver')
-                expect(attrs).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'isApproved'], false)
-            })
-            test('Should create recipient and not set receiver.isApproved field automatically if billing integration is trusted and tin do not match', async () => {
-                const { context: trustedBillingContext, organization: trustedOrganization } = await makeContextWithOrganizationAndIntegrationAsAdmin( { isTrustedBankAccountSource: true })
-                const tin = trustedOrganization.tin
-                const [trustedProperty] = await createTestBillingProperty(admin, trustedBillingContext)
-                const [trustedAccount] = await createTestBillingAccount(admin, trustedBillingContext, trustedProperty)
-                const [receipt, attrs] = await createTestBillingReceipt(admin, trustedBillingContext, trustedProperty, trustedAccount, { recipient: createTestRecipient({ tin: tin + '0' }) })
-
-                expect(attrs).not.toHaveProperty('receiver')
-                expect(attrs).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['recipient', 'tin'])
-                expect(receipt).toHaveProperty(['receiver', 'tin'], receipt.recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'isApproved'], false)
-            })
-            test('Should connect to existing recipient, if passed explicitly', async () => {
-                const recipientAttrs = createTestRecipient()
-                const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
-                const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
-                const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    recipient: receiptRecipientField,
-                    receiver: { connect: { id: recipient.id } },
-                })
-
-                expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
-            })
-            test('Should automatically connect to existing recipient, if receiver is not passed', async () => {
-                const recipientAttrs = createTestRecipient()
-                const receiptRecipientField = pick(recipientAttrs, ['tin', 'bic', 'iec', 'bankAccount'])
-                const [recipient] = await createTestBillingRecipient(admin, context, recipientAttrs)
-                const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    recipient: receiptRecipientField,
-                })
-
-                expect(receipt).toHaveProperty(['recipient', 'tin'], recipient.tin)
-                expect(receipt).toHaveProperty(['receiver', 'id'], recipient.id)
-            })
-            test('Should validate that services add up to the total sum (toPay)', async () => {
-                const [receipt] = await createTestBillingReceipt(admin, context, property, account, {
-                    services: generateServicesData(1, '9000'), toPay: '9000.00',
-                })
-                const [receipt2] = await createTestBillingReceipt(admin, context, property, account, {
-                    services: generateServicesData(1, '9000'), toPay: '9999.00',
-                })
-                const [receipt3] = await createTestBillingReceipt(admin, context, property, account, {
-                    services: [],
-                })
-
-                expect(receipt).toHaveProperty(['invalidServicesError'], null)
-                expect(receipt2).toHaveProperty(['invalidServicesError'],
-                    'Services sum (9000) does not add up to the toPay (9999) amount correctly')
-                expect(receipt3).toHaveProperty(['invalidServicesError'], null)
-            })
-        })
         describe('toPayDetails field', () => {
             const toPayDetails = {
                 formula: 'charge + penalty',

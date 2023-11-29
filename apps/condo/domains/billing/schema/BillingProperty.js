@@ -30,9 +30,9 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         globalId: {
             schemaDoc: 'A well-known universal identifier that allows you to identify the same objects in different systems. It may differ in different countries. Example: for Russia, the FIAS ID is used',
             type: Text,
-            isRequired: true,
+            isRequired: false,
             kmigratorOptions: {
-                null: false,
+                null: true,
             },
         },
 
@@ -47,7 +47,7 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
                 'Examples of data keys: `total space of building`, `property beginning of exploitation year`, `has cultural heritage status`, `number of underground floors`, `number of above-ground floors`',
             // TODO(pahaz): research keys!
             type: Json,
-            isRequired: true,
+            isRequired: false,
         },
 
         property: {
@@ -79,15 +79,19 @@ const BillingProperty = new GQLListSchema('BillingProperty', {
         delete: false,
         auth: true,
     },
+    /*
+    // TODO(dkovyazin): DOMA-7760 Turn on after clearing of duplicates
     kmigratorOptions: {
-        constraints: [
-            {
-                type: 'models.UniqueConstraint',
-                fields: ['context', 'globalId'],
-                name: 'billingProperty_unique_context_globalId',
-            },
-        ],
-    },
+       constraints: [
+           {
+               type: 'models.UniqueConstraint',
+               fields: ['context', 'addressKey'],
+               condition: 'Q(deletedAt__isnull=True)',
+               name: 'billingProperty_unique_address',
+           },
+       ],
+   }
+   */
 })
 
 module.exports = {

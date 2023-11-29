@@ -142,8 +142,11 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
         services: SERVICES_FIELD,
 
-        // TODO(pahaz): remove this field! we already have `receiver` field! And we can save this date in raw/meta field
-        recipient: RECIPIENT_FIELD,
+        // TODO(abshnko): DOMA-7656 remove this field! we already have `receiver` field! And we can save this date in raw/meta field
+        recipient: {
+            ...RECIPIENT_FIELD,
+            isRequired: false,
+        },
 
         // TODO @toplenboren (Doma-2241) make this not null!
         receiver: {
@@ -160,16 +163,17 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             type: Virtual,
             isRequired: false,
             resolver: async (receipt) => {
-                const toPay = Big(get(receipt, 'toPay'))
+                const toPayAmount = Big(get(receipt, 'toPay') || 0)
+                const paidAmount = Big(get(receipt, 'paid') || 0)
                 const services = get(receipt, 'services', [])
 
                 const servicesTotal = services
                     ? services.reduce((total, { toPay = 0 }) => Big(total).add(Big(toPay)), Big(0))
                     : Big(0)
 
-                const servicesAreValid = servicesTotal.cmp(toPay) === 0
+                const servicesAreValid = servicesTotal.cmp(toPayAmount.add(paidAmount)) === 0
 
-                if (services && services.length > 0 && !servicesAreValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${toPay}) amount correctly`
+                if (services && services.length > 0 && !servicesAreValid) return `Services sum (${servicesTotal}) does not add up to the toPay (${toPayAmount}) amount correctly`
 
                 return null
             },
@@ -218,12 +222,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
 
             return resolvedData
         },
-
-        beforeChange: async ({
-            existingItem,
-            resolvedData,
-            context,
-        }) => {
+        beforeChange: async ({ existingItem, resolvedData, context }) => {
             const { sender: { fingerprint } } = resolvedData
 
             // Handle cases when we do not need to search for BillingRecipient
@@ -252,7 +251,7 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
                 tin: get(recipient, 'tin'),
                 bic: get(recipient, 'bic'),
                 bankAccount: get(recipient, 'bankAccount'),
-                deletedAt: null, // TODO(zuch): DOMA-2395 Move deletedAt filter to getOne
+                deletedAt: null,
             })
             const { bankName = '', territoryCode = '', offsettingAccount = '' } = recipient
             if (sameRecipient) {

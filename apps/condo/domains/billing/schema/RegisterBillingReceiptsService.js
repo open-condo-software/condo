@@ -6,77 +6,37 @@ const Big = require('big.js')
 const dayjs = require('dayjs')
 const { get, omit, isEqual, isString } = require('lodash')
 
-const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
+const { GQLError } = require('@open-condo/keystone/errors')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { find, getById, GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/RegisterBillingReceiptsService')
-const { CategoryResolver } = require('@condo/domains/billing/schema/helpers/categoryResolver')
+const {
+    RECEIPTS_LIMIT,
+    ERRORS,
+} = require('@condo/domains/billing/constants/registerBillingReceiptService')
+const { CategoryResolver: OldCategoryResolver } = require('@condo/domains/billing/schema/helpers/categoryResolver')
+const {
+    CategoryResolver,
+    RecipientResolver,
+    PropertyResolver,
+    AccountResolver,
+    PeriodResolver,
+    ReceiptResolver,
+} = require('@condo/domains/billing/schema/resolvers')
 const { BillingAccount, BillingProperty, BillingReceipt } = require('@condo/domains/billing/utils/serverSchema')
-const { NOT_FOUND, WRONG_FORMAT, WRONG_VALUE } = require('@condo/domains/common/constants/errors')
+const { BillingIntegrationOrganizationContext: BillingContextApi } = require('@condo/domains/billing/utils/serverSchema')
 const { getAddressSuggestions } = require('@condo/domains/common/utils/serverSideAddressApi')
 
 const { findPropertyByOrganizationAndAddress } = require('./helpers/propertyFinder')
 
-const RECEIPTS_LIMIT = 50
+const appLogger = getLogger('condo')
+const registerReceiptLogger = appLogger.child({ module: 'register-billing-receipts' })
+
+const OLD_RECEIPTS_LIMIT = 50
 
 // This is a percent of matched tokens while searching through the organization's properties
 const PROPERTY_SCORE_TO_PASS = 95
-
-/**
- * List of possible errors, that this custom schema can throw
- * They will be rendered in documentation section in GraphiQL for this custom schema
- */
-const ERRORS = {
-    BILLING_CONTEXT_NOT_FOUND: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'context'],
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'Provided BillingIntegrationOrganizationContext is not found',
-    },
-    BILLING_CATEGORY_NOT_FOUND: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts', '[]', 'category'],
-        code: BAD_USER_INPUT,
-        type: NOT_FOUND,
-        message: 'Provided BillingCategory is not found for some receipts',
-    },
-    WRONG_YEAR: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts', '[]', 'year'],
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'Year is wrong for some receipts. Year should be greater then 0. Example: 2022',
-    },
-    WRONG_MONTH: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts', '[]', 'month'],
-        code: BAD_USER_INPUT,
-        type: WRONG_FORMAT,
-        message: 'Month is wrong for some receipts. Month should be greater then 0 and less then 13. Example: 1 - January. 12 - December',
-    },
-    ADDRESS_EMPTY_VALUE: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts', '[]', 'address'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'Address is empty for some receipts',
-    },
-    ADDRESS_NOT_RECOGNIZED_VALUE: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts', '[]', 'address'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: 'Address is not recognized for some receipts. We tried to recognize address, but failed. You can either double check address field or manually provide a normalizedAddress',
-    },
-    RECEIPTS_LIMIT_HIT: {
-        mutation: 'registerBillingReceipts',
-        variable: ['data', 'receipts'],
-        code: BAD_USER_INPUT,
-        type: WRONG_VALUE,
-        message: `Too many receipts in one query! We support up to ${RECEIPTS_LIMIT} receipts`,
-    },
-}
 
 const getBillingPropertyKey = ({ address }) => address
 const getBillingAccountKey = ({ unitName, unitType, number, property }) => [unitName, unitType, number, getBillingPropertyKey(property)].join('_')
@@ -153,21 +113,15 @@ const syncBillingAccounts = async (context, accounts, { properties, billingConte
     return [ ...newAccountsWithData, ...existingAccountsWithData ]
 }
 
-const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex) => {
+const convertBillingReceiptToGQLInput = (item, propertiesIndex, accountsIndex, receiverId) => {
     item.category = { connect: { id: get(item, ['category', 'id']) } }
     item.context = { connect: { id: get(item, ['context', 'id']) } }
 
     item.property = { connect: { id: get(propertiesIndex[getBillingPropertyKey(item.property)], 'id') } }
     item.account = { connect: { id: get(accountsIndex[getBillingAccountKey(item.account)], 'id') } }
+    item.receiver = { connect: { id: item.receiverId } }
 
-    item.recipient = {
-        tin: item.tin,
-        ...item.iec && { iec: item.iec },
-        bankAccount: item.bankAccount,
-        bic: item.bic,
-    }
-
-    return omit(item, ['tin', 'iec', 'bic', 'bankAccount'])
+    return omit(item, ['receiverId'])
 }
 
 const syncBillingReceipts = async (context, receipts, { accounts, properties, billingContextId } ) => {
@@ -213,11 +167,10 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
         const receiptKey = getBillingReceiptKey(
             {
                 ...item,
-                ...{ recipient: { tin: item.tin, iec: item.iec, bic: item.bic, bankAccount: item.bankAccount } } },
+                ...{ recipient: item.recipient } },
         )
 
         const receiptExists = Reflect.has(receiptsIndex, receiptKey)
-
         if (!receiptExists) {
             receiptsToAdd.push(item)
         } else {
@@ -237,14 +190,8 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
             const newToPayDetails = item.toPayDetails ? item.toPayDetails : null
             const toPayDetailsIsEqual = isEqual(existingToPayDetails, newToPayDetails)
 
-            const existingRecipient = existingReceiptByKey.recipient
-            const newRecipient = {
-                tin: item.tin,
-                bic: item.bic,
-                iec: item.iec,
-                bankAccount: item.bankAccount,
-            }
-            const recipientIsEqual = isEqual(existingRecipient, newRecipient)
+            const existingReceiver = existingReceiptByKey.receiver
+            const recipientIsEqual = isEqual(existingReceiver, item.receiverId)
 
             const shouldUpdateReceipt = !toPayIsEqual || !servicesIsEqual || !toPayDetailsIsEqual || !recipientIsEqual
 
@@ -268,7 +215,7 @@ const syncBillingReceipts = async (context, receipts, { accounts, properties, bi
     for (const item of receiptsToUpdate) {
         const itemId = item.id
         const billingReceiptGQLInput = convertBillingReceiptToGQLInput(item, propertiesIndex, accountsIndex)
-        const updatableItem = omit(billingReceiptGQLInput, ['context', 'id', 'receiver'])
+        const updatableItem = omit(billingReceiptGQLInput, ['context', 'id'])
         const updatedReceipt = await BillingReceipt.update(context, itemId, updatableItem)
         updatedReceipts.push(updatedReceipt)
     }
@@ -282,7 +229,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             access: true,
             type: `input RegisterBillingReceiptAddressMetaInput {
                 globalId: String
-                addressKey: String
+                importId: String
                 unitName: String
                 unitType: String
             }`,
@@ -345,11 +292,66 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
             schema: 'registerBillingReceipts(data: RegisterBillingReceiptsInput!): [BillingReceipt]',
             resolver: async (parent, args, context = {}) => {
                 const { data: { context: billingContextInput, receipts: receiptsInput, dv, sender } } = args
+                // New flow description:
+                // 1. Normalize addresses
+                // 2. Collect data for BillingProblems
+                // 3. Create BillingRecipients
+                // 4. Auto-detect BillingCategory
+                const isNewFlow = !receiptsInput.find(({ normalizedAddress }) => normalizedAddress)
+
+                if (isNewFlow) {
+                    if (receiptsInput.length > RECEIPTS_LIMIT) {
+                        throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)
+                    }
+                    const { id: billingContextId } = billingContextInput
+                    const billingContext = await BillingContextApi.getOne(context, { id: billingContextId })
+                    if (!billingContextId || !billingContext) {
+                        throw new GQLError(ERRORS.BILLING_CONTEXT_NOT_FOUND, context)
+                    }
+                    // preserve order for response
+                    // errors are critical and receipt will be skipped, problems can be fixed later
+                    let receiptIndex = Object.fromEntries(receiptsInput.map((receiptInput, index) =>
+                        ([index, { ...receiptInput, error: null, problems: [] }])
+                    ))
+                    let errorsIndex = {}
+                    const debug = []
+                    const chain = [PeriodResolver, RecipientResolver, PropertyResolver, AccountResolver, CategoryResolver, ReceiptResolver]
+                    for (const Worker of chain) {
+                        try {
+                            const worker = new Worker({ context, billingContext })
+                            await worker.init()
+                            const { errorReceipts, receipts } = await worker.processReceipts(receiptIndex)
+                            debug.push(...worker.debugMessages)
+                            errorsIndex = { ...errorsIndex, ...errorReceipts }
+                            receiptIndex = receipts
+                        } catch (error) {
+                            registerReceiptLogger.error({ msg: 'Resolver fail', payload: { error } })
+                        }
+                    }
+                    registerReceiptLogger.info({ msg: 'register-receipts-profiler', debug, context: billingContextInput, receiptsCount: receiptsInput.length })
+                    const receiptIds = Object.values(receiptIndex).map(({ id }) => id)
+
+                    const receipts = receiptIds.length ? await find('BillingReceipt', { id_in: receiptIds }) : []
+                    const receiptsIndex = Object.fromEntries(receipts.map(receipt => ([receipt.id, receipt])))
+                    return Object.values({ ...receiptIndex, ...errorsIndex }).map(idOrError => {
+                        const id = get(idOrError, 'id')
+                        if (id) {
+                            return Promise.resolve(receiptsIndex[id])
+                        } else {
+                            return Promise.reject(idOrError)
+                        }
+                    })
+                }
+
+
+
+
+                // Old way - will be removed
                 const partialErrors = []
 
                 // Step 0:
                 // Perform basic validations:
-                if (receiptsInput.length > RECEIPTS_LIMIT) {
+                if (receiptsInput.length > OLD_RECEIPTS_LIMIT) {
                     throw new GQLError(ERRORS.RECEIPTS_LIMIT_HIT, context)
                 }
 
@@ -361,25 +363,27 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
 
                 // Step 1:
                 // Parse properties, accounts and receipts from input
-                const categoryResolver = new CategoryResolver()
+                const categoryResolver = new OldCategoryResolver()
                 await categoryResolver.loadCategories(context)
 
                 const propertyIndex = {}
                 const accountIndex = {}
                 const receiptIndex = {}
 
+                const billingContextWithOrganization = await BillingContextApi.getOne(context, { id: billingContextId })
+
+                const recipientResolver = new RecipientResolver({ context, billingContext: billingContextWithOrganization })
+                await recipientResolver.init()
                 for (let i = 0; i < receiptsInput.length; ++i) {
 
                     const { importId, address, accountNumber, unitName, unitType, month, year, services, toPay, toPayDetails, raw } = receiptsInput[i]
-                    const { tin, tinMeta, routingNumber, bankAccount } = receiptsInput[i]
+                    const { tin, routingNumber, bankAccount } = receiptsInput[i]
 
                     // Todo: (DOMA-2225) migrate it to address service
                     let { normalizedAddress } = receiptsInput[i]
 
                     // Todo: (DOMA-3252) migrate it to new recipients
-                    const iec = get(tinMeta, 'iec')
-                    const bic = routingNumber
-
+                    const { result: { id: receiverId, recipient: normalizedRecipient } } = await recipientResolver.getReceiver({ tin, routingNumber, bankAccount })
                     // Validate period field
                     if (!(0 <= month && month <= 12 )) {
                         partialErrors.push(new GQLError({ ...ERRORS.WRONG_MONTH, inputIndex: i }, context))
@@ -463,7 +467,7 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                         continue
                     }
 
-                    const receipt = { category, period, property, account, services, recipient: { tin, iec, bic, bankAccount } }
+                    const receipt = { category, period, property, account, services, recipient: normalizedRecipient }
                     const receiptKey = getBillingReceiptKey(receipt)
                     if (!receiptIndex[receiptKey]) {
                         receiptIndex[receiptKey] = {
@@ -478,10 +482,8 @@ const RegisterBillingReceiptsService = new GQLCustomSchema('RegisterBillingRecei
                             toPay: toPay,
                             services: services,
                             toPayDetails: toPayDetails,
-                            tin,
-                            iec,
-                            bic,
-                            bankAccount,
+                            receiverId: receiverId,
+                            recipient: normalizedRecipient,
                             raw: { ...{ dv: 1 }, ...raw },
                         }
                     }

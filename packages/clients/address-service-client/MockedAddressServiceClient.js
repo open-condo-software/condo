@@ -176,6 +176,16 @@ class MockedAddressServiceClient {
             data,
         }]
     }
+
+    async bulkSearch (params = {}) {
+        const { items = [] } = params
+        const foundResults = await Promise.all(items.flatMap(async (houseAddress) => {
+            return { houseAddress: await this.search(houseAddress) }
+        }))
+        const map = Object.fromEntries(foundResults.map(({ houseAddress: { address, addressKey } }) => ([address, { data: { addressKey } }])))
+        const addresses = Object.fromEntries(foundResults.map(({ houseAddress: { address, addressKey } }) => ([addressKey, { address }])))
+        return { map, addresses }
+    }
 }
 
 module.exports = { MockedAddressServiceClient }

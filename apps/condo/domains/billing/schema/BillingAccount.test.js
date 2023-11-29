@@ -462,38 +462,6 @@ describe('BillingAccount', () => {
             })
         })
     })
-    describe('Constraints', () => {
-        describe('globalId', () => {
-            let globalId
-            beforeEach(async () => {
-                globalId = faker.datatype.uuid()
-            })
-            test('Can be same if context is different', async () => {
-                const [account] = await createTestBillingAccount(admin, context, property, {
-                    globalId,
-                })
-                expect(account).toBeDefined()
-                expect(account).toHaveProperty('globalId', globalId)
-                const [anotherAccount] = await createTestBillingAccount(admin, anotherContext, anotherProperty, {
-                    globalId,
-                })
-                expect(anotherAccount).toBeDefined()
-                expect(anotherAccount).toHaveProperty('globalId', globalId)
-            })
-            test('Must be unique within the same context', async () => {
-                const [account] = await createTestBillingAccount(admin, context, property, {
-                    globalId,
-                })
-                expect(account).toBeDefined()
-                expect(account).toHaveProperty('globalId', globalId)
-                await expectToThrowInternalError(async () => {
-                    await createTestBillingAccount(admin, context, property, {
-                        globalId,
-                    })
-                }, 'billingAccount_unique_context_globalId')
-            })
-        })
-    })
     describe('Validation tests', () => {
         test('Context field cannot be changed', async () => {
             const [billingAccount] = await createTestBillingAccount(admin, context, property)

@@ -600,11 +600,13 @@ async function registerBillingReceiptsByTestClient(client, args, extraAttrs = {}
     return [data.result, errors, attrs]
 }
 
-function createRegisterBillingReceiptsPayload(extraAttrs) {
+function createRegisterBillingReceiptsPayload(extraAttrs = {}) {
+    const address = extraAttrs.address || faker.random.alphaNumeric(24)
     return {
         importId: faker.random.alphaNumeric(24),
 
-        address: faker.random.alphaNumeric(24),
+        address,
+        normalizedAddress: address,
 
         unitType: FLAT_UNIT_TYPE,
         accountNumber: faker.random.alphaNumeric(10),
