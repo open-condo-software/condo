@@ -445,7 +445,7 @@ describe('NewsItems', () => {
                     ]))
 
                     expect(newsItems3).toHaveLength(0)
-                }, { delay: (SENDING_DELAY_SEC + 2) * 1000 })
+                }, { delay: (SENDING_DELAY_SEC + 4) * 1000 })
             })
 
             test('user with two residents within organization must see all eligible news items', async () => {

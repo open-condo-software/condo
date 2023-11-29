@@ -1,11 +1,12 @@
 import styled from '@emotion/styled'
-import { Row, Col, Typography }  from 'antd'
+import { Col, Row, Typography } from 'antd'
 import Big from 'big.js'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
+import get from 'lodash/get'
+import pick from 'lodash/pick'
 import React, { useEffect, useRef } from 'react'
 
-dayjs.extend(utc)
 import { useIntl } from '@open-condo/next/intl'
 
 import {
@@ -17,16 +18,43 @@ import {
 import { colors } from '@condo/domains/common/constants/style'
 import { createWrappedPdf } from '@condo/domains/common/utils/pdf'
 
+dayjs.extend(utc)
 
 type PrintingOption = {
     key: string,
     value: string,
 }
 
-type PrintingSection = {
+type ReceiptPrintingSectionRow = {
+    name: string,
+    toPay: string
+}
+
+type ReceiptPrintingSection = {
     title?: string,
-    info: Array<PrintingOption>
+    info: Array<PrintingOption>,
     amount?: string,
+    rows: Array<ReceiptPrintingSectionRow>,
+    explicitFee?: string,
+    explicitServiceCharge?: string
+}
+
+type InvoicePrintingSectionRow = {
+    name: string,
+    toPay: string,
+    count: number,
+    vatPercent: string,
+    amount: string
+}
+
+type InvoicePrintingSection = {
+    number: string,
+    date: string,
+    amount: string,
+    vatAmount?: Record<string, string>,
+    taxRegime: string,
+    rows: Array<InvoicePrintingSectionRow>,
+    info: Array<PrintingOption>,
 }
 
 // This colors are mobile oriented and dont match antd / CRM DS defaults
@@ -39,17 +67,24 @@ interface IAcquiringReceiptProps {
     documentNumber: string,
     documentTitle: string,
     status: MULTIPAYMENT_DONE_STATUS | MULTIPAYMENT_ERROR_STATUS | MULTIPAYMENT_PROCESSING_STATUS | MULTIPAYMENT_WITHDRAWN_STATUS,
+    payerInfo: Array<PrintingOption>,
     totalSum: {
         amountWithExplicits: string,
         currencyCode: string,
         explicitFee?: string,
         explicitServiceCharge?: string,
     }
-    sections: Array<PrintingSection>
+    receipts: Array<ReceiptPrintingSection>,
+    invoices: Array<InvoicePrintingSection>
 }
 
 interface IReceiptSectionProps {
-    section: PrintingSection
+    section: ReceiptPrintingSection
+    currencyCode: string,
+}
+
+interface IInvoiceSectionProps {
+    section: InvoicePrintingSection,
     currencyCode: string,
 }
 
@@ -58,21 +93,68 @@ interface IInfoRowProps {
 }
 
 const PageWrapper = styled.div`
-  width: 335px;
+  width: 500px;
   padding: 20px;
+  font-family: 'SF Pro Text', 'Wix Madefor Display', -apple-system, BlinkMacSystemFont, Helvetica, sans-serif;
   font-size: 12px;
+  line-height: normal;
   
+  & .payerInfo {
+    padding-bottom: 16px;
+  }
+  
+  & .receiptTitle {
+    font-size: 20px;
+    padding: 20px 0;
+  }
+  
+  & .sectionTitle {
+    padding: 24px 0 8px 0;
+    border-bottom: 1px solid ${colors.lightGrey[5]};
+  }
+
+  & .rowsTable {
+    
+    padding-bottom: 20px;
+    color: ${colors.black[2]};
+    
+    & .rowsTableHeader {
+      color: ${colors.lightGrey[7]};
+      padding-bottom: 20px;
+    }
+    
+    & .vatRow {
+      color: ${colors.lightGrey[7]}
+    }
+    
+    & .total {
+      font-size: 14px;
+      font-weight: 600;
+    }
+  }
+  
+  & .sectionInfo {
+    color: ${colors.lightGrey[7]};
+    
+    & .taxRegime {
+      border-top: 1px solid ${colors.lightGrey[5]};
+      padding-top: 4px;
+      margin-top: 4px;
+    }
+  }
+
   & .moneyContainer {
     border-top: 1px solid ${colors.lightGrey[5]};
+    border-bottom: 1px solid ${colors.lightGrey[5]};
     box-sizing: border-box;
-    margin-top: 20px;
-    padding: 20px 0;
+    margin: 40px 0;
+    padding: 12px 0;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
     justify-content: flex-start;
   }
-  
+
   & .statusContainer {
     display: flex;
     flex-direction: column;
@@ -81,61 +163,212 @@ const PageWrapper = styled.div`
   }
 `
 
-const InfoRow: React.FC<IInfoRowProps> = ({
-    row,
-}) => {
-    return (
-        <>
-            <Col span={12}>
-                <Typography.Text>
-                    {row.key}
-                </Typography.Text>
-            </Col>
-            <Col span={12} style={{ textAlign: 'right' }}>
-                <Typography.Paragraph style={{ marginBottom: 0 }}>
-                    {row.value}
-                </Typography.Paragraph>
-            </Col>
-        </>
-    )
-}
+const InfoRow: React.FC<IInfoRowProps> = ({ row }) => !!row.value && (
+    <>
+        <Col span={12}>
+            {row.key}
+        </Col>
+        <Col span={12} style={{ textAlign: 'right' }}>
+            {row.value}
+        </Col>
+    </>
+)
 
-const ReceiptSection: React.FC<IReceiptSectionProps> = ({
-    section,
-    currencyCode,
-}) => {
+const Money: React.FC<{ amount: string, currencyCode: string }> = ({ amount, currencyCode }) => {
     const intl = useIntl()
-    const amount = intl.formatNumber(section.amount || '', {
+
+    return intl.formatNumberToParts(amount || '', {
         style: 'currency',
         currency: currencyCode,
-    })
+    }).map(({ type, value }) => type === 'currency' && currencyCode === 'RUB' ? '₽' : value).reduce((str, pt) => `${str}${pt}`)
+}
+
+const ReceiptRowsTable: React.FC<IReceiptSectionProps> = ({ section, currencyCode }) => {
+    const intl = useIntl()
+    const ServiceTitle = intl.formatMessage({ id: 'BillingServiceName' })
+    const AmountTitle = intl.formatMessage({ id: 'BillingServiceAmount' })
+    const TotalTitle = intl.formatMessage({ id: 'acquiringReceipt.total' })
+    const IncludingFeeMessage = intl.formatMessage({ id: 'IncludingFee' })
+    const IncludingServiceChargeMessage = intl.formatMessage({ id: 'IncludingServiceCharge' })
+
+    const { explicitFee, explicitServiceCharge } = section
+    const isPositiveFee = Big(explicitFee || '0').gt(0)
+    const isPositiveCharge = Big(explicitServiceCharge || '0').gt(0)
 
     return (
         <Col span={24}>
+            <Row justify='space-between' className='rowsTableHeader'>
+                <Col>{ServiceTitle}</Col>
+                <Col>{AmountTitle}</Col>
+            </Row>
             <Row gutter={[0, 8]}>
                 {
-                    section.title && (
-                        <Col span={24}>
-                            <Typography.Text strong>
-                                {section.title}
+                    section.rows.map((row) => (
+                        <>
+                            <Col span={12}>{row.name}</Col>
+                            <Col span={12} style={{ textAlign: 'right' }}>
+                                <Money amount={row.toPay} currencyCode={currencyCode}/>
+                            </Col>
+                        </>
+                    ))
+                }
+                <Col span={12}>
+                    <Typography.Title level={5}>
+                        {TotalTitle}
+                    </Typography.Title>
+                </Col>
+                <Col span={12} style={{ textAlign: 'right' }}>
+                    <Typography.Title level={5}>
+                        <Money amount={section.amount} currencyCode={currencyCode}/>
+                    </Typography.Title>
+                </Col>
+                {
+                    isPositiveFee && (
+                        <Col span={24} style={{ textAlign: 'right' }}>
+                            <Typography.Text>
+                                {IncludingFeeMessage} <Money amount={explicitFee} currencyCode={currencyCode}/>
                             </Typography.Text>
                         </Col>
                     )
                 }
                 {
-                    section.info.map((row, index) => (
-                        <InfoRow row={row} key={index}/>
-                    ))
-                }
-                {
-                    section.amount && (
+                    isPositiveCharge && (
                         <Col span={24} style={{ textAlign: 'right' }}>
-                            <Typography.Title level={5}>
-                                {amount}
-                            </Typography.Title>
+                            <Typography.Text>
+                                {IncludingServiceChargeMessage} <Money
+                                    amount={explicitServiceCharge}
+                                    currencyCode={currencyCode}
+                                />
+                            </Typography.Text>
                         </Col>
                     )
                 }
+            </Row>
+        </Col>
+    )
+}
+
+const InvoiceRowsTable: React.FC<IInvoiceSectionProps> = ({ section, currencyCode }) => {
+    const intl = useIntl()
+
+    const TotalTitle = intl.formatMessage({ id: 'acquiringReceipt.total' })
+    const NameTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.name' })
+    const ToPayTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.toPay' })
+    const CountTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.count' })
+    const VatTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.vatPercent' })
+    const AmountTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.row.amount' })
+
+    const vatPercents = Object.keys(get(section, 'vatAmount', {}))
+
+    return (
+        <Col span={24}>
+            <Row className='rowsTableHeader'>
+                <Col span={8}>{NameTitle}</Col>
+                <Col span={4} style={{ textAlign: 'right' }}>{ToPayTitle}</Col>
+                <Col span={4} style={{ textAlign: 'right' }}>{CountTitle}</Col>
+                <Col span={4} style={{ textAlign: 'right' }}>{VatTitle}</Col>
+                <Col span={4} style={{ textAlign: 'right' }}>{AmountTitle}</Col>
+            </Row>
+            <Row gutter={[0, 8]}>
+                {
+                    section.rows.map((row) => (
+                        <>
+                            <Col span={8}>{row.name}</Col>
+                            <Col span={4} style={{ textAlign: 'right' }}>
+                                <Money amount={row.toPay} currencyCode={currencyCode}/>
+                            </Col>
+                            <Col span={4} style={{ textAlign: 'right' }}>{row.count}</Col>
+                            <Col span={4} style={{ textAlign: 'right' }}>{row.vatPercent}%</Col>
+                            <Col span={4} style={{ textAlign: 'right' }}>
+                                <Money amount={row.amount} currencyCode={currencyCode}/>
+                            </Col>
+                        </>
+                    ))
+                }
+                {
+                    vatPercents.length > 0 && vatPercents.map((vatPercent) => (
+                        <>
+                            <Col span={12}>
+                                <Typography.Text strong className='vatRow'>{VatTitle} {vatPercent}%</Typography.Text>
+                            </Col>
+                            <Col span={12} style={{ textAlign: 'right' }}>
+                                <Typography.Text strong className='vatRow'>
+                                    <Money
+                                        amount={get(section, ['vatAmount', vatPercent])}
+                                        currencyCode={currencyCode}
+                                    />
+                                </Typography.Text>
+                            </Col>
+                        </>
+                    ))
+                }
+                <Col span={12}>
+                    <Typography.Title level={5}>
+                        {TotalTitle}
+                    </Typography.Title>
+                </Col>
+                <Col span={12} style={{ textAlign: 'right' }}>
+                    <Typography.Title level={5}>
+                        <Money amount={section.amount} currencyCode={currencyCode}/>
+                    </Typography.Title>
+                </Col>
+            </Row>
+        </Col>
+    )
+}
+
+const ReceiptSection: React.FC<IReceiptSectionProps> = ({ section, currencyCode }) => {
+    return (
+        <Col span={24}>
+            <Row gutter={[0, 8]}>
+                <Col span={24} className='sectionTitle'>
+                    {section.title && (<Typography.Text strong>{section.title}</Typography.Text>)}
+                </Col>
+                <Col span={24} className='rowsTable'>
+                    <Row><ReceiptRowsTable section={section} currencyCode={currencyCode}/></Row>
+                </Col>
+                <Col className='sectionInfo'>
+                    <Row gutter={[0, 4]}>
+                        {
+                            section.info.map((row, index) => (
+                                <InfoRow row={row} key={index}/>
+                            ))
+                        }
+                    </Row>
+                </Col>
+
+            </Row>
+        </Col>
+    )
+}
+
+const InvoiceSection: React.FC<IInvoiceSectionProps> = ({ section, currencyCode }) => {
+    const intl = useIntl()
+    const InvoiceTitle = intl.formatMessage({ id: 'acquiringReceipt.invoice.title' }, pick(section, ['number', 'date']))
+    const TaxRegimeTitle = intl.formatMessage({ id: 'acquiringReceipt.taxRegime' })
+    const TaxRegimeModeTitle = intl.formatMessage({ id: `acquiringReceipt.taxRegime.${section.taxRegime}` })
+
+    return (
+        <Col span={24}>
+            <Row gutter={[0, 8]}>
+                <Col span={24} className='sectionTitle'>
+                    <Typography.Text strong>{InvoiceTitle}</Typography.Text>
+                </Col>
+                <Col span={24} className='rowsTable'>
+                    <Row><InvoiceRowsTable section={section} currencyCode={currencyCode}/></Row>
+                </Col>
+                <Col className='sectionInfo'>
+                    <Row gutter={[0, 4]}>
+                        {
+                            section.info.map((row, index) => (
+                                <InfoRow row={row} key={index}/>
+                            ))
+                        }
+                        <Col span={12} className='taxRegime'>{TaxRegimeTitle}</Col>
+                        <Col span={12} className='taxRegime' style={{ textAlign: 'right' }}>{TaxRegimeModeTitle}</Col>
+                    </Row>
+                </Col>
+
             </Row>
         </Col>
     )
@@ -146,36 +379,17 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
         documentNumber,
         paymentDateTime,
         documentTitle,
+        payerInfo,
         totalSum: {
             amountWithExplicits,
             currencyCode,
-            explicitFee,
-            explicitServiceCharge,
         },
         status,
-        sections,
+        receipts,
+        invoices,
     } = props
 
     const intl = useIntl()
-    const IncludingFeeMessage = intl.formatMessage({ id: 'IncludingFee' })
-    const IncludingServiceChargeMessage = intl.formatMessage({ id: 'IncludingServiceCharge' })
-
-    const moneyAmount = intl.formatNumber(amountWithExplicits, {
-        style: 'currency',
-        currency: currencyCode,
-    })
-    const feeAmount = intl.formatNumber(explicitFee || '', {
-        style: 'currency',
-        currency: currencyCode,
-    })
-
-    const chargeAmount = intl.formatNumber(explicitServiceCharge || '', {
-        style: 'currency',
-        currency: currencyCode,
-    })
-
-    const isPositiveFee = Big(explicitFee || '0').gt(0)
-    const isPositiveCharge = Big(explicitServiceCharge || '0').gt(0)
 
     let statusMessage = intl.formatMessage({ id: 'MultiPayment.status.DONE' })
     if (status === MULTIPAYMENT_PROCESSING_STATUS || status === MULTIPAYMENT_WITHDRAWN_STATUS) {
@@ -199,47 +413,45 @@ export const AcquiringReceipt: React.FC<IAcquiringReceiptProps> = (props) => {
     }, [containerRef, documentNumber])
     return (
         <PageWrapper ref={containerRef}>
-            <Row gutter={[0, 20]}>
+            <Row>
                 <Col span={24}>
-                    <Row justify='space-between'>
-                        <Typography.Text type='secondary'>
-                            {documentNumber}
-                        </Typography.Text>
-                        <Typography.Text>
-                            {dayjs(paymentDateTime).local().format('DD MMMM YYYY, HH:mm')}
-                        </Typography.Text>
+                    <Row>
+                        <Col span={12}>
+                            <Typography.Text type='secondary'>
+                                {documentNumber}
+                            </Typography.Text>
+                        </Col>
+                        <Col span={12} style={{ textAlign: 'right' }}>
+                            <Typography.Text>
+                                {dayjs(paymentDateTime).local().format('DD.MM.YYYY, HH:mm')}
+                            </Typography.Text>
+                        </Col>
                     </Row>
                 </Col>
                 <Col span={24}>
-                    <Typography.Title level={4}>
+                    <Typography.Title level={4} className='receiptTitle'>
                         {documentTitle}
                     </Typography.Title>
                 </Col>
+                <Col span={24} className='payerInfo'>
+                    <Row gutter={[0, 8]}>{payerInfo.map((row, index) => <InfoRow row={row} key={index}/>)}</Row>
+                </Col>
                 {
-                    sections.map((section, index) => (
-                        <ReceiptSection section={section} currencyCode={currencyCode} key={index}/>
+                    receipts.map((section, index) => (
+                        <ReceiptSection section={section} currencyCode={currencyCode} key={`receipt${index}`}/>
+                    ))
+                }
+                {
+                    invoices.map((section, index) => (
+                        <InvoiceSection section={section} currencyCode={currencyCode} key={`invoice${index}`}/>
                     ))
                 }
             </Row>
             <Row>
                 <Col span={24} className='moneyContainer'>
                     <Typography.Title level={4}>
-                        {moneyAmount}
+                        <Money amount={amountWithExplicits} currencyCode={currencyCode}/>
                     </Typography.Title>
-                    {
-                        isPositiveFee && (
-                            <Typography.Text>
-                                {IncludingFeeMessage} {feeAmount}
-                            </Typography.Text>
-                        )
-                    }
-                    {
-                        isPositiveCharge && (
-                            <Typography.Text>
-                                {IncludingServiceChargeMessage} {chargeAmount}
-                            </Typography.Text>
-                        )
-                    }
                 </Col>
             </Row>
             <Row justify='center'>

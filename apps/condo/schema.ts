@@ -26305,6 +26305,11 @@ export type InvoiceHistoryRecordsUpdateInput = {
   data?: Maybe<InvoiceHistoryRecordUpdateInput>;
 };
 
+export enum InvoicePaymentType {
+  Online = 'online',
+  Cash = 'cash'
+}
+
 export type InvoiceRelateToOneInput = {
   create?: Maybe<InvoiceCreateInput>;
   connect?: Maybe<InvoiceWhereUniqueInput>;
@@ -26585,6 +26590,8 @@ export type MarketCategory = {
   mobileSettings?: Maybe<MarketCategoryMobileSettingsSchemaFieldInput>;
   /**  Which category does this subcategory belong to  */
   parentCategory?: Maybe<MarketCategory>;
+  /**  The number used for sorting at the client  */
+  order?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -26606,6 +26613,7 @@ export type MarketCategoryCreateInput = {
   image?: Maybe<Scalars['Upload']>;
   mobileSettings?: Maybe<MarketCategoryMobileSettingsSchemaField>;
   parentCategory?: Maybe<MarketCategoryRelateToOneInput>;
+  order?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26632,6 +26640,7 @@ export type MarketCategoryHistoryRecord = {
   image?: Maybe<Scalars['JSON']>;
   mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -26652,6 +26661,7 @@ export type MarketCategoryHistoryRecordCreateInput = {
   image?: Maybe<Scalars['JSON']>;
   mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26677,6 +26687,7 @@ export type MarketCategoryHistoryRecordUpdateInput = {
   image?: Maybe<Scalars['JSON']>;
   mobileSettings?: Maybe<Scalars['JSON']>;
   parentCategory?: Maybe<Scalars['String']>;
+  order?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26724,6 +26735,14 @@ export type MarketCategoryHistoryRecordWhereInput = {
   parentCategory_not?: Maybe<Scalars['String']>;
   parentCategory_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   parentCategory_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26838,6 +26857,7 @@ export type MarketCategoryUpdateInput = {
   image?: Maybe<Scalars['Upload']>;
   mobileSettings?: Maybe<MarketCategoryMobileSettingsSchemaField>;
   parentCategory?: Maybe<MarketCategoryRelateToOneInput>;
+  order?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26880,6 +26900,14 @@ export type MarketCategoryWhereInput = {
   mobileSettings_not_in?: Maybe<Array<Maybe<MarketCategoryMobileSettingsSchemaField>>>;
   parentCategory?: Maybe<MarketCategoryWhereInput>;
   parentCategory_is_null?: Maybe<Scalars['Boolean']>;
+  order?: Maybe<Scalars['Int']>;
+  order_not?: Maybe<Scalars['Int']>;
+  order_lt?: Maybe<Scalars['Int']>;
+  order_lte?: Maybe<Scalars['Int']>;
+  order_gt?: Maybe<Scalars['Int']>;
+  order_gte?: Maybe<Scalars['Int']>;
+  order_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
+  order_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -68652,6 +68680,7 @@ export type RegisterInvoiceInput = {
   sender: SenderFieldInput;
   resident: ResidentWhereUniqueInput;
   invoiceRows: Array<InvoiceRowsInput>;
+  paymentType: InvoicePaymentType;
 };
 
 export type RegisterInvoiceOutput = {
@@ -74622,6 +74651,8 @@ export enum SortMarketCategoriesBy {
   NameDesc = 'name_DESC',
   ParentCategoryAsc = 'parentCategory_ASC',
   ParentCategoryDesc = 'parentCategory_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -74643,6 +74674,8 @@ export enum SortMarketCategoriesBy {
 export enum SortMarketCategoryHistoryRecordsBy {
   NameAsc = 'name_ASC',
   NameDesc = 'name_DESC',
+  OrderAsc = 'order_ASC',
+  OrderDesc = 'order_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',

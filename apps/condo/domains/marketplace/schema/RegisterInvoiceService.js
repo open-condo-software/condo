@@ -16,6 +16,7 @@ const {
     INVOICE_STATUS_DRAFT,
     INVOICE_STATUS_PUBLISHED,
     ERROR_INVOICE_EMPTY_ROWS,
+    INVOICE_PAYMENT_TYPES,
 } = require('@condo/domains/marketplace/constants')
 const { ERROR_NO_INVOICE_CONTEXT, ERROR_ITEM_FROM_OTHER_ORGANIZATION } = require('@condo/domains/marketplace/constants')
 const { Invoice, MarketPriceScope } = require('@condo/domains/marketplace/utils/serverSchema')
@@ -50,11 +51,15 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
     types: [
         {
             access: true,
+            type: `enum InvoicePaymentType { ${INVOICE_PAYMENT_TYPES.join(' ')} }`,
+        },
+        {
+            access: true,
             type: 'input InvoiceRowsInput { priceScope: MarketPriceScopeWhereUniqueInput!, count: Int! }',
         },
         {
             access: true,
-            type: 'input RegisterInvoiceInput { dv: Int!, sender: SenderFieldInput!, resident: ResidentWhereUniqueInput!, invoiceRows: [InvoiceRowsInput!]! }',
+            type: 'input RegisterInvoiceInput { dv: Int!, sender: SenderFieldInput!, resident: ResidentWhereUniqueInput!, invoiceRows: [InvoiceRowsInput!]!, paymentType: InvoicePaymentType! }',
         },
         {
             access: true,
@@ -126,9 +131,9 @@ const RegisterInvoiceService = new GQLCustomSchema('RegisterInvoiceService', {
                     property: { connect: { id: resident.property } },
                     unitType: resident.unitType,
                     unitName: resident.unitName,
-                    toPay: rows.reduce((result, row) => Big(result).plus(row.toPay).toString(), 0),
                     rows,
                     status: INVOICE_STATUS_DRAFT,
+                    paymentType: data.paymentType,
                     client: { connect: { id: userId } },
                 })
 

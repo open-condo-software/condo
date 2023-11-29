@@ -1943,6 +1943,7 @@
   "Charged": "Charged",
   "NoReceiptsLoaded": "There's no data in our system, or it's currently loading",
   "BillingServiceName": "Service",
+  "BillingServiceAmount": "Amount",
   "MoreReceiptsWithZeroCharge": "{count, plural, one {# service} other {# services}} with zero charges",
   "Volume": "Volume",
   "ServicesUnitsShort": "Units",
@@ -2475,5 +2476,16 @@
   "api.marketplace.invoice.error.NoFinishedInvoiceContext": "The organization has not finished the configuration of the marketplace",
   "api.marketplace.invoice.error.editPublishedForbidden": "Only the status \"Canceled\" and \"INVOICE_STATUS_PAID\" can be updated by the published invoice",
   "api.marketplace.invoice.error.clientDataDoesNotMatchTicket": "Address and contact data must match the data from the ticket to which the invoice is linked",
-  "api.marketplace.invoice.error.forbidUpdateTicket": "You cannot update ticket in invoice that is already linked to the ticket"
+  "api.marketplace.invoice.error.forbidUpdateTicket": "You cannot update ticket in invoice that is already linked to the ticket",
+  "api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden": "Can't publish invoice without defined prices",
+  "acquiringReceipt.total": "Total",
+  "acquiringReceipt.invoice.title": "Invoice #{number}, {date}",
+  "acquiringReceipt.taxRegime": "Tax regime",
+  "acquiringReceipt.taxRegime.general": "General",
+  "acquiringReceipt.taxRegime.simple": "Simple",
+  "acquiringReceipt.invoice.row.name": "Title",
+  "acquiringReceipt.invoice.row.toPay": "Price",
+  "acquiringReceipt.invoice.row.count": "Count",
+  "acquiringReceipt.invoice.row.vatPercent": "VAT",
+  "acquiringReceipt.invoice.row.amount": "Amount"
 }

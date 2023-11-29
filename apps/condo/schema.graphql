@@ -66490,6 +66490,7 @@ type MarketCategoryHistoryRecord {
   image: JSON
   mobileSettings: JSON
   parentCategory: String
+  order: Int
   id: ID!
   v: Int
   createdAt: String
@@ -66538,6 +66539,14 @@ input MarketCategoryHistoryRecordWhereInput {
   parentCategory_not: String
   parentCategory_in: [String]
   parentCategory_not_in: [String]
+  order: Int
+  order_not: Int
+  order_lt: Int
+  order_lte: Int
+  order_gt: Int
+  order_gte: Int
+  order_in: [Int]
+  order_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -66623,6 +66632,8 @@ input MarketCategoryHistoryRecordWhereUniqueInput {
 enum SortMarketCategoryHistoryRecordsBy {
   name_ASC
   name_DESC
+  order_ASC
+  order_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -66646,6 +66657,7 @@ input MarketCategoryHistoryRecordUpdateInput {
   image: JSON
   mobileSettings: JSON
   parentCategory: String
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -66670,6 +66682,7 @@ input MarketCategoryHistoryRecordCreateInput {
   image: JSON
   mobileSettings: JSON
   parentCategory: String
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -66729,6 +66742,9 @@ type MarketCategory {
 
   """ Which category does this subcategory belong to """
   parentCategory: MarketCategory
+
+  """ The number used for sorting at the client """
+  order: Int
   id: ID!
   v: Int
   createdAt: String
@@ -66783,6 +66799,14 @@ input MarketCategoryWhereInput {
   mobileSettings_not_in: [MarketCategoryMobileSettingsSchemaField]
   parentCategory: MarketCategoryWhereInput
   parentCategory_is_null: Boolean
+  order: Int
+  order_not: Int
+  order_lt: Int
+  order_lte: Int
+  order_gt: Int
+  order_gte: Int
+  order_in: [Int]
+  order_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -66850,6 +66874,8 @@ enum SortMarketCategoriesBy {
   name_DESC
   parentCategory_ASC
   parentCategory_DESC
+  order_ASC
+  order_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -66873,6 +66899,7 @@ input MarketCategoryUpdateInput {
   image: Upload
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -66894,6 +66921,7 @@ input MarketCategoryCreateInput {
   image: Upload
   mobileSettings: MarketCategoryMobileSettingsSchemaField
   parentCategory: MarketCategoryRelateToOneInput
+  order: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -71803,6 +71831,11 @@ type SendB2CAppPushMessageOutput {
   status: String!
 }
 
+enum InvoicePaymentType {
+  online
+  cash
+}
+
 input InvoiceRowsInput {
   priceScope: MarketPriceScopeWhereUniqueInput!
   count: Int!
@@ -71813,6 +71846,7 @@ input RegisterInvoiceInput {
   sender: SenderFieldInput!
   resident: ResidentWhereUniqueInput!
   invoiceRows: [InvoiceRowsInput!]!
+  paymentType: InvoicePaymentType!
 }
 
 type RegisterInvoiceOutput {

@@ -3,6 +3,7 @@
  */
 
 const { faker } = require('@faker-js/faker')
+const Big = require('big.js')
 const { omit } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -593,6 +594,15 @@ describe('Invoice', () => {
 
                 expect(invoice.contact).toBeNull()
             })
+
+            it('invoice.toPay must be a sum of rows.*.toPay', async () => {
+                const [invoice, invoiceAttrs] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                const expectedSum = invoiceAttrs.rows.reduce((sum, {
+                    toPay,
+                    count,
+                }) => sum.plus(Big(toPay).mul(count)), Big(0)).toFixed(8)
+                expect(invoice).toHaveProperty('toPay', expectedSum)
+            })
         })
     })
 
@@ -964,9 +974,7 @@ describe('Invoice', () => {
             const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, { status: INVOICE_STATUS_PUBLISHED })
 
             await expectToThrowGQLError(async () => {
-                await updateTestInvoice(adminClient, invoice.id, {
-                    toPay: faker.random.word(),
-                })
+                await updateTestInvoice(adminClient, invoice.id, { rows: generateInvoiceRows() })
             }, {
                 code: 'BAD_USER_INPUT',
                 type: 'FORBID_EDIT_PUBLISHED',
@@ -1145,6 +1153,22 @@ describe('Invoice', () => {
             const updatedInvoice = await Invoice.getOne(adminClient, { id: invoice.id })
 
             expect(updatedInvoice.status).toEqual(INVOICE_STATUS_CANCELED)
+        })
+
+        test('can\'t publish invoice with isMin-price', async () => {
+            const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext, {
+                rows: [generateInvoiceRow({ isMin: true })],
+                status: INVOICE_STATUS_DRAFT,
+            })
+
+            await expectToThrowGQLError(async () => {
+                await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+            }, {
+                code: 'BAD_USER_INPUT',
+                type: 'PUBLISHING_WITHOUT_DEFINED_PRICES_FORBIDDEN',
+                message: 'Can\'t publish invoice without defined prices',
+                messageForUser: 'api.marketplace.invoice.error.PublishingWithoutDefinedPricesForbidden',
+            })
         })
     })
 })
