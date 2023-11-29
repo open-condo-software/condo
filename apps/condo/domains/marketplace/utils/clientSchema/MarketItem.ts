@@ -20,9 +20,15 @@ const RELATIONS = ['marketCategory']
 const DISCONNECT_ON_NULL = []
 const IGNORE_FORM_FIELDS = ['parentCategory']
 
+export enum PriceType {
+    Exact = 'exact',
+    Min = 'min',
+    Contract = 'contract',
+}
+
 export type PriceFormValuesType = {
     properties?: string[]
-    priceType?: string
+    priceType?: PriceType
     price?: string
     hasAllProperties?: boolean
     id?: string
@@ -77,6 +83,8 @@ export function formValuesProcessor (formValues: MarketItemFormValuesType): Mark
 
     return result
 }
+
+export const INITIAL_PRICE_FORM_VALUE = { properties: [], priceType: PriceType.Exact }
 
 const {
     useObject,

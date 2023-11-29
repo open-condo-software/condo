@@ -2,24 +2,32 @@
 import { MarketItem as MarketItemType } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, Form, Input, Row, RowProps, Select, Typography as AntdTypography } from 'antd'
+import { Col, Form, Input, Row, RowProps, Select } from 'antd'
 import { Rule } from 'antd/lib/form'
 import { FormProps } from 'antd/lib/form/Form'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import React, { useCallback, useEffect, useMemo } from 'react'
 
-import { PlusCircle } from '@open-condo/icons'
+import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { Space, Typography } from '@open-condo/ui'
+import { Radio, RadioGroup, Space, Typography } from '@open-condo/ui'
 import { colors } from '@open-condo/ui/dist/colors'
 
 import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
+import {
+    GraphQlSearchInputWithCheckAll,
+    InputWithCheckAllProps,
+} from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { MarketCategory, MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
-import { MarketItemFormValuesType } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
+import { InvoiceContext, MarketCategory, MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
+import {
+    INITIAL_PRICE_FORM_VALUE,
+    MarketItemFormValuesType,
+    PriceType,
+} from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 import { searchOrganizationPropertyWithExclusion } from '@condo/domains/marketplace/utils/clientSchema/search'
 
 import {
@@ -27,12 +35,6 @@ import {
     BaseMarketItemFormContextType,
     useMarketItemFormContext,
 } from './BaseMarketItemFormContext'
-
-import { GraphQlSearchInput } from '../../../common/components/GraphQlSearchInput'
-import {
-    GraphQlSearchInputWithCheckAll,
-    InputWithCheckAllProps,
-} from '../../../common/components/GraphQlSearchInputWithCheckAll'
 
 
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]
@@ -283,20 +285,31 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
     const CheckAllPropertiesLabel = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
 
     const { requiredValidator } = useValidations()
-    const { form, getUpdatedPricesField } = useMarketItemFormContext()
+    const { form, getUpdatedPricesField, isSmallScreen } = useMarketItemFormContext()
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id', null)
-
     const { breakpoints } = useLayoutContext()
-    const isSmallWindow = !breakpoints.TABLET_LARGE
+
     const priceFormName = useMemo(() => get(priceFormDescription, 'name'), [priceFormDescription])
+
+    const hasAllPropertiesChecked = useMemo(() => {
+        if (isEmpty(priceFormsValue) || isEmpty(priceFormDescription)) return false
+
+        return priceFormsValue[priceFormDescription.name].hasAllProperties
+    }, [priceFormDescription, priceFormsValue])
+
+    const isCheckAllDisabled = useMemo(() => {
+        if (isEmpty(priceFormsValue) || isEmpty(priceFormDescription)) return false
+
+        return !priceFormsValue[priceFormDescription.name].hasAllProperties && priceFormsValue.some(form => form.hasAllProperties)
+    }, [priceFormDescription, priceFormsValue])
 
     const propertySelectFormItemProps = useCallback((priceFormName) => ({
         label: AddressesLabel,
         required: true,
         name: [priceFormName, 'properties'],
-        rules: [requiredValidator],
-    }), [AddressesLabel, requiredValidator])
+        rules: hasAllPropertiesChecked ? [] : [requiredValidator],
+    }), [AddressesLabel, hasAllPropertiesChecked, requiredValidator])
 
     const renderPropertyOptions = useCallback((excludedPropertyIds: Array<string>) => (options, renderOption) => {
         return options
@@ -327,12 +340,6 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
         })
     }, [getUpdatedPricesField, priceFormName])
 
-    const isCheckAllDisabled = useMemo(() => {
-        if (isEmpty(priceFormsValue) || isEmpty(priceFormDescription)) return false
-
-        return !priceFormsValue[priceFormDescription.name].hasAllProperties && priceFormsValue.some(form => form.hasAllProperties)
-    }, [priceFormDescription, priceFormsValue])
-
     return (
         <GraphQlSearchInputWithCheckAll
             selectFormItemProps={propertySelectFormItemProps(priceFormName)}
@@ -340,7 +347,7 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
             checkAllFieldName={[priceFormName, 'hasAllProperties']}
             CheckAllMessage={CheckAllPropertiesLabel}
             form={form}
-            checkBoxOffset={isSmallWindow ? 0 : 10}
+            checkBoxOffset={!breakpoints.TABLET_LARGE ? 0 : 10}
             checkAllInitialValue={false}
             mutationOfFormAfterCheckAll={handleCheckAll}
             checkboxDisabled={isCheckAllDisabled}
@@ -351,18 +358,30 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
 const MarketPriceForm = ({ priceFormDescription, removeOperation }) => {
     const intl = useIntl()
     const PriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType' })
-    const PriceType = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.tooltip' })
+    const PriceTypeTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.tooltip' })
     const ExactPriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.exactPrice' })
     const MinPriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.minPrice' })
     const ContractPriceTypeLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.priceType.contractPrice' })
     const PriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price' })
     const PriceTooltip = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.field.price.tooltip' })
+    const CancelMessage = intl.formatMessage({ id: 'Cancel' })
 
-    const { requiredValidator } = useValidations()
-    const { form } = useMarketItemFormContext()
+    const { requiredValidator, numberValidator } = useValidations()
+    const { form, invoiceContext, getUpdatedPricesField } = useMarketItemFormContext()
+    const currencyCode = get(invoiceContext, 'currencyCode')
+    const parts = intl.formatNumberToParts('', { style: 'currency', currency: currencyCode })
+    const currencySymbolObj = parts.find(part => part.type === 'currency')
+    const currencySymbol = get(currencySymbolObj, 'value')
+    const priceFormName = useMemo(() => get(priceFormDescription, 'name'), [priceFormDescription])
 
     const priceFormsValue = Form.useWatch('prices', form) || []
-    const priceFormName = useMemo(() => get(priceFormDescription, 'name'), [priceFormDescription])
+    const priceTypeFormValue = Form.useWatch(['prices', priceFormName, 'priceType'], form)
+    const isContractPrice = useMemo(() => priceTypeFormValue === PriceType.Contract, [priceTypeFormValue])
+
+    const handleContractPriceCheck = useCallback(async () => {
+        form.setFieldsValue(getUpdatedPricesField(priceFormName, { price: null }))
+        await form.validateFields(['prices', priceFormName, 'price'])
+    }, [form, getUpdatedPricesField, priceFormName])
 
     return (
         <Row gutter={[0, 28]}>
@@ -372,6 +391,68 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation }) => {
                     priceFormsValue={priceFormsValue}
                 />
             </Col>
+            <Col span={24}>
+                <Form.Item
+                    name={[priceFormName, 'priceType']}
+                    required
+                    label={PriceTypeLabel}
+                    tooltip={PriceTypeTooltip}
+                >
+                    <RadioGroup>
+                        <Space size={20} wrap direction='horizontal'>
+                            <Radio value={PriceType.Exact}>
+                                <Typography.Text>
+                                    {ExactPriceTypeLabel}
+                                </Typography.Text>
+                            </Radio>
+                            <Radio value={PriceType.Min}>
+                                <Typography.Text>
+                                    {MinPriceTypeLabel}
+                                </Typography.Text>
+                            </Radio>
+                            <Radio value={PriceType.Contract} onChange={handleContractPriceCheck}>
+                                <Typography.Text>
+                                    {ContractPriceTypeLabel}
+                                </Typography.Text>
+                            </Radio>
+                        </Space>
+                    </RadioGroup>
+                </Form.Item>
+            </Col>
+            <Col span={24}>
+                <Form.Item
+                    name={[priceFormName, 'price']}
+                    required
+                    rules={isContractPrice ? [] : [requiredValidator, numberValidator]}
+                    label={PriceLabel}
+                    tooltip={PriceTooltip}
+                    wrapperCol={{
+                        span: 5,
+                    }}
+                >
+                    <Input
+                        addonAfter={currencySymbol}
+                        disabled={isContractPrice}
+                    />
+                </Form.Item>
+            </Col>
+            {
+                priceFormDescription.name !== 0 && (
+                    <Col span={24}>
+                        <Typography.Text
+                            strong
+                            onClick={() => {
+                                removeOperation(priceFormDescription.name)
+                            }}
+                        >
+                            <Space size={8}>
+                                <Trash />
+                                {CancelMessage}
+                            </Space>
+                        </Typography.Text>
+                    </Col>
+                )
+            }
         </Row>
     )
 }
@@ -405,7 +486,7 @@ const MarketPricesList = () => {
                                 </Row>
                             </Col>
                             <Col span={24}>
-                                <Typography.Text strong onClick={() => operation.add({ properties: [] })}>
+                                <Typography.Text strong onClick={() => operation.add(INITIAL_PRICE_FORM_VALUE)}>
                                     <Space size={4} direction='horizontal'>
                                         <PlusCircle />
                                         {AddPriceScopeLabel}
@@ -428,6 +509,7 @@ type BaseMarketItemFormProps = {
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
     const { children, action, initialValues } = props
     const { breakpoints } = useLayoutContext()
+    const { organization } = useOrganization()
 
     const marketItemId = get(initialValues, 'id')
     const isSmallScreen = !breakpoints.DESKTOP_SMALL
@@ -442,12 +524,19 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
             },
         },
     }), [form])
+    const { obj: invoiceContext } = InvoiceContext.useObject({
+        where: {
+            organization: { id: get(organization, 'id', null) },
+        },
+    })
 
     const formContextValue: BaseMarketItemFormContextType = useMemo(() => ({
         form,
         marketItemId,
         getUpdatedPricesField,
-    }), [form, getUpdatedPricesField, marketItemId])
+        isSmallScreen,
+        invoiceContext,
+    }), [form, getUpdatedPricesField, invoiceContext, isSmallScreen, marketItemId])
 
     return (
         <BaseMarketItemFormContext.Provider value={formContextValue}>
@@ -460,25 +549,31 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
             >
                 {
                     ({ handleSave }) => (
-                        <Row gutter={isSmallScreen ? [0, 0] : [50, 0]}>
-                            <Col span={isSmallScreen ? 24 : 16}>
-                                <Row gutter={GROUP_OUTER_GUTTER}>
-                                    <Col span={24}>
-                                        <MarketItemFields/>
+                        <Row gutter={[0, 60]}>
+                            <Col>
+                                <Row gutter={isSmallScreen ? [0, 0] : [50, 0]}>
+                                    <Col span={isSmallScreen ? 24 : 16}>
+                                        <Row gutter={GROUP_OUTER_GUTTER}>
+                                            <Col span={24}>
+                                                <MarketItemFields/>
+                                            </Col>
+                                            <Col span={24}>
+                                                <MarketPricesList/>
+                                            </Col>
+                                        </Row>
                                     </Col>
-                                    <Col span={24}>
-                                        <MarketPricesList/>
-                                    </Col>
+                                    {
+                                        !isSmallScreen && (
+                                            <Col span={8}>
+                                                <MobilePreview/>
+                                            </Col>
+                                        )
+                                    }
                                 </Row>
                             </Col>
-                            {
-                                !isSmallScreen && (
-                                    <Col span={8}>
-                                        <MobilePreview/>
-                                    </Col>
-                                )
-                            }
-                            {typeof children === 'function' ? children({ handleSave, form }) : children}
+                            <Col span={24}>
+                                {typeof children === 'function' ? children({ handleSave, form }) : children}
+                            </Col>
                         </Row>
                     )
                 }

@@ -1,3 +1,4 @@
+
 import { Col, Form } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -7,7 +8,17 @@ import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
-import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
+import {
+    InvoiceContext,
+    MarketItem,
+    MarketItemPrice,
+    MarketPriceScope,
+} from '@condo/domains/marketplace/utils/clientSchema'
+import {
+    INITIAL_PRICE_FORM_VALUE,
+    PriceFormValuesType,
+    PriceType,
+} from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
@@ -20,30 +31,75 @@ export const CreateMarketItemForm = () => {
     const router = useRouter()
     const { organization } = useOrganization()
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
-    const createAction = MarketItem.useCreate({
+    const createMarketItem = MarketItem.useCreate({
         organization: { connect: { id: get(organization, 'id', null) } },
-    },
-    // () => router.push('/marketplace?tab=services')
-    )
+    })
+    const createMarketItemPrice = MarketItemPrice.useCreate({})
+    const createMarketItemPriceScope = MarketPriceScope.useCreate({})
+
+    const { obj: invoiceContext } = InvoiceContext.useObject({
+        where: {
+            organization: { id: get(organization, 'id', null) },
+        },
+    })
 
     const handleCreateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
-        console.log(MarketItem.formValuesProcessor(values))
+
+        const { prices, ...marketItemFields } = values
+
+        const createdMarketItem = await createMarketItem(MarketItem.formValuesProcessor(marketItemFields))
+
+        const formattedPrices: PriceFormValuesType[] = prices.map(
+            priceObj => ({ ...priceObj, price: priceObj.price?.replace(',', '.') })
+        )
+        for (const formPrice of formattedPrices) {
+            const { properties, hasAllProperties, price, priceType } = formPrice
+
+            const vatPercent = get(invoiceContext, 'vatPercent')
+            const salesTaxPercent = get(invoiceContext, 'salesTaxPercent')
+            const currencyCode = get(invoiceContext, 'currencyCode')
+            let resultPrice
+            let isMin
+            if (priceType === PriceType.Exact) {
+                resultPrice = price
+                isMin = false
+            } else if (priceType === PriceType.Min) {
+                resultPrice = price
+                isMin = true
+            } else if (priceType === PriceType.Contract) {
+                resultPrice = '0'
+                isMin = true
+            }
+
+            const createdPrice = await createMarketItemPrice({
+                price: [{ type: 'variant', group: '', name: createdMarketItem.name,
+                    price: resultPrice, isMin, vatPercent, salesTaxPercent, currencyCode }],
+                marketItem: { connect: { id: createdMarketItem.id } },
+            })
+
+            if (hasAllProperties) {
+                await createMarketItemPriceScope({
+                    marketItemPrice: { connect: { id: createdPrice.id } },
+                })
+            } else {
+                for (const propertyId of properties ) {
+                    await createMarketItemPriceScope({
+                        marketItemPrice: { connect: { id: createdPrice.id } },
+                        property: { connect: { id: propertyId } },
+                    })
+                }
+            }
+        }
+
         setSubmitLoading(false)
-        return
 
-        const createdMarketItem = await createAction(MarketItem.formValuesProcessor(values))
-
-        console.log(createdMarketItem)
-
-        // create MarketItemFile's, MarketItemPrice's and MarketItemPriceScope's related to MarketItem
-
-        setSubmitLoading(false)
+        await router.push('/marketplace?tab=services')
 
         return createdMarketItem
-    }, [createAction])
+    }, [createMarketItem, createMarketItemPrice, createMarketItemPriceScope, invoiceContext, router])
 
-    const initialValues = { prices: [{ properties: [] }] }
+    const initialValues = { prices: [INITIAL_PRICE_FORM_VALUE] }
 
     return (
         <BaseMarketItemForm
