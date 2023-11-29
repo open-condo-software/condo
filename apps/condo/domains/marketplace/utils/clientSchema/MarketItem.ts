@@ -4,8 +4,8 @@
 
 import {
     MarketItem,
-    MarketItemCreateInput,
-    MarketItemUpdateInput,
+    MarketItemCreateInput, MarketItemPrice,
+    MarketItemUpdateInput, MarketPriceScope,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
 import { get } from 'lodash'
@@ -45,7 +45,13 @@ export type MarketItemFormValuesType = {
     selectedProperties?: string[]
 }
 
-export function convertToFormState (marketItem: MarketItem): MarketItemFormValuesType | undefined {
+type ConvertToFormStateArgsType = {
+    marketItem: MarketItem,
+    marketItemPrices: MarketItemPrice[]
+    marketPriceScopes: MarketPriceScope[]
+}
+
+export function convertToFormState ({ marketItem, marketItemPrices, marketPriceScopes }: ConvertToFormStateArgsType): MarketItemFormValuesType {
     const result: MarketItemFormValuesType = {}
 
     for (const key of Object.keys(marketItem)) {
@@ -57,6 +63,32 @@ export function convertToFormState (marketItem: MarketItem): MarketItemFormValue
             result['parentCategory'] = get(marketItem, 'marketCategory.parentCategory.id')
         }
     }
+
+    const prices = []
+    for (const marketItemPrice of marketItemPrices) {
+        const id = marketItemPrice.id
+        const priceScopes = marketPriceScopes.filter(scope => scope.marketItemPrice.id === marketItemPrice.id)
+        const properties = priceScopes.map(priceScope => get(priceScope, 'property.id')).filter(Boolean)
+        const hasAllProperties = priceScopes.every(scope => !scope.property)
+
+        const [priceObj] = get(marketItemPrice, 'price')
+        const priceFromObj = get(priceObj, 'price')
+        const isMinPrice = get(priceObj, 'isMin')
+
+        let priceType
+        let price
+        if (isMinPrice) {
+            priceType = priceFromObj === '0' ? PriceType.Contract : PriceType.Min
+            price = priceFromObj === '0' ? null : priceFromObj
+        } else {
+            priceType = PriceType.Exact
+            price = priceFromObj
+        }
+
+        prices.push({ id, priceType, price, properties, hasAllProperties })
+    }
+
+    result['prices'] = prices
 
     return result
 }
