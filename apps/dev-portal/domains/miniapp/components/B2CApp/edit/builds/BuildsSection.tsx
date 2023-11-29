@@ -6,6 +6,7 @@ import { useIntl } from 'react-intl'
 import { PlusCircle } from '@open-condo/icons'
 import { Button, Modal, Input, Alert, Typography } from '@open-condo/ui'
 
+import { EmptyTableFiller } from '@/domains/common/components/EmptyTableFiller'
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
 import { useValidations } from '@/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
@@ -70,6 +71,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     const NonSemanticVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonSemantic.message' })
     const NonUniqueVersionErrorMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.items.version.validations.nonUnique.message' })
     const BuildLimitationsTitle = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.title' })
+    const EmptyTableMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.table.empty.message' })
     const SemVerFragment = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.semVerCorrect.fragment' })
     const VersionLimitationsMessage = intl.formatMessage({ id: 'apps.b2c.sections.builds.newBuildModal.form.info.limitations.version.message' }, {
         semVerCorrect: (
@@ -194,6 +196,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
                                 onChange: handlePaginationChange,
                             }}
                             rowKey='version'
+                            locale={{ emptyText: <EmptyTableFiller message={EmptyTableMessage}/> }}
                         />
                     </Col>
                     <Col span={FULL_COL_SPAN}>
