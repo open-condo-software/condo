@@ -33,7 +33,6 @@ import type { UploadChangeParam, UploadFile } from 'antd/lib/upload/interface'
 import {
     useCreateB2CAppBuildMutation,
     useAllB2CAppBuildsQuery,
-    AllB2CAppBuildsDocument,
 } from '@/lib/gql'
 
 
@@ -90,13 +89,14 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     const { p } = router.query
     const page = getCurrentPage(p)
 
-    const { data } = useAllB2CAppBuildsQuery({
+    const { data, client } = useAllB2CAppBuildsQuery({
         variables: {
             where: { app: { id } },
             first: DEFAULT_PAGE_SIZE,
             skip: DEFAULT_PAGE_SIZE * (page - 1),
         },
     })
+    console.log(client.cache)
     const builds = (data?.builds || []).filter(nonNull)
 
 
@@ -128,7 +128,10 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     const [createB2CAppBuildMutation] = useCreateB2CAppBuildMutation({
         onError,
         onCompleted,
-        refetchQueries: [AllB2CAppBuildsDocument],
+        update: (cache) => {
+            cache.evict({ id: 'ROOT_QUERY', fieldName: 'allB2CAppBuilds' })
+            cache.gc()
+        },
     })
 
     const handleUploadBuild = useCallback((values: BuildFormValues) => {

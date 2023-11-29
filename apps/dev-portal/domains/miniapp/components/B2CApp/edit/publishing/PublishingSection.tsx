@@ -43,14 +43,13 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
 
     const [form] = Form.useForm()
     const [buildChecked, setBuildChecked] = useState(false)
-    const [buildSearch, setBuildSearch] = useState('')
     const [isPublishing, setIsPublishing] = useState(false)
 
     const [fetchBuilds, { data: buildsData }] = useAllB2CAppBuildsLazyQuery({
         variables: {
             where: {
                 app: { id },
-                version_contains_i: buildSearch,
+                version_contains_i: '',
             },
             first: DEFAULT_PAGE_SIZE,
             skip: 0,
@@ -87,12 +86,26 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
         }).finally(() => { setIsPublishing(false) })
     }, [id, publishMutation])
 
+    const handleSearchChange = useCallback((newSearch: string) => {
+        fetchBuilds({
+            variables: {
+                where: {
+                    app: { id },
+                    version_contains_i: newSearch,
+                },
+                first: DEFAULT_PAGE_SIZE,
+                skip: 0,
+            },
+        })
+    }, [fetchBuilds, id])
+
     const handleBuildCheck = useCallback<Required<CheckboxProps>['onChange']>((evt) => {
         if (evt.target.checked) {
             fetchBuilds({
                 variables: {
                     where: {
                         app: { id },
+                        version_contains_i: '',
                     },
                     first: DEFAULT_PAGE_SIZE,
                     skip: 0,
@@ -100,7 +113,6 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
             })
         }
         setBuildChecked(evt.target.checked)
-        setBuildSearch('')
     }, [fetchBuilds, id])
 
     const buildOptions = (buildsData?.builds || []).filter(nonNull).map(build => {
@@ -139,7 +151,7 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
                     {buildChecked && (
                         <Form.Item name='buildId' rules={[requiredFieldValidator]}>
                             <Select
-                                onSearch={setBuildSearch}
+                                onSearch={handleSearchChange}
                                 optionFilterProp='key'
                                 options={buildOptions}
                                 placeholder={SelectBuildPlaceholder}
