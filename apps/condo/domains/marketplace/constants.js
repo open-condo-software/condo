@@ -78,9 +78,11 @@ const SERVICES_TAB_KEY = 'services'
 // The default value for invoice context
 const DEFAULT_IMPLICIT_FEE_PERCENT = '5'
 
-const COMMON_RESOLVED_FIELDS = ['dv', 'sender', 'v', 'updatedAt', 'updatedBy']
+const COMMON_RESOLVED_FIELDS = ['dv', 'sender', 'v', 'updatedAt', 'updatedBy', 'publishedAt', 'paidAt', 'canceledAt']
 const CLIENT_DATA_FIELDS = ['property', 'unitName', 'unitType', 'clientName', 'clientPhone', 'contact', 'client']
 const INITIAL_ROWS_VALUE = [{ name: '', count: 1, toPay: '0', isMin: false }]
+
+const DAYS_TO_CANCEL_PUBLISHED_INVOICES = 60
 
 module.exports = {
     INVOICE_CONTEXT_STATUS_FINISHED,
@@ -131,4 +133,5 @@ module.exports = {
     COMMON_RESOLVED_FIELDS,
     CLIENT_DATA_FIELDS,
     INITIAL_ROWS_VALUE,
+    DAYS_TO_CANCEL_PUBLISHED_INVOICES,
 }

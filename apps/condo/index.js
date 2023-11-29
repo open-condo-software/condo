@@ -120,6 +120,7 @@ const tasks = () => [
     require('@condo/domains/news/tasks'),
     require('@condo/domains/miniapp/tasks'),
     require('@open-condo/webhooks/tasks'),
+    require('@condo/domains/marketplace/tasks'),
 ]
 
 const checks = [
