@@ -15,6 +15,7 @@ const {
 const { PRICE_FIELD_SCHEMA } = require('@condo/domains/marketplace/schema/fields/price')
 const {
     MarketItemPrice,
+    MarketPriceScope,
     createTestMarketItemPrice,
     createTestMarketPriceScope,
     updateTestMarketItemPrice,
@@ -407,15 +408,13 @@ describe('MarketItemPrice', () => {
 
         const [price] = await createTestMarketItemPrice(staffClient, marketItem)
         const [property] = await createTestProperty(admin, organization)
-        const [priceScope] = await createTestMarketPriceScope(staffClient, price, property)
-
-        expect(priceScope.deletedAt).toBeFalsy()
+        await createTestMarketPriceScope(staffClient, price, property)
 
         await MarketItemPrice.softDelete(staffClient, price.id)
 
-        const deletedPriceScope = await getById('MarketPriceScope', priceScope.id)
+        const deletedPriceScope = await MarketPriceScope.getAll(admin, { marketItemPrice: { id: price.id } })
 
-        expect(deletedPriceScope.deletedAt).toBeTruthy()
+        expect(deletedPriceScope).toHaveLength(0)
     })
 })
 
