@@ -51,7 +51,7 @@ const createRecipient = (extra = {}) => {
     }
 }
 
-const createValidELS = () => `${randomNumber(2)}${faker.lorem.word().slice(0, 2).toUpperCase()}${randomNumber(6)}`
+const createValidELS = () => `${randomNumber(2)}БГ${randomNumber(6)}`
 
 const randomNumber = (numDigits) => {
     const min = 10 ** (numDigits - 1)
