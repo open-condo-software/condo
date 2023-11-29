@@ -24,6 +24,7 @@ export type InputWithCheckAllProps = {
     form: FormInstance
     checkBoxEventName?: string
     disabled?: boolean
+    checkboxDisabled?: boolean
     onDataLoaded?: (data: GraphQlSearchInputOption['data']) => void
     /**
      * When your form has a complex structure, for example when fields change dynamically,
@@ -61,6 +62,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
         disabled,
         onDataLoaded,
         mutationOfFormAfterCheckAll,
+        checkboxDisabled,
     }
 ) => {
     const intl = useIntl()
@@ -151,7 +153,7 @@ export const GraphQlSearchInputWithCheckAll: React.FC<InputWithCheckAllProps> = 
                     <Checkbox
                         onChange={handleCheckboxChange}
                         eventName={checkBoxEventName}
-                        disabled={disabled}
+                        disabled={disabled || checkboxDisabled}
                     >
                         {CheckAllMessage}
                     </Checkbox>

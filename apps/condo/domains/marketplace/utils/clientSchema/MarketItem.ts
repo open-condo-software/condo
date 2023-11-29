@@ -10,7 +10,6 @@ import {
 } from '@app/condo/schema'
 import { get } from 'lodash'
 import isUndefined from 'lodash/isUndefined'
-import omit from 'lodash/omit'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
@@ -21,10 +20,12 @@ const RELATIONS = ['marketCategory']
 const DISCONNECT_ON_NULL = []
 const IGNORE_FORM_FIELDS = ['parentCategory']
 
-type PriceFormValuesType = {
+export type PriceFormValuesType = {
     properties?: string[]
     priceType?: string
     price?: string
+    hasAllProperties?: boolean
+    id?: string
 }
 
 export type MarketItemFormValuesType = {
@@ -35,6 +36,7 @@ export type MarketItemFormValuesType = {
     description?: string
     files?: string[]
     prices?: PriceFormValuesType[]
+    selectedProperties?: string[]
 }
 
 export function convertToFormState (marketItem: MarketItem): MarketItemFormValuesType | undefined {

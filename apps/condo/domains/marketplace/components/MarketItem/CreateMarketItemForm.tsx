@@ -1,11 +1,11 @@
-import { Col } from 'antd'
+import { Col, Form } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Button } from '@open-condo/ui'
+import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 
 import { MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
 
@@ -15,6 +15,7 @@ import { BaseMarketItemForm } from './BaseMarketItemForm'
 export const CreateMarketItemForm = () => {
     const intl = useIntl()
     const CreateMessage = intl.formatMessage({ id: 'Create' })
+    const ManyAllPropertiesPriceLabel = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.form.actionButtonTooltip.manyHasAllProperties' })
 
     const router = useRouter()
     const { organization } = useOrganization()
@@ -27,6 +28,9 @@ export const CreateMarketItemForm = () => {
 
     const handleCreateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
+        console.log(MarketItem.formValuesProcessor(values))
+        setSubmitLoading(false)
+        return
 
         const createdMarketItem = await createAction(MarketItem.formValuesProcessor(values))
 
@@ -39,30 +43,59 @@ export const CreateMarketItemForm = () => {
         return createdMarketItem
     }, [createAction])
 
+    const initialValues = { prices: [{ properties: [] }] }
+
     return (
         <BaseMarketItemForm
             action={handleCreateMarketItem}
+            initialValues={initialValues}
         >
             {
-                ({ handleSave, form }) => {
-                    // check that required fields filled and if not set button to disable state
-
+                ({ handleSave }) => {
                     return (
-                        <Col span={24}>
-                            <ActionBar
-                                actions={[
-                                    <Button
-                                        key='submit'
-                                        onClick={handleSave}
-                                        type='primary'
-                                        loading={submitLoading}
-                                        disabled={submitLoading}
-                                    >
-                                        {CreateMessage}
-                                    </Button>,
-                                ]}
-                            />
-                        </Col>
+                        <Form.Item
+                            noStyle
+                            shouldUpdate
+                        >
+                            {
+                                ({ getFieldsValue }) => {
+                                    // check that required fields filled and if not set button to disable state
+                                    const { prices } = getFieldsValue(['prices'])
+                                    const hasManyAllPropertiesCheckboxes = prices && prices.filter(price => price.hasAllProperties).length > 1
+
+                                    const disabled = submitLoading || hasManyAllPropertiesCheckboxes
+
+                                    let tooltipTitle
+                                    if (hasManyAllPropertiesCheckboxes) {
+                                        tooltipTitle = ManyAllPropertiesPriceLabel
+                                    }
+
+                                    return (
+                                        <Col span={24}>
+                                            <ActionBar
+                                                actions={[
+                                                    <Tooltip
+                                                        key='submit'
+                                                        title={tooltipTitle}
+                                                    >
+                                                        <span>
+                                                            <Button
+                                                                onClick={handleSave}
+                                                                type='primary'
+                                                                loading={submitLoading}
+                                                                disabled={disabled}
+                                                            >
+                                                                {CreateMessage}
+                                                            </Button>
+                                                        </span>
+                                                    </Tooltip>,
+                                                ]}
+                                            />
+                                        </Col>
+                                    )
+                                }
+                            }
+                        </Form.Item>
                     )
                 }
             }
