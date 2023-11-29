@@ -5,6 +5,7 @@
 const { faker } = require('@faker-js/faker')
 const Ajv = require('ajv')
 
+const { getById } = require('@open-condo/keystone/schema')
 const { makeLoggedInAdminClient, makeClient, UUID_RE, expectValuesOfCommonFields, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
@@ -12,12 +13,25 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { PRICE_FIELD_SCHEMA } = require('@condo/domains/marketplace/schema/fields/price')
-const { MarketItemPrice, createTestMarketItemPrice, updateTestMarketItemPrice, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
+const {
+    MarketItemPrice,
+    createTestMarketItemPrice,
+    createTestMarketPriceScope,
+    updateTestMarketItemPrice,
+    createTestMarketItem,
+} = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketCategory } = require('@condo/domains/marketplace/utils/testSchema')
-const { createTestOrganization, createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
+const {
+    createTestOrganization,
+    createTestOrganizationEmployeeRole,
+    createTestOrganizationEmployee,
+} = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
-const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
+const {
+    makeClientWithNewRegisteredAndLoggedInUser,
+    makeClientWithSupportUser,
+} = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
 
 const ajv = new Ajv()
@@ -376,6 +390,32 @@ describe('MarketItemPrice', () => {
                 expect(validatePriceField(data)).toEqual(false)
             })
         })
+    })
+
+    test('Scope must be deleted after the price was deleted', async () => {
+        const staffClient = await makeClientWithNewRegisteredAndLoggedInUser()
+        const [role] = await createTestOrganizationEmployeeRole(admin, organization, {
+            canReadMarketItems: true,
+            canManageMarketItems: true,
+            canReadMarketItemPrices: true,
+            canManageMarketItemPrices: true,
+            canReadMarketPriceScopes: true,
+            canManageMarketPriceScopes: true,
+        })
+        await createTestOrganizationEmployee(admin, organization, staffClient.user, role)
+        const [marketItem] = await createTestMarketItem(staffClient, marketCategory, organization)
+
+        const [price] = await createTestMarketItemPrice(staffClient, marketItem)
+        const [property] = await createTestProperty(admin, organization)
+        const [priceScope] = await createTestMarketPriceScope(staffClient, price, property)
+
+        expect(priceScope.deletedAt).toBeFalsy()
+
+        await MarketItemPrice.softDelete(staffClient, price.id)
+
+        const deletedPriceScope = await getById('MarketPriceScope', priceScope.id)
+
+        expect(deletedPriceScope.deletedAt).toBeTruthy()
     })
 })
 
