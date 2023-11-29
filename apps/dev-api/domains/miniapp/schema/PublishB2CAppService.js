@@ -7,7 +7,7 @@ const fs = require('fs')
 const got = require('got')
 
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT, INTERNAL_ERROR } } = require('@open-condo/keystone/errors')
-// const { getLogger } = require('@open-condo/keystone/logging')
+const { getLogger } = require('@open-condo/keystone/logging')
 const { GQLCustomSchema } = require('@open-condo/keystone/schema')
 
 const { REMOTE_SYSTEM } = require('@dev-api/domains/common/constants/common')
@@ -58,7 +58,7 @@ const ERRORS = {
     },
 }
 
-// const logger = getLogger('dev-api/publishB2CApp')
+const logger = getLogger('dev-api/publishB2CApp')
 
 function getExportIdField (environment) {
     return `${environment}ExportId`
@@ -66,7 +66,7 @@ function getExportIdField (environment) {
 
 async function publishAppChanges ({ app, condoApp, serverClient, args, context }) {
     const { data: { dv, sender, environment } } = args
-    // logger.info({ msg: 'Started app publishing', appId: app.id, environment })
+    logger.info({ msg: 'Started app publishing', appId: app.id, environment })
     const exportIdField = getExportIdField(environment)
     const exportId = app[exportIdField]
 
@@ -88,21 +88,21 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
     let updatedCondoApp
     if (condoApp) {
         // App found -> update
-        // logger.info({ msg: 'Found existing condo app', appId: app.id, condoAppId: condoApp.id, environment })
+        logger.info({ msg: 'Found existing condo app', appId: app.id, environment, meta: { condoAppId: condoApp.id } })
         updatedCondoApp = await serverClient.updateModel({
             modelGql: CondoB2CAppGql,
             id: condoApp.id,
             updateInput: appPayload,
         })
-        // logger.info({ msg: 'Condo app successfully updated', appId: app.id, condoAppId: condoApp.id, environment })
+        logger.info({ msg: 'Condo app successfully updated', appId: app.id, condoAppId: condoApp.id, environment })
     } else {
         // App not found -> create new one
-        // logger.info({ msg: 'Condo app not found', appId: app.id, environment })
+        logger.info({ msg: 'Condo app not found. Creating new one', appId: app.id, environment })
         updatedCondoApp = await serverClient.createModel({
             modelGql: CondoB2CAppGql,
             createInput: appPayload,
         })
-        // logger.info({ msg: 'Condo app successfully created', appId: app.id, condoAppId: updatedCondoApp.id, environment })
+        logger.info({ msg: 'Condo app successfully created', appId: app.id, environment, meta: { condoAppId: updatedCondoApp.id } })
     }
     // Update exportIdField if needed
     if (!exportId || exportId !== updatedCondoApp.id) {
@@ -111,7 +111,7 @@ async function publishAppChanges ({ app, condoApp, serverClient, args, context }
             sender,
             [exportIdField]: updatedCondoApp.id,
         })
-        // logger.info({ msg: 'Dev-api app exportId updated', appId: app.id, condoAppId: updatedCondoApp.id, environment })
+        logger.info({ msg: 'Dev-api app exportId updated', appId: app.id, environment, meta: { condoAppId: updatedCondoApp.id } })
     }
 
     return updatedCondoApp
@@ -123,13 +123,15 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
     const exportId = build[exportIdField]
     let buildToUpdate = condoBuild
     if (!buildToUpdate) {
-        // logger.info({
-        //     msg:'Condo build not found, creating new one',
-        //     appId: app.id,
-        //     condoAppId: condoApp.id,
-        //     version: build.version,
-        //     environment,
-        // })
+        logger.info({
+            msg:'Condo build not found, creating new one',
+            appId: app.id,
+            environment,
+            meta: {
+                condoAppId: condoApp.id,
+                version: build.version,
+            },
+        })
         buildToUpdate = await serverClient.createModel({
             modelGql: CondoB2CAppBuildGql,
             createInput: {
@@ -142,10 +144,10 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
                 importRemoteSystem: REMOTE_SYSTEM,
             },
         })
-        // logger.info({ msg: 'Condo build created', environment, condoAppId: condoApp.id, appId: app.id, version: build.version })
+        logger.info({ msg: 'Condo build created', environment, appId: app.id, meta: { version: build.version, condoAppId: condoApp.id } })
     }
 
-    // logger.info({ msg: 'Updating app current build', environment, condoAppId: condoApp.id, appId: app.id, version: build.version, condoBuildId: buildToUpdate.id })
+    logger.info({ msg: 'Updating condo app current build', environment, appId: app.id, meta: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id } })
     await serverClient.updateModel({
         modelGql: CondoB2CAppGql,
         id: condoApp.id,
@@ -155,6 +157,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
             currentBuild: { connect: { id: buildToUpdate.id } },
         },
     })
+    logger.info({ msg: 'Current build successfully updated', environment, appId: app.id, meta: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id } })
 
     if (!exportId || exportId !== buildToUpdate.id) {
         await B2CAppBuild.update(context, build.id, {
@@ -162,6 +165,7 @@ async function publishBuildChanges ({ build, condoBuild, app, condoApp, context,
             sender,
             [exportIdField]: buildToUpdate.id,
         })
+        logger.info({ msg: 'Dev-api build exportId updated', appId: app.id, environment, meta: { condoAppId: condoApp.id, version: build.version, condoBuildId: buildToUpdate.id } })
     }
 }
 
