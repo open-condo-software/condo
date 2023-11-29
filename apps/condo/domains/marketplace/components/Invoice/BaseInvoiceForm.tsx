@@ -723,7 +723,7 @@ const StatusRadioGroup = ({
                             >
                                 <Typography.Text
                                     type={status === INVOICE_STATUS_PAID ? 'success' : 'primary'}
-                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isOnlinePaymentType}
                                     strong
                                 >
                                     {InvoiceStatusPaidLabel}
@@ -737,7 +737,7 @@ const StatusRadioGroup = ({
                             <div style={status === INVOICE_STATUS_CANCELED ? { color: colors.brown[5] } : {}}>
                                 <Typography.Text
                                     type={status === INVOICE_STATUS_CANCELED ? 'inherit' : 'primary'}
-                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled}
+                                    disabled={isAllFieldsDisabled || isNotDraftStatusesDisabled || isCreateForm}
                                     strong
                                 >
                                     {InvoiceStatusCancelledLabel}

@@ -47,8 +47,10 @@ export const useMarketplaceInvoicesTableColumns = ({ filtersMeta }) => {
             key: 'number',
             dataIndex: 'number',
             width: '15%',
-            render: (number) => {
-                return render(`№${number}`)
+            render: (number, invoice) => {
+                const renderInvoiceNumber = getTableCellRenderer({ search, href: `/marketplace/invoice/${invoice.id}`, target: '_blank' })
+
+                return renderInvoiceNumber(`№${number}`)
             },
             sorter: true,
             sortOrder: get(sorterMap, 'number'),

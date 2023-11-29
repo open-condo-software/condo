@@ -1,6 +1,6 @@
 import { SortInvoicesBy } from '@app/condo/schema'
 import { Col, Row } from 'antd'
-import dayjs, { Dayjs } from 'dayjs'
+import dayjs from 'dayjs'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'

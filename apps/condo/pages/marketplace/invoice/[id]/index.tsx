@@ -11,7 +11,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Edit } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
 import { useOrganization } from '@open-condo/next/organization'
-import { ActionBar, Alert, Button, Space, Typography } from '@open-condo/ui'
+import { ActionBar, Alert, Button, Space, Tooltip, Typography } from '@open-condo/ui'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -294,25 +294,42 @@ const PayerDataField = ({ invoice }) => {
 const InvoiceActionBar = ({
     invoice,
     employee,
-    isTerminalStatus,
 }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
 
     const canManageInvoices = useMemo(() => get(employee, 'role.canManageInvoices'), [employee])
+    const invoiceStatus = useMemo(() => get(invoice, 'status'), [invoice])
+    const isButtonDisabled = invoiceStatus === INVOICE_STATUS_CANCELED ||
+        invoiceStatus === INVOICE_STATUS_PUBLISHED || invoiceStatus === INVOICE_STATUS_PAID
+
+    const DisabledTooltipMessage = useMemo(() => isButtonDisabled &&
+        intl.formatMessage(
+            { id: 'pages.condo.marketplace.invoice.id.disableEditButtonTooltip' },
+            { status: intl.formatMessage({ id: `pages.condo.marketplace.invoice.invoiceStatus.${invoiceStatus}` }) },
+        ), [isButtonDisabled, intl, invoiceStatus])
 
     return canManageInvoices && (
         <ActionBar
             actions={[
-                <Link key='update' href={`/marketplace/invoice/${invoice.id}/update`}>
-                    <Button
-                        disabled={isTerminalStatus}
-                        type='primary'
-                        icon={<Edit size='medium'/>}
-                        data-cy='ticket__update-link'
+                <Link
+                    key='update'
+                    href={`/marketplace/invoice/${invoice.id}/update`}
+                >
+                    <Tooltip
+                        title={DisabledTooltipMessage}
                     >
-                        {UpdateMessage}
-                    </Button>
+                        <span>
+                            <Button
+                                disabled={isButtonDisabled}
+                                type='primary'
+                                icon={<Edit size='medium'/>}
+                                data-cy='ticket__update-link'
+                            >
+                                {UpdateMessage}
+                            </Button>
+                        </span>
+                    </Tooltip>
                 </Link>,
             ]}
         />
@@ -324,19 +341,33 @@ const InvoiceIdPage = () => {
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const RawInvoiceTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' })
     const OrderTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.title.order' })
+    const NotFoundErrorTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.notFoundError.title' })
+    const NotFoundDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.notFoundError.description' })
 
-    const { link, loading: employeeLoading } = useOrganization()
+    const { link, loading: employeeLoading, organization } = useOrganization()
     const router = useRouter()
     const { query: { id } } = router as { query: { [key: string]: string } }
 
     const { refetch: refetchInvoice, loading: invoiceLoading, obj: invoice, error } = Invoice.useObject({
-        where: { id },
+        where: {
+            id,
+            context: { organization: { id: get(organization, 'id', null) } },
+        },
     })
 
     const InvoiceTitleMessage = RawInvoiceTitle.replace('{number}', get(invoice, 'number'))
     const loading = invoiceLoading || employeeLoading
 
     if (!invoice) {
+        if (!error && !loading) {
+            return (
+                <LoadingOrErrorPage
+                    title={NotFoundErrorTitle}
+                    error={NotFoundDescription}
+                />
+            )
+        }
+
         return (
             <LoadingOrErrorPage
                 loading={loading}
@@ -417,7 +448,6 @@ const InvoiceIdPage = () => {
                                     <InvoiceActionBar
                                         invoice={invoice}
                                         employee={link}
-                                        isTerminalStatus={isTerminalStatus}
                                     />
                                 </Col>
                             </Row>

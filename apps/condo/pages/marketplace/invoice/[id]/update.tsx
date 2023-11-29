@@ -6,6 +6,7 @@ import { useRouter } from 'next/router'
 import React from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 
 import { PageContent, PageWrapper } from '@condo/domains/common/components/containers/BaseLayout'
 import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
@@ -22,14 +23,27 @@ const UpdateInvoicePage = () => {
     const intl = useIntl()
     const ServerErrorMessage = intl.formatMessage({ id: 'ServerError' })
     const UpdateInvoiceTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.update.title' })
+    const NotFoundErrorTitle = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.notFoundError.title' })
+    const NotFoundDescription = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.id.notFoundError.description' })
 
     const router = useRouter()
+    const { organization } = useOrganization()
     const { query: { id } } = router as { query: { [key: string]: string } }
     const { obj: invoice, loading, error } = Invoice.useObject({
         where: {
             id,
+            context: { organization: { id: get(organization, 'id', null) } },
         },
     })
+
+    if (!invoice && !error && !loading) {
+        return (
+            <LoadingOrErrorPage
+                title={NotFoundErrorTitle}
+                error={NotFoundDescription}
+            />
+        )
+    }
 
     if (loading || error) {
         return (
