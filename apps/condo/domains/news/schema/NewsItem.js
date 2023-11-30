@@ -277,7 +277,8 @@ const NewsItem = new GQLListSchema('NewsItem', {
                 await notifyResidentsAboutNewsItem.delay(updatedItem.id)
 
                 // Publish connected NewsItemSharing items
-                await publishSharedNewsItemsByNewsItem.delay(updatedItem.id)
+                // Todo: @toplenboren (DOMA-7887) turn this on when one of miniapps is ready
+                // await publishSharedNewsItemsByNewsItem.delay(updatedItem.id)
             }
         },
     },
