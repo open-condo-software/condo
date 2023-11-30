@@ -23,13 +23,15 @@ const {
     APP_NOT_FOUND,
     CONDO_APP_NOT_FOUND,
     BUILD_NOT_FOUND,
+    PUBLISH_NOT_ALLOWED,
 } = require('@dev-api/domains/miniapp/constants/errors')
 const {
     AVAILABLE_ENVIRONMENTS,
     PROD_ENVIRONMENT,
     B2C_APP_DEFAULT_LOGO_PATH,
+    PUBLISH_REQUEST_APPROVED_STATUS,
 } = require('@dev-api/domains/miniapp/constants/publishing')
-const { B2CApp, B2CAppBuild } = require('@dev-api/domains/miniapp/utils/serverSchema/index')
+const { B2CApp, B2CAppBuild, B2CAppPublishRequest } = require('@dev-api/domains/miniapp/utils/serverSchema/index')
 
 const ERRORS = {
     FIRST_PUBLISH_WITHOUT_INFO: {
@@ -55,6 +57,12 @@ const ERRORS = {
         type: BUILD_NOT_FOUND,
         message: 'Application build with the specified ID was not found',
         messageForUser: 'errors.BUILD_NOT_FOUND.message',
+    },
+    PUBLISH_NOT_ALLOWED: {
+        code: BAD_USER_INPUT,
+        type: PUBLISH_NOT_ALLOWED,
+        message: 'The application cannot be published to the specified stand, as this requires additional verification',
+        messageForUser: 'errors.PUBLISH_NOT_ALLOWED.message',
     },
 }
 
@@ -206,6 +214,17 @@ const PublishB2CAppService = new GQLCustomSchema('PublishB2CAppService', {
 
                 if (!exportId && !options.info) {
                     throw new GQLError(ERRORS.FIRST_PUBLISH_WITHOUT_INFO, context)
+                }
+
+                if (environment === PROD_ENVIRONMENT) {
+                    const publishRequest = await B2CAppPublishRequest.getOne(context, {
+                        app: { id: app.id },
+                        deletedAt: null,
+                        status: PUBLISH_REQUEST_APPROVED_STATUS,
+                    })
+                    if (!publishRequest) {
+                        throw new GQLError(ERRORS.PUBLISH_NOT_ALLOWED, context)
+                    }
                 }
 
                 const serverClient = environment === PROD_ENVIRONMENT

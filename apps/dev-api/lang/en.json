@@ -16,5 +16,6 @@
   "errors.APP_NOT_FOUND.message": "The application with the specified ID was not found",
   "errors.CONDO_APP_NOT_FOUND.message": "The application was not found on the selected stand. Enable the «Application Information» option and try again",
   "errors.BUILD_NOT_FOUND.message": "The application build with the specified ID was not found",
-  "errors.MULTIPLE_FOUND.message": "Unable to determine the object to update because multiple objects were found for the specified importID and exportId"
+  "errors.MULTIPLE_FOUND.message": "Unable to determine the object to update because multiple objects were found for the specified importID and exportId",
+  "errors.PUBLISH_NOT_ALLOWED.message": "The application cannot be published to the specified stand, as this requires additional verification"
 }

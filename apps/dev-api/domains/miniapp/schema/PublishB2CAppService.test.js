@@ -21,7 +21,9 @@ const {
     FIRST_PUBLISH_WITHOUT_INFO,
     CONDO_APP_NOT_FOUND,
     BUILD_NOT_FOUND,
+    PUBLISH_NOT_ALLOWED,
 } = require('@dev-api/domains/miniapp/constants/errors')
+const { PROD_ENVIRONMENT, PUBLISH_REQUEST_APPROVED_STATUS } = require('@dev-api/domains/miniapp/constants/publishing')
 const {
     publishB2CAppByTestClient,
     createTestB2CApp,
@@ -30,6 +32,8 @@ const {
     createTestB2CAppBuild,
     updateTestB2CAppBuild,
     B2CAppBuild,
+    createTestB2CAppPublishRequest,
+    updateTestB2CAppPublishRequest,
 } = require('@dev-api/domains/miniapp/utils/testSchema')
 const {
     makeLoggedInAdminClient,
@@ -87,6 +91,50 @@ describe('PublishB2CAppService', () => {
         })
     })
     describe('Logic tests', () => {
+        describe('B2CAppPublishRequest', () => {
+            test('Mutation must throw GQLError if an attempt is made to publish to a production stand without a approved B2CAppPublishRequest for app', async () => {
+                const [app] = await createTestB2CApp(user)
+                await expectToThrowGQLError(async () => {
+                    await publishB2CAppByTestClient(user, app, { info: true }, PROD_ENVIRONMENT)
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: PUBLISH_NOT_ALLOWED,
+                }, 'result')
+                const [request] = await createTestB2CAppPublishRequest(user, app)
+                expect(request).toHaveProperty('id')
+
+                await expectToThrowGQLError(async () => {
+                    await publishB2CAppByTestClient(user, app, { info: true }, PROD_ENVIRONMENT)
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: PUBLISH_NOT_ALLOWED,
+                }, 'result')
+
+                const [updatedRequest] = await updateTestB2CAppPublishRequest(support, request.id, {
+                    isAppTested: true,
+                    isContractSigned: true,
+                    isInfoApproved: true,
+                    status: PUBLISH_REQUEST_APPROVED_STATUS,
+                })
+                expect(updatedRequest).toHaveProperty('status', PUBLISH_REQUEST_APPROVED_STATUS)
+
+                const [result] = await publishB2CAppByTestClient(user, app, { info: true }, PROD_ENVIRONMENT)
+                expect(result).toHaveProperty('success', true)
+
+                const [deletedRequest] = await updateTestB2CAppPublishRequest(support, request.id, {
+                    deletedAt: dayjs().toISOString(),
+                })
+                expect(deletedRequest).toHaveProperty('deletedAt')
+                expect(deletedRequest.deletedAt).not.toBeNull()
+
+                await expectToThrowGQLError(async () => {
+                    await publishB2CAppByTestClient(user, app, { info: true }, PROD_ENVIRONMENT)
+                }, {
+                    code: BAD_USER_INPUT,
+                    type: PUBLISH_NOT_ALLOWED,
+                }, 'result')
+            })
+        })
         describe('B2CApp', () => {
             let app
             beforeEach(async () => {
