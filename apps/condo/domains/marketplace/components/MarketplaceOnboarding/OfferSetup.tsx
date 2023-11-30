@@ -1,8 +1,9 @@
+import { SortAcceptsBy } from '@app/condorb/schema'
 import { Col, Form, Row } from 'antd'
 import dayjs from 'dayjs'
 import get from 'lodash/get'
 import getConfig from 'next/config'
-import React, { useState, useCallback } from 'react'
+import React, { useState, useCallback, useEffect } from 'react'
 
 import bridge from '@open-condo/bridge'
 import { useIntl } from '@open-condo/next/intl'
@@ -10,7 +11,6 @@ import { Typography, Checkbox, Space } from '@open-condo/ui'
 import { Button } from '@open-condo/ui'
 
 import Input from '@condo/domains/common/components/antd/Input'
-import { FormWithAction } from '@condo/domains/common/components/containers/FormList'
 import { Loader } from '@condo/domains/common/components/Loader'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
 import {
@@ -24,6 +24,8 @@ import { Accept } from '@condorb/domains/condorb/utils/clientSchema'
 import type { RowProps } from 'antd'
 
 const { publicRuntimeConfig: { condoUrl } } = getConfig()
+
+const FORM_VALIDATE_TRIGGER = ['onBlur', 'onSubmit']
 
 const VERTICAL_GUTTER: RowProps['gutter'] = [0, 40]
 const VERTICAL_TEXT_GUTTER: RowProps['gutter'] = [0, 12]
@@ -45,6 +47,8 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const signOffer = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.signOfferButton' })
     const downloadOffer = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.downloadOfferButton' })
 
+    const [form] = Form.useForm()
+
     const Rules = intl.formatMessage(
         { id: 'pages.condo.marketplace.settings.offer.rules' },
         {
@@ -65,26 +69,28 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const {
         obj: organization,
         loading: organizationIsLoading,
-    } = Organization.useObject(
-        { where: { id: organizationId } }
-    )
+    } = Organization.useObject({ where: { id: organizationId } })
+
+    const {
+        obj: acquiringOffer,
+        loading: isAcquiringOfferLoading,
+    } = Accept.useObject({ where: { scope: SCOPE_TYPES.acquiring, organizationId }, sortBy: [SortAcceptsBy.CreatedAtDesc], first: 1 })
 
     const [rulesAreAccepted, setRulesAreAccepted] = useState<boolean>(false)
     const [loading, setIsLoading] = useState<boolean>(false)
-    const [usersEmails, setUsersEmails] = useState<string | null>('')
     const { requiredValidator, multipleEmailsValidator } = useValidations()
 
     const handleDownload = useCallback(() => {
         bridge.send('CondoWebAppRedirect', { url: MARKETPLACE_OFFER_LINK, target: '_blank' })
     }, [])
 
-    const handleSignOffer = useCallback(async () => {
+    const handleSignOffer = useCallback(async (values) => {
         setIsLoading(true)
         const tin = get(organization, 'tin')
         await createAcceptAction({
             userId: userId,
             organizationId: organizationId,
-            email: usersEmails,
+            email: values.email,
             tin,
             scope: SCOPE_TYPES['marketplace'],
             signDate: dayjs().format('YYYY-MM-DD'),
@@ -92,21 +98,23 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
         setIsLoading(false)
         window.parent.postMessage({ success: true }, condoUrl)
         setIsLoading(false)
-    }, [createAcceptAction, organization, organizationId, userId, usersEmails])
-
-    const onUserEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        setUsersEmails(e.target.value)
-    }, [setUsersEmails])
+    }, [createAcceptAction, organization, organizationId, userId])
 
     const onRulesAcceptedChange = useCallback(() => {
         setRulesAreAccepted(prev => !prev)
     }, [setRulesAreAccepted])
 
+    useEffect(() => {
+        if (acquiringOffer && !isAcquiringOfferLoading) {
+            form.setFieldValue('email', get(acquiringOffer, 'email', ''))
+        }
+    }, [acquiringOffer, form, isAcquiringOfferLoading])
+
     if (organizationIsLoading) {
         return <Loader fill size='large' />
     }
 
-    return (<>
+    return (
         <Row gutter={VERTICAL_GUTTER}>
             <Col lg={13} span={24}>
                 <Row gutter={VERTICAL_TEXT_GUTTER}>
@@ -133,53 +141,57 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
                         <Typography.Paragraph type='secondary'>
                             {InfoBlockText}
                         </Typography.Paragraph>
-                        <FormWithAction
-                            action={() => handleSignOffer()}
-                            validateTrigger={['onBlur', 'onSubmit']}
-                            OnCompletedMsg={null}
-                            children={({ handleSave }) => (
-                                <Row gutter={VERTICAL_GUTTER}>
-                                    <Col span={24}>
-                                        <Form.Item
-                                            name='email'
-                                            rules={[requiredValidator, multipleEmailsValidator(usersEmails)]}
-                                            required
-                                            label={EmailTip}
+                    </Col>
+                    <Col span={24}>
+                        <Form
+                            form={form}
+                            layout='vertical'
+                            onFinish={handleSignOffer}
+                            validateTrigger={FORM_VALIDATE_TRIGGER}
+                        >
+                            <Row gutter={VERTICAL_GUTTER}>
+                                <Col span={24}>
+                                    <Form.Item
+                                        name='email'
+                                        rules={[requiredValidator, multipleEmailsValidator(form.getFieldValue('email'))]}
+                                        required
+                                        label={EmailTip}
+                                    >
+                                        <Input
+                                            type='email'
+                                            placeholder='name@example.com, example@example.com'
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col span={24}>
+                                    <Space size={8}>
+                                        <Checkbox checked={rulesAreAccepted} onChange={onRulesAcceptedChange}/>
+                                        <Typography.Paragraph size='small' type='secondary'>
+                                            {Rules}
+                                        </Typography.Paragraph>
+                                    </Space>
+                                </Col>
+                                <Col span={24}>
+                                    <Space direction='horizontal' size={16} wrap>
+                                        <Button
+                                            key='submit'
+                                            htmlType='submit'
+                                            loading={loading}
+                                            disabled={!rulesAreAccepted}
+                                            type='primary'
                                         >
-                                            <Input
-                                                type='email'
-                                                placeholder='name@example.com, example@example.com'
-                                                value={usersEmails}
-                                                onChange={onUserEmailChange}
-                                            />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={24}>
-                                        <Space size={8}>
-                                            <Checkbox checked={rulesAreAccepted} onChange={onRulesAcceptedChange}/>
-                                            <Typography.Paragraph size='small' type='secondary'>
-                                                {Rules}
-                                            </Typography.Paragraph>
-                                        </Space>
-
-                                    </Col>
-                                    <Col span={24}>
-                                        <Space direction = 'horizontal' size={16} wrap>
-                                            <Button onClick={handleSave} loading={loading} disabled={!rulesAreAccepted} type='primary'>
-                                                {signOffer}
-                                            </Button>
-                                            <Button onClick={handleDownload} type='secondary'>
-                                                {downloadOffer}
-                                            </Button>
-                                        </Space>
-                                    </Col>
-                                </Row>
-                            )}
-                        />
+                                            {signOffer}
+                                        </Button>
+                                        <Button onClick={handleDownload} type='secondary'>
+                                            {downloadOffer}
+                                        </Button>
+                                    </Space>
+                                </Col>
+                            </Row>
+                        </Form>
                     </Col>
                 </Row>
             </Col>
         </Row>
-    </>
     )
 }
