@@ -53,7 +53,7 @@ const getAvailableResidentMeters = async (userId) => {
         addressKey_in: userResidents.map(resident => resident.addressKey),
     })
 
-    const userConsumers = await find('ServiceConsumer', {
+    const allUserServiceConsumers = await find('ServiceConsumer', {
         resident: { id_in: residentIds, deletedAt: null },
         organization: { deletedAt: null },
         deletedAt: null,
@@ -62,18 +62,20 @@ const getAvailableResidentMeters = async (userId) => {
     const orStatements = []
 
     for (const resourceOwner of resourceOwners) {
-        const userConsumer = userConsumers.find(consumer => consumer.organization === resourceOwner.organization)
+        const userConsumers = allUserServiceConsumers.filter(consumer => consumer.organization === resourceOwner.organization)
 
-        if (userConsumer) {
-            orStatements.push({
-                AND: [
-                    { organization: { id: resourceOwner.organization, deletedAt: null } },
-                    { resource: { id: resourceOwner.resource } },
-                    { accountNumber: userConsumer.accountNumber },
-                    { property: { addressKey: resourceOwner.addressKey, deletedAt: null } },
-                    { unitName: get(residentsByIds, [userConsumer.resident, 'unitName']) },
-                    { unitType: get(residentsByIds, [userConsumer.resident, 'unitType']) },
-                ],
+        if (userConsumers.length > 0) {
+            userConsumers.forEach(consumer => {
+                orStatements.push({
+                    AND: [
+                        { organization: { id: resourceOwner.organization, deletedAt: null } },
+                        { resource: { id: resourceOwner.resource } },
+                        { accountNumber: consumer.accountNumber },
+                        { property: { addressKey: resourceOwner.addressKey, deletedAt: null } },
+                        { unitName: get(residentsByIds, [consumer.resident, 'unitName']) },
+                        { unitType: get(residentsByIds, [consumer.resident, 'unitType']) },
+                    ],
+                })
             })
         }
     }
