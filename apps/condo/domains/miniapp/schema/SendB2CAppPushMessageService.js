@@ -152,8 +152,7 @@ const SendB2CAppPushMessageService = new GQLCustomSchema('SendB2CAppPushMessageS
                 const ttl = CACHE_TTL[type] || CACHE_TTL['DEFAULT']
 
                 await redisGuard.checkLock(searchKey, SERVICE_NAME, context)
-                // TODO: FOR TESTING ON REVIEW STEND
-                // await redisGuard.lock(searchKey, SERVICE_NAME, ttl)
+                await redisGuard.lock(searchKey, SERVICE_NAME, ttl)
 
                 const messageAttrs = {
                     uniqKey,
