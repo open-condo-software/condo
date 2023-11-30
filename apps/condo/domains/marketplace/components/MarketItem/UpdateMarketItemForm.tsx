@@ -1,3 +1,4 @@
+import { SortMarketItemFilesBy, SortMarketItemPricesBy } from '@app/condo/schema'
 import { Col } from 'antd'
 import { isEqual, sortBy } from 'lodash'
 import difference from 'lodash/difference'
@@ -14,15 +15,13 @@ import LoadingOrErrorPage from '@condo/domains/common/components/containers/Load
 import {
     InvoiceContext,
     MarketItem,
+    MarketItemFile,
     MarketItemPrice,
     MarketPriceScope,
 } from '@condo/domains/marketplace/utils/clientSchema'
+import { getPriceValueFromFormPrice } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
-
-import { SortMarketItemPricesBy } from '../../../../schema'
-import { getPriceValueFromFormPrice } from '../../utils/clientSchema/MarketItem'
-
 
 
 export const UpdateMarketItemForm = ({ marketItem }) => {
@@ -56,9 +55,20 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         objs: marketPriceScopes,
         loading: marketPriceScopesLoading,
         error: marketPriceScopesError,
-    } = MarketPriceScope.useObjects({
+    } = MarketPriceScope.useAllObjects({
         where: { marketItemPrice: { id_in: initialMarketItemPricesIds } },
     }, { skip: isEmpty(initialMarketItemPricesIds) })
+
+    const {
+        objs: marketItemFiles,
+        loading: marketItemFilesLoading,
+        error: marketItemFilesError,
+    } = MarketItemFile.useObjects({
+        where: {
+            marketItem: { id: get(marketItem, 'id') },
+        },
+        sortBy: [SortMarketItemFilesBy.CreatedAtAsc],
+    })
 
     const router = useRouter()
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
@@ -72,7 +82,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
     const handleUpdateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
-        const { prices: formPrices, ...marketItemValues } = values
+        const { prices: formPrices, files, ...marketItemValues } = values
 
         const updatedMarketItem = await updateMarketItem(MarketItem.formValuesProcessor(marketItemValues), marketItem)
 
@@ -158,17 +168,19 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
 
         setSubmitLoading(false)
 
-        // await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
-
         return updatedMarketItem
     }, [createMarketItemPrice, createMarketPriceScope, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemPrices, marketPriceScopes, softDeleteMarketItemPrice, softDeleteMarketPriceScope, updateMarketItem, updateMarketItemPrice])
 
     const initialValues = useMemo(
-        () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes }),
-        [marketItem, marketItemPrices, marketPriceScopes])
+        () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }),
+        [marketItem, marketItemFiles, marketItemPrices, marketPriceScopes])
 
-    const loading = marketItemPricesLoading || marketPriceScopesLoading
-    const error = marketItemPriceError || marketPriceScopesError
+    const afterAction = useCallback(async () => {
+        await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
+    }, [marketItem, router])
+
+    const loading = marketItemPricesLoading || marketPriceScopesLoading || marketItemFilesLoading
+    const error = marketItemPriceError || marketPriceScopesError || marketItemFilesError
     if (loading || error) {
         return (
             <LoadingOrErrorPage
@@ -182,6 +194,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         <BaseMarketItemForm
             action={handleUpdateMarketItem}
             initialValues={initialValues}
+            afterAction={afterAction}
         >
             {
                 ({ handleSave, form }) => {

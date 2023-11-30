@@ -1,8 +1,8 @@
 /** @jsx jsx */
-import { MarketItem as MarketItemType } from '@app/condo/schema'
+import { MarketItem as MarketItemType, SortMarketItemFilesBy } from '@app/condo/schema'
 import { jsx } from '@emotion/react'
 import styled from '@emotion/styled'
-import { Col, Form, Input, Row, RowProps, Select } from 'antd'
+import { Col, Form, Input, Row, RowProps, Select, Button as AntdButton } from 'antd'
 import { Rule } from 'antd/lib/form'
 import { FormProps } from 'antd/lib/form/Form'
 import get from 'lodash/get'
@@ -20,9 +20,16 @@ import {
     GraphQlSearchInputWithCheckAll,
     InputWithCheckAllProps,
 } from '@condo/domains/common/components/GraphQlSearchInputWithCheckAll'
+import { ImagesUploadList } from '@condo/domains/common/components/ImagesUploadList'
 import { useLayoutContext } from '@condo/domains/common/components/LayoutContext'
+import { useMultipleFileUploadHook } from '@condo/domains/common/components/MultipleFileUpload'
 import { useValidations } from '@condo/domains/common/hooks/useValidations'
-import { InvoiceContext, MarketCategory, MarketItem } from '@condo/domains/marketplace/utils/clientSchema'
+import {
+    InvoiceContext,
+    MarketCategory,
+    MarketItem,
+    MarketItemFile,
+} from '@condo/domains/marketplace/utils/clientSchema'
 import {
     INITIAL_PRICE_FORM_VALUE,
     MarketItemFormValuesType,
@@ -35,6 +42,8 @@ import {
     BaseMarketItemFormContextType,
     useMarketItemFormContext,
 } from './BaseMarketItemFormContext'
+
+import { getMoneyRender } from '../../utils/clientSchema/Invoice'
 
 
 const GROUP_OUTER_GUTTER: RowProps['gutter'] = [0, 40]
@@ -57,7 +66,7 @@ const FORM_LAYOUT_PROPS: FormProps = {
 const MobilePreviewContainer = styled.div`
   width: 100%;
   max-width: 500px;
-  max-height: 500px;
+  height: 621px;
   background-color: ${colors.gray[1]};
   border-radius: 12px;
   padding: 40px 12px;
@@ -65,34 +74,117 @@ const MobilePreviewContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  pointer-events: none;
 `
 const AppPreviewContainer = styled.div`
   margin-top: 24px;
   position: relative;
   height: 100%;
-  width: 100%;
+  width: 274px;
   display: flex;
-  align-items: start;
-  background-image: url("/phoneNewsPreview.png");
-  justify-content: center;
-  background-size: cover;
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: center;
+  background-image: url("/phoneMarketItemPreview.png");
+  background-size: contain;
   background-repeat: no-repeat;
   background-position: top center;
   padding-top: 60px;
   padding-left: 22px;
   padding-right: 22px;
-  min-height: 500px;
-  max-width: 360px;
+  
+  & .mobile-content-wrapper {
+    height: 90%;
+    width: 80%;
+    display: flex;
+    flex-flow: column;
+    align-items: center; 
+    justify-content: space-between;
+    
+    & .order-button {
+      width: 100%;
+      border-radius: 14px;
+      background-color: ${colors.green[5]};
+      color: ${colors.white};
+    }
+  }
 
   & .ant-divider {
     margin: 12px;
   }
 `
 
-const MobilePreview = () => {
+const MobilePreview = ({ marketCategoryName, price, priceType, sku, description, files, initialFileList }) => {
+    const intl = useIntl()
+    const MobilePreviewTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.title' })
+    const ContractPrice = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
+
+    const { invoiceContext } = useMarketItemFormContext()
+
+    const { objs: fileList } = MarketItemFile.useObjects({
+        where: {
+            id_in: files,
+        },
+        sortBy: [SortMarketItemFilesBy.CreatedAtDesc],
+    }, { skip: isEmpty(files) })
+
+    const { UploadComponent } = useMultipleFileUploadHook({
+        Model: MarketItemFile,
+        relationField: 'marketItem',
+        initialFileList,
+    })
+
+    const moneyRender = getMoneyRender(intl, get(invoiceContext, 'currencyCode'))
+    let resultPrice
+    if (priceType === PriceType.Contract) {
+        resultPrice = ContractPrice
+    } else if (price) {
+        resultPrice = moneyRender(price, priceType === PriceType.Min)
+    }
+
     return (
         <MobilePreviewContainer>
-            <AppPreviewContainer/>
+            <Typography.Title type='secondary' level={3}>{MobilePreviewTitle}</Typography.Title>
+            <AppPreviewContainer>
+                <div className='mobile-content-wrapper'>
+                    <Row style={{ maxWidth: '100%' }}>
+                        <Col span={24}>
+                            <Col span={24}>
+                                <Typography.Text strong>
+                                    {marketCategoryName}
+                                </Typography.Text>
+                            </Col>
+                            <Col span={24}>
+                                <Typography.Text type='secondary'>
+                                    {resultPrice}
+                                </Typography.Text>
+                            </Col>
+                        </Col>
+
+                        <Col span={24}>
+                            <Typography.Text size='small'>
+                                Арт. {sku}
+                            </Typography.Text>
+                        </Col>
+                        <Col span={24}>
+                            <Typography.Text>
+                                {description}
+                            </Typography.Text>
+                        </Col>
+                        <Col span={24}>
+                            <ImagesUploadList
+                                UploadComponent={UploadComponent}
+                                type='view'
+                                fileList={!isEmpty(fileList) && fileList}
+                                hideArrows
+                            />
+                        </Col>
+                    </Row>
+                    <AntdButton className='order-button'>
+                        <Typography.Text strong type='inherit'>Заказать</Typography.Text>
+                    </AntdButton>
+                </div>
+            </AppPreviewContainer>
         </MobilePreviewContainer>
     )
 }
@@ -123,14 +215,19 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
 
     useEffect(() => {
         if (subCategoriesOptions.length === 1) {
+            const parentCategoryOption = parentCategoriesOptions
+                .find(({ value }) => value === parentCategoryId)
+
             form.setFieldsValue({
                 marketCategory: subCategoriesOptions[0].value,
+                marketCategoryName: get(parentCategoryOption, 'label'),
             })
         }
-    }, [form, subCategoriesOptions])
+    }, [form, parentCategoriesOptions, parentCategoryId, subCategoriesOptions])
 
     const handleChangeParentCategory = useCallback(() => form.setFieldsValue({
         marketCategory: null,
+        marketCategoryName: null,
     }), [form])
 
     return (
@@ -163,6 +260,9 @@ const CategorySelectFields = ({ parentCategoryId, form }) => {
                         options={subCategoriesOptions}
                         loading={loading}
                         allowClear
+                        onChange={(_, option) => {
+                            form.setFieldsValue({ marketCategoryName: get(option, 'label') })
+                        }}
                     />
                 </Form.Item>
             </Col>
@@ -194,7 +294,7 @@ const MarketItemFields = () => {
     const { organization } = useOrganization()
     const { refetch: fetchMarketItemsCount } = MarketItem.useCount({}, { skip: true })
 
-    const { form, marketItemId } = useMarketItemFormContext()
+    const { form, marketItemId, UploadComponent } = useMarketItemFormContext()
 
     const { requiredValidator, maxLengthValidator } = useValidations()
     const uniqueSkuValidator: Rule = useMemo(() => ({
@@ -215,7 +315,6 @@ const MarketItemFields = () => {
         },
     }), [SkuTooltipMessage, fetchMarketItemsCount, marketItemId, organization])
 
-    // до "Цена и видимость услуги"
     return (
         <Row gutter={GROUP_INNER_GUTTER}>
             <Col span={24}>
@@ -246,12 +345,12 @@ const MarketItemFields = () => {
                     noStyle
                 >
                     {
-                        ({ getFieldValue }) => {
-                            const parentCategoryId = getFieldValue('parentCategory')
+                        ({ getFieldsValue }) => {
+                            const { parentCategory } = getFieldsValue(['parentCategory'])
 
                             return (
                                 <CategorySelectFields
-                                    parentCategoryId={parentCategoryId}
+                                    parentCategoryId={parentCategory}
                                     form={form}
                                 />
                             )
@@ -272,6 +371,17 @@ const MarketItemFields = () => {
                                 return `${count}/${maxLength}`
                             },
                         }}
+                    />
+                </Form.Item>
+            </Col>
+            <Col span={24}>
+                <Form.Item
+                    name='files'
+                    label={MarketItemPhotoFieldMessage}
+                >
+                    <ImagesUploadList
+                        UploadComponent={UploadComponent}
+                        type='upload'
                     />
                 </Form.Item>
             </Col>
@@ -446,7 +556,7 @@ const MarketPriceForm = ({ priceFormDescription, removeOperation }) => {
                             }}
                         >
                             <Space size={8}>
-                                <Trash />
+                                <Trash/>
                                 {CancelMessage}
                             </Space>
                         </Typography.Text>
@@ -488,7 +598,7 @@ const MarketPricesList = () => {
                             <Col span={24}>
                                 <Typography.Text strong onClick={() => operation.add(INITIAL_PRICE_FORM_VALUE)}>
                                     <Space size={4} direction='horizontal'>
-                                        <PlusCircle />
+                                        <PlusCircle/>
                                         {AddPriceScopeLabel}
                                     </Space>
                                 </Typography.Text>
@@ -503,11 +613,12 @@ const MarketPricesList = () => {
 
 type BaseMarketItemFormProps = {
     action: (values: MarketItemFormValuesType) => Promise<MarketItemType>
+    afterAction: () => void
     initialValues?: MarketItemFormValuesType
 }
 
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
-    const { children, action, initialValues } = props
+    const { children, action, afterAction, initialValues } = props
     const { breakpoints } = useLayoutContext()
     const { organization } = useOrganization()
 
@@ -530,20 +641,42 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
         },
     })
 
+    const initialFileList = useMemo(() => get(initialValues, 'files'), [initialValues])
+    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
+        Model: MarketItemFile,
+        relationField: 'marketItem',
+        initialFileList,
+        onChange: (files) => {
+            console.log('onChange')
+            form.setFieldsValue({
+                files: files.map(file => get(file, 'id') || get(file, 'response.id')).filter(Boolean),
+            })
+        },
+    })
+
     const formContextValue: BaseMarketItemFormContextType = useMemo(() => ({
         form,
         marketItemId,
         getUpdatedPricesField,
-        isSmallScreen,
         invoiceContext,
-    }), [form, getUpdatedPricesField, invoiceContext, isSmallScreen, marketItemId])
+        initialValues,
+        UploadComponent,
+    }), [UploadComponent, form, getUpdatedPricesField, initialValues, invoiceContext, marketItemId])
+
+    const submitAction = useCallback(async (values) => {
+        const marketItem = await action(values)
+
+        await syncModifiedFiles(marketItem.id)
+
+        await afterAction()
+    }, [action, afterAction, syncModifiedFiles])
 
     return (
         <BaseMarketItemFormContext.Provider value={formContextValue}>
             <FormWithAction
                 formInstance={form}
                 validateTrigger={FORM_VALIDATE_TRIGGER}
-                action={action}
+                action={submitAction}
                 initialValues={initialValues}
                 {...FORM_LAYOUT_PROPS}
             >
@@ -565,7 +698,33 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                     {
                                         !isSmallScreen && (
                                             <Col span={8}>
-                                                <MobilePreview/>
+                                                <Form.Item
+                                                    shouldUpdate
+                                                    noStyle
+                                                >
+                                                    {
+                                                        ({ getFieldsValue }) => {
+                                                            const { marketCategoryName, prices, sku, description, files } = getFieldsValue(
+                                                                ['marketCategoryName', 'prices', 'sku', 'description', 'files']
+                                                            )
+
+                                                            const price = get(prices, '0.price')
+                                                            const priceType = get(prices, '0.priceType')
+                                                            
+                                                            return (
+                                                                <MobilePreview
+                                                                    marketCategoryName={marketCategoryName}
+                                                                    price={price}
+                                                                    priceType={priceType}
+                                                                    sku={sku}
+                                                                    description={description}
+                                                                    files={files}
+                                                                    initialFileList={initialFileList}
+                                                                />
+                                                            )
+                                                        }
+                                                    }
+                                                </Form.Item>
                                             </Col>
                                         )
                                     }

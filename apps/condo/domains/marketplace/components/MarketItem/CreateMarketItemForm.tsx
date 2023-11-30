@@ -22,6 +22,8 @@ import {
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
 
+const INITIAL_CREATE_FORM_VALUES = { prices: [INITIAL_PRICE_FORM_VALUE] }
+
 export const CreateMarketItemForm = () => {
     const intl = useIntl()
     const CreateMessage = intl.formatMessage({ id: 'Create' })
@@ -60,17 +62,18 @@ export const CreateMarketItemForm = () => {
 
         setSubmitLoading(false)
 
-        await router.push('/marketplace?tab=services')
-
         return createdMarketItem
-    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext, router])
+    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext])
 
-    const initialValues = { prices: [INITIAL_PRICE_FORM_VALUE] }
+    const afterAction = useCallback(async () => {
+        await router.push('/marketplace?tab=services')
+    }, [router])
 
     return (
         <BaseMarketItemForm
             action={handleCreateMarketItem}
-            initialValues={initialValues}
+            initialValues={INITIAL_CREATE_FORM_VALUES}
+            afterAction={afterAction}
         >
             {
                 ({ handleSave }) => {

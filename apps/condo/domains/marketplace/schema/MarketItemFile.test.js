@@ -7,10 +7,10 @@ const path = require('path')
 const { faker } = require('@faker-js/faker')
 
 const conf = require('@open-condo/config')
-const { makeLoggedInAdminClient, makeClient, UUID_RE, DATETIME_RE, waitFor, expectValuesOfCommonFields, expectToThrowUniqueConstraintViolationError, UploadingFile, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
+const { makeLoggedInAdminClient, makeClient, expectValuesOfCommonFields, UploadingFile, expectToThrowGQLError } = require('@open-condo/keystone/test.utils')
 const {
     expectToThrowAuthenticationErrorToObj, expectToThrowAuthenticationErrorToObjects,
-    expectToThrowAccessDeniedErrorToObj, expectToThrowAccessDeniedErrorToObjects,
+    expectToThrowAccessDeniedErrorToObj,
 } = require('@open-condo/keystone/test.utils')
 
 const { MarketItemFile, createTestMarketItemFile, updateTestMarketItemFile } = require('@condo/domains/marketplace/utils/testSchema')
@@ -201,7 +201,7 @@ describe('MarketItemFile', () => {
             test('can read', async () => {
                 const [marketItem] = await createTestMarketItem(admin, marketCategory, organization)
                 await createTestMarketItemFile(admin, marketItem)
-                const objs = await MarketItemFile.getAll(client, {}, { sortBy: ['updatedAt_DESC'] })
+                const objs = await MarketItemFile.getAll(client, { createdBy: { id_not: client.user.id } })
 
                 expect(objs).toHaveLength(0)
             })

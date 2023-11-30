@@ -5,7 +5,7 @@
 import {
     InvoiceContext,
     MarketItem,
-    MarketItemCreateInput, MarketItemPrice, MarketItemPriceCreateInput,
+    MarketItemCreateInput, MarketItemFile, MarketItemPrice, MarketItemPriceCreateInput,
     MarketItemUpdateInput, MarketPriceScope, MarketPriceScopeCreateInput,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
@@ -41,7 +41,7 @@ export type MarketItemFormValuesType = {
     parentCategory?: string
     marketCategory?: string
     description?: string
-    files?: string[]
+    files?: MarketItemFile[]
     prices?: PriceFormValuesType[]
     selectedProperties?: string[]
 }
@@ -50,9 +50,10 @@ type ConvertToFormStateArgsType = {
     marketItem: MarketItem,
     marketItemPrices: MarketItemPrice[]
     marketPriceScopes: MarketPriceScope[]
+    marketItemFiles: MarketItemFile[]
 }
 
-export function convertToFormState ({ marketItem, marketItemPrices, marketPriceScopes }: ConvertToFormStateArgsType): MarketItemFormValuesType {
+export function convertToFormState ({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }: ConvertToFormStateArgsType): MarketItemFormValuesType {
     const result: MarketItemFormValuesType = {}
 
     for (const key of Object.keys(marketItem)) {
@@ -61,6 +62,7 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
         result[key] = relationId || marketItem[key]
 
         if (key === 'marketCategory') {
+            result['marketCategoryName'] = get(marketItem, 'marketCategory.name')
             result['parentCategory'] = get(marketItem, 'marketCategory.parentCategory.id')
         }
     }
@@ -90,6 +92,8 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
     }
 
     result['prices'] = prices
+
+    result['files'] = marketItemFiles
 
     return result
 }

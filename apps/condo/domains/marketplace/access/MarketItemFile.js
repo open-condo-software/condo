@@ -38,15 +38,24 @@ async function canReadMarketItemFiles ({ authentication: { item: user }, origina
     }
 
     return {
-        marketItem: {
-            organization: {
-                OR: [
-                    queryOrganizationEmployeeFor(user.id, 'canReadMarketItems'),
-                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItems'),
+        OR: [
+            {
+                AND: [
+                    {
+                        marketItem: {
+                            organization: {
+                                OR: [
+                                    queryOrganizationEmployeeFor(user.id, 'canReadMarketItems'),
+                                    queryOrganizationEmployeeFromRelatedOrganizationFor(user.id, 'canReadMarketItems'),
+                                ],
+                                deletedAt: null,
+                            },
+                        },
+                    },
                 ],
-                deletedAt: null,
             },
-        },
+            { createdBy: { id: user.id } },
+        ],
     }
 }
 
@@ -61,13 +70,20 @@ async function canManageMarketItemFiles ({ authentication: { item: user }, origi
         let marketItem
         if (operation === 'create') {
             const marketItemId = get(originalInput, ['marketItem', 'connect', 'id'], null)
-            if (marketItemId) {
-                marketItem = await getById('MarketItem', marketItemId)
-            }
+            // all staff users can create files without market items
+            if (!marketItemId) return true
+            
+            marketItem = await getById('MarketItem', marketItemId)
         } else if (operation === 'update') {
             const marketItemFile = await getById('MarketItemFile', itemId)
-            if (marketItemFile) {
+            const resolvedMarketItemId = get(originalInput, ['marketItem', 'connect', 'id'], null)
+
+            if (resolvedMarketItemId) {
+                marketItem = await getById('MarketItem', resolvedMarketItemId)
+            } else if (get(marketItemFile, 'marketItem')) {
                 marketItem = await getById('MarketItem', marketItemFile.marketItem)
+            } else {
+                return get(marketItemFile, 'createdBy') === user.id
             }
         }
 
