@@ -170,45 +170,8 @@ const AllResidentBillingReceiptsService = new GQLCustomSchema('AllResidentBillin
                             get(receipt, ['context', 'organization', 'id']) === organization ),
                         currencyCode: get(receipt, ['context', 'integration', 'currencyCode'], null),
                         file,
+                        isPayable: receipt.isPayable,
                     })
-                })
-
-                //
-                // Set receipt.isPayable field
-                // We select only one latest receipt from each receiver + accountNumber by period
-                // Example:
-                // - John pays for cold water and electricity
-                // - John got the receipt for March for water
-                // - John got the receipt for March for electricity
-                // - John got the receipt for April for water
-                // - In result of AllResidentBillingReceipts John should get 2 receipts:
-                // - April water receipt,
-                // - March electricity receipt
-                //
-                const receiptsByAccountAndRecipient = {}
-                for (const receipt of processedReceipts) {
-                    const accountNumber = get(receipt, ['account', 'number'])
-                    const recipientId = get(receipt, ['receiver', 'id'])
-                    const categoryId = get(receipt, ['category', 'id'])
-                    const key = accountNumber + '-' + recipientId + '-' + categoryId
-
-                    const period = dayjs(get(receipt, ['period']), 'YYYY-MM-DD')
-
-                    if (!(key in receiptsByAccountAndRecipient)) {
-                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
-                        continue
-                    }
-
-                    // If we have a receipt with later period -- we take it
-                    const existingRecipientPeriod = dayjs(get(receiptsByAccountAndRecipient[key], 'period'), 'YYYY-MM-DD')
-                    if (existingRecipientPeriod < period) {
-                        receiptsByAccountAndRecipient[key] = { id: receipt.id, period }
-                    }
-                }
-
-                const payableReceipts = Object.values(receiptsByAccountAndRecipient).map(r => r.id)
-                processedReceipts.forEach(receipt => {
-                    receipt.isPayable = payableReceipts.includes(receipt.id)
                 })
 
                 //

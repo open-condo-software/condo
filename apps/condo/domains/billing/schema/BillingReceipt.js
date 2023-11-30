@@ -11,7 +11,7 @@ const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = req
 const { GQLListSchema, getById } = require('@open-condo/keystone/schema')
 
 const access = require('@condo/domains/billing/access/BillingReceipt')
-const { BillingRecipient } = require('@condo/domains/billing/utils/serverSchema')
+const { BillingRecipient, BillingReceipt: BillingReceiptApi } = require('@condo/domains/billing/utils/serverSchema')
 const { WRONG_TEXT_FORMAT, UNEQUAL_CONTEXT_ERROR } = require('@condo/domains/common/constants/errors')
 const { MONEY_AMOUNT_FIELD } = require('@condo/domains/common/schema/fields')
 
@@ -186,6 +186,28 @@ const BillingReceipt = new GQLListSchema('BillingReceipt', {
             isRequired: false,
             knexOptions: { isNotNullable: false },
             kmigratorOptions: { null: true, on_delete: 'models.SET_NULL' },
+        },
+
+        isPayable: {
+            schemaDoc: 'Indicator that this invoice document is latest for its account and receiver/category',
+            type: Virtual,
+            isRequired: false,
+            graphQLReturnType: 'Boolean',
+            resolver: async (receipt, _, context) => {
+                const receipts = await BillingReceiptApi.getAll(context, {
+                    account: { id: get(receipt, 'account'), deletedAt: null },
+                    OR: [
+                        { receiver: { AND: [{ id: get(receipt, 'receiver') }, { deletedAt: null } ] } },
+                        { category: { AND: [{ id: get(receipt, 'category') }, { deletedAt: null } ] } },
+                    ],
+                    period_gt: get(receipt, 'period'),
+                    deletedAt: null,
+                }, {
+                    first: 1,
+                })
+
+                return !(receipts && receipts.length)
+            },
         },
     },
     plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],

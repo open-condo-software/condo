@@ -12245,6 +12245,7 @@ type BillingReceiptHistoryRecord {
   receiver: String
   invalidServicesError: JSON
   file: String
+  isPayable: JSON
   id: ID!
   v: Int
   createdAt: String
@@ -12425,6 +12426,10 @@ input BillingReceiptHistoryRecordWhereInput {
   file_not: String
   file_in: [String]
   file_not_in: [String]
+  isPayable: JSON
+  isPayable_not: JSON
+  isPayable_in: [JSON]
+  isPayable_not_in: [JSON]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -12571,6 +12576,7 @@ input BillingReceiptHistoryRecordUpdateInput {
   receiver: String
   invalidServicesError: JSON
   file: String
+  isPayable: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12613,6 +12619,7 @@ input BillingReceiptHistoryRecordCreateInput {
   receiver: String
   invalidServicesError: JSON
   file: String
+  isPayable: JSON
   v: Int
   createdAt: String
   updatedAt: String
@@ -12829,6 +12836,10 @@ type BillingReceipt {
   """ A BillingReceiptFile that related to this billing receipt (filled up by integration) 
   """
   file: BillingReceiptFile
+
+  """ Indicator that this invoice document is latest for its account and receiver/category 
+  """
+  isPayable: Boolean
   id: ID!
   v: Int
   createdAt: String
