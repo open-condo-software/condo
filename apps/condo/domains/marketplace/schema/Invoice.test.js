@@ -4,6 +4,8 @@
 
 const { faker } = require('@faker-js/faker')
 const Big = require('big.js')
+const dayjs = require('dayjs')
+const isSameOrAfter = require('dayjs/plugin/isSameOrAfter')
 const { omit } = require('lodash')
 
 const conf = require('@open-condo/config')
@@ -56,6 +58,8 @@ const {
     makeClientWithResidentUser,
     makeClientWithStaffUser, createTestPhone,
 } = require('@condo/domains/user/utils/testSchema')
+
+dayjs.extend(isSameOrAfter)
 
 let adminClient, supportClient, anonymousClient
 let dummyO10n, dummyIntegration, dummyInvoiceContext
@@ -602,6 +606,30 @@ describe('Invoice', () => {
                     count,
                 }) => sum.plus(Big(toPay).mul(count)), Big(0)).toFixed(8)
                 expect(invoice).toHaveProperty('toPay', expectedSum)
+            })
+        })
+
+        describe('The time when some status set', () => {
+
+            test('publishedAt', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                expect(invoice.publishedAt).toBeNull()
+                const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
+                expect(dayjs(updatedInvoice.publishedAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
+            })
+
+            test('paidAt', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                expect(invoice.paidAt).toBe(null)
+                const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PAID })
+                expect(dayjs(updatedInvoice.paidAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
+            })
+
+            test('canceledAt', async () => {
+                const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
+                expect(invoice.canceledAt).toBe(null)
+                const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_CANCELED })
+                expect(dayjs(updatedInvoice.canceledAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
             })
         })
     })

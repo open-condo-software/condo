@@ -203,6 +203,21 @@ const Invoice = new GQLListSchema('Invoice', {
             defaultValue: INVOICE_PAYMENT_TYPE_ONLINE,
         },
 
+        publishedAt: {
+            schemaDoc: 'When status of the invoice was changed to published (ready to pay)',
+            type: 'DateTimeUtc',
+        },
+
+        paidAt: {
+            schemaDoc: 'When status of the invoice was changed to paid',
+            type: 'DateTimeUtc',
+        },
+
+        canceledAt: {
+            schemaDoc: 'When status of the invoice was changed to canceled',
+            type: 'DateTimeUtc',
+        },
+
     },
     hooks: {
         validateInput: async ({ resolvedData, operation, existingItem, context }) => {
@@ -384,6 +399,18 @@ const Invoice = new GQLListSchema('Invoice', {
                 toPay,
                 count,
             }) => sum.plus(Big(toPay).mul(count)), Big(0)).toString()
+
+            switch (get(resolvedData, 'status')) {
+                case INVOICE_STATUS_PUBLISHED:
+                    resolvedData['publishedAt'] = dayjs().toISOString()
+                    break
+                case INVOICE_STATUS_PAID:
+                    resolvedData['paidAt'] = dayjs().toISOString()
+                    break
+                case INVOICE_STATUS_CANCELED:
+                    resolvedData['canceledAt'] = dayjs().toISOString()
+                    break
+            }
 
             return resolvedData
         },

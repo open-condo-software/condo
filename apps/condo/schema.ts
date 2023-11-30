@@ -25393,6 +25393,12 @@ export type Invoice = {
   status?: Maybe<Scalars['String']>;
   /**  Shows which payment type chosen: online or cash or something else  */
   paymentType?: Maybe<Scalars['String']>;
+  /**  When status of the invoice was changed to published (ready to pay)  */
+  publishedAt?: Maybe<Scalars['String']>;
+  /**  When status of the invoice was changed to paid  */
+  paidAt?: Maybe<Scalars['String']>;
+  /**  When status of the invoice was changed to canceled  */
+  canceledAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25931,6 +25937,9 @@ export type InvoiceCreateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  paidAt?: Maybe<Scalars['String']>;
+  canceledAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -25968,6 +25977,9 @@ export type InvoiceHistoryRecord = {
   clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  paidAt?: Maybe<Scalars['String']>;
+  canceledAt?: Maybe<Scalars['String']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -25999,6 +26011,9 @@ export type InvoiceHistoryRecordCreateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  paidAt?: Maybe<Scalars['String']>;
+  canceledAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26035,6 +26050,9 @@ export type InvoiceHistoryRecordUpdateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  paidAt?: Maybe<Scalars['String']>;
+  canceledAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26214,6 +26232,30 @@ export type InvoiceHistoryRecordWhereInput = {
   paymentType_not_ends_with_i?: Maybe<Scalars['String']>;
   paymentType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   paymentType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt?: Maybe<Scalars['String']>;
+  publishedAt_not?: Maybe<Scalars['String']>;
+  publishedAt_lt?: Maybe<Scalars['String']>;
+  publishedAt_lte?: Maybe<Scalars['String']>;
+  publishedAt_gt?: Maybe<Scalars['String']>;
+  publishedAt_gte?: Maybe<Scalars['String']>;
+  publishedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paidAt?: Maybe<Scalars['String']>;
+  paidAt_not?: Maybe<Scalars['String']>;
+  paidAt_lt?: Maybe<Scalars['String']>;
+  paidAt_lte?: Maybe<Scalars['String']>;
+  paidAt_gt?: Maybe<Scalars['String']>;
+  paidAt_gte?: Maybe<Scalars['String']>;
+  paidAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paidAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canceledAt?: Maybe<Scalars['String']>;
+  canceledAt_not?: Maybe<Scalars['String']>;
+  canceledAt_lt?: Maybe<Scalars['String']>;
+  canceledAt_lte?: Maybe<Scalars['String']>;
+  canceledAt_gt?: Maybe<Scalars['String']>;
+  canceledAt_gte?: Maybe<Scalars['String']>;
+  canceledAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canceledAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -26361,6 +26403,9 @@ export type InvoiceUpdateInput = {
   clientPhone?: Maybe<Scalars['String']>;
   status?: Maybe<Scalars['String']>;
   paymentType?: Maybe<Scalars['String']>;
+  publishedAt?: Maybe<Scalars['String']>;
+  paidAt?: Maybe<Scalars['String']>;
+  canceledAt?: Maybe<Scalars['String']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -26489,6 +26534,30 @@ export type InvoiceWhereInput = {
   paymentType_not?: Maybe<Scalars['String']>;
   paymentType_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   paymentType_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt?: Maybe<Scalars['String']>;
+  publishedAt_not?: Maybe<Scalars['String']>;
+  publishedAt_lt?: Maybe<Scalars['String']>;
+  publishedAt_lte?: Maybe<Scalars['String']>;
+  publishedAt_gt?: Maybe<Scalars['String']>;
+  publishedAt_gte?: Maybe<Scalars['String']>;
+  publishedAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  publishedAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paidAt?: Maybe<Scalars['String']>;
+  paidAt_not?: Maybe<Scalars['String']>;
+  paidAt_lt?: Maybe<Scalars['String']>;
+  paidAt_lte?: Maybe<Scalars['String']>;
+  paidAt_gt?: Maybe<Scalars['String']>;
+  paidAt_gte?: Maybe<Scalars['String']>;
+  paidAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  paidAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canceledAt?: Maybe<Scalars['String']>;
+  canceledAt_not?: Maybe<Scalars['String']>;
+  canceledAt_lt?: Maybe<Scalars['String']>;
+  canceledAt_lte?: Maybe<Scalars['String']>;
+  canceledAt_gt?: Maybe<Scalars['String']>;
+  canceledAt_gte?: Maybe<Scalars['String']>;
+  canceledAt_in?: Maybe<Array<Maybe<Scalars['String']>>>;
+  canceledAt_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -74581,6 +74650,12 @@ export enum SortInvoiceHistoryRecordsBy {
   StatusDesc = 'status_DESC',
   PaymentTypeAsc = 'paymentType_ASC',
   PaymentTypeDesc = 'paymentType_DESC',
+  PublishedAtAsc = 'publishedAt_ASC',
+  PublishedAtDesc = 'publishedAt_DESC',
+  PaidAtAsc = 'paidAt_ASC',
+  PaidAtDesc = 'paidAt_DESC',
+  CanceledAtAsc = 'canceledAt_ASC',
+  CanceledAtDesc = 'canceledAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -74628,6 +74703,12 @@ export enum SortInvoicesBy {
   StatusDesc = 'status_DESC',
   PaymentTypeAsc = 'paymentType_ASC',
   PaymentTypeDesc = 'paymentType_DESC',
+  PublishedAtAsc = 'publishedAt_ASC',
+  PublishedAtDesc = 'publishedAt_DESC',
+  PaidAtAsc = 'paidAt_ASC',
+  PaidAtDesc = 'paidAt_DESC',
+  CanceledAtAsc = 'canceledAt_ASC',
+  CanceledAtDesc = 'canceledAt_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
