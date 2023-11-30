@@ -1,5 +1,6 @@
 **/.env
 **/.git*
+!**/.gitignore
 **/__*
 **/*.log
 **/.DS_Store
@@ -10,6 +11,7 @@
 **/.turbo
 **/dist
 **/out
+!/out
 **/.idea
 **/.kmigrator
 **/docs
@@ -19,3 +21,7 @@
 **/.werf*
 **/helm*
 **/.helm*
+.yarn
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
