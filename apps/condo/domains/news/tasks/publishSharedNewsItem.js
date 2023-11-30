@@ -54,8 +54,6 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
         })
 
         if (response.ok) {
-            const parsedResponse = await response.json()
-
             const { keystone: contextNewsItemSharing } = getSchemaCtx('NewsItemSharing')
             await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, { status: 'published', ...DV_SENDER })
 
