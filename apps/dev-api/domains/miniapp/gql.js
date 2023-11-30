@@ -18,6 +18,9 @@ const B2CApp = generateGqlQueries('B2CApp', B2C_APP_FIELDS)
 const B2C_APP_BUILD_FIELDS = `{ app { id } version data { publicUrl originalFilename } ${COMMON_FIELDS} ${EXPORT_FIELDS} }`
 const B2CAppBuild = generateGqlQueries('B2CAppBuild', B2C_APP_BUILD_FIELDS)
 
+const B2C_APP_PUBLISH_REQUEST_FIELDS = `{ app { id } status isAppTested isContractSigned isInfoApproved ${COMMON_FIELDS} }`
+const B2CAppPublishRequest = generateGqlQueries('B2CAppPublishRequest', B2C_APP_PUBLISH_REQUEST_FIELDS)
+
 const PUBLISH_B2C_APP_MUTATION = gql`
     mutation publishB2CApp ($data: PublishB2CAppInput!) {
         result: publishB2CApp(data: $data) { success }
@@ -29,6 +32,7 @@ const PUBLISH_B2C_APP_MUTATION = gql`
 module.exports = {
     B2CApp,
     B2CAppBuild,
+    B2CAppPublishRequest,
     PUBLISH_B2C_APP_MUTATION,
 /* AUTOGENERATE MARKER <EXPORTS> */
 }

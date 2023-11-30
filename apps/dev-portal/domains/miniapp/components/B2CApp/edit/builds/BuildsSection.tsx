@@ -24,7 +24,7 @@ import { useMutationCompletedHandler } from '@/domains/miniapp/hooks/useMutation
 import { nonNull } from '@/domains/miniapp/utils/nonNull'
 import { getCurrentPage } from '@/domains/miniapp/utils/query'
 import { INVALID_MIMETYPE } from '@dev-api/domains/common/constants/errors'
-import { B2C_BUILD_UNIQUE_VERSION_CONSTRAINT } from '@dev-api/domains/miniapp/constants/constraints'
+import { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } from '@dev-api/domains/miniapp/constants/constraints'
 import { INVALID_BUILD_VERSION } from '@dev-api/domains/miniapp/constants/errors'
 
 import styles from './BuildsSection.module.css'
@@ -42,7 +42,7 @@ const ROW_FORM_GUTTER: RowProps['gutter'] = [0, 0]
 const FULL_COL_SPAN = 24
 const PAGINATION_POSITION = ['bottomLeft' as const]
 const BUILD_FORM_ERROR_TO_FIELD_MAPPING = {
-    [B2C_BUILD_UNIQUE_VERSION_CONSTRAINT]: 'version',
+    [B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT]: 'version',
     [INVALID_BUILD_VERSION]: 'version',
     [INVALID_MIMETYPE]: 'data',
 }
@@ -119,7 +119,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
         form,
         typeToFieldMapping: BUILD_FORM_ERROR_TO_FIELD_MAPPING,
         constraintToMessageMapping: {
-            [B2C_BUILD_UNIQUE_VERSION_CONSTRAINT]: NonUniqueVersionErrorMessage,
+            [B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT]: NonUniqueVersionErrorMessage,
         },
     })
     const onCompletedInform = useMutationCompletedHandler()

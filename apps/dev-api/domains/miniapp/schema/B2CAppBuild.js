@@ -11,7 +11,7 @@ const {
     getMimeTypesValidator,
 } = require('@dev-api/domains/common/utils/files')
 const access = require('@dev-api/domains/miniapp/access/B2CAppBuild')
-const { B2C_BUILD_UNIQUE_VERSION_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
+const { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
 const { INVALID_BUILD_VERSION } = require('@dev-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
 
@@ -77,7 +77,7 @@ const B2CAppBuild = new GQLListSchema('B2CAppBuild', {
                 type: 'models.UniqueConstraint',
                 fields: ['version', 'app'],
                 condition: 'Q(deletedAt__isnull=True)',
-                name: B2C_BUILD_UNIQUE_VERSION_CONSTRAINT,
+                name: B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT,
             },
         ],
     },

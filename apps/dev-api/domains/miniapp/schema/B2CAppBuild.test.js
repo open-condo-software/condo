@@ -17,6 +17,7 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 const { INVALID_MIMETYPE } = require('@dev-api/domains/common/constants/errors')
+const { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
 const { INVALID_BUILD_VERSION } = require('@dev-api/domains/miniapp/constants/errors')
 const {
     B2CAppBuild,
@@ -28,7 +29,6 @@ const {
 const { makeLoggedInAdminClient, makeLoggedInSupportClient, makeRegisteredAndLoggedInUser } = require('@dev-api/domains/user/utils/testSchema')
 
 const NON_ZIP_ASSET_PATH = path.resolve(conf.PROJECT_ROOT, 'apps/dev-api/domains/miniapp/utils/testSchema/assets/build.rar')
-
 
 describe('B2CAppBuild', () => {
     let admin
@@ -196,7 +196,7 @@ describe('B2CAppBuild', () => {
 
             await expectToThrowUniqueConstraintViolationError(async () => {
                 await createTestB2CAppBuild(support, app, { version })
-            }, 'b2c_app_build_unique_version_app')
+            }, B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT)
 
             const [anotherApp] = await createTestB2CApp(anotherUser)
             const [anotherBuild] = await createTestB2CAppBuild(anotherUser, anotherApp, { version })
