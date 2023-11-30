@@ -1223,7 +1223,7 @@
   "pages.condo.marketplace.settings.requisites.field.account": "Р/с",
   "pages.condo.marketplace.settings.requisites.field.tin": "ИНН",
   "pages.condo.marketplace.settings.requisites.field.bic": "БИК",
-  "pages.condo.marketplace.settings.requisites.field.tax": "Режим налогооблажения",
+  "pages.condo.marketplace.settings.requisites.field.tax": "Режим налогообложения",
   "pages.condo.marketplace.settings.requisites.field.taxPercent": "Ставка НДС",
   "pages.condo.marketplace.settings.requisites.button.next": "Далее",
   "pages.condo.marketplace.settings.requisites.radio.tax.common": "ОСН (общая система налогооблажения)",
