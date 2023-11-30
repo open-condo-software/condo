@@ -57,7 +57,7 @@ const MarketplaceOnboardingPage: React.FC<MarketplaceOnboardingPageProps> = ({ o
         if (invoiceContext && get(invoiceContext, 'id') && !invoiceContextError && !invoiceContextLoading) {
             router.push('/marketplace')
         }
-    }, [invoiceContext])
+    }, [invoiceContext, invoiceContextError, invoiceContextLoading, router])
 
     const stepItems: Array<StepItem> = useMemo(() => {
         const steps: Array<StepItem> = [

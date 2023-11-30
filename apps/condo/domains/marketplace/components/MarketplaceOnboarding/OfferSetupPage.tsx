@@ -35,11 +35,18 @@ export const OfferSetupPage: React.FC<SetupAcquiringProps> = ({ onFinish }) => {
     const acquiringIntegrationHostUrl = get(invoiceContext, ['integration', 'hostUrl'])
 
     useEffect(() => {
-        // No connected invoice context = go to setup beginning
-        if (!invoiceContextLoading && !invoiceContextError && !invoiceContextId) {
-            router.replace({ query: { step: 0 } })
+        if (!invoiceContextLoading && !invoiceContextError) {
+            if (
+                !invoiceContextId
+                || !get(invoiceContext, ['recipient', 'bankAccount'])
+                || !get(invoiceContext, ['recipient', 'bic'])
+                || !get(invoiceContext, ['recipient', 'tin'])
+                || !get(invoiceContext, 'taxRegime')
+            ) {
+                router.replace({ query: { step: 0 } })
+            }
         }
-    }, [invoiceContextError, invoiceContextLoading, invoiceContextId, router])
+    }, [invoiceContextError, invoiceContextLoading, invoiceContextId, router, invoiceContext])
 
     const setupUrl = `${acquiringIntegrationHostUrl}${MARKETPLACE_SETUP_URL_PATH}`
     const setupOrigin = extractOrigin(setupUrl)
