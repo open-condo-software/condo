@@ -4,6 +4,7 @@ import get from 'lodash/get'
 import getConfig from 'next/config'
 import React, { useState, useCallback } from 'react'
 
+import bridge from '@open-condo/bridge'
 import { useIntl } from '@open-condo/next/intl'
 import { Typography, Checkbox, Space } from '@open-condo/ui'
 import { Button } from '@open-condo/ui'
@@ -21,7 +22,6 @@ import { SCOPE_TYPES } from '@condorb/domains/condorb/constants/marketplace'
 import { Accept } from '@condorb/domains/condorb/utils/clientSchema'
 
 import type { RowProps } from 'antd'
-
 
 const { publicRuntimeConfig: { condoUrl } } = getConfig()
 
@@ -44,8 +44,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const OfferLinkMessage = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.rules.offerlink' })
     const signOffer = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.signOfferButton' })
     const downloadOffer = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.downloadOfferButton' })
-    const OrganizationNotFoundErrorTitle = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.organizationNotFoundError' })
-    const OrganizationNotFoundErrorMessage = intl.formatMessage({ id: 'pages.condo.marketplace.settings.offer.organizationNotFoundErrorMessage' })
+
     const Rules = intl.formatMessage(
         { id: 'pages.condo.marketplace.settings.offer.rules' },
         {
@@ -75,8 +74,8 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const [usersEmails, setUsersEmails] = useState<string | null>('')
     const { requiredValidator, multipleEmailsValidator } = useValidations()
 
-    const handleDownload = useCallback(()=> {
-        return //TODO: download offer pdf
+    const handleDownload = useCallback(() => {
+        bridge.send('CondoWebAppRedirect', { url: MARKETPLACE_OFFER_LINK, target: '_blank' })
     }, [])
 
     const handleSignOffer = useCallback(async () => {
@@ -93,7 +92,7 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
         setIsLoading(false)
         window.parent.postMessage({ success: true }, condoUrl)
         setIsLoading(false)
-    }, [OrganizationNotFoundErrorMessage, OrganizationNotFoundErrorTitle, userId, usersEmails])
+    }, [createAcceptAction, organization, organizationId, userId, usersEmails])
 
     const onUserEmailChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         setUsersEmails(e.target.value)
@@ -102,7 +101,6 @@ export const OfferSetup: React.FC<{ launchContext: LaunchContextType }> = ({ lau
     const onRulesAcceptedChange = useCallback(() => {
         setRulesAreAccepted(prev => !prev)
     }, [setRulesAreAccepted])
-
 
     if (organizationIsLoading) {
         return <Loader fill size='large' />
