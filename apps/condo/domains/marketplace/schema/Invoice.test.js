@@ -613,7 +613,7 @@ describe('Invoice', () => {
 
             test('publishedAt', async () => {
                 const [invoice] = await createTestInvoice(adminClient, dummyInvoiceContext)
-                expect(invoice.publishedAt).toBe(null)
+                expect(invoice.publishedAt).toBeNull()
                 const [updatedInvoice] = await updateTestInvoice(adminClient, invoice.id, { status: INVOICE_STATUS_PUBLISHED })
                 expect(dayjs(updatedInvoice.publishedAt).isSameOrAfter(dayjs(invoice.createdAt))).toBe(true)
             })
