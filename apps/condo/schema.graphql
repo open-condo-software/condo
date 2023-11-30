@@ -58818,10 +58818,7 @@ type NewsItemSharingHistoryRecord {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastGetRecipientsRequest: JSON
   lastPostRequest: JSON
-  lastGetStatusRequest: JSON
-  publicationViewsCount: Int
   id: ID!
   v: Int
   createdAt: String
@@ -58888,26 +58885,10 @@ input NewsItemSharingHistoryRecordWhereInput {
   statusMessage_not_ends_with_i: String
   statusMessage_in: [String]
   statusMessage_not_in: [String]
-  lastGetRecipientsRequest: JSON
-  lastGetRecipientsRequest_not: JSON
-  lastGetRecipientsRequest_in: [JSON]
-  lastGetRecipientsRequest_not_in: [JSON]
   lastPostRequest: JSON
   lastPostRequest_not: JSON
   lastPostRequest_in: [JSON]
   lastPostRequest_not_in: [JSON]
-  lastGetStatusRequest: JSON
-  lastGetStatusRequest_not: JSON
-  lastGetStatusRequest_in: [JSON]
-  lastGetStatusRequest_not_in: [JSON]
-  publicationViewsCount: Int
-  publicationViewsCount_not: Int
-  publicationViewsCount_lt: Int
-  publicationViewsCount_lte: Int
-  publicationViewsCount_gt: Int
-  publicationViewsCount_gte: Int
-  publicationViewsCount_in: [Int]
-  publicationViewsCount_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -58995,8 +58976,6 @@ enum SortNewsItemSharingHistoryRecordsBy {
   status_DESC
   statusMessage_ASC
   statusMessage_DESC
-  publicationViewsCount_ASC
-  publicationViewsCount_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59021,10 +59000,7 @@ input NewsItemSharingHistoryRecordUpdateInput {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastGetRecipientsRequest: JSON
   lastPostRequest: JSON
-  lastGetStatusRequest: JSON
-  publicationViewsCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -59050,10 +59026,7 @@ input NewsItemSharingHistoryRecordCreateInput {
   sharingParams: JSON
   status: String
   statusMessage: String
-  lastGetRecipientsRequest: JSON
   lastPostRequest: JSON
-  lastGetStatusRequest: JSON
-  publicationViewsCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -59083,7 +59056,7 @@ enum NewsItemSharingStatusType {
   scheduled
   processing
   published
-  declined
+  error
 }
 
 """ Existence of this models means that certain NewsItem should published in certain B2BApp that implements NewsSharing API. 
@@ -59111,23 +59084,12 @@ type NewsItemSharing {
   """ Publication status of the news: updated automatically """
   status: NewsItemSharingStatusType
 
-  """ Explanations regarding the publication status. For example, the reason for rejection by moderators, details of a system error on the mini-app side 
+  """ Explanations regarding the publication status. Might be shown to user 
   """
   statusMessage: String
 
-  """ The outcome from the most recent invocation of the lastGetRecipientsRequest 
-  """
-  lastGetRecipientsRequest: JSON
-
   """ The outcome from the most recent invocation of the lastPostRequest """
   lastPostRequest: JSON
-
-  """ The outcome from the most recent invocation of the lastGetStatusRequest 
-  """
-  lastGetStatusRequest: JSON
-
-  """ How many users have seen this shared news item """
-  publicationViewsCount: Int
   id: ID!
   v: Int
   createdAt: String
@@ -59184,26 +59146,10 @@ input NewsItemSharingWhereInput {
   statusMessage_not_ends_with_i: String
   statusMessage_in: [String]
   statusMessage_not_in: [String]
-  lastGetRecipientsRequest: JSON
-  lastGetRecipientsRequest_not: JSON
-  lastGetRecipientsRequest_in: [JSON]
-  lastGetRecipientsRequest_not_in: [JSON]
   lastPostRequest: JSON
   lastPostRequest_not: JSON
   lastPostRequest_in: [JSON]
   lastPostRequest_not_in: [JSON]
-  lastGetStatusRequest: JSON
-  lastGetStatusRequest_not: JSON
-  lastGetStatusRequest_in: [JSON]
-  lastGetStatusRequest_not_in: [JSON]
-  publicationViewsCount: Int
-  publicationViewsCount_not: Int
-  publicationViewsCount_lt: Int
-  publicationViewsCount_lte: Int
-  publicationViewsCount_gt: Int
-  publicationViewsCount_gte: Int
-  publicationViewsCount_in: [Int]
-  publicationViewsCount_not_in: [Int]
   id: ID
   id_not: ID
   id_in: [ID]
@@ -59275,8 +59221,6 @@ enum SortNewsItemSharingsBy {
   status_DESC
   statusMessage_ASC
   statusMessage_DESC
-  publicationViewsCount_ASC
-  publicationViewsCount_DESC
   id_ASC
   id_DESC
   v_ASC
@@ -59301,10 +59245,7 @@ input NewsItemSharingUpdateInput {
   sharingParams: JSON
   status: NewsItemSharingStatusType
   statusMessage: String
-  lastGetRecipientsRequest: JSON
   lastPostRequest: JSON
-  lastGetStatusRequest: JSON
-  publicationViewsCount: Int
   v: Int
   createdAt: String
   updatedAt: String
@@ -59327,10 +59268,7 @@ input NewsItemSharingCreateInput {
   sharingParams: JSON
   status: NewsItemSharingStatusType
   statusMessage: String
-  lastGetRecipientsRequest: JSON
   lastPostRequest: JSON
-  lastGetStatusRequest: JSON
-  publicationViewsCount: Int
   v: Int
   createdAt: String
   updatedAt: String

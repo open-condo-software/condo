@@ -49934,16 +49934,10 @@ export type NewsItemSharing = {
   sharingParams?: Maybe<Scalars['JSON']>;
   /**  Publication status of the news: updated automatically  */
   status?: Maybe<NewsItemSharingStatusType>;
-  /**  Explanations regarding the publication status. For example, the reason for rejection by moderators, details of a system error on the mini-app side  */
+  /**  Explanations regarding the publication status. Might be shown to user  */
   statusMessage?: Maybe<Scalars['String']>;
-  /**  The outcome from the most recent invocation of the lastGetRecipientsRequest  */
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
   /**  The outcome from the most recent invocation of the lastPostRequest  */
   lastPostRequest?: Maybe<Scalars['JSON']>;
-  /**  The outcome from the most recent invocation of the lastGetStatusRequest  */
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  /**  How many users have seen this shared news item  */
-  publicationViewsCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -49966,10 +49960,7 @@ export type NewsItemSharingCreateInput = {
   sharingParams?: Maybe<Scalars['JSON']>;
   status?: Maybe<NewsItemSharingStatusType>;
   statusMessage?: Maybe<Scalars['String']>;
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
   lastPostRequest?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  publicationViewsCount?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -49997,10 +49988,7 @@ export type NewsItemSharingHistoryRecord = {
   sharingParams?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   statusMessage?: Maybe<Scalars['String']>;
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
   lastPostRequest?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  publicationViewsCount?: Maybe<Scalars['Int']>;
   id: Scalars['ID'];
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
@@ -50022,10 +50010,7 @@ export type NewsItemSharingHistoryRecordCreateInput = {
   sharingParams?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   statusMessage?: Maybe<Scalars['String']>;
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
   lastPostRequest?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  publicationViewsCount?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50052,10 +50037,7 @@ export type NewsItemSharingHistoryRecordUpdateInput = {
   sharingParams?: Maybe<Scalars['JSON']>;
   status?: Maybe<Scalars['String']>;
   statusMessage?: Maybe<Scalars['String']>;
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
   lastPostRequest?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  publicationViewsCount?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50121,26 +50103,10 @@ export type NewsItemSharingHistoryRecordWhereInput = {
   statusMessage_not_ends_with_i?: Maybe<Scalars['String']>;
   statusMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
-  lastGetRecipientsRequest_not?: Maybe<Scalars['JSON']>;
-  lastGetRecipientsRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  lastGetRecipientsRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastPostRequest?: Maybe<Scalars['JSON']>;
   lastPostRequest_not?: Maybe<Scalars['JSON']>;
   lastPostRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastPostRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest_not?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  lastGetStatusRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  publicationViewsCount?: Maybe<Scalars['Int']>;
-  publicationViewsCount_not?: Maybe<Scalars['Int']>;
-  publicationViewsCount_lt?: Maybe<Scalars['Int']>;
-  publicationViewsCount_lte?: Maybe<Scalars['Int']>;
-  publicationViewsCount_gt?: Maybe<Scalars['Int']>;
-  publicationViewsCount_gte?: Maybe<Scalars['Int']>;
-  publicationViewsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  publicationViewsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -50236,7 +50202,7 @@ export enum NewsItemSharingStatusType {
   Scheduled = 'scheduled',
   Processing = 'processing',
   Published = 'published',
-  Declined = 'declined'
+  Error = 'error'
 }
 
 export type NewsItemSharingUpdateInput = {
@@ -50245,10 +50211,7 @@ export type NewsItemSharingUpdateInput = {
   sharingParams?: Maybe<Scalars['JSON']>;
   status?: Maybe<NewsItemSharingStatusType>;
   statusMessage?: Maybe<Scalars['String']>;
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
   lastPostRequest?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  publicationViewsCount?: Maybe<Scalars['Int']>;
   v?: Maybe<Scalars['Int']>;
   createdAt?: Maybe<Scalars['String']>;
   updatedAt?: Maybe<Scalars['String']>;
@@ -50293,26 +50256,10 @@ export type NewsItemSharingWhereInput = {
   statusMessage_not_ends_with_i?: Maybe<Scalars['String']>;
   statusMessage_in?: Maybe<Array<Maybe<Scalars['String']>>>;
   statusMessage_not_in?: Maybe<Array<Maybe<Scalars['String']>>>;
-  lastGetRecipientsRequest?: Maybe<Scalars['JSON']>;
-  lastGetRecipientsRequest_not?: Maybe<Scalars['JSON']>;
-  lastGetRecipientsRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  lastGetRecipientsRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastPostRequest?: Maybe<Scalars['JSON']>;
   lastPostRequest_not?: Maybe<Scalars['JSON']>;
   lastPostRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
   lastPostRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  lastGetStatusRequest?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest_not?: Maybe<Scalars['JSON']>;
-  lastGetStatusRequest_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  lastGetStatusRequest_not_in?: Maybe<Array<Maybe<Scalars['JSON']>>>;
-  publicationViewsCount?: Maybe<Scalars['Int']>;
-  publicationViewsCount_not?: Maybe<Scalars['Int']>;
-  publicationViewsCount_lt?: Maybe<Scalars['Int']>;
-  publicationViewsCount_lte?: Maybe<Scalars['Int']>;
-  publicationViewsCount_gt?: Maybe<Scalars['Int']>;
-  publicationViewsCount_gte?: Maybe<Scalars['Int']>;
-  publicationViewsCount_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
-  publicationViewsCount_not_in?: Maybe<Array<Maybe<Scalars['Int']>>>;
   id?: Maybe<Scalars['ID']>;
   id_not?: Maybe<Scalars['ID']>;
   id_in?: Maybe<Array<Maybe<Scalars['ID']>>>;
@@ -76591,8 +76538,6 @@ export enum SortNewsItemSharingHistoryRecordsBy {
   StatusDesc = 'status_DESC',
   StatusMessageAsc = 'statusMessage_ASC',
   StatusMessageDesc = 'statusMessage_DESC',
-  PublicationViewsCountAsc = 'publicationViewsCount_ASC',
-  PublicationViewsCountDesc = 'publicationViewsCount_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
@@ -76620,8 +76565,6 @@ export enum SortNewsItemSharingsBy {
   StatusDesc = 'status_DESC',
   StatusMessageAsc = 'statusMessage_ASC',
   StatusMessageDesc = 'statusMessage_DESC',
-  PublicationViewsCountAsc = 'publicationViewsCount_ASC',
-  PublicationViewsCountDesc = 'publicationViewsCount_DESC',
   IdAsc = 'id_ASC',
   IdDesc = 'id_DESC',
   VAsc = 'v_ASC',
