@@ -3,9 +3,10 @@
  */
 
 import {
+    InvoiceContext,
     MarketItem,
-    MarketItemCreateInput, MarketItemPrice,
-    MarketItemUpdateInput, MarketPriceScope,
+    MarketItemCreateInput, MarketItemPrice, MarketItemPriceCreateInput,
+    MarketItemUpdateInput, MarketPriceScope, MarketPriceScopeCreateInput,
     QueryAllMarketItemsArgs,
 } from '@app/condo/schema'
 import { get } from 'lodash'
@@ -69,7 +70,7 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
         const id = marketItemPrice.id
         const priceScopes = marketPriceScopes.filter(scope => scope.marketItemPrice.id === marketItemPrice.id)
         const properties = priceScopes.map(priceScope => get(priceScope, 'property.id')).filter(Boolean)
-        const hasAllProperties = priceScopes.every(scope => !scope.property)
+        const hasAllProperties = priceScopes.length === 1 && !priceScopes[0].property
 
         const [priceObj] = get(marketItemPrice, 'price')
         const priceFromObj = get(priceObj, 'price')
@@ -114,6 +115,73 @@ export function formValuesProcessor (formValues: MarketItemFormValuesType): Mark
     }
 
     return result
+}
+
+export function formatFormPricesField (prices): PriceFormValuesType[] {
+    return prices.map(
+        priceObj => ({ ...priceObj, price: priceObj.price?.replace(',', '.') })
+    )
+}
+
+export function getPriceValueFromFormPrice ({ priceType, price }) {
+    let resultPrice
+    let isMin
+    if (priceType === PriceType.Exact) {
+        resultPrice = price
+        isMin = false
+    } else if (priceType === PriceType.Min) {
+        resultPrice = price
+        isMin = true
+    } else if (priceType === PriceType.Contract) {
+        resultPrice = '0'
+        isMin = true
+    }
+
+    return { price: resultPrice, isMin }
+}
+
+type CreateNewPricesAndPriceScopesArgType = {
+    marketItem: MarketItem
+    prices: PriceFormValuesType[]
+    invoiceContext: InvoiceContext
+    createMarketItemPrice: (data: MarketItemPriceCreateInput) => Promise<MarketItemPrice>
+    createMarketPriceScope: (data: MarketPriceScopeCreateInput) => Promise<MarketPriceScope>
+}
+
+export async function createNewPricesAndPriceScopes ({
+    marketItem,
+    prices,
+    invoiceContext,
+    createMarketItemPrice,
+    createMarketPriceScope,
+}: CreateNewPricesAndPriceScopesArgType) {
+    for (const formPrice of prices) {
+        const { properties, hasAllProperties, price, priceType } = formPrice
+
+        const vatPercent = get(invoiceContext, 'vatPercent')
+        const salesTaxPercent = get(invoiceContext, 'salesTaxPercent')
+        const currencyCode = get(invoiceContext, 'currencyCode')
+        const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price })
+
+        const createdPrice = await createMarketItemPrice({
+            price: [{ type: 'variant', group: '', name: marketItem.name,
+                price: resultPrice, isMin, vatPercent, salesTaxPercent, currencyCode }],
+            marketItem: { connect: { id: marketItem.id } },
+        })
+
+        if (hasAllProperties) {
+            await createMarketPriceScope({
+                marketItemPrice: { connect: { id: createdPrice.id } },
+            })
+        } else {
+            for (const propertyId of properties ) {
+                await createMarketPriceScope({
+                    marketItemPrice: { connect: { id: createdPrice.id } },
+                    property: { connect: { id: propertyId } },
+                })
+            }
+        }
+    }
 }
 
 export const INITIAL_PRICE_FORM_VALUE = { properties: [], priceType: PriceType.Exact }

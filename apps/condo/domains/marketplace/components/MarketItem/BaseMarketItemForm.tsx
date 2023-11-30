@@ -285,7 +285,7 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
     const CheckAllPropertiesLabel = intl.formatMessage({ id: 'pages.condo.settings.propertyScope.form.chooseAllProperties' })
 
     const { requiredValidator } = useValidations()
-    const { form, getUpdatedPricesField, isSmallScreen } = useMarketItemFormContext()
+    const { form, getUpdatedPricesField } = useMarketItemFormContext()
     const { organization } = useOrganization()
     const organizationId = get(organization, 'id', null)
     const { breakpoints } = useLayoutContext()
@@ -326,12 +326,12 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
             showArrow: false,
             infinityScroll: true,
             search: searchOrganizationPropertyWithExclusion(organizationId, selectedPropertyIdsFromOtherPriceForms),
-            disabled: !organizationId,
+            disabled: !organizationId || hasAllPropertiesChecked,
             required: true,
             mode: 'multiple',
             renderOptions: renderPropertyOptions(selectedPropertyIdsFromOtherPriceForms),
         }
-    }, [priceFormsValue, organizationId, renderPropertyOptions])
+    }, [priceFormsValue, organizationId, hasAllPropertiesChecked, renderPropertyOptions])
 
     const handleCheckAll = useCallback(() => {
         return getUpdatedPricesField(priceFormName, {
@@ -348,7 +348,7 @@ const MarketPricePropertiesField = ({ priceFormDescription, priceFormsValue }) =
             CheckAllMessage={CheckAllPropertiesLabel}
             form={form}
             checkBoxOffset={!breakpoints.TABLET_LARGE ? 0 : 10}
-            checkAllInitialValue={false}
+            checkAllInitialValue={hasAllPropertiesChecked}
             mutationOfFormAfterCheckAll={handleCheckAll}
             checkboxDisabled={isCheckAllDisabled}
         />

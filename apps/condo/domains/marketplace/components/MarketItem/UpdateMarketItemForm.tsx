@@ -1,23 +1,41 @@
 import { Col } from 'antd'
+import { isEqual, sortBy } from 'lodash'
+import difference from 'lodash/difference'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo, useState } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
+import { useOrganization } from '@open-condo/next/organization'
 import { ActionBar, Button } from '@open-condo/ui'
 
-import { MarketItem, MarketItemPrice, MarketPriceScope } from '@condo/domains/marketplace/utils/clientSchema'
+import LoadingOrErrorPage from '@condo/domains/common/components/containers/LoadingOrErrorPage'
+import {
+    InvoiceContext,
+    MarketItem,
+    MarketItemPrice,
+    MarketPriceScope,
+} from '@condo/domains/marketplace/utils/clientSchema'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
 
-import LoadingOrErrorPage from '../../../common/components/containers/LoadingOrErrorPage'
+import { SortMarketItemPricesBy } from '../../../../schema'
+import { getPriceValueFromFormPrice } from '../../utils/clientSchema/MarketItem'
 
 
 
 export const UpdateMarketItemForm = ({ marketItem }) => {
     const intl = useIntl()
     const UpdateMessage = intl.formatMessage({ id: 'Edit' })
+
+    const { organization } = useOrganization()
+
+    const { obj: invoiceContext } = InvoiceContext.useObject({
+        where: {
+            organization: { id: get(organization, 'id', null) },
+        },
+    })
 
     const {
         objs: marketItemPrices,
@@ -27,35 +45,123 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         where: {
             marketItem: { id: get(marketItem, 'id') },
         },
+        sortBy: [SortMarketItemPricesBy.CreatedAtAsc],
     }, { skip: !marketItem })
+
+    const initialMarketItemPricesIds = useMemo(
+        () => marketItemPrices.map(({ id }) => id),
+        [marketItemPrices])
 
     const {
         objs: marketPriceScopes,
         loading: marketPriceScopesLoading,
         error: marketPriceScopesError,
     } = MarketPriceScope.useObjects({
-        where: { marketItemPrice: { id_in: marketItemPrices.map(({ id }) => id) } },
-    }, { skip: isEmpty(marketItemPrices) })
+        where: { marketItemPrice: { id_in: initialMarketItemPricesIds } },
+    }, { skip: isEmpty(initialMarketItemPricesIds) })
 
     const router = useRouter()
     const [submitLoading, setSubmitLoading] = useState<boolean>(false)
-    const updateAction = MarketItem.useUpdate({},
-        // () => router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
-    )
+
+    const updateMarketItem = MarketItem.useUpdate({})
+    const createMarketItemPrice = MarketItemPrice.useCreate({})
+    const updateMarketItemPrice = MarketItemPrice.useUpdate({})
+    const softDeleteMarketItemPrice = MarketItemPrice.useSoftDelete()
+    const createMarketPriceScope = MarketPriceScope.useCreate({})
+    const softDeleteMarketPriceScope = MarketPriceScope.useSoftDelete()
 
     const handleUpdateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
+        const { prices: formPrices, ...marketItemValues } = values
 
-        const updatedMarketItem = await updateAction(MarketItem.formValuesProcessor(values), marketItem)
+        const updatedMarketItem = await updateMarketItem(MarketItem.formValuesProcessor(marketItemValues), marketItem)
 
-        console.log(updatedMarketItem)
+        const prices = MarketItem.formatFormPricesField(formPrices)
+        // handle new prices
+        const newPrices = prices.filter(price => !price.id)
+        await MarketItem.createNewPricesAndPriceScopes({
+            marketItem: updatedMarketItem,
+            prices: newPrices,
+            invoiceContext,
+            createMarketItemPrice,
+            createMarketPriceScope,
+        })
 
-        // create MarketItemFile's, MarketItemPrice's and MarketItemPriceScope's related to MarketItem
+        const existedPrices = prices.filter(price => price.id)
+
+        for (const price of existedPrices) {
+            const { priceType, price: formPrice, id, hasAllProperties, properties } = price
+            const { price: resultPrice, isMin } = getPriceValueFromFormPrice({ priceType, price: formPrice })
+
+            const initialMarketItemPrice = marketItemPrices.find(marketItemPrice => marketItemPrice.id === price.id)
+            const initialPriceArray = get(initialMarketItemPrice, 'price')
+            const initialPriceObj = get(initialPriceArray, '0')
+
+            if (get(initialPriceObj, 'price') !== resultPrice || get(initialPriceObj, 'isMin') !== isMin) {
+                const { __typename, ...initialPrice } = initialPriceObj
+                const newPrice = { ...initialPrice, price: resultPrice, isMin }
+                await updateMarketItemPrice({
+                    price: [newPrice],
+                }, { id })
+            }
+
+            const initialPriceScopes = marketPriceScopes.filter(scope => scope.marketItemPrice.id === id)
+
+            const isInitialHasAllProperties = initialPriceScopes.length === 1 && !initialPriceScopes[0].property
+            const initialPriceScopeProperties = initialPriceScopes.map(scope => get(scope, 'property.id')).filter(Boolean)
+
+            // Был hasAllProperties -> убрали
+            if (isInitialHasAllProperties && !hasAllProperties) {
+                const scopeWithAllProperties = initialPriceScopes.find(scope => !scope.property)
+                await softDeleteMarketPriceScope(scopeWithAllProperties)
+
+                for (const propertyId of properties) {
+                    await createMarketPriceScope({
+                        marketItemPrice: { connect: { id } },
+                        property: { connect: { id: propertyId } },
+                    })
+                }
+            }
+            // Не было hasAllProperties -> стало
+            else if (!isInitialHasAllProperties && hasAllProperties) {
+                for (const scope of initialPriceScopes) {
+                    await softDeleteMarketPriceScope(scope)
+                }
+
+                await createMarketPriceScope({
+                    marketItemPrice: { connect: { id } },
+                    property: null,
+                })
+            }
+            // Поменялись адреса у цены
+            else if (!isEqual(sortBy(initialPriceScopeProperties), sortBy(properties))) {
+                const propertiesToCreateScope = difference(properties, initialPriceScopeProperties)
+                const propertiesToDeleteScope = difference(initialPriceScopeProperties, properties)
+
+                for (const propertyId of propertiesToCreateScope) {
+                    await createMarketPriceScope({
+                        marketItemPrice: { connect: { id } },
+                        property: { connect: { id: propertyId } },
+                    })
+                }
+                for (const propertyId of propertiesToDeleteScope) {
+                    const scope = initialPriceScopes.find(scope => get(scope, 'property.id') === propertyId)
+                    await softDeleteMarketPriceScope(scope)
+                }
+            }
+        }
+
+        const deletedPricesIds = difference(initialMarketItemPricesIds, existedPrices.map(price => price.id))
+        for (const priceToDeleteId of deletedPricesIds) {
+            await softDeleteMarketItemPrice({ id: priceToDeleteId })
+        }
 
         setSubmitLoading(false)
 
+        // await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
+
         return updatedMarketItem
-    }, [marketItem, updateAction])
+    }, [createMarketItemPrice, createMarketPriceScope, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemPrices, marketPriceScopes, softDeleteMarketItemPrice, softDeleteMarketPriceScope, updateMarketItem, updateMarketItemPrice])
 
     const initialValues = useMemo(
         () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes }),

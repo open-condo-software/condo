@@ -17,7 +17,6 @@ import {
 import {
     INITIAL_PRICE_FORM_VALUE,
     PriceFormValuesType,
-    PriceType,
 } from '@condo/domains/marketplace/utils/clientSchema/MarketItem'
 
 import { BaseMarketItemForm } from './BaseMarketItemForm'
@@ -35,7 +34,7 @@ export const CreateMarketItemForm = () => {
         organization: { connect: { id: get(organization, 'id', null) } },
     })
     const createMarketItemPrice = MarketItemPrice.useCreate({})
-    const createMarketItemPriceScope = MarketPriceScope.useCreate({})
+    const createMarketPriceScope = MarketPriceScope.useCreate({})
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -50,54 +49,21 @@ export const CreateMarketItemForm = () => {
 
         const createdMarketItem = await createMarketItem(MarketItem.formValuesProcessor(marketItemFields))
 
-        const formattedPrices: PriceFormValuesType[] = prices.map(
-            priceObj => ({ ...priceObj, price: priceObj.price?.replace(',', '.') })
-        )
-        for (const formPrice of formattedPrices) {
-            const { properties, hasAllProperties, price, priceType } = formPrice
-
-            const vatPercent = get(invoiceContext, 'vatPercent')
-            const salesTaxPercent = get(invoiceContext, 'salesTaxPercent')
-            const currencyCode = get(invoiceContext, 'currencyCode')
-            let resultPrice
-            let isMin
-            if (priceType === PriceType.Exact) {
-                resultPrice = price
-                isMin = false
-            } else if (priceType === PriceType.Min) {
-                resultPrice = price
-                isMin = true
-            } else if (priceType === PriceType.Contract) {
-                resultPrice = '0'
-                isMin = true
-            }
-
-            const createdPrice = await createMarketItemPrice({
-                price: [{ type: 'variant', group: '', name: createdMarketItem.name,
-                    price: resultPrice, isMin, vatPercent, salesTaxPercent, currencyCode }],
-                marketItem: { connect: { id: createdMarketItem.id } },
-            })
-
-            if (hasAllProperties) {
-                await createMarketItemPriceScope({
-                    marketItemPrice: { connect: { id: createdPrice.id } },
-                })
-            } else {
-                for (const propertyId of properties ) {
-                    await createMarketItemPriceScope({
-                        marketItemPrice: { connect: { id: createdPrice.id } },
-                        property: { connect: { id: propertyId } },
-                    })
-                }
-            }
-        }
+        const formattedPrices: PriceFormValuesType[] = MarketItem.formatFormPricesField(prices)
+        await MarketItem.createNewPricesAndPriceScopes({
+            marketItem: createdMarketItem,
+            prices: formattedPrices,
+            invoiceContext,
+            createMarketItemPrice,
+            createMarketPriceScope,
+        })
 
         setSubmitLoading(false)
 
         await router.push('/marketplace?tab=services')
 
         return createdMarketItem
-    }, [createMarketItem, createMarketItemPrice, createMarketItemPriceScope, invoiceContext, router])
+    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext, router])
 
     const initialValues = { prices: [INITIAL_PRICE_FORM_VALUE] }
 
