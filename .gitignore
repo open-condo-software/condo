@@ -19,6 +19,7 @@ codegen.yaml
 
 schema.graphql
 !apps/condo/schema.graphql
+!apps/dev-api/schema.graphql
 
 # yarn + npm
 yarn-error.log

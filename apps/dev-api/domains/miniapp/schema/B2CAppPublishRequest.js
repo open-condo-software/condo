@@ -6,6 +6,7 @@ const { userIsAdminOrIsSupport } = require('@open-condo/keystone/access')
 const { GQLError, GQLErrorCode: { BAD_USER_INPUT } } = require('@open-condo/keystone/errors')
 const { historical, versioned, uuided, tracked, softDeleted, dvAndSender } = require('@open-condo/keystone/plugins')
 const { GQLListSchema } = require('@open-condo/keystone/schema')
+const { webHooked } = require('@open-condo/webhooks/plugins')
 
 const access = require('@dev-api/domains/miniapp/access/B2CAppPublishRequest')
 const { B2C_APP_PUBLISH_REQUEST_UNIQUE_CONSTRAINT } = require('@dev-api/domains/miniapp/constants/constraints')
@@ -118,7 +119,7 @@ const B2CAppPublishRequest = new GQLListSchema('B2CAppPublishRequest', {
             }
         },
     },
-    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical()],
+    plugins: [uuided(), versioned(), tracked(), softDeleted(), dvAndSender(), historical(), webHooked()],
     access: {
         read: access.canReadB2CAppPublishRequests,
         create: access.canManageB2CAppPublishRequests,
