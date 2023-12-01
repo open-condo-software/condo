@@ -62,7 +62,10 @@ const getAvailableResidentMeters = async (userId) => {
     const orStatements = []
 
     for (const resourceOwner of resourceOwners) {
-        const userConsumers = allUserServiceConsumers.filter(consumer => consumer.organization === resourceOwner.organization)
+        const addressResidents = userResidents.filter(resident => resident.addressKey === resourceOwner.addressKey)
+        const userConsumers = allUserServiceConsumers
+            .filter(consumer => consumer.organization === resourceOwner.organization
+                && addressResidents.find(resident => resident.id === consumer.resident) !== undefined)
 
         if (userConsumers.length > 0) {
             userConsumers.forEach(consumer => {
