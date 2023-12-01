@@ -2,12 +2,12 @@ import {
     MarketPriceScope as MarketPriceScopeType,
     MarketCategory as MarketCategoryType,
 } from '@app/condo/schema'
+import { Typography } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
 import React, { useCallback, useMemo } from 'react'
 
 import { useIntl } from '@open-condo/next/intl'
-import { Typography } from 'antd'
 
 import { getFilterIcon } from '@condo/domains/common/components/Table/Filters'
 import {

@@ -11,16 +11,16 @@ const {
 } = require('@open-condo/keystone/test.utils')
 
 
+const { createTestAcquiringIntegration } = require('@condo/domains/acquiring/utils/testSchema')
 const { MarketPriceScope, createTestMarketPriceScope, updateTestMarketPriceScope, createTestMarketItemPrice } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestMarketCategory, createTestMarketItem } = require('@condo/domains/marketplace/utils/testSchema')
+const { createTestInvoiceContext } = require('@condo/domains/marketplace/utils/testSchema')
 const { createTestOrganization } = require('@condo/domains/organization/utils/testSchema')
 const { createTestOrganizationEmployeeRole, createTestOrganizationEmployee } = require('@condo/domains/organization/utils/testSchema')
 const { createTestProperty } = require('@condo/domains/property/utils/testSchema')
 const { createTestResident, createTestServiceConsumer } = require('@condo/domains/resident/utils/testSchema')
 const { makeClientWithNewRegisteredAndLoggedInUser, makeClientWithSupportUser } = require('@condo/domains/user/utils/testSchema')
 const { makeClientWithResidentUser } = require('@condo/domains/user/utils/testSchema')
-const { createTestAcquiringIntegration } = require('../../acquiring/utils/testSchema')
-const { createTestInvoiceContext } = require('../utils/testSchema')
 
 describe('MarketPriceScope', () => {
     let admin, organization, marketCategory, marketItem, price
