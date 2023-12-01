@@ -87,18 +87,20 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
         limit: formatFileSize(B2C_BUILD_MAX_FILE_SIZE_IN_BYTES),
     })
 
+    const [isUploading, setIsUploading] = useState(false)
+
     const router = useRouter()
     const { p } = router.query
     const page = getCurrentPage(p)
 
-    const { data, client } = useAllB2CAppBuildsQuery({
+    const { data } = useAllB2CAppBuildsQuery({
         variables: {
             where: { app: { id } },
             first: DEFAULT_PAGE_SIZE,
             skip: DEFAULT_PAGE_SIZE * (page - 1),
         },
     })
-    console.log(client.cache)
+
     const builds = (data?.builds || []).filter(nonNull)
 
 
@@ -137,6 +139,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
     })
 
     const handleUploadBuild = useCallback((values: BuildFormValues) => {
+        setIsUploading(true)
         createB2CAppBuildMutation({
             variables: {
                 data: {
@@ -147,7 +150,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
                     app: { connect: { id } },
                 },
             },
-        })
+        }).finally(() => setIsUploading(false))
     }, [createB2CAppBuildMutation, id])
 
     const handlePaginationChange = useCallback((newPage: number) => {
@@ -210,7 +213,7 @@ export const BuildsSection: React.FC<{ id: string }> = ({ id }) => {
                         open={uploadModalOpen}
                         title={NewBuildModalTitle}
                         onCancel={handleCloseModal}
-                        footer={<Button type='primary' onClick={form.submit}>{UploadActionLabel}</Button>}
+                        footer={<Button type='primary' disabled={isUploading} loading={isUploading} onClick={form.submit}>{UploadActionLabel}</Button>}
                     >
                         <Form
                             name='create-app-build'

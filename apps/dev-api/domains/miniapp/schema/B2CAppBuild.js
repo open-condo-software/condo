@@ -24,7 +24,7 @@ const ERRORS = {
         messageForUser: 'errors.INVALID_BUILD_VERSION.message',
     },
 }
-const BUILD_FILE_ADAPTER = new FileAdapter('B2CApps/builds')
+const BUILD_FILE_ADAPTER = new FileAdapter('B2CApps/builds', true)
 const BUILD_META_AFTER_CHANGE = getFileMetaAfterChange(BUILD_FILE_ADAPTER, 'data')
 const ALLOWED_MIME_TYPES = [
     // Official mimetype for zip archives, which is used in many Unix OS

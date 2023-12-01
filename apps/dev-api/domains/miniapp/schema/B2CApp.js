@@ -13,7 +13,7 @@ const {
 const access = require('@dev-api/domains/miniapp/access/B2CApp')
 const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
 
-const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos')
+const LOGO_FILE_ADAPTER = new FileAdapter('B2CApps/logos', true)
 const LOGO_META_AFTER_CHANGE = getFileMetaAfterChange(LOGO_FILE_ADAPTER, 'logo')
 
 const B2CApp = new GQLListSchema('B2CApp', {
