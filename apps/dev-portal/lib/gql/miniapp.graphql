@@ -31,6 +31,15 @@ query allB2CAppBuilds($where: B2CAppBuildWhereInput!, $first: Int!, $skip: Int!)
     }
 }
 
+query allB2CAppPublishRequests($appId: ID!) {
+    requests: allB2CAppPublishRequests(where: { app: { id: $appId } }, first: 1) {
+        isAppTested
+        isInfoApproved
+        isContractSigned
+        status
+    }
+}
+
 mutation createB2CApp($data: B2CAppCreateInput!) {
     app: createB2CApp(data: $data) {
         id
@@ -54,5 +63,11 @@ mutation createB2CAppBuild($data: B2CAppBuildCreateInput!) {
 mutation publishB2CApp($data: PublishB2CAppInput!) {
     publishB2CApp(data: $data) {
         success
+    }
+}
+
+mutation createB2CAppPublishRequest($data: B2CAppPublishRequestCreateInput!) {
+    request: createB2CAppPublishRequest(data: $data) {
+        id
     }
 }

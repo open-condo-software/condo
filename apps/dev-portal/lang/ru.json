@@ -73,6 +73,16 @@
   "apps.id.notifications.successSave.description": "Не забудьте опубликовать изменения на соответсвующий стенд, чтобы они вступили в силу",
   "apps.id.notifications.successPublish.title": "Изменения опубликованы",
 
+  "apps.id.verification.verificationRequiredAlert.title": "Необходима верификация",
+  "apps.id.verification.verificationRequiredAlert.details.aboutVerification": "Для получения разрешения на публикацию приложения на данный стенд необходимо пройти дополнительную верификацию, включающую в себя тестирование приложения, заключение партнерского договора, а также дополнительную проверку материалов о приложении.",
+  "apps.id.verification.verificationRequiredAlert.details.nextSteps": "После нажатия кнопки «{action}» с вами свяжется наш специалист по телефону, указанному при регистрации, или в партнерском чате в случае наличия такового. Статус прохождения верификации можно будет отслеживать на данной странице.",
+  "apps.id.verification.verificationRequiredAlert.actions.requestVerification": "Отправить заявку",
+  "apps.id.verification.activeVerificationAlert.title": "Статус верификации",
+  "apps.id.verification.activeVerificationAlert.details.text": "Ваше приложение находится на этапе верификации. Как только все пункты из списка ниже будут выполнены, вам станет доступна публикация на {stand}",
+  "apps.id.verification.activeVerificationAlert.checkboxes.isAppTested.label": "Прохождение тестирования",
+  "apps.id.verification.activeVerificationAlert.checkboxes.isContractSigned.label": "Заключение договора",
+  "apps.id.verification.activeVerificationAlert.checkboxes.isInfoApproved.label": "Проверка материалов",
+
   "apps.b2c.sections.info.title": "Информация",
   "apps.b2c.sections.info.commonInfo.subtitle": "Общая информация",
   "apps.b2c.sections.info.icons.subtitle": "Иконки приложения",

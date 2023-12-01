@@ -73,6 +73,16 @@
   "apps.id.notifications.successSave.description": "Don't forget to publish the changes to the corresponding stand for them to take effect",
   "apps.id.notifications.successPublish.title": "Changes have been published",
 
+  "apps.id.verification.verificationRequiredAlert.title": "Verification required",
+  "apps.id.verification.verificationRequiredAlert.details.aboutVerification": "To receive permission to publish the app to this stand, you must pass additional verification, which includes testing the app, entering into a partnership agreement, and additional verification of information about the app.",
+  "apps.id.verification.verificationRequiredAlert.details.nextSteps": "After clicking the «{action}» button, you will be contacted by our specialist on the phone number specified during registration, or in the partner chat in case of availability. You will be able to track the status of verification on this page.",
+  "apps.id.verification.verificationRequiredAlert.actions.requestVerification": "Request verification",
+  "apps.id.verification.activeVerificationAlert.title": "Verification status",
+  "apps.id.verification.activeVerificationAlert.details.text": "Your application is in the verification phase. As soon as all items from the list below are completed, you will be able to publish to the {stand}",
+  "apps.id.verification.activeVerificationAlert.checkboxes.isAppTested.label": "Testing",
+  "apps.id.verification.activeVerificationAlert.checkboxes.isContractSigned.label": "Contracting",
+  "apps.id.verification.activeVerificationAlert.checkboxes.isInfoApproved.label": "App's info verification",
+
   "apps.b2c.sections.info.title": "Info",
   "apps.b2c.sections.info.commonInfo.subtitle": "Common info",
   "apps.b2c.sections.info.icons.subtitle": "App icons",

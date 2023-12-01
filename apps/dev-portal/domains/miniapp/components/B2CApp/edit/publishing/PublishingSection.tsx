@@ -1,26 +1,29 @@
 import { Form, notification } from 'antd'
+import get from 'lodash/get'
 import React, { useCallback, useState } from 'react'
 import { useIntl } from 'react-intl'
 
-import { Button, Select, Checkbox } from '@open-condo/ui'
-import type { CheckboxProps } from '@open-condo/ui'
+import { Select } from '@open-condo/ui'
+import type { SelectProps } from '@open-condo/ui'
 
 import { useMutationErrorHandler } from '@/domains/common/hooks/useMutationErrorHandler'
-import { useValidations } from '@/domains/common/hooks/useValidations'
 import { getClientSideSenderInfo } from '@/domains/common/utils/userid.utils'
 import { Section, SubSection } from '@/domains/miniapp/components/AppSettings'
-import { DEFAULT_PAGE_SIZE } from '@/domains/miniapp/constants/common'
-import { nonNull } from '@/domains/miniapp/utils/nonNull'
+import {
+    DEV_ENVIRONMENT,
+    PROD_ENVIRONMENT,
+    PUBLISH_REQUEST_APPROVED_STATUS,
+} from '@dev-api/domains/miniapp/constants/publishing'
 
-import styles from './PublishingSection.module.css'
+import { PublishForm } from './PublishForm'
+import { RequestStatusInfo } from './RequestStatusInfo'
 
 import type { PublishB2CAppMutationVariables } from '@/lib/gql'
 
-import { useAllB2CAppBuildsLazyQuery, usePublishB2CAppMutation } from '@/lib/gql'
+import { usePublishB2CAppMutation, useAllB2CAppPublishRequestsLazyQuery } from '@/lib/gql'
 
-const DEVELOPMENT_STAND = 'development'
-const PRODUCTION_STAND = 'production'
-const DEFAULT_STAND = DEVELOPMENT_STAND
+
+const DEFAULT_STAND = DEV_ENVIRONMENT
 
 type PublishFormValues = {
     environment: PublishB2CAppMutationVariables['data']['environment']
@@ -34,29 +37,11 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
     const SelectStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.label' })
     const DevStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.development.label' })
     const ProdStandLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.stand.options.production.label' })
-    const PublishButtonLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.actions.publish' })
-    const InfoLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.info.label' })
-    const BuildLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.build.label' })
-    const ChooseComponentsLabel = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.components.label' })
-    const SelectBuildPlaceholder = intl.formatMessage({ id: 'apps.b2c.sections.publishing.publishForm.items.build.select.placeholder' })
     const ChangesPublishedTitle = intl.formatMessage({ id: 'apps.id.notifications.successPublish.title' })
 
     const [form] = Form.useForm()
-    const [buildChecked, setBuildChecked] = useState(false)
     const [isPublishing, setIsPublishing] = useState(false)
-
-    const [fetchBuilds, { data: buildsData }] = useAllB2CAppBuildsLazyQuery({
-        variables: {
-            where: {
-                app: { id },
-                version_contains_i: '',
-            },
-            first: DEFAULT_PAGE_SIZE,
-            skip: 0,
-        },
-    })
-
-    const { requiredFieldValidator } = useValidations()
+    const [environment, setEnvironment] = useState(DEFAULT_STAND)
 
     const onError = useMutationErrorHandler()
     const onCompleted = useCallback(() => {
@@ -86,42 +71,19 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
         }).finally(() => { setIsPublishing(false) })
     }, [id, publishMutation])
 
-    const handleSearchChange = useCallback((newSearch: string) => {
-        fetchBuilds({
-            variables: {
-                where: {
-                    app: { id },
-                    version_contains_i: newSearch,
-                },
-                first: DEFAULT_PAGE_SIZE,
-                skip: 0,
-            },
-        })
-    }, [fetchBuilds, id])
-
-    const handleBuildCheck = useCallback<Required<CheckboxProps>['onChange']>((evt) => {
-        if (evt.target.checked) {
-            fetchBuilds({
-                variables: {
-                    where: {
-                        app: { id },
-                        version_contains_i: '',
-                    },
-                    first: DEFAULT_PAGE_SIZE,
-                    skip: 0,
-                },
-            })
-        }
-        setBuildChecked(evt.target.checked)
-    }, [fetchBuilds, id])
-
-    const buildOptions = (buildsData?.builds || []).filter(nonNull).map(build => {
-        return {
-            label: build.version as string,
-            key: build.version as string,
-            value: build.id,
-        }
+    const [fetchPublishRequests, { data: requestsData, loading: requestsLoading }] = useAllB2CAppPublishRequestsLazyQuery({
+        variables: { appId: id },
     })
+
+    const publishRequest = get(requestsData, ['requests', '0'], null)
+    const publishRequestStatus = get(publishRequest, 'status')
+
+    const handleEnvironmentChange = useCallback<Required<SelectProps>['onChange']>((value) => {
+        setEnvironment(value as string)
+        if (value === PROD_ENVIRONMENT) {
+            fetchPublishRequests()
+        }
+    }, [fetchPublishRequests])
 
     return (
         <Section>
@@ -133,41 +95,21 @@ export const PublishingSection: React.FC<{ id: string }> = ({ id }) => {
                     onFinish={handlePublish}
                     initialValues={{ environment: DEFAULT_STAND }}
                 >
-
                     <Form.Item name='environment' label={SelectStandLabel}>
                         <Select
                             options={[
-                                { label: DevStandLabel, value: DEVELOPMENT_STAND, key: DEVELOPMENT_STAND },
-                                { label: ProdStandLabel, value: PRODUCTION_STAND, key: PRODUCTION_STAND },
+                                { label: DevStandLabel, value: DEV_ENVIRONMENT, key: DEV_ENVIRONMENT },
+                                { label: ProdStandLabel, value: PROD_ENVIRONMENT, key: PROD_ENVIRONMENT },
                             ]}
+                            onChange={handleEnvironmentChange}
                         />
                     </Form.Item>
-                    <Form.Item name='info' valuePropName='checked' label={ChooseComponentsLabel} className={styles.checkboxItem}>
-                        <Checkbox label={InfoLabel}/>
-                    </Form.Item>
-                    <Form.Item name='build' valuePropName='checked' className={styles.checkboxItem}>
-                        <Checkbox label={BuildLabel} onChange={handleBuildCheck}/>
-                    </Form.Item>
-                    {buildChecked && (
-                        <Form.Item name='buildId' rules={[requiredFieldValidator]}>
-                            <Select
-                                onSearch={handleSearchChange}
-                                optionFilterProp='key'
-                                options={buildOptions}
-                                placeholder={SelectBuildPlaceholder}
-                                showSearch
-                            />
-                        </Form.Item>
-                    )}
-                    <Button
-                        type='primary'
-                        htmlType='submit'
-                        className={styles.submitButton}
-                        loading={isPublishing}
-                        disabled={isPublishing}
-                    >
-                        {PublishButtonLabel}
-                    </Button>
+                    {(environment !== PROD_ENVIRONMENT || publishRequestStatus === PUBLISH_REQUEST_APPROVED_STATUS)
+                        ? (
+                            <PublishForm id={id} isPublishing={isPublishing}/>
+                        ) : (
+                            <RequestStatusInfo request={publishRequest} appId={id} loading={requestsLoading}/>
+                        )}
                 </Form>
             </SubSection>
         </Section>

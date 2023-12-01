@@ -781,6 +781,362 @@ export type B2CAppPublishOptions = {
     info?: InputMaybe<Scalars['Boolean']['input']>;
 }
 
+/**  A model that determines the ability to publish a mini-application to the production stand, as well as the status of passing the pre-release checkout  */
+export type B2CAppPublishRequest = {
+    __typename?: 'B2CAppPublishRequest';
+    /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppPublishRequest List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppPublishRequest List config, or
+   *  3. As an alias to a 'name' field on the B2CAppPublishRequest List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppPublishRequest List.
+   */
+    _label_?: Maybe<Scalars['String']['output']>;
+    /**  Reference to the application to which this request applies  */
+    app?: Maybe<B2CApp>;
+    createdAt?: Maybe<Scalars['String']['output']>;
+    /**  Identifies a user, which has created this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+    createdBy?: Maybe<User>;
+    deletedAt?: Maybe<Scalars['String']['output']>;
+    /**  Data structure Version  */
+    dv?: Maybe<Scalars['Int']['output']>;
+    id: Scalars['ID']['output'];
+    /**  Whether the application has been tested before release. Required prerequisite for obtaining permission to publish  */
+    isAppTested?: Maybe<Scalars['Boolean']['output']>;
+    /**  A partnership agreement must be concluded before publication. This checkbox is responsible for the existence of such a contract. Required prerequisite for obtaining permission to publish  */
+    isContractSigned?: Maybe<Scalars['Boolean']['output']>;
+    /**  Before publishing for the first time, it is necessary to ensure that all information about the application is valid and understandable for the user. Required prerequisite for obtaining permission to publish  */
+    isInfoApproved?: Maybe<Scalars['Boolean']['output']>;
+    newId?: Maybe<Scalars['String']['output']>;
+    /**  Client-side device identification used for the anti-fraud detection. Example `{ dv: 1, fingerprint: 'VaxSw2aXZa'}`. Where the `fingerprint` should be the same for the same devices and it's not linked to the user ID. It's the device ID like browser / mobile application / remote system  */
+    sender?: Maybe<SenderField>;
+    /**  Status of consideration of the current request  */
+    status?: Maybe<Scalars['String']['output']>;
+    updatedAt?: Maybe<Scalars['String']['output']>;
+    /**  Identifies a user, which has updated this record. It is a technical connection, that can represent real users, as well as automated systems (bots, scripts). This field should not participate in business logic.  */
+    updatedBy?: Maybe<User>;
+    v?: Maybe<Scalars['Int']['output']>;
+}
+
+export type B2CAppPublishRequestCreateInput = {
+    app?: InputMaybe<B2CAppRelateToOneInput>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<UserRelateToOneInput>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    sender?: InputMaybe<SenderFieldInput>;
+    status?: InputMaybe<Scalars['String']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<UserRelateToOneInput>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+/**  A keystone list  */
+export type B2CAppPublishRequestHistoryRecord = {
+    __typename?: 'B2CAppPublishRequestHistoryRecord';
+    /**
+   * This virtual field will be resolved in one of the following ways (in this order):
+   *  1. Execution of 'labelResolver' set on the B2CAppPublishRequestHistoryRecord List config, or
+   *  2. As an alias to the field set on 'labelField' in the B2CAppPublishRequestHistoryRecord List config, or
+   *  3. As an alias to a 'name' field on the B2CAppPublishRequestHistoryRecord List (if one exists), or
+   *  4. As an alias to the 'id' field on the B2CAppPublishRequestHistoryRecord List.
+   */
+    _label_?: Maybe<Scalars['String']['output']>;
+    app?: Maybe<Scalars['String']['output']>;
+    createdAt?: Maybe<Scalars['String']['output']>;
+    createdBy?: Maybe<Scalars['String']['output']>;
+    deletedAt?: Maybe<Scalars['String']['output']>;
+    dv?: Maybe<Scalars['Int']['output']>;
+    history_action?: Maybe<B2CAppPublishRequestHistoryRecordHistoryActionType>;
+    history_date?: Maybe<Scalars['String']['output']>;
+    history_id?: Maybe<Scalars['String']['output']>;
+    id: Scalars['ID']['output'];
+    isAppTested?: Maybe<Scalars['Boolean']['output']>;
+    isContractSigned?: Maybe<Scalars['Boolean']['output']>;
+    isInfoApproved?: Maybe<Scalars['Boolean']['output']>;
+    newId?: Maybe<Scalars['JSON']['output']>;
+    sender?: Maybe<Scalars['JSON']['output']>;
+    status?: Maybe<Scalars['String']['output']>;
+    updatedAt?: Maybe<Scalars['String']['output']>;
+    updatedBy?: Maybe<Scalars['String']['output']>;
+    v?: Maybe<Scalars['Int']['output']>;
+}
+
+export type B2CAppPublishRequestHistoryRecordCreateInput = {
+    app?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    history_action?: InputMaybe<B2CAppPublishRequestHistoryRecordHistoryActionType>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    status?: InputMaybe<Scalars['String']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export enum B2CAppPublishRequestHistoryRecordHistoryActionType {
+    C = 'c',
+    D = 'd',
+    U = 'u',
+}
+
+export type B2CAppPublishRequestHistoryRecordUpdateInput = {
+    app?: InputMaybe<Scalars['String']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    history_action?: InputMaybe<B2CAppPublishRequestHistoryRecordHistoryActionType>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    status?: InputMaybe<Scalars['String']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export type B2CAppPublishRequestHistoryRecordWhereInput = {
+    AND?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestHistoryRecordWhereInput>>>;
+    OR?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestHistoryRecordWhereInput>>>;
+    app?: InputMaybe<Scalars['String']['input']>;
+    app_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    app_not?: InputMaybe<Scalars['String']['input']>;
+    app_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy?: InputMaybe<Scalars['String']['input']>;
+    createdBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy_not?: InputMaybe<Scalars['String']['input']>;
+    createdBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    dv_gt?: InputMaybe<Scalars['Int']['input']>;
+    dv_gte?: InputMaybe<Scalars['Int']['input']>;
+    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    dv_lt?: InputMaybe<Scalars['Int']['input']>;
+    dv_lte?: InputMaybe<Scalars['Int']['input']>;
+    dv_not?: InputMaybe<Scalars['Int']['input']>;
+    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    history_action?: InputMaybe<B2CAppPublishRequestHistoryRecordHistoryActionType>;
+    history_action_in?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestHistoryRecordHistoryActionType>>>;
+    history_action_not?: InputMaybe<B2CAppPublishRequestHistoryRecordHistoryActionType>;
+    history_action_not_in?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestHistoryRecordHistoryActionType>>>;
+    history_date?: InputMaybe<Scalars['String']['input']>;
+    history_date_gt?: InputMaybe<Scalars['String']['input']>;
+    history_date_gte?: InputMaybe<Scalars['String']['input']>;
+    history_date_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_date_lt?: InputMaybe<Scalars['String']['input']>;
+    history_date_lte?: InputMaybe<Scalars['String']['input']>;
+    history_date_not?: InputMaybe<Scalars['String']['input']>;
+    history_date_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_id?: InputMaybe<Scalars['String']['input']>;
+    history_id_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    history_id_not?: InputMaybe<Scalars['String']['input']>;
+    history_id_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    id?: InputMaybe<Scalars['ID']['input']>;
+    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    id_not?: InputMaybe<Scalars['ID']['input']>;
+    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+    isAppTested_not?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned_not?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved_not?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['JSON']['input']>;
+    newId_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    newId_not?: InputMaybe<Scalars['JSON']['input']>;
+    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    sender?: InputMaybe<Scalars['JSON']['input']>;
+    sender_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    sender_not?: InputMaybe<Scalars['JSON']['input']>;
+    sender_not_in?: InputMaybe<Array<InputMaybe<Scalars['JSON']['input']>>>;
+    status?: InputMaybe<Scalars['String']['input']>;
+    status_contains?: InputMaybe<Scalars['String']['input']>;
+    status_contains_i?: InputMaybe<Scalars['String']['input']>;
+    status_ends_with?: InputMaybe<Scalars['String']['input']>;
+    status_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    status_i?: InputMaybe<Scalars['String']['input']>;
+    status_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    status_not?: InputMaybe<Scalars['String']['input']>;
+    status_not_contains?: InputMaybe<Scalars['String']['input']>;
+    status_not_contains_i?: InputMaybe<Scalars['String']['input']>;
+    status_not_ends_with?: InputMaybe<Scalars['String']['input']>;
+    status_not_ends_with_i?: InputMaybe<Scalars['String']['input']>;
+    status_not_i?: InputMaybe<Scalars['String']['input']>;
+    status_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    status_not_starts_with?: InputMaybe<Scalars['String']['input']>;
+    status_not_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    status_starts_with?: InputMaybe<Scalars['String']['input']>;
+    status_starts_with_i?: InputMaybe<Scalars['String']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy?: InputMaybe<Scalars['String']['input']>;
+    updatedBy_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy_not?: InputMaybe<Scalars['String']['input']>;
+    updatedBy_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+    v_gt?: InputMaybe<Scalars['Int']['input']>;
+    v_gte?: InputMaybe<Scalars['Int']['input']>;
+    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    v_lt?: InputMaybe<Scalars['Int']['input']>;
+    v_lte?: InputMaybe<Scalars['Int']['input']>;
+    v_not?: InputMaybe<Scalars['Int']['input']>;
+    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+}
+
+export type B2CAppPublishRequestHistoryRecordWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
+export type B2CAppPublishRequestHistoryRecordsCreateInput = {
+    data?: InputMaybe<B2CAppPublishRequestHistoryRecordCreateInput>;
+}
+
+export type B2CAppPublishRequestHistoryRecordsUpdateInput = {
+    data?: InputMaybe<B2CAppPublishRequestHistoryRecordUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+export type B2CAppPublishRequestUpdateInput = {
+    app?: InputMaybe<B2CAppRelateToOneInput>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdBy?: InputMaybe<UserRelateToOneInput>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    sender?: InputMaybe<SenderFieldInput>;
+    status?: InputMaybe<Scalars['String']['input']>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedBy?: InputMaybe<UserRelateToOneInput>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+}
+
+export type B2CAppPublishRequestWhereInput = {
+    AND?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestWhereInput>>>;
+    OR?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestWhereInput>>>;
+    app?: InputMaybe<B2CAppWhereInput>;
+    app_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    createdAt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_gte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdAt_lt?: InputMaybe<Scalars['String']['input']>;
+    createdAt_lte?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not?: InputMaybe<Scalars['String']['input']>;
+    createdAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    createdBy?: InputMaybe<UserWhereInput>;
+    createdBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    deletedAt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    deletedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not?: InputMaybe<Scalars['String']['input']>;
+    deletedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    dv?: InputMaybe<Scalars['Int']['input']>;
+    dv_gt?: InputMaybe<Scalars['Int']['input']>;
+    dv_gte?: InputMaybe<Scalars['Int']['input']>;
+    dv_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    dv_lt?: InputMaybe<Scalars['Int']['input']>;
+    dv_lte?: InputMaybe<Scalars['Int']['input']>;
+    dv_not?: InputMaybe<Scalars['Int']['input']>;
+    dv_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    id?: InputMaybe<Scalars['ID']['input']>;
+    id_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    id_not?: InputMaybe<Scalars['ID']['input']>;
+    id_not_in?: InputMaybe<Array<InputMaybe<Scalars['ID']['input']>>>;
+    isAppTested?: InputMaybe<Scalars['Boolean']['input']>;
+    isAppTested_not?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned?: InputMaybe<Scalars['Boolean']['input']>;
+    isContractSigned_not?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved?: InputMaybe<Scalars['Boolean']['input']>;
+    isInfoApproved_not?: InputMaybe<Scalars['Boolean']['input']>;
+    newId?: InputMaybe<Scalars['String']['input']>;
+    newId_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    newId_not?: InputMaybe<Scalars['String']['input']>;
+    newId_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    sender?: InputMaybe<SenderFieldInput>;
+    sender_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+    sender_not?: InputMaybe<SenderFieldInput>;
+    sender_not_in?: InputMaybe<Array<InputMaybe<SenderFieldInput>>>;
+    status?: InputMaybe<Scalars['String']['input']>;
+    status_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    status_not?: InputMaybe<Scalars['String']['input']>;
+    status_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedAt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_gte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedAt_lt?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_lte?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not?: InputMaybe<Scalars['String']['input']>;
+    updatedAt_not_in?: InputMaybe<Array<InputMaybe<Scalars['String']['input']>>>;
+    updatedBy?: InputMaybe<UserWhereInput>;
+    updatedBy_is_null?: InputMaybe<Scalars['Boolean']['input']>;
+    v?: InputMaybe<Scalars['Int']['input']>;
+    v_gt?: InputMaybe<Scalars['Int']['input']>;
+    v_gte?: InputMaybe<Scalars['Int']['input']>;
+    v_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+    v_lt?: InputMaybe<Scalars['Int']['input']>;
+    v_lte?: InputMaybe<Scalars['Int']['input']>;
+    v_not?: InputMaybe<Scalars['Int']['input']>;
+    v_not_in?: InputMaybe<Array<InputMaybe<Scalars['Int']['input']>>>;
+}
+
+export type B2CAppPublishRequestWhereUniqueInput = {
+    id: Scalars['ID']['input'];
+}
+
+export type B2CAppPublishRequestsCreateInput = {
+    data?: InputMaybe<B2CAppPublishRequestCreateInput>;
+}
+
+export type B2CAppPublishRequestsUpdateInput = {
+    data?: InputMaybe<B2CAppPublishRequestUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
 export type B2CAppRelateToOneInput = {
     connect?: InputMaybe<B2CAppWhereUniqueInput>;
     create?: InputMaybe<B2CAppCreateInput>;
@@ -1427,6 +1783,14 @@ export type Mutation = {
     createB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Create multiple B2CAppHistoryRecord items.  */
     createB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
+    /**  Create a single B2CAppPublishRequest item.  */
+    createB2CAppPublishRequest?: Maybe<B2CAppPublishRequest>;
+    /**  Create a single B2CAppPublishRequestHistoryRecord item.  */
+    createB2CAppPublishRequestHistoryRecord?: Maybe<B2CAppPublishRequestHistoryRecord>;
+    /**  Create multiple B2CAppPublishRequestHistoryRecord items.  */
+    createB2CAppPublishRequestHistoryRecords?: Maybe<Array<Maybe<B2CAppPublishRequestHistoryRecord>>>;
+    /**  Create multiple B2CAppPublishRequest items.  */
+    createB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Create multiple B2CApp items.  */
     createB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Create a single ConfirmPhoneAction item.  */
@@ -1459,6 +1823,14 @@ export type Mutation = {
     deleteB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Delete multiple B2CAppHistoryRecord items by ID.  */
     deleteB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
+    /**  Delete a single B2CAppPublishRequest item by ID.  */
+    deleteB2CAppPublishRequest?: Maybe<B2CAppPublishRequest>;
+    /**  Delete a single B2CAppPublishRequestHistoryRecord item by ID.  */
+    deleteB2CAppPublishRequestHistoryRecord?: Maybe<B2CAppPublishRequestHistoryRecord>;
+    /**  Delete multiple B2CAppPublishRequestHistoryRecord items by ID.  */
+    deleteB2CAppPublishRequestHistoryRecords?: Maybe<Array<Maybe<B2CAppPublishRequestHistoryRecord>>>;
+    /**  Delete multiple B2CAppPublishRequest items by ID.  */
+    deleteB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Delete multiple B2CApp items by ID.  */
     deleteB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Delete a single ConfirmPhoneAction item by ID.  */
@@ -1496,6 +1868,14 @@ export type Mutation = {
     updateB2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
     /**  Update multiple B2CAppHistoryRecord items by ID.  */
     updateB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
+    /**  Update a single B2CAppPublishRequest item by ID.  */
+    updateB2CAppPublishRequest?: Maybe<B2CAppPublishRequest>;
+    /**  Update a single B2CAppPublishRequestHistoryRecord item by ID.  */
+    updateB2CAppPublishRequestHistoryRecord?: Maybe<B2CAppPublishRequestHistoryRecord>;
+    /**  Update multiple B2CAppPublishRequestHistoryRecord items by ID.  */
+    updateB2CAppPublishRequestHistoryRecords?: Maybe<Array<Maybe<B2CAppPublishRequestHistoryRecord>>>;
+    /**  Update multiple B2CAppPublishRequest items by ID.  */
+    updateB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Update multiple B2CApp items by ID.  */
     updateB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Update a single ConfirmPhoneAction item by ID.  */
@@ -1565,6 +1945,26 @@ export type MutationCreateB2CAppHistoryRecordArgs = {
 
 export type MutationCreateB2CAppHistoryRecordsArgs = {
     data?: InputMaybe<Array<InputMaybe<B2CAppHistoryRecordsCreateInput>>>;
+}
+
+
+export type MutationCreateB2CAppPublishRequestArgs = {
+    data?: InputMaybe<B2CAppPublishRequestCreateInput>;
+}
+
+
+export type MutationCreateB2CAppPublishRequestHistoryRecordArgs = {
+    data?: InputMaybe<B2CAppPublishRequestHistoryRecordCreateInput>;
+}
+
+
+export type MutationCreateB2CAppPublishRequestHistoryRecordsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestHistoryRecordsCreateInput>>>;
+}
+
+
+export type MutationCreateB2CAppPublishRequestsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestsCreateInput>>>;
 }
 
 
@@ -1644,6 +2044,26 @@ export type MutationDeleteB2CAppHistoryRecordArgs = {
 
 
 export type MutationDeleteB2CAppHistoryRecordsArgs = {
+    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationDeleteB2CAppPublishRequestArgs = {
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationDeleteB2CAppPublishRequestHistoryRecordArgs = {
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationDeleteB2CAppPublishRequestHistoryRecordsArgs = {
+    ids?: InputMaybe<Array<Scalars['ID']['input']>>;
+}
+
+
+export type MutationDeleteB2CAppPublishRequestsArgs = {
     ids?: InputMaybe<Array<Scalars['ID']['input']>>;
 }
 
@@ -1752,6 +2172,28 @@ export type MutationUpdateB2CAppHistoryRecordsArgs = {
 }
 
 
+export type MutationUpdateB2CAppPublishRequestArgs = {
+    data?: InputMaybe<B2CAppPublishRequestUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationUpdateB2CAppPublishRequestHistoryRecordArgs = {
+    data?: InputMaybe<B2CAppPublishRequestHistoryRecordUpdateInput>;
+    id: Scalars['ID']['input'];
+}
+
+
+export type MutationUpdateB2CAppPublishRequestHistoryRecordsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestHistoryRecordsUpdateInput>>>;
+}
+
+
+export type MutationUpdateB2CAppPublishRequestsArgs = {
+    data?: InputMaybe<Array<InputMaybe<B2CAppPublishRequestsUpdateInput>>>;
+}
+
+
 export type MutationUpdateB2CAppsArgs = {
     data?: InputMaybe<Array<InputMaybe<B2CAppsUpdateInput>>>;
 }
@@ -1823,6 +2265,10 @@ export type Query = {
     B2CAppBuildHistoryRecord?: Maybe<B2CAppBuildHistoryRecord>;
     /**  Search for the B2CAppHistoryRecord item with the matching ID.  */
     B2CAppHistoryRecord?: Maybe<B2CAppHistoryRecord>;
+    /**  Search for the B2CAppPublishRequest item with the matching ID.  */
+    B2CAppPublishRequest?: Maybe<B2CAppPublishRequest>;
+    /**  Search for the B2CAppPublishRequestHistoryRecord item with the matching ID.  */
+    B2CAppPublishRequestHistoryRecord?: Maybe<B2CAppPublishRequestHistoryRecord>;
     /**  Search for the ConfirmPhoneAction item with the matching ID.  */
     ConfirmPhoneAction?: Maybe<ConfirmPhoneAction>;
     /**  Search for the ConfirmPhoneActionHistoryRecord item with the matching ID.  */
@@ -1837,6 +2283,10 @@ export type Query = {
     _B2CAppBuildsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the B2CAppHistoryRecord list.  */
     _B2CAppHistoryRecordsMeta?: Maybe<_ListMeta>;
+    /**  Retrieve the meta-data for the B2CAppPublishRequestHistoryRecord list.  */
+    _B2CAppPublishRequestHistoryRecordsMeta?: Maybe<_ListMeta>;
+    /**  Retrieve the meta-data for the B2CAppPublishRequest list.  */
+    _B2CAppPublishRequestsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the B2CApp list.  */
     _B2CAppsMeta?: Maybe<_ListMeta>;
     /**  Retrieve the meta-data for the ConfirmPhoneActionHistoryRecord list.  */
@@ -1853,6 +2303,10 @@ export type Query = {
     _allB2CAppBuildsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all B2CAppHistoryRecord items which match the where clause.  */
     _allB2CAppHistoryRecordsMeta?: Maybe<_QueryMeta>;
+    /**  Perform a meta-query on all B2CAppPublishRequestHistoryRecord items which match the where clause.  */
+    _allB2CAppPublishRequestHistoryRecordsMeta?: Maybe<_QueryMeta>;
+    /**  Perform a meta-query on all B2CAppPublishRequest items which match the where clause.  */
+    _allB2CAppPublishRequestsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all B2CApp items which match the where clause.  */
     _allB2CAppsMeta?: Maybe<_QueryMeta>;
     /**  Perform a meta-query on all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
@@ -1871,6 +2325,10 @@ export type Query = {
     allB2CAppBuilds?: Maybe<Array<Maybe<B2CAppBuild>>>;
     /**  Search for all B2CAppHistoryRecord items which match the where clause.  */
     allB2CAppHistoryRecords?: Maybe<Array<Maybe<B2CAppHistoryRecord>>>;
+    /**  Search for all B2CAppPublishRequestHistoryRecord items which match the where clause.  */
+    allB2CAppPublishRequestHistoryRecords?: Maybe<Array<Maybe<B2CAppPublishRequestHistoryRecord>>>;
+    /**  Search for all B2CAppPublishRequest items which match the where clause.  */
+    allB2CAppPublishRequests?: Maybe<Array<Maybe<B2CAppPublishRequest>>>;
     /**  Search for all B2CApp items which match the where clause.  */
     allB2CApps?: Maybe<Array<Maybe<B2CApp>>>;
     /**  Search for all ConfirmPhoneActionHistoryRecord items which match the where clause.  */
@@ -1904,6 +2362,16 @@ export type QueryB2CAppBuildHistoryRecordArgs = {
 
 export type QueryB2CAppHistoryRecordArgs = {
     where: B2CAppHistoryRecordWhereUniqueInput;
+}
+
+
+export type QueryB2CAppPublishRequestArgs = {
+    where: B2CAppPublishRequestWhereUniqueInput;
+}
+
+
+export type QueryB2CAppPublishRequestHistoryRecordArgs = {
+    where: B2CAppPublishRequestHistoryRecordWhereUniqueInput;
 }
 
 
@@ -1954,6 +2422,26 @@ export type Query_AllB2CAppHistoryRecordsMetaArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortB2CAppHistoryRecordsBy>>;
     where?: InputMaybe<B2CAppHistoryRecordWhereInput>;
+}
+
+
+export type Query_AllB2CAppPublishRequestHistoryRecordsMetaArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppPublishRequestHistoryRecordsBy>>;
+    where?: InputMaybe<B2CAppPublishRequestHistoryRecordWhereInput>;
+}
+
+
+export type Query_AllB2CAppPublishRequestsMetaArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppPublishRequestsBy>>;
+    where?: InputMaybe<B2CAppPublishRequestWhereInput>;
 }
 
 
@@ -2039,6 +2527,26 @@ export type QueryAllB2CAppHistoryRecordsArgs = {
     skip?: InputMaybe<Scalars['Int']['input']>;
     sortBy?: InputMaybe<Array<SortB2CAppHistoryRecordsBy>>;
     where?: InputMaybe<B2CAppHistoryRecordWhereInput>;
+}
+
+
+export type QueryAllB2CAppPublishRequestHistoryRecordsArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppPublishRequestHistoryRecordsBy>>;
+    where?: InputMaybe<B2CAppPublishRequestHistoryRecordWhereInput>;
+}
+
+
+export type QueryAllB2CAppPublishRequestsArgs = {
+    first?: InputMaybe<Scalars['Int']['input']>;
+    orderBy?: InputMaybe<Scalars['String']['input']>;
+    search?: InputMaybe<Scalars['String']['input']>;
+    skip?: InputMaybe<Scalars['Int']['input']>;
+    sortBy?: InputMaybe<Array<SortB2CAppPublishRequestsBy>>;
+    where?: InputMaybe<B2CAppPublishRequestWhereInput>;
 }
 
 
@@ -2185,6 +2693,62 @@ export enum SortB2CAppHistoryRecordsBy {
     ProductionExportIdDesc = 'productionExportId_DESC',
     UpdatedAtAsc = 'updatedAt_ASC',
     UpdatedAtDesc = 'updatedAt_DESC',
+    VAsc = 'v_ASC',
+    VDesc = 'v_DESC',
+}
+
+export enum SortB2CAppPublishRequestHistoryRecordsBy {
+    CreatedAtAsc = 'createdAt_ASC',
+    CreatedAtDesc = 'createdAt_DESC',
+    DeletedAtAsc = 'deletedAt_ASC',
+    DeletedAtDesc = 'deletedAt_DESC',
+    DvAsc = 'dv_ASC',
+    DvDesc = 'dv_DESC',
+    HistoryActionAsc = 'history_action_ASC',
+    HistoryActionDesc = 'history_action_DESC',
+    HistoryDateAsc = 'history_date_ASC',
+    HistoryDateDesc = 'history_date_DESC',
+    IdAsc = 'id_ASC',
+    IdDesc = 'id_DESC',
+    IsAppTestedAsc = 'isAppTested_ASC',
+    IsAppTestedDesc = 'isAppTested_DESC',
+    IsContractSignedAsc = 'isContractSigned_ASC',
+    IsContractSignedDesc = 'isContractSigned_DESC',
+    IsInfoApprovedAsc = 'isInfoApproved_ASC',
+    IsInfoApprovedDesc = 'isInfoApproved_DESC',
+    StatusAsc = 'status_ASC',
+    StatusDesc = 'status_DESC',
+    UpdatedAtAsc = 'updatedAt_ASC',
+    UpdatedAtDesc = 'updatedAt_DESC',
+    VAsc = 'v_ASC',
+    VDesc = 'v_DESC',
+}
+
+export enum SortB2CAppPublishRequestsBy {
+    AppAsc = 'app_ASC',
+    AppDesc = 'app_DESC',
+    CreatedAtAsc = 'createdAt_ASC',
+    CreatedAtDesc = 'createdAt_DESC',
+    CreatedByAsc = 'createdBy_ASC',
+    CreatedByDesc = 'createdBy_DESC',
+    DeletedAtAsc = 'deletedAt_ASC',
+    DeletedAtDesc = 'deletedAt_DESC',
+    DvAsc = 'dv_ASC',
+    DvDesc = 'dv_DESC',
+    IdAsc = 'id_ASC',
+    IdDesc = 'id_DESC',
+    IsAppTestedAsc = 'isAppTested_ASC',
+    IsAppTestedDesc = 'isAppTested_DESC',
+    IsContractSignedAsc = 'isContractSigned_ASC',
+    IsContractSignedDesc = 'isContractSigned_DESC',
+    IsInfoApprovedAsc = 'isInfoApproved_ASC',
+    IsInfoApprovedDesc = 'isInfoApproved_DESC',
+    StatusAsc = 'status_ASC',
+    StatusDesc = 'status_DESC',
+    UpdatedAtAsc = 'updatedAt_ASC',
+    UpdatedAtDesc = 'updatedAt_DESC',
+    UpdatedByAsc = 'updatedBy_ASC',
+    UpdatedByDesc = 'updatedBy_DESC',
     VAsc = 'v_ASC',
     VDesc = 'v_DESC',
 }
@@ -3014,6 +3578,13 @@ export type AllB2CAppBuildsQueryVariables = Exact<{
 
 export type AllB2CAppBuildsQuery = { __typename?: 'Query', builds?: Array<{ __typename?: 'B2CAppBuild', id: string, version?: string | null, createdAt?: string | null } | null> | null, meta?: { __typename?: '_QueryMeta', count?: number | null } | null }
 
+export type AllB2CAppPublishRequestsQueryVariables = Exact<{
+    appId: Scalars['ID']['input'];
+}>
+
+
+export type AllB2CAppPublishRequestsQuery = { __typename?: 'Query', requests?: Array<{ __typename?: 'B2CAppPublishRequest', isAppTested?: boolean | null, isInfoApproved?: boolean | null, isContractSigned?: boolean | null, status?: string | null } | null> | null }
+
 export type CreateB2CAppMutationVariables = Exact<{
     data: B2CAppCreateInput;
 }>
@@ -3042,6 +3613,13 @@ export type PublishB2CAppMutationVariables = Exact<{
 
 
 export type PublishB2CAppMutation = { __typename?: 'Mutation', publishB2CApp?: { __typename?: 'PublishB2CAppOutput', success: boolean } | null }
+
+export type CreateB2CAppPublishRequestMutationVariables = Exact<{
+    data: B2CAppPublishRequestCreateInput;
+}>
+
+
+export type CreateB2CAppPublishRequestMutation = { __typename?: 'Mutation', request?: { __typename?: 'B2CAppPublishRequest', id: string } | null }
 
 export type AuthenticatedUserQueryVariables = Exact<{ [key: string]: never; }>
 
@@ -3215,6 +3793,44 @@ export function useAllB2CAppBuildsLazyQuery (baseOptions?: Apollo.LazyQueryHookO
 export type AllB2CAppBuildsQueryHookResult = ReturnType<typeof useAllB2CAppBuildsQuery>
 export type AllB2CAppBuildsLazyQueryHookResult = ReturnType<typeof useAllB2CAppBuildsLazyQuery>
 export type AllB2CAppBuildsQueryResult = Apollo.QueryResult<AllB2CAppBuildsQuery, AllB2CAppBuildsQueryVariables>
+export const AllB2CAppPublishRequestsDocument = gql`
+    query allB2CAppPublishRequests($appId: ID!) {
+  requests: allB2CAppPublishRequests(where: {app: {id: $appId}}, first: 1) {
+    isAppTested
+    isInfoApproved
+    isContractSigned
+    status
+  }
+}
+    `
+
+/**
+ * __useAllB2CAppPublishRequestsQuery__
+ *
+ * To run a query within a React component, call `useAllB2CAppPublishRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllB2CAppPublishRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllB2CAppPublishRequestsQuery({
+ *   variables: {
+ *      appId: // value for 'appId'
+ *   },
+ * });
+ */
+export function useAllB2CAppPublishRequestsQuery (baseOptions: Apollo.QueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useQuery<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>(AllB2CAppPublishRequestsDocument, options)
+}
+export function useAllB2CAppPublishRequestsLazyQuery (baseOptions?: Apollo.LazyQueryHookOptions<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useLazyQuery<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>(AllB2CAppPublishRequestsDocument, options)
+}
+export type AllB2CAppPublishRequestsQueryHookResult = ReturnType<typeof useAllB2CAppPublishRequestsQuery>
+export type AllB2CAppPublishRequestsLazyQueryHookResult = ReturnType<typeof useAllB2CAppPublishRequestsLazyQuery>
+export type AllB2CAppPublishRequestsQueryResult = Apollo.QueryResult<AllB2CAppPublishRequestsQuery, AllB2CAppPublishRequestsQueryVariables>
 export const CreateB2CAppDocument = gql`
     mutation createB2CApp($data: B2CAppCreateInput!) {
   app: createB2CApp(data: $data) {
@@ -3350,6 +3966,39 @@ export function usePublishB2CAppMutation (baseOptions?: Apollo.MutationHookOptio
 export type PublishB2CAppMutationHookResult = ReturnType<typeof usePublishB2CAppMutation>
 export type PublishB2CAppMutationResult = Apollo.MutationResult<PublishB2CAppMutation>
 export type PublishB2CAppMutationOptions = Apollo.BaseMutationOptions<PublishB2CAppMutation, PublishB2CAppMutationVariables>
+export const CreateB2CAppPublishRequestDocument = gql`
+    mutation createB2CAppPublishRequest($data: B2CAppPublishRequestCreateInput!) {
+  request: createB2CAppPublishRequest(data: $data) {
+    id
+  }
+}
+    `
+export type CreateB2CAppPublishRequestMutationFn = Apollo.MutationFunction<CreateB2CAppPublishRequestMutation, CreateB2CAppPublishRequestMutationVariables>
+
+/**
+ * __useCreateB2CAppPublishRequestMutation__
+ *
+ * To run a mutation, you first call `useCreateB2CAppPublishRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateB2CAppPublishRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createB2CAppPublishRequestMutation, { data, loading, error }] = useCreateB2CAppPublishRequestMutation({
+ *   variables: {
+ *      data: // value for 'data'
+ *   },
+ * });
+ */
+export function useCreateB2CAppPublishRequestMutation (baseOptions?: Apollo.MutationHookOptions<CreateB2CAppPublishRequestMutation, CreateB2CAppPublishRequestMutationVariables>) {
+    const options = { ...defaultOptions, ...baseOptions }
+    return Apollo.useMutation<CreateB2CAppPublishRequestMutation, CreateB2CAppPublishRequestMutationVariables>(CreateB2CAppPublishRequestDocument, options)
+}
+export type CreateB2CAppPublishRequestMutationHookResult = ReturnType<typeof useCreateB2CAppPublishRequestMutation>
+export type CreateB2CAppPublishRequestMutationResult = Apollo.MutationResult<CreateB2CAppPublishRequestMutation>
+export type CreateB2CAppPublishRequestMutationOptions = Apollo.BaseMutationOptions<CreateB2CAppPublishRequestMutation, CreateB2CAppPublishRequestMutationVariables>
 export const AuthenticatedUserDocument = gql`
     query authenticatedUser {
   authenticatedUser {
