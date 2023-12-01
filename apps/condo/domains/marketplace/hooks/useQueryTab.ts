@@ -10,12 +10,12 @@ type TabUpdateHandler = (key: string) => void
 export function useQueryTab (tabs: MarketplacePageTypes[]): [MarketplacePageTypes, TabUpdateHandler] {
     const router = useRouter()
 
-    const [currentTab, setCurrentTab] = useState<MarketplacePageTypes>(tabs[0])
+    const [currentTab, setCurrentTab] = useState<MarketplacePageTypes>(tabs[2])
 
     useDeepCompareEffect(() => {
         const { tab: tabFromQuery } = router.query
 
-        const tab = typeof tabFromQuery === 'string' ? MARKETPLACE_PAGE_TYPES[tabFromQuery] : tabs[0]
+        const tab = typeof tabFromQuery === 'string' ? MARKETPLACE_PAGE_TYPES[tabFromQuery] : tabs[2]
 
         setCurrentTab(tab)
 
