@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:${{ github.sha }}
+  DOCKER_IMAGE_FULL: ${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:${{ github.sha }}
 
 jobs:
   build-image:
@@ -24,8 +24,8 @@ jobs:
           sudo apt update && sudo apt install -y git
       - name: Set registry variables
         run: |
-          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
-          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-tests-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
+          echo "DOCKER_CACHE_FROM=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ) >> $GITHUB_ENV"
+          echo "DOCKER_CACHE_TO=type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/condo/condo-image:$( echo "${{github.ref_name}}" | sed 's/[^a-zA-Z0-9]/-/g' ),mode=min,image-manifest=true" >> $GITHUB_ENV
       - name: Checkout code
         uses: actions/checkout@v3
         with:
