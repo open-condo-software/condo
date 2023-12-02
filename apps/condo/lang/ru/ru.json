@@ -1363,6 +1363,8 @@
   "pages.condo.marketplace.marketItem.form.field.addPriceScope": "Добавить цену для других домов",
   "pages.condo.marketplace.marketItem.form.actionButtonTooltip.manyHasAllProperties": "Нельзя добавить цену на все дома несколько раз",
   "pages.condo.marketplace.marketItem.mobileAppPreview.title": "Так выглядит в МП жителя",
+  "pages.condo.marketplace.marketItem.mobileAppPreview.sku": "Арт.",
+  "pages.condo.marketplace.marketItem.mobileAppPreview.order": "Заказать",
   "pages.condo.marketplace.marketItem.notFoundError.title": "Услуга не найдена",
   "pages.condo.marketplace.marketItem.notFoundError.description": "Услуги с данным ID нет в вашей организации",
   "news.fields.units.label": "Помещение",

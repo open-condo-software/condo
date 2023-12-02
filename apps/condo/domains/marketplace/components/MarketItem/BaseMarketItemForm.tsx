@@ -7,7 +7,7 @@ import { Rule } from 'antd/lib/form'
 import { FormProps } from 'antd/lib/form/Form'
 import get from 'lodash/get'
 import isEmpty from 'lodash/isEmpty'
-import React, { useCallback, useEffect, useMemo } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { PlusCircle, Trash } from '@open-condo/icons'
 import { useIntl } from '@open-condo/next/intl'
@@ -92,15 +92,18 @@ const AppPreviewContainer = styled.div`
   padding-top: 60px;
   padding-left: 22px;
   padding-right: 22px;
-  
+  overflow: hidden;
+
   & .mobile-content-wrapper {
     height: 90%;
-    width: 80%;
     display: flex;
     flex-flow: column;
-    align-items: center; 
+    align-items: start;
     justify-content: space-between;
-    
+    padding: 12px 20px;
+    overflow: hidden;
+    max-width: 100%;
+
     & .order-button {
       width: 100%;
       border-radius: 14px;
@@ -114,25 +117,14 @@ const AppPreviewContainer = styled.div`
   }
 `
 
-const MobilePreview = ({ marketCategoryName, price, priceType, sku, description, files, initialFileList }) => {
+const MobilePreview = ({ marketCategoryName, price, priceType, sku, description, files }) => {
     const intl = useIntl()
     const MobilePreviewTitle = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.title' })
     const ContractPrice = intl.formatMessage({ id: 'pages.condo.marketplace.invoice.form.contractPrice' })
+    const SkuMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.sku' })
+    const OrderMessage = intl.formatMessage({ id: 'pages.condo.marketplace.marketItem.mobileAppPreview.order' })
 
     const { invoiceContext } = useMarketItemFormContext()
-
-    const { objs: fileList } = MarketItemFile.useObjects({
-        where: {
-            id_in: files,
-        },
-        sortBy: [SortMarketItemFilesBy.CreatedAtDesc],
-    }, { skip: isEmpty(files) })
-
-    const { UploadComponent } = useMultipleFileUploadHook({
-        Model: MarketItemFile,
-        relationField: 'marketItem',
-        initialFileList,
-    })
 
     const moneyRender = getMoneyRender(intl, get(invoiceContext, 'currencyCode'))
     let resultPrice
@@ -147,41 +139,61 @@ const MobilePreview = ({ marketCategoryName, price, priceType, sku, description,
             <Typography.Title type='secondary' level={3}>{MobilePreviewTitle}</Typography.Title>
             <AppPreviewContainer>
                 <div className='mobile-content-wrapper'>
-                    <Row style={{ maxWidth: '100%' }}>
+                    <Row gutter={[0, 20]} style={{ maxWidth: '100%' }}>
                         <Col span={24}>
-                            <Col span={24}>
-                                <Typography.Text strong>
-                                    {marketCategoryName}
-                                </Typography.Text>
-                            </Col>
-                            <Col span={24}>
-                                <Typography.Text type='secondary'>
-                                    {resultPrice}
-                                </Typography.Text>
-                            </Col>
+                            <Row>
+                                {
+                                    marketCategoryName && (
+                                        <Col span={24}>
+                                            <Typography.Title level={3}>
+                                                {marketCategoryName}
+                                            </Typography.Title>
+                                        </Col>
+                                    )
+                                }
+                                {
+                                    resultPrice && (
+                                        <Col span={24}>
+                                            <Typography.Title type='secondary' level={3}>
+                                                {resultPrice}
+                                            </Typography.Title>
+                                        </Col>
+                                    )
+                                }
+                                {
+                                    sku && (
+                                        <Col span={24}>
+                                            <Typography.Text size='small' type='secondary'>
+                                                {SkuMessage} {sku}
+                                            </Typography.Text>
+                                        </Col>
+                                    )
+                                }
+                            </Row>
                         </Col>
-
-                        <Col span={24}>
-                            <Typography.Text size='small'>
-                                Арт. {sku}
-                            </Typography.Text>
-                        </Col>
-                        <Col span={24}>
-                            <Typography.Text>
-                                {description}
-                            </Typography.Text>
-                        </Col>
-                        <Col span={24}>
-                            <ImagesUploadList
-                                UploadComponent={UploadComponent}
-                                type='view'
-                                fileList={!isEmpty(fileList) && fileList}
-                                hideArrows
-                            />
-                        </Col>
+                        {
+                            description && (
+                                <Col span={24}>
+                                    <Typography.Text size='medium'>
+                                        {description}
+                                    </Typography.Text>
+                                </Col>
+                            )
+                        }
+                        {
+                            !isEmpty(files) && (
+                                <Col span={24}>
+                                    <ImagesUploadList
+                                        type='view'
+                                        hideArrows
+                                        fileList={files}
+                                    />
+                                </Col>
+                            )
+                        }
                     </Row>
                     <AntdButton className='order-button'>
-                        <Typography.Text strong type='inherit'>Заказать</Typography.Text>
+                        <Typography.Text strong type='inherit'>{OrderMessage}</Typography.Text>
                     </AntdButton>
                 </div>
             </AppPreviewContainer>
@@ -293,8 +305,11 @@ const MarketItemFields = () => {
 
     const { organization } = useOrganization()
     const { refetch: fetchMarketItemsCount } = MarketItem.useCount({}, { skip: true })
+    const createFileAction = MarketItemFile.useCreate({})
 
-    const { form, marketItemId, UploadComponent } = useMarketItemFormContext()
+    const { form, marketItemId, initialValues } = useMarketItemFormContext()
+
+    const initialFileList = useMemo(() => get(initialValues, 'files'), [initialValues])
 
     const { requiredValidator, maxLengthValidator } = useValidations()
     const uniqueSkuValidator: Rule = useMemo(() => ({
@@ -367,7 +382,7 @@ const MarketItemFields = () => {
                         autoSize={{ minRows: 4 }}
                         maxLength={800}
                         showCount={{
-                            formatter: ({ value, count, maxLength }) => {
+                            formatter: ({ count, maxLength }) => {
                                 return `${count}/${maxLength}`
                             },
                         }}
@@ -380,8 +395,12 @@ const MarketItemFields = () => {
                     label={MarketItemPhotoFieldMessage}
                 >
                     <ImagesUploadList
-                        UploadComponent={UploadComponent}
                         type='upload'
+                        defaultFileList={initialFileList}
+                        onFilesChange={(files) => form.setFieldsValue({
+                            files: [...files],
+                        })}
+                        createAction={createFileAction}
                     />
                 </Form.Item>
             </Col>
@@ -613,12 +632,11 @@ const MarketPricesList = () => {
 
 type BaseMarketItemFormProps = {
     action: (values: MarketItemFormValuesType) => Promise<MarketItemType>
-    afterAction: () => void
     initialValues?: MarketItemFormValuesType
 }
 
 export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => {
-    const { children, action, afterAction, initialValues } = props
+    const { children, action, initialValues } = props
     const { breakpoints } = useLayoutContext()
     const { organization } = useOrganization()
 
@@ -641,42 +659,20 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
         },
     })
 
-    const initialFileList = useMemo(() => get(initialValues, 'files'), [initialValues])
-    const { UploadComponent, syncModifiedFiles } = useMultipleFileUploadHook({
-        Model: MarketItemFile,
-        relationField: 'marketItem',
-        initialFileList,
-        onChange: (files) => {
-            console.log('onChange')
-            form.setFieldsValue({
-                files: files.map(file => get(file, 'id') || get(file, 'response.id')).filter(Boolean),
-            })
-        },
-    })
-
     const formContextValue: BaseMarketItemFormContextType = useMemo(() => ({
         form,
         marketItemId,
         getUpdatedPricesField,
         invoiceContext,
         initialValues,
-        UploadComponent,
-    }), [UploadComponent, form, getUpdatedPricesField, initialValues, invoiceContext, marketItemId])
-
-    const submitAction = useCallback(async (values) => {
-        const marketItem = await action(values)
-
-        await syncModifiedFiles(marketItem.id)
-
-        await afterAction()
-    }, [action, afterAction, syncModifiedFiles])
+    }), [form, getUpdatedPricesField, initialValues, invoiceContext, marketItemId])
 
     return (
         <BaseMarketItemFormContext.Provider value={formContextValue}>
             <FormWithAction
                 formInstance={form}
                 validateTrigger={FORM_VALIDATE_TRIGGER}
-                action={submitAction}
+                action={action}
                 initialValues={initialValues}
                 {...FORM_LAYOUT_PROPS}
             >
@@ -704,13 +700,19 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                                 >
                                                     {
                                                         ({ getFieldsValue }) => {
-                                                            const { marketCategoryName, prices, sku, description, files } = getFieldsValue(
+                                                            const {
+                                                                marketCategoryName,
+                                                                prices,
+                                                                sku,
+                                                                description,
+                                                                files,
+                                                            } = getFieldsValue(
                                                                 ['marketCategoryName', 'prices', 'sku', 'description', 'files']
                                                             )
 
                                                             const price = get(prices, '0.price')
                                                             const priceType = get(prices, '0.priceType')
-                                                            
+
                                                             return (
                                                                 <MobilePreview
                                                                     marketCategoryName={marketCategoryName}
@@ -719,7 +721,6 @@ export const BaseMarketItemForm: React.FC<BaseMarketItemFormProps> = (props) => 
                                                                     sku={sku}
                                                                     description={description}
                                                                     files={files}
-                                                                    initialFileList={initialFileList}
                                                                 />
                                                             )
                                                         }

@@ -1,4 +1,3 @@
-
 import { Col, Form } from 'antd'
 import get from 'lodash/get'
 import { useRouter } from 'next/router'
@@ -11,6 +10,7 @@ import { ActionBar, Button, Tooltip } from '@open-condo/ui'
 import {
     InvoiceContext,
     MarketItem,
+    MarketItemFile,
     MarketItemPrice,
     MarketPriceScope,
 } from '@condo/domains/marketplace/utils/clientSchema'
@@ -37,6 +37,7 @@ export const CreateMarketItemForm = () => {
     })
     const createMarketItemPrice = MarketItemPrice.useCreate({})
     const createMarketPriceScope = MarketPriceScope.useCreate({})
+    const updateMarketItemFile = MarketItemFile.useUpdate({})
 
     const { obj: invoiceContext } = InvoiceContext.useObject({
         where: {
@@ -47,7 +48,7 @@ export const CreateMarketItemForm = () => {
     const handleCreateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
 
-        const { prices, ...marketItemFields } = values
+        const { prices, files, ...marketItemFields } = values
 
         const createdMarketItem = await createMarketItem(MarketItem.formValuesProcessor(marketItemFields))
 
@@ -62,18 +63,28 @@ export const CreateMarketItemForm = () => {
 
         setSubmitLoading(false)
 
-        return createdMarketItem
-    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext])
+        // handle changed files
+        for (const file of files) {
+            const marketItemFileId = get(file, 'response.id')
 
-    const afterAction = useCallback(async () => {
-        await router.push('/marketplace?tab=services')
-    }, [router])
+            if (marketItemFileId) {
+                await updateMarketItemFile({
+                    marketItem: { connect: { id: createdMarketItem.id } },
+                }, { id: marketItemFileId } )
+            }
+        }
+
+        // await router.push('/marketplace?tab=services')
+
+        console.log('createdMarketItem', createdMarketItem)
+
+        return createdMarketItem
+    }, [createMarketItem, createMarketItemPrice, createMarketPriceScope, invoiceContext, updateMarketItemFile])
 
     return (
         <BaseMarketItemForm
             action={handleCreateMarketItem}
             initialValues={INITIAL_CREATE_FORM_VALUES}
-            afterAction={afterAction}
         >
             {
                 ({ handleSave }) => {

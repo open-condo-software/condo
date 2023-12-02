@@ -79,6 +79,8 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
     const softDeleteMarketItemPrice = MarketItemPrice.useSoftDelete()
     const createMarketPriceScope = MarketPriceScope.useCreate({})
     const softDeleteMarketPriceScope = MarketPriceScope.useSoftDelete()
+    const updateMarketItemFile = MarketItemFile.useUpdate({})
+    const softDeleteMarketItemFile = MarketItemFile.useSoftDelete()
 
     const handleUpdateMarketItem = useCallback(async (values) => {
         setSubmitLoading(true)
@@ -87,7 +89,7 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         const updatedMarketItem = await updateMarketItem(MarketItem.formValuesProcessor(marketItemValues), marketItem)
 
         const prices = MarketItem.formatFormPricesField(formPrices)
-        // handle new prices
+        // handle changed prices and price scopes
         const newPrices = prices.filter(price => !price.id)
         await MarketItem.createNewPricesAndPriceScopes({
             marketItem: updatedMarketItem,
@@ -166,18 +168,31 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
             await softDeleteMarketItemPrice({ id: priceToDeleteId })
         }
 
+        // handle changed files
+        const initialFileIds = marketItemFiles.map(file => file.id)
+        const formFileIds = files.map(file => get(file, 'response.id'))
+        const newFileIds = difference(formFileIds, initialFileIds)
+        const deletedFileIds = difference(initialFileIds, formFileIds)
+
+        for (const fileId of newFileIds) {
+            await updateMarketItemFile({
+                marketItem: { connect: { id: updatedMarketItem.id } },
+            }, { id: fileId } )
+        }
+        for (const fileIdToDelete of deletedFileIds) {
+            await softDeleteMarketItemFile({ id: fileIdToDelete })
+        }
+
         setSubmitLoading(false)
 
+        // await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
+
         return updatedMarketItem
-    }, [createMarketItemPrice, createMarketPriceScope, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemPrices, marketPriceScopes, softDeleteMarketItemPrice, softDeleteMarketPriceScope, updateMarketItem, updateMarketItemPrice])
+    }, [createMarketItemPrice, createMarketPriceScope, initialMarketItemPricesIds, invoiceContext, marketItem, marketItemFiles, marketItemPrices, marketPriceScopes, softDeleteMarketItemFile, softDeleteMarketItemPrice, softDeleteMarketPriceScope, updateMarketItem, updateMarketItemFile, updateMarketItemPrice])
 
     const initialValues = useMemo(
         () => MarketItem.convertToFormState({ marketItem, marketItemPrices, marketPriceScopes, marketItemFiles }),
         [marketItem, marketItemFiles, marketItemPrices, marketPriceScopes])
-
-    const afterAction = useCallback(async () => {
-        await router.push(`/marketplace/marketItem/${get(marketItem, 'id')}`)
-    }, [marketItem, router])
 
     const loading = marketItemPricesLoading || marketPriceScopesLoading || marketItemFilesLoading
     const error = marketItemPriceError || marketPriceScopesError || marketItemFilesError
@@ -194,7 +209,6 @@ export const UpdateMarketItemForm = ({ marketItem }) => {
         <BaseMarketItemForm
             action={handleUpdateMarketItem}
             initialValues={initialValues}
-            afterAction={afterAction}
         >
             {
                 ({ handleSave, form }) => {

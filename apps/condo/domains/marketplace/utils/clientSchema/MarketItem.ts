@@ -14,6 +14,7 @@ import isUndefined from 'lodash/isUndefined'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
 
+import { UploadFileType } from '@condo/domains/common/components/ImagesUploadList'
 import { MarketItem as MarketItemGQL } from '@condo/domains/marketplace/gql'
 
 
@@ -41,7 +42,7 @@ export type MarketItemFormValuesType = {
     parentCategory?: string
     marketCategory?: string
     description?: string
-    files?: MarketItemFile[]
+    files?: UploadFileType[]
     prices?: PriceFormValuesType[]
     selectedProperties?: string[]
 }
@@ -93,7 +94,13 @@ export function convertToFormState ({ marketItem, marketItemPrices, marketPriceS
 
     result['prices'] = prices
 
-    result['files'] = marketItemFiles
+    result['files'] = marketItemFiles.map(fileObj => ({
+        uid: get(fileObj, 'id'),
+        name: get(fileObj, 'file.originalFilename'),
+        status: 'done',
+        url: get(fileObj, 'file.publicUrl'),
+        response: { id: get(fileObj, 'id') },
+    }))
 
     return result
 }
