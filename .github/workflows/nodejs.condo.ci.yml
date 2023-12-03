@@ -80,6 +80,7 @@ jobs:
 
   # SRC: https://how.wtf/run-workflow-step-or-job-based-on-file-changes-github-actions.html
   detect-changes:
+    name: Define job list based on changed files
     runs-on: ubuntu-latest
     outputs:
       dev-api: ${{ steps.detect-changes.dev-api }}
@@ -90,7 +91,7 @@ jobs:
           fetch-depth: 0
           submodules: recursive
           ssh-key: ${{ secrets.SSH_DOCK_SERVER_PRIVATE_KEY }}
-      - name: Detect affected submodules
+      - name: Scan changed files
         uses: dorny/paths-filter@v2
         id: detect-changes
         with:
