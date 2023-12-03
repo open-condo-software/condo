@@ -83,7 +83,7 @@ jobs:
     name: Define job list based on changed files
     runs-on: ubuntu-latest
     outputs:
-      dev-api: ${{ steps.detect-changes.dev-api }}
+      dev-api: ${{ steps.detect-changes.outputs.dev-api }}
     steps:
       - name: Checkout code with submodules
         uses: actions/checkout@v3
@@ -153,4 +153,4 @@ jobs:
     if: ${{ needs.detect-changes.dev-api == 'true' }}
     steps:
       - run: |
-          echo "Job is triggered properly"
+          echo ${{ needs.detect-changes.outputs.dev-api }}
