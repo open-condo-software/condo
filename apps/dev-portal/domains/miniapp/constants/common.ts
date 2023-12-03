@@ -11,5 +11,5 @@ export const B2C_BUILD_ALLOWED_MIMETYPES  = [
     'application/zip-compressed',
 ]
 export const B2C_BUILD_MAX_FILE_SIZE_IN_BYTES = 200 * 1024 * 1024  // 200 Mb in bytes
-export const B2C_BUILD_VERSION_REGEXP = /^\d+.\d+.\d+(?:-\w+)?$/
+export const B2C_BUILD_VERSION_REGEXP = /^\d+.\d+.\d+(?:-\w{1,64})?$/
 export const DEFAULT_PAGE_SIZE = 10

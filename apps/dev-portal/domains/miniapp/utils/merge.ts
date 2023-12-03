@@ -18,12 +18,11 @@ export function mergeApps (data?: AllAppsQuery): Array<AppInfo> {
     const apps: Array<AppInfo> = []
     const b2cApps = (data.b2c || [])
 
-    b2cApps.reduce((all, current) => {
-        if (current && current.name) {
-            all.push({ type: 'b2c', id: current.id, name: current.name, logo: current.logo?.publicUrl || DEFAULT_B2C_LOGO_URL })
+    for (const app of b2cApps) {
+        if (app && app.name) {
+            apps.push({ type: 'b2c', id: app.id, name: app.name, logo: app.logo?.publicUrl || DEFAULT_B2C_LOGO_URL })
         }
-        return all
-    }, apps)
+    }
 
     return apps
 }

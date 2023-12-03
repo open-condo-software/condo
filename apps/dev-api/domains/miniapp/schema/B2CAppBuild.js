@@ -15,7 +15,7 @@ const { B2C_APP_BUILD_UNIQUE_VERSION_CONSTRAINT } = require('@dev-api/domains/mi
 const { INVALID_BUILD_VERSION } = require('@dev-api/domains/miniapp/constants/errors')
 const { exportable } = require('@dev-api/domains/miniapp/plugins/exportable')
 
-const SEM_VER_REGEX = /^\d+.\d+.\d+(?:-\w+)?$/
+const SEM_VER_REGEX = /^\d+.\d+.\d+(?:-\w{1,64})?$/
 const ERRORS = {
     INVALID_BUILD_VERSION: {
         code: BAD_USER_INPUT,
