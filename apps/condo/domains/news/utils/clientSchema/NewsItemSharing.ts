@@ -6,7 +6,7 @@ import {
     NewsItemSharing,
     NewsItemSharingCreateInput,
     NewsItemSharingUpdateInput,
-    QueryAllNewsItemSharingsArgs
+    QueryAllNewsItemSharingsArgs,
 } from '@app/condo/schema'
 
 import { generateReactHooks } from '@open-condo/codegen/generate.hooks'
