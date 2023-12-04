@@ -42,7 +42,12 @@ async function canManagePayments ({ authentication: { item: user }, operation, i
     if (operation === 'create') return false
     // Acquiring integration can update it's own Payments
     if (operation === 'update' && itemId) {
-        return { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } }
+        return {
+            OR: [
+                { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } },
+                { invoice: { context: { integration: { accessRights_some: { user: { id: user.id }, deletedAt: null } } } } },
+            ],
+        }
     }
     return false
 }
