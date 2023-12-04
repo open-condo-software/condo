@@ -5,8 +5,8 @@ const { getLogger } = require('@open-condo/keystone/logging')
 const { getSchemaCtx, getById } = require('@open-condo/keystone/schema')
 const { createTask } = require('@open-condo/keystone/tasks')
 
-// const { NEWS_ITEM_SHARING_STATUSES } = require('@condo/domains/news/schema/NewsItemSharing')
 const { NewsItemSharing } = require('@condo/domains/news/utils/serverSchema')
+const {STATUSES} = require("../constants/newsItemSharingStatuses");
 
 const logger = getLogger('publishSharedNewsItem')
 
@@ -19,7 +19,7 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
     }
 
     // If current news item was processed (not scheduled)
-    if (newsItemSharing.status !== 'scheduled') { return }
+    if (newsItemSharing.status !== STATUSES.SCHEDULED) return
 
     const { title, body } = newsItem
     const sharingParams = get(newsItemSharing, 'sharingParams')
@@ -55,12 +55,10 @@ async function _publishSharedNewsItem (newsItem, newsItemSharing){
 
         if (response.ok) {
             const { keystone: contextNewsItemSharing } = getSchemaCtx('NewsItemSharing')
-            await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, { status: 'published', ...DV_SENDER })
 
-            const { keystone: context } = getSchemaCtx('NewsItemSharing')
-            await NewsItemSharing.update(context, newsItemSharing.id, {
+            await NewsItemSharing.update(contextNewsItemSharing, newsItemSharing.id, {
                 ...DV_SENDER,
-                status: 'published',
+                status: STATUSES.PUBLISHED,
             })
         }
     } catch (err) {
